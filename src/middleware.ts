@@ -3,7 +3,8 @@ import { jwtVerify } from "jose";
 import { SESSION_COOKIE } from "@/lib/session";
 import { canAccess } from "@/lib/constants";
 
-const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+// /api/backup does its own bearer-token auth (see src/app/api/backup/route.ts).
+const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/backup"];
 
 function getSectionFromPath(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean);

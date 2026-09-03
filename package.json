@@ -69,6 +69,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",
     "@types/qrcode": "^1.5.6",
