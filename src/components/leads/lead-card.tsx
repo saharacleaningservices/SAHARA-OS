@@ -1,0 +1,84 @@
+import Link from "next/link";
+import { MapPin } from "lucide-react";
+import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
+import { QuotationDialog } from "./quotation-dialog";
+import { ScheduleVisitDialog } from "./schedule-visit-dialog";
+import { StageSelect } from "./stage-select";
+import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
+import { formatINR, formatDate } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+
+type LeadCardData = {
+  id: string;
+  name: string;
+  mobile: string;
+  area: string;
+  service: string;
+  source: string;
+  stage: string;
+  quoteAmount: number | null;
+  followUpDate: Date | null;
+  assignedStaff?: { name: string } | null;
+};
+
+export function LeadCard({ lead }: { lead: LeadCardData }) {
+  return (
+    <div className="space-y-2.5 rounded-lg border border-border bg-card p-3 sahara-shadow">
+      <div className="flex items-start justify-between gap-2">
+        <Link href={`/leads/${lead.id}`} className="min-w-0 hover:underline">
+          <p className="truncate text-sm font-semibold text-foreground">{lead.name}</p>
+        </Link>
+        <Badge variant="outline" className="shrink-0 text-[10px]">
+          {LEAD_SOURCE_LABELS[lead.source]}
+        </Badge>
+      </div>
+
+      <p className="flex items-center gap-1 text-xs text-muted-foreground">
+        <MapPin className="size-3" /> {lead.area}
+      </p>
+      <p className="text-xs text-muted-foreground">{SERVICE_LABELS[lead.service]}</p>
+
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-semibold text-foreground">
+          {lead.quoteAmount ? formatINR(lead.quoteAmount) : "—"}
+        </span>
+        {lead.followUpDate && (
+          <span className="text-[11px] text-muted-foreground">FU {formatDate(lead.followUpDate)}</span>
+        )}
+      </div>
+
+      {lead.assignedStaff && (
+        <p className="text-[11px] text-muted-foreground">Assigned: {lead.assignedStaff.name}</p>
+      )}
+
+      <StageSelect leadId={lead.id} stage={lead.stage} />
+
+      <div className="flex items-center gap-1.5 pt-1">
+        <CallButton mobile={lead.mobile} />
+        <WhatsAppButton
+          mobile={lead.mobile}
+          message={`Hi ${lead.name}, this is Sahara Cleaning Services regarding your ${SERVICE_LABELS[lead.service]} enquiry.`}
+        />
+        <QuotationDialog
+          leadId={lead.id}
+          service={lead.service}
+          suggestedAmount={lead.quoteAmount}
+          area={lead.area}
+          trigger={
+            <button className="rounded-md border border-input px-2 py-1 text-[11px] font-medium hover:bg-accent">
+              Quote
+            </button>
+          }
+        />
+        <ScheduleVisitDialog
+          leadId={lead.id}
+          trigger={
+            <button className="rounded-md border border-input px-2 py-1 text-[11px] font-medium hover:bg-accent">
+              Visit
+            </button>
+          }
+        />
+      </div>
+    </div>
+  );
+}

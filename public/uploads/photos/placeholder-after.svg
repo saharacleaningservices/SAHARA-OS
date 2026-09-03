@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#0B5ED7"/>
+  <rect x="20" y="20" width="600" height="440" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2" stroke-dasharray="8 6"/>
+  <circle cx="320" cy="190" r="56" fill="#ffffff" fill-opacity="0.15"/>
+  <path d="M296 190 l16 16 l32 -34" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="320" y="300" font-family="Arial, sans-serif" font-size="26" fill="#ffffff" text-anchor="middle" font-weight="bold">AFTER</text>
+  <text x="320" y="332" font-family="Arial, sans-serif" font-size="15" fill="#dbe9fd" text-anchor="middle">Sahara Cleaning Services — job photo placeholder</text>
+</svg>

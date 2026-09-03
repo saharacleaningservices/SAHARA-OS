@@ -1,0 +1,440 @@
+// Sahara OS — Prisma schema
+// SQLite for Phase 1. Field types are chosen to be PostgreSQL-compatible
+// so migrating `provider = "postgresql"` later needs no schema changes
+// beyond enum/array support.
+
+generator client {
+  provider        = "prisma-client"
+  previewFeatures = ["queryCompiler", "driverAdapters"]
+  output          = "../src/generated/prisma"
+  moduleFormat    = "esm"
+  runtime         = "nodejs"
+  engineType      = "client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  OPERATIONS
+  ACCOUNTS
+  SUPERVISOR
+  STAFF
+}
+
+enum LeadSource {
+  GMB1
+  GMB2
+  WEBSITE
+  META
+  CALL
+  REFERRAL
+}
+
+enum ServiceType {
+  HOME_DEEP_CLEANING
+  COMMERCIAL_CLEANING
+  HOUSEKEEPING
+  PEST_CONTROL
+  INTERIOR_PAINTING
+}
+
+enum LeadStage {
+  NEW
+  SITE_VISIT
+  QUOTE_SENT
+  NEGOTIATION
+  CONFIRMED
+  JOB_SCHEDULED
+  COMPLETED
+  PAID
+}
+
+enum JobStatus {
+  ASSIGNED
+  ON_THE_WAY
+  STARTED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  DUE_SOON
+  OVERDUE
+  PAID
+}
+
+enum ExpenseCategory {
+  CHEMICALS
+  FUEL
+  EQUIPMENT
+  STAFF_ADVANCE
+  MISCELLANEOUS
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LEAVE
+}
+
+enum PhotoType {
+  BEFORE
+  AFTER
+}
+
+enum StaffAvailability {
+  AVAILABLE
+  ON_JOB
+  ON_LEAVE
+  OFF_DUTY
+}
+
+enum SalaryType {
+  DAILY
+  MONTHLY
+}
+
+enum FollowUpType {
+  CALL
+  WHATSAPP
+  VISIT
+  EMAIL
+}
+
+enum ReminderChannel {
+  WHATSAPP
+  EMAIL
+  CALL
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Core auth / people
+// ─────────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         Role
+  avatarUrl    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  staffProfile      Staff?
+  leadsCreated      Lead[]        @relation("LeadCreatedBy")
+  leadsAssigned     Lead[]        @relation("LeadAssignedTo")
+  followUpsAssigned FollowUp[]    @relation("FollowUpAssignedTo")
+  expensesAdded     Expense[]     @relation("ExpenseAddedBy")
+  photosUploaded    Photo[]       @relation("PhotoUploadedBy")
+  activityLogs      ActivityLog[] @relation("ActivityActor")
+  paymentsRecorded  Payment[]     @relation("PaymentRecordedBy")
+
+  @@index([role])
+}
+
+model Staff {
+  id                String            @id @default(cuid())
+  employeeCode      String            @unique
+  name              String
+  mobile            String
+  designation       String // e.g. Cleaning Executive, Supervisor, Painter, Pest Control Technician
+  salaryType         SalaryType        @default(DAILY)
+  dailyWage         Float?
+  monthlySalary     Float?
+  availability      StaffAvailability @default(AVAILABLE)
+  joinDate          DateTime          @default(now())
+  isActive          Boolean           @default(true)
+  photoUrl          String?
+  notes             String?
+  qrCode            String?           @unique // future QR check-in token
+  userId            String?           @unique
+  user              User?             @relation(fields: [userId], references: [id])
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  attendance        Attendance[]
+  jobAssignments    JobAssignment[]
+  supervisedJobs    Job[]             @relation("JobSupervisor")
+  leadAssignments   Lead[]            @relation("LeadAssignedStaff")
+  expenses          Expense[]         @relation("ExpenseStaff")
+
+  @@index([availability])
+  @@index([designation])
+}
+
+model Attendance {
+  id           String            @id @default(cuid())
+  staffId      String
+  staff        Staff             @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date         DateTime
+  status       AttendanceStatus  @default(PRESENT)
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+  wageForDay   Float?
+  gpsLat       Float? // future GPS attendance
+  gpsLng       Float? // future GPS attendance
+  method       String            @default("MANUAL") // MANUAL | QR | GPS (future-ready)
+  notes        String?
+  createdAt    DateTime          @default(now())
+
+  @@unique([staffId, date])
+  @@index([date])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Leads / CRM pipeline
+// ─────────────────────────────────────────────────────────────────────────
+
+model Lead {
+  id               String      @id @default(cuid())
+  leadNumber       String      @unique
+  name             String
+  mobile           String
+  whatsapp         String?
+  address          String?
+  area             String
+  service          ServiceType
+  source           LeadSource
+  quoteAmount      Float?
+  stage            LeadStage   @default(NEW)
+  followUpDate     DateTime?
+  notes            String?
+
+  assignedStaffId  String?
+  assignedStaff    Staff?      @relation("LeadAssignedStaff", fields: [assignedStaffId], references: [id])
+
+  assignedToId     String?
+  assignedTo       User?       @relation("LeadAssignedTo", fields: [assignedToId], references: [id])
+
+  createdById      String?
+  createdBy        User?       @relation("LeadCreatedBy", fields: [createdById], references: [id])
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  quotations   Quotation[]
+  jobs         Job[]
+  followUps    FollowUp[]
+  payments     Payment[]
+  activityLogs ActivityLog[] @relation("ActivityLead")
+
+  @@index([stage])
+  @@index([followUpDate])
+  @@index([source])
+  @@index([area])
+  @@index([createdAt])
+}
+
+model Quotation {
+  id             String    @id @default(cuid())
+  quoteNumber    String    @unique
+  leadId         String
+  lead           Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  services       String // JSON-encoded line items [{name, description, amount}]
+  subTotal       Float
+  gstPercent     Float     @default(0)
+  gstAmount      Float     @default(0)
+  totalAmount    Float
+  terms          String
+  validTill      DateTime?
+  pdfUrl         String?
+  createdAt      DateTime  @default(now())
+
+  @@index([leadId])
+}
+
+model FollowUp {
+  id           String       @id @default(cuid())
+  leadId       String
+  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  dueDate      DateTime
+  type         FollowUpType @default(CALL)
+  notes        String?
+  isDone       Boolean      @default(false)
+  doneAt       DateTime?
+  assignedToId String?
+  assignedTo   User?        @relation("FollowUpAssignedTo", fields: [assignedToId], references: [id])
+  createdAt    DateTime     @default(now())
+
+  @@index([dueDate])
+  @@index([isDone])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Jobs
+// ─────────────────────────────────────────────────────────────────────────
+
+model Job {
+  id               String    @id @default(cuid())
+  jobNumber        String    @unique
+  leadId           String?
+  lead             Lead?     @relation(fields: [leadId], references: [id])
+
+  customerName     String
+  customerMobile   String
+  address          String
+  area             String
+  service          ServiceType
+
+  scheduledDate    DateTime
+  scheduledTime    String // e.g. "10:00 AM"
+
+  supervisorId     String?
+  supervisor       Staff?    @relation("JobSupervisor", fields: [supervisorId], references: [id])
+
+  status           JobStatus @default(ASSIGNED)
+  onTheWayAt       DateTime?
+  startedAt        DateTime?
+  completedAt      DateTime?
+
+  jobValue         Float
+  notes            String?
+
+  customerSignatureUrl String?
+  signedAt             DateTime?
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  assignments  JobAssignment[]
+  photos       Photo[]
+  certificate  Certificate?
+  payments     Payment[]
+  expenses     Expense[]       @relation("ExpenseJob")
+  activityLogs ActivityLog[]   @relation("ActivityJob")
+
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([area])
+}
+
+model JobAssignment {
+  id      String @id @default(cuid())
+  jobId   String
+  job     Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  staffId String
+  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  isLead  Boolean @default(false)
+
+  @@unique([jobId, staffId])
+  @@index([staffId])
+}
+
+model Photo {
+  id           String    @id @default(cuid())
+  jobId        String
+  job          Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  type         PhotoType
+  url          String
+  caption      String?
+  uploadedById String?
+  uploadedBy   User?     @relation("PhotoUploadedBy", fields: [uploadedById], references: [id])
+  uploadedAt   DateTime  @default(now())
+
+  @@index([jobId, type])
+}
+
+model Certificate {
+  id                String   @id @default(cuid())
+  jobId             String   @unique
+  job               Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  certificateNumber String   @unique
+  issuedDate        DateTime @default(now())
+  customerName      String
+  serviceSummary    String
+  supervisorName    String?
+  signatureUrl      String?
+  pdfUrl            String?
+  createdAt         DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Payments / expenses
+// ─────────────────────────────────────────────────────────────────────────
+
+model Payment {
+  id                String        @id @default(cuid())
+  invoiceNumber     String        @unique
+  jobId             String?
+  job               Job?          @relation(fields: [jobId], references: [id])
+  leadId            String?
+  lead              Lead?         @relation(fields: [leadId], references: [id])
+
+  clientName        String
+  clientMobile      String?
+  amount            Float
+  paidAmount        Float         @default(0)
+  dueDate           DateTime
+  paidDate          DateTime?
+  status            PaymentStatus @default(PENDING)
+
+  mybillbookInvoiceNo String?
+  lastReminderAt       DateTime?
+  lastReminderChannel  ReminderChannel?
+
+  recordedById      String?
+  recordedBy        User?         @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  category    ExpenseCategory
+  description String
+  amount      Float
+  date        DateTime        @default(now())
+  paidTo      String?
+
+  jobId       String?
+  job         Job?            @relation("ExpenseJob", fields: [jobId], references: [id])
+
+  staffId     String?
+  staff       Staff?          @relation("ExpenseStaff", fields: [staffId], references: [id])
+
+  addedById   String?
+  addedBy     User?           @relation("ExpenseAddedBy", fields: [addedById], references: [id])
+
+  createdAt   DateTime        @default(now())
+
+  @@index([category])
+  @@index([date])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Activity timeline (lead / job audit trail)
+// ─────────────────────────────────────────────────────────────────────────
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  leadId    String?
+  lead      Lead?    @relation("ActivityLead", fields: [leadId], references: [id], onDelete: Cascade)
+  jobId     String?
+  job       Job?     @relation("ActivityJob", fields: [jobId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actor     User?    @relation("ActivityActor", fields: [actorId], references: [id])
+  action    String
+  meta      String?
+  createdAt DateTime @default(now())
+
+  @@index([leadId])
+  @@index([jobId])
+}
