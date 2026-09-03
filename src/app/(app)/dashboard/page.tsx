@@ -9,6 +9,7 @@ import {
   UserCheck,
   ArrowRight,
   Clock,
+  Plus,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
 import { PageHeader } from "@/components/shared/page-header";
@@ -33,6 +34,13 @@ export default async function DashboardPage() {
       <PageHeader
         title={`Welcome back, ${firstName}`}
         description="Here's what's happening at Sahara Cleaning Services today."
+        actions={
+          <Button asChild>
+            <Link href="/leads/new">
+              <Plus className="size-4" /> New Inquiry
+            </Link>
+          </Button>
+        }
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">

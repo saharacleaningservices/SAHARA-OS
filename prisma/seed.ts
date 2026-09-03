@@ -1,10 +1,11 @@
 // Sahara OS — database seed
 // Run with: npm run db:seed
 //
-// Populates realistic demo data: 5 login users, 20 staff, leads across every
-// pipeline stage, jobs, photos, certificates, payments, expenses, attendance
-// and follow-ups — enough for every dashboard chart and list to render with
-// real numbers instead of empty states.
+// Populates realistic demo data: 5 login users, 20 staff, historical jobs,
+// photos, certificates, payments, expenses, attendance and a running seed
+// for reports/profit — enough for every dashboard chart and list to render
+// with real numbers. Leads are intentionally left empty: production starts
+// with zero leads, created via the "New Inquiry" button or the Leads page.
 
 import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
@@ -38,19 +39,6 @@ const SERVICES = [
   "HOUSEKEEPING",
   "PEST_CONTROL",
   "INTERIOR_PAINTING",
-] as const;
-
-const SOURCES = ["GMB1", "GMB2", "WEBSITE", "META", "CALL", "REFERRAL"] as const;
-
-const STAGES = [
-  "NEW",
-  "SITE_VISIT",
-  "QUOTE_SENT",
-  "NEGOTIATION",
-  "CONFIRMED",
-  "JOB_SCHEDULED",
-  "COMPLETED",
-  "PAID",
 ] as const;
 
 const CUSTOMER_NAMES = [
@@ -230,197 +218,16 @@ async function main() {
   }
   console.log("Attendance seeded.");
 
-  // ── Leads across the full pipeline ──────────────────────────────────
-  let leadCount = await db.lead.count();
-  const leads = [];
-  for (let i = 0; i < 26; i++) {
-    const stage = STAGES[i % STAGES.length];
-    const service = rand(SERVICES);
-    const source = rand(SOURCES);
-    const createdOffset = -randInt(0, 45);
-    let followUpDate: Date | null = null;
-    if (["NEW", "SITE_VISIT", "QUOTE_SENT", "NEGOTIATION"].includes(stage)) {
-      followUpDate = daysFromNow(rand([-3, -2, -1, 0, 0, 1, 2, 3]));
-    }
-
-    leadCount += 1;
-    const leadNumber = `LD-2026-${String(leadCount).padStart(4, "0")}`;
-    const existing = await db.lead.findUnique({ where: { leadNumber } });
-    const lead =
-      existing ??
-      (await db.lead.create({
-        data: {
-          leadNumber,
-          name: rand(CUSTOMER_NAMES),
-          mobile: mobile(),
-          whatsapp: mobile(),
-          address: `Flat/Shop ${randInt(1, 400)}, ${rand(AREAS)}, Pune`,
-          area: rand(AREAS),
-          service,
-          source,
-          quoteAmount: quoteFor(service),
-          stage,
-          followUpDate,
-          notes: stage === "NEGOTIATION" ? "Customer negotiating on price, considering competitor quote." : null,
-          assignedStaffId: rand(supervisors).id,
-          assignedToId: rand([shoyab.id, altaf.id]),
-          createdById: rand([shoyab.id, altaf.id]),
-          createdAt: daysFromNow(createdOffset),
-        },
-      }));
-    leads.push(lead);
-
-    // Follow-up record for active-pipeline leads
-    if (["NEW", "SITE_VISIT", "QUOTE_SENT", "NEGOTIATION"].includes(stage) && !existing) {
-      await db.followUp.create({
-        data: {
-          leadId: lead.id,
-          dueDate: followUpDate ?? daysFromNow(1),
-          type: rand(["CALL", "WHATSAPP", "VISIT"] as const),
-          notes: "Follow up on quote decision.",
-          isDone: false,
-          assignedToId: shoyab.id,
-        },
-      });
-    }
-
-    // Quotation for leads that have progressed past NEW/SITE_VISIT
-    if (["QUOTE_SENT", "NEGOTIATION", "CONFIRMED", "JOB_SCHEDULED", "COMPLETED", "PAID"].includes(stage) && !existing) {
-      const subTotal = lead.quoteAmount ?? quoteFor(service);
-      const gstPercent = service === "COMMERCIAL_CLEANING" || service === "INTERIOR_PAINTING" ? 18 : 0;
-      const gstAmount = Math.round((subTotal * gstPercent) / 100);
-      await db.quotation.create({
-        data: {
-          quoteNumber: `QT-2026-${String(leadCount).padStart(4, "0")}`,
-          leadId: lead.id,
-          services: JSON.stringify([
-            { name: lead.service, description: `${lead.service.replaceAll("_", " ")} at ${lead.area}`, amount: subTotal },
-          ]),
-          subTotal,
-          gstPercent,
-          gstAmount,
-          totalAmount: subTotal + gstAmount,
-          terms: "Standard Sahara Cleaning Services terms apply.",
-          validTill: daysFromNow(7),
-          createdAt: daysFromNow(createdOffset + 1),
-        },
-      });
-    }
-
-    if (!existing) await db.activityLog.create({ data: { leadId: lead.id, actorId: shoyab.id, action: `Lead created via ${source}` } });
-  }
-  console.log(`${leads.length} leads processed.`);
-
-  // ── Jobs for scheduled / completed / paid leads ─────────────────────
+  // Leads start empty in production — Sahara OS ships with zero demo leads.
+  // Create real leads via the "New Inquiry" button on the Dashboard or the
+  // Leads page. Jobs, payments and expenses below are still seeded as
+  // standalone historical records so Reports/Jobs/Payments/Profit have data
+  // to render even with no leads yet.
   let jobCount = await db.job.count();
   let invoiceCount = await db.payment.count();
   let certCount = await db.certificate.count();
 
-  async function createJobForLead(lead: (typeof leads)[number], opts: { future: boolean; paid: boolean }) {
-    jobCount += 1;
-    const jobNumber = `JOB-2026-${String(jobCount).padStart(4, "0")}`;
-    const scheduledDate = opts.future ? daysFromNow(randInt(0, 5)) : daysFromNow(-randInt(1, 40));
-    const status: "ASSIGNED" | "ON_THE_WAY" | "STARTED" | "COMPLETED" = opts.future
-      ? rand(["ASSIGNED", "ASSIGNED", "ON_THE_WAY", "STARTED"] as const)
-      : "COMPLETED";
-
-    const supervisor = rand(supervisors);
-    const crew = [rand(fieldStaff), rand(fieldStaff)];
-
-    const job = await db.job.create({
-      data: {
-        jobNumber,
-        leadId: lead.id,
-        customerName: lead.name,
-        customerMobile: lead.mobile,
-        address: lead.address ?? lead.area,
-        area: lead.area,
-        service: lead.service,
-        scheduledDate,
-        scheduledTime: `${randInt(9, 17)}:00`,
-        supervisorId: supervisor.id,
-        status,
-        onTheWayAt: status !== "ASSIGNED" ? scheduledDate : null,
-        startedAt: ["STARTED", "COMPLETED"].includes(status) ? scheduledDate : null,
-        completedAt: status === "COMPLETED" ? scheduledDate : null,
-        jobValue: lead.quoteAmount ?? quoteFor(lead.service),
-        customerSignatureUrl: status === "COMPLETED" ? "/uploads/signatures/placeholder-signature.svg" : null,
-        signedAt: status === "COMPLETED" ? scheduledDate : null,
-      },
-    });
-
-    for (const member of crew) {
-      await db.jobAssignment.create({ data: { jobId: job.id, staffId: member.id, isLead: member.id === crew[0].id } }).catch(() => {});
-    }
-
-    if (status === "COMPLETED") {
-      await db.photo.create({ data: { jobId: job.id, type: "BEFORE", url: "/uploads/photos/placeholder-before.svg", caption: "Before cleaning", uploadedById: supervisor.userId ?? shoyab.id } });
-      await db.photo.create({ data: { jobId: job.id, type: "BEFORE", url: "/uploads/photos/placeholder-before.svg", caption: "Before — kitchen area", uploadedById: shoyab.id } });
-      await db.photo.create({ data: { jobId: job.id, type: "AFTER", url: "/uploads/photos/placeholder-after.svg", caption: "After cleaning", uploadedById: shoyab.id } });
-      await db.photo.create({ data: { jobId: job.id, type: "AFTER", url: "/uploads/photos/placeholder-after.svg", caption: "After — kitchen area", uploadedById: shoyab.id } });
-
-      certCount += 1;
-      await db.certificate.create({
-        data: {
-          jobId: job.id,
-          certificateNumber: `CERT-2026-${String(certCount).padStart(4, "0")}`,
-          issuedDate: scheduledDate,
-          customerName: lead.name,
-          serviceSummary: `${lead.service.replaceAll("_", " ")} completed at ${lead.area} by ${supervisor.name}'s team.`,
-          supervisorName: supervisor.name,
-          signatureUrl: "/uploads/signatures/placeholder-signature.svg",
-        },
-      });
-
-      invoiceCount += 1;
-      const dueDate = new Date(scheduledDate);
-      dueDate.setDate(dueDate.getDate() + 7);
-      const today = new Date();
-      let payStatus: "PENDING" | "DUE_SOON" | "OVERDUE" | "PAID";
-      let paidAmount = 0;
-      let paidDate: Date | null = null;
-      if (opts.paid) {
-        payStatus = "PAID";
-        paidAmount = job.jobValue;
-        paidDate = daysFromNow(-randInt(0, 3));
-      } else if (dueDate < today) {
-        payStatus = "OVERDUE";
-      } else if ((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24) <= 3) {
-        payStatus = "DUE_SOON";
-      } else {
-        payStatus = "PENDING";
-      }
-
-      await db.payment.create({
-        data: {
-          invoiceNumber: `INV-2026-${String(invoiceCount).padStart(4, "0")}`,
-          jobId: job.id,
-          leadId: lead.id,
-          clientName: lead.name,
-          clientMobile: lead.mobile,
-          amount: job.jobValue,
-          paidAmount,
-          dueDate,
-          paidDate,
-          status: payStatus,
-          mybillbookInvoiceNo: `MBB-${randInt(10000, 99999)}`,
-          recordedById: francis.id,
-        },
-      });
-    }
-
-    await db.activityLog.create({ data: { jobId: job.id, actorId: shoyab.id, action: `Job ${jobNumber} created (${status})` } });
-    return job;
-  }
-
-  for (const lead of leads) {
-    if (lead.stage === "JOB_SCHEDULED") await createJobForLead(lead, { future: true, paid: false });
-    if (lead.stage === "COMPLETED") await createJobForLead(lead, { future: false, paid: false });
-    if (lead.stage === "PAID") await createJobForLead(lead, { future: false, paid: true });
-  }
-  console.log("Jobs, photos, certificates & payments created for pipeline leads.");
-
-  // ── Extra historical jobs (last 90 days) so revenue/profit charts have depth ──
+  // ── Historical jobs (last 90 days) so revenue/profit charts have depth ──
   for (let i = 0; i < 24; i++) {
     const service = rand(SERVICES);
     const scheduledDate = daysFromNow(-randInt(5, 90));
@@ -454,6 +261,22 @@ async function main() {
     for (const member of crew) {
       await db.jobAssignment.create({ data: { jobId: job.id, staffId: member.id, isLead: member.id === crew[0].id } }).catch(() => {});
     }
+
+    await db.photo.create({ data: { jobId: job.id, type: "BEFORE", url: "/uploads/photos/placeholder-before.svg", caption: "Before cleaning", uploadedById: supervisor.userId ?? francis.id } });
+    await db.photo.create({ data: { jobId: job.id, type: "AFTER", url: "/uploads/photos/placeholder-after.svg", caption: "After cleaning", uploadedById: supervisor.userId ?? francis.id } });
+
+    certCount += 1;
+    await db.certificate.create({
+      data: {
+        jobId: job.id,
+        certificateNumber: `CERT-2026-${String(certCount).padStart(4, "0")}`,
+        issuedDate: scheduledDate,
+        customerName,
+        serviceSummary: `${service.replaceAll("_", " ")} completed at ${area} by ${supervisor.name}'s team.`,
+        supervisorName: supervisor.name,
+        signatureUrl: "/uploads/signatures/placeholder-signature.svg",
+      },
+    });
 
     invoiceCount += 1;
     const isPaid = Math.random() > 0.15;

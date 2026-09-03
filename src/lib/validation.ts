@@ -13,10 +13,11 @@ export const leadSchema = z.object({
     "PEST_CONTROL",
     "INTERIOR_PAINTING",
   ]),
-  source: z.enum(["GMB1", "GMB2", "WEBSITE", "META", "CALL", "REFERRAL"]),
+  source: z.enum(["WHATSAPP", "CALL", "WEBSITE", "GOOGLE"]),
   quoteAmount: z.coerce.number().min(0).optional(),
   followUpDate: z.string().optional().or(z.literal("")),
   assignedStaffId: z.string().optional().or(z.literal("")),
+  assignedToId: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
 });
 

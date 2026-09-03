@@ -21,12 +21,10 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 
 export const LeadSource = {
-  GMB1: 'GMB1',
-  GMB2: 'GMB2',
-  WEBSITE: 'WEBSITE',
-  META: 'META',
+  WHATSAPP: 'WHATSAPP',
   CALL: 'CALL',
-  REFERRAL: 'REFERRAL'
+  WEBSITE: 'WEBSITE',
+  GOOGLE: 'GOOGLE'
 } as const
 
 export type LeadSource = (typeof LeadSource)[keyof typeof LeadSource]

@@ -31,7 +31,7 @@ export async function createLead(values: unknown) {
       assignedStaffId: data.assignedStaffId || null,
       notes: data.notes || null,
       createdById: session?.sub,
-      assignedToId: session?.sub,
+      assignedToId: data.assignedToId || session?.sub,
     },
   });
 
@@ -77,6 +77,7 @@ export async function updateLead(id: string, values: unknown) {
         followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       }),
       ...(data.assignedStaffId !== undefined && { assignedStaffId: data.assignedStaffId || null }),
+      ...(data.assignedToId !== undefined && { assignedToId: data.assignedToId || null }),
       ...(data.notes !== undefined && { notes: data.notes || null }),
     },
   });

@@ -30,12 +30,10 @@ enum Role {
 }
 
 enum LeadSource {
-  GMB1
-  GMB2
-  WEBSITE
-  META
+  WHATSAPP
   CALL
-  REFERRAL
+  WEBSITE
+  GOOGLE
 }
 
 enum ServiceType {

@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { LeadsExplorer } from "@/components/leads/leads-explorer";
 import { LeadImportDialog } from "@/components/leads/lead-import-dialog";
 import { getAllLeadsForList } from "@/server/leads";
+import { getUsersForAssignment } from "@/server/users";
 
 export default async function LeadsPage() {
-  const leads = await getAllLeadsForList();
+  const [leads, userOptions] = await Promise.all([getAllLeadsForList(), getUsersForAssignment()]);
 
   return (
     <div className="space-y-6">
@@ -16,7 +17,7 @@ export default async function LeadsPage() {
         description={`${leads.length} leads across the pipeline`}
         actions={
           <>
-            <LeadImportDialog />
+            <LeadImportDialog userOptions={userOptions} />
             <Button asChild>
               <Link href="/leads/new">
                 <Plus className="size-4" /> New Lead

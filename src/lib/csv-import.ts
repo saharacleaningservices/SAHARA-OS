@@ -1,6 +1,6 @@
-// Shared, isomorphic (no "use client"/"use server") CSV import helpers.
+// Shared, isomorphic (no "use client"/"use server") CSV/Excel import helpers.
 //
-// Header aliasing lets a CSV use reasonable alternate column names (e.g.
+// Header aliasing lets a file use reasonable alternate column names (e.g.
 // "Phone" for "Mobile"). Row validation reuses the exact same Zod schemas
 // the manual Lead/Staff forms use (leadSchema/staffSchema), so an imported
 // row has to pass exactly the same rules as data typed in by hand — both
@@ -25,20 +25,71 @@ function buildHeaderMap(aliasGroups: Record<string, string[]>): Record<string, s
   return map;
 }
 
-export function parseCsv(text: string, fieldAliases: Record<string, string[]>): CsvRow[] {
+function mapRows(rawRows: Record<string, unknown>[], fieldAliases: Record<string, string[]>): CsvRow[] {
   const headerMap = buildHeaderMap(fieldAliases);
-  const parsed = Papa.parse<CsvRow>(text.trim(), {
-    header: true,
-    skipEmptyLines: "greedy",
-    transformHeader: (h) => headerMap[canonicalKey(h)] ?? canonicalKey(h),
-  });
-  return parsed.data.map((row) => {
+  return rawRows.map((row) => {
     const clean: CsvRow = {};
-    for (const [key, value] of Object.entries(row)) {
-      clean[key] = typeof value === "string" ? value.trim() : (value ?? "");
+    for (const [header, value] of Object.entries(row)) {
+      const key = headerMap[canonicalKey(header)] ?? canonicalKey(header);
+      clean[key] = typeof value === "string" ? value.trim() : value == null ? "" : String(value).trim();
     }
     return clean;
   });
+}
+
+export function isExcelFile(filename: string): boolean {
+  return /\.(xlsx|xls)$/i.test(filename);
+}
+
+export function parseCsv(text: string, fieldAliases: Record<string, string[]>): CsvRow[] {
+  const parsed = Papa.parse<Record<string, unknown>>(text.trim(), {
+    header: true,
+    skipEmptyLines: "greedy",
+  });
+  return mapRows(parsed.data, fieldAliases);
+}
+
+// Parses the first sheet of an .xlsx/.xls workbook (as an ArrayBuffer) into
+// the same row shape parseCsv produces, so both feed the same validators.
+// The `xlsx` library (~300KB) is dynamically imported here so pages that
+// only ever import CSV never pay for it in their initial bundle.
+export async function parseExcel(buffer: ArrayBuffer, fieldAliases: Record<string, string[]>): Promise<CsvRow[]> {
+  const XLSX = await import("xlsx");
+  const workbook = XLSX.read(buffer, { type: "array" });
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) return [];
+  const sheet = workbook.Sheets[sheetName];
+  const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+    defval: "",
+    raw: false,
+    dateNF: "yyyy-mm-dd",
+  });
+  return mapRows(rawRows, fieldAliases);
+}
+
+function readFile(file: File, mode: "text" | "arraybuffer"): Promise<string | ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Couldn't read that file"));
+    reader.onload = () => resolve(reader.result as string | ArrayBuffer);
+    if (mode === "arraybuffer") reader.readAsArrayBuffer(file);
+    else reader.readAsText(file);
+  });
+}
+
+// Reads a File (from an <input type="file">) with either parser, picked by
+// extension. Shared by the Leads and Staff import dialogs.
+export async function parseImportFile(file: File, fieldAliases: Record<string, string[]>): Promise<CsvRow[]> {
+  if (isExcelFile(file.name)) {
+    try {
+      const buffer = await readFile(file, "arraybuffer");
+      return await parseExcel(buffer as ArrayBuffer, fieldAliases);
+    } catch {
+      throw new Error("Couldn't read that Excel file — is it a valid .xlsx/.xls workbook?");
+    }
+  }
+  const text = await readFile(file, "text");
+  return parseCsv(String(text || ""), fieldAliases);
 }
 
 export function normalizeEnumValue(raw: string | undefined, labelMap: Record<string, string>): string | undefined {
@@ -72,11 +123,20 @@ export const LEAD_FIELD_ALIASES: Record<string, string[]> = {
   service: ["service", "service type"],
   source: ["source", "lead source"],
   quoteAmount: ["quote amount", "quoteamount", "budget", "amount", "estimated amount"],
+  assignedTo: ["assigned to", "assignedto", "assignee", "assigned", "owner"],
   followUpDate: ["follow up date", "followup date", "next follow up", "follow up"],
   notes: ["notes", "remarks", "comment", "comments"],
 };
 
-export function validateLeadRow(raw: CsvRow): RowValidation<LeadFormValues> {
+// Builds a case-insensitive "name" -> userId lookup for resolving the
+// "Assigned To" column against real users (see getUsersForAssignment).
+export function buildUserDirectory(users: { id: string; name: string }[]): Record<string, string> {
+  const dir: Record<string, string> = {};
+  for (const u of users) dir[u.name.trim().toLowerCase()] = u.id;
+  return dir;
+}
+
+export function validateLeadRow(raw: CsvRow, userDirectory: Record<string, string> = {}): RowValidation<LeadFormValues> {
   if (!raw.name && !raw.mobile && !raw.area) return { ok: false, error: "Empty row" };
 
   const missing = [
@@ -101,6 +161,17 @@ export function validateLeadRow(raw: CsvRow): RowValidation<LeadFormValues> {
   if (raw.followUpDate && !isValidDateString(raw.followUpDate)) {
     return { ok: false, error: `Unrecognized date "${raw.followUpDate}" — use YYYY-MM-DD` };
   }
+  let assignedToId = "";
+  if (raw.assignedTo) {
+    const match = userDirectory[raw.assignedTo.trim().toLowerCase()];
+    if (!match) {
+      return {
+        ok: false,
+        error: `Unrecognized "Assigned To" name "${raw.assignedTo}" — check spelling or leave the column blank`,
+      };
+    }
+    assignedToId = match;
+  }
 
   const candidate = {
     name: raw.name,
@@ -111,6 +182,7 @@ export function validateLeadRow(raw: CsvRow): RowValidation<LeadFormValues> {
     service,
     source,
     quoteAmount: numberFrom(raw.quoteAmount),
+    assignedToId,
     followUpDate: raw.followUpDate ? new Date(raw.followUpDate).toISOString().slice(0, 10) : "",
     notes: raw.notes || "",
   };
@@ -122,10 +194,10 @@ export function validateLeadRow(raw: CsvRow): RowValidation<LeadFormValues> {
   return { ok: true, data: parsed.data };
 }
 
-export const LEAD_TEMPLATE_HEADERS = ["Name", "Mobile", "WhatsApp", "Address", "Area", "Service", "Source", "Quote Amount", "Follow-up Date", "Notes"];
+export const LEAD_TEMPLATE_HEADERS = ["Name", "Mobile", "WhatsApp", "Address", "Area", "Service", "Source", "Amount", "Assigned To", "Follow-up Date", "Notes"];
 export const LEAD_TEMPLATE_SAMPLE_ROWS = [
-  ["Priya Deshmukh", "9876543210", "9876543210", "B-12 Sunshine Apartments", "Kharadi", "Home Deep Cleaning", "Website", "5999", "2026-09-15", "Prefers weekend visit"],
-  ["Rohan Traders", "9822011223", "", "Shop 4, MG Road", "Camp", "Commercial Cleaning", "Referral", "12000", "", ""],
+  ["Priya Deshmukh", "9876543210", "9876543210", "B-12 Sunshine Apartments", "Kharadi", "Home Deep Cleaning", "Website", "5999", "Shoyab Shaikh", "2026-09-15", "Prefers weekend visit"],
+  ["Rohan Traders", "9822011223", "", "Shop 4, MG Road", "Camp", "Commercial Cleaning", "Google", "12000", "", "", ""],
 ];
 
 // ── Staff ────────────────────────────────────────────────────────────────
