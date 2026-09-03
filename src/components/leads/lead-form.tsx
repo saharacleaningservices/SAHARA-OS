@@ -1,0 +1,182 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { leadSchema, type LeadFormValues } from "@/lib/validation";
+import { SERVICE_OPTIONS, LEAD_SOURCE_OPTIONS } from "@/lib/constants";
+import { createLead, updateLead } from "@/server/actions/leads";
+
+type StaffOption = { id: string; name: string; designation: string };
+
+export function LeadForm({
+  staffOptions,
+  defaultValues,
+  leadId,
+}: {
+  staffOptions: StaffOption[];
+  defaultValues?: Partial<LeadFormValues>;
+  leadId?: string;
+}) {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<LeadFormValues>({
+    resolver: zodResolver(leadSchema),
+    defaultValues: {
+      name: "",
+      mobile: "",
+      whatsapp: "",
+      address: "",
+      area: "",
+      service: "HOME_DEEP_CLEANING",
+      source: "CALL",
+      followUpDate: "",
+      assignedStaffId: "",
+      notes: "",
+      ...defaultValues,
+    },
+  });
+
+  async function onSubmit(values: LeadFormValues) {
+    setSubmitting(true);
+    const res = leadId ? await updateLead(leadId, values) : await createLead(values);
+    setSubmitting(false);
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success(leadId ? "Lead updated" : "Lead created");
+    router.push(leadId ? `/leads/${leadId}` : `/leads/${res.leadId}`);
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer Details</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" {...register("name")} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="mobile">Mobile</Label>
+            <Input id="mobile" {...register("mobile")} placeholder="9876543210" />
+            {errors.mobile && <p className="text-xs text-destructive">{errors.mobile.message}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="whatsapp">WhatsApp (if different)</Label>
+            <Input id="whatsapp" {...register("whatsapp")} placeholder="Same as mobile" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="area">Area</Label>
+            <Input id="area" {...register("area")} placeholder="e.g. Magarpatta City" />
+            {errors.area && <p className="text-xs text-destructive">{errors.area.message}</p>}
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="address">Full Address</Label>
+            <Textarea id="address" {...register("address")} rows={2} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Enquiry Details</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label>Service</Label>
+            <Select value={watch("service")} onValueChange={(v) => setValue("service", v as LeadFormValues["service"])}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SERVICE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Lead Source</Label>
+            <Select value={watch("source")} onValueChange={(v) => setValue("source", v as LeadFormValues["source"])}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LEAD_SOURCE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="quoteAmount">Quote Amount (₹)</Label>
+            <Input id="quoteAmount" type="number" {...register("quoteAmount")} placeholder="Minimum ₹3,999" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="followUpDate">Follow-up Date</Label>
+            <Input id="followUpDate" type="date" {...register("followUpDate")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Assign to Staff</Label>
+            <Select
+              value={watch("assignedStaffId") || "NONE"}
+              onValueChange={(v) => setValue("assignedStaffId", v === "NONE" ? "" : v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Unassigned" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NONE">Unassigned</SelectItem>
+                {staffOptions.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name} ({s.designation})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea id="notes" {...register("notes")} rows={3} />
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={() => router.back()}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={submitting}>
+          {submitting && <Loader2 className="animate-spin" />}
+          {leadId ? "Save changes" : "Create lead"}
+        </Button>
+      </div>
+    </form>
+  );
+}

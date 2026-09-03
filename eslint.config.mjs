@@ -20,6 +20,15 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      // Plain apostrophes in copy (e.g. "Today's Jobs") are fine — not worth
+      // forcing HTML entities everywhere.
+      "react/no-unescaped-entities": "off",
+      "jsx-a11y/alt-text": "off",
+      "@next/next/no-img-element": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

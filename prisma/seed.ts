@@ -1,0 +1,517 @@
+// Sahara OS — database seed
+// Run with: npm run db:seed
+//
+// Populates realistic demo data: 5 login users, 20 staff, leads across every
+// pipeline stage, jobs, photos, certificates, payments, expenses, attendance
+// and follow-ups — enough for every dashboard chart and list to render with
+// real numbers instead of empty states.
+
+import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
+import bcrypt from "bcryptjs";
+import path from "node:path";
+
+const dbPath = path.resolve(process.cwd(), (process.env.DATABASE_URL || "file:./dev.db").replace(/^file:/, ""));
+const adapter = new PrismaBetterSQLite3({ url: `file:${dbPath}` });
+const db = new PrismaClient({ adapter });
+
+const DEMO_PASSWORD = "Sahara@2026";
+
+const AREAS = [
+  "Magarpatta City",
+  "Hadapsar",
+  "Kharadi",
+  "Viman Nagar",
+  "Koregaon Park",
+  "Wagholi",
+  "NIBM Road",
+  "Amanora Park Town",
+  "Fatima Nagar",
+  "Kondhwa",
+  "Camp",
+  "Baner",
+];
+
+const SERVICES = [
+  "HOME_DEEP_CLEANING",
+  "COMMERCIAL_CLEANING",
+  "HOUSEKEEPING",
+  "PEST_CONTROL",
+  "INTERIOR_PAINTING",
+] as const;
+
+const SOURCES = ["GMB1", "GMB2", "WEBSITE", "META", "CALL", "REFERRAL"] as const;
+
+const STAGES = [
+  "NEW",
+  "SITE_VISIT",
+  "QUOTE_SENT",
+  "NEGOTIATION",
+  "CONFIRMED",
+  "JOB_SCHEDULED",
+  "COMPLETED",
+  "PAID",
+] as const;
+
+const CUSTOMER_NAMES = [
+  "Anjali Deshpande", "Rohit Kulkarni", "Priya Nair", "Vivek Joshi", "Sneha Patil",
+  "Arjun Mehta", "Kavita Rao", "Siddharth Bhat", "Neha Shah", "Manoj Iyer",
+  "Pooja Kapoor", "Aditya Verma", "Ritu Agarwal", "Karan Malhotra", "Divya Menon",
+  "Rajesh Khanna", "Sonal Trivedi", "Nikhil Bansal", "Meera Iyengar", "Suresh Reddy",
+  "Ayesha Khan", "Varun Chopra", "Lakshmi Krishnan", "Farhan Ansari",
+];
+
+function rand<T>(arr: readonly T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+function randInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function daysFromNow(n: number) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  d.setHours(randInt(9, 18), rand([0, 15, 30, 45]), 0, 0);
+  return d;
+}
+function mobile() {
+  return `9${randInt(0, 9)}${randInt(100000000, 999999999)}`.slice(0, 10);
+}
+function quoteFor(service: string) {
+  const base: Record<string, [number, number]> = {
+    HOME_DEEP_CLEANING: [3999, 9999],
+    COMMERCIAL_CLEANING: [8999, 45000],
+    HOUSEKEEPING: [5999, 25000],
+    PEST_CONTROL: [3999, 8999],
+    INTERIOR_PAINTING: [12999, 60000],
+  };
+  const [min, max] = base[service];
+  return Math.round(randInt(min, max) / 100) * 100;
+}
+
+async function main() {
+  console.log("Seeding Sahara OS...");
+
+  // ── Users ────────────────────────────────────────────────────────────
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+
+  const altaf = await db.user.upsert({
+    where: { email: "admin@saharacleaningservices.com" },
+    update: {},
+    create: {
+      name: "Altaf Shaikh",
+      email: "admin@saharacleaningservices.com",
+      phone: "7083347130",
+      passwordHash,
+      role: "ADMIN",
+    },
+  });
+
+  const shoyab = await db.user.upsert({
+    where: { email: "operations@saharacleaningservices.com" },
+    update: {},
+    create: {
+      name: "Shoyab Shaikh",
+      email: "operations@saharacleaningservices.com",
+      phone: "8956567130",
+      passwordHash,
+      role: "OPERATIONS",
+    },
+  });
+
+  const francis = await db.user.upsert({
+    where: { email: "accounts@saharacleaningservices.com" },
+    update: {},
+    create: {
+      name: "Francis D'Souza",
+      email: "accounts@saharacleaningservices.com",
+      passwordHash,
+      role: "ACCOUNTS",
+    },
+  });
+
+  const supervisorUser = await db.user.upsert({
+    where: { email: "supervisor@saharacleaningservices.com" },
+    update: {},
+    create: {
+      name: "Suresh Pawar",
+      email: "supervisor@saharacleaningservices.com",
+      passwordHash,
+      role: "SUPERVISOR",
+    },
+  });
+
+  const staffUser = await db.user.upsert({
+    where: { email: "staff@saharacleaningservices.com" },
+    update: {},
+    create: {
+      name: "Vikas Shinde",
+      email: "staff@saharacleaningservices.com",
+      passwordHash,
+      role: "STAFF",
+    },
+  });
+
+  console.log("Users created.");
+
+  // ── Staff (20) ───────────────────────────────────────────────────────
+  const staffSeed: { name: string; designation: string; salaryType: "DAILY" | "MONTHLY"; wage: number; userId?: string }[] = [
+    { name: "Suresh Pawar", designation: "Supervisor", salaryType: "MONTHLY", wage: 22000, userId: supervisorUser.id },
+    { name: "Ramesh Jadhav", designation: "Supervisor", salaryType: "MONTHLY", wage: 21000 },
+    { name: "Vikas Shinde", designation: "Cleaning Executive", salaryType: "DAILY", wage: 650, userId: staffUser.id },
+    { name: "Sandeep More", designation: "Cleaning Executive", salaryType: "DAILY", wage: 650 },
+    { name: "Amit Kadam", designation: "Cleaning Executive", salaryType: "DAILY", wage: 650 },
+    { name: "Rahul Gaikwad", designation: "Cleaning Executive", salaryType: "DAILY", wage: 600 },
+    { name: "Prakash Waghmare", designation: "Cleaning Executive", salaryType: "DAILY", wage: 600 },
+    { name: "Santosh Bhosale", designation: "Cleaning Executive", salaryType: "DAILY", wage: 600 },
+    { name: "Ganesh Kale", designation: "Cleaning Executive", salaryType: "DAILY", wage: 650 },
+    { name: "Nitin Salunkhe", designation: "Cleaning Executive", salaryType: "DAILY", wage: 600 },
+    { name: "Dattatray Chavan", designation: "Cleaning Executive", salaryType: "DAILY", wage: 600 },
+    { name: "Mahesh Jagtap", designation: "Cleaning Executive", salaryType: "DAILY", wage: 650 },
+    { name: "Kiran Thorat", designation: "Cleaning Executive", salaryType: "DAILY", wage: 600 },
+    { name: "Sunil Mane", designation: "Painter", salaryType: "DAILY", wage: 800 },
+    { name: "Vijay Kadlag", designation: "Painter", salaryType: "DAILY", wage: 800 },
+    { name: "Anil Bhagat", designation: "Pest Control Technician", salaryType: "DAILY", wage: 750 },
+    { name: "Deepak Londhe", designation: "Pest Control Technician", salaryType: "DAILY", wage: 750 },
+    { name: "Pooja Sathe", designation: "Cleaning Executive", salaryType: "DAILY", wage: 550 },
+    { name: "Snehal Kamble", designation: "Cleaning Executive", salaryType: "DAILY", wage: 550 },
+    { name: "Manisha Gophane", designation: "Housekeeping Executive", salaryType: "DAILY", wage: 550 },
+  ];
+
+  const staffRecords = [];
+  for (let i = 0; i < staffSeed.length; i++) {
+    const s = staffSeed[i];
+    const employeeCode = `SCS-${String(i + 1).padStart(3, "0")}`;
+    const existing = await db.staff.findUnique({ where: { employeeCode } });
+    const staff = existing
+      ? existing
+      : await db.staff.create({
+          data: {
+            employeeCode,
+            name: s.name,
+            mobile: mobile(),
+            designation: s.designation,
+            salaryType: s.salaryType,
+            dailyWage: s.salaryType === "DAILY" ? s.wage : null,
+            monthlySalary: s.salaryType === "MONTHLY" ? s.wage : null,
+            availability: rand(["AVAILABLE", "AVAILABLE", "AVAILABLE", "ON_JOB"] as const),
+            joinDate: daysFromNow(-randInt(60, 900)),
+            userId: s.userId,
+          },
+        });
+    staffRecords.push(staff);
+  }
+  const supervisors = staffRecords.filter((s) => s.designation === "Supervisor");
+  const fieldStaff = staffRecords.filter((s) => s.designation !== "Supervisor");
+  console.log(`${staffRecords.length} staff created.`);
+
+  // ── Attendance (last 10 days) ───────────────────────────────────────
+  for (const staff of staffRecords) {
+    for (let d = 0; d < 10; d++) {
+      const date = daysFromNow(-d);
+      date.setHours(0, 0, 0, 0);
+      const roll = Math.random();
+      const status = roll > 0.93 ? "ABSENT" : roll > 0.88 ? "LEAVE" : roll > 0.83 ? "HALF_DAY" : "PRESENT";
+      const wage = staff.salaryType === "DAILY" ? staff.dailyWage ?? 0 : (staff.monthlySalary ?? 0) / 30;
+      try {
+        await db.attendance.create({
+          data: {
+            staffId: staff.id,
+            date,
+            status,
+            checkInTime: status !== "ABSENT" ? daysFromNow(-d) : null,
+            checkOutTime: status === "PRESENT" ? daysFromNow(-d) : null,
+            wageForDay: status === "ABSENT" ? 0 : status === "HALF_DAY" ? wage / 2 : wage,
+          },
+        });
+      } catch {
+        // unique constraint on rerun — ignore
+      }
+    }
+  }
+  console.log("Attendance seeded.");
+
+  // ── Leads across the full pipeline ──────────────────────────────────
+  let leadCount = await db.lead.count();
+  const leads = [];
+  for (let i = 0; i < 26; i++) {
+    const stage = STAGES[i % STAGES.length];
+    const service = rand(SERVICES);
+    const source = rand(SOURCES);
+    const createdOffset = -randInt(0, 45);
+    let followUpDate: Date | null = null;
+    if (["NEW", "SITE_VISIT", "QUOTE_SENT", "NEGOTIATION"].includes(stage)) {
+      followUpDate = daysFromNow(rand([-3, -2, -1, 0, 0, 1, 2, 3]));
+    }
+
+    leadCount += 1;
+    const leadNumber = `LD-2026-${String(leadCount).padStart(4, "0")}`;
+    const existing = await db.lead.findUnique({ where: { leadNumber } });
+    const lead =
+      existing ??
+      (await db.lead.create({
+        data: {
+          leadNumber,
+          name: rand(CUSTOMER_NAMES),
+          mobile: mobile(),
+          whatsapp: mobile(),
+          address: `Flat/Shop ${randInt(1, 400)}, ${rand(AREAS)}, Pune`,
+          area: rand(AREAS),
+          service,
+          source,
+          quoteAmount: quoteFor(service),
+          stage,
+          followUpDate,
+          notes: stage === "NEGOTIATION" ? "Customer negotiating on price, considering competitor quote." : null,
+          assignedStaffId: rand(supervisors).id,
+          assignedToId: rand([shoyab.id, altaf.id]),
+          createdById: rand([shoyab.id, altaf.id]),
+          createdAt: daysFromNow(createdOffset),
+        },
+      }));
+    leads.push(lead);
+
+    // Follow-up record for active-pipeline leads
+    if (["NEW", "SITE_VISIT", "QUOTE_SENT", "NEGOTIATION"].includes(stage) && !existing) {
+      await db.followUp.create({
+        data: {
+          leadId: lead.id,
+          dueDate: followUpDate ?? daysFromNow(1),
+          type: rand(["CALL", "WHATSAPP", "VISIT"] as const),
+          notes: "Follow up on quote decision.",
+          isDone: false,
+          assignedToId: shoyab.id,
+        },
+      });
+    }
+
+    // Quotation for leads that have progressed past NEW/SITE_VISIT
+    if (["QUOTE_SENT", "NEGOTIATION", "CONFIRMED", "JOB_SCHEDULED", "COMPLETED", "PAID"].includes(stage) && !existing) {
+      const subTotal = lead.quoteAmount ?? quoteFor(service);
+      const gstPercent = service === "COMMERCIAL_CLEANING" || service === "INTERIOR_PAINTING" ? 18 : 0;
+      const gstAmount = Math.round((subTotal * gstPercent) / 100);
+      await db.quotation.create({
+        data: {
+          quoteNumber: `QT-2026-${String(leadCount).padStart(4, "0")}`,
+          leadId: lead.id,
+          services: JSON.stringify([
+            { name: lead.service, description: `${lead.service.replaceAll("_", " ")} at ${lead.area}`, amount: subTotal },
+          ]),
+          subTotal,
+          gstPercent,
+          gstAmount,
+          totalAmount: subTotal + gstAmount,
+          terms: "Standard Sahara Cleaning Services terms apply.",
+          validTill: daysFromNow(7),
+          createdAt: daysFromNow(createdOffset + 1),
+        },
+      });
+    }
+
+    if (!existing) await db.activityLog.create({ data: { leadId: lead.id, actorId: shoyab.id, action: `Lead created via ${source}` } });
+  }
+  console.log(`${leads.length} leads processed.`);
+
+  // ── Jobs for scheduled / completed / paid leads ─────────────────────
+  let jobCount = await db.job.count();
+  let invoiceCount = await db.payment.count();
+  let certCount = await db.certificate.count();
+
+  async function createJobForLead(lead: (typeof leads)[number], opts: { future: boolean; paid: boolean }) {
+    jobCount += 1;
+    const jobNumber = `JOB-2026-${String(jobCount).padStart(4, "0")}`;
+    const scheduledDate = opts.future ? daysFromNow(randInt(0, 5)) : daysFromNow(-randInt(1, 40));
+    const status: "ASSIGNED" | "ON_THE_WAY" | "STARTED" | "COMPLETED" = opts.future
+      ? rand(["ASSIGNED", "ASSIGNED", "ON_THE_WAY", "STARTED"] as const)
+      : "COMPLETED";
+
+    const supervisor = rand(supervisors);
+    const crew = [rand(fieldStaff), rand(fieldStaff)];
+
+    const job = await db.job.create({
+      data: {
+        jobNumber,
+        leadId: lead.id,
+        customerName: lead.name,
+        customerMobile: lead.mobile,
+        address: lead.address ?? lead.area,
+        area: lead.area,
+        service: lead.service,
+        scheduledDate,
+        scheduledTime: `${randInt(9, 17)}:00`,
+        supervisorId: supervisor.id,
+        status,
+        onTheWayAt: status !== "ASSIGNED" ? scheduledDate : null,
+        startedAt: ["STARTED", "COMPLETED"].includes(status) ? scheduledDate : null,
+        completedAt: status === "COMPLETED" ? scheduledDate : null,
+        jobValue: lead.quoteAmount ?? quoteFor(lead.service),
+        customerSignatureUrl: status === "COMPLETED" ? "/uploads/signatures/placeholder-signature.svg" : null,
+        signedAt: status === "COMPLETED" ? scheduledDate : null,
+      },
+    });
+
+    for (const member of crew) {
+      await db.jobAssignment.create({ data: { jobId: job.id, staffId: member.id, isLead: member.id === crew[0].id } }).catch(() => {});
+    }
+
+    if (status === "COMPLETED") {
+      await db.photo.create({ data: { jobId: job.id, type: "BEFORE", url: "/uploads/photos/placeholder-before.svg", caption: "Before cleaning", uploadedById: supervisor.userId ?? shoyab.id } });
+      await db.photo.create({ data: { jobId: job.id, type: "BEFORE", url: "/uploads/photos/placeholder-before.svg", caption: "Before — kitchen area", uploadedById: shoyab.id } });
+      await db.photo.create({ data: { jobId: job.id, type: "AFTER", url: "/uploads/photos/placeholder-after.svg", caption: "After cleaning", uploadedById: shoyab.id } });
+      await db.photo.create({ data: { jobId: job.id, type: "AFTER", url: "/uploads/photos/placeholder-after.svg", caption: "After — kitchen area", uploadedById: shoyab.id } });
+
+      certCount += 1;
+      await db.certificate.create({
+        data: {
+          jobId: job.id,
+          certificateNumber: `CERT-2026-${String(certCount).padStart(4, "0")}`,
+          issuedDate: scheduledDate,
+          customerName: lead.name,
+          serviceSummary: `${lead.service.replaceAll("_", " ")} completed at ${lead.area} by ${supervisor.name}'s team.`,
+          supervisorName: supervisor.name,
+          signatureUrl: "/uploads/signatures/placeholder-signature.svg",
+        },
+      });
+
+      invoiceCount += 1;
+      const dueDate = new Date(scheduledDate);
+      dueDate.setDate(dueDate.getDate() + 7);
+      const today = new Date();
+      let payStatus: "PENDING" | "DUE_SOON" | "OVERDUE" | "PAID";
+      let paidAmount = 0;
+      let paidDate: Date | null = null;
+      if (opts.paid) {
+        payStatus = "PAID";
+        paidAmount = job.jobValue;
+        paidDate = daysFromNow(-randInt(0, 3));
+      } else if (dueDate < today) {
+        payStatus = "OVERDUE";
+      } else if ((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24) <= 3) {
+        payStatus = "DUE_SOON";
+      } else {
+        payStatus = "PENDING";
+      }
+
+      await db.payment.create({
+        data: {
+          invoiceNumber: `INV-2026-${String(invoiceCount).padStart(4, "0")}`,
+          jobId: job.id,
+          leadId: lead.id,
+          clientName: lead.name,
+          clientMobile: lead.mobile,
+          amount: job.jobValue,
+          paidAmount,
+          dueDate,
+          paidDate,
+          status: payStatus,
+          mybillbookInvoiceNo: `MBB-${randInt(10000, 99999)}`,
+          recordedById: francis.id,
+        },
+      });
+    }
+
+    await db.activityLog.create({ data: { jobId: job.id, actorId: shoyab.id, action: `Job ${jobNumber} created (${status})` } });
+    return job;
+  }
+
+  for (const lead of leads) {
+    if (lead.stage === "JOB_SCHEDULED") await createJobForLead(lead, { future: true, paid: false });
+    if (lead.stage === "COMPLETED") await createJobForLead(lead, { future: false, paid: false });
+    if (lead.stage === "PAID") await createJobForLead(lead, { future: false, paid: true });
+  }
+  console.log("Jobs, photos, certificates & payments created for pipeline leads.");
+
+  // ── Extra historical jobs (last 90 days) so revenue/profit charts have depth ──
+  for (let i = 0; i < 24; i++) {
+    const service = rand(SERVICES);
+    const scheduledDate = daysFromNow(-randInt(5, 90));
+    const supervisor = rand(supervisors);
+    const crew = [rand(fieldStaff), rand(fieldStaff)];
+    const jobValue = quoteFor(service);
+    jobCount += 1;
+    const jobNumber = `JOB-2026-${String(jobCount).padStart(4, "0")}`;
+    const customerName = rand(CUSTOMER_NAMES);
+    const area = rand(AREAS);
+
+    const job = await db.job.create({
+      data: {
+        jobNumber,
+        customerName,
+        customerMobile: mobile(),
+        address: `House ${randInt(1, 300)}, ${area}`,
+        area,
+        service,
+        scheduledDate,
+        scheduledTime: `${randInt(9, 17)}:00`,
+        supervisorId: supervisor.id,
+        status: "COMPLETED",
+        startedAt: scheduledDate,
+        completedAt: scheduledDate,
+        jobValue,
+        customerSignatureUrl: "/uploads/signatures/placeholder-signature.svg",
+        signedAt: scheduledDate,
+      },
+    });
+    for (const member of crew) {
+      await db.jobAssignment.create({ data: { jobId: job.id, staffId: member.id, isLead: member.id === crew[0].id } }).catch(() => {});
+    }
+
+    invoiceCount += 1;
+    const isPaid = Math.random() > 0.15;
+    const dueDate = new Date(scheduledDate);
+    dueDate.setDate(dueDate.getDate() + 7);
+    await db.payment.create({
+      data: {
+        invoiceNumber: `INV-2026-${String(invoiceCount).padStart(4, "0")}`,
+        jobId: job.id,
+        clientName: customerName,
+        clientMobile: job.customerMobile,
+        amount: jobValue,
+        paidAmount: isPaid ? jobValue : 0,
+        dueDate,
+        paidDate: isPaid ? scheduledDate : null,
+        status: isPaid ? "PAID" : dueDate < new Date() ? "OVERDUE" : "PENDING",
+        mybillbookInvoiceNo: `MBB-${randInt(10000, 99999)}`,
+        recordedById: francis.id,
+      },
+    });
+  }
+  console.log("Historical jobs for chart data created.");
+
+  // ── Expenses ─────────────────────────────────────────────────────────
+  const expenseSeed: { category: "CHEMICALS" | "FUEL" | "EQUIPMENT" | "STAFF_ADVANCE" | "MISCELLANEOUS"; desc: string; range: [number, number] }[] = [
+    { category: "CHEMICALS", desc: "Cleaning chemicals & detergents restock", range: [500, 3200] },
+    { category: "FUEL", desc: "Petrol for site-visit bikes", range: [300, 1500] },
+    { category: "EQUIPMENT", desc: "Vacuum cleaner / scrubber purchase", range: [1500, 9000] },
+    { category: "STAFF_ADVANCE", desc: "Staff advance", range: [1000, 5000] },
+    { category: "MISCELLANEOUS", desc: "Miscellaneous site expense", range: [200, 2000] },
+  ];
+  for (let i = 0; i < 35; i++) {
+    const e = rand(expenseSeed);
+    const amount = randInt(e.range[0], e.range[1]);
+    await db.expense.create({
+      data: {
+        category: e.category,
+        description: e.desc,
+        amount,
+        date: daysFromNow(-randInt(0, 90)),
+        paidTo: e.category === "STAFF_ADVANCE" ? rand(fieldStaff).name : rand(["Local Vendor", "Pune Chemicals Co.", "Petrol Pump - Hadapsar", "Hardware Store"]),
+        staffId: e.category === "STAFF_ADVANCE" ? rand(fieldStaff).id : null,
+        addedById: francis.id,
+      },
+    });
+  }
+  console.log("Expenses seeded.");
+
+  console.log("\nSeed complete.");
+  console.log("Demo login password for all users:", DEMO_PASSWORD);
+  console.log([altaf, shoyab, francis, supervisorUser, staffUser].map((u) => `${u.role.padEnd(10)} ${u.email}`).join("\n"));
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await db.$disconnect();
+  });

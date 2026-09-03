@@ -1,0 +1,118 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Loader2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { expenseSchema, type ExpenseFormValues } from "@/lib/validation";
+import { EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
+import { createExpense } from "@/server/actions/expenses";
+
+export function NewExpenseDialog() {
+  const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<ExpenseFormValues>({
+    resolver: zodResolver(expenseSchema),
+    defaultValues: { category: "MISCELLANEOUS", date: new Date().toISOString().slice(0, 10) },
+  });
+
+  async function onSubmit(values: ExpenseFormValues) {
+    setSubmitting(true);
+    const res = await createExpense(values);
+    setSubmitting(false);
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success("Expense recorded");
+    setOpen(false);
+    reset();
+    router.refresh();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus className="size-4" /> Add Expense
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Record an Expense</DialogTitle>
+          <DialogDescription>Track chemicals, fuel, equipment, staff advances and more.</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          <div className="space-y-1">
+            <Label>Category</Label>
+            <Select value={watch("category")} onValueChange={(v) => setValue("category", v as ExpenseFormValues["category"])}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(EXPENSE_CATEGORY_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label>Description</Label>
+            <Input {...register("description")} />
+            {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Amount (₹)</Label>
+              <Input type="number" {...register("amount")} />
+              {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Label>Date</Label>
+              <Input type="date" {...register("date")} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label>Paid To</Label>
+            <Input {...register("paidTo")} placeholder="Vendor / staff name" />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting && <Loader2 className="animate-spin" />}
+              Save Expense
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

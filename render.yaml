@@ -1,0 +1,20 @@
+# Render Blueprint for Sahara OS.
+# Free tier: no persistent disk, so data added between visits can reset if
+# the service spins down from inactivity and restarts. Add a `disk:` block
+# (needs a paid plan) later for durable storage — see README.md.
+services:
+  - type: web
+    name: sahara-os
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:render
+    envVars:
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_APP_NAME
+        value: Sahara OS
+      - key: NODE_ENV
+        value: production
