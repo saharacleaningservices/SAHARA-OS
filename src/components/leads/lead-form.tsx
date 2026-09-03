@@ -17,13 +17,16 @@ import { SERVICE_OPTIONS, LEAD_SOURCE_OPTIONS } from "@/lib/constants";
 import { createLead, updateLead } from "@/server/actions/leads";
 
 type StaffOption = { id: string; name: string; designation: string };
+type UserOption = { id: string; name: string; role: string };
 
 export function LeadForm({
   staffOptions,
+  userOptions,
   defaultValues,
   leadId,
 }: {
   staffOptions: StaffOption[];
+  userOptions: UserOption[];
   defaultValues?: Partial<LeadFormValues>;
   leadId?: string;
 }) {
@@ -48,6 +51,7 @@ export function LeadForm({
       source: "CALL",
       followUpDate: "",
       assignedStaffId: "",
+      assignedToId: "",
       notes: "",
       ...defaultValues,
     },
@@ -74,7 +78,7 @@ export function LeadForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Customer Name</Label>
             <Input id="name" {...register("name")} />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
@@ -135,12 +139,31 @@ export function LeadForm({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="quoteAmount">Quote Amount (₹)</Label>
+            <Label htmlFor="quoteAmount">Estimated Amount (₹)</Label>
             <Input id="quoteAmount" type="number" {...register("quoteAmount")} placeholder="Minimum ₹3,999" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="followUpDate">Follow-up Date</Label>
             <Input id="followUpDate" type="date" {...register("followUpDate")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Assigned To</Label>
+            <Select
+              value={watch("assignedToId") || "NONE"}
+              onValueChange={(v) => setValue("assignedToId", v === "NONE" ? "" : v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Unassigned" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NONE">Unassigned</SelectItem>
+                {userOptions.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.name} ({u.role})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1.5">
             <Label>Assign to Staff</Label>

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
-import { parseCsv, type CsvRow, type RowValidation } from "@/lib/csv-import";
+import { parseImportFile, type CsvRow, type RowValidation } from "@/lib/csv-import";
 import type { ImportRowResult, ImportSummary } from "@/server/actions/import";
 
 function downloadTemplateCsv(filename: string, headers: string[], sampleRows: string[][]) {
@@ -71,24 +71,23 @@ export function CsvImportDialog<T>({
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setResults(null);
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = String(reader.result || "");
-      const rows = parseCsv(text, fieldAliases);
+    try {
+      const rows = await parseImportFile(file, fieldAliases);
       if (rows.length === 0) {
         toast.error("Couldn't find any rows in that file");
         setPreviewRows([]);
         return;
       }
       setPreviewRows(rows.map((raw, idx) => ({ rowNumber: idx + 2, raw, validation: validateRow(raw) })));
-    };
-    reader.onerror = () => toast.error("Couldn't read that file");
-    reader.readAsText(file);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't read that file");
+      setPreviewRows([]);
+    }
   }
 
   const validRows = previewRows.filter((r) => r.validation.ok) as (PreviewRow<T> & { validation: { ok: true; data: T } })[];
@@ -128,10 +127,11 @@ export function CsvImportDialog<T>({
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Import {entityLabel} from CSV</DialogTitle>
+          <DialogTitle>Import {entityLabel} from CSV or Excel</DialogTitle>
           <DialogDescription>
-            Upload a CSV file — download the template first if you're not sure of the columns. Each row is checked
-            before anything is saved, and duplicates (matching mobile number) are skipped automatically.
+            Upload a CSV or Excel (.xlsx/.xls) file — download the template first if you're not sure of the columns.
+            Each row is checked before anything is saved, and duplicates (matching mobile number) are skipped
+            automatically.
           </DialogDescription>
         </DialogHeader>
 
@@ -146,9 +146,15 @@ export function CsvImportDialog<T>({
               <Download className="size-3.5" /> Download template
             </Button>
             <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
-              <Upload className="size-3.5" /> Choose CSV file
+              <Upload className="size-3.5" /> Choose CSV or Excel file
             </Button>
-            <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleFile} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+              className="hidden"
+              onChange={handleFile}
+            />
             {fileName && <span className="truncate text-xs text-muted-foreground">{fileName}</span>}
             {previewRows.length > 0 && (
               <Button type="button" variant="ghost" size="sm" onClick={reset}>
@@ -190,7 +196,7 @@ export function CsvImportDialog<T>({
             <EmptyState
               icon={<Upload className="size-6" />}
               title="No file selected"
-              description={`Choose a CSV file to preview its ${entityLabel.toLowerCase()} before importing.`}
+              description={`Choose a CSV or Excel file to preview its ${entityLabel.toLowerCase()} before importing.`}
             />
           )}
 

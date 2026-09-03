@@ -23,12 +23,10 @@ export const SERVICE_OPTIONS = Object.entries(SERVICE_LABELS).map(([value, label
 }));
 
 export const LEAD_SOURCE_LABELS: Record<string, string> = {
-  GMB1: "Google My Business 1",
-  GMB2: "Google My Business 2",
+  WHATSAPP: "WhatsApp",
+  CALL: "Call",
   WEBSITE: "Website",
-  META: "Meta (FB/Insta)",
-  CALL: "Direct Call",
-  REFERRAL: "Referral",
+  GOOGLE: "Google",
 };
 
 export const LEAD_SOURCE_OPTIONS = Object.entries(LEAD_SOURCE_LABELS).map(([value, label]) => ({

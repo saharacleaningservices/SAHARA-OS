@@ -3,10 +3,15 @@ import { PageHeader } from "@/components/shared/page-header";
 import { LeadForm } from "@/components/leads/lead-form";
 import { getLeadDetail } from "@/server/leads";
 import { getStaffForAssignment } from "@/server/staff";
+import { getUsersForAssignment } from "@/server/users";
 
 export default async function EditLeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [lead, staffOptions] = await Promise.all([getLeadDetail(id), getStaffForAssignment()]);
+  const [lead, staffOptions, userOptions] = await Promise.all([
+    getLeadDetail(id),
+    getStaffForAssignment(),
+    getUsersForAssignment(),
+  ]);
   if (!lead) notFound();
 
   return (
@@ -15,6 +20,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
       <LeadForm
         leadId={lead.id}
         staffOptions={staffOptions}
+        userOptions={userOptions}
         defaultValues={{
           name: lead.name,
           mobile: lead.mobile,
@@ -26,6 +32,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
           quoteAmount: lead.quoteAmount ?? undefined,
           followUpDate: lead.followUpDate ? lead.followUpDate.toISOString().slice(0, 10) : "",
           assignedStaffId: lead.assignedStaffId ?? "",
+          assignedToId: lead.assignedToId ?? "",
           notes: lead.notes ?? "",
         }}
       />

@@ -21,6 +21,11 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
   const results: ImportRowResult[] = [];
   let created = 0;
 
+  // Defense in depth: a client-resolved assignedToId is trusted for display
+  // but re-checked here against real users before it ever reaches a foreign
+  // key, so a tampered/stale id can't crash the import mid-batch.
+  const validUserIds = new Set((await db.user.findMany({ select: { id: true } })).map((u) => u.id));
+
   for (let i = 0; i < rows.length; i++) {
     const rowNum = i + 1;
     const parsed = leadSchema.safeParse(rows[i]);
@@ -30,11 +35,16 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
     }
     const data = parsed.data;
 
+    // Prevent duplicate mobile numbers — matches an existing lead by mobile
+    // and skips the row rather than creating a second record for the same
+    // customer.
     const existing = await db.lead.findFirst({ where: { mobile: data.mobile } });
     if (existing) {
       results.push({ row: rowNum, status: "skipped", message: `${data.name} — duplicate mobile, matches existing lead ${existing.leadNumber}` });
       continue;
     }
+
+    const assignedToId = data.assignedToId && validUserIds.has(data.assignedToId) ? data.assignedToId : session?.sub;
 
     const leadNumber = await generateLeadNumber();
     const lead = await db.lead.create({
@@ -51,7 +61,7 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
         followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
         notes: data.notes || null,
         createdById: session?.sub,
-        assignedToId: session?.sub,
+        assignedToId,
       },
     });
 
