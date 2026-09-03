@@ -1,0 +1,52 @@
+name: Backup to Google Drive
+
+on:
+  schedule:
+    # 02:00 Asia/Kolkata (IST = UTC+5:30) -> 20:30 UTC the previous day.
+    # GitHub may start scheduled runs several minutes late under load.
+    - cron: "30 20 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: sahara-os-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download snapshot from the live app
+        env:
+          BACKUP_URL: ${{ secrets.BACKUP_URL }}
+          BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
+        run: |
+          set -euo pipefail
+          stamp="$(TZ=Asia/Kolkata date +%Y%m%d-%H%M%S)"
+          file="sahara-os-${stamp}.tar.gz"
+          echo "ARCHIVE=$file" >> "$GITHUB_ENV"
+          curl -fsSL --retry 4 --retry-delay 15 --retry-all-errors --max-time 600 \
+            -H "Authorization: Bearer ${BACKUP_TOKEN}" \
+            "${BACKUP_URL}" -o "$file"
+          # Fail loudly if we got an HTML error/login page instead of an archive.
+          file "$file" | grep -q 'gzip compressed' || { echo "::error::download is not a gzip archive"; head -c 500 "$file"; exit 1; }
+          tar -tzf "$file" >/dev/null
+          ls -lh "$file"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Google API client
+        run: pip install --quiet google-api-python-client google-auth
+
+      - name: Upload to Google Drive and prune old backups
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          KEEP_BACKUPS: "30"
+        run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
