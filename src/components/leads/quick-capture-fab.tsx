@@ -59,7 +59,8 @@ export function QuickCaptureFab() {
       <Button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 h-14 gap-2 rounded-full px-5 shadow-lg lg:bottom-8 lg:right-8"
+        className="fixed right-4 z-40 h-14 gap-2 rounded-full px-5 shadow-lg sm:right-6 lg:right-8"
+        style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}
         aria-label="New enquiry"
       >
         <Zap className="size-5" />

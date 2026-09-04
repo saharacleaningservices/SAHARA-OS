@@ -7,8 +7,8 @@ export async function getRevenueDashboard() {
   const monthStart = startOfMonth(now);
 
   const [todayPayments, monthPayments, activeAmc, monthUpsells, pendingPayments, jobsByCustomer] = await Promise.all([
-    db.payment.aggregate({ where: { status: "PAID", paidDate: { gte: todayStart } }, _sum: { paidAmount: true } }),
-    db.payment.aggregate({ where: { status: "PAID", paidDate: { gte: monthStart } }, _sum: { paidAmount: true } }),
+    db.payment.aggregate({ where: { deletedAt: null, status: "PAID", paidDate: { gte: todayStart } }, _sum: { paidAmount: true } }),
+    db.payment.aggregate({ where: { deletedAt: null, status: "PAID", paidDate: { gte: monthStart } }, _sum: { paidAmount: true } }),
     db.amcContract.aggregate({ where: { status: "ACTIVE", deletedAt: null }, _sum: { amount: true }, _count: true }),
     db.upsellEvent.aggregate({ where: { accepted: true, createdAt: { gte: monthStart } }, _sum: { comboValue: true }, _count: true }),
     db.payment.findMany({ where: { deletedAt: null, status: { not: "PAID" } }, select: { amount: true, paidAmount: true } }),

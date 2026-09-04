@@ -32,7 +32,13 @@ export async function middleware(request: NextRequest) {
     PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/uploads") ||
-    pathname === "/favicon.ico"
+    pathname === "/favicon.ico" ||
+    // Branding/PWA metadata routes — must be fetchable by the browser (tab
+    // favicon, home-screen icon, manifest) and by logged-out visitors on
+    // /login, so they can never be gated behind a session.
+    pathname === "/icon.svg" ||
+    pathname === "/apple-icon" ||
+    pathname === "/manifest.webmanifest"
   ) {
     return NextResponse.next();
   }
