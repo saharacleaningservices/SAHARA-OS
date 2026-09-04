@@ -212,6 +212,7 @@ export const WhatsAppKind = {
   REVIEW_REQUEST: 'REVIEW_REQUEST',
   AMC_RENEWAL: 'AMC_RENEWAL',
   ATTENDANCE_SUMMARY: 'ATTENDANCE_SUMMARY',
+  DEVICE_APPROVAL: 'DEVICE_APPROVAL',
   OTHER: 'OTHER'
 } as const
 
@@ -225,3 +226,12 @@ export const WhatsAppStatus = {
 } as const
 
 export type WhatsAppStatus = (typeof WhatsAppStatus)[keyof typeof WhatsAppStatus]
+
+
+export const DeviceStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  DENIED: 'DENIED'
+} as const
+
+export type DeviceStatus = (typeof DeviceStatus)[keyof typeof DeviceStatus]

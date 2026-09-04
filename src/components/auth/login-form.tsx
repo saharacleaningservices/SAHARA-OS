@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Lock, Mail } from "lucide-react";
+import { Loader2, Lock, Mail, ShieldCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ROLE_LABELS } from "@/lib/constants";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -18,31 +17,62 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-const DEMO_ACCOUNTS = [
-  { role: ROLE_LABELS.ADMIN, email: "admin@saharacleaningservices.com" },
-  { role: ROLE_LABELS.OPERATIONS, email: "operations@saharacleaningservices.com" },
-  { role: ROLE_LABELS.ACCOUNTS, email: "accounts@saharacleaningservices.com" },
-  { role: ROLE_LABELS.SUPERVISOR, email: "supervisor@saharacleaningservices.com" },
-  { role: ROLE_LABELS.STAFF, email: "staff@saharacleaningservices.com" },
-];
+const POLL_INTERVAL_MS = 4000;
 
 export function LoginForm({ next }: { next?: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pendingApproval, setPendingApproval] = useState(false);
+  const [denied, setDenied] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: "", password: "" },
   });
 
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  function goToDestination() {
+    router.push(next && next.startsWith("/") ? next : "/dashboard");
+    router.refresh();
+  }
+
+  function startPolling() {
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch("/api/auth/device-status");
+        const data = await res.json();
+        if (data.approved) {
+          if (pollRef.current) clearInterval(pollRef.current);
+          goToDestination();
+        } else if (data.denied) {
+          if (pollRef.current) clearInterval(pollRef.current);
+          setPendingApproval(false);
+          setDenied(true);
+        } else if (data.expired) {
+          if (pollRef.current) clearInterval(pollRef.current);
+          setPendingApproval(false);
+          setError("The approval request expired. Please sign in again.");
+        }
+      } catch {
+        // transient network issue — keep polling
+      }
+    }, POLL_INTERVAL_MS);
+  }
+
   async function onSubmit(values: FormValues) {
     setError(null);
+    setDenied(false);
     setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
@@ -51,17 +81,39 @@ export function LoginForm({ next }: { next?: string }) {
         body: JSON.stringify(values),
       });
       const data = await res.json();
+      setLoading(false);
       if (!res.ok) {
         setError(data.error ?? "Something went wrong. Please try again.");
-        setLoading(false);
         return;
       }
-      router.push(next && next.startsWith("/") ? next : "/dashboard");
-      router.refresh();
+      if (data.pending) {
+        setPendingApproval(true);
+        startPolling();
+        return;
+      }
+      goToDestination();
     } catch {
       setError("Could not reach the server. Please try again.");
       setLoading(false);
     }
+  }
+
+  if (pendingApproval) {
+    return (
+      <div className="w-full max-w-sm space-y-4 rounded-lg border border-border bg-card p-6 text-center">
+        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <ShieldCheck className="size-6" />
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Waiting for approval</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            This is a new device. Altaf has been notified and needs to approve this sign-in before you can continue.
+          </p>
+        </div>
+        <Loader2 className="mx-auto size-5 animate-spin text-muted-foreground" />
+        <p className="text-xs text-muted-foreground">This page updates automatically once approved.</p>
+      </div>
+    );
   }
 
   return (
@@ -85,6 +137,12 @@ export function LoginForm({ next }: { next?: string }) {
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
 
+        {denied && (
+          <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <XCircle className="size-4 shrink-0" />
+            This device was not approved. Contact Altaf if this was you.
+          </div>
+        )}
         {error && (
           <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
@@ -96,26 +154,6 @@ export function LoginForm({ next }: { next?: string }) {
           Sign in
         </Button>
       </form>
-
-      <div className="rounded-lg border border-border bg-muted/40 p-3">
-        <p className="mb-2 text-xs font-medium text-muted-foreground">Demo accounts (password: Sahara@2026)</p>
-        <div className="grid grid-cols-1 gap-1">
-          {DEMO_ACCOUNTS.map((acc) => (
-            <button
-              key={acc.email}
-              type="button"
-              onClick={() => {
-                setValue("email", acc.email);
-                setValue("password", "Sahara@2026");
-              }}
-              className="flex items-center justify-between rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent"
-            >
-              <span className="font-medium text-foreground">{acc.role}</span>
-              <span className="text-muted-foreground">{acc.email}</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

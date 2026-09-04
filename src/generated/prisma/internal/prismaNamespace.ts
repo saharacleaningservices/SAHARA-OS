@@ -391,6 +391,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  Device: 'Device',
   Staff: 'Staff',
   Attendance: 'Attendance',
   Lead: 'Lead',
@@ -435,7 +436,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo"
+    modelProps: "user" | "device" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -510,6 +511,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    Device: {
+      payload: Prisma.$DevicePayload<ExtArgs>
+      fields: Prisma.DeviceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DeviceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DeviceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        findFirst: {
+          args: Prisma.DeviceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DeviceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        findMany: {
+          args: Prisma.DeviceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>[]
+        }
+        create: {
+          args: Prisma.DeviceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        createMany: {
+          args: Prisma.DeviceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DeviceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>[]
+        }
+        delete: {
+          args: Prisma.DeviceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        update: {
+          args: Prisma.DeviceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        deleteMany: {
+          args: Prisma.DeviceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DeviceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DeviceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>[]
+        }
+        upsert: {
+          args: Prisma.DeviceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        aggregate: {
+          args: Prisma.DeviceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDevice>
+        }
+        groupBy: {
+          args: Prisma.DeviceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeviceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DeviceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeviceCountAggregateOutputType> | number
         }
       }
     }
@@ -2711,6 +2786,24 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const DeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  label: 'label',
+  ipAddress: 'ipAddress',
+  status: 'status',
+  otpCode: 'otpCode',
+  otpExpiresAt: 'otpExpiresAt',
+  approvedAt: 'approvedAt',
+  approvedByName: 'approvedByName',
+  lastSeenAt: 'lastSeenAt',
+  createdAt: 'createdAt'
+} as const
+
+export type DeviceScalarFieldEnum = (typeof DeviceScalarFieldEnum)[keyof typeof DeviceScalarFieldEnum]
+
+
 export const StaffScalarFieldEnum = {
   id: 'id',
   employeeCode: 'employeeCode',
@@ -3253,6 +3346,13 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
 
 
 /**
+ * Reference to a field of type 'DeviceStatus'
+ */
+export type EnumDeviceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeviceStatus'>
+    
+
+
+/**
  * Reference to a field of type 'SalaryType'
  */
 export type EnumSalaryTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SalaryType'>
@@ -3493,6 +3593,7 @@ export interface PrismaClientOptions {
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  device?: Prisma.DeviceOmit
   staff?: Prisma.StaffOmit
   attendance?: Prisma.AttendanceOmit
   lead?: Prisma.LeadOmit

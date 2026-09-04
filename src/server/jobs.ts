@@ -12,7 +12,8 @@ export async function getOwnStaffId(userId: string): Promise<string | null> {
 /**
  * Job list, scoped per role:
  * - Operations Manager: today + tomorrow only
- * - Team Leader: jobs they supervise or are assigned to (their own team)
+ * - Field Supervisor: jobs they supervise or are assigned to, AND only if
+ *   scheduled today or tomorrow
  * - Worker: jobs they're assigned to, today only
  * - Admin / everyone else: unrestricted
  */
@@ -24,12 +25,13 @@ export async function getAllJobsForList(session?: SessionPayload) {
 
   if (scope === "TODAY_TOMORROW") {
     where.scheduledDate = { gte: startOfDay(now), lte: endOfDay(addDays(now, 1)) };
-  } else if (scope === "OWN_TEAM" || scope === "OWN_TODAY") {
+  } else if (scope === "OWN_TODAY_TOMORROW" || scope === "OWN_TODAY") {
     const staffId = session ? await getOwnStaffId(session.sub) : null;
     where.OR = [{ supervisorId: staffId ?? "__none__" }, { assignments: { some: { staffId: staffId ?? "__none__" } } }];
-    if (scope === "OWN_TODAY") {
-      where.scheduledDate = { gte: startOfDay(now), lte: endOfDay(now) };
-    }
+    where.scheduledDate =
+      scope === "OWN_TODAY"
+        ? { gte: startOfDay(now), lte: endOfDay(now) }
+        : { gte: startOfDay(now), lte: endOfDay(addDays(now, 1)) };
   }
 
   return db.job.findMany({
@@ -66,11 +68,18 @@ export async function getJobDetail(id: string) {
 /** True if the given session is allowed to view/act on this specific job. */
 export function canAccessJob(
   session: SessionPayload,
-  job: { supervisorId: string | null; assignments: { staffId: string }[] },
+  job: { supervisorId: string | null; assignments: { staffId: string }[]; scheduledDate: Date },
   ownStaffId: string | null
 ): boolean {
   const scope = jobScopeFor(session.role);
   if (scope === "ALL" || scope === "TODAY_TOMORROW") return true;
   if (!ownStaffId) return false;
-  return job.supervisorId === ownStaffId || job.assignments.some((a) => a.staffId === ownStaffId);
+  const isOwnJob = job.supervisorId === ownStaffId || job.assignments.some((a) => a.staffId === ownStaffId);
+  if (!isOwnJob) return false;
+  if (scope === "OWN_TODAY_TOMORROW" || scope === "OWN_TODAY") {
+    const now = new Date();
+    const daysAhead = scope === "OWN_TODAY" ? 0 : 1;
+    return job.scheduledDate >= startOfDay(now) && job.scheduledDate <= endOfDay(addDays(now, daysAhead));
+  }
+  return true;
 }

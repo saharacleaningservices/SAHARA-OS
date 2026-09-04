@@ -1,4 +1,4 @@
-name: Backup to Google Drive
+name: Sahara OS Enterprise Backup
 
 on:
   schedule:
@@ -41,12 +41,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Verify backup integrity (stdlib sqlite3 — must pass before upload)
+        run: python .github/scripts/verify_backup.py "$ARCHIVE"
+
       - name: Install Google API client
         run: pip install --quiet google-api-python-client google-auth
 
-      - name: Upload to Google Drive and prune old backups
+      - name: Upload to Google Drive and apply daily/monthly retention
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-          KEEP_BACKUPS: "30"
+          KEEP_DAILY: "30"
+          KEEP_MONTHLY: "12"
         run: python .github/scripts/gdrive_backup.py "$ARCHIVE"

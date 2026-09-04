@@ -16,6 +16,7 @@ import {
   CalendarCheck,
   Wallet,
   MessageCircle,
+  Smartphone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -44,4 +45,5 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Trash", href: "/admin/trash", section: "trash", icon: Trash2 },
   { label: "Audit Log", href: "/admin/audit-log", section: "audit-log", icon: ScrollText },
   { label: "WhatsApp Log", href: "/admin/whatsapp-log", section: "whatsapp-log", icon: MessageCircle },
+  { label: "Device Approvals", href: "/admin/device-approvals", section: "device-approvals", icon: Smartphone },
 ];
