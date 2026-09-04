@@ -1,0 +1,98 @@
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { KeyRound, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { changePasswordSchema, type ChangePasswordFormValues } from "@/lib/validation";
+import { changePassword } from "@/server/actions/settings";
+
+export function ChangePasswordDialog() {
+  const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ChangePasswordFormValues>({ resolver: zodResolver(changePasswordSchema) });
+
+  async function onSubmit(values: ChangePasswordFormValues) {
+    setSubmitting(true);
+    const res = await changePassword(values);
+    setSubmitting(false);
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success("Password changed");
+    setOpen(false);
+    reset();
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) reset();
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          <KeyRound className="size-4" /> Change Password
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Change Password</DialogTitle>
+          <DialogDescription>Enter your current password and choose a new one.</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          <div className="space-y-1">
+            <Label htmlFor="currentPassword">Current Password</Label>
+            <Input id="currentPassword" type="password" autoComplete="current-password" {...register("currentPassword")} />
+            {errors.currentPassword && (
+              <p className="text-xs text-destructive">{errors.currentPassword.message}</p>
+            )}
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="newPassword">New Password</Label>
+            <Input id="newPassword" type="password" autoComplete="new-password" {...register("newPassword")} />
+            {errors.newPassword && <p className="text-xs text-destructive">{errors.newPassword.message}</p>}
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Input id="confirmPassword" type="password" autoComplete="new-password" {...register("confirmPassword")} />
+            {errors.confirmPassword && (
+              <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting && <Loader2 className="animate-spin" />}
+              Update Password
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -436,3 +436,17 @@ model ActivityLog {
   @@index([leadId])
   @@index([jobId])
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Company settings — a single row ("default"), editable from /settings
+// ─────────────────────────────────────────────────────────────────────────
+
+model CompanySettings {
+  id        String   @id @default("default")
+  name      String   @default("Sahara Cleaning Services")
+  phone     String   @default("7083347130")
+  email     String   @default("contact@saharacleaningservices.com")
+  address   String   @default("Opp. South Gate, Magarpatta City, Hadapsar, Pune.")
+  logoUrl   String?
+  updatedAt DateTime @updatedAt
+}

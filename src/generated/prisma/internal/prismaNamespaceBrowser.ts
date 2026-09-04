@@ -61,7 +61,8 @@ export const ModelName = {
   Certificate: 'Certificate',
   Payment: 'Payment',
   Expense: 'Expense',
-  ActivityLog: 'ActivityLog'
+  ActivityLog: 'ActivityLog',
+  CompanySettings: 'CompanySettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -308,6 +309,19 @@ export const ActivityLogScalarFieldEnum = {
 } as const
 
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+export const CompanySettingsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  logoUrl: 'logoUrl',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanySettingsScalarFieldEnum = (typeof CompanySettingsScalarFieldEnum)[keyof typeof CompanySettingsScalarFieldEnum]
 
 
 export const SortOrder = {

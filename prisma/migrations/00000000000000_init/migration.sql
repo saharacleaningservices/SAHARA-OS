@@ -270,3 +270,15 @@ CREATE TABLE "ActivityLog" (
 );
 CREATE INDEX "ActivityLog_leadId_idx" ON "ActivityLog"("leadId");
 CREATE INDEX "ActivityLog_jobId_idx" ON "ActivityLog"("jobId");
+
+-- ── CompanySettings (singleton) ────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS "CompanySettings" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
+    "name" TEXT NOT NULL DEFAULT 'Sahara Cleaning Services',
+    "phone" TEXT NOT NULL DEFAULT '7083347130',
+    "email" TEXT NOT NULL DEFAULT 'contact@saharacleaningservices.com',
+    "address" TEXT NOT NULL DEFAULT 'Opp. South Gate, Magarpatta City, Hadapsar, Pune.',
+    "logoUrl" TEXT,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT OR IGNORE INTO "CompanySettings" ("id") VALUES ('default');

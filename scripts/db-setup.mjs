@@ -50,4 +50,20 @@ if (alreadyInitialized) {
   console.log(`Sahara OS database created at ${dbPath}`);
 }
 
+// Tables added after the initial migration — created idempotently so existing
+// production databases pick them up on the next deploy.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "CompanySettings" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
+    "name" TEXT NOT NULL DEFAULT 'Sahara Cleaning Services',
+    "phone" TEXT NOT NULL DEFAULT '7083347130',
+    "email" TEXT NOT NULL DEFAULT 'contact@saharacleaningservices.com',
+    "address" TEXT NOT NULL DEFAULT 'Opp. South Gate, Magarpatta City, Hadapsar, Pune.',
+    "logoUrl" TEXT,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.prepare(`INSERT OR IGNORE INTO "CompanySettings" ("id") VALUES ('default')`).run();
+console.log("Ensured CompanySettings table exists.");
+
 db.close();

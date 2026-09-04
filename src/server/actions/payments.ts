@@ -34,6 +34,41 @@ export async function createPayment(values: unknown) {
   return { success: true as const };
 }
 
+export async function updatePayment(id: string, values: unknown) {
+  const parsed = paymentSchema.partial().safeParse(values);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
+  }
+  const d = parsed.data;
+  await db.payment.update({
+    where: { id },
+    data: {
+      ...(d.clientName && { clientName: d.clientName }),
+      ...(d.clientMobile !== undefined && { clientMobile: d.clientMobile || null }),
+      ...(d.amount !== undefined && { amount: d.amount }),
+      ...(d.dueDate && { dueDate: new Date(d.dueDate) }),
+      ...(d.mybillbookInvoiceNo !== undefined && {
+        mybillbookInvoiceNo: d.mybillbookInvoiceNo || null,
+      }),
+      ...(d.notes !== undefined && { notes: d.notes || null }),
+    },
+  });
+  revalidatePath("/payments");
+  revalidatePath("/dashboard");
+  revalidatePath("/profit");
+  return { success: true as const };
+}
+
+export async function deletePayment(id: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  await db.payment.delete({ where: { id } });
+  revalidatePath("/payments");
+  revalidatePath("/dashboard");
+  revalidatePath("/profit");
+  return { success: true };
+}
+
 export async function markPaymentPaid(paymentId: string) {
   const payment = await db.payment.findUnique({ where: { id: paymentId } });
   if (!payment) return { error: "Payment not found", success: false as const };

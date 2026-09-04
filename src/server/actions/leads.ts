@@ -86,6 +86,21 @@ export async function updateLead(id: string, values: unknown) {
   return { success: true, leadId: id };
 }
 
+export async function deleteLead(id: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+
+  // Detach records that aren't cascade-deleted so the delete can't fail.
+  await db.job.updateMany({ where: { leadId: id }, data: { leadId: null } });
+  await db.payment.updateMany({ where: { leadId: id }, data: { leadId: null } });
+  // Cascades quotations, follow-ups and activity logs.
+  await db.lead.delete({ where: { id } });
+
+  revalidatePath("/leads");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
 type LeadStage =
   | "NEW"
   | "SITE_VISIT"

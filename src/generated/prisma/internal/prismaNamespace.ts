@@ -402,7 +402,8 @@ export const ModelName = {
   Certificate: 'Certificate',
   Payment: 'Payment',
   Expense: 'Expense',
-  ActivityLog: 'ActivityLog'
+  ActivityLog: 'ActivityLog',
+  CompanySettings: 'CompanySettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog"
+    modelProps: "user" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1384,6 +1385,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CompanySettings: {
+      payload: Prisma.$CompanySettingsPayload<ExtArgs>
+      fields: Prisma.CompanySettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanySettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanySettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanySettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanySettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>
+        }
+        findMany: {
+          args: Prisma.CompanySettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>[]
+        }
+        create: {
+          args: Prisma.CompanySettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>
+        }
+        createMany: {
+          args: Prisma.CompanySettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanySettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.CompanySettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>
+        }
+        update: {
+          args: Prisma.CompanySettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanySettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanySettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanySettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanySettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanySettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanySettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanySettings>
+        }
+        groupBy: {
+          args: Prisma.CompanySettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanySettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanySettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanySettingsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1653,6 +1728,19 @@ export const ActivityLogScalarFieldEnum = {
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
 
 
+export const CompanySettingsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  email: 'email',
+  address: 'address',
+  logoUrl: 'logoUrl',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanySettingsScalarFieldEnum = (typeof CompanySettingsScalarFieldEnum)[keyof typeof CompanySettingsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1900,6 +1988,7 @@ export type GlobalOmitConfig = {
   payment?: Prisma.PaymentOmit
   expense?: Prisma.ExpenseOmit
   activityLog?: Prisma.ActivityLogOmit
+  companySettings?: Prisma.CompanySettingsOmit
 }
 
 /* Types for Logging */

@@ -106,3 +106,8 @@ export type Expense = Prisma.ExpenseModel
  * 
  */
 export type ActivityLog = Prisma.ActivityLogModel
+/**
+ * Model CompanySettings
+ * 
+ */
+export type CompanySettings = Prisma.CompanySettingsModel

@@ -8,6 +8,9 @@ import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ReminderButtons } from "./reminder-buttons";
 import { MarkPaidButton } from "./mark-paid-button";
+import { EditPaymentDialog } from "./edit-payment-dialog";
+import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { deletePayment } from "@/server/actions/payments";
 import { computePaymentStatus, pendingDays } from "@/lib/payment-status";
 import { formatINR, formatDate, cn } from "@/lib/utils";
 import { PAYMENT_STATUS_LABELS } from "@/lib/constants";
@@ -21,6 +24,8 @@ type Payment = {
   paidAmount: number;
   dueDate: Date;
   status: string;
+  mybillbookInvoiceNo: string | null;
+  notes: string | null;
   job?: { jobNumber: string } | null;
 };
 
@@ -119,7 +124,7 @@ export function PaymentsExplorer({ payments }: { payments: Payment[] }) {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1.5">
                         {p.liveStatus !== "PAID" && (
                           <>
                             <ReminderButtons
@@ -132,6 +137,8 @@ export function PaymentsExplorer({ payments }: { payments: Payment[] }) {
                             <MarkPaidButton paymentId={p.id} />
                           </>
                         )}
+                        <EditPaymentDialog payment={p} />
+                        <ConfirmDeleteButton action={deletePayment} id={p.id} entityLabel="payment" />
                       </div>
                     </TableCell>
                   </TableRow>

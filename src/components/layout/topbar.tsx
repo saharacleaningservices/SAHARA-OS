@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Menu, LogOut, User as UserIcon, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,16 +16,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { initials } from "@/lib/utils";
+import { CompanyLogo } from "@/components/shared/company-logo";
 import { ROLE_LABELS } from "@/lib/constants";
 
 export function Topbar({
   name,
   role,
+  logoUrl,
 }: {
   name: string;
   role: string;
+  logoUrl?: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -57,10 +59,8 @@ export function Topbar({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-full pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Avatar>
-              <AvatarFallback>{initials(name)}</AvatarFallback>
-            </Avatar>
+          <button className="flex items-center gap-2 rounded-md py-1 pl-1 pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <CompanyLogo logoUrl={logoUrl} className="h-7 w-auto max-w-[120px] sm:h-8 sm:max-w-[150px]" />
             <span className="hidden text-left sm:block">
               <span className="block text-sm font-medium leading-tight text-foreground">{name}</span>
               <span className="block text-xs leading-tight text-muted-foreground">
@@ -75,12 +75,18 @@ export function Topbar({
             <p className="text-xs font-normal text-muted-foreground">{ROLE_LABELS[role] ?? role}</p>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem disabled>
-            <UserIcon /> My Profile
+          <DropdownMenuItem asChild>
+            <Link href="/profile">
+              <UserIcon /> My Profile
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            <Settings /> Settings
-          </DropdownMenuItem>
+          {role === "ADMIN" && (
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <Settings /> Settings
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
             <LogOut /> Log out

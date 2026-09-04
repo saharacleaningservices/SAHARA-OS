@@ -9,6 +9,10 @@ import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
+import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { deleteJob } from "@/server/actions/jobs";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate, formatINR } from "@/lib/utils";
 
@@ -107,9 +111,15 @@ export function JobsExplorer({ jobs }: { jobs: Job[] }) {
                     <JobStatusBadge status={job.status} />
                   </TableCell>
                   <TableCell>
-                    <div className="flex justify-end gap-1.5">
+                    <div className="flex items-center justify-end gap-1.5">
                       <CallButton mobile={job.customerMobile} />
                       <WhatsAppButton mobile={job.customerMobile} />
+                      <Button variant="outline" size="icon" className="size-8" aria-label="Edit job" asChild>
+                        <Link href={`/jobs/${job.id}/edit`}>
+                          <Pencil className="size-3.5" />
+                        </Link>
+                      </Button>
+                      <ConfirmDeleteButton action={deleteJob} id={job.id} entityLabel="job" />
                     </div>
                   </TableCell>
                 </TableRow>
