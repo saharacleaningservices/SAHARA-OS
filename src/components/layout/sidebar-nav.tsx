@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "./nav-config";
 import { canAccess } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
 
 export function SidebarNav({ role, onNavigate }: { role: string; onNavigate?: () => void }) {
   const pathname = usePathname();
@@ -14,9 +13,11 @@ export function SidebarNav({ role, onNavigate }: { role: string; onNavigate?: ()
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2 px-5 py-5">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Sparkles className="size-5" />
-        </div>
+        {/* Square app-icon mark — always the bundled /icon.svg (same one used
+            for the favicon/PWA icon), regardless of the wordmark logo an
+            admin uploads in Settings, since a wide wordmark doesn't fit this
+            small square slot well. */}
+        <img src="/icon.svg" alt="" aria-hidden className="size-9 rounded-lg" />
         <div>
           <p className="text-sm font-semibold text-white leading-tight">Sahara OS</p>
           <p className="text-[11px] text-sidebar-foreground/70 leading-tight">Sahara Cleaning Services</p>

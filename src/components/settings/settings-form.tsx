@@ -134,6 +134,12 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             />
             <p className="text-xs text-muted-foreground">PNG, JPG or SVG · up to 8MB</p>
           </div>
+          <p className="text-xs text-muted-foreground">
+            This custom logo shows in the header. The sidebar icon, login page, browser favicon and app icon always
+            use Sahara OS&apos;s built-in mark, so they stay reliable even if this upload is ever lost — and if it
+            ever fails to load, the header falls back to the built-in mark automatically rather than showing a
+            broken image.
+          </p>
         </CardContent>
       </Card>
 

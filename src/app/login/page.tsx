@@ -1,6 +1,6 @@
 import { LoginForm } from "@/components/auth/login-form";
 import { COMPANY } from "@/lib/constants";
-import { Sparkles, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export default async function LoginPage({
   searchParams,
@@ -13,9 +13,7 @@ export default async function LoginPage({
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="hidden flex-col justify-between bg-secondary p-10 text-white lg:flex sahara-gradient">
         <div className="flex items-center gap-2">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-white/15">
-            <Sparkles className="size-5" />
-          </div>
+          <img src="/icon.svg" alt="" aria-hidden className="size-10 rounded-lg" />
           <span className="text-lg font-semibold">Sahara OS</span>
         </div>
 
@@ -40,9 +38,7 @@ export default async function LoginPage({
 
       <div className="flex flex-col items-center justify-center gap-8 p-6 sm:p-10">
         <div className="flex flex-col items-center gap-2 lg:hidden">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Sparkles className="size-5" />
-          </div>
+          <img src="/icon.svg" alt="" aria-hidden className="size-10 rounded-lg" />
           <span className="text-lg font-semibold text-foreground">Sahara OS</span>
         </div>
 

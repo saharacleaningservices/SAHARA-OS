@@ -9,11 +9,11 @@ export async function getProfitData() {
   const thirtyDaysAgo = startOfDay(subDays(now, 29));
   const [payments30, expenses30] = await Promise.all([
     db.payment.findMany({
-      where: { status: "PAID", paidDate: { gte: thirtyDaysAgo } },
+      where: { deletedAt: null, status: "PAID", paidDate: { gte: thirtyDaysAgo } },
       select: { paidAmount: true, paidDate: true },
     }),
     db.expense.findMany({
-      where: { date: { gte: thirtyDaysAgo } },
+      where: { deletedAt: null, date: { gte: thirtyDaysAgo } },
       select: { amount: true, date: true },
     }),
   ]);
@@ -44,8 +44,8 @@ export async function getProfitData() {
     const start = startOfMonth(monthDate);
     const end = endOfMonth(monthDate);
     const [rev, exp] = await Promise.all([
-      db.payment.aggregate({ where: { status: "PAID", paidDate: { gte: start, lte: end } }, _sum: { paidAmount: true } }),
-      db.expense.aggregate({ where: { date: { gte: start, lte: end } }, _sum: { amount: true } }),
+      db.payment.aggregate({ where: { deletedAt: null, status: "PAID", paidDate: { gte: start, lte: end } }, _sum: { paidAmount: true } }),
+      db.expense.aggregate({ where: { deletedAt: null, date: { gte: start, lte: end } }, _sum: { amount: true } }),
     ]);
     const revenue = rev._sum.paidAmount ?? 0;
     const expenses = exp._sum.amount ?? 0;
@@ -53,11 +53,13 @@ export async function getProfitData() {
   }
 
   // ── Lead conversion funnel ────────────────────────────────────────────
-  const stageCounts = await Promise.all(LEAD_STAGES.map((stage) => db.lead.count({ where: { stage } })));
+  const stageCounts = await Promise.all(
+    LEAD_STAGES.map((stage) => db.lead.count({ where: { deletedAt: null, stage } }))
+  );
   const totalLeads = stageCounts.reduce((a, b) => a + b, 0);
   // Cumulative funnel: leads that have reached at least this stage or beyond
   const stageOrderIndex: Record<string, number> = Object.fromEntries(LEAD_STAGES.map((s, i) => [s, i]));
-  const allLeadsStages = await db.lead.findMany({ select: { stage: true } });
+  const allLeadsStages = await db.lead.findMany({ where: { deletedAt: null }, select: { stage: true } });
   const funnel = LEAD_STAGES.map((stage) => ({
     stage,
     count: allLeadsStages.filter((l) => stageOrderIndex[l.stage] >= stageOrderIndex[stage]).length,
@@ -67,12 +69,15 @@ export async function getProfitData() {
 
   // ── Staff utilization ─────────────────────────────────────────────────
   const staffList = await db.staff.findMany({
-    where: { isActive: true },
+    where: { deletedAt: null, isActive: true },
     select: {
       id: true,
       name: true,
       availability: true,
-      jobAssignments: { where: { job: { scheduledDate: { gte: thirtyDaysAgo } } }, select: { id: true } },
+      jobAssignments: {
+        where: { job: { deletedAt: null, scheduledDate: { gte: thirtyDaysAgo } } },
+        select: { id: true },
+      },
     },
   });
   const utilizationByStaff = staffList
