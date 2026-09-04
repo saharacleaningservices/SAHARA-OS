@@ -394,6 +394,8 @@ export type JobWhereInput = {
   expenses?: Prisma.ExpenseListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
   materialIssues?: Prisma.MaterialIssueListRelationFilter
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  videos?: Prisma.JobVideoListRelationFilter
 }
 
 export type JobOrderByWithRelationInput = {
@@ -433,6 +435,8 @@ export type JobOrderByWithRelationInput = {
   expenses?: Prisma.ExpenseOrderByRelationAggregateInput
   activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
   materialIssues?: Prisma.MaterialIssueOrderByRelationAggregateInput
+  invoice?: Prisma.InvoiceOrderByWithRelationInput
+  videos?: Prisma.JobVideoOrderByRelationAggregateInput
 }
 
 export type JobWhereUniqueInput = Prisma.AtLeast<{
@@ -475,6 +479,8 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   expenses?: Prisma.ExpenseListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
   materialIssues?: Prisma.MaterialIssueListRelationFilter
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  videos?: Prisma.JobVideoListRelationFilter
 }, "id" | "jobNumber">
 
 export type JobOrderByWithAggregationInput = {
@@ -577,6 +583,8 @@ export type JobCreateInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateInput = {
@@ -613,6 +621,8 @@ export type JobUncheckedCreateInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobUpdateInput = {
@@ -649,6 +659,8 @@ export type JobUpdateInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateInput = {
@@ -685,6 +697,8 @@ export type JobUncheckedUpdateInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobCreateManyInput = {
@@ -1120,6 +1134,36 @@ export type JobUpdateOneRequiredWithoutMaterialIssuesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.JobUpdateToOneWithWhereWithoutMaterialIssuesInput, Prisma.JobUpdateWithoutMaterialIssuesInput>, Prisma.JobUncheckedUpdateWithoutMaterialIssuesInput>
 }
 
+export type JobCreateNestedOneWithoutInvoiceInput = {
+  create?: Prisma.XOR<Prisma.JobCreateWithoutInvoiceInput, Prisma.JobUncheckedCreateWithoutInvoiceInput>
+  connectOrCreate?: Prisma.JobCreateOrConnectWithoutInvoiceInput
+  connect?: Prisma.JobWhereUniqueInput
+}
+
+export type JobUpdateOneWithoutInvoiceNestedInput = {
+  create?: Prisma.XOR<Prisma.JobCreateWithoutInvoiceInput, Prisma.JobUncheckedCreateWithoutInvoiceInput>
+  connectOrCreate?: Prisma.JobCreateOrConnectWithoutInvoiceInput
+  upsert?: Prisma.JobUpsertWithoutInvoiceInput
+  disconnect?: Prisma.JobWhereInput | boolean
+  delete?: Prisma.JobWhereInput | boolean
+  connect?: Prisma.JobWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.JobUpdateToOneWithWhereWithoutInvoiceInput, Prisma.JobUpdateWithoutInvoiceInput>, Prisma.JobUncheckedUpdateWithoutInvoiceInput>
+}
+
+export type JobCreateNestedOneWithoutVideosInput = {
+  create?: Prisma.XOR<Prisma.JobCreateWithoutVideosInput, Prisma.JobUncheckedCreateWithoutVideosInput>
+  connectOrCreate?: Prisma.JobCreateOrConnectWithoutVideosInput
+  connect?: Prisma.JobWhereUniqueInput
+}
+
+export type JobUpdateOneRequiredWithoutVideosNestedInput = {
+  create?: Prisma.XOR<Prisma.JobCreateWithoutVideosInput, Prisma.JobUncheckedCreateWithoutVideosInput>
+  connectOrCreate?: Prisma.JobCreateOrConnectWithoutVideosInput
+  upsert?: Prisma.JobUpsertWithoutVideosInput
+  connect?: Prisma.JobWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.JobUpdateToOneWithWhereWithoutVideosInput, Prisma.JobUpdateWithoutVideosInput>, Prisma.JobUncheckedUpdateWithoutVideosInput>
+}
+
 export type JobCreateWithoutSupervisorInput = {
   id?: string
   jobNumber: string
@@ -1153,6 +1197,8 @@ export type JobCreateWithoutSupervisorInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutSupervisorInput = {
@@ -1188,6 +1234,8 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutSupervisorInput = {
@@ -1280,6 +1328,8 @@ export type JobCreateWithoutLeadInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutLeadInput = {
@@ -1315,6 +1365,8 @@ export type JobUncheckedCreateWithoutLeadInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutLeadInput = {
@@ -1375,6 +1427,8 @@ export type JobCreateWithoutAssignmentsInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutAssignmentsInput = {
@@ -1410,6 +1464,8 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutAssignmentsInput = {
@@ -1461,6 +1517,8 @@ export type JobUpdateWithoutAssignmentsInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutAssignmentsInput = {
@@ -1496,6 +1554,8 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobCreateWithoutPhotosInput = {
@@ -1531,6 +1591,8 @@ export type JobCreateWithoutPhotosInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutPhotosInput = {
@@ -1566,6 +1628,8 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutPhotosInput = {
@@ -1617,6 +1681,8 @@ export type JobUpdateWithoutPhotosInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutPhotosInput = {
@@ -1652,6 +1718,8 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobCreateWithoutCertificateInput = {
@@ -1687,6 +1755,8 @@ export type JobCreateWithoutCertificateInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutCertificateInput = {
@@ -1722,6 +1792,8 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutCertificateInput = {
@@ -1773,6 +1845,8 @@ export type JobUpdateWithoutCertificateInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutCertificateInput = {
@@ -1808,6 +1882,8 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobCreateWithoutPaymentsInput = {
@@ -1843,6 +1919,8 @@ export type JobCreateWithoutPaymentsInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutPaymentsInput = {
@@ -1878,6 +1956,8 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutPaymentsInput = {
@@ -1929,6 +2009,8 @@ export type JobUpdateWithoutPaymentsInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutPaymentsInput = {
@@ -1964,6 +2046,8 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobCreateWithoutExpensesInput = {
@@ -1999,6 +2083,8 @@ export type JobCreateWithoutExpensesInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutExpensesInput = {
@@ -2034,6 +2120,8 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutExpensesInput = {
@@ -2085,6 +2173,8 @@ export type JobUpdateWithoutExpensesInput = {
   payments?: Prisma.PaymentUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutExpensesInput = {
@@ -2120,6 +2210,8 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobCreateWithoutActivityLogsInput = {
@@ -2155,6 +2247,8 @@ export type JobCreateWithoutActivityLogsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutJobInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutActivityLogsInput = {
@@ -2190,6 +2284,8 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutJobInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutActivityLogsInput = {
@@ -2241,6 +2337,8 @@ export type JobUpdateWithoutActivityLogsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutJobNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutActivityLogsInput = {
@@ -2276,6 +2374,8 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutJobNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobCreateWithoutVehicleInput = {
@@ -2311,6 +2411,8 @@ export type JobCreateWithoutVehicleInput = {
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutVehicleInput = {
@@ -2346,6 +2448,8 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
   materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutVehicleInput = {
@@ -2406,6 +2510,8 @@ export type JobCreateWithoutMaterialIssuesInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutJobInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
 }
 
 export type JobUncheckedCreateWithoutMaterialIssuesInput = {
@@ -2441,6 +2547,8 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutJobInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
 }
 
 export type JobCreateOrConnectWithoutMaterialIssuesInput = {
@@ -2492,6 +2600,8 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   payments?: Prisma.PaymentUpdateManyWithoutJobNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
@@ -2527,6 +2637,336 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutJobNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
+}
+
+export type JobCreateWithoutInvoiceInput = {
+  id?: string
+  jobNumber: string
+  customerName: string
+  customerMobile: string
+  address: string
+  area: string
+  service: $Enums.ServiceType
+  scheduledDate: Date | string
+  scheduledTime: string
+  status?: $Enums.JobStatus
+  onTheWayAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  jobValue: number
+  notes?: string | null
+  customerSignatureUrl?: string | null
+  signedAt?: Date | string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lead?: Prisma.LeadCreateNestedOneWithoutJobsInput
+  supervisor?: Prisma.StaffCreateNestedOneWithoutSupervisedJobsInput
+  vehicle?: Prisma.VehicleCreateNestedOneWithoutJobsInput
+  assignments?: Prisma.JobAssignmentCreateNestedManyWithoutJobInput
+  photos?: Prisma.PhotoCreateNestedManyWithoutJobInput
+  certificate?: Prisma.CertificateCreateNestedOneWithoutJobInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutJobInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
+  materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  videos?: Prisma.JobVideoCreateNestedManyWithoutJobInput
+}
+
+export type JobUncheckedCreateWithoutInvoiceInput = {
+  id?: string
+  jobNumber: string
+  leadId?: string | null
+  customerName: string
+  customerMobile: string
+  address: string
+  area: string
+  service: $Enums.ServiceType
+  scheduledDate: Date | string
+  scheduledTime: string
+  supervisorId?: string | null
+  status?: $Enums.JobStatus
+  onTheWayAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  jobValue: number
+  notes?: string | null
+  customerSignatureUrl?: string | null
+  signedAt?: Date | string | null
+  mapLink?: string | null
+  vehicleId?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutJobInput
+  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutJobInput
+  certificate?: Prisma.CertificateUncheckedCreateNestedOneWithoutJobInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutJobInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
+  materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  videos?: Prisma.JobVideoUncheckedCreateNestedManyWithoutJobInput
+}
+
+export type JobCreateOrConnectWithoutInvoiceInput = {
+  where: Prisma.JobWhereUniqueInput
+  create: Prisma.XOR<Prisma.JobCreateWithoutInvoiceInput, Prisma.JobUncheckedCreateWithoutInvoiceInput>
+}
+
+export type JobUpsertWithoutInvoiceInput = {
+  update: Prisma.XOR<Prisma.JobUpdateWithoutInvoiceInput, Prisma.JobUncheckedUpdateWithoutInvoiceInput>
+  create: Prisma.XOR<Prisma.JobCreateWithoutInvoiceInput, Prisma.JobUncheckedCreateWithoutInvoiceInput>
+  where?: Prisma.JobWhereInput
+}
+
+export type JobUpdateToOneWithWhereWithoutInvoiceInput = {
+  where?: Prisma.JobWhereInput
+  data: Prisma.XOR<Prisma.JobUpdateWithoutInvoiceInput, Prisma.JobUncheckedUpdateWithoutInvoiceInput>
+}
+
+export type JobUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.LeadUpdateOneWithoutJobsNestedInput
+  supervisor?: Prisma.StaffUpdateOneWithoutSupervisedJobsNestedInput
+  vehicle?: Prisma.VehicleUpdateOneWithoutJobsNestedInput
+  assignments?: Prisma.JobAssignmentUpdateManyWithoutJobNestedInput
+  photos?: Prisma.PhotoUpdateManyWithoutJobNestedInput
+  certificate?: Prisma.CertificateUpdateOneWithoutJobNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutJobNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
+  materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
+}
+
+export type JobUncheckedUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutJobNestedInput
+  photos?: Prisma.PhotoUncheckedUpdateManyWithoutJobNestedInput
+  certificate?: Prisma.CertificateUncheckedUpdateOneWithoutJobNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutJobNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
+  materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
+}
+
+export type JobCreateWithoutVideosInput = {
+  id?: string
+  jobNumber: string
+  customerName: string
+  customerMobile: string
+  address: string
+  area: string
+  service: $Enums.ServiceType
+  scheduledDate: Date | string
+  scheduledTime: string
+  status?: $Enums.JobStatus
+  onTheWayAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  jobValue: number
+  notes?: string | null
+  customerSignatureUrl?: string | null
+  signedAt?: Date | string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lead?: Prisma.LeadCreateNestedOneWithoutJobsInput
+  supervisor?: Prisma.StaffCreateNestedOneWithoutSupervisedJobsInput
+  vehicle?: Prisma.VehicleCreateNestedOneWithoutJobsInput
+  assignments?: Prisma.JobAssignmentCreateNestedManyWithoutJobInput
+  photos?: Prisma.PhotoCreateNestedManyWithoutJobInput
+  certificate?: Prisma.CertificateCreateNestedOneWithoutJobInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutJobInput
+  expenses?: Prisma.ExpenseCreateNestedManyWithoutJobInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutJobInput
+  materialIssues?: Prisma.MaterialIssueCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutJobInput
+}
+
+export type JobUncheckedCreateWithoutVideosInput = {
+  id?: string
+  jobNumber: string
+  leadId?: string | null
+  customerName: string
+  customerMobile: string
+  address: string
+  area: string
+  service: $Enums.ServiceType
+  scheduledDate: Date | string
+  scheduledTime: string
+  supervisorId?: string | null
+  status?: $Enums.JobStatus
+  onTheWayAt?: Date | string | null
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  jobValue: number
+  notes?: string | null
+  customerSignatureUrl?: string | null
+  signedAt?: Date | string | null
+  mapLink?: string | null
+  vehicleId?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutJobInput
+  photos?: Prisma.PhotoUncheckedCreateNestedManyWithoutJobInput
+  certificate?: Prisma.CertificateUncheckedCreateNestedOneWithoutJobInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutJobInput
+  expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutJobInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutJobInput
+  materialIssues?: Prisma.MaterialIssueUncheckedCreateNestedManyWithoutJobInput
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutJobInput
+}
+
+export type JobCreateOrConnectWithoutVideosInput = {
+  where: Prisma.JobWhereUniqueInput
+  create: Prisma.XOR<Prisma.JobCreateWithoutVideosInput, Prisma.JobUncheckedCreateWithoutVideosInput>
+}
+
+export type JobUpsertWithoutVideosInput = {
+  update: Prisma.XOR<Prisma.JobUpdateWithoutVideosInput, Prisma.JobUncheckedUpdateWithoutVideosInput>
+  create: Prisma.XOR<Prisma.JobCreateWithoutVideosInput, Prisma.JobUncheckedCreateWithoutVideosInput>
+  where?: Prisma.JobWhereInput
+}
+
+export type JobUpdateToOneWithWhereWithoutVideosInput = {
+  where?: Prisma.JobWhereInput
+  data: Prisma.XOR<Prisma.JobUpdateWithoutVideosInput, Prisma.JobUncheckedUpdateWithoutVideosInput>
+}
+
+export type JobUpdateWithoutVideosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.LeadUpdateOneWithoutJobsNestedInput
+  supervisor?: Prisma.StaffUpdateOneWithoutSupervisedJobsNestedInput
+  vehicle?: Prisma.VehicleUpdateOneWithoutJobsNestedInput
+  assignments?: Prisma.JobAssignmentUpdateManyWithoutJobNestedInput
+  photos?: Prisma.PhotoUpdateManyWithoutJobNestedInput
+  certificate?: Prisma.CertificateUpdateOneWithoutJobNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutJobNestedInput
+  expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
+  materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+}
+
+export type JobUncheckedUpdateWithoutVideosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+  onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutJobNestedInput
+  photos?: Prisma.PhotoUncheckedUpdateManyWithoutJobNestedInput
+  certificate?: Prisma.CertificateUncheckedUpdateOneWithoutJobNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutJobNestedInput
+  expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
+  materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
 }
 
 export type JobCreateManySupervisorInput = {
@@ -2590,6 +3030,8 @@ export type JobUpdateWithoutSupervisorInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutSupervisorInput = {
@@ -2625,6 +3067,8 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateManyWithoutSupervisorInput = {
@@ -2716,6 +3160,8 @@ export type JobUpdateWithoutLeadInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutLeadInput = {
@@ -2751,6 +3197,8 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateManyWithoutLeadInput = {
@@ -2842,6 +3290,8 @@ export type JobUpdateWithoutVehicleInput = {
   expenses?: Prisma.ExpenseUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateWithoutVehicleInput = {
@@ -2877,6 +3327,8 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutJobNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutJobNestedInput
   materialIssues?: Prisma.MaterialIssueUncheckedUpdateManyWithoutJobNestedInput
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutJobNestedInput
+  videos?: Prisma.JobVideoUncheckedUpdateManyWithoutJobNestedInput
 }
 
 export type JobUncheckedUpdateManyWithoutVehicleInput = {
@@ -2919,6 +3371,7 @@ export type JobCountOutputType = {
   expenses: number
   activityLogs: number
   materialIssues: number
+  videos: number
 }
 
 export type JobCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2928,6 +3381,7 @@ export type JobCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.In
   expenses?: boolean | JobCountOutputTypeCountExpensesArgs
   activityLogs?: boolean | JobCountOutputTypeCountActivityLogsArgs
   materialIssues?: boolean | JobCountOutputTypeCountMaterialIssuesArgs
+  videos?: boolean | JobCountOutputTypeCountVideosArgs
 }
 
 /**
@@ -2982,6 +3436,13 @@ export type JobCountOutputTypeCountMaterialIssuesArgs<ExtArgs extends runtime.Ty
   where?: Prisma.MaterialIssueWhereInput
 }
 
+/**
+ * JobCountOutputType without action
+ */
+export type JobCountOutputTypeCountVideosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.JobVideoWhereInput
+}
+
 
 export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3020,6 +3481,8 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   expenses?: boolean | Prisma.Job$expensesArgs<ExtArgs>
   activityLogs?: boolean | Prisma.Job$activityLogsArgs<ExtArgs>
   materialIssues?: boolean | Prisma.Job$materialIssuesArgs<ExtArgs>
+  invoice?: boolean | Prisma.Job$invoiceArgs<ExtArgs>
+  videos?: boolean | Prisma.Job$videosArgs<ExtArgs>
   _count?: boolean | Prisma.JobCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["job"]>
 
@@ -3128,6 +3591,8 @@ export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   expenses?: boolean | Prisma.Job$expensesArgs<ExtArgs>
   activityLogs?: boolean | Prisma.Job$activityLogsArgs<ExtArgs>
   materialIssues?: boolean | Prisma.Job$materialIssuesArgs<ExtArgs>
+  invoice?: boolean | Prisma.Job$invoiceArgs<ExtArgs>
+  videos?: boolean | Prisma.Job$videosArgs<ExtArgs>
   _count?: boolean | Prisma.JobCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type JobIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3154,6 +3619,8 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     expenses: Prisma.$ExpensePayload<ExtArgs>[]
     activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
     materialIssues: Prisma.$MaterialIssuePayload<ExtArgs>[]
+    invoice: Prisma.$InvoicePayload<ExtArgs> | null
+    videos: Prisma.$JobVideoPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3586,6 +4053,8 @@ export interface Prisma__JobClient<T, Null = never, ExtArgs extends runtime.Type
   expenses<T extends Prisma.Job$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Job$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activityLogs<T extends Prisma.Job$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Job$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   materialIssues<T extends Prisma.Job$materialIssuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Job$materialIssuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialIssuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  invoice<T extends Prisma.Job$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Job$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  videos<T extends Prisma.Job$videosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Job$videosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JobVideoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4252,6 +4721,49 @@ export type Job$materialIssuesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.MaterialIssueScalarFieldEnum | Prisma.MaterialIssueScalarFieldEnum[]
+}
+
+/**
+ * Job.invoice
+ */
+export type Job$invoiceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Invoice
+   */
+  select?: Prisma.InvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Invoice
+   */
+  omit?: Prisma.InvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvoiceInclude<ExtArgs> | null
+  where?: Prisma.InvoiceWhereInput
+}
+
+/**
+ * Job.videos
+ */
+export type Job$videosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the JobVideo
+   */
+  select?: Prisma.JobVideoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the JobVideo
+   */
+  omit?: Prisma.JobVideoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.JobVideoInclude<ExtArgs> | null
+  where?: Prisma.JobVideoWhereInput
+  orderBy?: Prisma.JobVideoOrderByWithRelationInput | Prisma.JobVideoOrderByWithRelationInput[]
+  cursor?: Prisma.JobVideoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.JobVideoScalarFieldEnum | Prisma.JobVideoScalarFieldEnum[]
 }
 
 /**

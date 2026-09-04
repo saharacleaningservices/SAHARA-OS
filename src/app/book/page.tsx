@@ -4,7 +4,13 @@ import { COMPANY } from "@/lib/constants";
 
 export const metadata = { title: "Book a Service — Sahara Cleaning Services" };
 
-export default function PublicBookingPage() {
+export default async function PublicBookingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string }>;
+}) {
+  const { ref } = await searchParams;
+
   return (
     <div className="min-h-screen bg-background px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-md space-y-6">
@@ -15,7 +21,12 @@ export default function PublicBookingPage() {
           <h1 className="text-xl font-semibold text-foreground">Book a Service</h1>
           <p className="text-sm text-muted-foreground">{COMPANY.name} — Pune</p>
         </div>
-        <PublicBookingForm />
+        {ref && (
+          <p className="rounded-lg bg-success/10 p-2 text-center text-xs font-medium text-success">
+            Referred by a friend — code {ref} applied
+          </p>
+        )}
+        <PublicBookingForm referralCode={ref} />
         <p className="text-center text-xs text-muted-foreground">
           Or call/WhatsApp us directly at {COMPANY.phones[0]}.
         </p>

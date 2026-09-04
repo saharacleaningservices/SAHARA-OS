@@ -93,6 +93,13 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <Textarea id="address" rows={2} {...register("address")} />
             {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
           </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="googleReviewUrl">Google Review Link (optional)</Label>
+            <Input id="googleReviewUrl" placeholder="https://g.page/r/.../review" {...register("googleReviewUrl")} />
+            <p className="text-xs text-muted-foreground">
+              Shown to customers after job completion (review request WhatsApp message + confirmation page).
+            </p>
+          </div>
         </CardContent>
       </Card>
 

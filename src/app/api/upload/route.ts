@@ -6,9 +6,17 @@ import { getSession } from "@/lib/session";
 
 const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo"];
 const AUDIO_FOLDERS = ["voice"];
-const ALLOWED_FOLDERS = [...IMAGE_FOLDERS, ...AUDIO_FOLDERS];
+const VIDEO_FOLDERS = ["videos"];
+const ALLOWED_FOLDERS = [...IMAGE_FOLDERS, ...AUDIO_FOLDERS, ...VIDEO_FOLDERS];
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 const MAX_AUDIO_SIZE = 25 * 1024 * 1024; // 25MB
+const MAX_VIDEO_SIZE = 60 * 1024 * 1024; // 60MB
+
+const VIDEO_EXT: Record<string, string> = {
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/quicktime": "mov",
+};
 
 const AUDIO_EXT: Record<string, string> = {
   "audio/webm": "webm",
@@ -38,7 +46,8 @@ export async function POST(request: NextRequest) {
   }
 
   const isAudio = AUDIO_FOLDERS.includes(folder);
-  const maxSize = isAudio ? MAX_AUDIO_SIZE : MAX_IMAGE_SIZE;
+  const isVideo = VIDEO_FOLDERS.includes(folder);
+  const maxSize = isVideo ? MAX_VIDEO_SIZE : isAudio ? MAX_AUDIO_SIZE : MAX_IMAGE_SIZE;
   if (file.size > maxSize) {
     return NextResponse.json(
       { error: `File too large (max ${Math.round(maxSize / 1024 / 1024)}MB)` },
@@ -47,7 +56,12 @@ export async function POST(request: NextRequest) {
   }
 
   let ext: string;
-  if (isAudio) {
+  if (isVideo) {
+    if (!file.type.startsWith("video/")) {
+      return NextResponse.json({ error: "Only video uploads are supported here" }, { status: 400 });
+    }
+    ext = VIDEO_EXT[file.type.split(";")[0]] ?? "mp4";
+  } else if (isAudio) {
     if (!file.type.startsWith("audio/")) {
       return NextResponse.json({ error: "Only audio uploads are supported here" }, { status: 400 });
     }

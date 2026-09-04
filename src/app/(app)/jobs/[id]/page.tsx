@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { FileText, Users, Pencil } from "lucide-react";
+import { FileText, Users, Pencil, ExternalLink } from "lucide-react";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getVehiclesForAssignment } from "@/server/vehicles";
 import { PageHeader } from "@/components/shared/page-header";
@@ -10,8 +10,10 @@ import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-b
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
 import { PhotoUploader } from "@/components/jobs/photo-uploader";
+import { VideoUploader } from "@/components/jobs/video-uploader";
 import { SignatureCapture } from "@/components/jobs/signature-capture";
 import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
+import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
@@ -56,6 +58,18 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 </a>
               </Button>
             )}
+            {job.invoice && (
+              <Button variant="outline" size="sm" asChild>
+                <a href={`/api/invoices/${job.invoice.id}/pdf`} target="_blank" rel="noreferrer">
+                  <FileText className="size-3.5" /> Invoice
+                </a>
+              </Button>
+            )}
+            <Button variant="outline" size="sm" asChild>
+              <a href={`/j/${job.jobNumber}`} target="_blank" rel="noreferrer">
+                <ExternalLink className="size-3.5" /> Customer Page
+              </a>
+            </Button>
           </>
         }
       />
@@ -99,10 +113,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </Card>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle className="flex items-center gap-2">
                 <Users className="size-4" /> Assigned Crew
               </CardTitle>
+              {canManage && job.assignments.length > 0 && <SendDispatchButton jobId={job.id} />}
             </CardHeader>
             <CardContent>
               {job.assignments.length === 0 ? (
@@ -156,6 +171,24 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 </div>
               )}
               <PhotoUploader jobId={job.id} type="AFTER" />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Job Videos</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {job.videos.length === 0 ? (
+                <EmptyState title="No videos yet" />
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {job.videos.map((v) => (
+                    <video key={v.id} src={v.url} controls className="w-full rounded-lg border border-border" />
+                  ))}
+                </div>
+              )}
+              <VideoUploader jobId={job.id} />
             </CardContent>
           </Card>
         </div>

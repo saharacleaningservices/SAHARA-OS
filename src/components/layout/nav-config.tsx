@@ -12,6 +12,10 @@ import {
   BookUser,
   Trash2,
   ScrollText,
+  ShieldCheck,
+  CalendarCheck,
+  Wallet,
+  MessageCircle,
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,12 +32,16 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Jobs", href: "/jobs", section: "jobs", icon: ClipboardList },
   { label: "Staff", href: "/staff", section: "staff", icon: UserCog },
   { label: "Vehicles", href: "/vehicles", section: "vehicles", icon: Truck },
+  { label: "Attendance", href: "/attendance", section: "attendance", icon: CalendarCheck },
+  { label: "AMC Contracts", href: "/amc", section: "amc", icon: ShieldCheck },
   { label: "Payments", href: "/payments", section: "payments", icon: IndianRupee },
   { label: "Expenses", href: "/expenses", section: "expenses", icon: Receipt },
+  { label: "Revenue Dashboard", href: "/revenue", section: "revenue", icon: Wallet },
   { label: "Profit Dashboard", href: "/profit", section: "profit", icon: TrendingUp },
   { label: "Customers", href: "/customers", section: "customers", icon: BookUser },
   { label: "Reports", href: "/reports", section: "reports", icon: FileText },
   { label: "AI Assistant", href: "/assistant", section: "assistant", icon: Sparkles },
   { label: "Trash", href: "/admin/trash", section: "trash", icon: Trash2 },
   { label: "Audit Log", href: "/admin/audit-log", section: "audit-log", icon: ScrollText },
+  { label: "WhatsApp Log", href: "/admin/whatsapp-log", section: "whatsapp-log", icon: MessageCircle },
 ];

@@ -31,6 +31,7 @@ export type CompanySettingsMinAggregateOutputType = {
   email: string | null
   address: string | null
   logoUrl: string | null
+  googleReviewUrl: string | null
   updatedAt: Date | null
 }
 
@@ -41,6 +42,7 @@ export type CompanySettingsMaxAggregateOutputType = {
   email: string | null
   address: string | null
   logoUrl: string | null
+  googleReviewUrl: string | null
   updatedAt: Date | null
 }
 
@@ -51,6 +53,7 @@ export type CompanySettingsCountAggregateOutputType = {
   email: number
   address: number
   logoUrl: number
+  googleReviewUrl: number
   updatedAt: number
   _all: number
 }
@@ -63,6 +66,7 @@ export type CompanySettingsMinAggregateInputType = {
   email?: true
   address?: true
   logoUrl?: true
+  googleReviewUrl?: true
   updatedAt?: true
 }
 
@@ -73,6 +77,7 @@ export type CompanySettingsMaxAggregateInputType = {
   email?: true
   address?: true
   logoUrl?: true
+  googleReviewUrl?: true
   updatedAt?: true
 }
 
@@ -83,6 +88,7 @@ export type CompanySettingsCountAggregateInputType = {
   email?: true
   address?: true
   logoUrl?: true
+  googleReviewUrl?: true
   updatedAt?: true
   _all?: true
 }
@@ -166,6 +172,7 @@ export type CompanySettingsGroupByOutputType = {
   email: string
   address: string
   logoUrl: string | null
+  googleReviewUrl: string | null
   updatedAt: Date
   _count: CompanySettingsCountAggregateOutputType | null
   _min: CompanySettingsMinAggregateOutputType | null
@@ -197,6 +204,7 @@ export type CompanySettingsWhereInput = {
   email?: Prisma.StringFilter<"CompanySettings"> | string
   address?: Prisma.StringFilter<"CompanySettings"> | string
   logoUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"CompanySettings"> | Date | string
 }
 
@@ -207,6 +215,7 @@ export type CompanySettingsOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -220,6 +229,7 @@ export type CompanySettingsWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringFilter<"CompanySettings"> | string
   address?: Prisma.StringFilter<"CompanySettings"> | string
   logoUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"CompanySettings"> | Date | string
 }, "id">
 
@@ -230,6 +240,7 @@ export type CompanySettingsOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CompanySettingsCountOrderByAggregateInput
   _max?: Prisma.CompanySettingsMaxOrderByAggregateInput
@@ -246,6 +257,7 @@ export type CompanySettingsScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"CompanySettings"> | string
   address?: Prisma.StringWithAggregatesFilter<"CompanySettings"> | string
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  googleReviewUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CompanySettings"> | Date | string
 }
 
@@ -256,6 +268,7 @@ export type CompanySettingsCreateInput = {
   email?: string
   address?: string
   logoUrl?: string | null
+  googleReviewUrl?: string | null
   updatedAt?: Date | string
 }
 
@@ -266,6 +279,7 @@ export type CompanySettingsUncheckedCreateInput = {
   email?: string
   address?: string
   logoUrl?: string | null
+  googleReviewUrl?: string | null
   updatedAt?: Date | string
 }
 
@@ -276,6 +290,7 @@ export type CompanySettingsUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -286,6 +301,7 @@ export type CompanySettingsUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -296,6 +312,7 @@ export type CompanySettingsCreateManyInput = {
   email?: string
   address?: string
   logoUrl?: string | null
+  googleReviewUrl?: string | null
   updatedAt?: Date | string
 }
 
@@ -306,6 +323,7 @@ export type CompanySettingsUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -316,6 +334,7 @@ export type CompanySettingsUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -326,6 +345,7 @@ export type CompanySettingsCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -336,6 +356,7 @@ export type CompanySettingsMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -346,6 +367,7 @@ export type CompanySettingsMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -358,6 +380,7 @@ export type CompanySettingsSelect<ExtArgs extends runtime.Types.Extensions.Inter
   email?: boolean
   address?: boolean
   logoUrl?: boolean
+  googleReviewUrl?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["companySettings"]>
 
@@ -368,6 +391,7 @@ export type CompanySettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   email?: boolean
   address?: boolean
   logoUrl?: boolean
+  googleReviewUrl?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["companySettings"]>
 
@@ -378,6 +402,7 @@ export type CompanySettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   email?: boolean
   address?: boolean
   logoUrl?: boolean
+  googleReviewUrl?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["companySettings"]>
 
@@ -388,10 +413,11 @@ export type CompanySettingsSelectScalar = {
   email?: boolean
   address?: boolean
   logoUrl?: boolean
+  googleReviewUrl?: boolean
   updatedAt?: boolean
 }
 
-export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "logoUrl" | "updatedAt", ExtArgs["result"]["companySettings"]>
+export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "logoUrl" | "googleReviewUrl" | "updatedAt", ExtArgs["result"]["companySettings"]>
 
 export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CompanySettings"
@@ -403,6 +429,7 @@ export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.Int
     email: string
     address: string
     logoUrl: string | null
+    googleReviewUrl: string | null
     updatedAt: Date
   }, ExtArgs["result"]["companySettings"]>
   composites: {}
@@ -833,6 +860,7 @@ export interface CompanySettingsFieldRefs {
   readonly email: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly address: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly logoUrl: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly googleReviewUrl: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"CompanySettings", 'DateTime'>
 }
     

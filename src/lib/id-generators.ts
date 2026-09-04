@@ -35,3 +35,8 @@ export async function generateEmployeeCode() {
   const count = await db.staff.count();
   return `SCS-${String(count + 1).padStart(3, "0")}`;
 }
+
+export async function generateAmcNumber() {
+  const count = await db.amcContract.count();
+  return nextNumber("AMC", count);
+}

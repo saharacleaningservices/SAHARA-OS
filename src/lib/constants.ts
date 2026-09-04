@@ -41,6 +41,17 @@ export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
   COMMERCIAL_CLEANING: "COMMERCIAL_CLEANING",
 };
 
+// Reverse of the above — used wherever only the legacy ServiceType is known
+// (e.g. Job.service) but a Phase 3 feature needs the newer ServiceCategory
+// (upsell rules, AMC contracts).
+export const LEGACY_TO_SERVICE_CATEGORY: Record<string, string> = {
+  HOME_DEEP_CLEANING: "HOME_DEEP_CLEANING",
+  HOUSEKEEPING: "INDIVIDUAL_CLEANING",
+  INTERIOR_PAINTING: "PAINTING",
+  PEST_CONTROL: "PEST_CONTROL",
+  COMMERCIAL_CLEANING: "COMMERCIAL_CLEANING",
+};
+
 export const SERVICE_CATALOG: Record<string, string[]> = {
   HOME_DEEP_CLEANING: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow"],
   INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Floor", "Fan", "Fridge", "Balcony"],
@@ -215,7 +226,7 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-  OPERATIONS: ["dashboard", "jobs", "staff", "vehicles", "profile"],
+  OPERATIONS: ["dashboard", "jobs", "staff", "vehicles", "profile", "attendance", "amc"],
   ACCOUNTS: [
     "dashboard",
     "leads",
@@ -226,9 +237,11 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     "customers",
     "assistant",
     "profile",
+    "revenue",
+    "amc",
   ],
-  SUPERVISOR: ["dashboard", "jobs", "staff", "profile"],
-  STAFF: ["dashboard", "jobs", "profile"],
+  SUPERVISOR: ["dashboard", "jobs", "staff", "profile", "attendance"],
+  STAFF: ["dashboard", "jobs", "profile", "attendance"],
 };
 
 export function canAccess(role: string, section: string) {
@@ -256,3 +269,57 @@ export const QUOTATION_TERMS = `1. Prices are inclusive of standard materials & 
 4. Rescheduling requires at least 24 hours' notice.
 5. This quotation is valid for 7 days from the date of issue.
 6. Minimum job value is ₹${3999}.`;
+
+// ─────────────────────────────────────────────────────────────────────────
+// Phase 3 — Revenue, WhatsApp & Workforce Automation
+// ─────────────────────────────────────────────────────────────────────────
+
+export const AMC_CATEGORY_LABELS: Record<string, string> = {
+  RESIDENTIAL: "Residential",
+  COMMERCIAL: "Commercial",
+};
+
+export const AMC_FREQUENCY_LABELS: Record<string, string> = {
+  MONTHLY: "Monthly",
+  QUARTERLY: "Quarterly",
+  HALF_YEARLY: "Half-Yearly",
+  ANNUAL: "Annual",
+};
+
+// Residential AMCs are offered Quarterly/Half-Yearly/Annual; Commercial AMCs
+// are offered Monthly/Quarterly/Annual, per the spec.
+export const AMC_FREQUENCIES_BY_CATEGORY: Record<string, string[]> = {
+  RESIDENTIAL: ["QUARTERLY", "HALF_YEARLY", "ANNUAL"],
+  COMMERCIAL: ["MONTHLY", "QUARTERLY", "ANNUAL"],
+};
+
+export const AMC_STATUS_LABELS: Record<string, string> = {
+  ACTIVE: "Active",
+  EXPIRED: "Expired",
+  CANCELLED: "Cancelled",
+};
+
+export const AMC_FREQUENCY_DAYS: Record<string, number> = {
+  MONTHLY: 30,
+  QUARTERLY: 90,
+  HALF_YEARLY: 182,
+  ANNUAL: 365,
+};
+
+// Fine & Reward System — tracked categories (free-text on the DB row, fixed
+// options in the UI so reporting stays consistent).
+export const FINE_TYPES = [
+  "Late Arrival",
+  "Uniform Missing",
+  "PPE Missing",
+  "Gutkha",
+  "Smoking",
+  "Customer Complaint",
+  "Before/After Photo Missing",
+] as const;
+
+export const REWARD_TYPES = [
+  "On-Time",
+  "Five-Star Review",
+  "Zero Complaints (Month)",
+] as const;

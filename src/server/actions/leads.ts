@@ -19,9 +19,13 @@ import {
   FOLLOWUP_TYPE_LABELS,
   CALL_OUTCOME_LABELS,
   COMPANY,
+  SERVICE_LABELS,
 } from "@/lib/constants";
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
+import { dispatchTeamForJob } from "@/server/dispatch";
+import { sendWhatsApp } from "@/lib/whatsapp";
+import { bookingConfirmationMessage } from "@/lib/whatsapp-templates";
 
 const MIN_JOB_VALUE = COMPANY.minimumJobValue;
 
@@ -272,6 +276,23 @@ export async function confirmBooking(leadId: string, values: unknown) {
   await db.activityLog.create({
     data: { jobId: job.id, actorId: session?.sub, action: `Job ${jobNumber} created from enquiry ${lead.leadNumber}` },
   });
+
+  await sendWhatsApp({
+    kind: "BOOKING_CONFIRMATION",
+    toNumber: lead.mobile,
+    toName: lead.name,
+    body: bookingConfirmationMessage({
+      customerName: lead.name,
+      service: SERVICE_LABELS[lead.service] ?? lead.service,
+      area: lead.area,
+      date: scheduledDate,
+      timeSlot: data.timeSlot,
+      jobNumber,
+    }),
+    relatedType: "Job",
+    relatedId: job.id,
+  }).catch(() => {});
+  await dispatchTeamForJob(job.id).catch(() => {});
 
   revalidatePath("/leads");
   revalidatePath(`/leads/${leadId}`);

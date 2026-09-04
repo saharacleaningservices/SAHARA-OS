@@ -91,6 +91,7 @@ export const companySettingsSchema = z.object({
   email: z.string().email("Enter a valid email"),
   address: z.string().min(4, "Address is required"),
   logoUrl: z.string().optional().or(z.literal("")),
+  googleReviewUrl: z.string().optional().or(z.literal("")),
 });
 
 export type CompanySettingsFormValues = z.infer<typeof companySettingsSchema>;
@@ -164,3 +165,19 @@ export type CallLogFormValues = z.infer<typeof callLogSchema>;
 export const timelineNoteSchema = z.object({
   body: z.string().min(1, "Write something first").max(4000),
 });
+
+export const amcSchema = z.object({
+  customerName: z.string().min(2, "Name is required"),
+  customerMobile: z.string().min(10, "Enter a valid mobile number"),
+  address: z.string().optional().or(z.literal("")),
+  area: z.string().optional().or(z.literal("")),
+  category: z.enum(["RESIDENTIAL", "COMMERCIAL"]),
+  frequency: z.enum(["MONTHLY", "QUARTERLY", "HALF_YEARLY", "ANNUAL"]),
+  serviceCategory: z.string().optional().or(z.literal("")),
+  amount: z.coerce.number().min(0, "Enter a valid amount"),
+  startDate: z.string().min(1, "Pick a start date"),
+  notes: z.string().optional().or(z.literal("")),
+  leadId: z.string().optional().or(z.literal("")),
+});
+
+export type AmcFormValues = z.infer<typeof amcSchema>;

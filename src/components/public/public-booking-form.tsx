@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { ShareLocationButton } from "@/components/shared/share-location-button";
+import { UpsellOfferCard, type UpsellOffer } from "@/components/shared/upsell-offer-card";
 import { publicBookLead } from "@/server/actions/public-booking";
 
-export function PublicBookingForm() {
+export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [area, setArea] = useState("");
@@ -19,6 +20,7 @@ export function PublicBookingForm() {
   const [variant, setVariant] = useState("");
   const [notes, setNotes] = useState("");
   const [mapLink, setMapLink] = useState("");
+  const [upsell, setUpsell] = useState<{ offer: UpsellOffer | null; accepted: boolean }>({ offer: null, accepted: false });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
@@ -27,7 +29,22 @@ export function PublicBookingForm() {
     e.preventDefault();
     setError("");
     setSubmitting(true);
-    const res = await publicBookLead({ name, mobile, area, address, serviceCategory: category, serviceVariant: variant, notes, mapLink, website: "" });
+    const res = await publicBookLead({
+      name,
+      mobile,
+      area,
+      address,
+      serviceCategory: category,
+      serviceVariant: variant,
+      notes,
+      mapLink,
+      website: "",
+      referralCode: referralCode || "",
+      upsellRuleId: upsell.offer?.id || "",
+      upsellLabel: upsell.offer?.label || "",
+      upsellValue: upsell.offer?.comboPrice ?? 0,
+      upsellAccepted: upsell.accepted,
+    });
     setSubmitting(false);
     if ("error" in res) {
       setError(res.error ?? "Something went wrong");
@@ -69,6 +86,8 @@ export function PublicBookingForm() {
       </div>
 
       <ServiceCategoryPicker category={category} variant={variant} onCategoryChange={(v) => { setCategory(v); setVariant(""); }} onVariantChange={setVariant} />
+
+      <UpsellOfferCard category={category} onChange={(offer, accepted) => setUpsell({ offer, accepted })} />
 
       <div className="space-y-1.5">
         <Label htmlFor="pb-notes">Anything else we should know? (optional)</Label>

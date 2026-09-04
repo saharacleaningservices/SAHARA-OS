@@ -351,6 +351,7 @@ export type PaymentWhereInput = {
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   lead?: Prisma.XOR<Prisma.LeadNullableScalarRelationFilter, Prisma.LeadWhereInput> | null
   recordedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
 }
 
 export type PaymentOrderByWithRelationInput = {
@@ -378,6 +379,7 @@ export type PaymentOrderByWithRelationInput = {
   job?: Prisma.JobOrderByWithRelationInput
   lead?: Prisma.LeadOrderByWithRelationInput
   recordedBy?: Prisma.UserOrderByWithRelationInput
+  invoice?: Prisma.InvoiceOrderByWithRelationInput
 }
 
 export type PaymentWhereUniqueInput = Prisma.AtLeast<{
@@ -408,6 +410,7 @@ export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   lead?: Prisma.XOR<Prisma.LeadNullableScalarRelationFilter, Prisma.LeadWhereInput> | null
   recordedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
 }, "id" | "invoiceNumber">
 
 export type PaymentOrderByWithAggregationInput = {
@@ -488,6 +491,7 @@ export type PaymentCreateInput = {
   job?: Prisma.JobCreateNestedOneWithoutPaymentsInput
   lead?: Prisma.LeadCreateNestedOneWithoutPaymentsInput
   recordedBy?: Prisma.UserCreateNestedOneWithoutPaymentsRecordedInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentUncheckedCreateInput = {
@@ -512,6 +516,7 @@ export type PaymentUncheckedCreateInput = {
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentUpdateInput = {
@@ -536,6 +541,7 @@ export type PaymentUpdateInput = {
   job?: Prisma.JobUpdateOneWithoutPaymentsNestedInput
   lead?: Prisma.LeadUpdateOneWithoutPaymentsNestedInput
   recordedBy?: Prisma.UserUpdateOneWithoutPaymentsRecordedNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateInput = {
@@ -560,6 +566,7 @@ export type PaymentUncheckedUpdateInput = {
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentCreateManyInput = {
@@ -723,6 +730,11 @@ export type PaymentSumOrderByAggregateInput = {
   paidAmount?: Prisma.SortOrder
 }
 
+export type PaymentNullableScalarRelationFilter = {
+  is?: Prisma.PaymentWhereInput | null
+  isNot?: Prisma.PaymentWhereInput | null
+}
+
 export type PaymentCreateNestedManyWithoutRecordedByInput = {
   create?: Prisma.XOR<Prisma.PaymentCreateWithoutRecordedByInput, Prisma.PaymentUncheckedCreateWithoutRecordedByInput> | Prisma.PaymentCreateWithoutRecordedByInput[] | Prisma.PaymentUncheckedCreateWithoutRecordedByInput[]
   connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutRecordedByInput | Prisma.PaymentCreateOrConnectWithoutRecordedByInput[]
@@ -857,6 +869,22 @@ export type NullableEnumReminderChannelFieldUpdateOperationsInput = {
   set?: $Enums.ReminderChannel | null
 }
 
+export type PaymentCreateNestedOneWithoutInvoiceInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput>
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInvoiceInput
+  connect?: Prisma.PaymentWhereUniqueInput
+}
+
+export type PaymentUpdateOneWithoutInvoiceNestedInput = {
+  create?: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput>
+  connectOrCreate?: Prisma.PaymentCreateOrConnectWithoutInvoiceInput
+  upsert?: Prisma.PaymentUpsertWithoutInvoiceInput
+  disconnect?: Prisma.PaymentWhereInput | boolean
+  delete?: Prisma.PaymentWhereInput | boolean
+  connect?: Prisma.PaymentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PaymentUpdateToOneWithWhereWithoutInvoiceInput, Prisma.PaymentUpdateWithoutInvoiceInput>, Prisma.PaymentUncheckedUpdateWithoutInvoiceInput>
+}
+
 export type PaymentCreateWithoutRecordedByInput = {
   id?: string
   invoiceNumber: string
@@ -878,6 +906,7 @@ export type PaymentCreateWithoutRecordedByInput = {
   deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutPaymentsInput
   lead?: Prisma.LeadCreateNestedOneWithoutPaymentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentUncheckedCreateWithoutRecordedByInput = {
@@ -901,6 +930,7 @@ export type PaymentUncheckedCreateWithoutRecordedByInput = {
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentCreateOrConnectWithoutRecordedByInput = {
@@ -976,6 +1006,7 @@ export type PaymentCreateWithoutLeadInput = {
   deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutPaymentsInput
   recordedBy?: Prisma.UserCreateNestedOneWithoutPaymentsRecordedInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentUncheckedCreateWithoutLeadInput = {
@@ -999,6 +1030,7 @@ export type PaymentUncheckedCreateWithoutLeadInput = {
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentCreateOrConnectWithoutLeadInput = {
@@ -1047,6 +1079,7 @@ export type PaymentCreateWithoutJobInput = {
   deletedByName?: string | null
   lead?: Prisma.LeadCreateNestedOneWithoutPaymentsInput
   recordedBy?: Prisma.UserCreateNestedOneWithoutPaymentsRecordedInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentUncheckedCreateWithoutJobInput = {
@@ -1070,6 +1103,7 @@ export type PaymentUncheckedCreateWithoutJobInput = {
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutPaymentInput
 }
 
 export type PaymentCreateOrConnectWithoutJobInput = {
@@ -1095,6 +1129,118 @@ export type PaymentUpdateWithWhereUniqueWithoutJobInput = {
 export type PaymentUpdateManyWithWhereWithoutJobInput = {
   where: Prisma.PaymentScalarWhereInput
   data: Prisma.XOR<Prisma.PaymentUpdateManyMutationInput, Prisma.PaymentUncheckedUpdateManyWithoutJobInput>
+}
+
+export type PaymentCreateWithoutInvoiceInput = {
+  id?: string
+  invoiceNumber: string
+  clientName: string
+  clientMobile?: string | null
+  amount: number
+  paidAmount?: number
+  dueDate: Date | string
+  paidDate?: Date | string | null
+  status?: $Enums.PaymentStatus
+  mybillbookInvoiceNo?: string | null
+  lastReminderAt?: Date | string | null
+  lastReminderChannel?: $Enums.ReminderChannel | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  job?: Prisma.JobCreateNestedOneWithoutPaymentsInput
+  lead?: Prisma.LeadCreateNestedOneWithoutPaymentsInput
+  recordedBy?: Prisma.UserCreateNestedOneWithoutPaymentsRecordedInput
+}
+
+export type PaymentUncheckedCreateWithoutInvoiceInput = {
+  id?: string
+  invoiceNumber: string
+  jobId?: string | null
+  leadId?: string | null
+  clientName: string
+  clientMobile?: string | null
+  amount: number
+  paidAmount?: number
+  dueDate: Date | string
+  paidDate?: Date | string | null
+  status?: $Enums.PaymentStatus
+  mybillbookInvoiceNo?: string | null
+  lastReminderAt?: Date | string | null
+  lastReminderChannel?: $Enums.ReminderChannel | null
+  recordedById?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+}
+
+export type PaymentCreateOrConnectWithoutInvoiceInput = {
+  where: Prisma.PaymentWhereUniqueInput
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput>
+}
+
+export type PaymentUpsertWithoutInvoiceInput = {
+  update: Prisma.XOR<Prisma.PaymentUpdateWithoutInvoiceInput, Prisma.PaymentUncheckedUpdateWithoutInvoiceInput>
+  create: Prisma.XOR<Prisma.PaymentCreateWithoutInvoiceInput, Prisma.PaymentUncheckedCreateWithoutInvoiceInput>
+  where?: Prisma.PaymentWhereInput
+}
+
+export type PaymentUpdateToOneWithWhereWithoutInvoiceInput = {
+  where?: Prisma.PaymentWhereInput
+  data: Prisma.XOR<Prisma.PaymentUpdateWithoutInvoiceInput, Prisma.PaymentUncheckedUpdateWithoutInvoiceInput>
+}
+
+export type PaymentUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  clientName?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReminderChannel?: Prisma.NullableEnumReminderChannelFieldUpdateOperationsInput | $Enums.ReminderChannel | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  job?: Prisma.JobUpdateOneWithoutPaymentsNestedInput
+  lead?: Prisma.LeadUpdateOneWithoutPaymentsNestedInput
+  recordedBy?: Prisma.UserUpdateOneWithoutPaymentsRecordedNestedInput
+}
+
+export type PaymentUncheckedUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientName?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  paidAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastReminderChannel?: Prisma.NullableEnumReminderChannelFieldUpdateOperationsInput | $Enums.ReminderChannel | null
+  recordedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentCreateManyRecordedByInput = {
@@ -1141,6 +1287,7 @@ export type PaymentUpdateWithoutRecordedByInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutPaymentsNestedInput
   lead?: Prisma.LeadUpdateOneWithoutPaymentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateWithoutRecordedByInput = {
@@ -1164,6 +1311,7 @@ export type PaymentUncheckedUpdateWithoutRecordedByInput = {
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateManyWithoutRecordedByInput = {
@@ -1233,6 +1381,7 @@ export type PaymentUpdateWithoutLeadInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutPaymentsNestedInput
   recordedBy?: Prisma.UserUpdateOneWithoutPaymentsRecordedNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateWithoutLeadInput = {
@@ -1256,6 +1405,7 @@ export type PaymentUncheckedUpdateWithoutLeadInput = {
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateManyWithoutLeadInput = {
@@ -1325,6 +1475,7 @@ export type PaymentUpdateWithoutJobInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lead?: Prisma.LeadUpdateOneWithoutPaymentsNestedInput
   recordedBy?: Prisma.UserUpdateOneWithoutPaymentsRecordedNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateWithoutJobInput = {
@@ -1348,6 +1499,7 @@ export type PaymentUncheckedUpdateWithoutJobInput = {
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutPaymentNestedInput
 }
 
 export type PaymentUncheckedUpdateManyWithoutJobInput = {
@@ -1400,6 +1552,7 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
   lead?: boolean | Prisma.Payment$leadArgs<ExtArgs>
   recordedBy?: boolean | Prisma.Payment$recordedByArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
 }, ExtArgs["result"]["payment"]>
 
 export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1485,6 +1638,7 @@ export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
   lead?: boolean | Prisma.Payment$leadArgs<ExtArgs>
   recordedBy?: boolean | Prisma.Payment$recordedByArgs<ExtArgs>
+  invoice?: boolean | Prisma.Payment$invoiceArgs<ExtArgs>
 }
 export type PaymentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
@@ -1503,6 +1657,7 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     job: Prisma.$JobPayload<ExtArgs> | null
     lead: Prisma.$LeadPayload<ExtArgs> | null
     recordedBy: Prisma.$UserPayload<ExtArgs> | null
+    invoice: Prisma.$InvoicePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1923,6 +2078,7 @@ export interface Prisma__PaymentClient<T, Null = never, ExtArgs extends runtime.
   job<T extends Prisma.Payment$jobArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$jobArgs<ExtArgs>>): Prisma.Prisma__JobClient<runtime.Types.Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   lead<T extends Prisma.Payment$leadArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$leadArgs<ExtArgs>>): Prisma.Prisma__LeadClient<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   recordedBy<T extends Prisma.Payment$recordedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$recordedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  invoice<T extends Prisma.Payment$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Payment$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2421,6 +2577,25 @@ export type Payment$recordedByArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Payment.invoice
+ */
+export type Payment$invoiceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Invoice
+   */
+  select?: Prisma.InvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Invoice
+   */
+  omit?: Prisma.InvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvoiceInclude<ExtArgs> | null
+  where?: Prisma.InvoiceWhereInput
 }
 
 /**

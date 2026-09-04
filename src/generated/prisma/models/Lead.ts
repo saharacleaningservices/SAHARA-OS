@@ -51,6 +51,7 @@ export type LeadMinAggregateOutputType = {
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
   mapLink: string | null
+  referralCode: string | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -78,6 +79,7 @@ export type LeadMaxAggregateOutputType = {
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
   mapLink: string | null
+  referralCode: string | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -105,6 +107,7 @@ export type LeadCountAggregateOutputType = {
   serviceCategory: number
   serviceVariant: number
   mapLink: number
+  referralCode: number
   isDemo: number
   deletedAt: number
   deletedByName: number
@@ -142,6 +145,7 @@ export type LeadMinAggregateInputType = {
   serviceCategory?: true
   serviceVariant?: true
   mapLink?: true
+  referralCode?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -169,6 +173,7 @@ export type LeadMaxAggregateInputType = {
   serviceCategory?: true
   serviceVariant?: true
   mapLink?: true
+  referralCode?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -196,6 +201,7 @@ export type LeadCountAggregateInputType = {
   serviceCategory?: true
   serviceVariant?: true
   mapLink?: true
+  referralCode?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -310,6 +316,7 @@ export type LeadGroupByOutputType = {
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
   mapLink: string | null
+  referralCode: string | null
   isDemo: boolean
   deletedAt: Date | null
   deletedByName: string | null
@@ -360,6 +367,7 @@ export type LeadWhereInput = {
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -377,6 +385,7 @@ export type LeadWhereInput = {
   payments?: Prisma.PaymentListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
   timeline?: Prisma.TimelineEntryListRelationFilter
+  amcContracts?: Prisma.AmcContractListRelationFilter
 }
 
 export type LeadOrderByWithRelationInput = {
@@ -396,6 +405,7 @@ export type LeadOrderByWithRelationInput = {
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -413,6 +423,7 @@ export type LeadOrderByWithRelationInput = {
   payments?: Prisma.PaymentOrderByRelationAggregateInput
   activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
   timeline?: Prisma.TimelineEntryOrderByRelationAggregateInput
+  amcContracts?: Prisma.AmcContractOrderByRelationAggregateInput
 }
 
 export type LeadWhereUniqueInput = Prisma.AtLeast<{
@@ -435,6 +446,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -452,6 +464,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   payments?: Prisma.PaymentListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
   timeline?: Prisma.TimelineEntryListRelationFilter
+  amcContracts?: Prisma.AmcContractListRelationFilter
 }, "id" | "leadNumber">
 
 export type LeadOrderByWithAggregationInput = {
@@ -471,6 +484,7 @@ export type LeadOrderByWithAggregationInput = {
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -506,6 +520,7 @@ export type LeadScalarWhereWithAggregatesInput = {
   serviceCategory?: Prisma.EnumServiceCategoryNullableWithAggregatesFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  referralCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -533,6 +548,7 @@ export type LeadCreateInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -547,6 +563,7 @@ export type LeadCreateInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateInput = {
@@ -566,6 +583,7 @@ export type LeadUncheckedCreateInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -580,6 +598,7 @@ export type LeadUncheckedCreateInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUpdateInput = {
@@ -599,6 +618,7 @@ export type LeadUpdateInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -613,6 +633,7 @@ export type LeadUpdateInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateInput = {
@@ -632,6 +653,7 @@ export type LeadUncheckedUpdateInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -646,6 +668,7 @@ export type LeadUncheckedUpdateInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateManyInput = {
@@ -665,6 +688,7 @@ export type LeadCreateManyInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -692,6 +716,7 @@ export type LeadUpdateManyMutationInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -716,6 +741,7 @@ export type LeadUncheckedUpdateManyInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -753,6 +779,7 @@ export type LeadCountOrderByAggregateInput = {
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -784,6 +811,7 @@ export type LeadMaxOrderByAggregateInput = {
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -811,6 +839,7 @@ export type LeadMinOrderByAggregateInput = {
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1067,6 +1096,22 @@ export type LeadUpdateOneWithoutActivityLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutActivityLogsInput, Prisma.LeadUpdateWithoutActivityLogsInput>, Prisma.LeadUncheckedUpdateWithoutActivityLogsInput>
 }
 
+export type LeadCreateNestedOneWithoutAmcContractsInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutAmcContractsInput
+  connect?: Prisma.LeadWhereUniqueInput
+}
+
+export type LeadUpdateOneWithoutAmcContractsNestedInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutAmcContractsInput
+  upsert?: Prisma.LeadUpsertWithoutAmcContractsInput
+  disconnect?: Prisma.LeadWhereInput | boolean
+  delete?: Prisma.LeadWhereInput | boolean
+  connect?: Prisma.LeadWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutAmcContractsInput, Prisma.LeadUpdateWithoutAmcContractsInput>, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
+}
+
 export type LeadCreateWithoutCreatedByInput = {
   id?: string
   leadNumber: string
@@ -1084,6 +1129,7 @@ export type LeadCreateWithoutCreatedByInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1097,6 +1143,7 @@ export type LeadCreateWithoutCreatedByInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutCreatedByInput = {
@@ -1116,6 +1163,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1129,6 +1177,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutCreatedByInput = {
@@ -1157,6 +1206,7 @@ export type LeadCreateWithoutAssignedToInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1170,6 +1220,7 @@ export type LeadCreateWithoutAssignedToInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutAssignedToInput = {
@@ -1189,6 +1240,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1202,6 +1254,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutAssignedToInput = {
@@ -1249,6 +1302,7 @@ export type LeadScalarWhereInput = {
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -1292,6 +1346,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1305,6 +1360,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutAssignedStaffInput = {
@@ -1324,6 +1380,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1337,6 +1394,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutAssignedStaffInput = {
@@ -1381,6 +1439,7 @@ export type LeadCreateWithoutQuotationsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1394,6 +1453,7 @@ export type LeadCreateWithoutQuotationsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutQuotationsInput = {
@@ -1413,6 +1473,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1426,6 +1487,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutQuotationsInput = {
@@ -1461,6 +1523,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1474,6 +1537,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutQuotationsInput = {
@@ -1493,6 +1557,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1506,6 +1571,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateWithoutFollowUpsInput = {
@@ -1525,6 +1591,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1538,6 +1605,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutFollowUpsInput = {
@@ -1557,6 +1625,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1570,6 +1639,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutFollowUpsInput = {
@@ -1605,6 +1675,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1618,6 +1689,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutFollowUpsInput = {
@@ -1637,6 +1709,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1650,6 +1723,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateWithoutTimelineInput = {
@@ -1669,6 +1743,7 @@ export type LeadCreateWithoutTimelineInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1682,6 +1757,7 @@ export type LeadCreateWithoutTimelineInput = {
   followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutTimelineInput = {
@@ -1701,6 +1777,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1714,6 +1791,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutTimelineInput = {
@@ -1749,6 +1827,7 @@ export type LeadUpdateWithoutTimelineInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1762,6 +1841,7 @@ export type LeadUpdateWithoutTimelineInput = {
   followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutTimelineInput = {
@@ -1781,6 +1861,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1794,6 +1875,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateWithoutJobsInput = {
@@ -1813,6 +1895,7 @@ export type LeadCreateWithoutJobsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1826,6 +1909,7 @@ export type LeadCreateWithoutJobsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutJobsInput = {
@@ -1845,6 +1929,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1858,6 +1943,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutJobsInput = {
@@ -1893,6 +1979,7 @@ export type LeadUpdateWithoutJobsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1906,6 +1993,7 @@ export type LeadUpdateWithoutJobsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutJobsInput = {
@@ -1925,6 +2013,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1938,6 +2027,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateWithoutPaymentsInput = {
@@ -1957,6 +2047,7 @@ export type LeadCreateWithoutPaymentsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1970,6 +2061,7 @@ export type LeadCreateWithoutPaymentsInput = {
   followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutPaymentsInput = {
@@ -1989,6 +2081,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2002,6 +2095,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutPaymentsInput = {
@@ -2037,6 +2131,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2050,6 +2145,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutPaymentsInput = {
@@ -2069,6 +2165,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2082,6 +2179,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateWithoutActivityLogsInput = {
@@ -2101,6 +2199,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2114,6 +2213,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutActivityLogsInput = {
@@ -2133,6 +2233,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2146,6 +2247,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutActivityLogsInput = {
@@ -2181,6 +2283,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2194,6 +2297,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutActivityLogsInput = {
@@ -2213,6 +2317,7 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2225,6 +2330,159 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
+  timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
+}
+
+export type LeadCreateWithoutAmcContractsInput = {
+  id?: string
+  leadNumber: string
+  name: string
+  mobile: string
+  whatsapp?: string | null
+  address?: string | null
+  area: string
+  service: $Enums.ServiceType
+  source: $Enums.LeadSource
+  quoteAmount?: number | null
+  stage?: $Enums.LeadStage
+  followUpDate?: Date | string | null
+  notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  referralCode?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
+  assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
+  quotations?: Prisma.QuotationCreateNestedManyWithoutLeadInput
+  jobs?: Prisma.JobCreateNestedManyWithoutLeadInput
+  followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
+  timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+}
+
+export type LeadUncheckedCreateWithoutAmcContractsInput = {
+  id?: string
+  leadNumber: string
+  name: string
+  mobile: string
+  whatsapp?: string | null
+  address?: string | null
+  area: string
+  service: $Enums.ServiceType
+  source: $Enums.LeadSource
+  quoteAmount?: number | null
+  stage?: $Enums.LeadStage
+  followUpDate?: Date | string | null
+  notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  referralCode?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  assignedStaffId?: string | null
+  assignedToId?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
+  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
+  followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
+  timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+}
+
+export type LeadCreateOrConnectWithoutAmcContractsInput = {
+  where: Prisma.LeadWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+}
+
+export type LeadUpsertWithoutAmcContractsInput = {
+  update: Prisma.XOR<Prisma.LeadUpdateWithoutAmcContractsInput, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
+  create: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+  where?: Prisma.LeadWhereInput
+}
+
+export type LeadUpdateToOneWithWhereWithoutAmcContractsInput = {
+  where?: Prisma.LeadWhereInput
+  data: Prisma.XOR<Prisma.LeadUpdateWithoutAmcContractsInput, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
+}
+
+export type LeadUpdateWithoutAmcContractsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
+  quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
+  assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
+  quotations?: Prisma.QuotationUpdateManyWithoutLeadNestedInput
+  jobs?: Prisma.JobUpdateManyWithoutLeadNestedInput
+  followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
+  timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+}
+
+export type LeadUncheckedUpdateWithoutAmcContractsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
+  quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
+  jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
+  followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
 }
 
@@ -2245,6 +2503,7 @@ export type LeadCreateManyCreatedByInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2271,6 +2530,7 @@ export type LeadCreateManyAssignedToInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2297,6 +2557,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2310,6 +2571,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutCreatedByInput = {
@@ -2329,6 +2591,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2342,6 +2605,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
@@ -2361,6 +2625,7 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2387,6 +2652,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2400,6 +2666,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutAssignedToInput = {
@@ -2419,6 +2686,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2432,6 +2700,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
@@ -2451,6 +2720,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2477,6 +2747,7 @@ export type LeadCreateManyAssignedStaffInput = {
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
   mapLink?: string | null
+  referralCode?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2503,6 +2774,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2516,6 +2788,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
@@ -2535,6 +2808,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2548,6 +2822,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
@@ -2567,6 +2842,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2588,6 +2864,7 @@ export type LeadCountOutputType = {
   payments: number
   activityLogs: number
   timeline: number
+  amcContracts: number
 }
 
 export type LeadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2597,6 +2874,7 @@ export type LeadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   payments?: boolean | LeadCountOutputTypeCountPaymentsArgs
   activityLogs?: boolean | LeadCountOutputTypeCountActivityLogsArgs
   timeline?: boolean | LeadCountOutputTypeCountTimelineArgs
+  amcContracts?: boolean | LeadCountOutputTypeCountAmcContractsArgs
 }
 
 /**
@@ -2651,6 +2929,13 @@ export type LeadCountOutputTypeCountTimelineArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.TimelineEntryWhereInput
 }
 
+/**
+ * LeadCountOutputType without action
+ */
+export type LeadCountOutputTypeCountAmcContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AmcContractWhereInput
+}
+
 
 export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2669,6 +2954,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   serviceCategory?: boolean
   serviceVariant?: boolean
   mapLink?: boolean
+  referralCode?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -2686,6 +2972,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   payments?: boolean | Prisma.Lead$paymentsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.Lead$activityLogsArgs<ExtArgs>
   timeline?: boolean | Prisma.Lead$timelineArgs<ExtArgs>
+  amcContracts?: boolean | Prisma.Lead$amcContractsArgs<ExtArgs>
   _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lead"]>
 
@@ -2706,6 +2993,7 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   serviceCategory?: boolean
   serviceVariant?: boolean
   mapLink?: boolean
+  referralCode?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -2736,6 +3024,7 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   serviceCategory?: boolean
   serviceVariant?: boolean
   mapLink?: boolean
+  referralCode?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -2766,6 +3055,7 @@ export type LeadSelectScalar = {
   serviceCategory?: boolean
   serviceVariant?: boolean
   mapLink?: boolean
+  referralCode?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -2776,7 +3066,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -2787,6 +3077,7 @@ export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   payments?: boolean | Prisma.Lead$paymentsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.Lead$activityLogsArgs<ExtArgs>
   timeline?: boolean | Prisma.Lead$timelineArgs<ExtArgs>
+  amcContracts?: boolean | Prisma.Lead$amcContractsArgs<ExtArgs>
   _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LeadIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2812,6 +3103,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     payments: Prisma.$PaymentPayload<ExtArgs>[]
     activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
     timeline: Prisma.$TimelineEntryPayload<ExtArgs>[]
+    amcContracts: Prisma.$AmcContractPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2830,6 +3122,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     serviceCategory: $Enums.ServiceCategory | null
     serviceVariant: string | null
     mapLink: string | null
+    referralCode: string | null
     isDemo: boolean
     deletedAt: Date | null
     deletedByName: string | null
@@ -3241,6 +3534,7 @@ export interface Prisma__LeadClient<T, Null = never, ExtArgs extends runtime.Typ
   payments<T extends Prisma.Lead$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activityLogs<T extends Prisma.Lead$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   timeline<T extends Prisma.Lead$timelineArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$timelineArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TimelineEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  amcContracts<T extends Prisma.Lead$amcContractsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$amcContractsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AmcContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3286,6 +3580,7 @@ export interface LeadFieldRefs {
   readonly serviceCategory: Prisma.FieldRef<"Lead", 'ServiceCategory'>
   readonly serviceVariant: Prisma.FieldRef<"Lead", 'String'>
   readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
+  readonly referralCode: Prisma.FieldRef<"Lead", 'String'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly deletedByName: Prisma.FieldRef<"Lead", 'String'>
@@ -3886,6 +4181,30 @@ export type Lead$timelineArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.TimelineEntryScalarFieldEnum | Prisma.TimelineEntryScalarFieldEnum[]
+}
+
+/**
+ * Lead.amcContracts
+ */
+export type Lead$amcContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AmcContract
+   */
+  select?: Prisma.AmcContractSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AmcContract
+   */
+  omit?: Prisma.AmcContractOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AmcContractInclude<ExtArgs> | null
+  where?: Prisma.AmcContractWhereInput
+  orderBy?: Prisma.AmcContractOrderByWithRelationInput | Prisma.AmcContractOrderByWithRelationInput[]
+  cursor?: Prisma.AmcContractWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AmcContractScalarFieldEnum | Prisma.AmcContractScalarFieldEnum[]
 }
 
 /**
