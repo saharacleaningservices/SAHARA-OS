@@ -287,4 +287,197 @@ db.prepare(
 
 console.log("Phase 2 (Production Foundation) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Phase 3 — Revenue, WhatsApp & Workforce Automation (idempotent, additive).
+// ─────────────────────────────────────────────────────────────────────────
+
+addColumnIfMissing("Lead", "referralCode", `"referralCode" TEXT`);
+addColumnIfMissing("CompanySettings", "googleReviewUrl", `"googleReviewUrl" TEXT`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "WhatsAppMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "kind" TEXT NOT NULL,
+    "toNumber" TEXT NOT NULL,
+    "toName" TEXT,
+    "body" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "providerMessageId" TEXT,
+    "errorMessage" TEXT,
+    "relatedType" TEXT,
+    "relatedId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sentAt" DATETIME
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "WhatsAppMessage_kind_idx" ON "WhatsAppMessage"("kind");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "WhatsAppMessage_status_idx" ON "WhatsAppMessage"("status");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "WhatsAppMessage_createdAt_idx" ON "WhatsAppMessage"("createdAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "AmcContract" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "contractNumber" TEXT NOT NULL,
+    "customerName" TEXT NOT NULL,
+    "customerMobile" TEXT NOT NULL,
+    "address" TEXT,
+    "area" TEXT,
+    "category" TEXT NOT NULL,
+    "frequency" TEXT NOT NULL,
+    "serviceCategory" TEXT,
+    "amount" REAL NOT NULL,
+    "startDate" DATETIME NOT NULL,
+    "nextVisitDate" DATETIME NOT NULL,
+    "lastVisitDate" DATETIME,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "notes" TEXT,
+    "leadId" TEXT,
+    "isDemo" BOOLEAN NOT NULL DEFAULT false,
+    "deletedAt" DATETIME,
+    "deletedByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AmcContract_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "Lead" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "AmcContract_contractNumber_key" ON "AmcContract"("contractNumber");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AmcContract_status_idx" ON "AmcContract"("status");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AmcContract_nextVisitDate_idx" ON "AmcContract"("nextVisitDate");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "AmcVisit" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "amcId" TEXT NOT NULL,
+    "visitDate" DATETIME NOT NULL,
+    "jobId" TEXT,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AmcVisit_amcId_fkey" FOREIGN KEY ("amcId") REFERENCES "AmcContract" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AmcVisit_amcId_idx" ON "AmcVisit"("amcId");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "UpsellRule" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "label" TEXT NOT NULL,
+    "triggerCategory" TEXT NOT NULL,
+    "comboCategory" TEXT NOT NULL,
+    "comboVariant" TEXT,
+    "comboPrice" REAL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
+db.prepare(
+  `INSERT OR IGNORE INTO "UpsellRule" ("id", "label", "triggerCategory", "comboCategory", "comboVariant", "comboPrice") VALUES (?, ?, ?, ?, ?, ?)`
+).run("seed-upsell-1", "Add Sofa Cleaning", "HOME_DEEP_CLEANING", "INDIVIDUAL_CLEANING", "Sofa", 999);
+db.prepare(
+  `INSERT OR IGNORE INTO "UpsellRule" ("id", "label", "triggerCategory", "comboCategory", "comboVariant", "comboPrice") VALUES (?, ?, ?, ?, ?, ?)`
+).run("seed-upsell-2", "Add Deep Cleaning", "PAINTING", "HOME_DEEP_CLEANING", "2 BHK", 2999);
+db.prepare(
+  `INSERT OR IGNORE INTO "UpsellRule" ("id", "label", "triggerCategory", "comboCategory", "comboVariant", "comboPrice") VALUES (?, ?, ?, ?, ?, ?)`
+).run("seed-upsell-3", "Add Kitchen Cleaning", "PEST_CONTROL", "INDIVIDUAL_CLEANING", "Kitchen", 799);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "UpsellEvent" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "ruleId" TEXT,
+    "leadId" TEXT,
+    "label" TEXT NOT NULL,
+    "comboValue" REAL,
+    "accepted" BOOLEAN NOT NULL DEFAULT false,
+    "acceptedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "UpsellEvent_leadId_idx" ON "UpsellEvent"("leadId");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "UpsellEvent_accepted_idx" ON "UpsellEvent"("accepted");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Advance" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "staffId" TEXT NOT NULL,
+    "amount" REAL NOT NULL,
+    "reason" TEXT,
+    "givenAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "givenByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Advance_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Advance_staffId_idx" ON "Advance"("staffId");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "FineRecord" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "staffId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "amount" REAL NOT NULL DEFAULT 0,
+    "notes" TEXT,
+    "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "recordedByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "FineRecord_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "FineRecord_staffId_idx" ON "FineRecord"("staffId");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "RewardRecord" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "staffId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "amount" REAL NOT NULL DEFAULT 0,
+    "notes" TEXT,
+    "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "recordedByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "RewardRecord_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "RewardRecord_staffId_idx" ON "RewardRecord"("staffId");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Invoice" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "invoiceNumber" TEXT NOT NULL,
+    "jobId" TEXT,
+    "paymentId" TEXT,
+    "customerName" TEXT NOT NULL,
+    "customerMobile" TEXT,
+    "customerAddress" TEXT,
+    "lineItems" TEXT NOT NULL,
+    "subTotal" REAL NOT NULL,
+    "gstPercent" REAL NOT NULL DEFAULT 0,
+    "gstAmount" REAL NOT NULL DEFAULT 0,
+    "totalAmount" REAL NOT NULL,
+    "pdfUrl" TEXT,
+    "mybillbookInvoiceId" TEXT,
+    "mybillbookSyncStatus" TEXT NOT NULL DEFAULT 'NOT_CONFIGURED',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Invoice_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Invoice_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "Payment" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_invoiceNumber_key" ON "Invoice"("invoiceNumber");`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_jobId_key" ON "Invoice"("jobId");`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_paymentId_key" ON "Invoice"("paymentId");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Invoice_jobId_idx" ON "Invoice"("jobId");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "JobVideo" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "jobId" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "caption" TEXT,
+    "uploadedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "JobVideo_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "JobVideo_jobId_idx" ON "JobVideo"("jobId");`);
+
+console.log("Phase 3 (Revenue, WhatsApp & Workforce Automation) migration complete.");
+
 db.close();

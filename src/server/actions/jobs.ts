@@ -10,6 +10,11 @@ import { jobSchema } from "@/lib/validation";
 import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
+import { dispatchTeamForJob } from "@/server/dispatch";
+import { sendWhatsApp } from "@/lib/whatsapp";
+import { reviewRequestMessage } from "@/lib/whatsapp-templates";
+import { syncInvoiceToMyBillBook } from "@/lib/mybillbook";
+import { SERVICE_LABELS } from "@/lib/constants";
 
 export async function createJob(values: unknown) {
   const parsed = jobSchema.safeParse(values);
@@ -41,6 +46,7 @@ export async function createJob(values: unknown) {
     await db.jobAssignment.createMany({
       data: data.staffIds.map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
     });
+    await dispatchTeamForJob(job.id).catch(() => {});
   }
 
   if (data.leadId) {
@@ -144,6 +150,14 @@ export async function addJobPhoto(jobId: string, type: "BEFORE" | "AFTER", url: 
   return { success: true as const };
 }
 
+export async function addJobVideo(jobId: string, url: string, caption?: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  await db.jobVideo.create({ data: { jobId, url, caption: caption || null } });
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true as const };
+}
+
 export async function saveJobSignature(jobId: string, dataUrl: string) {
   const match = /^data:image\/(png|jpeg);base64,(.+)$/.exec(dataUrl);
   if (!match) return { error: "Invalid signature data", success: false as const };
@@ -200,12 +214,12 @@ export async function completeJobWithCertificate(jobId: string) {
     certificateId = certificate.id;
   }
 
-  const existingPayment = await db.payment.findFirst({ where: { jobId } });
-  if (!existingPayment) {
+  let payment = await db.payment.findFirst({ where: { jobId } });
+  if (!payment) {
     const invoiceNumber = await generateInvoiceNumber();
     const dueDate = new Date(now);
     dueDate.setDate(dueDate.getDate() + 7);
-    await db.payment.create({
+    payment = await db.payment.create({
       data: {
         invoiceNumber,
         jobId,
@@ -228,6 +242,45 @@ export async function completeJobWithCertificate(jobId: string) {
       }).catch(() => {});
     }
   }
+
+  // MyBillBook: generate + save a CRM-native invoice document (line items +
+  // PDF at /api/invoices/[id]/pdf), then attempt the MyBillBook push. The
+  // push is a no-op (marked NOT_CONFIGURED) until MYBILLBOOK_API_KEY exists.
+  const existingInvoice = await db.invoice.findUnique({ where: { jobId } });
+  if (!existingInvoice) {
+    const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
+    const invoice = await db.invoice.create({
+      data: {
+        invoiceNumber: payment.invoiceNumber,
+        jobId,
+        paymentId: payment.id,
+        customerName: job.customerName,
+        customerMobile: job.customerMobile,
+        customerAddress: job.address,
+        lineItems: JSON.stringify([{ name: serviceLabel, description: `${serviceLabel} — ${job.area}`, amount: job.jobValue }]),
+        subTotal: job.jobValue,
+        gstPercent: 0,
+        gstAmount: 0,
+        totalAmount: job.jobValue,
+      },
+    });
+    await syncInvoiceToMyBillBook(invoice.id).catch(() => {});
+  }
+
+  // Review request — sent once, right after completion.
+  await sendWhatsApp({
+    kind: "REVIEW_REQUEST",
+    toNumber: job.customerMobile,
+    toName: job.customerName,
+    body: reviewRequestMessage({
+      customerName: job.customerName,
+      service: SERVICE_LABELS[job.service] ?? job.service,
+      googleReviewUrl: (await db.companySettings.findUnique({ where: { id: "default" } }))?.googleReviewUrl ?? null,
+      jobNumber: job.jobNumber,
+    }),
+    relatedType: "Job",
+    relatedId: jobId,
+  }).catch(() => {});
 
   await db.activityLog.create({
     data: { jobId, actorId: session?.sub, action: "Job marked complete — certificate & invoice generated" },
@@ -266,4 +319,21 @@ export async function addMaterialIssue(jobId: string, item: string, quantity: st
   });
   revalidatePath(`/jobs/${jobId}`);
   return { success: true as const };
+}
+
+/** Manual "Send Team Dispatch" button — resends the WhatsApp job brief to
+ * every assigned staff member (e.g. after a vehicle/material change). */
+export async function sendTeamDispatch(jobId: string) {
+  const session = await getSession();
+  if (!session) return { success: false as const, error: "Not authorized", sent: 0, queued: 0 };
+  const result = await dispatchTeamForJob(jobId);
+  await db.activityLog.create({
+    data: {
+      jobId,
+      actorId: session.sub,
+      action: `Team dispatch sent (${result.sent} sent, ${result.queued} queued — no WhatsApp credentials yet)`,
+    },
+  }).catch(() => {});
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true as const, error: undefined as string | undefined, sent: result.sent, queued: result.queued };
 }

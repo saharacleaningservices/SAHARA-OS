@@ -175,3 +175,53 @@ export const ServiceCategory = {
 } as const
 
 export type ServiceCategory = (typeof ServiceCategory)[keyof typeof ServiceCategory]
+
+
+export const AmcCategory = {
+  RESIDENTIAL: 'RESIDENTIAL',
+  COMMERCIAL: 'COMMERCIAL'
+} as const
+
+export type AmcCategory = (typeof AmcCategory)[keyof typeof AmcCategory]
+
+
+export const AmcFrequency = {
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  HALF_YEARLY: 'HALF_YEARLY',
+  ANNUAL: 'ANNUAL'
+} as const
+
+export type AmcFrequency = (typeof AmcFrequency)[keyof typeof AmcFrequency]
+
+
+export const AmcStatus = {
+  ACTIVE: 'ACTIVE',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type AmcStatus = (typeof AmcStatus)[keyof typeof AmcStatus]
+
+
+export const WhatsAppKind = {
+  BOOKING_CONFIRMATION: 'BOOKING_CONFIRMATION',
+  TEAM_DISPATCH: 'TEAM_DISPATCH',
+  CUSTOMER_REMINDER: 'CUSTOMER_REMINDER',
+  PAYMENT_REMINDER: 'PAYMENT_REMINDER',
+  REVIEW_REQUEST: 'REVIEW_REQUEST',
+  AMC_RENEWAL: 'AMC_RENEWAL',
+  ATTENDANCE_SUMMARY: 'ATTENDANCE_SUMMARY',
+  OTHER: 'OTHER'
+} as const
+
+export type WhatsAppKind = (typeof WhatsAppKind)[keyof typeof WhatsAppKind]
+
+
+export const WhatsAppStatus = {
+  QUEUED: 'QUEUED',
+  SENT: 'SENT',
+  FAILED: 'FAILED'
+} as const
+
+export type WhatsAppStatus = (typeof WhatsAppStatus)[keyof typeof WhatsAppStatus]

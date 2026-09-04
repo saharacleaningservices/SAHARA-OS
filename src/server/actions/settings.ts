@@ -26,6 +26,7 @@ export async function updateCompanySettings(values: unknown) {
       email: data.email,
       address: data.address,
       logoUrl: data.logoUrl || null,
+      googleReviewUrl: data.googleReviewUrl || null,
     },
     update: {
       name: data.name,
@@ -33,6 +34,7 @@ export async function updateCompanySettings(values: unknown) {
       email: data.email,
       address: data.address,
       logoUrl: data.logoUrl || null,
+      googleReviewUrl: data.googleReviewUrl || null,
     },
   });
 

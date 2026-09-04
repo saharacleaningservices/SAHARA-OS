@@ -9,17 +9,25 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { AvailabilityBadge, AttendanceBadge, JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { NewStaffDialog } from "@/components/staff/new-staff-dialog";
+import { PayrollLedgerCard } from "@/components/staff/payroll-ledger-card";
 import { Button } from "@/components/ui/button";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { requireUser } from "@/lib/current-user";
+import { canViewSalary, canManageStaffFinancials } from "@/lib/permissions";
+import { getStaffLedger } from "@/server/attendance";
 
 export default async function StaffDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const session = await requireUser();
   const staff = await getStaffDetail(id);
   if (!staff) notFound();
 
   const presentDays = staff.attendance.filter((a) => a.status === "PRESENT").length;
   const totalWages = staff.attendance.reduce((sum, a) => sum + (a.wageForDay ?? 0), 0);
+
+  const now = new Date();
+  const ledger = canViewSalary(session.role) ? await getStaffLedger(staff.id, now.getFullYear(), now.getMonth() + 1) : null;
 
   return (
     <div className="space-y-6">
@@ -124,6 +132,19 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
         </div>
 
         <div className="space-y-4">
+          {ledger && (
+            <PayrollLedgerCard
+              staffId={staff.id}
+              monthLabel={now.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+              presentDays={ledger.presentDays}
+              earned={ledger.earned}
+              advanceTotal={ledger.advanceTotal}
+              fineTotal={ledger.fineTotal}
+              rewardTotal={ledger.rewardTotal}
+              netBalance={ledger.netBalance}
+              canManage={canManageStaffFinancials(session.role)}
+            />
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Attendance (last 30 days)</CardTitle>

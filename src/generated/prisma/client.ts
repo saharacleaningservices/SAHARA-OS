@@ -141,3 +141,53 @@ export type Review = Prisma.ReviewModel
  * 
  */
 export type BackupEvent = Prisma.BackupEventModel
+/**
+ * Model WhatsAppMessage
+ * 
+ */
+export type WhatsAppMessage = Prisma.WhatsAppMessageModel
+/**
+ * Model AmcContract
+ * 
+ */
+export type AmcContract = Prisma.AmcContractModel
+/**
+ * Model AmcVisit
+ * 
+ */
+export type AmcVisit = Prisma.AmcVisitModel
+/**
+ * Model UpsellRule
+ * 
+ */
+export type UpsellRule = Prisma.UpsellRuleModel
+/**
+ * Model UpsellEvent
+ * 
+ */
+export type UpsellEvent = Prisma.UpsellEventModel
+/**
+ * Model Advance
+ * 
+ */
+export type Advance = Prisma.AdvanceModel
+/**
+ * Model FineRecord
+ * 
+ */
+export type FineRecord = Prisma.FineRecordModel
+/**
+ * Model RewardRecord
+ * 
+ */
+export type RewardRecord = Prisma.RewardRecordModel
+/**
+ * Model Invoice
+ * 
+ */
+export type Invoice = Prisma.InvoiceModel
+/**
+ * Model JobVideo
+ * 
+ */
+export type JobVideo = Prisma.JobVideoModel

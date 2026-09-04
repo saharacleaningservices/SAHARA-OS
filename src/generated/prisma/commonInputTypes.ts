@@ -524,6 +524,108 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumWhatsAppKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppKind | Prisma.EnumWhatsAppKindFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppKind[]
+  notIn?: $Enums.WhatsAppKind[]
+  not?: Prisma.NestedEnumWhatsAppKindFilter<$PrismaModel> | $Enums.WhatsAppKind
+}
+
+export type EnumWhatsAppStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppStatus | Prisma.EnumWhatsAppStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppStatus[]
+  notIn?: $Enums.WhatsAppStatus[]
+  not?: Prisma.NestedEnumWhatsAppStatusFilter<$PrismaModel> | $Enums.WhatsAppStatus
+}
+
+export type EnumWhatsAppKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppKind | Prisma.EnumWhatsAppKindFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppKind[]
+  notIn?: $Enums.WhatsAppKind[]
+  not?: Prisma.NestedEnumWhatsAppKindWithAggregatesFilter<$PrismaModel> | $Enums.WhatsAppKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWhatsAppKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWhatsAppKindFilter<$PrismaModel>
+}
+
+export type EnumWhatsAppStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppStatus | Prisma.EnumWhatsAppStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppStatus[]
+  notIn?: $Enums.WhatsAppStatus[]
+  not?: Prisma.NestedEnumWhatsAppStatusWithAggregatesFilter<$PrismaModel> | $Enums.WhatsAppStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWhatsAppStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWhatsAppStatusFilter<$PrismaModel>
+}
+
+export type EnumAmcCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcCategory | Prisma.EnumAmcCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcCategory[]
+  notIn?: $Enums.AmcCategory[]
+  not?: Prisma.NestedEnumAmcCategoryFilter<$PrismaModel> | $Enums.AmcCategory
+}
+
+export type EnumAmcFrequencyFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcFrequency | Prisma.EnumAmcFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcFrequency[]
+  notIn?: $Enums.AmcFrequency[]
+  not?: Prisma.NestedEnumAmcFrequencyFilter<$PrismaModel> | $Enums.AmcFrequency
+}
+
+export type EnumAmcStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcStatus | Prisma.EnumAmcStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcStatus[]
+  notIn?: $Enums.AmcStatus[]
+  not?: Prisma.NestedEnumAmcStatusFilter<$PrismaModel> | $Enums.AmcStatus
+}
+
+export type EnumAmcCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcCategory | Prisma.EnumAmcCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcCategory[]
+  notIn?: $Enums.AmcCategory[]
+  not?: Prisma.NestedEnumAmcCategoryWithAggregatesFilter<$PrismaModel> | $Enums.AmcCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAmcCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAmcCategoryFilter<$PrismaModel>
+}
+
+export type EnumAmcFrequencyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcFrequency | Prisma.EnumAmcFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcFrequency[]
+  notIn?: $Enums.AmcFrequency[]
+  not?: Prisma.NestedEnumAmcFrequencyWithAggregatesFilter<$PrismaModel> | $Enums.AmcFrequency
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAmcFrequencyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAmcFrequencyFilter<$PrismaModel>
+}
+
+export type EnumAmcStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcStatus | Prisma.EnumAmcStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcStatus[]
+  notIn?: $Enums.AmcStatus[]
+  not?: Prisma.NestedEnumAmcStatusWithAggregatesFilter<$PrismaModel> | $Enums.AmcStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAmcStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAmcStatusFilter<$PrismaModel>
+}
+
+export type EnumServiceCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServiceCategory | Prisma.EnumServiceCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ServiceCategory[]
+  notIn?: $Enums.ServiceCategory[]
+  not?: Prisma.NestedEnumServiceCategoryFilter<$PrismaModel> | $Enums.ServiceCategory
+}
+
+export type EnumServiceCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServiceCategory | Prisma.EnumServiceCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ServiceCategory[]
+  notIn?: $Enums.ServiceCategory[]
+  not?: Prisma.NestedEnumServiceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.ServiceCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServiceCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServiceCategoryFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -1027,6 +1129,108 @@ export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumWhatsAppKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppKind | Prisma.EnumWhatsAppKindFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppKind[]
+  notIn?: $Enums.WhatsAppKind[]
+  not?: Prisma.NestedEnumWhatsAppKindFilter<$PrismaModel> | $Enums.WhatsAppKind
+}
+
+export type NestedEnumWhatsAppStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppStatus | Prisma.EnumWhatsAppStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppStatus[]
+  notIn?: $Enums.WhatsAppStatus[]
+  not?: Prisma.NestedEnumWhatsAppStatusFilter<$PrismaModel> | $Enums.WhatsAppStatus
+}
+
+export type NestedEnumWhatsAppKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppKind | Prisma.EnumWhatsAppKindFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppKind[]
+  notIn?: $Enums.WhatsAppKind[]
+  not?: Prisma.NestedEnumWhatsAppKindWithAggregatesFilter<$PrismaModel> | $Enums.WhatsAppKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWhatsAppKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWhatsAppKindFilter<$PrismaModel>
+}
+
+export type NestedEnumWhatsAppStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WhatsAppStatus | Prisma.EnumWhatsAppStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.WhatsAppStatus[]
+  notIn?: $Enums.WhatsAppStatus[]
+  not?: Prisma.NestedEnumWhatsAppStatusWithAggregatesFilter<$PrismaModel> | $Enums.WhatsAppStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWhatsAppStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWhatsAppStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumAmcCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcCategory | Prisma.EnumAmcCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcCategory[]
+  notIn?: $Enums.AmcCategory[]
+  not?: Prisma.NestedEnumAmcCategoryFilter<$PrismaModel> | $Enums.AmcCategory
+}
+
+export type NestedEnumAmcFrequencyFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcFrequency | Prisma.EnumAmcFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcFrequency[]
+  notIn?: $Enums.AmcFrequency[]
+  not?: Prisma.NestedEnumAmcFrequencyFilter<$PrismaModel> | $Enums.AmcFrequency
+}
+
+export type NestedEnumAmcStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcStatus | Prisma.EnumAmcStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcStatus[]
+  notIn?: $Enums.AmcStatus[]
+  not?: Prisma.NestedEnumAmcStatusFilter<$PrismaModel> | $Enums.AmcStatus
+}
+
+export type NestedEnumAmcCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcCategory | Prisma.EnumAmcCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcCategory[]
+  notIn?: $Enums.AmcCategory[]
+  not?: Prisma.NestedEnumAmcCategoryWithAggregatesFilter<$PrismaModel> | $Enums.AmcCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAmcCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAmcCategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumAmcFrequencyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcFrequency | Prisma.EnumAmcFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcFrequency[]
+  notIn?: $Enums.AmcFrequency[]
+  not?: Prisma.NestedEnumAmcFrequencyWithAggregatesFilter<$PrismaModel> | $Enums.AmcFrequency
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAmcFrequencyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAmcFrequencyFilter<$PrismaModel>
+}
+
+export type NestedEnumAmcStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AmcStatus | Prisma.EnumAmcStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AmcStatus[]
+  notIn?: $Enums.AmcStatus[]
+  not?: Prisma.NestedEnumAmcStatusWithAggregatesFilter<$PrismaModel> | $Enums.AmcStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAmcStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAmcStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumServiceCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServiceCategory | Prisma.EnumServiceCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ServiceCategory[]
+  notIn?: $Enums.ServiceCategory[]
+  not?: Prisma.NestedEnumServiceCategoryFilter<$PrismaModel> | $Enums.ServiceCategory
+}
+
+export type NestedEnumServiceCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ServiceCategory | Prisma.EnumServiceCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ServiceCategory[]
+  notIn?: $Enums.ServiceCategory[]
+  not?: Prisma.NestedEnumServiceCategoryWithAggregatesFilter<$PrismaModel> | $Enums.ServiceCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumServiceCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumServiceCategoryFilter<$PrismaModel>
 }
 
 

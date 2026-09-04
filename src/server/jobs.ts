@@ -53,9 +53,11 @@ export async function getJobDetail(id: string) {
       vehicle: true,
       assignments: { include: { staff: true } },
       photos: { orderBy: { uploadedAt: "desc" } },
+      videos: { orderBy: { uploadedAt: "desc" } },
       materialIssues: { orderBy: { issuedAt: "desc" } },
       certificate: true,
       payments: true,
+      invoice: true,
       activityLogs: { orderBy: { createdAt: "desc" }, include: { actor: { select: { name: true } } } },
     },
   });

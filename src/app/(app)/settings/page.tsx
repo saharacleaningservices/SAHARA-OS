@@ -1,8 +1,11 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { BackupsCard } from "@/components/settings/backups-card";
+import { IntegrationsCard } from "@/components/settings/integrations-card";
 import { requireRole } from "@/lib/current-user";
 import { getCompanySettings } from "@/server/settings";
+import { isWhatsAppConfigured } from "@/lib/whatsapp";
+import { isMyBillBookConfigured } from "@/lib/mybillbook";
 import { db } from "@/lib/db";
 
 export default async function SettingsPage() {
@@ -22,8 +25,10 @@ export default async function SettingsPage() {
           email: settings.email,
           address: settings.address,
           logoUrl: settings.logoUrl ?? "",
+          googleReviewUrl: settings.googleReviewUrl ?? "",
         }}
       />
+      <IntegrationsCard whatsappConfigured={isWhatsAppConfigured()} mybillbookConfigured={isMyBillBookConfigured()} />
       <BackupsCard events={backupEvents} />
     </div>
   );

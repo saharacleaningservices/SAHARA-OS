@@ -143,6 +143,42 @@ enum ServiceCategory {
   COMMERCIAL_CLEANING
 }
 
+// Phase 3 — Revenue, WhatsApp & Workforce Automation
+enum AmcCategory {
+  RESIDENTIAL
+  COMMERCIAL
+}
+
+enum AmcFrequency {
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  ANNUAL
+}
+
+enum AmcStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum WhatsAppKind {
+  BOOKING_CONFIRMATION
+  TEAM_DISPATCH
+  CUSTOMER_REMINDER
+  PAYMENT_REMINDER
+  REVIEW_REQUEST
+  AMC_RENEWAL
+  ATTENDANCE_SUMMARY
+  OTHER
+}
+
+enum WhatsAppStatus {
+  QUEUED
+  SENT
+  FAILED
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // Core auth / people
 // ─────────────────────────────────────────────────────────────────────────
@@ -201,6 +237,9 @@ model Staff {
   supervisedJobs    Job[]             @relation("JobSupervisor")
   leadAssignments   Lead[]            @relation("LeadAssignedStaff")
   expenses          Expense[]         @relation("ExpenseStaff")
+  advances          Advance[]
+  fines             FineRecord[]
+  rewards           RewardRecord[]
 
   @@index([availability])
   @@index([designation])
@@ -248,6 +287,7 @@ model Lead {
   serviceCategory  ServiceCategory?
   serviceVariant   String?
   mapLink          String?
+  referralCode     String?
 
   isDemo           Boolean     @default(false)
   deletedAt        DateTime?
@@ -271,6 +311,7 @@ model Lead {
   payments     Payment[]
   activityLogs ActivityLog[]   @relation("ActivityLead")
   timeline     TimelineEntry[]
+  amcContracts AmcContract[]
 
   @@index([stage])
   @@index([followUpDate])
@@ -384,6 +425,8 @@ model Job {
   expenses       Expense[]       @relation("ExpenseJob")
   activityLogs   ActivityLog[]   @relation("ActivityJob")
   materialIssues MaterialIssue[]
+  invoice        Invoice?
+  videos         JobVideo[]
 
   @@index([status])
   @@index([scheduledDate])
@@ -465,6 +508,8 @@ model Payment {
   deletedAt         DateTime?
   deletedByName     String?
 
+  invoice           Invoice?
+
   @@index([status])
   @@index([dueDate])
 }
@@ -527,6 +572,7 @@ model CompanySettings {
   email     String   @default("contact@saharacleaningservices.com")
   address   String   @default("Opp. South Gate, Magarpatta City, Hadapsar, Pune.")
   logoUrl   String?
+  googleReviewUrl String?
   updatedAt DateTime @updatedAt
 }
 
@@ -595,4 +641,182 @@ model BackupEvent {
   createdAt   DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Phase 3 — Revenue, WhatsApp & Workforce Automation
+// ─────────────────────────────────────────────────────────────────────────
+
+// Outbound WhatsApp send log. Every automated message (booking confirmation,
+// team dispatch, reminders, review requests, AMC renewals, attendance
+// summaries) is written here first. If WHATSAPP_ACCESS_TOKEN /
+// WHATSAPP_PHONE_NUMBER_ID aren't configured yet, the row is left QUEUED
+// instead of sent — nothing is lost, and the send resumes automatically the
+// moment credentials are added. See src/lib/whatsapp.ts.
+model WhatsAppMessage {
+  id                String         @id @default(cuid())
+  kind              WhatsAppKind
+  toNumber          String
+  toName            String?
+  body              String
+  status            WhatsAppStatus @default(QUEUED)
+  providerMessageId String?
+  errorMessage      String?
+  relatedType       String?
+  relatedId         String?
+  createdAt         DateTime       @default(now())
+  sentAt            DateTime?
+
+  @@index([kind])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model AmcContract {
+  id              String           @id @default(cuid())
+  contractNumber  String           @unique
+  customerName    String
+  customerMobile  String
+  address         String?
+  area            String?
+  category        AmcCategory
+  frequency       AmcFrequency
+  serviceCategory ServiceCategory?
+  amount          Float
+  startDate       DateTime
+  nextVisitDate   DateTime
+  lastVisitDate   DateTime?
+  status          AmcStatus        @default(ACTIVE)
+  notes           String?
+  leadId          String?
+  lead            Lead?            @relation(fields: [leadId], references: [id])
+
+  isDemo        Boolean   @default(false)
+  deletedAt     DateTime?
+  deletedByName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  visits AmcVisit[]
+
+  @@index([status])
+  @@index([nextVisitDate])
+}
+
+model AmcVisit {
+  id        String      @id @default(cuid())
+  amcId     String
+  amc       AmcContract @relation(fields: [amcId], references: [id], onDelete: Cascade)
+  visitDate DateTime
+  jobId     String?
+  notes     String?
+  createdAt DateTime    @default(now())
+
+  @@index([amcId])
+}
+
+// Combo/upsell rules shown during booking (e.g. Deep Cleaning + Sofa) and the
+// events used to track how often they're shown vs. actually accepted.
+model UpsellRule {
+  id              String          @id @default(cuid())
+  label           String
+  triggerCategory ServiceCategory
+  comboCategory   ServiceCategory
+  comboVariant    String?
+  comboPrice      Float?
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+}
+
+model UpsellEvent {
+  id         String    @id @default(cuid())
+  ruleId     String?
+  leadId     String?
+  label      String
+  comboValue Float?
+  accepted   Boolean   @default(false)
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([leadId])
+  @@index([accepted])
+}
+
+model Advance {
+  id          String   @id @default(cuid())
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  amount      Float
+  reason      String?
+  givenAt     DateTime @default(now())
+  givenByName String?
+  createdAt   DateTime @default(now())
+
+  @@index([staffId])
+}
+
+model FineRecord {
+  id             String   @id @default(cuid())
+  staffId        String
+  staff          Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  type           String
+  amount         Float    @default(0)
+  notes          String?
+  date           DateTime @default(now())
+  recordedByName String?
+  createdAt      DateTime @default(now())
+
+  @@index([staffId])
+}
+
+model RewardRecord {
+  id             String   @id @default(cuid())
+  staffId        String
+  staff          Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  type           String
+  amount         Float    @default(0)
+  notes          String?
+  date           DateTime @default(now())
+  recordedByName String?
+  createdAt      DateTime @default(now())
+
+  @@index([staffId])
+}
+
+// CRM-native quotation/invoice document. mybillbookSyncStatus reflects the
+// MyBillBook push: NOT_CONFIGURED until an API key is supplied (see
+// src/lib/mybillbook.ts), then QUEUED/SYNCED/FAILED.
+model Invoice {
+  id                   String   @id @default(cuid())
+  invoiceNumber        String   @unique
+  jobId                String?  @unique
+  job                  Job?     @relation(fields: [jobId], references: [id])
+  paymentId            String?  @unique
+  payment              Payment? @relation(fields: [paymentId], references: [id])
+  customerName         String
+  customerMobile       String?
+  customerAddress      String?
+  lineItems            String // JSON [{name, description, amount}]
+  subTotal             Float
+  gstPercent           Float    @default(0)
+  gstAmount            Float    @default(0)
+  totalAmount          Float
+  pdfUrl               String?
+  mybillbookInvoiceId  String?
+  mybillbookSyncStatus String   @default("NOT_CONFIGURED")
+  createdAt            DateTime @default(now())
+
+  @@index([jobId])
+}
+
+model JobVideo {
+  id         String   @id @default(cuid())
+  jobId      String
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  url        String
+  caption    String?
+  uploadedAt DateTime @default(now())
+
+  @@index([jobId])
 }

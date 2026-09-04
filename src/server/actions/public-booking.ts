@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
-import { SERVICE_CATEGORY_TO_LEGACY } from "@/lib/constants";
+import { SERVICE_CATEGORY_TO_LEGACY, SERVICE_LABELS } from "@/lib/constants";
+import { recordUpsellEvent } from "@/server/upsell";
+import { sendWhatsApp } from "@/lib/whatsapp";
 import { z } from "zod";
 
 const publicBookingSchema = z.object({
@@ -16,6 +18,11 @@ const publicBookingSchema = z.object({
   serviceVariant: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   mapLink: z.string().optional().or(z.literal("")),
+  referralCode: z.string().optional().or(z.literal("")),
+  upsellRuleId: z.string().optional().or(z.literal("")),
+  upsellLabel: z.string().optional().or(z.literal("")),
+  upsellValue: z.coerce.number().optional(),
+  upsellAccepted: z.boolean().optional(),
   // Honeypot — real visitors never fill this hidden field.
   website: z.string().max(0).optional().or(z.literal("")),
 });
@@ -50,6 +57,7 @@ export async function publicBookLead(values: unknown) {
       source: "WEBSITE",
       notes: data.notes || null,
       mapLink: data.mapLink || null,
+      referralCode: data.referralCode || null,
     },
   });
 
@@ -58,6 +66,28 @@ export async function publicBookLead(values: unknown) {
     type: "SYSTEM",
     body: "Booked online via app.saharacleaningservices.com/book (unverified — no OTP yet)",
   });
+
+  if (data.upsellRuleId) {
+    await recordUpsellEvent({
+      ruleId: data.upsellRuleId,
+      leadId: lead.id,
+      label: data.upsellLabel || "Combo offer",
+      comboValue: data.upsellValue || null,
+      accepted: Boolean(data.upsellAccepted),
+    }).catch(() => {});
+  }
+
+  // Booking confirmation is normally sent when the enquiry is confirmed into
+  // a job (see confirmBooking); this early one acknowledges the request
+  // itself, since a website enquiry has no scheduled slot yet.
+  await sendWhatsApp({
+    kind: "BOOKING_CONFIRMATION",
+    toNumber: data.mobile,
+    toName: data.name,
+    body: `Hi ${data.name}, thanks for booking ${SERVICE_LABELS[legacyService] ?? legacyService} with us! Reference ${leadNumber}. Our team will call you shortly to confirm.`,
+    relatedType: "Lead",
+    relatedId: lead.id,
+  }).catch(() => {});
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");

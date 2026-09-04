@@ -68,7 +68,17 @@ export const ModelName = {
   Vehicle: 'Vehicle',
   MaterialIssue: 'MaterialIssue',
   Review: 'Review',
-  BackupEvent: 'BackupEvent'
+  BackupEvent: 'BackupEvent',
+  WhatsAppMessage: 'WhatsAppMessage',
+  AmcContract: 'AmcContract',
+  AmcVisit: 'AmcVisit',
+  UpsellRule: 'UpsellRule',
+  UpsellEvent: 'UpsellEvent',
+  Advance: 'Advance',
+  FineRecord: 'FineRecord',
+  RewardRecord: 'RewardRecord',
+  Invoice: 'Invoice',
+  JobVideo: 'JobVideo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -161,6 +171,7 @@ export const LeadScalarFieldEnum = {
   serviceCategory: 'serviceCategory',
   serviceVariant: 'serviceVariant',
   mapLink: 'mapLink',
+  referralCode: 'referralCode',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
   deletedByName: 'deletedByName',
@@ -359,6 +370,7 @@ export const CompanySettingsScalarFieldEnum = {
   email: 'email',
   address: 'address',
   logoUrl: 'logoUrl',
+  googleReviewUrl: 'googleReviewUrl',
   updatedAt: 'updatedAt'
 } as const
 
@@ -428,6 +440,165 @@ export const BackupEventScalarFieldEnum = {
 } as const
 
 export type BackupEventScalarFieldEnum = (typeof BackupEventScalarFieldEnum)[keyof typeof BackupEventScalarFieldEnum]
+
+
+export const WhatsAppMessageScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  toNumber: 'toNumber',
+  toName: 'toName',
+  body: 'body',
+  status: 'status',
+  providerMessageId: 'providerMessageId',
+  errorMessage: 'errorMessage',
+  relatedType: 'relatedType',
+  relatedId: 'relatedId',
+  createdAt: 'createdAt',
+  sentAt: 'sentAt'
+} as const
+
+export type WhatsAppMessageScalarFieldEnum = (typeof WhatsAppMessageScalarFieldEnum)[keyof typeof WhatsAppMessageScalarFieldEnum]
+
+
+export const AmcContractScalarFieldEnum = {
+  id: 'id',
+  contractNumber: 'contractNumber',
+  customerName: 'customerName',
+  customerMobile: 'customerMobile',
+  address: 'address',
+  area: 'area',
+  category: 'category',
+  frequency: 'frequency',
+  serviceCategory: 'serviceCategory',
+  amount: 'amount',
+  startDate: 'startDate',
+  nextVisitDate: 'nextVisitDate',
+  lastVisitDate: 'lastVisitDate',
+  status: 'status',
+  notes: 'notes',
+  leadId: 'leadId',
+  isDemo: 'isDemo',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AmcContractScalarFieldEnum = (typeof AmcContractScalarFieldEnum)[keyof typeof AmcContractScalarFieldEnum]
+
+
+export const AmcVisitScalarFieldEnum = {
+  id: 'id',
+  amcId: 'amcId',
+  visitDate: 'visitDate',
+  jobId: 'jobId',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type AmcVisitScalarFieldEnum = (typeof AmcVisitScalarFieldEnum)[keyof typeof AmcVisitScalarFieldEnum]
+
+
+export const UpsellRuleScalarFieldEnum = {
+  id: 'id',
+  label: 'label',
+  triggerCategory: 'triggerCategory',
+  comboCategory: 'comboCategory',
+  comboVariant: 'comboVariant',
+  comboPrice: 'comboPrice',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+} as const
+
+export type UpsellRuleScalarFieldEnum = (typeof UpsellRuleScalarFieldEnum)[keyof typeof UpsellRuleScalarFieldEnum]
+
+
+export const UpsellEventScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  leadId: 'leadId',
+  label: 'label',
+  comboValue: 'comboValue',
+  accepted: 'accepted',
+  acceptedAt: 'acceptedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type UpsellEventScalarFieldEnum = (typeof UpsellEventScalarFieldEnum)[keyof typeof UpsellEventScalarFieldEnum]
+
+
+export const AdvanceScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  amount: 'amount',
+  reason: 'reason',
+  givenAt: 'givenAt',
+  givenByName: 'givenByName',
+  createdAt: 'createdAt'
+} as const
+
+export type AdvanceScalarFieldEnum = (typeof AdvanceScalarFieldEnum)[keyof typeof AdvanceScalarFieldEnum]
+
+
+export const FineRecordScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  type: 'type',
+  amount: 'amount',
+  notes: 'notes',
+  date: 'date',
+  recordedByName: 'recordedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type FineRecordScalarFieldEnum = (typeof FineRecordScalarFieldEnum)[keyof typeof FineRecordScalarFieldEnum]
+
+
+export const RewardRecordScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  type: 'type',
+  amount: 'amount',
+  notes: 'notes',
+  date: 'date',
+  recordedByName: 'recordedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type RewardRecordScalarFieldEnum = (typeof RewardRecordScalarFieldEnum)[keyof typeof RewardRecordScalarFieldEnum]
+
+
+export const InvoiceScalarFieldEnum = {
+  id: 'id',
+  invoiceNumber: 'invoiceNumber',
+  jobId: 'jobId',
+  paymentId: 'paymentId',
+  customerName: 'customerName',
+  customerMobile: 'customerMobile',
+  customerAddress: 'customerAddress',
+  lineItems: 'lineItems',
+  subTotal: 'subTotal',
+  gstPercent: 'gstPercent',
+  gstAmount: 'gstAmount',
+  totalAmount: 'totalAmount',
+  pdfUrl: 'pdfUrl',
+  mybillbookInvoiceId: 'mybillbookInvoiceId',
+  mybillbookSyncStatus: 'mybillbookSyncStatus',
+  createdAt: 'createdAt'
+} as const
+
+export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
+
+
+export const JobVideoScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  url: 'url',
+  caption: 'caption',
+  uploadedAt: 'uploadedAt'
+} as const
+
+export type JobVideoScalarFieldEnum = (typeof JobVideoScalarFieldEnum)[keyof typeof JobVideoScalarFieldEnum]
 
 
 export const SortOrder = {

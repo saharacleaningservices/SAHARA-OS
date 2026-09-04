@@ -9,6 +9,7 @@ import { Loader2, Lock, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ROLE_LABELS } from "@/lib/constants";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -18,11 +19,11 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const DEMO_ACCOUNTS = [
-  { role: "Admin", email: "admin@saharacleaningservices.com" },
-  { role: "Operations", email: "operations@saharacleaningservices.com" },
-  { role: "Accounts", email: "accounts@saharacleaningservices.com" },
-  { role: "Supervisor", email: "supervisor@saharacleaningservices.com" },
-  { role: "Staff", email: "staff@saharacleaningservices.com" },
+  { role: ROLE_LABELS.ADMIN, email: "admin@saharacleaningservices.com" },
+  { role: ROLE_LABELS.OPERATIONS, email: "operations@saharacleaningservices.com" },
+  { role: ROLE_LABELS.ACCOUNTS, email: "accounts@saharacleaningservices.com" },
+  { role: ROLE_LABELS.SUPERVISOR, email: "supervisor@saharacleaningservices.com" },
+  { role: ROLE_LABELS.STAFF, email: "staff@saharacleaningservices.com" },
 ];
 
 export function LoginForm({ next }: { next?: string }) {

@@ -56,3 +56,36 @@ export function jobScopeFor(role: string): JobScope {
   if (role === "STAFF") return "OWN_TODAY";
   return "ALL";
 }
+
+// Phase 3 — Revenue, WhatsApp & Workforce Automation
+
+/** Revenue dashboard — same audience as financials. */
+export function canViewRevenue(role: string): boolean {
+  return canViewFinancials(role);
+}
+
+/** AMC contracts — office roles that deal with customers/scheduling. */
+export function canManageAmc(role: string): boolean {
+  return role === "ADMIN" || role === "OPERATIONS" || role === "ACCOUNTS";
+}
+
+/** Upsell combo rules — Admin configures them; everyone can see them offered in booking. */
+export function canManageUpsellRules(role: string): boolean {
+  return role === "ADMIN";
+}
+
+/** Advances/fines/rewards against a staff member's pay — Admin only, since
+ * the Operations Manager has no salary visibility (see canViewSalary). */
+export function canManageStaffFinancials(role: string): boolean {
+  return role === "ADMIN";
+}
+
+/** Full attendance list + admin-side corrections (Worker only sees/marks their own). */
+export function canManageAttendance(role: string): boolean {
+  return role === "ADMIN" || role === "OPERATIONS";
+}
+
+/** WhatsApp send log + resend controls. */
+export function canViewWhatsAppLog(role: string): boolean {
+  return role === "ADMIN";
+}
