@@ -104,3 +104,60 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+
+// ── Phase 1: Smart Enquiry Hub ─────────────────────────────────────────
+
+export const quickCaptureSchema = z.object({
+  mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
+  name: z.string().min(2, "Name is required"),
+  area: z.string().min(2, "Area is required"),
+  service: z.enum([
+    "HOME_DEEP_CLEANING",
+    "COMMERCIAL_CLEANING",
+    "HOUSEKEEPING",
+    "PEST_CONTROL",
+    "INTERIOR_PAINTING",
+  ]),
+});
+
+export type QuickCaptureFormValues = z.infer<typeof quickCaptureSchema>;
+
+export const followUpSchema = z.object({
+  dueDate: z.string().min(1, "Pick a date"),
+  dueTime: z.string().optional().or(z.literal("")),
+  type: z.enum(["CALL", "WHATSAPP", "SITE_VISIT", "PAYMENT", "CUSTOM"]),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH"]).default("MEDIUM"),
+  notes: z.string().optional().or(z.literal("")),
+});
+
+export type FollowUpFormValues = z.infer<typeof followUpSchema>;
+
+export const confirmBookingSchema = z.object({
+  serviceDate: z.string().min(1, "Pick a service date"),
+  timeSlot: z.enum([
+    "8 AM",
+    "9 AM",
+    "10 AM",
+    "11 AM",
+    "12 PM",
+    "1 PM",
+    "2 PM",
+    "3 PM",
+    "4 PM",
+    "5 PM",
+  ]),
+  supervisorId: z.string().optional().or(z.literal("")),
+});
+
+export type ConfirmBookingFormValues = z.infer<typeof confirmBookingSchema>;
+
+export const callLogSchema = z.object({
+  outcome: z.enum(["NO_ANSWER", "BUSY", "INTERESTED", "CALL_BACK", "CONFIRMED", "WRONG_NUMBER"]),
+  notes: z.string().optional().or(z.literal("")),
+});
+
+export type CallLogFormValues = z.infer<typeof callLogSchema>;
+
+export const timelineNoteSchema = z.object({
+  body: z.string().min(1, "Write something first").max(4000),
+});

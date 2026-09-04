@@ -20,8 +20,8 @@ export async function getLeadDetail(id: string) {
       createdBy: true,
       quotations: { orderBy: { createdAt: "desc" } },
       jobs: { orderBy: { createdAt: "desc" } },
-      followUps: { orderBy: { dueDate: "desc" } },
-      activityLogs: { orderBy: { createdAt: "desc" }, include: { actor: { select: { name: true } } } },
+      followUps: { orderBy: { dueDate: "asc" } },
+      timeline: { orderBy: { createdAt: "asc" }, include: { author: { select: { name: true } } } },
       payments: { orderBy: { createdAt: "desc" } },
     },
   });

@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { SidebarNav } from "./sidebar-nav";
 import { Topbar } from "./topbar";
 import { Toaster } from "@/components/ui/sonner";
+import { QuickCaptureFab } from "@/components/leads/quick-capture-fab";
 
 export function AppShell({
   name,
@@ -25,6 +26,7 @@ export function AppShell({
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
+      <QuickCaptureFab />
       <Toaster position="top-right" richColors />
     </div>
   );

@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { jobSchema } from "@/lib/validation";
 import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } from "@/lib/id-generators";
+import { addTimelineEntry } from "@/server/timeline";
 
 export async function createJob(values: unknown) {
   const parsed = jobSchema.safeParse(values);
@@ -43,6 +44,13 @@ export async function createJob(values: unknown) {
 
   if (data.leadId) {
     await db.lead.update({ where: { id: data.leadId }, data: { stage: "JOB_SCHEDULED" } });
+    await addTimelineEntry({
+      leadId: data.leadId,
+      type: "JOB",
+      body: `Job ${jobNumber} created — ${new Date(data.scheduledDate).toLocaleDateString("en-IN")} at ${data.scheduledTime}`,
+      meta: { jobId: job.id, jobNumber },
+      authorId: session?.sub,
+    });
   }
 
   await db.activityLog.create({ data: { jobId: job.id, actorId: session?.sub, action: `Job ${jobNumber} created` } });
@@ -161,6 +169,13 @@ export async function completeJobWithCertificate(jobId: string) {
 
   if (job.leadId) {
     await db.lead.update({ where: { id: job.leadId }, data: { stage: "COMPLETED" } }).catch(() => {});
+    await addTimelineEntry({
+      leadId: job.leadId,
+      type: "STAGE",
+      body: `Job ${job.jobNumber} completed`,
+      meta: { toStage: "COMPLETED", jobId },
+      authorId: session?.sub,
+    }).catch(() => {});
   }
 
   let certificateId = job.certificate?.id;
@@ -197,6 +212,15 @@ export async function completeJobWithCertificate(jobId: string) {
         recordedById: session?.sub,
       },
     });
+    if (job.leadId) {
+      await addTimelineEntry({
+        leadId: job.leadId,
+        type: "PAYMENT",
+        body: `Invoice ${invoiceNumber} raised — ₹${job.jobValue.toLocaleString("en-IN")} due ${dueDate.toLocaleDateString("en-IN")}`,
+        meta: { invoiceNumber, amount: job.jobValue },
+        authorId: session?.sub,
+      }).catch(() => {});
+    }
   }
 
   await db.activityLog.create({

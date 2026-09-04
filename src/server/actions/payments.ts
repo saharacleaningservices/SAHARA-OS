@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { paymentSchema } from "@/lib/validation";
 import { generateInvoiceNumber } from "@/lib/id-generators";
+import { addPaymentTimeline } from "@/server/timeline";
 
 export async function createPayment(values: unknown) {
   const parsed = paymentSchema.safeParse(values);
@@ -78,9 +79,16 @@ export async function markPaymentPaid(paymentId: string) {
     data: { status: "PAID", paidAmount: payment.amount, paidDate: new Date() },
   });
 
+  await addPaymentTimeline(
+    payment.leadId,
+    `Payment received — ₹${payment.amount.toLocaleString("en-IN")} against invoice ${payment.invoiceNumber}`,
+    { invoiceNumber: payment.invoiceNumber, amount: payment.amount }
+  );
+
   revalidatePath("/payments");
   revalidatePath("/dashboard");
   revalidatePath("/profit");
+  revalidatePath("/leads");
   return { success: true as const };
 }
 

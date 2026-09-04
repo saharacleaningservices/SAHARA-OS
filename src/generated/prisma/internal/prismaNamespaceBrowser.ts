@@ -55,6 +55,7 @@ export const ModelName = {
   Lead: 'Lead',
   Quotation: 'Quotation',
   FollowUp: 'FollowUp',
+  TimelineEntry: 'TimelineEntry',
   Job: 'Job',
   JobAssignment: 'JobAssignment',
   Photo: 'Photo',
@@ -182,6 +183,7 @@ export const FollowUpScalarFieldEnum = {
   leadId: 'leadId',
   dueDate: 'dueDate',
   type: 'type',
+  priority: 'priority',
   notes: 'notes',
   isDone: 'isDone',
   doneAt: 'doneAt',
@@ -190,6 +192,20 @@ export const FollowUpScalarFieldEnum = {
 } as const
 
 export type FollowUpScalarFieldEnum = (typeof FollowUpScalarFieldEnum)[keyof typeof FollowUpScalarFieldEnum]
+
+
+export const TimelineEntryScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  type: 'type',
+  body: 'body',
+  audioUrl: 'audioUrl',
+  meta: 'meta',
+  authorId: 'authorId',
+  createdAt: 'createdAt'
+} as const
+
+export type TimelineEntryScalarFieldEnum = (typeof TimelineEntryScalarFieldEnum)[keyof typeof TimelineEntryScalarFieldEnum]
 
 
 export const JobScalarFieldEnum = {

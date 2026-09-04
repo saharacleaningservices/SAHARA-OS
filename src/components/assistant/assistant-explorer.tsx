@@ -439,7 +439,7 @@ function FollowUpCard({
               {SERVICE_LABELS[lead.service]} · {lead.area} · {LEAD_STAGE_LABELS[lead.stage] ?? lead.stage}
             </CardDescription>
           </div>
-          <Badge variant="outline">{suggestion.channelType}</Badge>
+          <Badge variant="outline">{suggestion.channelType.replace("_", " ")}</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-2">

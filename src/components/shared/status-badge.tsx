@@ -9,13 +9,13 @@ import {
 
 const LEAD_STAGE_VARIANT: Record<string, "muted" | "info" | "warning" | "success" | "default" | "secondary"> = {
   NEW: "muted",
+  INTERESTED: "info",
   SITE_VISIT: "info",
-  QUOTE_SENT: "info",
+  QUOTATION: "info",
   NEGOTIATION: "warning",
   CONFIRMED: "default",
   JOB_SCHEDULED: "default",
   COMPLETED: "success",
-  PAID: "success",
 };
 
 const JOB_STATUS_VARIANT: Record<string, "muted" | "info" | "warning" | "success"> = {

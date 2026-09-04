@@ -8,7 +8,6 @@ import {
   PiggyBank,
   UserCheck,
   ArrowRight,
-  Clock,
   Plus,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
@@ -19,13 +18,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LeadStageBadge, JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
+import { FollowUpBoard } from "@/components/dashboard/followup-board";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 
 export default async function DashboardPage() {
   const session = await requireUser();
-  const { stats, recentLeads, todaysJobs, overduePayments, followUpsToday } = await getDashboardData();
+  const {
+    stats,
+    recentLeads,
+    todaysJobs,
+    overduePayments,
+    followUpsToday,
+    followUpsTomorrow,
+    followUpsOverdue,
+  } = await getDashboardData();
 
   const firstName = session.name.split(" ")[0];
 
@@ -175,37 +183,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Follow-ups Due Today</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/leads">
-                View all <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {followUpsToday.length === 0 ? (
-              <EmptyState title="No follow-ups due today" description="You are all caught up." />
-            ) : (
-              followUpsToday.map((f) => (
-                <Link
-                  key={f.id}
-                  href={`/leads/${f.leadId}`}
-                  className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/50"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{f.lead.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{f.notes ?? "Follow up"}</p>
-                  </div>
-                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="size-3" /> {f.type}
-                  </span>
-                </Link>
-              ))
-            )}
-          </CardContent>
-        </Card>
+        <FollowUpBoard today={followUpsToday} tomorrow={followUpsTomorrow} overdue={followUpsOverdue} />
       </div>
     </div>
   );

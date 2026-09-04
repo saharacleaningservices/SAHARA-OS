@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, FileText, ClipboardList, Wallet } from "lucide-react";
 import { getLeadDetail } from "@/server/leads";
+import { getStaffForAssignment } from "@/server/staff";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,15 +11,20 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StageSelect } from "@/components/leads/stage-select";
 import { QuotationDialog } from "@/components/leads/quotation-dialog";
 import { ScheduleVisitDialog } from "@/components/leads/schedule-visit-dialog";
+import { ConfirmBookingDialog } from "@/components/leads/confirm-booking-dialog";
+import { ConversationTimeline } from "@/components/leads/conversation-timeline";
 import { FollowUpsPanel } from "@/components/leads/followups-panel";
 import { EmptyState } from "@/components/shared/empty-state";
-import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
+import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const lead = await getLeadDetail(id);
+  const [lead, staff] = await Promise.all([getLeadDetail(id), getStaffForAssignment()]);
   if (!lead) notFound();
+
+  const supervisors = staff.filter((s) => s.designation === "Supervisor").map((s) => ({ id: s.id, name: s.name }));
+  const canConfirm = !["JOB_SCHEDULED", "COMPLETED"].includes(lead.stage);
 
   return (
     <div className="space-y-6">
@@ -31,6 +37,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
             <ScheduleVisitDialog leadId={lead.id} />
             <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} />
+            {canConfirm && <ConfirmBookingDialog leadId={lead.id} supervisors={supervisors} />}
             <Button variant="outline" asChild>
               <Link href={`/leads/${lead.id}/edit`}>
                 <Pencil className="size-3.5" /> Edit
@@ -43,10 +50,19 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card>
+            <CardHeader>
+              <CardTitle>Conversation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ConversationTimeline leadId={lead.id} entries={lead.timeline} />
+            </CardContent>
+          </Card>
+
+          <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle>Overview</CardTitle>
               <div className="w-44">
-                <StageSelect leadId={lead.id} stage={lead.stage} />
+                <StageSelect leadId={lead.id} stage={lead.stage} supervisors={supervisors} />
               </div>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
@@ -187,28 +203,6 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {lead.activityLogs.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No activity yet.</p>
-              ) : (
-                <div className="space-y-3 border-l border-border pl-4">
-                  {lead.activityLogs.map((log) => (
-                    <div key={log.id} className="relative">
-                      <span className="absolute -left-[21px] top-1 size-2 rounded-full bg-primary" />
-                      <p className="text-sm text-foreground">{log.action}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDateTime(log.createdAt)} {log.actor && `· ${log.actor.name}`}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

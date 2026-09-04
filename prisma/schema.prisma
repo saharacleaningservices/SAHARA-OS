@@ -46,13 +46,13 @@ enum ServiceType {
 
 enum LeadStage {
   NEW
+  INTERESTED
   SITE_VISIT
-  QUOTE_SENT
+  QUOTATION
   NEGOTIATION
   CONFIRMED
   JOB_SCHEDULED
   COMPLETED
-  PAID
 }
 
 enum JobStatus {
@@ -104,14 +104,34 @@ enum SalaryType {
 enum FollowUpType {
   CALL
   WHATSAPP
-  VISIT
-  EMAIL
+  SITE_VISIT
+  PAYMENT
+  CUSTOM
+}
+
+enum FollowUpPriority {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 enum ReminderChannel {
   WHATSAPP
   EMAIL
   CALL
+}
+
+// Conversation timeline entry kinds (WhatsApp-style enquiry history).
+enum TimelineType {
+  NOTE
+  VOICE
+  CALL
+  STAGE
+  QUOTATION
+  JOB
+  PAYMENT
+  FOLLOW_UP
+  SYSTEM
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -138,6 +158,7 @@ model User {
   photosUploaded    Photo[]       @relation("PhotoUploadedBy")
   activityLogs      ActivityLog[] @relation("ActivityActor")
   paymentsRecorded  Payment[]     @relation("PaymentRecordedBy")
+  timelineEntries   TimelineEntry[] @relation("TimelineAuthor")
 
   @@index([role])
 }
@@ -227,7 +248,8 @@ model Lead {
   jobs         Job[]
   followUps    FollowUp[]
   payments     Payment[]
-  activityLogs ActivityLog[] @relation("ActivityLead")
+  activityLogs ActivityLog[]   @relation("ActivityLead")
+  timeline     TimelineEntry[]
 
   @@index([stage])
   @@index([followUpDate])
@@ -255,20 +277,39 @@ model Quotation {
 }
 
 model FollowUp {
-  id           String       @id @default(cuid())
+  id           String          @id @default(cuid())
   leadId       String
-  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  lead         Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
   dueDate      DateTime
-  type         FollowUpType @default(CALL)
+  type         FollowUpType    @default(CALL)
+  priority     FollowUpPriority @default(MEDIUM)
   notes        String?
-  isDone       Boolean      @default(false)
+  isDone       Boolean         @default(false)
   doneAt       DateTime?
   assignedToId String?
-  assignedTo   User?        @relation("FollowUpAssignedTo", fields: [assignedToId], references: [id])
-  createdAt    DateTime     @default(now())
+  assignedTo   User?           @relation("FollowUpAssignedTo", fields: [assignedToId], references: [id])
+  createdAt    DateTime        @default(now())
 
   @@index([dueDate])
   @@index([isDone])
+}
+
+// Conversation timeline — every enquiry keeps a permanent, ordered history of
+// notes, voice notes, calls, stage changes, quotations, jobs and payments.
+model TimelineEntry {
+  id        String       @id @default(cuid())
+  leadId    String
+  lead      Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type      TimelineType @default(NOTE)
+  body      String?
+  audioUrl  String?
+  meta      String? // JSON — e.g. { outcome, fromStage, toStage, amount }
+  authorId  String?
+  author    User?        @relation("TimelineAuthor", fields: [authorId], references: [id])
+  createdAt DateTime     @default(now())
+
+  @@index([leadId])
+  @@index([createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────────────────
