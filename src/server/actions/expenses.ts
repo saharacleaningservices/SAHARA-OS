@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { expenseSchema } from "@/lib/validation";
+import { softDeleteMany } from "@/server/audit";
 
 export async function createExpense(values: unknown) {
   const parsed = expenseSchema.safeParse(values);
@@ -57,9 +58,19 @@ export async function updateExpense(id: string, values: unknown) {
 export async function deleteExpense(id: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
-  await db.expense.delete({ where: { id } });
+  await softDeleteMany("Expense", [id], session);
   revalidatePath("/expenses");
   revalidatePath("/profit");
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function bulkDeleteExpenses(ids: string[]) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  const count = await softDeleteMany("Expense", ids, session);
+  revalidatePath("/expenses");
+  revalidatePath("/profit");
+  revalidatePath("/dashboard");
+  return { success: true as const, count };
 }

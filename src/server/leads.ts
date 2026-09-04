@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 
 export async function getAllLeadsForList() {
   return db.lead.findMany({
+    where: { deletedAt: null },
     orderBy: { createdAt: "desc" },
     include: {
       assignedStaff: { select: { name: true } },
@@ -12,8 +13,8 @@ export async function getAllLeadsForList() {
 }
 
 export async function getLeadDetail(id: string) {
-  return db.lead.findUnique({
-    where: { id },
+  return db.lead.findFirst({
+    where: { id, deletedAt: null },
     include: {
       assignedStaff: true,
       assignedTo: true,

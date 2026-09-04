@@ -164,3 +164,14 @@ export const TimelineType = {
 } as const
 
 export type TimelineType = (typeof TimelineType)[keyof typeof TimelineType]
+
+
+export const ServiceCategory = {
+  HOME_DEEP_CLEANING: 'HOME_DEEP_CLEANING',
+  INDIVIDUAL_CLEANING: 'INDIVIDUAL_CLEANING',
+  PAINTING: 'PAINTING',
+  PEST_CONTROL: 'PEST_CONTROL',
+  COMMERCIAL_CLEANING: 'COMMERCIAL_CLEANING'
+} as const
+
+export type ServiceCategory = (typeof ServiceCategory)[keyof typeof ServiceCategory]

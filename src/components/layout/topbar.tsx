@@ -17,7 +17,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CompanyLogo } from "@/components/shared/company-logo";
+import { GlobalSearch } from "@/components/shared/global-search";
 import { ROLE_LABELS } from "@/lib/constants";
+import { canSearchGlobally } from "@/lib/permissions";
 
 export function Topbar({
   name,
@@ -52,10 +54,17 @@ export function Topbar({
       </Sheet>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-foreground sm:text-base">
-          {pageLabel ?? "Sahara OS"}
-        </p>
+        {canSearchGlobally(role) ? (
+          <GlobalSearch />
+        ) : (
+          <p className="truncate text-sm font-semibold text-foreground sm:text-base">
+            {pageLabel ?? "Sahara OS"}
+          </p>
+        )}
       </div>
+      {canSearchGlobally(role) && (
+        <p className="hidden truncate text-sm font-semibold text-foreground md:block">{pageLabel}</p>
+      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

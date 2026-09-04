@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,8 +13,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { leadSchema, type LeadFormValues } from "@/lib/validation";
-import { SERVICE_OPTIONS, LEAD_SOURCE_OPTIONS } from "@/lib/constants";
+import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY } from "@/lib/constants";
 import { createLead, updateLead } from "@/server/actions/leads";
+import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
+import { ShareLocationButton } from "@/components/shared/share-location-button";
 
 type StaffOption = { id: string; name: string; designation: string };
 type UserOption = { id: string; name: string; role: string };
@@ -53,6 +55,9 @@ export function LeadForm({
       assignedStaffId: "",
       assignedToId: "",
       notes: "",
+      serviceCategory: "HOME_DEEP_CLEANING",
+      serviceVariant: "",
+      mapLink: "",
       ...defaultValues,
     },
   });
@@ -100,6 +105,22 @@ export function LeadForm({
             <Label htmlFor="address">Full Address</Label>
             <Textarea id="address" {...register("address")} rows={2} />
           </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Location</Label>
+            <div className="flex flex-wrap items-center gap-2">
+              <ShareLocationButton onShare={async (link) => { setValue("mapLink", link); return { success: true }; }} />
+              {watch("mapLink") && (
+                <a
+                  href={watch("mapLink")}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                >
+                  <MapPin className="size-3" /> Location captured
+                </a>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -108,20 +129,17 @@ export function LeadForm({
           <CardTitle>Enquiry Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>Service</Label>
-            <Select value={watch("service")} onValueChange={(v) => setValue("service", v as LeadFormValues["service"])}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {SERVICE_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="sm:col-span-2">
+            <ServiceCategoryPicker
+              category={watch("serviceCategory") || "HOME_DEEP_CLEANING"}
+              variant={watch("serviceVariant") || ""}
+              onCategoryChange={(v) => {
+                setValue("serviceCategory", v);
+                setValue("serviceVariant", "");
+                setValue("service", (SERVICE_CATEGORY_TO_LEGACY[v] ?? "HOME_DEEP_CLEANING") as LeadFormValues["service"]);
+              }}
+              onVariantChange={(v) => setValue("serviceVariant", v)}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Lead Source</Label>

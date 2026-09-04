@@ -3,7 +3,7 @@ import { startOfDay, subDays } from "date-fns";
 
 export async function getStaffForAssignment() {
   return db.staff.findMany({
-    where: { isActive: true },
+    where: { isActive: true, deletedAt: null },
     orderBy: { name: "asc" },
     select: { id: true, name: true, designation: true, availability: true },
   });
@@ -12,6 +12,7 @@ export async function getStaffForAssignment() {
 export async function getAllStaffForList() {
   const today = startOfDay(new Date());
   const staff = await db.staff.findMany({
+    where: { deletedAt: null },
     orderBy: { name: "asc" },
     include: {
       attendance: { where: { date: today }, take: 1 },

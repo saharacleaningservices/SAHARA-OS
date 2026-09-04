@@ -54,6 +54,9 @@ export type StaffMinAggregateOutputType = {
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
 }
 
 export type StaffMaxAggregateOutputType = {
@@ -74,6 +77,9 @@ export type StaffMaxAggregateOutputType = {
   userId: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
 }
 
 export type StaffCountAggregateOutputType = {
@@ -94,6 +100,9 @@ export type StaffCountAggregateOutputType = {
   userId: number
   createdAt: number
   updatedAt: number
+  isDemo: number
+  deletedAt: number
+  deletedByName: number
   _all: number
 }
 
@@ -126,6 +135,9 @@ export type StaffMinAggregateInputType = {
   userId?: true
   createdAt?: true
   updatedAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
 }
 
 export type StaffMaxAggregateInputType = {
@@ -146,6 +158,9 @@ export type StaffMaxAggregateInputType = {
   userId?: true
   createdAt?: true
   updatedAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
 }
 
 export type StaffCountAggregateInputType = {
@@ -166,6 +181,9 @@ export type StaffCountAggregateInputType = {
   userId?: true
   createdAt?: true
   updatedAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
   _all?: true
 }
 
@@ -273,6 +291,9 @@ export type StaffGroupByOutputType = {
   userId: string | null
   createdAt: Date
   updatedAt: Date
+  isDemo: boolean
+  deletedAt: Date | null
+  deletedByName: string | null
   _count: StaffCountAggregateOutputType | null
   _avg: StaffAvgAggregateOutputType | null
   _sum: StaffSumAggregateOutputType | null
@@ -316,6 +337,9 @@ export type StaffWhereInput = {
   userId?: Prisma.StringNullableFilter<"Staff"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Staff"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Staff"> | string | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   attendance?: Prisma.AttendanceListRelationFilter
   jobAssignments?: Prisma.JobAssignmentListRelationFilter
@@ -342,6 +366,9 @@ export type StaffOrderByWithRelationInput = {
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   attendance?: Prisma.AttendanceOrderByRelationAggregateInput
   jobAssignments?: Prisma.JobAssignmentOrderByRelationAggregateInput
@@ -371,6 +398,9 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Staff"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Staff"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Staff"> | string | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   attendance?: Prisma.AttendanceListRelationFilter
   jobAssignments?: Prisma.JobAssignmentListRelationFilter
@@ -397,6 +427,9 @@ export type StaffOrderByWithAggregationInput = {
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.StaffCountOrderByAggregateInput
   _avg?: Prisma.StaffAvgOrderByAggregateInput
   _max?: Prisma.StaffMaxOrderByAggregateInput
@@ -425,6 +458,9 @@ export type StaffScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
+  isDemo?: Prisma.BoolWithAggregatesFilter<"Staff"> | boolean
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+  deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
 }
 
 export type StaffCreateInput = {
@@ -444,6 +480,9 @@ export type StaffCreateInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   user?: Prisma.UserCreateNestedOneWithoutStaffProfileInput
   attendance?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentCreateNestedManyWithoutStaffInput
@@ -470,6 +509,9 @@ export type StaffUncheckedCreateInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   attendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobUncheckedCreateNestedManyWithoutSupervisorInput
@@ -494,6 +536,9 @@ export type StaffUpdateInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutStaffProfileNestedInput
   attendance?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUpdateManyWithoutStaffNestedInput
@@ -520,6 +565,9 @@ export type StaffUncheckedUpdateInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendance?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUncheckedUpdateManyWithoutSupervisorNestedInput
@@ -545,6 +593,9 @@ export type StaffCreateManyInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type StaffUpdateManyMutationInput = {
@@ -564,6 +615,9 @@ export type StaffUpdateManyMutationInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type StaffUncheckedUpdateManyInput = {
@@ -584,6 +638,9 @@ export type StaffUncheckedUpdateManyInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type StaffNullableScalarRelationFilter = {
@@ -609,6 +666,9 @@ export type StaffCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type StaffAvgOrderByAggregateInput = {
@@ -634,6 +694,9 @@ export type StaffMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type StaffMinOrderByAggregateInput = {
@@ -654,6 +717,9 @@ export type StaffMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type StaffSumOrderByAggregateInput = {
@@ -712,6 +778,10 @@ export type NullableFloatFieldUpdateOperationsInput = {
 
 export type EnumStaffAvailabilityFieldUpdateOperationsInput = {
   set?: $Enums.StaffAvailability
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type StaffCreateNestedOneWithoutAttendanceInput = {
@@ -807,6 +877,9 @@ export type StaffCreateWithoutUserInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   attendance?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobCreateNestedManyWithoutSupervisorInput
@@ -831,6 +904,9 @@ export type StaffUncheckedCreateWithoutUserInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   attendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobUncheckedCreateNestedManyWithoutSupervisorInput
@@ -871,6 +947,9 @@ export type StaffUpdateWithoutUserInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendance?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUpdateManyWithoutSupervisorNestedInput
@@ -895,6 +974,9 @@ export type StaffUncheckedUpdateWithoutUserInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendance?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUncheckedUpdateManyWithoutSupervisorNestedInput
@@ -919,6 +1001,9 @@ export type StaffCreateWithoutAttendanceInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   user?: Prisma.UserCreateNestedOneWithoutStaffProfileInput
   jobAssignments?: Prisma.JobAssignmentCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobCreateNestedManyWithoutSupervisorInput
@@ -944,6 +1029,9 @@ export type StaffUncheckedCreateWithoutAttendanceInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   jobAssignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobUncheckedCreateNestedManyWithoutSupervisorInput
   leadAssignments?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedStaffInput
@@ -983,6 +1071,9 @@ export type StaffUpdateWithoutAttendanceInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutStaffProfileNestedInput
   jobAssignments?: Prisma.JobAssignmentUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUpdateManyWithoutSupervisorNestedInput
@@ -1008,6 +1099,9 @@ export type StaffUncheckedUpdateWithoutAttendanceInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jobAssignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUncheckedUpdateManyWithoutSupervisorNestedInput
   leadAssignments?: Prisma.LeadUncheckedUpdateManyWithoutAssignedStaffNestedInput
@@ -1031,6 +1125,9 @@ export type StaffCreateWithoutLeadAssignmentsInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   user?: Prisma.UserCreateNestedOneWithoutStaffProfileInput
   attendance?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentCreateNestedManyWithoutStaffInput
@@ -1056,6 +1153,9 @@ export type StaffUncheckedCreateWithoutLeadAssignmentsInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   attendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobUncheckedCreateNestedManyWithoutSupervisorInput
@@ -1095,6 +1195,9 @@ export type StaffUpdateWithoutLeadAssignmentsInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutStaffProfileNestedInput
   attendance?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUpdateManyWithoutStaffNestedInput
@@ -1120,6 +1223,9 @@ export type StaffUncheckedUpdateWithoutLeadAssignmentsInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendance?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUncheckedUpdateManyWithoutSupervisorNestedInput
@@ -1143,6 +1249,9 @@ export type StaffCreateWithoutSupervisedJobsInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   user?: Prisma.UserCreateNestedOneWithoutStaffProfileInput
   attendance?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentCreateNestedManyWithoutStaffInput
@@ -1168,6 +1277,9 @@ export type StaffUncheckedCreateWithoutSupervisedJobsInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   attendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutStaffInput
   leadAssignments?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedStaffInput
@@ -1207,6 +1319,9 @@ export type StaffUpdateWithoutSupervisedJobsInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutStaffProfileNestedInput
   attendance?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUpdateManyWithoutStaffNestedInput
@@ -1232,6 +1347,9 @@ export type StaffUncheckedUpdateWithoutSupervisedJobsInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendance?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   leadAssignments?: Prisma.LeadUncheckedUpdateManyWithoutAssignedStaffNestedInput
@@ -1255,6 +1373,9 @@ export type StaffCreateWithoutJobAssignmentsInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   user?: Prisma.UserCreateNestedOneWithoutStaffProfileInput
   attendance?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobCreateNestedManyWithoutSupervisorInput
@@ -1280,6 +1401,9 @@ export type StaffUncheckedCreateWithoutJobAssignmentsInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   attendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobUncheckedCreateNestedManyWithoutSupervisorInput
   leadAssignments?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedStaffInput
@@ -1319,6 +1443,9 @@ export type StaffUpdateWithoutJobAssignmentsInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutStaffProfileNestedInput
   attendance?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUpdateManyWithoutSupervisorNestedInput
@@ -1344,6 +1471,9 @@ export type StaffUncheckedUpdateWithoutJobAssignmentsInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendance?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUncheckedUpdateManyWithoutSupervisorNestedInput
   leadAssignments?: Prisma.LeadUncheckedUpdateManyWithoutAssignedStaffNestedInput
@@ -1367,6 +1497,9 @@ export type StaffCreateWithoutExpensesInput = {
   qrCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   user?: Prisma.UserCreateNestedOneWithoutStaffProfileInput
   attendance?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentCreateNestedManyWithoutStaffInput
@@ -1392,6 +1525,9 @@ export type StaffUncheckedCreateWithoutExpensesInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   attendance?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   jobAssignments?: Prisma.JobAssignmentUncheckedCreateNestedManyWithoutStaffInput
   supervisedJobs?: Prisma.JobUncheckedCreateNestedManyWithoutSupervisorInput
@@ -1431,6 +1567,9 @@ export type StaffUpdateWithoutExpensesInput = {
   qrCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneWithoutStaffProfileNestedInput
   attendance?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUpdateManyWithoutStaffNestedInput
@@ -1456,6 +1595,9 @@ export type StaffUncheckedUpdateWithoutExpensesInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendance?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   jobAssignments?: Prisma.JobAssignmentUncheckedUpdateManyWithoutStaffNestedInput
   supervisedJobs?: Prisma.JobUncheckedUpdateManyWithoutSupervisorNestedInput
@@ -1547,6 +1689,9 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   user?: boolean | Prisma.Staff$userArgs<ExtArgs>
   attendance?: boolean | Prisma.Staff$attendanceArgs<ExtArgs>
   jobAssignments?: boolean | Prisma.Staff$jobAssignmentsArgs<ExtArgs>
@@ -1574,6 +1719,9 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   user?: boolean | Prisma.Staff$userArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -1595,6 +1743,9 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   user?: boolean | Prisma.Staff$userArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -1616,9 +1767,12 @@ export type StaffSelectScalar = {
   userId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
 }
 
-export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeCode" | "name" | "mobile" | "designation" | "salaryType" | "dailyWage" | "monthlySalary" | "availability" | "joinDate" | "isActive" | "photoUrl" | "notes" | "qrCode" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeCode" | "name" | "mobile" | "designation" | "salaryType" | "dailyWage" | "monthlySalary" | "availability" | "joinDate" | "isActive" | "photoUrl" | "notes" | "qrCode" | "userId" | "createdAt" | "updatedAt" | "isDemo" | "deletedAt" | "deletedByName", ExtArgs["result"]["staff"]>
 export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Staff$userArgs<ExtArgs>
   attendance?: boolean | Prisma.Staff$attendanceArgs<ExtArgs>
@@ -1663,6 +1817,9 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     userId: string | null
     createdAt: Date
     updatedAt: Date
+    isDemo: boolean
+    deletedAt: Date | null
+    deletedByName: string | null
   }, ExtArgs["result"]["staff"]>
   composites: {}
 }
@@ -2109,6 +2266,9 @@ export interface StaffFieldRefs {
   readonly userId: Prisma.FieldRef<"Staff", 'String'>
   readonly createdAt: Prisma.FieldRef<"Staff", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly isDemo: Prisma.FieldRef<"Staff", 'Boolean'>
+  readonly deletedAt: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly deletedByName: Prisma.FieldRef<"Staff", 'String'>
 }
     
 

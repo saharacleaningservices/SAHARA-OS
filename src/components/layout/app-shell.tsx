@@ -3,6 +3,7 @@ import { SidebarNav } from "./sidebar-nav";
 import { Topbar } from "./topbar";
 import { Toaster } from "@/components/ui/sonner";
 import { QuickCaptureFab } from "@/components/leads/quick-capture-fab";
+import { canAccess } from "@/lib/constants";
 
 export function AppShell({
   name,
@@ -26,7 +27,7 @@ export function AppShell({
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
-      <QuickCaptureFab />
+      {canAccess(role, "leads") && <QuickCaptureFab />}
       <Toaster position="top-right" richColors />
     </div>
   );

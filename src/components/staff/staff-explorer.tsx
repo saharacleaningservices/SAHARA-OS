@@ -10,6 +10,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { AvailabilityBadge, AttendanceBadge } from "@/components/shared/status-badge";
 import { AttendanceQuickActions } from "./attendance-quick-actions";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
+import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { BulkActionsBar } from "@/components/shared/bulk-actions-bar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { deleteStaff, bulkDeleteStaff } from "@/server/actions/staff";
 import { formatINR } from "@/lib/utils";
 
 type StaffRow = {
@@ -28,10 +32,11 @@ type StaffRow = {
 
 const PAGE_SIZE = 12;
 
-export function StaffExplorer({ staff }: { staff: StaffRow[] }) {
+export function StaffExplorer({ staff, canViewSalary = false }: { staff: StaffRow[]; canViewSalary?: boolean }) {
   const [search, setSearch] = useState("");
   const [designationFilter, setDesignationFilter] = useState("ALL");
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const designations = useMemo(() => Array.from(new Set(staff.map((s) => s.designation))), [staff]);
 
@@ -66,6 +71,15 @@ export function StaffExplorer({ staff }: { staff: StaffRow[] }) {
         </Select>
       </div>
 
+      {canViewSalary && (
+        <BulkActionsBar
+          count={selected.length}
+          entityLabel="staff member"
+          onClear={() => setSelected([])}
+          onDelete={() => bulkDeleteStaff(selected)}
+        />
+      )}
+
       {filtered.length === 0 ? (
         <EmptyState title="No staff found" description="Try adjusting your search or filters." />
       ) : (
@@ -73,9 +87,23 @@ export function StaffExplorer({ staff }: { staff: StaffRow[] }) {
           <Table>
             <TableHeader>
               <TableRow>
+                {canViewSalary && (
+                  <TableHead className="w-8">
+                    <Checkbox
+                      checked={pageItems.length > 0 && pageItems.every((s) => selected.includes(s.id))}
+                      onCheckedChange={(checked) =>
+                        setSelected((prev) =>
+                          checked
+                            ? Array.from(new Set([...prev, ...pageItems.map((s) => s.id)]))
+                            : prev.filter((id) => !pageItems.some((s) => s.id === id))
+                        )
+                      }
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Staff</TableHead>
                 <TableHead>Designation</TableHead>
-                <TableHead>Wage</TableHead>
+                {canViewSalary && <TableHead>Wage</TableHead>}
                 <TableHead>Availability</TableHead>
                 <TableHead>Current Job</TableHead>
                 <TableHead>Today</TableHead>
@@ -85,6 +113,16 @@ export function StaffExplorer({ staff }: { staff: StaffRow[] }) {
             <TableBody>
               {pageItems.map((s) => (
                 <TableRow key={s.id}>
+                  {canViewSalary && (
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.includes(s.id)}
+                        onCheckedChange={(checked) =>
+                          setSelected((prev) => (checked ? [...prev, s.id] : prev.filter((id) => id !== s.id)))
+                        }
+                      />
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Link href={`/staff/${s.id}`} className="font-medium text-foreground hover:underline">
                       {s.name}
@@ -92,9 +130,11 @@ export function StaffExplorer({ staff }: { staff: StaffRow[] }) {
                     <p className="text-xs text-muted-foreground">{s.employeeCode}</p>
                   </TableCell>
                   <TableCell className="text-sm">{s.designation}</TableCell>
-                  <TableCell className="text-sm">
-                    {s.salaryType === "DAILY" ? `${formatINR(s.dailyWage)}/day` : `${formatINR(s.monthlySalary)}/mo`}
-                  </TableCell>
+                  {canViewSalary && (
+                    <TableCell className="text-sm">
+                      {s.salaryType === "DAILY" ? `${formatINR(s.dailyWage)}/day` : `${formatINR(s.monthlySalary)}/mo`}
+                    </TableCell>
+                  )}
                   <TableCell>
                     <AvailabilityBadge status={s.availability} />
                   </TableCell>
@@ -113,6 +153,9 @@ export function StaffExplorer({ staff }: { staff: StaffRow[] }) {
                       <AttendanceQuickActions staffId={s.id} todayStatus={s.attendance[0]?.status} />
                       <CallButton mobile={s.mobile} />
                       <WhatsAppButton mobile={s.mobile} />
+                      {canViewSalary && (
+                        <ConfirmDeleteButton action={deleteStaff} id={s.id} entityLabel="staff member" />
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

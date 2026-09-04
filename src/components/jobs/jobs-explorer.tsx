@@ -10,7 +10,9 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
-import { deleteJob } from "@/server/actions/jobs";
+import { BulkActionsBar } from "@/components/shared/bulk-actions-bar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { deleteJob, bulkDeleteJobs } from "@/server/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
@@ -29,14 +31,16 @@ type Job = {
   jobValue: number;
   supervisor?: { name: string } | null;
   assignments: { staff: { name: string } }[];
+  vehicle?: { name: string; plateNumber: string } | null;
 };
 
 const PAGE_SIZE = 12;
 
-export function JobsExplorer({ jobs }: { jobs: Job[] }) {
+export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManage?: boolean }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -69,6 +73,15 @@ export function JobsExplorer({ jobs }: { jobs: Job[] }) {
         </Select>
       </div>
 
+      {canManage && (
+        <BulkActionsBar
+          count={selected.length}
+          entityLabel="job"
+          onClear={() => setSelected([])}
+          onDelete={() => bulkDeleteJobs(selected)}
+        />
+      )}
+
       {filtered.length === 0 ? (
         <EmptyState title="No jobs found" description="Try adjusting your search or filters." />
       ) : (
@@ -76,6 +89,20 @@ export function JobsExplorer({ jobs }: { jobs: Job[] }) {
           <Table>
             <TableHeader>
               <TableRow>
+                {canManage && (
+                  <TableHead className="w-8">
+                    <Checkbox
+                      checked={pageItems.length > 0 && pageItems.every((j) => selected.includes(j.id))}
+                      onCheckedChange={(checked) =>
+                        setSelected((prev) =>
+                          checked
+                            ? Array.from(new Set([...prev, ...pageItems.map((j) => j.id)]))
+                            : prev.filter((id) => !pageItems.some((j) => j.id === id))
+                        )
+                      }
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Job</TableHead>
                 <TableHead>Service</TableHead>
                 <TableHead>Schedule</TableHead>
@@ -88,6 +115,16 @@ export function JobsExplorer({ jobs }: { jobs: Job[] }) {
             <TableBody>
               {pageItems.map((job) => (
                 <TableRow key={job.id}>
+                  {canManage && (
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.includes(job.id)}
+                        onCheckedChange={(checked) =>
+                          setSelected((prev) => (checked ? [...prev, job.id] : prev.filter((id) => id !== job.id)))
+                        }
+                      />
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Link href={`/jobs/${job.id}`} className="font-medium text-foreground hover:underline">
                       {job.customerName}
@@ -114,12 +151,16 @@ export function JobsExplorer({ jobs }: { jobs: Job[] }) {
                     <div className="flex items-center justify-end gap-1.5">
                       <CallButton mobile={job.customerMobile} />
                       <WhatsAppButton mobile={job.customerMobile} />
-                      <Button variant="outline" size="icon" className="size-8" aria-label="Edit job" asChild>
-                        <Link href={`/jobs/${job.id}/edit`}>
-                          <Pencil className="size-3.5" />
-                        </Link>
-                      </Button>
-                      <ConfirmDeleteButton action={deleteJob} id={job.id} entityLabel="job" />
+                      {canManage && (
+                        <>
+                          <Button variant="outline" size="icon" className="size-8" aria-label="Edit job" asChild>
+                            <Link href={`/jobs/${job.id}/edit`}>
+                              <Pencil className="size-3.5" />
+                            </Link>
+                          </Button>
+                          <ConfirmDeleteButton action={deleteJob} id={job.id} entityLabel="job" />
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

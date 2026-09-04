@@ -116,3 +116,28 @@ export type ActivityLog = Prisma.ActivityLogModel
  * 
  */
 export type CompanySettings = Prisma.CompanySettingsModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model Vehicle
+ * 
+ */
+export type Vehicle = Prisma.VehicleModel
+/**
+ * Model MaterialIssue
+ * 
+ */
+export type MaterialIssue = Prisma.MaterialIssueModel
+/**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel
+/**
+ * Model BackupEvent
+ * 
+ */
+export type BackupEvent = Prisma.BackupEventModel
