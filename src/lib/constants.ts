@@ -216,7 +216,7 @@ export const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Admin",
   OPERATIONS: "Operations Manager",
   ACCOUNTS: "Office Accountant",
-  SUPERVISOR: "Team Leader",
+  SUPERVISOR: "Field Supervisor",
   STAFF: "Worker",
 };
 
@@ -226,7 +226,11 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-  OPERATIONS: ["dashboard", "jobs", "staff", "vehicles", "profile", "attendance", "amc"],
+  // Operations Manager (Shoaib): staff management, attendance, job
+  // scheduling, site visits + quotations (via Leads), invoices + payments,
+  // customer management. No financial reports/revenue/profit, no company
+  // settings, no backup/role management (those stay Admin-only below).
+  OPERATIONS: ["dashboard", "leads", "jobs", "staff", "vehicles", "attendance", "amc", "payments", "customers", "profile"],
   ACCOUNTS: [
     "dashboard",
     "leads",
@@ -240,7 +244,12 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     "revenue",
     "amc",
   ],
-  SUPERVISOR: ["dashboard", "jobs", "staff", "profile", "attendance"],
+  // Field Supervisor (Francis): today's/tomorrow's assigned jobs only (see
+  // jobScopeFor "OWN_TODAY_TOMORROW") — customer details, payment status,
+  // site-visit and completion updates, and before/after photos all live
+  // inside the job detail page itself, so no separate customers/reports/
+  // expenses/revenue/profit/staff nav access is granted.
+  SUPERVISOR: ["dashboard", "jobs", "attendance", "profile"],
   STAFF: ["dashboard", "jobs", "profile", "attendance"],
 };
 

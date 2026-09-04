@@ -6,6 +6,7 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
+import { isSameOrigin } from "@/lib/csrf";
 
 // Restores dev.db (and public/uploads) from a .tar.gz produced by GET
 // /api/backup. Admin-only, requires typed confirmation client-side. Takes a
@@ -17,6 +18,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: "Cross-site request rejected" }, { status: 403 });
+  }
   const session = await getSession();
   if (!session || session.role !== "ADMIN") {
     return NextResponse.json({ error: "Admin only" }, { status: 401 });

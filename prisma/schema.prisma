@@ -170,6 +170,7 @@ enum WhatsAppKind {
   REVIEW_REQUEST
   AMC_RENEWAL
   ATTENDANCE_SUMMARY
+  DEVICE_APPROVAL
   OTHER
 }
 
@@ -177,6 +178,12 @@ enum WhatsAppStatus {
   QUEUED
   SENT
   FAILED
+}
+
+enum DeviceStatus {
+  PENDING
+  APPROVED
+  DENIED
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -204,8 +211,32 @@ model User {
   activityLogs      ActivityLog[] @relation("ActivityActor")
   paymentsRecorded  Payment[]     @relation("PaymentRecordedBy")
   timelineEntries   TimelineEntry[] @relation("TimelineAuthor")
+  devices           Device[]
 
   @@index([role])
+}
+
+// Owner-controlled device login. Any new (unrecognized) browser/device
+// signing in as OPERATIONS or SUPERVISOR needs Altaf's explicit approval
+// before a session is issued — see src/server/actions/device-approval.ts
+// and src/app/(app)/admin/device-approvals.
+model Device {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token          String       @unique
+  label          String?
+  ipAddress      String?
+  status         DeviceStatus @default(PENDING)
+  otpCode        String?
+  otpExpiresAt   DateTime?
+  approvedAt     DateTime?
+  approvedByName String?
+  lastSeenAt     DateTime     @default(now())
+  createdAt      DateTime     @default(now())
+
+  @@index([userId])
+  @@index([status])
 }
 
 model Staff {

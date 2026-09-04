@@ -39,6 +39,7 @@ export type WhatsAppKind =
   | "REVIEW_REQUEST"
   | "AMC_RENEWAL"
   | "ATTENDANCE_SUMMARY"
+  | "DEVICE_APPROVAL"
   | "OTHER";
 
 export function isWhatsAppConfigured(): boolean {

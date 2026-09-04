@@ -480,4 +480,32 @@ db.exec(`CREATE INDEX IF NOT EXISTS "JobVideo_jobId_idx" ON "JobVideo"("jobId");
 
 console.log("Phase 3 (Revenue, WhatsApp & Workforce Automation) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Production hardening — persistent disk, owner-controlled device login,
+// security (idempotent, additive).
+// ─────────────────────────────────────────────────────────────────────────
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Device" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "label" TEXT,
+    "ipAddress" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "otpCode" TEXT,
+    "otpExpiresAt" DATETIME,
+    "approvedAt" DATETIME,
+    "approvedByName" TEXT,
+    "lastSeenAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Device_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Device_token_key" ON "Device"("token");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Device_userId_idx" ON "Device"("userId");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Device_status_idx" ON "Device"("status");`);
+
+console.log("Production hardening migration complete.");
+
 db.close();

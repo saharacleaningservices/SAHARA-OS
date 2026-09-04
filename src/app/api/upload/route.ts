@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/session";
+import { isSameOrigin } from "@/lib/csrf";
 
 const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo"];
 const AUDIO_FOLDERS = ["voice"];
@@ -29,6 +30,9 @@ const AUDIO_EXT: Record<string, string> = {
 };
 
 export async function POST(request: NextRequest) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: "Cross-site request rejected" }, { status: 403 });
+  }
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

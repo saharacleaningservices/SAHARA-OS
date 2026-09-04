@@ -801,10 +801,6 @@ export type EnumStaffAvailabilityFieldUpdateOperationsInput = {
   set?: $Enums.StaffAvailability
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type StaffCreateNestedOneWithoutAttendanceInput = {
   create?: Prisma.XOR<Prisma.StaffCreateWithoutAttendanceInput, Prisma.StaffUncheckedCreateWithoutAttendanceInput>
   connectOrCreate?: Prisma.StaffCreateOrConnectWithoutAttendanceInput

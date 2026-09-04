@@ -45,6 +45,27 @@ export async function GET(request: NextRequest) {
     liveDb.exec(`VACUUM INTO '${snapshot.replace(/'/g, "''")}'`);
     liveDb.close();
 
+    // Verify the snapshot before anything else touches it — never ship a
+    // backup that wouldn't actually restore.
+    const check = new Database(snapshot, { readonly: true });
+    const integrity = check.pragma("integrity_check", { simple: true }) as string;
+    const { c: userCount } = check.prepare(`SELECT COUNT(*) AS c FROM "User"`).get() as { c: number };
+    check.close();
+    if (integrity !== "ok" || userCount < 1) {
+      fs.rmSync(workdir, { recursive: true, force: true });
+      db.backupEvent
+        .create({
+          data: {
+            kind: isAdminAuth ? "MANUAL" : "AUTO",
+            triggeredBy: isAdminAuth ? session!.email : "github-action",
+            status: "FAILED",
+            notes: `Integrity check failed before delivery: ${integrity}, users=${userCount}`,
+          },
+        })
+        .catch(() => {});
+      return new NextResponse(`Backup integrity check failed (${integrity}) — aborted, nothing was sent.`, { status: 500 });
+    }
+
     const archive = path.join(workdir, "backup.tar.gz");
     const uploadsDir = path.join(root, "public", "uploads");
     // --force-local: don't treat a Windows "C:\..." path as host:path.
@@ -70,6 +91,19 @@ export async function GET(request: NextRequest) {
           fileName: filename,
           sizeBytes,
           status: "SUCCESS",
+          notes: `Integrity check: ${integrity}, ${userCount} user(s)`,
+        },
+      })
+      .catch(() => {});
+    db.auditLog
+      .create({
+        data: {
+          entityType: "Backup",
+          entityId: filename,
+          action: "BACKUP",
+          summary: `${isAdminAuth ? "Manual" : "Automatic"} backup created (${(sizeBytes / 1024).toFixed(0)} KB, integrity ${integrity})`,
+          actorName: isAdminAuth ? session!.name : "GitHub Action",
+          actorEmail: isAdminAuth ? session!.email : null,
         },
       })
       .catch(() => {});

@@ -88,6 +88,23 @@ export function amcRenewalMessage(input: { customerName: string; nextVisitDate: 
   )}. Reply here or call ${COMPANY.phones[0]} to confirm a convenient time.`;
 }
 
+export function deviceApprovalRequestMessage(input: {
+  userName: string;
+  deviceLabel: string;
+  otpCode: string;
+}) {
+  return [
+    `🔐 New device login request`,
+    ``,
+    `${input.userName} is signing in to Sahara OS from a new device:`,
+    `${input.deviceLabel}`,
+    ``,
+    `Code: ${input.otpCode}`,
+    ``,
+    `Approve or deny in the app: Settings → Device Approvals. If this wasn't ${input.userName}, deny it.`,
+  ].join("\n");
+}
+
 export function dailyAttendanceSummaryMessage(input: { date: Date; present: number; absent: number; halfDay: number; total: number }) {
   return [
     `📊 Attendance Summary — ${formatDate(input.date)}`,
