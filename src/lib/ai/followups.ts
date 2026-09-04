@@ -4,15 +4,16 @@
 import { SERVICE_LABELS } from "@/lib/constants";
 
 export type FollowUpSuggestion = {
-  channelType: "CALL" | "WHATSAPP" | "VISIT" | "EMAIL";
+  channelType: "CALL" | "WHATSAPP" | "SITE_VISIT";
   action: string;
   message: string;
 };
 
 const STAGE_ACTION: Record<string, { type: FollowUpSuggestion["channelType"]; verb: string }> = {
   NEW: { type: "CALL", verb: "Call to introduce our services and offer a site visit" },
-  SITE_VISIT: { type: "CALL", verb: "Follow up after the site visit and share a quotation" },
-  QUOTE_SENT: { type: "WHATSAPP", verb: "Check in on the quotation and address any questions" },
+  INTERESTED: { type: "CALL", verb: "Call to qualify the requirement and offer a site visit" },
+  SITE_VISIT: { type: "SITE_VISIT", verb: "Follow up after the site visit and share a quotation" },
+  QUOTATION: { type: "WHATSAPP", verb: "Check in on the quotation and address any questions" },
   NEGOTIATION: { type: "CALL", verb: "Call to close on pricing and confirm the booking" },
   CONFIRMED: { type: "WHATSAPP", verb: "Confirm the job schedule and crew details" },
   JOB_SCHEDULED: { type: "CALL", verb: "Confirm the visit timing a day ahead" },

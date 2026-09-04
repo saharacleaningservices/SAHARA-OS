@@ -72,6 +72,11 @@ export type Quotation = Prisma.QuotationModel
  */
 export type FollowUp = Prisma.FollowUpModel
 /**
+ * Model TimelineEntry
+ * 
+ */
+export type TimelineEntry = Prisma.TimelineEntryModel
+/**
  * Model Job
  * 
  */

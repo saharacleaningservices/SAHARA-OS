@@ -4,8 +4,21 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/session";
 
-const ALLOWED_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo"];
-const MAX_SIZE = 8 * 1024 * 1024; // 8MB
+const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo"];
+const AUDIO_FOLDERS = ["voice"];
+const ALLOWED_FOLDERS = [...IMAGE_FOLDERS, ...AUDIO_FOLDERS];
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
+const MAX_AUDIO_SIZE = 25 * 1024 * 1024; // 25MB
+
+const AUDIO_EXT: Record<string, string> = {
+  "audio/webm": "webm",
+  "audio/ogg": "ogg",
+  "audio/mp4": "m4a",
+  "audio/mpeg": "mp3",
+  "audio/wav": "wav",
+  "audio/x-wav": "wav",
+  "audio/aac": "aac",
+};
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
@@ -23,14 +36,29 @@ export async function POST(request: NextRequest) {
   if (!ALLOWED_FOLDERS.includes(folder)) {
     return NextResponse.json({ error: "Invalid folder" }, { status: 400 });
   }
-  if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: "File too large (max 8MB)" }, { status: 400 });
-  }
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "Only image uploads are supported" }, { status: 400 });
+
+  const isAudio = AUDIO_FOLDERS.includes(folder);
+  const maxSize = isAudio ? MAX_AUDIO_SIZE : MAX_IMAGE_SIZE;
+  if (file.size > maxSize) {
+    return NextResponse.json(
+      { error: `File too large (max ${Math.round(maxSize / 1024 / 1024)}MB)` },
+      { status: 400 }
+    );
   }
 
-  const ext = (file.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
+  let ext: string;
+  if (isAudio) {
+    if (!file.type.startsWith("audio/")) {
+      return NextResponse.json({ error: "Only audio uploads are supported here" }, { status: 400 });
+    }
+    ext = AUDIO_EXT[file.type.split(";")[0]] ?? "webm";
+  } else {
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json({ error: "Only image uploads are supported" }, { status: 400 });
+    }
+    ext = (file.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
+  }
+
   const filename = `${Date.now()}-${randomUUID().slice(0, 8)}.${ext}`;
   const dir = path.join(process.cwd(), "public", "uploads", folder);
   await mkdir(dir, { recursive: true });

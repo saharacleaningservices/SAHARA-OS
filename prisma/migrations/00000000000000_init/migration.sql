@@ -79,7 +79,7 @@ CREATE TABLE "Lead" (
     "service" TEXT NOT NULL CHECK ("service" IN ('HOME_DEEP_CLEANING','COMMERCIAL_CLEANING','HOUSEKEEPING','PEST_CONTROL','INTERIOR_PAINTING')),
     "source" TEXT NOT NULL CHECK ("source" IN ('WHATSAPP','CALL','WEBSITE','GOOGLE')),
     "quoteAmount" REAL,
-    "stage" TEXT NOT NULL DEFAULT 'NEW' CHECK ("stage" IN ('NEW','SITE_VISIT','QUOTE_SENT','NEGOTIATION','CONFIRMED','JOB_SCHEDULED','COMPLETED','PAID')),
+    "stage" TEXT NOT NULL DEFAULT 'NEW',
     "followUpDate" DATETIME,
     "notes" TEXT,
     "assignedStaffId" TEXT,
@@ -122,7 +122,8 @@ CREATE TABLE "FollowUp" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "leadId" TEXT NOT NULL,
     "dueDate" DATETIME NOT NULL,
-    "type" TEXT NOT NULL DEFAULT 'CALL' CHECK ("type" IN ('CALL','WHATSAPP','VISIT','EMAIL')),
+    "type" TEXT NOT NULL DEFAULT 'CALL',
+    "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
     "notes" TEXT,
     "isDone" BOOLEAN NOT NULL DEFAULT false,
     "doneAt" DATETIME,
@@ -282,3 +283,19 @@ CREATE TABLE IF NOT EXISTS "CompanySettings" (
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 INSERT OR IGNORE INTO "CompanySettings" ("id") VALUES ('default');
+
+-- ── TimelineEntry (conversation history) ───────────────────────────────
+CREATE TABLE IF NOT EXISTS "TimelineEntry" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "leadId" TEXT NOT NULL,
+    "type" TEXT NOT NULL DEFAULT 'NOTE',
+    "body" TEXT,
+    "audioUrl" TEXT,
+    "meta" TEXT,
+    "authorId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "TimelineEntry_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "Lead" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "TimelineEntry_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+CREATE INDEX IF NOT EXISTS "TimelineEntry_leadId_idx" ON "TimelineEntry"("leadId");
+CREATE INDEX IF NOT EXISTS "TimelineEntry_createdAt_idx" ON "TimelineEntry"("createdAt");

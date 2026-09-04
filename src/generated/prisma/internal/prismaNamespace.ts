@@ -396,6 +396,7 @@ export const ModelName = {
   Lead: 'Lead',
   Quotation: 'Quotation',
   FollowUp: 'FollowUp',
+  TimelineEntry: 'TimelineEntry',
   Job: 'Job',
   JobAssignment: 'JobAssignment',
   Photo: 'Photo',
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings"
+    modelProps: "user" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -864,6 +865,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FollowUpCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FollowUpCountAggregateOutputType> | number
+        }
+      }
+    }
+    TimelineEntry: {
+      payload: Prisma.$TimelineEntryPayload<ExtArgs>
+      fields: Prisma.TimelineEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TimelineEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TimelineEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.TimelineEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TimelineEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>
+        }
+        findMany: {
+          args: Prisma.TimelineEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>[]
+        }
+        create: {
+          args: Prisma.TimelineEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>
+        }
+        createMany: {
+          args: Prisma.TimelineEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TimelineEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.TimelineEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>
+        }
+        update: {
+          args: Prisma.TimelineEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.TimelineEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TimelineEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TimelineEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.TimelineEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimelineEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.TimelineEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTimelineEntry>
+        }
+        groupBy: {
+          args: Prisma.TimelineEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TimelineEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TimelineEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TimelineEntryCountAggregateOutputType> | number
         }
       }
     }
@@ -1599,6 +1674,7 @@ export const FollowUpScalarFieldEnum = {
   leadId: 'leadId',
   dueDate: 'dueDate',
   type: 'type',
+  priority: 'priority',
   notes: 'notes',
   isDone: 'isDone',
   doneAt: 'doneAt',
@@ -1607,6 +1683,20 @@ export const FollowUpScalarFieldEnum = {
 } as const
 
 export type FollowUpScalarFieldEnum = (typeof FollowUpScalarFieldEnum)[keyof typeof FollowUpScalarFieldEnum]
+
+
+export const TimelineEntryScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  type: 'type',
+  body: 'body',
+  audioUrl: 'audioUrl',
+  meta: 'meta',
+  authorId: 'authorId',
+  createdAt: 'createdAt'
+} as const
+
+export type TimelineEntryScalarFieldEnum = (typeof TimelineEntryScalarFieldEnum)[keyof typeof TimelineEntryScalarFieldEnum]
 
 
 export const JobScalarFieldEnum = {
@@ -1848,6 +1938,20 @@ export type EnumFollowUpTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'FollowUpPriority'
+ */
+export type EnumFollowUpPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FollowUpPriority'>
+    
+
+
+/**
+ * Reference to a field of type 'TimelineType'
+ */
+export type EnumTimelineTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TimelineType'>
+    
+
+
+/**
  * Reference to a field of type 'JobStatus'
  */
 export type EnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobStatus'>
@@ -1981,6 +2085,7 @@ export type GlobalOmitConfig = {
   lead?: Prisma.LeadOmit
   quotation?: Prisma.QuotationOmit
   followUp?: Prisma.FollowUpOmit
+  timelineEntry?: Prisma.TimelineEntryOmit
   job?: Prisma.JobOmit
   jobAssignment?: Prisma.JobAssignmentOmit
   photo?: Prisma.PhotoOmit

@@ -324,6 +324,13 @@ export type EnumFollowUpTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumFollowUpTypeFilter<$PrismaModel> | $Enums.FollowUpType
 }
 
+export type EnumFollowUpPriorityFilter<$PrismaModel = never> = {
+  equals?: $Enums.FollowUpPriority | Prisma.EnumFollowUpPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.FollowUpPriority[]
+  notIn?: $Enums.FollowUpPriority[]
+  not?: Prisma.NestedEnumFollowUpPriorityFilter<$PrismaModel> | $Enums.FollowUpPriority
+}
+
 export type EnumFollowUpTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.FollowUpType | Prisma.EnumFollowUpTypeFieldRefInput<$PrismaModel>
   in?: $Enums.FollowUpType[]
@@ -332,6 +339,33 @@ export type EnumFollowUpTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumFollowUpTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumFollowUpTypeFilter<$PrismaModel>
+}
+
+export type EnumFollowUpPriorityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FollowUpPriority | Prisma.EnumFollowUpPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.FollowUpPriority[]
+  notIn?: $Enums.FollowUpPriority[]
+  not?: Prisma.NestedEnumFollowUpPriorityWithAggregatesFilter<$PrismaModel> | $Enums.FollowUpPriority
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFollowUpPriorityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFollowUpPriorityFilter<$PrismaModel>
+}
+
+export type EnumTimelineTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.TimelineType | Prisma.EnumTimelineTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TimelineType[]
+  notIn?: $Enums.TimelineType[]
+  not?: Prisma.NestedEnumTimelineTypeFilter<$PrismaModel> | $Enums.TimelineType
+}
+
+export type EnumTimelineTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TimelineType | Prisma.EnumTimelineTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TimelineType[]
+  notIn?: $Enums.TimelineType[]
+  not?: Prisma.NestedEnumTimelineTypeWithAggregatesFilter<$PrismaModel> | $Enums.TimelineType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTimelineTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTimelineTypeFilter<$PrismaModel>
 }
 
 export type EnumJobStatusFilter<$PrismaModel = never> = {
@@ -746,6 +780,13 @@ export type NestedEnumFollowUpTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumFollowUpTypeFilter<$PrismaModel> | $Enums.FollowUpType
 }
 
+export type NestedEnumFollowUpPriorityFilter<$PrismaModel = never> = {
+  equals?: $Enums.FollowUpPriority | Prisma.EnumFollowUpPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.FollowUpPriority[]
+  notIn?: $Enums.FollowUpPriority[]
+  not?: Prisma.NestedEnumFollowUpPriorityFilter<$PrismaModel> | $Enums.FollowUpPriority
+}
+
 export type NestedEnumFollowUpTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.FollowUpType | Prisma.EnumFollowUpTypeFieldRefInput<$PrismaModel>
   in?: $Enums.FollowUpType[]
@@ -754,6 +795,33 @@ export type NestedEnumFollowUpTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumFollowUpTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumFollowUpTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumFollowUpPriorityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FollowUpPriority | Prisma.EnumFollowUpPriorityFieldRefInput<$PrismaModel>
+  in?: $Enums.FollowUpPriority[]
+  notIn?: $Enums.FollowUpPriority[]
+  not?: Prisma.NestedEnumFollowUpPriorityWithAggregatesFilter<$PrismaModel> | $Enums.FollowUpPriority
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFollowUpPriorityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFollowUpPriorityFilter<$PrismaModel>
+}
+
+export type NestedEnumTimelineTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.TimelineType | Prisma.EnumTimelineTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TimelineType[]
+  notIn?: $Enums.TimelineType[]
+  not?: Prisma.NestedEnumTimelineTypeFilter<$PrismaModel> | $Enums.TimelineType
+}
+
+export type NestedEnumTimelineTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TimelineType | Prisma.EnumTimelineTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.TimelineType[]
+  notIn?: $Enums.TimelineType[]
+  not?: Prisma.NestedEnumTimelineTypeWithAggregatesFilter<$PrismaModel> | $Enums.TimelineType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTimelineTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTimelineTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumJobStatusFilter<$PrismaModel = never> = {

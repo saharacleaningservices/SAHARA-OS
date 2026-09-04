@@ -62,8 +62,8 @@ export async function getProfitData() {
     stage,
     count: allLeadsStages.filter((l) => stageOrderIndex[l.stage] >= stageOrderIndex[stage]).length,
   }));
-  const paidCount = stageCounts[LEAD_STAGES.indexOf("PAID")] ?? 0;
-  const conversionRate = totalLeads > 0 ? Math.round((paidCount / totalLeads) * 1000) / 10 : 0;
+  const wonCount = stageCounts[LEAD_STAGES.indexOf("COMPLETED")] ?? 0;
+  const conversionRate = totalLeads > 0 ? Math.round((wonCount / totalLeads) * 1000) / 10 : 0;
 
   // ── Staff utilization ─────────────────────────────────────────────────
   const staffList = await db.staff.findMany({

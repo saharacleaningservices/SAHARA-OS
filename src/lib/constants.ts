@@ -36,24 +36,79 @@ export const LEAD_SOURCE_OPTIONS = Object.entries(LEAD_SOURCE_LABELS).map(([valu
 
 export const LEAD_STAGES = [
   "NEW",
+  "INTERESTED",
   "SITE_VISIT",
-  "QUOTE_SENT",
+  "QUOTATION",
   "NEGOTIATION",
   "CONFIRMED",
   "JOB_SCHEDULED",
   "COMPLETED",
-  "PAID",
 ] as const;
+
+export type LeadStage = (typeof LEAD_STAGES)[number];
 
 export const LEAD_STAGE_LABELS: Record<string, string> = {
   NEW: "New",
+  INTERESTED: "Interested",
   SITE_VISIT: "Site Visit",
-  QUOTE_SENT: "Quote Sent",
+  QUOTATION: "Quotation",
   NEGOTIATION: "Negotiation",
   CONFIRMED: "Confirmed",
   JOB_SCHEDULED: "Job Scheduled",
   COMPLETED: "Completed",
-  PAID: "Paid",
+};
+
+// Booking time slots offered when a lead is confirmed.
+export const TIME_SLOTS = [
+  "8 AM",
+  "9 AM",
+  "10 AM",
+  "11 AM",
+  "12 PM",
+  "1 PM",
+  "2 PM",
+  "3 PM",
+  "4 PM",
+  "5 PM",
+] as const;
+
+export const FOLLOWUP_TYPE_LABELS: Record<string, string> = {
+  CALL: "Call",
+  WHATSAPP: "WhatsApp",
+  SITE_VISIT: "Site Visit",
+  PAYMENT: "Payment",
+  CUSTOM: "Custom",
+};
+
+export const FOLLOWUP_TYPE_OPTIONS = Object.entries(FOLLOWUP_TYPE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
+
+export const FOLLOWUP_PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
+
+export const FOLLOWUP_PRIORITY_LABELS: Record<string, string> = {
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+};
+
+export const CALL_OUTCOMES = [
+  "NO_ANSWER",
+  "BUSY",
+  "INTERESTED",
+  "CALL_BACK",
+  "CONFIRMED",
+  "WRONG_NUMBER",
+] as const;
+
+export const CALL_OUTCOME_LABELS: Record<string, string> = {
+  NO_ANSWER: "No Answer",
+  BUSY: "Busy",
+  INTERESTED: "Interested",
+  CALL_BACK: "Call Back",
+  CONFIRMED: "Confirmed",
+  WRONG_NUMBER: "Wrong Number",
 };
 
 export const JOB_STATUSES = ["ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;

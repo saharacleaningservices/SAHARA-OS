@@ -28,7 +28,7 @@ export async function getAssistantOverview() {
     staleLeadsRaw,
   ] = await Promise.all([
     db.lead.findMany({
-      where: { stage: { in: ["NEW", "SITE_VISIT", "NEGOTIATION"] } },
+      where: { stage: { in: ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] } },
       orderBy: { createdAt: "desc" },
       take: 15,
       select: { id: true, leadNumber: true, name: true, mobile: true, area: true, service: true, stage: true, quoteAmount: true },
@@ -71,7 +71,7 @@ export async function getAssistantOverview() {
       take: 20,
     }),
     db.lead.findMany({
-      where: { stage: { notIn: ["COMPLETED", "PAID"] }, updatedAt: { lt: staleCutoff } },
+      where: { stage: { notIn: ["COMPLETED"] }, updatedAt: { lt: staleCutoff } },
       orderBy: { updatedAt: "asc" },
       take: 20,
       select: { id: true, name: true, mobile: true, area: true, service: true, stage: true, updatedAt: true },

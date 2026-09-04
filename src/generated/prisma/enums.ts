@@ -43,13 +43,13 @@ export type ServiceType = (typeof ServiceType)[keyof typeof ServiceType]
 
 export const LeadStage = {
   NEW: 'NEW',
+  INTERESTED: 'INTERESTED',
   SITE_VISIT: 'SITE_VISIT',
-  QUOTE_SENT: 'QUOTE_SENT',
+  QUOTATION: 'QUOTATION',
   NEGOTIATION: 'NEGOTIATION',
   CONFIRMED: 'CONFIRMED',
   JOB_SCHEDULED: 'JOB_SCHEDULED',
-  COMPLETED: 'COMPLETED',
-  PAID: 'PAID'
+  COMPLETED: 'COMPLETED'
 } as const
 
 export type LeadStage = (typeof LeadStage)[keyof typeof LeadStage]
@@ -125,11 +125,21 @@ export type SalaryType = (typeof SalaryType)[keyof typeof SalaryType]
 export const FollowUpType = {
   CALL: 'CALL',
   WHATSAPP: 'WHATSAPP',
-  VISIT: 'VISIT',
-  EMAIL: 'EMAIL'
+  SITE_VISIT: 'SITE_VISIT',
+  PAYMENT: 'PAYMENT',
+  CUSTOM: 'CUSTOM'
 } as const
 
 export type FollowUpType = (typeof FollowUpType)[keyof typeof FollowUpType]
+
+
+export const FollowUpPriority = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH'
+} as const
+
+export type FollowUpPriority = (typeof FollowUpPriority)[keyof typeof FollowUpPriority]
 
 
 export const ReminderChannel = {
@@ -139,3 +149,18 @@ export const ReminderChannel = {
 } as const
 
 export type ReminderChannel = (typeof ReminderChannel)[keyof typeof ReminderChannel]
+
+
+export const TimelineType = {
+  NOTE: 'NOTE',
+  VOICE: 'VOICE',
+  CALL: 'CALL',
+  STAGE: 'STAGE',
+  QUOTATION: 'QUOTATION',
+  JOB: 'JOB',
+  PAYMENT: 'PAYMENT',
+  FOLLOW_UP: 'FOLLOW_UP',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type TimelineType = (typeof TimelineType)[keyof typeof TimelineType]

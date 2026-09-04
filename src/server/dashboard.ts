@@ -1,10 +1,12 @@
 import { db } from "@/lib/db";
-import { startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, addDays } from "date-fns";
 
 export async function getDashboardData() {
   const now = new Date();
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
+  const tomorrowStart = startOfDay(addDays(now, 1));
+  const tomorrowEnd = endOfDay(addDays(now, 1));
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
@@ -20,6 +22,8 @@ export async function getDashboardData() {
     todaysJobs,
     overduePayments,
     followUpsToday,
+    followUpsTomorrow,
+    followUpsOverdue,
     monthPayments,
     lastMonthPayments,
     monthExpenses,
@@ -50,7 +54,19 @@ export async function getDashboardData() {
       where: { isDone: false, dueDate: { gte: todayStart, lte: todayEnd } },
       include: { lead: true },
       orderBy: { dueDate: "asc" },
-      take: 6,
+      take: 8,
+    }),
+    db.followUp.findMany({
+      where: { isDone: false, dueDate: { gte: tomorrowStart, lte: tomorrowEnd } },
+      include: { lead: true },
+      orderBy: { dueDate: "asc" },
+      take: 8,
+    }),
+    db.followUp.findMany({
+      where: { isDone: false, dueDate: { lt: todayStart } },
+      include: { lead: true },
+      orderBy: { dueDate: "asc" },
+      take: 12,
     }),
     db.payment.aggregate({
       where: { status: "PAID", paidDate: { gte: monthStart, lte: monthEnd } },
@@ -99,6 +115,8 @@ export async function getDashboardData() {
     todaysJobs,
     overduePayments,
     followUpsToday,
+    followUpsTomorrow,
+    followUpsOverdue,
   };
 }
 
