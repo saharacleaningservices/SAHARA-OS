@@ -6,10 +6,12 @@ import { Toaster } from "@/components/ui/sonner";
 export function AppShell({
   name,
   role,
+  logoUrl,
   children,
 }: {
   name: string;
   role: string;
+  logoUrl?: string | null;
   children: ReactNode;
 }) {
   return (
@@ -18,7 +20,7 @@ export function AppShell({
         <SidebarNav role={role} />
       </div>
       <div className="flex min-h-screen flex-col lg:pl-64">
-        <Topbar name={name} role={role} />
+        <Topbar name={name} role={role} logoUrl={logoUrl} />
         <main className="flex-1 px-4 py-6 sm:px-6 lg:py-8">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>

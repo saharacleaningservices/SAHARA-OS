@@ -11,6 +11,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { LeadCard } from "./lead-card";
 import { LeadStageBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
+import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { deleteLead } from "@/server/actions/leads";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
 import {
   LEAD_STAGES,
   LEAD_STAGE_LABELS,
@@ -189,9 +193,15 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                     <TableCell className="text-sm">{lead.followUpDate ? formatDate(lead.followUpDate) : "—"}</TableCell>
                     <TableCell className="text-sm">{lead.assignedTo?.name ?? "—"}</TableCell>
                     <TableCell>
-                      <div className="flex justify-end gap-1.5">
+                      <div className="flex items-center justify-end gap-1.5">
                         <CallButton mobile={lead.mobile} />
                         <WhatsAppButton mobile={lead.mobile} />
+                        <Button variant="outline" size="icon" className="size-8" aria-label="Edit lead" asChild>
+                          <Link href={`/leads/${lead.id}/edit`}>
+                            <Pencil className="size-3.5" />
+                          </Link>
+                        </Button>
+                        <ConfirmDeleteButton action={deleteLead} id={lead.id} entityLabel="lead" />
                       </div>
                     </TableCell>
                   </TableRow>

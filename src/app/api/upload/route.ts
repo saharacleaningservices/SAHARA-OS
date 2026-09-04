@@ -4,7 +4,7 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/session";
 
-const ALLOWED_FOLDERS = ["photos", "signatures", "certificates", "staff"];
+const ALLOWED_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo"];
 const MAX_SIZE = 8 * 1024 * 1024; // 8MB
 
 export async function POST(request: NextRequest) {

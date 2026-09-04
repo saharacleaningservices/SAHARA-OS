@@ -99,6 +99,7 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     "staff",
     "reports",
     "assistant",
+    "profile",
   ],
   ACCOUNTS: [
     "dashboard",
@@ -107,9 +108,10 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     "profit",
     "reports",
     "assistant",
+    "profile",
   ],
-  SUPERVISOR: ["dashboard", "jobs", "staff", "leads", "assistant"],
-  STAFF: ["dashboard", "jobs"],
+  SUPERVISOR: ["dashboard", "jobs", "staff", "leads", "assistant", "profile"],
+  STAFF: ["dashboard", "jobs", "profile"],
 };
 
 export function canAccess(role: string, section: string) {

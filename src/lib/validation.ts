@@ -81,3 +81,26 @@ export const paymentSchema = z.object({
 });
 
 export type PaymentFormValues = z.infer<typeof paymentSchema>;
+
+export const companySettingsSchema = z.object({
+  name: z.string().min(2, "Company name is required"),
+  phone: z.string().min(6, "Enter a valid phone number"),
+  email: z.string().email("Enter a valid email"),
+  address: z.string().min(4, "Address is required"),
+  logoUrl: z.string().optional().or(z.literal("")),
+});
+
+export type CompanySettingsFormValues = z.infer<typeof companySettingsSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password"),
+    newPassword: z.string().min(8, "New password must be at least 8 characters"),
+    confirmPassword: z.string().min(1, "Confirm your new password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;

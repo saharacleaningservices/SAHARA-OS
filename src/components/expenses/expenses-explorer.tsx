@@ -7,6 +7,9 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { EditExpenseDialog } from "./edit-expense-dialog";
+import { deleteExpense } from "@/server/actions/expenses";
 import { EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
 import { formatINR, formatDate } from "@/lib/utils";
 
@@ -71,6 +74,7 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
                 <TableHead>Paid To</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -86,6 +90,12 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
                   <TableCell className="text-sm">{e.paidTo ?? e.staff?.name ?? "—"}</TableCell>
                   <TableCell className="text-sm">{formatDate(e.date)}</TableCell>
                   <TableCell className="text-right text-sm font-medium">{formatINR(e.amount)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                      <EditExpenseDialog expense={e} />
+                      <ConfirmDeleteButton action={deleteExpense} id={e.id} entityLabel="expense" />
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

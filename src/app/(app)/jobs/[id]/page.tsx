@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileText, Users } from "lucide-react";
+import { FileText, Users, Pencil } from "lucide-react";
 import { getJobDetail } from "@/server/jobs";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <>
             <CallButton mobile={job.customerMobile} />
             <WhatsAppButton mobile={job.customerMobile} />
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/jobs/${job.id}/edit`}>
+                <Pencil className="size-3.5" /> Edit
+              </Link>
+            </Button>
             {job.certificate && (
               <Button variant="outline" size="sm" asChild>
                 <a href={`/api/certificates/${job.certificate.id}/pdf`} target="_blank" rel="noreferrer">

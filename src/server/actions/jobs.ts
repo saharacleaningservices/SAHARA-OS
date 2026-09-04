@@ -52,6 +52,49 @@ export async function createJob(values: unknown) {
   return { success: true as const, jobId: job.id };
 }
 
+export async function updateJob(id: string, values: unknown) {
+  const parsed = jobSchema.partial().safeParse(values);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
+  }
+  const d = parsed.data;
+  await db.job.update({
+    where: { id },
+    data: {
+      ...(d.customerName && { customerName: d.customerName }),
+      ...(d.customerMobile && { customerMobile: d.customerMobile }),
+      ...(d.address && { address: d.address }),
+      ...(d.area && { area: d.area }),
+      ...(d.service && { service: d.service }),
+      ...(d.scheduledDate && { scheduledDate: new Date(d.scheduledDate) }),
+      ...(d.scheduledTime && { scheduledTime: d.scheduledTime }),
+      ...(d.supervisorId !== undefined && { supervisorId: d.supervisorId || null }),
+      ...(d.jobValue !== undefined && { jobValue: d.jobValue }),
+      ...(d.notes !== undefined && { notes: d.notes || null }),
+    },
+  });
+  revalidatePath("/jobs");
+  revalidatePath(`/jobs/${id}`);
+  revalidatePath("/dashboard");
+  return { success: true as const };
+}
+
+export async function deleteJob(id: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+
+  // Detach records that aren't cascade-deleted.
+  await db.payment.updateMany({ where: { jobId: id }, data: { jobId: null } });
+  await db.expense.updateMany({ where: { jobId: id }, data: { jobId: null } });
+  // Cascades assignments, photos, certificate and activity logs.
+  await db.job.delete({ where: { id } });
+
+  revalidatePath("/jobs");
+  revalidatePath("/dashboard");
+  revalidatePath("/payments");
+  return { success: true };
+}
+
 const STATUS_FLOW = ["ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;
 type JobStatus = (typeof STATUS_FLOW)[number];
 
