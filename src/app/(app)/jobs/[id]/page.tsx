@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { FileText, Users, Pencil } from "lucide-react";
-import { getJobDetail } from "@/server/jobs";
+import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
+import { getVehiclesForAssignment } from "@/server/vehicles";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,14 +11,24 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
 import { PhotoUploader } from "@/components/jobs/photo-uploader";
 import { SignatureCapture } from "@/components/jobs/signature-capture";
+import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { requireUser } from "@/lib/current-user";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const session = await requireUser();
   const job = await getJobDetail(id);
   if (!job) notFound();
+
+  const ownStaffId = await getOwnStaffId(session.sub);
+  if (!canAccessJob(session, job, ownStaffId)) {
+    redirect("/jobs");
+  }
+  const canManage = session.role === "ADMIN" || session.role === "OPERATIONS";
+  const vehicles = canManage ? await getVehiclesForAssignment() : [];
 
   const beforePhotos = job.photos.filter((p) => p.type === "BEFORE");
   const afterPhotos = job.photos.filter((p) => p.type === "AFTER");
@@ -31,11 +42,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <>
             <CallButton mobile={job.customerMobile} />
             <WhatsAppButton mobile={job.customerMobile} />
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/jobs/${job.id}/edit`}>
-                <Pencil className="size-3.5" /> Edit
-              </Link>
-            </Button>
+            {canManage && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/jobs/${job.id}/edit`}>
+                  <Pencil className="size-3.5" /> Edit
+                </Link>
+              </Button>
+            )}
             {job.certificate && (
               <Button variant="outline" size="sm" asChild>
                 <a href={`/api/certificates/${job.certificate.id}/pdf`} target="_blank" rel="noreferrer">
@@ -148,6 +161,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </div>
 
         <div className="space-y-4">
+          <JobLogisticsCard
+            jobId={job.id}
+            mapLink={job.mapLink}
+            vehicleId={job.vehicleId}
+            vehicleName={job.vehicle?.name ?? null}
+            vehicles={vehicles}
+            materials={job.materialIssues}
+            canEdit={canManage}
+          />
+
           <Card>
             <CardHeader>
               <CardTitle>Customer Signature</CardTitle>

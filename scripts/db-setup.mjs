@@ -170,4 +170,121 @@ if (leadTableSql.includes("'QUOTE_SENT'")) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Phase 2 — Production Foundation (idempotent, additive only).
+// ─────────────────────────────────────────────────────────────────────────
+
+function addColumnIfMissing(table, column, ddl) {
+  const cols = db.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+  if (!cols.includes(column)) {
+    db.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+    return true;
+  }
+  return false;
+}
+
+addColumnIfMissing("Lead", "serviceCategory", `"serviceCategory" TEXT`);
+addColumnIfMissing("Lead", "serviceVariant", `"serviceVariant" TEXT`);
+addColumnIfMissing("Lead", "mapLink", `"mapLink" TEXT`);
+addColumnIfMissing("Job", "mapLink", `"mapLink" TEXT`);
+addColumnIfMissing("Job", "vehicleId", `"vehicleId" TEXT`);
+
+// Soft-delete columns on every deletable entity. isDemo is tracked per table so
+// pre-existing rows can be marked as demo data exactly once, the moment the
+// column is introduced — never again afterwards.
+const demoJustAdded = {};
+for (const table of ["Lead", "Job", "Staff", "Payment", "Expense"]) {
+  addColumnIfMissing(table, "deletedAt", `"deletedAt" DATETIME`);
+  addColumnIfMissing(table, "deletedByName", `"deletedByName" TEXT`);
+  demoJustAdded[table] = addColumnIfMissing(table, "isDemo", `"isDemo" BOOLEAN NOT NULL DEFAULT false`);
+}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "AuditLog" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "entityType" TEXT NOT NULL,
+    "entityId" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "summary" TEXT NOT NULL,
+    "actorName" TEXT,
+    "actorEmail" TEXT,
+    "meta" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AuditLog_entityType_entityId_idx" ON "AuditLog"("entityType", "entityId");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AuditLog_createdAt_idx" ON "AuditLog"("createdAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Vehicle" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "plateNumber" TEXT NOT NULL,
+    "type" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Vehicle_plateNumber_key" ON "Vehicle"("plateNumber");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "MaterialIssue" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "jobId" TEXT NOT NULL,
+    "item" TEXT NOT NULL,
+    "quantity" TEXT,
+    "issuedByName" TEXT,
+    "issuedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "MaterialIssue_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "MaterialIssue_jobId_idx" ON "MaterialIssue"("jobId");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Review" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "customerMobile" TEXT NOT NULL,
+    "customerName" TEXT,
+    "rating" INTEGER NOT NULL,
+    "comment" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Review_customerMobile_idx" ON "Review"("customerMobile");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "BackupEvent" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "kind" TEXT NOT NULL,
+    "triggeredBy" TEXT,
+    "fileName" TEXT,
+    "sizeBytes" INTEGER,
+    "status" TEXT NOT NULL DEFAULT 'SUCCESS',
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "BackupEvent_createdAt_idx" ON "BackupEvent"("createdAt");`);
+
+// One-time: the moment isDemo is introduced on a table, every row already in
+// it is — by construction — the seed/demo data shipped with this project, so
+// mark it. Any row created after this point defaults to isDemo=false.
+for (const table of ["Staff", "Job", "Payment", "Expense"]) {
+  if (demoJustAdded[table]) {
+    db.exec(`UPDATE "${table}" SET "isDemo" = true`);
+    console.log(`Marked pre-existing ${table} rows as demo data.`);
+  }
+}
+
+// One-time correction: fix the seeded names that were swapped relative to the
+// real Operations Manager / Office Accountant assignment.
+db.prepare(
+  `UPDATE "User" SET "name" = 'Francis D''Souza' WHERE "email" = 'operations@saharacleaningservices.com' AND "name" != 'Francis D''Souza'`
+).run();
+db.prepare(
+  `UPDATE "User" SET "name" = 'Shoyab Shaikh' WHERE "email" = 'accounts@saharacleaningservices.com' AND "name" != 'Shoyab Shaikh'`
+).run();
+
+console.log("Phase 2 (Production Foundation) migration complete.");
+
 db.close();

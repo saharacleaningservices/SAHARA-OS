@@ -55,6 +55,9 @@ export type PaymentMinAggregateOutputType = {
   notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
 }
 
 export type PaymentMaxAggregateOutputType = {
@@ -76,6 +79,9 @@ export type PaymentMaxAggregateOutputType = {
   notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
 }
 
 export type PaymentCountAggregateOutputType = {
@@ -97,6 +103,9 @@ export type PaymentCountAggregateOutputType = {
   notes: number
   createdAt: number
   updatedAt: number
+  isDemo: number
+  deletedAt: number
+  deletedByName: number
   _all: number
 }
 
@@ -130,6 +139,9 @@ export type PaymentMinAggregateInputType = {
   notes?: true
   createdAt?: true
   updatedAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
 }
 
 export type PaymentMaxAggregateInputType = {
@@ -151,6 +163,9 @@ export type PaymentMaxAggregateInputType = {
   notes?: true
   createdAt?: true
   updatedAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
 }
 
 export type PaymentCountAggregateInputType = {
@@ -172,6 +187,9 @@ export type PaymentCountAggregateInputType = {
   notes?: true
   createdAt?: true
   updatedAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
   _all?: true
 }
 
@@ -280,6 +298,9 @@ export type PaymentGroupByOutputType = {
   notes: string | null
   createdAt: Date
   updatedAt: Date
+  isDemo: boolean
+  deletedAt: Date | null
+  deletedByName: string | null
   _count: PaymentCountAggregateOutputType | null
   _avg: PaymentAvgAggregateOutputType | null
   _sum: PaymentSumAggregateOutputType | null
@@ -324,6 +345,9 @@ export type PaymentWhereInput = {
   notes?: Prisma.StringNullableFilter<"Payment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Payment"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Payment"> | string | null
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   lead?: Prisma.XOR<Prisma.LeadNullableScalarRelationFilter, Prisma.LeadWhereInput> | null
   recordedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -348,6 +372,9 @@ export type PaymentOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   job?: Prisma.JobOrderByWithRelationInput
   lead?: Prisma.LeadOrderByWithRelationInput
   recordedBy?: Prisma.UserOrderByWithRelationInput
@@ -375,6 +402,9 @@ export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Payment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Payment"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Payment"> | string | null
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   lead?: Prisma.XOR<Prisma.LeadNullableScalarRelationFilter, Prisma.LeadWhereInput> | null
   recordedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -399,6 +429,9 @@ export type PaymentOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PaymentCountOrderByAggregateInput
   _avg?: Prisma.PaymentAvgOrderByAggregateInput
   _max?: Prisma.PaymentMaxOrderByAggregateInput
@@ -428,6 +461,9 @@ export type PaymentScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
+  isDemo?: Prisma.BoolWithAggregatesFilter<"Payment"> | boolean
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
+  deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
 }
 
 export type PaymentCreateInput = {
@@ -446,6 +482,9 @@ export type PaymentCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutPaymentsInput
   lead?: Prisma.LeadCreateNestedOneWithoutPaymentsInput
   recordedBy?: Prisma.UserCreateNestedOneWithoutPaymentsRecordedInput
@@ -470,6 +509,9 @@ export type PaymentUncheckedCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentUpdateInput = {
@@ -488,6 +530,9 @@ export type PaymentUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutPaymentsNestedInput
   lead?: Prisma.LeadUpdateOneWithoutPaymentsNestedInput
   recordedBy?: Prisma.UserUpdateOneWithoutPaymentsRecordedNestedInput
@@ -512,6 +557,9 @@ export type PaymentUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentCreateManyInput = {
@@ -533,6 +581,9 @@ export type PaymentCreateManyInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentUpdateManyMutationInput = {
@@ -551,6 +602,9 @@ export type PaymentUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentUncheckedUpdateManyInput = {
@@ -572,6 +626,9 @@ export type PaymentUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentListRelationFilter = {
@@ -603,6 +660,9 @@ export type PaymentCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type PaymentAvgOrderByAggregateInput = {
@@ -629,6 +689,9 @@ export type PaymentMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type PaymentMinOrderByAggregateInput = {
@@ -650,6 +713,9 @@ export type PaymentMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type PaymentSumOrderByAggregateInput = {
@@ -807,6 +873,9 @@ export type PaymentCreateWithoutRecordedByInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutPaymentsInput
   lead?: Prisma.LeadCreateNestedOneWithoutPaymentsInput
 }
@@ -829,6 +898,9 @@ export type PaymentUncheckedCreateWithoutRecordedByInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentCreateOrConnectWithoutRecordedByInput = {
@@ -878,6 +950,9 @@ export type PaymentScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Payment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Payment"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Payment"> | string | null
 }
 
 export type PaymentCreateWithoutLeadInput = {
@@ -896,6 +971,9 @@ export type PaymentCreateWithoutLeadInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutPaymentsInput
   recordedBy?: Prisma.UserCreateNestedOneWithoutPaymentsRecordedInput
 }
@@ -918,6 +996,9 @@ export type PaymentUncheckedCreateWithoutLeadInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentCreateOrConnectWithoutLeadInput = {
@@ -961,6 +1042,9 @@ export type PaymentCreateWithoutJobInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   lead?: Prisma.LeadCreateNestedOneWithoutPaymentsInput
   recordedBy?: Prisma.UserCreateNestedOneWithoutPaymentsRecordedInput
 }
@@ -983,6 +1067,9 @@ export type PaymentUncheckedCreateWithoutJobInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentCreateOrConnectWithoutJobInput = {
@@ -1028,6 +1115,9 @@ export type PaymentCreateManyRecordedByInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentUpdateWithoutRecordedByInput = {
@@ -1046,6 +1136,9 @@ export type PaymentUpdateWithoutRecordedByInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutPaymentsNestedInput
   lead?: Prisma.LeadUpdateOneWithoutPaymentsNestedInput
 }
@@ -1068,6 +1161,9 @@ export type PaymentUncheckedUpdateWithoutRecordedByInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentUncheckedUpdateManyWithoutRecordedByInput = {
@@ -1088,6 +1184,9 @@ export type PaymentUncheckedUpdateManyWithoutRecordedByInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentCreateManyLeadInput = {
@@ -1108,6 +1207,9 @@ export type PaymentCreateManyLeadInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentUpdateWithoutLeadInput = {
@@ -1126,6 +1228,9 @@ export type PaymentUpdateWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutPaymentsNestedInput
   recordedBy?: Prisma.UserUpdateOneWithoutPaymentsRecordedNestedInput
 }
@@ -1148,6 +1253,9 @@ export type PaymentUncheckedUpdateWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentUncheckedUpdateManyWithoutLeadInput = {
@@ -1168,6 +1276,9 @@ export type PaymentUncheckedUpdateManyWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentCreateManyJobInput = {
@@ -1188,6 +1299,9 @@ export type PaymentCreateManyJobInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type PaymentUpdateWithoutJobInput = {
@@ -1206,6 +1320,9 @@ export type PaymentUpdateWithoutJobInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lead?: Prisma.LeadUpdateOneWithoutPaymentsNestedInput
   recordedBy?: Prisma.UserUpdateOneWithoutPaymentsRecordedNestedInput
 }
@@ -1228,6 +1345,9 @@ export type PaymentUncheckedUpdateWithoutJobInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PaymentUncheckedUpdateManyWithoutJobInput = {
@@ -1248,6 +1368,9 @@ export type PaymentUncheckedUpdateManyWithoutJobInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1271,6 +1394,9 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
   lead?: boolean | Prisma.Payment$leadArgs<ExtArgs>
   recordedBy?: boolean | Prisma.Payment$recordedByArgs<ExtArgs>
@@ -1295,6 +1421,9 @@ export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
   lead?: boolean | Prisma.Payment$leadArgs<ExtArgs>
   recordedBy?: boolean | Prisma.Payment$recordedByArgs<ExtArgs>
@@ -1319,6 +1448,9 @@ export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
   lead?: boolean | Prisma.Payment$leadArgs<ExtArgs>
   recordedBy?: boolean | Prisma.Payment$recordedByArgs<ExtArgs>
@@ -1343,9 +1475,12 @@ export type PaymentSelectScalar = {
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
 }
 
-export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "leadId" | "clientName" | "clientMobile" | "amount" | "paidAmount" | "dueDate" | "paidDate" | "status" | "mybillbookInvoiceNo" | "lastReminderAt" | "lastReminderChannel" | "recordedById" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
+export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "leadId" | "clientName" | "clientMobile" | "amount" | "paidAmount" | "dueDate" | "paidDate" | "status" | "mybillbookInvoiceNo" | "lastReminderAt" | "lastReminderChannel" | "recordedById" | "notes" | "createdAt" | "updatedAt" | "isDemo" | "deletedAt" | "deletedByName", ExtArgs["result"]["payment"]>
 export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
   lead?: boolean | Prisma.Payment$leadArgs<ExtArgs>
@@ -1388,6 +1523,9 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     notes: string | null
     createdAt: Date
     updatedAt: Date
+    isDemo: boolean
+    deletedAt: Date | null
+    deletedByName: string | null
   }, ExtArgs["result"]["payment"]>
   composites: {}
 }
@@ -1832,6 +1970,9 @@ export interface PaymentFieldRefs {
   readonly notes: Prisma.FieldRef<"Payment", 'String'>
   readonly createdAt: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Payment", 'DateTime'>
+  readonly isDemo: Prisma.FieldRef<"Payment", 'Boolean'>
+  readonly deletedAt: Prisma.FieldRef<"Payment", 'DateTime'>
+  readonly deletedByName: Prisma.FieldRef<"Payment", 'String'>
 }
     
 

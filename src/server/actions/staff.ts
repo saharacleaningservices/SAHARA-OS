@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { startOfDay } from "date-fns";
 import { db } from "@/lib/db";
+import { getSession } from "@/lib/session";
 import { staffSchema } from "@/lib/validation";
 import { generateEmployeeCode } from "@/lib/id-generators";
+import { softDeleteMany } from "@/server/audit";
 
 export async function createStaff(values: unknown) {
   const parsed = staffSchema.safeParse(values);
@@ -52,6 +54,22 @@ export async function updateStaff(id: string, values: unknown) {
   revalidatePath("/staff");
   revalidatePath(`/staff/${id}`);
   return { success: true as const };
+}
+
+export async function deleteStaff(id: string) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { error: "Admin only" };
+  await softDeleteMany("Staff", [id], session);
+  revalidatePath("/staff");
+  return { success: true };
+}
+
+export async function bulkDeleteStaff(ids: string[]) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { error: "Admin only" };
+  const count = await softDeleteMany("Staff", ids, session);
+  revalidatePath("/staff");
+  return { success: true as const, count };
 }
 
 export async function updateAvailability(staffId: string, availability: "AVAILABLE" | "ON_JOB" | "ON_LEAVE" | "OFF_DUTY") {

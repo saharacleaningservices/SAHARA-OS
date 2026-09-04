@@ -9,6 +9,7 @@ import { getSession } from "@/lib/session";
 import { jobSchema } from "@/lib/validation";
 import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
+import { softDeleteMany } from "@/server/audit";
 
 export async function createJob(values: unknown) {
   const parsed = jobSchema.safeParse(values);
@@ -91,16 +92,21 @@ export async function deleteJob(id: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
 
-  // Detach records that aren't cascade-deleted.
-  await db.payment.updateMany({ where: { jobId: id }, data: { jobId: null } });
-  await db.expense.updateMany({ where: { jobId: id }, data: { jobId: null } });
-  // Cascades assignments, photos, certificate and activity logs.
-  await db.job.delete({ where: { id } });
+  await softDeleteMany("Job", [id], session);
 
   revalidatePath("/jobs");
   revalidatePath("/dashboard");
   revalidatePath("/payments");
   return { success: true };
+}
+
+export async function bulkDeleteJobs(ids: string[]) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  const count = await softDeleteMany("Job", ids, session);
+  revalidatePath("/jobs");
+  revalidatePath("/dashboard");
+  return { success: true as const, count };
 }
 
 const STATUS_FLOW = ["ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;
@@ -232,4 +238,32 @@ export async function completeJobWithCertificate(jobId: string) {
   revalidatePath("/payments");
   revalidatePath("/dashboard");
   return { success: true as const, certificateId };
+}
+
+export async function updateJobLocation(jobId: string, mapLink: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  await db.job.update({ where: { id: jobId }, data: { mapLink } });
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true as const };
+}
+
+export async function assignVehicle(jobId: string, vehicleId: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  await db.job.update({ where: { id: jobId }, data: { vehicleId: vehicleId || null } });
+  revalidatePath(`/jobs/${jobId}`);
+  revalidatePath("/jobs");
+  return { success: true as const };
+}
+
+export async function addMaterialIssue(jobId: string, item: string, quantity: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  if (!item.trim()) return { error: "Enter a material name" };
+  await db.materialIssue.create({
+    data: { jobId, item: item.trim(), quantity: quantity.trim() || null, issuedByName: session.name },
+  });
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true as const };
 }

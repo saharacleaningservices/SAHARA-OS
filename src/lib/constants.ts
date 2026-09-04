@@ -22,6 +22,72 @@ export const SERVICE_OPTIONS = Object.entries(SERVICE_LABELS).map(([value, label
   label,
 }));
 
+// Smart Booking Form — service category → subcategory catalog, plus the
+// legacy ServiceType each category maps to (kept for backward compatibility
+// with existing reports/labels).
+export const SERVICE_CATEGORY_LABELS: Record<string, string> = {
+  HOME_DEEP_CLEANING: "Home Deep Cleaning",
+  INDIVIDUAL_CLEANING: "Individual Cleaning",
+  PAINTING: "Painting",
+  PEST_CONTROL: "Pest Control",
+  COMMERCIAL_CLEANING: "Commercial Cleaning",
+};
+
+export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
+  HOME_DEEP_CLEANING: "HOME_DEEP_CLEANING",
+  INDIVIDUAL_CLEANING: "HOUSEKEEPING",
+  PAINTING: "INTERIOR_PAINTING",
+  PEST_CONTROL: "PEST_CONTROL",
+  COMMERCIAL_CLEANING: "COMMERCIAL_CLEANING",
+};
+
+export const SERVICE_CATALOG: Record<string, string[]> = {
+  HOME_DEEP_CLEANING: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow"],
+  INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Floor", "Fan", "Fridge", "Balcony"],
+  PAINTING: [
+    "Residential — Asian Oil Bond",
+    "Residential — Tractor Emulsion",
+    "Residential — Premium Emulsion",
+    "Residential — Royale",
+    "Residential — Royale Lustre",
+    "Residential — Royale Shyne",
+    "Residential — Exterior Paint",
+    "Residential — Texture Paint",
+    "Residential — Waterproofing",
+    "Commercial — Asian Oil Bond",
+    "Commercial — Tractor Emulsion",
+    "Commercial — Premium Emulsion",
+    "Commercial — Royale",
+    "Commercial — Royale Lustre",
+    "Commercial — Royale Shyne",
+    "Commercial — Exterior Paint",
+    "Commercial — Texture Paint",
+    "Commercial — Waterproofing",
+  ],
+  PEST_CONTROL: [
+    "Residential — Cockroach",
+    "Residential — Bed Bug",
+    "Residential — Rodent",
+    "Residential — Termite",
+    "Residential — Mosquito",
+    "Residential — General Spray",
+    "Commercial — Cockroach",
+    "Commercial — Bed Bug",
+    "Commercial — Rodent",
+    "Commercial — Termite",
+    "Commercial — Mosquito",
+    "Commercial — General Spray",
+  ],
+  COMMERCIAL_CLEANING: [
+    "Office Deep Cleaning",
+    "Carpet Cleaning",
+    "Chair Cleaning",
+    "Glass Cleaning",
+    "Facade Cleaning",
+    "Industrial Cleaning",
+  ],
+};
+
 export const LEAD_SOURCE_LABELS: Record<string, string> = {
   WHATSAPP: "WhatsApp",
   CALL: "Call",
@@ -137,35 +203,31 @@ export const EXPENSE_CATEGORY_LABELS: Record<string, string> = {
 
 export const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Admin",
-  OPERATIONS: "Operations",
-  ACCOUNTS: "Accounts",
-  SUPERVISOR: "Supervisor",
-  STAFF: "Staff",
+  OPERATIONS: "Operations Manager",
+  ACCOUNTS: "Office Accountant",
+  SUPERVISOR: "Team Leader",
+  STAFF: "Worker",
 };
 
 // Route access matrix. Each role sees the modules relevant to their job;
-// Admin always has full access.
+// Admin always has full access. See src/lib/permissions.ts for the finer
+// data-level scoping (own-team-only, today/tomorrow-only, no-salary, etc.)
+// layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-  OPERATIONS: [
-    "dashboard",
-    "leads",
-    "jobs",
-    "staff",
-    "reports",
-    "assistant",
-    "profile",
-  ],
+  OPERATIONS: ["dashboard", "jobs", "staff", "vehicles", "profile"],
   ACCOUNTS: [
     "dashboard",
+    "leads",
     "payments",
     "expenses",
     "profit",
     "reports",
+    "customers",
     "assistant",
     "profile",
   ],
-  SUPERVISOR: ["dashboard", "jobs", "staff", "leads", "assistant", "profile"],
+  SUPERVISOR: ["dashboard", "jobs", "staff", "profile"],
   STAFF: ["dashboard", "jobs", "profile"],
 };
 

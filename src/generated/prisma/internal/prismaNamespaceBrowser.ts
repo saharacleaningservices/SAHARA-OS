@@ -63,7 +63,12 @@ export const ModelName = {
   Payment: 'Payment',
   Expense: 'Expense',
   ActivityLog: 'ActivityLog',
-  CompanySettings: 'CompanySettings'
+  CompanySettings: 'CompanySettings',
+  AuditLog: 'AuditLog',
+  Vehicle: 'Vehicle',
+  MaterialIssue: 'MaterialIssue',
+  Review: 'Review',
+  BackupEvent: 'BackupEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -112,7 +117,10 @@ export const StaffScalarFieldEnum = {
   qrCode: 'qrCode',
   userId: 'userId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isDemo: 'isDemo',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName'
 } as const
 
 export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
@@ -150,6 +158,12 @@ export const LeadScalarFieldEnum = {
   stage: 'stage',
   followUpDate: 'followUpDate',
   notes: 'notes',
+  serviceCategory: 'serviceCategory',
+  serviceVariant: 'serviceVariant',
+  mapLink: 'mapLink',
+  isDemo: 'isDemo',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName',
   assignedStaffId: 'assignedStaffId',
   assignedToId: 'assignedToId',
   createdById: 'createdById',
@@ -228,6 +242,11 @@ export const JobScalarFieldEnum = {
   notes: 'notes',
   customerSignatureUrl: 'customerSignatureUrl',
   signedAt: 'signedAt',
+  mapLink: 'mapLink',
+  vehicleId: 'vehicleId',
+  isDemo: 'isDemo',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -292,7 +311,10 @@ export const PaymentScalarFieldEnum = {
   recordedById: 'recordedById',
   notes: 'notes',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isDemo: 'isDemo',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName'
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
@@ -308,7 +330,10 @@ export const ExpenseScalarFieldEnum = {
   jobId: 'jobId',
   staffId: 'staffId',
   addedById: 'addedById',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  isDemo: 'isDemo',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName'
 } as const
 
 export type ExpenseScalarFieldEnum = (typeof ExpenseScalarFieldEnum)[keyof typeof ExpenseScalarFieldEnum]
@@ -338,6 +363,71 @@ export const CompanySettingsScalarFieldEnum = {
 } as const
 
 export type CompanySettingsScalarFieldEnum = (typeof CompanySettingsScalarFieldEnum)[keyof typeof CompanySettingsScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  action: 'action',
+  summary: 'summary',
+  actorName: 'actorName',
+  actorEmail: 'actorEmail',
+  meta: 'meta',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const VehicleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  plateNumber: 'plateNumber',
+  type: 'type',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+} as const
+
+export type VehicleScalarFieldEnum = (typeof VehicleScalarFieldEnum)[keyof typeof VehicleScalarFieldEnum]
+
+
+export const MaterialIssueScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  item: 'item',
+  quantity: 'quantity',
+  issuedByName: 'issuedByName',
+  issuedAt: 'issuedAt'
+} as const
+
+export type MaterialIssueScalarFieldEnum = (typeof MaterialIssueScalarFieldEnum)[keyof typeof MaterialIssueScalarFieldEnum]
+
+
+export const ReviewScalarFieldEnum = {
+  id: 'id',
+  customerMobile: 'customerMobile',
+  customerName: 'customerName',
+  rating: 'rating',
+  comment: 'comment',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
+
+
+export const BackupEventScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  triggeredBy: 'triggeredBy',
+  fileName: 'fileName',
+  sizeBytes: 'sizeBytes',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type BackupEventScalarFieldEnum = (typeof BackupEventScalarFieldEnum)[keyof typeof BackupEventScalarFieldEnum]
 
 
 export const SortOrder = {

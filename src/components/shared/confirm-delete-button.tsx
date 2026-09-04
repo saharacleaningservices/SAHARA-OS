@@ -21,7 +21,7 @@ export function ConfirmDeleteButton({
   action,
   id,
   entityLabel = "item",
-  description = "This action cannot be undone.",
+  description = "Moved to Trash — an admin can restore it later.",
 }: {
   action: (id: string) => Promise<ActionResult>;
   id: string;

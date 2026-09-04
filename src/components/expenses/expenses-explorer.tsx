@@ -8,8 +8,10 @@ import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
+import { BulkActionsBar } from "@/components/shared/bulk-actions-bar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { EditExpenseDialog } from "./edit-expense-dialog";
-import { deleteExpense } from "@/server/actions/expenses";
+import { deleteExpense, bulkDeleteExpenses } from "@/server/actions/expenses";
 import { EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
 import { formatINR, formatDate } from "@/lib/utils";
 
@@ -30,6 +32,7 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -62,6 +65,13 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
         </Select>
       </div>
 
+      <BulkActionsBar
+        count={selected.length}
+        entityLabel="expense"
+        onClear={() => setSelected([])}
+        onDelete={() => bulkDeleteExpenses(selected)}
+      />
+
       {filtered.length === 0 ? (
         <EmptyState title="No expenses found" description="Try adjusting your search or filters." />
       ) : (
@@ -69,6 +79,18 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8">
+                  <Checkbox
+                    checked={pageItems.length > 0 && pageItems.every((e) => selected.includes(e.id))}
+                    onCheckedChange={(checked) =>
+                      setSelected((prev) =>
+                        checked
+                          ? Array.from(new Set([...prev, ...pageItems.map((e) => e.id)]))
+                          : prev.filter((id) => !pageItems.some((e) => e.id === id))
+                      )
+                    }
+                  />
+                </TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Paid To</TableHead>
@@ -80,6 +102,14 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
             <TableBody>
               {pageItems.map((e) => (
                 <TableRow key={e.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selected.includes(e.id)}
+                      onCheckedChange={(checked) =>
+                        setSelected((prev) => (checked ? [...prev, e.id] : prev.filter((id) => id !== e.id)))
+                      }
+                    />
+                  </TableCell>
                   <TableCell>
                     <p className="font-medium text-foreground">{e.description}</p>
                     {e.job && <p className="text-xs text-muted-foreground">{e.job.jobNumber}</p>}

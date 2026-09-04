@@ -579,10 +579,6 @@ export type EnumAttendanceStatusFieldUpdateOperationsInput = {
   set?: $Enums.AttendanceStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type AttendanceCreateWithoutStaffInput = {
   id?: string
   date: Date | string

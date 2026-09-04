@@ -12,7 +12,9 @@ import { LeadCard } from "./lead-card";
 import { LeadStageBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
-import { deleteLead } from "@/server/actions/leads";
+import { BulkActionsBar } from "@/components/shared/bulk-actions-bar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { deleteLead, bulkDeleteLeads } from "@/server/actions/leads";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import {
@@ -49,6 +51,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
   const [sourceFilter, setSourceFilter] = useState<string>("ALL");
   const [serviceFilter, setServiceFilter] = useState<string>("ALL");
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -156,6 +159,12 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
       </TabsContent>
 
       <TabsContent value="table" className="space-y-3">
+        <BulkActionsBar
+          count={selected.length}
+          entityLabel="lead"
+          onClear={() => setSelected([])}
+          onDelete={() => bulkDeleteLeads(selected)}
+        />
         {filtered.length === 0 ? (
           <EmptyState title="No leads match your filters" description="Try adjusting search or filters." />
         ) : (
@@ -163,6 +172,18 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-8">
+                    <Checkbox
+                      checked={pageItems.length > 0 && pageItems.every((l) => selected.includes(l.id))}
+                      onCheckedChange={(checked) =>
+                        setSelected((prev) =>
+                          checked
+                            ? Array.from(new Set([...prev, ...pageItems.map((l) => l.id)]))
+                            : prev.filter((id) => !pageItems.some((l) => l.id === id))
+                        )
+                      }
+                    />
+                  </TableHead>
                   <TableHead>Lead</TableHead>
                   <TableHead>Service</TableHead>
                   <TableHead>Source</TableHead>
@@ -176,6 +197,14 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
               <TableBody>
                 {pageItems.map((lead) => (
                   <TableRow key={lead.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.includes(lead.id)}
+                        onCheckedChange={(checked) =>
+                          setSelected((prev) => (checked ? [...prev, lead.id] : prev.filter((id) => id !== lead.id)))
+                        }
+                      />
+                    </TableCell>
                     <TableCell>
                       <Link href={`/leads/${lead.id}`} className="font-medium text-foreground hover:underline">
                         {lead.name}

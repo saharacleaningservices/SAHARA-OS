@@ -48,6 +48,12 @@ export type LeadMinAggregateOutputType = {
   stage: $Enums.LeadStage | null
   followUpDate: Date | null
   notes: string | null
+  serviceCategory: $Enums.ServiceCategory | null
+  serviceVariant: string | null
+  mapLink: string | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
   assignedStaffId: string | null
   assignedToId: string | null
   createdById: string | null
@@ -69,6 +75,12 @@ export type LeadMaxAggregateOutputType = {
   stage: $Enums.LeadStage | null
   followUpDate: Date | null
   notes: string | null
+  serviceCategory: $Enums.ServiceCategory | null
+  serviceVariant: string | null
+  mapLink: string | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
   assignedStaffId: string | null
   assignedToId: string | null
   createdById: string | null
@@ -90,6 +102,12 @@ export type LeadCountAggregateOutputType = {
   stage: number
   followUpDate: number
   notes: number
+  serviceCategory: number
+  serviceVariant: number
+  mapLink: number
+  isDemo: number
+  deletedAt: number
+  deletedByName: number
   assignedStaffId: number
   assignedToId: number
   createdById: number
@@ -121,6 +139,12 @@ export type LeadMinAggregateInputType = {
   stage?: true
   followUpDate?: true
   notes?: true
+  serviceCategory?: true
+  serviceVariant?: true
+  mapLink?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
   assignedStaffId?: true
   assignedToId?: true
   createdById?: true
@@ -142,6 +166,12 @@ export type LeadMaxAggregateInputType = {
   stage?: true
   followUpDate?: true
   notes?: true
+  serviceCategory?: true
+  serviceVariant?: true
+  mapLink?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
   assignedStaffId?: true
   assignedToId?: true
   createdById?: true
@@ -163,6 +193,12 @@ export type LeadCountAggregateInputType = {
   stage?: true
   followUpDate?: true
   notes?: true
+  serviceCategory?: true
+  serviceVariant?: true
+  mapLink?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
   assignedStaffId?: true
   assignedToId?: true
   createdById?: true
@@ -271,6 +307,12 @@ export type LeadGroupByOutputType = {
   stage: $Enums.LeadStage
   followUpDate: Date | null
   notes: string | null
+  serviceCategory: $Enums.ServiceCategory | null
+  serviceVariant: string | null
+  mapLink: string | null
+  isDemo: boolean
+  deletedAt: Date | null
+  deletedByName: string | null
   assignedStaffId: string | null
   assignedToId: string | null
   createdById: string | null
@@ -315,6 +357,12 @@ export type LeadWhereInput = {
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  isDemo?: Prisma.BoolFilter<"Lead"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedStaffId?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Lead"> | string | null
   createdById?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -345,6 +393,12 @@ export type LeadOrderByWithRelationInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedStaffId?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -378,6 +432,12 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  isDemo?: Prisma.BoolFilter<"Lead"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedStaffId?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Lead"> | string | null
   createdById?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -408,6 +468,12 @@ export type LeadOrderByWithAggregationInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedStaffId?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -437,6 +503,12 @@ export type LeadScalarWhereWithAggregatesInput = {
   stage?: Prisma.EnumLeadStageWithAggregatesFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  serviceCategory?: Prisma.EnumServiceCategoryNullableWithAggregatesFilter<"Lead"> | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   assignedStaffId?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   createdById?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -458,6 +530,12 @@ export type LeadCreateInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -485,6 +563,12 @@ export type LeadUncheckedCreateInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -512,6 +596,12 @@ export type LeadUpdateInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -539,6 +629,12 @@ export type LeadUncheckedUpdateInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -566,6 +662,12 @@ export type LeadCreateManyInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -587,6 +689,12 @@ export type LeadUpdateManyMutationInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -605,6 +713,12 @@ export type LeadUncheckedUpdateManyInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -636,6 +750,12 @@ export type LeadCountOrderByAggregateInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  serviceCategory?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrder
+  mapLink?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
   assignedStaffId?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -661,6 +781,12 @@ export type LeadMaxOrderByAggregateInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  serviceCategory?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrder
+  mapLink?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
   assignedStaffId?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -682,6 +808,12 @@ export type LeadMinOrderByAggregateInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  serviceCategory?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrder
+  mapLink?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
   assignedStaffId?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -841,6 +973,10 @@ export type EnumLeadStageFieldUpdateOperationsInput = {
   set?: $Enums.LeadStage
 }
 
+export type NullableEnumServiceCategoryFieldUpdateOperationsInput = {
+  set?: $Enums.ServiceCategory | null
+}
+
 export type LeadCreateNestedOneWithoutQuotationsInput = {
   create?: Prisma.XOR<Prisma.LeadCreateWithoutQuotationsInput, Prisma.LeadUncheckedCreateWithoutQuotationsInput>
   connectOrCreate?: Prisma.LeadCreateOrConnectWithoutQuotationsInput
@@ -945,6 +1081,12 @@ export type LeadCreateWithoutCreatedByInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -971,6 +1113,12 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdAt?: Date | string
@@ -1006,6 +1154,12 @@ export type LeadCreateWithoutAssignedToInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -1032,6 +1186,12 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   createdById?: string | null
   createdAt?: Date | string
@@ -1086,6 +1246,12 @@ export type LeadScalarWhereInput = {
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  isDemo?: Prisma.BoolFilter<"Lead"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedStaffId?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Lead"> | string | null
   createdById?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -1123,6 +1289,12 @@ export type LeadCreateWithoutAssignedStaffInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
@@ -1149,6 +1321,12 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedToId?: string | null
   createdById?: string | null
   createdAt?: Date | string
@@ -1200,6 +1378,12 @@ export type LeadCreateWithoutQuotationsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -1226,6 +1410,12 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -1268,6 +1458,12 @@ export type LeadUpdateWithoutQuotationsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -1294,6 +1490,12 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1320,6 +1522,12 @@ export type LeadCreateWithoutFollowUpsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -1346,6 +1554,12 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -1388,6 +1602,12 @@ export type LeadUpdateWithoutFollowUpsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -1414,6 +1634,12 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1440,6 +1666,12 @@ export type LeadCreateWithoutTimelineInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -1466,6 +1698,12 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -1508,6 +1746,12 @@ export type LeadUpdateWithoutTimelineInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -1534,6 +1778,12 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1560,6 +1810,12 @@ export type LeadCreateWithoutJobsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -1586,6 +1842,12 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -1628,6 +1890,12 @@ export type LeadUpdateWithoutJobsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -1654,6 +1922,12 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1680,6 +1954,12 @@ export type LeadCreateWithoutPaymentsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -1706,6 +1986,12 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -1748,6 +2034,12 @@ export type LeadUpdateWithoutPaymentsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -1774,6 +2066,12 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1800,6 +2098,12 @@ export type LeadCreateWithoutActivityLogsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
@@ -1826,6 +2130,12 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdById?: string | null
@@ -1868,6 +2178,12 @@ export type LeadUpdateWithoutActivityLogsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -1894,6 +2210,12 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1920,6 +2242,12 @@ export type LeadCreateManyCreatedByInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   assignedToId?: string | null
   createdAt?: Date | string
@@ -1940,6 +2268,12 @@ export type LeadCreateManyAssignedToInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedStaffId?: string | null
   createdById?: string | null
   createdAt?: Date | string
@@ -1960,6 +2294,12 @@ export type LeadUpdateWithoutCreatedByInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -1986,6 +2326,12 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2012,6 +2358,12 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2032,6 +2384,12 @@ export type LeadUpdateWithoutAssignedToInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
@@ -2058,6 +2416,12 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2084,6 +2448,12 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2104,6 +2474,12 @@ export type LeadCreateManyAssignedStaffInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  mapLink?: string | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   assignedToId?: string | null
   createdById?: string | null
   createdAt?: Date | string
@@ -2124,6 +2500,12 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
@@ -2150,6 +2532,12 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2176,6 +2564,12 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2272,6 +2666,12 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   stage?: boolean
   followUpDate?: boolean
   notes?: boolean
+  serviceCategory?: boolean
+  serviceVariant?: boolean
+  mapLink?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   assignedStaffId?: boolean
   assignedToId?: boolean
   createdById?: boolean
@@ -2303,6 +2703,12 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   stage?: boolean
   followUpDate?: boolean
   notes?: boolean
+  serviceCategory?: boolean
+  serviceVariant?: boolean
+  mapLink?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   assignedStaffId?: boolean
   assignedToId?: boolean
   createdById?: boolean
@@ -2327,6 +2733,12 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   stage?: boolean
   followUpDate?: boolean
   notes?: boolean
+  serviceCategory?: boolean
+  serviceVariant?: boolean
+  mapLink?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   assignedStaffId?: boolean
   assignedToId?: boolean
   createdById?: boolean
@@ -2351,6 +2763,12 @@ export type LeadSelectScalar = {
   stage?: boolean
   followUpDate?: boolean
   notes?: boolean
+  serviceCategory?: boolean
+  serviceVariant?: boolean
+  mapLink?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   assignedStaffId?: boolean
   assignedToId?: boolean
   createdById?: boolean
@@ -2358,7 +2776,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "notes" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -2409,6 +2827,12 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     stage: $Enums.LeadStage
     followUpDate: Date | null
     notes: string | null
+    serviceCategory: $Enums.ServiceCategory | null
+    serviceVariant: string | null
+    mapLink: string | null
+    isDemo: boolean
+    deletedAt: Date | null
+    deletedByName: string | null
     assignedStaffId: string | null
     assignedToId: string | null
     createdById: string | null
@@ -2859,6 +3283,12 @@ export interface LeadFieldRefs {
   readonly stage: Prisma.FieldRef<"Lead", 'LeadStage'>
   readonly followUpDate: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly notes: Prisma.FieldRef<"Lead", 'String'>
+  readonly serviceCategory: Prisma.FieldRef<"Lead", 'ServiceCategory'>
+  readonly serviceVariant: Prisma.FieldRef<"Lead", 'String'>
+  readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
+  readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
+  readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly deletedByName: Prisma.FieldRef<"Lead", 'String'>
   readonly assignedStaffId: Prisma.FieldRef<"Lead", 'String'>
   readonly assignedToId: Prisma.FieldRef<"Lead", 'String'>
   readonly createdById: Prisma.FieldRef<"Lead", 'String'>

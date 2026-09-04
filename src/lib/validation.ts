@@ -19,6 +19,9 @@ export const leadSchema = z.object({
   assignedStaffId: z.string().optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
+  serviceCategory: z.string().optional().or(z.literal("")),
+  serviceVariant: z.string().optional().or(z.literal("")),
+  mapLink: z.string().optional().or(z.literal("")),
 });
 
 export type LeadFormValues = z.infer<typeof leadSchema>;

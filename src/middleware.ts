@@ -4,7 +4,8 @@ import { SESSION_COOKIE } from "@/lib/session";
 import { canAccess } from "@/lib/constants";
 
 // /api/backup does its own bearer-token auth (see src/app/api/backup/route.ts).
-const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/backup"];
+// /book is the public Customer Booking Form — no auth required.
+const PUBLIC_PATHS = ["/login", "/api/auth/login", "/api/backup", "/book"];
 
 function getSectionFromPath(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean);

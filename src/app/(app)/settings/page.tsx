@@ -1,11 +1,16 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { SettingsForm } from "@/components/settings/settings-form";
+import { BackupsCard } from "@/components/settings/backups-card";
 import { requireRole } from "@/lib/current-user";
 import { getCompanySettings } from "@/server/settings";
+import { db } from "@/lib/db";
 
 export default async function SettingsPage() {
   await requireRole(["ADMIN"]);
-  const settings = await getCompanySettings();
+  const [settings, backupEvents] = await Promise.all([
+    getCompanySettings(),
+    db.backupEvent.findMany({ orderBy: { createdAt: "desc" }, take: 20 }),
+  ]);
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -19,6 +24,7 @@ export default async function SettingsPage() {
           logoUrl: settings.logoUrl ?? "",
         }}
       />
+      <BackupsCard events={backupEvents} />
     </div>
   );
 }

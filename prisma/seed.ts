@@ -94,11 +94,11 @@ async function main() {
     },
   });
 
-  const shoyab = await db.user.upsert({
+  const francis = await db.user.upsert({
     where: { email: "operations@saharacleaningservices.com" },
     update: {},
     create: {
-      name: "Shoyab Shaikh",
+      name: "Francis D'Souza",
       email: "operations@saharacleaningservices.com",
       phone: "8956567130",
       passwordHash,
@@ -106,11 +106,11 @@ async function main() {
     },
   });
 
-  const francis = await db.user.upsert({
+  const shoyab = await db.user.upsert({
     where: { email: "accounts@saharacleaningservices.com" },
     update: {},
     create: {
-      name: "Francis D'Souza",
+      name: "Shoyab Shaikh",
       email: "accounts@saharacleaningservices.com",
       passwordHash,
       role: "ACCOUNTS",
@@ -262,8 +262,8 @@ async function main() {
       await db.jobAssignment.create({ data: { jobId: job.id, staffId: member.id, isLead: member.id === crew[0].id } }).catch(() => {});
     }
 
-    await db.photo.create({ data: { jobId: job.id, type: "BEFORE", url: "/uploads/photos/placeholder-before.svg", caption: "Before cleaning", uploadedById: supervisor.userId ?? francis.id } });
-    await db.photo.create({ data: { jobId: job.id, type: "AFTER", url: "/uploads/photos/placeholder-after.svg", caption: "After cleaning", uploadedById: supervisor.userId ?? francis.id } });
+    await db.photo.create({ data: { jobId: job.id, type: "BEFORE", url: "/uploads/photos/placeholder-before.svg", caption: "Before cleaning", uploadedById: supervisor.userId ?? shoyab.id } });
+    await db.photo.create({ data: { jobId: job.id, type: "AFTER", url: "/uploads/photos/placeholder-after.svg", caption: "After cleaning", uploadedById: supervisor.userId ?? shoyab.id } });
 
     certCount += 1;
     await db.certificate.create({
@@ -294,7 +294,7 @@ async function main() {
         paidDate: isPaid ? scheduledDate : null,
         status: isPaid ? "PAID" : dueDate < new Date() ? "OVERDUE" : "PENDING",
         mybillbookInvoiceNo: `MBB-${randInt(10000, 99999)}`,
-        recordedById: francis.id,
+        recordedById: shoyab.id,
       },
     });
   }
@@ -319,7 +319,7 @@ async function main() {
         date: daysFromNow(-randInt(0, 90)),
         paidTo: e.category === "STAFF_ADVANCE" ? rand(fieldStaff).name : rand(["Local Vendor", "Pune Chemicals Co.", "Petrol Pump - Hadapsar", "Hardware Store"]),
         staffId: e.category === "STAFF_ADVANCE" ? rand(fieldStaff).id : null,
-        addedById: francis.id,
+        addedById: shoyab.id,
       },
     });
   }

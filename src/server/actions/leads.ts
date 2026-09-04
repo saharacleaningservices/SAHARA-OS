@@ -21,6 +21,7 @@ import {
   COMPANY,
 } from "@/lib/constants";
 import { addTimelineEntry } from "@/server/timeline";
+import { softDeleteMany } from "@/server/audit";
 
 const MIN_JOB_VALUE = COMPANY.minimumJobValue;
 
@@ -51,6 +52,9 @@ export async function createLead(values: unknown) {
       followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       assignedStaffId: data.assignedStaffId || null,
       notes: data.notes || null,
+      serviceCategory: (data.serviceCategory as never) || null,
+      serviceVariant: data.serviceVariant || null,
+      mapLink: data.mapLink || null,
       createdById: session?.sub,
       assignedToId: data.assignedToId || session?.sub,
     },
@@ -142,6 +146,9 @@ export async function updateLead(id: string, values: unknown) {
       ...(data.assignedStaffId !== undefined && { assignedStaffId: data.assignedStaffId || null }),
       ...(data.assignedToId !== undefined && { assignedToId: data.assignedToId || null }),
       ...(data.notes !== undefined && { notes: data.notes || null }),
+      ...(data.serviceCategory !== undefined && { serviceCategory: (data.serviceCategory as never) || null }),
+      ...(data.serviceVariant !== undefined && { serviceVariant: data.serviceVariant || null }),
+      ...(data.mapLink !== undefined && { mapLink: data.mapLink || null }),
     },
   });
   revalidatePath("/leads");
@@ -153,14 +160,20 @@ export async function deleteLead(id: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
 
-  await db.job.updateMany({ where: { leadId: id }, data: { leadId: null } });
-  await db.payment.updateMany({ where: { leadId: id }, data: { leadId: null } });
-  // Cascades quotations, follow-ups, activity logs and timeline entries.
-  await db.lead.delete({ where: { id } });
+  await softDeleteMany("Lead", [id], session);
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function bulkDeleteLeads(ids: string[]) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  const count = await softDeleteMany("Lead", ids, session);
+  revalidatePath("/leads");
+  revalidatePath("/dashboard");
+  return { success: true as const, count };
 }
 
 type LeadStage = (typeof LEAD_STAGES)[number];
@@ -461,4 +474,13 @@ export async function createQuotation(
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/leads");
   return { success: true, quotationId: quotation.id };
+}
+
+export async function updateLeadLocation(leadId: string, mapLink: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  await db.lead.update({ where: { id: leadId }, data: { mapLink } });
+  await addTimelineEntry({ leadId, type: "SYSTEM", body: "Location shared", authorId: session.sub });
+  revalidatePath(`/leads/${leadId}`);
+  return { success: true as const };
 }

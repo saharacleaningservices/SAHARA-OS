@@ -6,6 +6,7 @@ import { getSession } from "@/lib/session";
 import { paymentSchema } from "@/lib/validation";
 import { generateInvoiceNumber } from "@/lib/id-generators";
 import { addPaymentTimeline } from "@/server/timeline";
+import { softDeleteMany } from "@/server/audit";
 
 export async function createPayment(values: unknown) {
   const parsed = paymentSchema.safeParse(values);
@@ -63,11 +64,21 @@ export async function updatePayment(id: string, values: unknown) {
 export async function deletePayment(id: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
-  await db.payment.delete({ where: { id } });
+  await softDeleteMany("Payment", [id], session);
   revalidatePath("/payments");
   revalidatePath("/dashboard");
   revalidatePath("/profit");
   return { success: true };
+}
+
+export async function bulkDeletePayments(ids: string[]) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  const count = await softDeleteMany("Payment", ids, session);
+  revalidatePath("/payments");
+  revalidatePath("/dashboard");
+  revalidatePath("/profit");
+  return { success: true as const, count };
 }
 
 export async function markPaymentPaid(paymentId: string) {

@@ -45,6 +45,9 @@ export type ExpenseMinAggregateOutputType = {
   staffId: string | null
   addedById: string | null
   createdAt: Date | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
 }
 
 export type ExpenseMaxAggregateOutputType = {
@@ -58,6 +61,9 @@ export type ExpenseMaxAggregateOutputType = {
   staffId: string | null
   addedById: string | null
   createdAt: Date | null
+  isDemo: boolean | null
+  deletedAt: Date | null
+  deletedByName: string | null
 }
 
 export type ExpenseCountAggregateOutputType = {
@@ -71,6 +77,9 @@ export type ExpenseCountAggregateOutputType = {
   staffId: number
   addedById: number
   createdAt: number
+  isDemo: number
+  deletedAt: number
+  deletedByName: number
   _all: number
 }
 
@@ -94,6 +103,9 @@ export type ExpenseMinAggregateInputType = {
   staffId?: true
   addedById?: true
   createdAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
 }
 
 export type ExpenseMaxAggregateInputType = {
@@ -107,6 +119,9 @@ export type ExpenseMaxAggregateInputType = {
   staffId?: true
   addedById?: true
   createdAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
 }
 
 export type ExpenseCountAggregateInputType = {
@@ -120,6 +135,9 @@ export type ExpenseCountAggregateInputType = {
   staffId?: true
   addedById?: true
   createdAt?: true
+  isDemo?: true
+  deletedAt?: true
+  deletedByName?: true
   _all?: true
 }
 
@@ -220,6 +238,9 @@ export type ExpenseGroupByOutputType = {
   staffId: string | null
   addedById: string | null
   createdAt: Date
+  isDemo: boolean
+  deletedAt: Date | null
+  deletedByName: string | null
   _count: ExpenseCountAggregateOutputType | null
   _avg: ExpenseAvgAggregateOutputType | null
   _sum: ExpenseSumAggregateOutputType | null
@@ -256,6 +277,9 @@ export type ExpenseWhereInput = {
   staffId?: Prisma.StringNullableFilter<"Expense"> | string | null
   addedById?: Prisma.StringNullableFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Expense"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Expense"> | string | null
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   staff?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
   addedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -272,6 +296,9 @@ export type ExpenseOrderByWithRelationInput = {
   staffId?: Prisma.SortOrderInput | Prisma.SortOrder
   addedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   job?: Prisma.JobOrderByWithRelationInput
   staff?: Prisma.StaffOrderByWithRelationInput
   addedBy?: Prisma.UserOrderByWithRelationInput
@@ -291,6 +318,9 @@ export type ExpenseWhereUniqueInput = Prisma.AtLeast<{
   staffId?: Prisma.StringNullableFilter<"Expense"> | string | null
   addedById?: Prisma.StringNullableFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Expense"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Expense"> | string | null
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   staff?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
   addedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -307,6 +337,9 @@ export type ExpenseOrderByWithAggregationInput = {
   staffId?: Prisma.SortOrderInput | Prisma.SortOrder
   addedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ExpenseCountOrderByAggregateInput
   _avg?: Prisma.ExpenseAvgOrderByAggregateInput
   _max?: Prisma.ExpenseMaxOrderByAggregateInput
@@ -328,6 +361,9 @@ export type ExpenseScalarWhereWithAggregatesInput = {
   staffId?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   addedById?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Expense"> | Date | string
+  isDemo?: Prisma.BoolWithAggregatesFilter<"Expense"> | boolean
+  deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Expense"> | Date | string | null
+  deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Expense"> | string | null
 }
 
 export type ExpenseCreateInput = {
@@ -338,6 +374,9 @@ export type ExpenseCreateInput = {
   date?: Date | string
   paidTo?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutExpensesInput
   staff?: Prisma.StaffCreateNestedOneWithoutExpensesInput
   addedBy?: Prisma.UserCreateNestedOneWithoutExpensesAddedInput
@@ -354,6 +393,9 @@ export type ExpenseUncheckedCreateInput = {
   staffId?: string | null
   addedById?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseUpdateInput = {
@@ -364,6 +406,9 @@ export type ExpenseUpdateInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutExpensesNestedInput
   staff?: Prisma.StaffUpdateOneWithoutExpensesNestedInput
   addedBy?: Prisma.UserUpdateOneWithoutExpensesAddedNestedInput
@@ -380,6 +425,9 @@ export type ExpenseUncheckedUpdateInput = {
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseCreateManyInput = {
@@ -393,6 +441,9 @@ export type ExpenseCreateManyInput = {
   staffId?: string | null
   addedById?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseUpdateManyMutationInput = {
@@ -403,6 +454,9 @@ export type ExpenseUpdateManyMutationInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseUncheckedUpdateManyInput = {
@@ -416,6 +470,9 @@ export type ExpenseUncheckedUpdateManyInput = {
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseListRelationFilter = {
@@ -439,6 +496,9 @@ export type ExpenseCountOrderByAggregateInput = {
   staffId?: Prisma.SortOrder
   addedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type ExpenseAvgOrderByAggregateInput = {
@@ -456,6 +516,9 @@ export type ExpenseMaxOrderByAggregateInput = {
   staffId?: Prisma.SortOrder
   addedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type ExpenseMinOrderByAggregateInput = {
@@ -469,6 +532,9 @@ export type ExpenseMinOrderByAggregateInput = {
   staffId?: Prisma.SortOrder
   addedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  isDemo?: Prisma.SortOrder
+  deletedAt?: Prisma.SortOrder
+  deletedByName?: Prisma.SortOrder
 }
 
 export type ExpenseSumOrderByAggregateInput = {
@@ -613,6 +679,9 @@ export type ExpenseCreateWithoutAddedByInput = {
   date?: Date | string
   paidTo?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutExpensesInput
   staff?: Prisma.StaffCreateNestedOneWithoutExpensesInput
 }
@@ -627,6 +696,9 @@ export type ExpenseUncheckedCreateWithoutAddedByInput = {
   jobId?: string | null
   staffId?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseCreateOrConnectWithoutAddedByInput = {
@@ -668,6 +740,9 @@ export type ExpenseScalarWhereInput = {
   staffId?: Prisma.StringNullableFilter<"Expense"> | string | null
   addedById?: Prisma.StringNullableFilter<"Expense"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Expense"> | Date | string
+  isDemo?: Prisma.BoolFilter<"Expense"> | boolean
+  deletedAt?: Prisma.DateTimeNullableFilter<"Expense"> | Date | string | null
+  deletedByName?: Prisma.StringNullableFilter<"Expense"> | string | null
 }
 
 export type ExpenseCreateWithoutStaffInput = {
@@ -678,6 +753,9 @@ export type ExpenseCreateWithoutStaffInput = {
   date?: Date | string
   paidTo?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   job?: Prisma.JobCreateNestedOneWithoutExpensesInput
   addedBy?: Prisma.UserCreateNestedOneWithoutExpensesAddedInput
 }
@@ -692,6 +770,9 @@ export type ExpenseUncheckedCreateWithoutStaffInput = {
   jobId?: string | null
   addedById?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseCreateOrConnectWithoutStaffInput = {
@@ -727,6 +808,9 @@ export type ExpenseCreateWithoutJobInput = {
   date?: Date | string
   paidTo?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
   staff?: Prisma.StaffCreateNestedOneWithoutExpensesInput
   addedBy?: Prisma.UserCreateNestedOneWithoutExpensesAddedInput
 }
@@ -741,6 +825,9 @@ export type ExpenseUncheckedCreateWithoutJobInput = {
   staffId?: string | null
   addedById?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseCreateOrConnectWithoutJobInput = {
@@ -778,6 +865,9 @@ export type ExpenseCreateManyAddedByInput = {
   jobId?: string | null
   staffId?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseUpdateWithoutAddedByInput = {
@@ -788,6 +878,9 @@ export type ExpenseUpdateWithoutAddedByInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutExpensesNestedInput
   staff?: Prisma.StaffUpdateOneWithoutExpensesNestedInput
 }
@@ -802,6 +895,9 @@ export type ExpenseUncheckedUpdateWithoutAddedByInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseUncheckedUpdateManyWithoutAddedByInput = {
@@ -814,6 +910,9 @@ export type ExpenseUncheckedUpdateManyWithoutAddedByInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseCreateManyStaffInput = {
@@ -826,6 +925,9 @@ export type ExpenseCreateManyStaffInput = {
   jobId?: string | null
   addedById?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseUpdateWithoutStaffInput = {
@@ -836,6 +938,9 @@ export type ExpenseUpdateWithoutStaffInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   job?: Prisma.JobUpdateOneWithoutExpensesNestedInput
   addedBy?: Prisma.UserUpdateOneWithoutExpensesAddedNestedInput
 }
@@ -850,6 +955,9 @@ export type ExpenseUncheckedUpdateWithoutStaffInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseUncheckedUpdateManyWithoutStaffInput = {
@@ -862,6 +970,9 @@ export type ExpenseUncheckedUpdateManyWithoutStaffInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseCreateManyJobInput = {
@@ -874,6 +985,9 @@ export type ExpenseCreateManyJobInput = {
   staffId?: string | null
   addedById?: string | null
   createdAt?: Date | string
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
 }
 
 export type ExpenseUpdateWithoutJobInput = {
@@ -884,6 +998,9 @@ export type ExpenseUpdateWithoutJobInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   staff?: Prisma.StaffUpdateOneWithoutExpensesNestedInput
   addedBy?: Prisma.UserUpdateOneWithoutExpensesAddedNestedInput
 }
@@ -898,6 +1015,9 @@ export type ExpenseUncheckedUpdateWithoutJobInput = {
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ExpenseUncheckedUpdateManyWithoutJobInput = {
@@ -910,6 +1030,9 @@ export type ExpenseUncheckedUpdateManyWithoutJobInput = {
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   addedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -925,6 +1048,9 @@ export type ExpenseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   staffId?: boolean
   addedById?: boolean
   createdAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   job?: boolean | Prisma.Expense$jobArgs<ExtArgs>
   staff?: boolean | Prisma.Expense$staffArgs<ExtArgs>
   addedBy?: boolean | Prisma.Expense$addedByArgs<ExtArgs>
@@ -941,6 +1067,9 @@ export type ExpenseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   staffId?: boolean
   addedById?: boolean
   createdAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   job?: boolean | Prisma.Expense$jobArgs<ExtArgs>
   staff?: boolean | Prisma.Expense$staffArgs<ExtArgs>
   addedBy?: boolean | Prisma.Expense$addedByArgs<ExtArgs>
@@ -957,6 +1086,9 @@ export type ExpenseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   staffId?: boolean
   addedById?: boolean
   createdAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
   job?: boolean | Prisma.Expense$jobArgs<ExtArgs>
   staff?: boolean | Prisma.Expense$staffArgs<ExtArgs>
   addedBy?: boolean | Prisma.Expense$addedByArgs<ExtArgs>
@@ -973,9 +1105,12 @@ export type ExpenseSelectScalar = {
   staffId?: boolean
   addedById?: boolean
   createdAt?: boolean
+  isDemo?: boolean
+  deletedAt?: boolean
+  deletedByName?: boolean
 }
 
-export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "category" | "description" | "amount" | "date" | "paidTo" | "jobId" | "staffId" | "addedById" | "createdAt", ExtArgs["result"]["expense"]>
+export type ExpenseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "category" | "description" | "amount" | "date" | "paidTo" | "jobId" | "staffId" | "addedById" | "createdAt" | "isDemo" | "deletedAt" | "deletedByName", ExtArgs["result"]["expense"]>
 export type ExpenseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Expense$jobArgs<ExtArgs>
   staff?: boolean | Prisma.Expense$staffArgs<ExtArgs>
@@ -1010,6 +1145,9 @@ export type $ExpensePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     staffId: string | null
     addedById: string | null
     createdAt: Date
+    isDemo: boolean
+    deletedAt: Date | null
+    deletedByName: string | null
   }, ExtArgs["result"]["expense"]>
   composites: {}
 }
@@ -1446,6 +1584,9 @@ export interface ExpenseFieldRefs {
   readonly staffId: Prisma.FieldRef<"Expense", 'String'>
   readonly addedById: Prisma.FieldRef<"Expense", 'String'>
   readonly createdAt: Prisma.FieldRef<"Expense", 'DateTime'>
+  readonly isDemo: Prisma.FieldRef<"Expense", 'Boolean'>
+  readonly deletedAt: Prisma.FieldRef<"Expense", 'DateTime'>
+  readonly deletedByName: Prisma.FieldRef<"Expense", 'String'>
 }
     
 
