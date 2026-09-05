@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.env
+.env.*
+*.tsbuildinfo
+npm-debug.log*
+dev.db.wiped-check
+dev.db.*-test
+dev.db.*-check
+backups/
