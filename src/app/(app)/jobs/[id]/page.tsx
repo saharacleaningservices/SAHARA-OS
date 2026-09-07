@@ -97,6 +97,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <p className="text-xs text-muted-foreground">Supervisor</p>
                   <p className="font-medium text-foreground">{job.supervisor?.name ?? "—"}</p>
                 </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Team</p>
+                  <p className="font-medium text-foreground">
+                    {job.teamNumber ? `Team ${job.teamNumber}` : "—"}
+                  </p>
+                </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-muted-foreground">Address</p>
                   <p className="font-medium text-foreground">{job.address}</p>

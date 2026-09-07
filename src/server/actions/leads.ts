@@ -33,6 +33,11 @@ function combineDateTime(date: string, time?: string) {
   return time ? new Date(`${date}T${time}`) : new Date(date);
 }
 
+/** Normalises a validated team value (number | "" | undefined) to 1–4 or null. */
+function normalizeTeam(value: number | "" | undefined): number | null {
+  return typeof value === "number" && value >= 1 && value <= 4 ? value : null;
+}
+
 export async function createLead(values: unknown) {
   const parsed = leadSchema.safeParse(values);
   if (!parsed.success) {
@@ -48,12 +53,15 @@ export async function createLead(values: unknown) {
       name: data.name,
       mobile: data.mobile,
       whatsapp: data.whatsapp || data.mobile,
+      email: data.email || null,
       address: data.address || null,
       area: data.area,
       service: data.service,
       source: data.source,
       quoteAmount: data.quoteAmount ?? null,
       followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
+      serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
+      teamNumber: normalizeTeam(data.teamNumber),
       assignedStaffId: data.assignedStaffId || null,
       notes: data.notes || null,
       serviceCategory: (data.serviceCategory as never) || null,
@@ -139,6 +147,7 @@ export async function updateLead(id: string, values: unknown) {
       ...(data.name && { name: data.name }),
       ...(data.mobile && { mobile: data.mobile }),
       ...(data.whatsapp !== undefined && { whatsapp: data.whatsapp || null }),
+      ...(data.email !== undefined && { email: data.email || null }),
       ...(data.address !== undefined && { address: data.address || null }),
       ...(data.area && { area: data.area }),
       ...(data.service && { service: data.service }),
@@ -147,6 +156,10 @@ export async function updateLead(id: string, values: unknown) {
       ...(data.followUpDate !== undefined && {
         followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       }),
+      ...(data.serviceDate !== undefined && {
+        serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
+      }),
+      ...(data.teamNumber !== undefined && { teamNumber: normalizeTeam(data.teamNumber) }),
       ...(data.assignedStaffId !== undefined && { assignedStaffId: data.assignedStaffId || null }),
       ...(data.assignedToId !== undefined && { assignedToId: data.assignedToId || null }),
       ...(data.notes !== undefined && { notes: data.notes || null }),
@@ -230,6 +243,9 @@ export async function confirmBooking(leadId: string, values: unknown) {
   const jobValue =
     lead.quoteAmount && lead.quoteAmount >= MIN_JOB_VALUE ? lead.quoteAmount : MIN_JOB_VALUE;
 
+  // Team carries over from the enquiry; the confirm dialog can override it.
+  const teamNumber = normalizeTeam(data.teamNumber) ?? lead.teamNumber ?? null;
+
   const jobNumber = await generateJobNumber();
   const job = await db.job.create({
     data: {
@@ -242,6 +258,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
       service: lead.service,
       scheduledDate,
       scheduledTime: data.timeSlot,
+      teamNumber,
       supervisorId: data.supervisorId || null,
       jobValue,
       notes: `Auto-created from enquiry ${lead.leadNumber}`,
@@ -256,7 +273,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
 
   await db.lead.update({
     where: { id: leadId },
-    data: { stage: "JOB_SCHEDULED", followUpDate: scheduledDate },
+    data: { stage: "JOB_SCHEDULED", followUpDate: scheduledDate, teamNumber },
   });
 
   await addTimelineEntry({

@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { jobSchema, type JobFormValues } from "@/lib/validation";
 import { SERVICE_OPTIONS } from "@/lib/constants";
 import { createJob } from "@/server/actions/jobs";
+import { TeamSelect } from "@/components/shared/team-select";
 
 type StaffOption = { id: string; name: string; designation: string };
 
@@ -46,6 +47,7 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
       service: "HOME_DEEP_CLEANING",
       jobValue: 3999,
       scheduledTime: "10:00",
+      teamNumber: "",
     },
   });
 
@@ -136,6 +138,8 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
               {errors.jobValue && <p className="text-xs text-destructive">{errors.jobValue.message}</p>}
             </div>
           </div>
+
+          <TeamSelect value={watch("teamNumber")} onChange={(v) => setValue("teamNumber", v)} />
 
           <div className="space-y-1">
             <Label>Supervisor</Label>

@@ -17,6 +17,7 @@ import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY } from "@/lib/constants
 import { createLead, updateLead } from "@/server/actions/leads";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { ShareLocationButton } from "@/components/shared/share-location-button";
+import { TeamSelect } from "@/components/shared/team-select";
 
 type StaffOption = { id: string; name: string; designation: string };
 type UserOption = { id: string; name: string; role: string };
@@ -47,11 +48,14 @@ export function LeadForm({
       name: "",
       mobile: "",
       whatsapp: "",
+      email: "",
       address: "",
       area: "",
       service: "HOME_DEEP_CLEANING",
       source: "CALL",
       followUpDate: "",
+      serviceDate: "",
+      teamNumber: "",
       assignedStaffId: "",
       assignedToId: "",
       notes: "",
@@ -95,6 +99,11 @@ export function LeadForm({
           <div className="space-y-1.5">
             <Label htmlFor="whatsapp">WhatsApp (if different)</Label>
             <Input id="whatsapp" {...register("whatsapp")} placeholder="Same as mobile" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email (optional)</Label>
+            <Input id="email" type="email" {...register("email")} placeholder="name@example.com" />
+            {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="area">Area</Label>
@@ -161,9 +170,18 @@ export function LeadForm({
             <Input id="quoteAmount" type="number" {...register("quoteAmount")} placeholder="Minimum ₹3,999" />
           </div>
           <div className="space-y-1.5">
+            <Label htmlFor="serviceDate">Requested Service Date</Label>
+            <Input id="serviceDate" type="date" {...register("serviceDate")} />
+            <p className="text-xs text-muted-foreground">Date the customer asked for — separate from the follow-up date.</p>
+          </div>
+          <div className="space-y-1.5">
             <Label htmlFor="followUpDate">Follow-up Date</Label>
             <Input id="followUpDate" type="date" {...register("followUpDate")} />
           </div>
+          <TeamSelect
+            value={watch("teamNumber")}
+            onChange={(v) => setValue("teamNumber", v)}
+          />
           <div className="space-y-1.5">
             <Label>Assigned To</Label>
             <Select

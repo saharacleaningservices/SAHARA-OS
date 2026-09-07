@@ -14,8 +14,10 @@ import { publicBookLead } from "@/server/actions/public-booking";
 export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [email, setEmail] = useState("");
   const [area, setArea] = useState("");
   const [address, setAddress] = useState("");
+  const [serviceDate, setServiceDate] = useState("");
   const [category, setCategory] = useState("HOME_DEEP_CLEANING");
   const [variant, setVariant] = useState("");
   const [notes, setNotes] = useState("");
@@ -32,10 +34,12 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
     const res = await publicBookLead({
       name,
       mobile,
+      email,
       area,
       address,
       serviceCategory: category,
       serviceVariant: variant,
+      serviceDate,
       notes,
       mapLink,
       website: "",
@@ -77,12 +81,25 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
         <Input id="pb-mobile" inputMode="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="9876543210" required />
       </div>
       <div className="space-y-1.5">
+        <Label htmlFor="pb-email">Email (optional)</Label>
+        <Input id="pb-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
+      </div>
+      <div className="space-y-1.5">
         <Label htmlFor="pb-area">Area</Label>
         <Input id="pb-area" value={area} onChange={(e) => setArea(e.target.value)} placeholder="e.g. Magarpatta City" required />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="pb-address">Full Address (optional)</Label>
         <Textarea id="pb-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={2} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="pb-service-date">Preferred Service Date (optional)</Label>
+        <Input
+          id="pb-service-date"
+          type="date"
+          value={serviceDate}
+          onChange={(e) => setServiceDate(e.target.value)}
+        />
       </div>
 
       <ServiceCategoryPicker category={category} variant={variant} onCategoryChange={(v) => { setCategory(v); setVariant(""); }} onVariantChange={setVariant} />

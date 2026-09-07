@@ -12,10 +12,12 @@ import { z } from "zod";
 const publicBookingSchema = z.object({
   name: z.string().min(2, "Name is required"),
   mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
+  email: z.string().email("Enter a valid email").optional().or(z.literal("")),
   area: z.string().min(2, "Area is required"),
   address: z.string().optional().or(z.literal("")),
   serviceCategory: z.string().min(1, "Pick a service"),
   serviceVariant: z.string().optional().or(z.literal("")),
+  serviceDate: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   mapLink: z.string().optional().or(z.literal("")),
   referralCode: z.string().optional().or(z.literal("")),
@@ -49,11 +51,13 @@ export async function publicBookLead(values: unknown) {
       name: data.name,
       mobile: data.mobile,
       whatsapp: data.mobile,
+      email: data.email || null,
       address: data.address || null,
       area: data.area,
       service: legacyService as never,
       serviceCategory: data.serviceCategory as never,
       serviceVariant: data.serviceVariant || null,
+      serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
       source: "WEBSITE",
       notes: data.notes || null,
       mapLink: data.mapLink || null,
@@ -64,7 +68,13 @@ export async function publicBookLead(values: unknown) {
   await addTimelineEntry({
     leadId: lead.id,
     type: "SYSTEM",
-    body: "Booked online via app.saharacleaningservices.com/book (unverified — no OTP yet)",
+    body: [
+      "Booked online via app.saharacleaningservices.com/book (unverified — no OTP yet)",
+      data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,
+      data.email ? `Email: ${data.email}` : null,
+    ]
+      .filter(Boolean)
+      .join(" · "),
   });
 
   if (data.upsellRuleId) {

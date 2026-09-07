@@ -19,18 +19,23 @@ import {
 } from "@/components/ui/dialog";
 import { TIME_SLOTS } from "@/lib/constants";
 import { confirmBooking } from "@/server/actions/leads";
+import { TeamSelect } from "@/components/shared/team-select";
 
 type SupervisorOption = { id: string; name: string };
 
 export function ConfirmBookingDialog({
   leadId,
   supervisors = [],
+  defaultServiceDate = "",
+  defaultTeam = null,
   trigger,
   open: controlledOpen,
   onOpenChange,
 }: {
   leadId: string;
   supervisors?: SupervisorOption[];
+  defaultServiceDate?: string;
+  defaultTeam?: number | null;
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -39,9 +44,10 @@ export function ConfirmBookingDialog({
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = onOpenChange ?? setUncontrolledOpen;
 
-  const [serviceDate, setServiceDate] = useState("");
+  const [serviceDate, setServiceDate] = useState(defaultServiceDate);
   const [timeSlot, setTimeSlot] = useState<string>("");
   const [supervisorId, setSupervisorId] = useState<string>("");
+  const [teamNumber, setTeamNumber] = useState<number | "">(defaultTeam ?? "");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -51,7 +57,7 @@ export function ConfirmBookingDialog({
       return;
     }
     startTransition(async () => {
-      const res = await confirmBooking(leadId, { serviceDate, timeSlot, supervisorId });
+      const res = await confirmBooking(leadId, { serviceDate, timeSlot, supervisorId, teamNumber });
       if (res.error) {
         toast.error(res.error);
         return;
@@ -105,6 +111,7 @@ export function ConfirmBookingDialog({
               </SelectContent>
             </Select>
           </div>
+          <TeamSelect value={teamNumber} onChange={setTeamNumber} label="Team (optional)" />
           {supervisors.length > 0 && (
             <div className="space-y-1">
               <Label>Supervisor (optional)</Label>

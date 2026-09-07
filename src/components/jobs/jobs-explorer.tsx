@@ -29,6 +29,7 @@ type Job = {
   scheduledDate: Date;
   scheduledTime: string;
   jobValue: number;
+  teamNumber?: number | null;
   supervisor?: { name: string } | null;
   assignments: { staff: { name: string } }[];
   vehicle?: { name: string; plateNumber: string } | null;
@@ -106,7 +107,7 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                 <TableHead>Job</TableHead>
                 <TableHead>Service</TableHead>
                 <TableHead>Schedule</TableHead>
-                <TableHead>Crew</TableHead>
+                <TableHead>Team / Crew</TableHead>
                 <TableHead>Value</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -138,7 +139,10 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                     {formatDate(job.scheduledDate)} · {job.scheduledTime}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {job.supervisor?.name ?? "—"}
+                    {job.teamNumber ? `Team ${job.teamNumber}` : job.supervisor?.name ?? "—"}
+                    {job.teamNumber && job.supervisor?.name ? (
+                      <span className="text-xs text-muted-foreground"> · {job.supervisor.name}</span>
+                    ) : null}
                     {job.assignments.length > 0 && (
                       <span className="text-xs text-muted-foreground"> +{job.assignments.length} crew</span>
                     )}

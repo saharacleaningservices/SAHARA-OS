@@ -14,10 +14,14 @@ export function StageSelect({
   leadId,
   stage,
   supervisors = [],
+  defaultServiceDate = "",
+  defaultTeam = null,
 }: {
   leadId: string;
   stage: string;
   supervisors?: SupervisorOption[];
+  defaultServiceDate?: string;
+  defaultTeam?: number | null;
 }) {
   const [pending, startTransition] = useTransition();
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -57,6 +61,8 @@ export function StageSelect({
       <ConfirmBookingDialog
         leadId={leadId}
         supervisors={supervisors}
+        defaultServiceDate={defaultServiceDate}
+        defaultTeam={defaultTeam}
         trigger={null}
         open={bookingOpen}
         onOpenChange={setBookingOpen}
