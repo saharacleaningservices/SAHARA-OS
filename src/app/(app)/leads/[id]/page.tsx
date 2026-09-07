@@ -25,6 +25,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
   const supervisors = staff.filter((s) => s.designation === "Supervisor").map((s) => ({ id: s.id, name: s.name }));
   const canConfirm = !["JOB_SCHEDULED", "COMPLETED"].includes(lead.stage);
+  const requestedServiceDate = lead.serviceDate ? lead.serviceDate.toISOString().slice(0, 10) : "";
 
   return (
     <div className="space-y-6">
@@ -37,7 +38,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
             <ScheduleVisitDialog leadId={lead.id} />
             <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} />
-            {canConfirm && <ConfirmBookingDialog leadId={lead.id} supervisors={supervisors} />}
+            {canConfirm && (
+              <ConfirmBookingDialog
+                leadId={lead.id}
+                supervisors={supervisors}
+                defaultServiceDate={requestedServiceDate}
+                defaultTeam={lead.teamNumber}
+              />
+            )}
             <Button variant="outline" asChild>
               <Link href={`/leads/${lead.id}/edit`}>
                 <Pencil className="size-3.5" /> Edit
@@ -62,7 +70,13 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle>Overview</CardTitle>
               <div className="w-44">
-                <StageSelect leadId={lead.id} stage={lead.stage} supervisors={supervisors} />
+                <StageSelect
+                  leadId={lead.id}
+                  stage={lead.stage}
+                  supervisors={supervisors}
+                  defaultServiceDate={requestedServiceDate}
+                  defaultTeam={lead.teamNumber}
+                />
               </div>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
@@ -75,8 +89,24 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 <p className="font-medium text-foreground">{lead.whatsapp || "—"}</p>
               </div>
               <div>
+                <p className="text-xs text-muted-foreground">Email</p>
+                <p className="font-medium text-foreground break-all">{lead.email || "—"}</p>
+              </div>
+              <div>
                 <p className="text-xs text-muted-foreground">Source</p>
                 <p className="font-medium text-foreground">{LEAD_SOURCE_LABELS[lead.source]}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Requested Service Date</p>
+                <p className="font-medium text-foreground">
+                  {lead.serviceDate ? formatDate(lead.serviceDate) : "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Team</p>
+                <p className="font-medium text-foreground">
+                  {lead.teamNumber ? `Team ${lead.teamNumber}` : "—"}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Quote Amount</p>

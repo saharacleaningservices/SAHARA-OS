@@ -24,6 +24,13 @@ export async function createJob(values: unknown) {
   const data = parsed.data;
   const session = await getSession();
 
+  const formTeam = typeof data.teamNumber === "number" ? data.teamNumber : null;
+  // Inherit the enquiry's team when the job form leaves it blank.
+  const lead = data.leadId
+    ? await db.lead.findUnique({ where: { id: data.leadId }, select: { teamNumber: true } })
+    : null;
+  const teamNumber = formTeam ?? lead?.teamNumber ?? null;
+
   const jobNumber = await generateJobNumber();
   const job = await db.job.create({
     data: {
@@ -36,6 +43,7 @@ export async function createJob(values: unknown) {
       service: data.service,
       scheduledDate: new Date(data.scheduledDate),
       scheduledTime: data.scheduledTime,
+      teamNumber,
       supervisorId: data.supervisorId || null,
       jobValue: data.jobValue,
       notes: data.notes || null,
@@ -83,6 +91,9 @@ export async function updateJob(id: string, values: unknown) {
       ...(d.service && { service: d.service }),
       ...(d.scheduledDate && { scheduledDate: new Date(d.scheduledDate) }),
       ...(d.scheduledTime && { scheduledTime: d.scheduledTime }),
+      ...(d.teamNumber !== undefined && {
+        teamNumber: typeof d.teamNumber === "number" ? d.teamNumber : null,
+      }),
       ...(d.supervisorId !== undefined && { supervisorId: d.supervisorId || null }),
       ...(d.jobValue !== undefined && { jobValue: d.jobValue }),
       ...(d.notes !== undefined && { notes: d.notes || null }),

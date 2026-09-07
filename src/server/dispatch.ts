@@ -26,6 +26,7 @@ export async function dispatchTeamForJob(jobId: string) {
     service: SERVICE_LABELS[job.service] ?? job.service,
     date: job.scheduledDate,
     timeSlot: job.scheduledTime,
+    team: job.teamNumber,
     vehicle: job.vehicle ? `${job.vehicle.name} (${job.vehicle.plateNumber})` : null,
     materials: job.materialIssues.map((m) => (m.quantity ? `${m.item} x${m.quantity}` : m.item)),
   });

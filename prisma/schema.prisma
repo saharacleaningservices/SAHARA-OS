@@ -306,6 +306,7 @@ model Lead {
   name             String
   mobile           String
   whatsapp         String?
+  email            String?
   address          String?
   area             String
   service          ServiceType
@@ -313,6 +314,8 @@ model Lead {
   quoteAmount      Float?
   stage            LeadStage   @default(NEW)
   followUpDate     DateTime?
+  serviceDate      DateTime?   // customer-requested service date (from the booking form) — distinct from followUpDate
+  teamNumber       Int?        // internal crew team 1–4, carried into the Job on confirm
   notes            String?
 
   serviceCategory  ServiceCategory?
@@ -423,6 +426,8 @@ model Job {
 
   scheduledDate    DateTime
   scheduledTime    String // e.g. "10:00 AM"
+
+  teamNumber       Int?   // internal crew team 1–4, inherited from the Lead / set on the job
 
   supervisorId     String?
   supervisor       Staff?    @relation("JobSupervisor", fields: [supervisorId], references: [id])

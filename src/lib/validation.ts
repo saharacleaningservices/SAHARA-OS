@@ -1,9 +1,14 @@
 import { z } from "zod";
 
+export const teamNumberSchema = z
+  .union([z.literal(""), z.coerce.number().int().min(1).max(4)])
+  .optional();
+
 export const leadSchema = z.object({
   name: z.string().min(2, "Name is required"),
   mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
   whatsapp: z.string().optional().or(z.literal("")),
+  email: z.string().email("Enter a valid email").optional().or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
   area: z.string().min(2, "Area is required"),
   service: z.enum([
@@ -16,6 +21,8 @@ export const leadSchema = z.object({
   source: z.enum(["WHATSAPP", "CALL", "WEBSITE", "GOOGLE"]),
   quoteAmount: z.coerce.number().min(0).optional(),
   followUpDate: z.string().optional().or(z.literal("")),
+  serviceDate: z.string().optional().or(z.literal("")),
+  teamNumber: teamNumberSchema,
   assignedStaffId: z.string().optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
@@ -40,6 +47,7 @@ export const jobSchema = z.object({
   ]),
   scheduledDate: z.string().min(1),
   scheduledTime: z.string().min(1),
+  teamNumber: teamNumberSchema,
   supervisorId: z.string().optional().or(z.literal("")),
   staffIds: z.array(z.string()).optional(),
   jobValue: z.coerce.number().min(3999, "Minimum job value is ₹3,999"),
@@ -150,6 +158,7 @@ export const confirmBookingSchema = z.object({
     "4 PM",
     "5 PM",
   ]),
+  teamNumber: teamNumberSchema,
   supervisorId: z.string().optional().or(z.literal("")),
 });
 

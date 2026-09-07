@@ -2854,6 +2854,7 @@ export const LeadScalarFieldEnum = {
   name: 'name',
   mobile: 'mobile',
   whatsapp: 'whatsapp',
+  email: 'email',
   address: 'address',
   area: 'area',
   service: 'service',
@@ -2861,6 +2862,8 @@ export const LeadScalarFieldEnum = {
   quoteAmount: 'quoteAmount',
   stage: 'stage',
   followUpDate: 'followUpDate',
+  serviceDate: 'serviceDate',
+  teamNumber: 'teamNumber',
   notes: 'notes',
   serviceCategory: 'serviceCategory',
   serviceVariant: 'serviceVariant',
@@ -2938,6 +2941,7 @@ export const JobScalarFieldEnum = {
   service: 'service',
   scheduledDate: 'scheduledDate',
   scheduledTime: 'scheduledTime',
+  teamNumber: 'teamNumber',
   supervisorId: 'supervisorId',
   status: 'status',
   onTheWayAt: 'onTheWayAt',
@@ -3402,6 +3406,13 @@ export type EnumLeadStageFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
  * Reference to a field of type 'ServiceCategory'
  */
 export type EnumServiceCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceCategory'>
@@ -3461,13 +3472,6 @@ export type EnumReminderChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'ExpenseCategory'
  */
 export type EnumExpenseCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExpenseCategory'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 

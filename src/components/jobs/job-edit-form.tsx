@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { jobSchema, type JobFormValues } from "@/lib/validation";
 import { SERVICE_OPTIONS } from "@/lib/constants";
 import { updateJob } from "@/server/actions/jobs";
+import { TeamSelect } from "@/components/shared/team-select";
 
 type StaffOption = { id: string; name: string; designation: string };
 
@@ -110,6 +111,7 @@ export function JobEditForm({
             <Input id="jobValue" type="number" {...register("jobValue")} />
             {errors.jobValue && <p className="text-xs text-destructive">{errors.jobValue.message}</p>}
           </div>
+          <TeamSelect value={watch("teamNumber")} onChange={(v) => setValue("teamNumber", v)} />
           <div className="space-y-1.5">
             <Label>Supervisor</Label>
             <Select

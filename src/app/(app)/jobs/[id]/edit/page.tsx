@@ -23,6 +23,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           service: job.service as never,
           scheduledDate: job.scheduledDate.toISOString().slice(0, 10),
           scheduledTime: job.scheduledTime,
+          teamNumber: job.teamNumber ?? "",
           supervisorId: job.supervisorId ?? "",
           jobValue: job.jobValue,
           notes: job.notes ?? "",

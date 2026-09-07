@@ -508,4 +508,16 @@ db.exec(`CREATE INDEX IF NOT EXISTS "Device_status_idx" ON "Device"("status");`)
 
 console.log("Production hardening migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Coolify go-live — optional Lead email, customer-facing service date, and
+// Team 1–4 assignment that carries into Jobs (idempotent, additive only).
+// ─────────────────────────────────────────────────────────────────────────
+
+addColumnIfMissing("Lead", "email", `"email" TEXT`);
+addColumnIfMissing("Lead", "serviceDate", `"serviceDate" DATETIME`);
+addColumnIfMissing("Lead", "teamNumber", `"teamNumber" INTEGER`);
+addColumnIfMissing("Job", "teamNumber", `"teamNumber" INTEGER`);
+
+console.log("Coolify go-live migration complete.");
+
 db.close();

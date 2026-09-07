@@ -33,6 +33,7 @@ export function teamDispatchMessage(input: {
   service: string;
   date: Date;
   timeSlot: string;
+  team?: number | null;
   vehicle: string | null;
   materials: string[];
 }) {
@@ -40,6 +41,7 @@ export function teamDispatchMessage(input: {
   const lines = [
     `📋 Job Dispatch — ${formatDate(input.date)}`,
     ``,
+    input.team ? `Team: ${input.team}` : null,
     `Customer: ${input.customerName}`,
     `Area: ${input.area}`,
     input.mapLink ? `Map: ${input.mapLink}` : null,
