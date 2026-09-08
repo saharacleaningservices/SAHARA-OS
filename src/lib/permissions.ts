@@ -1,20 +1,34 @@
-// Phase 2 — Production Foundation: fine-grained permission rules layered on
-// top of the section-level ROLE_NAV_ACCESS matrix in constants.ts.
+// Fine-grained permission rules layered on top of the section-level
+// ROLE_NAV_ACCESS matrix in constants.ts.
 //
-// Roles: ADMIN (Altaf) · OPERATIONS = Operations Manager (Francis) ·
-// ACCOUNTS = Office Accountant (Shoyab) · SUPERVISOR = Team Leader ·
-// STAFF = Worker.
+// Roles (2026-09 assignment):
+//   ADMIN       — Altaf Shaikh (admin@)          — full access
+//   OPERATIONS  — Shoyab Shaikh (accounts@)      — Operations Manager
+//   SUPERVISOR  — Francis D'Souza (operations@)  — Field Coordinator
+//   STAFF       — Vikas Shinde (staff@)          — Worker
+//   ACCOUNTS    — no current holder
+// Login emails are unchanged; only the role each account carries changed.
 
 export type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
-/** Admin sees and edits everything, including staff salary. */
+/** Admin only — staff wages/salary figures. */
 export function canViewSalary(role: string): boolean {
   return role === "ADMIN";
 }
 
-/** Financial reports, profit dashboard, revenue figures. */
+/** Profit dashboard (revenue − expenses). Admin / Accountant only. */
 export function canViewFinancials(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
+}
+
+/** Create / edit / delete / assign jobs and leads (vs. only progressing them). */
+export function canManageJobs(role: string): boolean {
+  return role === "ADMIN" || role === "OPERATIONS";
+}
+
+/** Soft-delete individual records (leads, jobs, payments, expenses). */
+export function canDeleteRecords(role: string): boolean {
+  return role === "ADMIN" || role === "OPERATIONS";
 }
 
 /** Company settings, backups, logo/branding. */
@@ -53,17 +67,17 @@ export function canAllocateResources(role: string): boolean {
 export type JobScope = "ALL" | "TODAY_TOMORROW" | "OWN_TODAY_TOMORROW" | "OWN_TODAY";
 
 export function jobScopeFor(role: string): JobScope {
-  if (role === "OPERATIONS") return "TODAY_TOMORROW";
-  if (role === "SUPERVISOR") return "OWN_TODAY_TOMORROW";
+  // Operations Manager schedules and oversees every job → ALL.
+  if (role === "SUPERVISOR") return "TODAY_TOMORROW"; // Field Coordinator: today + tomorrow, all teams
   if (role === "STAFF") return "OWN_TODAY";
   return "ALL";
 }
 
 // Phase 3 — Revenue, WhatsApp & Workforce Automation
 
-/** Revenue dashboard — same audience as financials. */
+/** Revenue dashboard + revenue/collections tiles. Admin + Operations Manager. */
 export function canViewRevenue(role: string): boolean {
-  return canViewFinancials(role);
+  return role === "ADMIN" || role === "OPERATIONS" || role === "ACCOUNTS";
 }
 
 /** AMC contracts — office roles that deal with customers/scheduling. */

@@ -137,17 +137,19 @@ export const LEAD_STAGE_LABELS: Record<string, string> = {
 
 // Booking time slots offered when a lead is confirmed.
 export const TIME_SLOTS = [
-  "8 AM",
-  "9 AM",
-  "10 AM",
-  "11 AM",
-  "12 PM",
-  "1 PM",
-  "2 PM",
-  "3 PM",
-  "4 PM",
-  "5 PM",
+  "8:00 AM",
+  "9:00 AM",
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "1:00 PM",
+  "2:00 PM",
+  "3:00 PM",
+  "4:00 PM",
+  "5:00 PM",
 ] as const;
+
+export type TimeSlot = (typeof TIME_SLOTS)[number];
 
 export const FOLLOWUP_TYPE_LABELS: Record<string, string> = {
   CALL: "Call",
@@ -216,7 +218,7 @@ export const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Admin",
   OPERATIONS: "Operations Manager",
   ACCOUNTS: "Office Accountant",
-  SUPERVISOR: "Field Supervisor",
+  SUPERVISOR: "Field Coordinator",
   STAFF: "Worker",
 };
 
@@ -226,11 +228,28 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-  // Operations Manager (Shoaib): staff management, attendance, job
-  // scheduling, site visits + quotations (via Leads), invoices + payments,
-  // customer management. No financial reports/revenue/profit, no company
-  // settings, no backup/role management (those stay Admin-only below).
-  OPERATIONS: ["dashboard", "leads", "jobs", "staff", "vehicles", "attendance", "amc", "payments", "customers", "profile"],
+  // Operations Manager (Shoyab): runs day-to-day operations end to end —
+  // leads, jobs (all of them), staff, vehicles, attendance, payments,
+  // expenses, revenue and operational reports, plus the AI assistant.
+  // NOT the profit dashboard, staff wages, company settings, backups or
+  // role management (those stay Admin-only, see permissions.ts).
+  OPERATIONS: [
+    "dashboard",
+    "leads",
+    "jobs",
+    "staff",
+    "vehicles",
+    "attendance",
+    "amc",
+    "payments",
+    "expenses",
+    "revenue",
+    "reports",
+    "customers",
+    "assistant",
+    "profile",
+  ],
+  // Office Accountant — kept for completeness; no user currently holds it.
   ACCOUNTS: [
     "dashboard",
     "leads",
@@ -244,11 +263,10 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     "revenue",
     "amc",
   ],
-  // Field Supervisor (Francis): today's/tomorrow's assigned jobs only (see
-  // jobScopeFor "OWN_TODAY_TOMORROW") — customer details, payment status,
-  // site-visit and completion updates, and before/after photos all live
-  // inside the job detail page itself, so no separate customers/reports/
-  // expenses/revenue/profit/staff nav access is granted.
+  // Field Coordinator (Francis): today's/tomorrow's jobs only (see
+  // jobScopeFor "TODAY_TOMORROW"). Call/WhatsApp the customer, open Maps,
+  // start/complete the job and upload photos — all from the job detail
+  // page. No revenue/profit/expenses/reports/staff/settings, no delete.
   SUPERVISOR: ["dashboard", "jobs", "attendance", "profile"],
   STAFF: ["dashboard", "jobs", "profile", "attendance"],
 };

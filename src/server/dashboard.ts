@@ -7,6 +7,7 @@ export async function getDashboardData() {
   const todayEnd = endOfDay(now);
   const tomorrowStart = startOfDay(addDays(now, 1));
   const tomorrowEnd = endOfDay(addDays(now, 1));
+  const weekAheadEnd = endOfDay(addDays(now, 7));
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
@@ -16,8 +17,18 @@ export async function getDashboardData() {
     todaysLeadsCount,
     siteVisitsToday,
     activeJobsCount,
+    todaysJobsCount,
+    tomorrowsJobsCount,
     pendingPaymentsAgg,
+    pendingAdvanceAgg,
+    collectionsTodayAgg,
     staffAvailableCount,
+    staffOnJobCount,
+    vehiclesActiveCount,
+    upcomingAmcCount,
+    pendingFollowUpsCount,
+    completed30Count,
+    reviews30Count,
     recentLeads,
     todaysJobs,
     overduePayments,
@@ -32,12 +43,32 @@ export async function getDashboardData() {
     db.lead.count({ where: { deletedAt: null, createdAt: { gte: todayStart, lte: todayEnd } } }),
     db.lead.count({ where: { deletedAt: null, stage: "SITE_VISIT", followUpDate: { gte: todayStart, lte: todayEnd } } }),
     db.job.count({ where: { deletedAt: null, status: { in: ["ASSIGNED", "ON_THE_WAY", "STARTED"] } } }),
+    db.job.count({ where: { deletedAt: null, scheduledDate: { gte: todayStart, lte: todayEnd } } }),
+    db.job.count({ where: { deletedAt: null, scheduledDate: { gte: tomorrowStart, lte: tomorrowEnd } } }),
     db.payment.aggregate({
       where: { deletedAt: null, status: { in: ["PENDING", "DUE_SOON", "OVERDUE"] } },
       _sum: { amount: true, paidAmount: true },
       _count: true,
     }),
+    db.payment.aggregate({
+      where: { deletedAt: null, status: "PENDING", paidAmount: { lte: 0 } },
+      _sum: { amount: true },
+      _count: true,
+    }),
+    db.payment.aggregate({
+      where: { deletedAt: null, paidDate: { gte: todayStart, lte: todayEnd } },
+      _sum: { paidAmount: true },
+      _count: true,
+    }),
     db.staff.count({ where: { deletedAt: null, isActive: true, availability: "AVAILABLE" } }),
+    db.staff.count({ where: { deletedAt: null, isActive: true, availability: "ON_JOB" } }),
+    db.vehicle.count({ where: { isActive: true } }),
+    db.amcContract.count({
+      where: { deletedAt: null, status: "ACTIVE", nextVisitDate: { gte: todayStart, lte: weekAheadEnd } },
+    }),
+    db.followUp.count({ where: { isDone: false, dueDate: { lte: todayEnd }, lead: { deletedAt: null } } }),
+    db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: subMonths(now, 1) } } }),
+    db.review.count({ where: { createdAt: { gte: subMonths(now, 1) } } }),
     db.lead.findMany({ where: { deletedAt: null }, orderBy: { createdAt: "desc" }, take: 6 }),
     db.job.findMany({
       where: { deletedAt: null, scheduledDate: { gte: todayStart, lte: todayEnd } },
@@ -103,11 +134,22 @@ export async function getDashboardData() {
       todaysLeadsCount,
       siteVisitsToday,
       activeJobsCount,
+      todaysJobsCount,
+      tomorrowsJobsCount,
+      pendingFollowUpsCount,
       pendingPaymentsCount: pendingPaymentsAgg._count,
       pendingPaymentsTotal,
+      pendingAdvanceCount: pendingAdvanceAgg._count,
+      pendingAdvanceTotal: pendingAdvanceAgg._sum.amount ?? 0,
+      revenueToday: collectionsTodayAgg._sum.paidAmount ?? 0,
+      collectionsTodayCount: collectionsTodayAgg._count,
       monthlyRevenue,
       netProfit,
       staffAvailableCount,
+      staffOnJobCount,
+      vehiclesActiveCount,
+      upcomingAmcCount,
+      reviewsPendingCount: Math.max(completed30Count - reviews30Count, 0),
       revenueTrend,
       profitTrend,
     },

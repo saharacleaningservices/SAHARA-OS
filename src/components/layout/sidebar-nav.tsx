@@ -3,25 +3,39 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "./nav-config";
+import { CompanyLogo } from "@/components/shared/company-logo";
 import { canAccess } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export function SidebarNav({ role, onNavigate }: { role: string; onNavigate?: () => void }) {
+export function SidebarNav({
+  role,
+  logoUrl,
+  onNavigate,
+}: {
+  role: string;
+  logoUrl?: string | null;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const items = NAV_ITEMS.filter((item) => canAccess(role, item.section));
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2 px-5 py-5">
-        {/* Square app-icon mark — always the bundled /icon.svg (same one used
-            for the favicon/PWA icon), regardless of the wordmark logo an
-            admin uploads in Settings, since a wide wordmark doesn't fit this
-            small square slot well. */}
-        <img src="/icon.svg" alt="" aria-hidden className="size-9 rounded-lg" />
-        <div>
-          <p className="text-sm font-semibold text-white leading-tight">Sahara OS</p>
-          <p className="text-[11px] text-sidebar-foreground/70 leading-tight">Sahara Cleaning Services</p>
-        </div>
+        {logoUrl ? (
+          <span className="rounded-lg bg-white/95 px-2.5 py-1.5">
+            <CompanyLogo logoUrl={logoUrl} className="h-7 w-auto max-w-[180px]" />
+          </span>
+        ) : (
+          <>
+            {/* Square app-icon mark — bundled /icon.svg (also the favicon). */}
+            <img src="/icon.svg" alt="" aria-hidden className="size-9 rounded-lg" />
+            <div>
+              <p className="text-sm font-semibold text-white leading-tight">Sahara OS</p>
+              <p className="text-[11px] text-sidebar-foreground/70 leading-tight">Sahara Cleaning Services</p>
+            </div>
+          </>
+        )}
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">

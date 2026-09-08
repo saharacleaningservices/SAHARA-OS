@@ -305,6 +305,7 @@ model Lead {
   leadNumber       String      @unique
   name             String
   mobile           String
+  alternateMobile  String?     // optional second contact number
   whatsapp         String?
   email            String?
   address          String?
@@ -315,6 +316,7 @@ model Lead {
   stage            LeadStage   @default(NEW)
   followUpDate     DateTime?
   serviceDate      DateTime?   // customer-requested service date (from the booking form) — distinct from followUpDate
+  timeSlot         String?     // customer-requested slot, e.g. "10:00 AM" — carried into Job.scheduledTime on confirm
   teamNumber       Int?        // internal crew team 1–4, carried into the Job on confirm
   notes            String?
 
@@ -420,12 +422,14 @@ model Job {
 
   customerName     String
   customerMobile   String
+  alternateMobile  String?
   address          String
   area             String
   service          ServiceType
+  serviceVariant   String? // "flat type" / package, carried from the Lead
 
   scheduledDate    DateTime
-  scheduledTime    String // e.g. "10:00 AM"
+  scheduledTime    String // time slot, e.g. "10:00 AM"
 
   teamNumber       Int?   // internal crew team 1–4, inherited from the Lead / set on the job
 

@@ -46,7 +46,7 @@ export function Topbar({
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-72 p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
-          <SidebarNav role={role} onNavigate={() => setOpen(false)} />
+          <SidebarNav role={role} logoUrl={logoUrl} onNavigate={() => setOpen(false)} />
         </SheetContent>
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(true)}>
           <Menu />

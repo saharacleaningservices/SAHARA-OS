@@ -3,12 +3,18 @@ import {
   Users,
   MapPin,
   ClipboardList,
+  CalendarClock,
   Wallet,
   TrendingUp,
   PiggyBank,
   UserCheck,
+  HardHat,
+  Truck,
+  ShieldCheck,
+  Star,
+  BellRing,
   ArrowRight,
-  Plus,
+  IndianRupee,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
 import { PageHeader } from "@/components/shared/page-header";
@@ -22,6 +28,7 @@ import { FollowUpBoard } from "@/components/dashboard/followup-board";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
+import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
 export default async function DashboardPage() {
   const session = await requireUser();
@@ -36,47 +43,102 @@ export default async function DashboardPage() {
   } = await getDashboardData();
 
   const firstName = session.name.split(" ")[0];
+  const showRevenue = canViewRevenue(session.role);
+  const showProfit = canViewFinancials(session.role);
+  const showBackOffice = session.role === "ADMIN" || session.role === "OPERATIONS";
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={`Welcome back, ${firstName}`}
         description="Here's what's happening at Sahara Cleaning Services today."
-        actions={
-          <Button asChild>
-            <Link href="/leads/new">
-              <Plus className="size-4" /> New Inquiry
-            </Link>
-          </Button>
-        }
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+      {/* Quick actions */}
+      <div className="grid grid-cols-3 gap-2 sm:max-w-md">
+        <Button asChild variant="outline" className="h-auto flex-col gap-1 py-3">
+          <Link href="/leads/new">
+            <Users className="size-4" />
+            <span className="text-xs">New Enquiry</span>
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="h-auto flex-col gap-1 py-3">
+          <Link href="/jobs">
+            <ClipboardList className="size-4" />
+            <span className="text-xs">New Job</span>
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="h-auto flex-col gap-1 py-3">
+          <Link href="/payments">
+            <IndianRupee className="size-4" />
+            <span className="text-xs">New Payment</span>
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+        <StatCard label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone="primary" />
+        <StatCard label="Tomorrow's Jobs" value={stats.tomorrowsJobsCount} icon={<CalendarClock className="size-4" />} />
         <StatCard label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} />
         <StatCard label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} />
-        <StatCard label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
+        <StatCard label="Pending Follow-ups" value={stats.pendingFollowUpsCount} icon={<BellRing className="size-4" />} tone="warning" />
         <StatCard
-          label="Pending Payments"
-          value={stats.pendingPaymentsCount}
-          trendLabel={formatINR(stats.pendingPaymentsTotal)}
+          label="Pending Advance"
+          value={stats.pendingAdvanceCount}
+          trendLabel={formatINR(stats.pendingAdvanceTotal)}
           icon={<Wallet className="size-4" />}
           tone="warning"
         />
-        <StatCard
-          label="Monthly Revenue"
-          value={formatINR(stats.monthlyRevenue)}
-          trend={stats.revenueTrend}
-          icon={<TrendingUp className="size-4" />}
-          tone="primary"
-        />
-        <StatCard
-          label="Net Profit"
-          value={formatINR(stats.netProfit)}
-          trend={stats.profitTrend}
-          icon={<PiggyBank className="size-4" />}
-          tone="success"
-        />
+
+        {showRevenue && (
+          <>
+            <StatCard
+              label="Revenue Today"
+              value={formatINR(stats.revenueToday)}
+              icon={<TrendingUp className="size-4" />}
+              tone="success"
+            />
+            <StatCard
+              label="Collections Today"
+              value={stats.collectionsTodayCount}
+              trendLabel="payments"
+              icon={<IndianRupee className="size-4" />}
+            />
+            <StatCard
+              label="Pending Payments"
+              value={stats.pendingPaymentsCount}
+              trendLabel={formatINR(stats.pendingPaymentsTotal)}
+              icon={<Wallet className="size-4" />}
+              tone="warning"
+            />
+            <StatCard
+              label="Monthly Revenue"
+              value={formatINR(stats.monthlyRevenue)}
+              trend={stats.revenueTrend}
+              icon={<Wallet className="size-4" />}
+              tone="primary"
+            />
+          </>
+        )}
+        {showProfit && (
+          <StatCard
+            label="Net Profit (month)"
+            value={formatINR(stats.netProfit)}
+            trend={stats.profitTrend}
+            icon={<PiggyBank className="size-4" />}
+            tone="success"
+          />
+        )}
+
+        <StatCard label="Reviews Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} />
+        <StatCard label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} />
         <StatCard label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} />
+        {showBackOffice && (
+          <>
+            <StatCard label="Vehicles Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} />
+            <StatCard label="Upcoming AMC (7d)" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -114,7 +176,7 @@ export default async function DashboardPage() {
 
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Today's Jobs</CardTitle>
+            <CardTitle>Today&apos;s Jobs</CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/jobs">
                 View all <ArrowRight className="size-3.5" />
@@ -144,44 +206,46 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Overdue Payments</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/payments">
-                View all <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {overduePayments.length === 0 ? (
-              <EmptyState title="Nothing overdue" description="All payments are on track." />
-            ) : (
-              overduePayments.map((p) => (
-                <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{p.clientName}</p>
-                    <p className="truncate text-xs text-destructive">
-                      {p.invoiceNumber} · Due {formatDate(p.dueDate)}
-                    </p>
+        {showRevenue && (
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Overdue Payments</CardTitle>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/payments">
+                  View all <ArrowRight className="size-3.5" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-1">
+              {overduePayments.length === 0 ? (
+                <EmptyState title="Nothing overdue" description="All payments are on track." />
+              ) : (
+                overduePayments.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{p.clientName}</p>
+                      <p className="truncate text-xs text-destructive">
+                        {p.invoiceNumber} · Due {formatDate(p.dueDate)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-semibold text-foreground">{formatINR(p.amount - p.paidAmount)}</span>
+                      {p.clientMobile && (
+                        <>
+                          <CallButton mobile={p.clientMobile} />
+                          <WhatsAppButton
+                            mobile={p.clientMobile}
+                            message={`Hi ${p.clientName}, this is a reminder from Sahara Cleaning Services — invoice ${p.invoiceNumber} of ${formatINR(p.amount - p.paidAmount)} is overdue. Kindly clear at your earliest convenience.`}
+                          />
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-semibold text-foreground">{formatINR(p.amount - p.paidAmount)}</span>
-                    {p.clientMobile && (
-                      <>
-                        <CallButton mobile={p.clientMobile} />
-                        <WhatsAppButton
-                          mobile={p.clientMobile}
-                          message={`Hi ${p.clientName}, this is a reminder from Sahara Cleaning Services — invoice ${p.invoiceNumber} of ${formatINR(p.amount - p.paidAmount)} is overdue. Kindly clear at your earliest convenience.`}
-                        />
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         <FollowUpBoard today={followUpsToday} tomorrow={followUpsTomorrow} overdue={followUpsOverdue} />
       </div>
