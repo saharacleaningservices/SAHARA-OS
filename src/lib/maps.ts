@@ -52,6 +52,23 @@ export function buildDirectionsLink({ lat, lng }: LatLng): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat.toFixed(6)},${lng.toFixed(6)}`;
 }
 
+/**
+ * A multi-stop route link for the day's run. Stops that have parseable
+ * coordinates use those; the rest fall back to their address text. Google
+ * Maps builds the optimised-ish route between the stops in order.
+ */
+export function buildRouteLink(stops: { mapLink?: string | null; address?: string | null }[]): string | null {
+  const parts = stops
+    .map((s) => {
+      const c = parseMapLink(s.mapLink);
+      if (c) return `${c.lat.toFixed(6)},${c.lng.toFixed(6)}`;
+      return s.address ? s.address.replace(/\s+/g, " ").trim() : null;
+    })
+    .filter(Boolean) as string[];
+  if (parts.length === 0) return null;
+  return `https://www.google.com/maps/dir/${parts.map((p) => encodeURIComponent(p)).join("/")}`;
+}
+
 /** Google Maps Embed API URL for an <iframe> preview (needs a key). */
 export function buildEmbedUrl(coord: LatLng, apiKey: string): string {
   return `https://www.google.com/maps/embed/v1/view?key=${encodeURIComponent(

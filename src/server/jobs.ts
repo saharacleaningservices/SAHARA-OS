@@ -46,6 +46,65 @@ export async function getAllJobsForList(session?: SessionPayload) {
   });
 }
 
+/** Summary cards shown above the Jobs list. */
+export async function getJobsPageStats() {
+  const now = new Date();
+  const [todayJobs, tomorrowJobs, pendingJobs, completedToday, pendingPaymentsAgg] = await Promise.all([
+    db.job.count({
+      where: { deletedAt: null, status: { notIn: ["CANCELLED"] }, scheduledDate: { gte: startOfDay(now), lte: endOfDay(now) } },
+    }),
+    db.job.count({
+      where: {
+        deletedAt: null,
+        status: { notIn: ["CANCELLED"] },
+        scheduledDate: { gte: startOfDay(addDays(now, 1)), lte: endOfDay(addDays(now, 1)) },
+      },
+    }),
+    db.job.count({ where: { deletedAt: null, status: "PENDING" } }),
+    db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: startOfDay(now), lte: endOfDay(now) } } }),
+    db.payment.aggregate({
+      where: { deletedAt: null, status: { not: "PAID" }, jobId: { not: null } },
+      _sum: { amount: true, paidAmount: true },
+    }),
+  ]);
+  return {
+    todayJobs,
+    tomorrowJobs,
+    pendingJobs,
+    completedToday,
+    pendingPayments: (pendingPaymentsAgg._sum.amount ?? 0) - (pendingPaymentsAgg._sum.paidAmount ?? 0),
+  };
+}
+
+/** Today's jobs grouped by area, for the Team Dispatch / route planner. */
+export async function getTodayDispatch(dateStr?: string) {
+  const base = dateStr ? new Date(dateStr) : new Date();
+  const jobs = await db.job.findMany({
+    where: {
+      deletedAt: null,
+      status: { notIn: ["CANCELLED", "COMPLETED"] },
+      scheduledDate: { gte: startOfDay(base), lte: endOfDay(base) },
+    },
+    orderBy: [{ area: "asc" }, { scheduledTime: "asc" }],
+    include: {
+      supervisor: { select: { name: true } },
+      assignments: { include: { staff: { select: { name: true } } } },
+      vehicle: { select: { name: true, plateNumber: true } },
+    },
+  });
+
+  const groups = new Map<
+    string,
+    { area: string; jobs: typeof jobs }
+  >();
+  for (const j of jobs) {
+    const key = j.area || "—";
+    if (!groups.has(key)) groups.set(key, { area: key, jobs: [] });
+    groups.get(key)!.jobs.push(j);
+  }
+  return { date: base, total: jobs.length, groups: [...groups.values()] };
+}
+
 export async function getJobDetail(id: string) {
   return db.job.findFirst({
     where: { id, deletedAt: null },

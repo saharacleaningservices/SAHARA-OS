@@ -18,6 +18,7 @@ import {
   MessageCircle,
   Smartphone,
   ShieldAlert,
+  Route,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,6 +33,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", section: "dashboard", icon: LayoutDashboard },
   { label: "Leads / CRM", href: "/leads", section: "leads", icon: Users },
   { label: "Jobs", href: "/jobs", section: "jobs", icon: ClipboardList },
+  { label: "Team Dispatch", href: "/jobs/dispatch", section: "jobs", icon: Route },
   { label: "Staff", href: "/staff", section: "staff", icon: UserCog },
   { label: "Vehicles", href: "/vehicles", section: "vehicles", icon: Truck },
   { label: "Attendance", href: "/attendance", section: "attendance", icon: CalendarCheck },

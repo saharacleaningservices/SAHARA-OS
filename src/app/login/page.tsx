@@ -62,7 +62,7 @@ export default async function LoginPage({
         <div className="w-full max-w-sm">
           <div className="mb-6 space-y-1 text-center lg:text-left">
             <h2 className="text-xl font-semibold text-foreground">Welcome back</h2>
-            <p className="text-sm text-muted-foreground">Sign in to your Sahara OS account</p>
+            <p className="text-sm text-muted-foreground">Sign in with your mobile number and password</p>
           </div>
           <LoginForm next={next} />
         </div>

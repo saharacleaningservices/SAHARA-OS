@@ -47,12 +47,43 @@ export default async function DashboardPage() {
   const showProfit = canViewFinancials(session.role);
   const showBackOffice = session.role === "ADMIN" || session.role === "OPERATIONS";
 
+  const actions: { icon: string; text: string; href: string }[] = [];
+  if (followUpsOverdue.length > 0)
+    actions.push({ icon: "🔴", text: `${followUpsOverdue.length} overdue follow-up${followUpsOverdue.length > 1 ? "s" : ""}`, href: "/leads?due=overdue" });
+  if (stats.todaysJobsCount > 0)
+    actions.push({ icon: "🟢", text: `${stats.todaysJobsCount} job${stats.todaysJobsCount > 1 ? "s" : ""} today`, href: "/jobs?when=today" });
+  if (followUpsToday.length > 0)
+    actions.push({ icon: "🟡", text: `${followUpsToday.length} follow-up${followUpsToday.length > 1 ? "s" : ""} due today`, href: "/leads?due=today" });
+  if (stats.pendingAdvanceCount > 0)
+    actions.push({ icon: "🟡", text: `${stats.pendingAdvanceCount} advance pending`, href: "/payments" });
+  if (stats.reviewsPendingCount > 0)
+    actions.push({ icon: "⭐", text: `${stats.reviewsPendingCount} review${stats.reviewsPendingCount > 1 ? "s" : ""} pending`, href: "/reports" });
+
   return (
     <div className="space-y-6">
       <PageHeader
         title={`Welcome back, ${firstName}`}
         description="Here's what's happening at Sahara Cleaning Services today."
       />
+
+      {actions.length > 0 && (
+        <Card className="border-primary/30 bg-accent/40">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Today&apos;s Action</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            {actions.map((a) => (
+              <Link
+                key={a.text}
+                href={a.href}
+                className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium hover:border-primary/50"
+              >
+                <span>{a.icon}</span> {a.text}
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick actions */}
       <div className="grid grid-cols-3 gap-2 sm:max-w-md">
@@ -77,15 +108,16 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        <StatCard label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
-        <StatCard label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} />
-        <StatCard label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
-        <StatCard label="Monthly Bookings" value={stats.monthlyBookingsCount} icon={<CalendarClock className="size-4" />} tone="primary" />
-        <StatCard label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
-        <StatCard label="Upcoming Jobs" value={stats.upcomingJobsCount} icon={<CalendarClock className="size-4" />} />
-        <StatCard label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} />
-        <StatCard label="Pending Follow-ups" value={stats.pendingFollowUpsCount} icon={<BellRing className="size-4" />} tone="warning" />
+        <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
+        <StatCard href="/leads" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} />
+        <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
+        <StatCard href="/jobs" label="Monthly Bookings" value={stats.monthlyBookingsCount} icon={<CalendarClock className="size-4" />} tone="primary" />
+        <StatCard href="/jobs" label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
+        <StatCard href="/jobs" label="Upcoming Jobs" value={stats.upcomingJobsCount} icon={<CalendarClock className="size-4" />} />
+        <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} />
+        <StatCard href="/leads?due=overdue" label="Pending Follow-ups" value={stats.pendingFollowUpsCount} icon={<BellRing className="size-4" />} tone="warning" />
         <StatCard
+          href="/payments"
           label="Pending Advance"
           value={stats.pendingAdvanceCount}
           trendLabel={formatINR(stats.pendingAdvanceTotal)}
@@ -96,18 +128,21 @@ export default async function DashboardPage() {
         {showRevenue && (
           <>
             <StatCard
+              href="/payments"
               label="Revenue Today"
               value={formatINR(stats.revenueToday)}
               icon={<TrendingUp className="size-4" />}
               tone="success"
             />
             <StatCard
+              href="/payments"
               label="Collections Today"
               value={stats.collectionsTodayCount}
               trendLabel="payments"
               icon={<IndianRupee className="size-4" />}
             />
             <StatCard
+              href="/payments"
               label="Pending Payments"
               value={stats.pendingPaymentsCount}
               trendLabel={formatINR(stats.pendingPaymentsTotal)}
@@ -115,6 +150,7 @@ export default async function DashboardPage() {
               tone="warning"
             />
             <StatCard
+              href="/revenue"
               label="Monthly Revenue"
               value={formatINR(stats.monthlyRevenue)}
               trend={stats.revenueTrend}
@@ -125,6 +161,7 @@ export default async function DashboardPage() {
         )}
         {showProfit && (
           <StatCard
+            href="/profit"
             label="Net Profit (month)"
             value={formatINR(stats.netProfit)}
             trend={stats.profitTrend}
@@ -133,13 +170,13 @@ export default async function DashboardPage() {
           />
         )}
 
-        <StatCard label="Reviews Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} />
-        <StatCard label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} />
-        <StatCard label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} />
+        <StatCard href="/reports" label="Reviews Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} />
+        <StatCard href="/staff" label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} />
+        <StatCard href="/staff" label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} />
         {showBackOffice && (
           <>
-            <StatCard label="Vehicles Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} />
-            <StatCard label="Upcoming AMC (7d)" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} />
+            <StatCard href="/vehicles" label="Vehicles Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} />
+            <StatCard href="/amc" label="Upcoming AMC (7d)" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} />
           </>
         )}
       </div>

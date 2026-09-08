@@ -22,8 +22,8 @@ export default async function SetPasswordPage() {
           <CompanyLogo logoUrl={settings.logoUrl} className="h-10 w-auto" />
           <h1 className="text-lg font-semibold text-foreground">Set your own password</h1>
           <p className="text-sm text-muted-foreground">
-            For security, choose a personal password before you continue. Minimum 12 characters with an uppercase
-            letter, a lowercase letter, a number and a special character.
+            Choose your own password before you continue. It can be simple if you like — at least 6 characters, and
+            different from the temporary one you were given.
           </p>
         </div>
         <SetPasswordForm />

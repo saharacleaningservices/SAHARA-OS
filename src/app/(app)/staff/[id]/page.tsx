@@ -158,34 +158,57 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Jobs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {staff.jobAssignments.length === 0 ? (
-                <EmptyState title="No jobs assigned yet" />
-              ) : (
-                <div className="space-y-2">
-                  {staff.jobAssignments.map((a) => (
-                    <Link
-                      key={a.id}
-                      href={`/jobs/${a.job.id}`}
-                      className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-muted/40"
-                    >
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{a.job.jobNumber}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {SERVICE_LABELS[a.job.service]} · {formatDate(a.job.scheduledDate)}
-                        </p>
-                      </div>
-                      <JobStatusBadge status={a.job.status} />
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {(() => {
+            const now = new Date();
+            const s0 = new Date(now); s0.setHours(0, 0, 0, 0);
+            const s1 = new Date(s0); s1.setDate(s1.getDate() + 1);
+            const jobs = staff.jobAssignments.map((a) => a.job);
+            const today = jobs.filter((j) => j.scheduledDate >= s0 && j.scheduledDate < s1 && j.status !== "COMPLETED" && j.status !== "CANCELLED");
+            const upcoming = jobs.filter((j) => j.scheduledDate >= s1 && j.status !== "COMPLETED" && j.status !== "CANCELLED");
+            const completed = jobs.filter((j) => j.status === "COMPLETED");
+            const Section = ({ title, list }: { title: string; list: typeof jobs }) => (
+              <div>
+                <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {title} ({list.length})
+                </p>
+                {list.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">None</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {list.slice(0, 6).map((j) => (
+                      <Link key={j.id} href={`/jobs/${j.id}`} className="flex items-center justify-between rounded-lg border border-border p-2.5 hover:bg-muted/40">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{j.customerName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {j.jobNumber} · {SERVICE_LABELS[j.service] ?? j.service} · {formatDate(j.scheduledDate)}
+                          </p>
+                        </div>
+                        <JobStatusBadge status={j.status} />
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+            return (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Job History</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {jobs.length === 0 ? (
+                    <EmptyState title="No jobs assigned yet" />
+                  ) : (
+                    <>
+                      <Section title="Today" list={today} />
+                      <Section title="Upcoming" list={upcoming} />
+                      <Section title="Completed" list={completed} />
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
         </div>
 
         <div className="space-y-4">

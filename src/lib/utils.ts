@@ -81,6 +81,36 @@ export function deriveArea(input: {
   );
 }
 
+/**
+ * Relative-day classification for a date, used for the "TODAY / Tomorrow /
+ * Overdue" badges across the Leads CRM and Jobs list.
+ */
+export type DayBucket = "OVERDUE" | "TODAY" | "TOMORROW" | "FUTURE" | "NONE";
+
+export function dayBucket(date: Date | string | null | undefined): DayBucket {
+  if (!date) return "NONE";
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "NONE";
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(d);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target.getTime() - start.getTime()) / 86400000);
+  if (diffDays < 0) return "OVERDUE";
+  if (diffDays === 0) return "TODAY";
+  if (diffDays === 1) return "TOMORROW";
+  return "FUTURE";
+}
+
+export const DAY_BUCKET_META: Record<
+  Exclude<DayBucket, "NONE" | "FUTURE">,
+  { label: string; badge: "destructive" | "success" | "info"; dot: string }
+> = {
+  OVERDUE: { label: "Overdue", badge: "destructive", dot: "bg-destructive" },
+  TODAY: { label: "TODAY", badge: "success", dot: "bg-success" },
+  TOMORROW: { label: "Tomorrow", badge: "info", dot: "bg-primary" },
+};
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()

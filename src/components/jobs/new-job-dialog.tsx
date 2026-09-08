@@ -119,6 +119,16 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Flat / Type</Label>
+              <Input {...register("serviceVariant")} placeholder="2 BHK / Sofa …" />
+            </div>
+            <div className="space-y-1">
+              <Label>Package (optional)</Label>
+              <Input {...register("packageName")} placeholder="Premium / Platinum …" />
+            </div>
+          </div>
           <div className="space-y-1">
             <Label>Address</Label>
             <Textarea rows={2} {...register("address")} />

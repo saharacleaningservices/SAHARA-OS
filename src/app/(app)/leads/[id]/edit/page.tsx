@@ -41,10 +41,17 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
           timeSlot: lead.timeSlot ?? "",
           teamNumber: lead.teamNumber ?? "",
           assignedStaffId: lead.assignedStaffId ?? "",
+          assignedStaffIds: lead.assignedStaffIds
+            ? (JSON.parse(lead.assignedStaffIds) as string[])
+            : lead.assignedStaffId
+              ? [lead.assignedStaffId]
+              : [],
           assignedToId: lead.assignedToId ?? "",
           notes: lead.notes ?? "",
           serviceCategory: lead.serviceCategory ?? "HOME_DEEP_CLEANING",
           serviceVariant: lead.serviceVariant ?? "",
+          packageName: lead.packageName ?? "",
+          comboServices: lead.comboServices ? (JSON.parse(lead.comboServices) as string[]) : [],
           mapLink: lead.mapLink ?? "",
         }}
       />

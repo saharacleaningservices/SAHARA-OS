@@ -68,10 +68,13 @@ export async function createLead(values: unknown) {
       serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
       timeSlot: data.timeSlot || null,
       teamNumber: normalizeTeam(data.teamNumber),
-      assignedStaffId: data.assignedStaffId || null,
+      assignedStaffId: data.assignedStaffIds?.[0] || data.assignedStaffId || null,
+      assignedStaffIds: data.assignedStaffIds?.length ? JSON.stringify(data.assignedStaffIds) : null,
       notes: data.notes || null,
       serviceCategory: (data.serviceCategory as never) || null,
       serviceVariant: data.serviceVariant || null,
+      packageName: data.packageName || null,
+      comboServices: data.comboServices?.length ? JSON.stringify(data.comboServices) : null,
       mapLink: data.mapLink || null,
       createdById: session?.sub,
       assignedToId: data.assignedToId || session?.sub,
@@ -180,11 +183,21 @@ export async function updateLead(id: string, values: unknown) {
       }),
       ...(data.timeSlot !== undefined && { timeSlot: data.timeSlot || null }),
       ...(data.teamNumber !== undefined && { teamNumber: normalizeTeam(data.teamNumber) }),
-      ...(data.assignedStaffId !== undefined && { assignedStaffId: data.assignedStaffId || null }),
+      ...(data.assignedStaffIds !== undefined && {
+        assignedStaffIds: data.assignedStaffIds?.length ? JSON.stringify(data.assignedStaffIds) : null,
+        assignedStaffId: data.assignedStaffIds?.[0] ?? null,
+      }),
+      ...(data.assignedStaffIds === undefined && data.assignedStaffId !== undefined && {
+        assignedStaffId: data.assignedStaffId || null,
+      }),
       ...(data.assignedToId !== undefined && { assignedToId: data.assignedToId || null }),
       ...(data.notes !== undefined && { notes: data.notes || null }),
       ...(data.serviceCategory !== undefined && { serviceCategory: (data.serviceCategory as never) || null }),
       ...(data.serviceVariant !== undefined && { serviceVariant: data.serviceVariant || null }),
+      ...(data.packageName !== undefined && { packageName: data.packageName || null }),
+      ...(data.comboServices !== undefined && {
+        comboServices: data.comboServices?.length ? JSON.stringify(data.comboServices) : null,
+      }),
       ...(data.mapLink !== undefined && { mapLink: data.mapLink || null }),
     },
   });
@@ -278,6 +291,9 @@ export async function confirmBooking(leadId: string, values: unknown) {
       area: lead.area,
       service: lead.service,
       serviceVariant: lead.serviceVariant,
+      packageName: lead.packageName,
+      comboServices: lead.comboServices,
+      pinCode: lead.pinCode,
       mapLink: lead.mapLink,
       scheduledDate,
       scheduledTime: data.timeSlot,
@@ -288,9 +304,15 @@ export async function confirmBooking(leadId: string, values: unknown) {
     },
   });
 
-  if (lead.assignedStaffId) {
-    await db.jobAssignment.create({
-      data: { jobId: job.id, staffId: lead.assignedStaffId, isLead: true },
+  // Carry the lead's assigned crew (multi-staff) onto the job.
+  const leadStaffIds: string[] = lead.assignedStaffIds
+    ? (JSON.parse(lead.assignedStaffIds) as string[])
+    : lead.assignedStaffId
+      ? [lead.assignedStaffId]
+      : [];
+  if (leadStaffIds.length) {
+    await db.jobAssignment.createMany({
+      data: [...new Set(leadStaffIds)].map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
     });
   }
 

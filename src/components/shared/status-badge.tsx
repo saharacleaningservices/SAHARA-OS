@@ -18,11 +18,14 @@ const LEAD_STAGE_VARIANT: Record<string, "muted" | "info" | "warning" | "success
   COMPLETED: "success",
 };
 
-const JOB_STATUS_VARIANT: Record<string, "muted" | "info" | "warning" | "success"> = {
+const JOB_STATUS_VARIANT: Record<string, "muted" | "info" | "warning" | "success" | "destructive"> = {
+  PENDING: "warning",
   ASSIGNED: "muted",
   ON_THE_WAY: "info",
   STARTED: "warning",
   COMPLETED: "success",
+  POSTPONED: "muted",
+  CANCELLED: "destructive",
 };
 
 const PAYMENT_STATUS_VARIANT: Record<string, "muted" | "warning" | "destructive" | "success"> = {

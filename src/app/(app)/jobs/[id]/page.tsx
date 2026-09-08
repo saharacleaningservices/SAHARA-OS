@@ -44,7 +44,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const advance = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
   const balance = Math.max(job.jobValue - advance, 0);
   const paymentStatus = balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partly Paid" : "Pending";
-  const jobCardShareText = jobCardMessage({
+
+  const cardBase = {
     jobNumber: job.jobNumber,
     customerName: job.customerName,
     mobile: job.customerMobile,
@@ -55,13 +56,17 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     timeSlot: job.scheduledTime,
     service: SERVICE_LABELS[job.service] ?? job.service,
     flatType: job.serviceVariant,
+    packageName: job.packageName,
     team: job.teamNumber,
+    crew: job.assignments.map((a) => a.staff.name),
     supervisor: job.supervisor?.name ?? null,
     paymentStatus,
     advance,
     balance,
     notes: job.notes,
-  });
+  } as const;
+  const officeCardText = jobCardMessage({ ...cardBase, audience: "office" });
+  const teamCardText = jobCardMessage({ ...cardBase, audience: "team" });
 
   return (
     <div className="space-y-6">
@@ -111,7 +116,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <JobCardActions jobId={job.id} jobNumber={job.jobNumber} shareText={jobCardShareText} />
+              <JobCardActions
+                jobId={job.id}
+                jobNumber={job.jobNumber}
+                officeShareText={officeCardText}
+                teamShareText={teamCardText}
+                canSeeContact={canManage}
+              />
             </CardContent>
           </Card>
 

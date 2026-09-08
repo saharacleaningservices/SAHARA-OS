@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Lock, Mail, ShieldCheck, XCircle } from "lucide-react";
+import { Loader2, Lock, Smartphone, ShieldCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const schema = z.object({
-  email: z.string().email("Enter a valid email address"),
+  loginId: z.string().trim().min(3, "Enter your mobile number"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -33,7 +33,7 @@ export function LoginForm({ next }: { next?: string }) {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { loginId: "", password: "" },
   });
 
   useEffect(() => {
@@ -120,12 +120,20 @@ export function LoginForm({ next }: { next?: string }) {
     <div className="w-full max-w-sm space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="loginId">Mobile Number</Label>
           <div className="relative">
-            <Mail className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="email" type="email" placeholder="you@saharacleaningservices.com" className="pl-8" {...register("email")} />
+            <Smartphone className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="loginId"
+              type="text"
+              inputMode="tel"
+              autoComplete="username"
+              placeholder="10-digit mobile number"
+              className="pl-8"
+              {...register("loginId")}
+            />
           </div>
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          {errors.loginId && <p className="text-xs text-destructive">{errors.loginId.message}</p>}
         </div>
 
         <div className="space-y-1.5">

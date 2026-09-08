@@ -28,9 +28,11 @@ export const SERVICE_OPTIONS = Object.entries(SERVICE_LABELS).map(([value, label
 export const SERVICE_CATEGORY_LABELS: Record<string, string> = {
   HOME_DEEP_CLEANING: "Home Deep Cleaning",
   INDIVIDUAL_CLEANING: "Individual Cleaning",
-  PAINTING: "Painting",
+  PAINTING: "Interior Painting",
   PEST_CONTROL: "Pest Control",
+  HOUSEKEEPING: "Housekeeping",
   COMMERCIAL_CLEANING: "Commercial Cleaning",
+  AMC: "AMC / Annual Contract",
 };
 
 export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
@@ -38,8 +40,26 @@ export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
   INDIVIDUAL_CLEANING: "HOUSEKEEPING",
   PAINTING: "INTERIOR_PAINTING",
   PEST_CONTROL: "PEST_CONTROL",
+  HOUSEKEEPING: "HOUSEKEEPING",
   COMMERCIAL_CLEANING: "COMMERCIAL_CLEANING",
+  AMC: "HOUSEKEEPING",
 };
+
+// Optional package tiers per category (future pricing hooks off these).
+export const SERVICE_PACKAGES: Record<string, string[]> = {
+  HOME_DEEP_CLEANING: ["Premium", "Platinum", "Diamond"],
+  PAINTING: ["Basic", "Premium"],
+  HOUSEKEEPING: ["Standard", "Professional"],
+};
+
+// Optional combo bundles offered on the booking form (multi-select, no prices).
+export const COMBO_SERVICES = [
+  "Deep Cleaning + Sofa",
+  "Deep Cleaning + Pest Control",
+  "Deep Cleaning + Mattress",
+  "Deep Cleaning + Curtains",
+  "Painting + Deep Cleaning",
+] as const;
 
 // Reverse of the above — used wherever only the legacy ServiceType is known
 // (e.g. Job.service) but a Phase 3 feature needs the newer ServiceCategory
@@ -54,51 +74,22 @@ export const LEGACY_TO_SERVICE_CATEGORY: Record<string, string> = {
 
 export const SERVICE_CATALOG: Record<string, string[]> = {
   HOME_DEEP_CLEANING: [
+    "1 RK",
     "1 BHK",
     "2 BHK",
     "3 BHK",
     "4 BHK",
     "5 BHK",
+    "Duplex",
     "Villa",
     "Bungalow",
     "Row House",
     "Individual House",
   ],
   INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Floor", "Fan", "Fridge", "Balcony"],
-  PAINTING: [
-    "Residential — Asian Oil Bond",
-    "Residential — Tractor Emulsion",
-    "Residential — Premium Emulsion",
-    "Residential — Royale",
-    "Residential — Royale Lustre",
-    "Residential — Royale Shyne",
-    "Residential — Exterior Paint",
-    "Residential — Texture Paint",
-    "Residential — Waterproofing",
-    "Commercial — Asian Oil Bond",
-    "Commercial — Tractor Emulsion",
-    "Commercial — Premium Emulsion",
-    "Commercial — Royale",
-    "Commercial — Royale Lustre",
-    "Commercial — Royale Shyne",
-    "Commercial — Exterior Paint",
-    "Commercial — Texture Paint",
-    "Commercial — Waterproofing",
-  ],
-  PEST_CONTROL: [
-    "Residential — Cockroach",
-    "Residential — Bed Bug",
-    "Residential — Rodent",
-    "Residential — Termite",
-    "Residential — Mosquito",
-    "Residential — General Spray",
-    "Commercial — Cockroach",
-    "Commercial — Bed Bug",
-    "Commercial — Rodent",
-    "Commercial — Termite",
-    "Commercial — Mosquito",
-    "Commercial — General Spray",
-  ],
+  PAINTING: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Full House", "Office / Commercial", "Exterior", "Waterproofing"],
+  PEST_CONTROL: ["Cockroach", "Termite", "Bed Bug", "Rodent", "Mosquito", "General Pest Control"],
+  HOUSEKEEPING: ["Daily", "Weekly", "Monthly", "One-time"],
   COMMERCIAL_CLEANING: [
     "Office Deep Cleaning",
     "Carpet Cleaning",
@@ -107,6 +98,7 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
     "Facade Cleaning",
     "Industrial Cleaning",
   ],
+  AMC: ["Residential", "Commercial"],
 };
 
 export const LEAD_SOURCE_LABELS: Record<string, string> = {
@@ -162,7 +154,7 @@ export const LEAD_STAGE_LABELS: Record<string, string> = {
   QUOTATION: "Quotation",
   NEGOTIATION: "Negotiation",
   CONFIRMED: "Confirmed",
-  JOB_SCHEDULED: "Job Scheduled",
+  JOB_SCHEDULED: "Confirmed Job",
   COMPLETED: "Completed",
 };
 
@@ -227,13 +219,29 @@ export const CALL_OUTCOME_LABELS: Record<string, string> = {
   WRONG_NUMBER: "Wrong Number",
 };
 
-export const JOB_STATUSES = ["ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;
+// Full status set. The linear workflow is PENDING → ASSIGNED → ON_THE_WAY →
+// STARTED → COMPLETED; POSTPONED and CANCELLED are off-flow side states.
+export const JOB_STATUSES = [
+  "PENDING",
+  "ASSIGNED",
+  "ON_THE_WAY",
+  "STARTED",
+  "COMPLETED",
+  "POSTPONED",
+  "CANCELLED",
+] as const;
+
+// The happy-path progression a field user steps through.
+export const JOB_STATUS_FLOW = ["PENDING", "ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;
 
 export const JOB_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending",
   ASSIGNED: "Assigned",
   ON_THE_WAY: "On the Way",
   STARTED: "Started",
   COMPLETED: "Completed",
+  POSTPONED: "Postponed",
+  CANCELLED: "Cancelled",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {
