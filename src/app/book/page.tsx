@@ -1,6 +1,7 @@
 import { Sparkles } from "lucide-react";
 import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { COMPANY } from "@/lib/constants";
+import { getResolvedIntegrations } from "@/server/integrations";
 
 export const metadata = { title: "Book a Service — Sahara Cleaning Services" };
 
@@ -10,6 +11,7 @@ export default async function PublicBookingPage({
   searchParams: Promise<{ ref?: string }>;
 }) {
   const { ref } = await searchParams;
+  const { googleMaps } = await getResolvedIntegrations();
 
   return (
     <div className="min-h-screen bg-background px-4 py-8 sm:py-12">
@@ -26,7 +28,7 @@ export default async function PublicBookingPage({
             Referred by a friend — code {ref} applied
           </p>
         )}
-        <PublicBookingForm referralCode={ref} />
+        <PublicBookingForm referralCode={ref} mapsApiKey={googleMaps.apiKey} />
         <p className="text-center text-xs text-muted-foreground">
           Or call/WhatsApp us directly at {COMPANY.phones[0]}.
         </p>

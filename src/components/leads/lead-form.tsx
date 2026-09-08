@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,8 @@ import { leadSchema, type LeadFormValues } from "@/lib/validation";
 import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY } from "@/lib/constants";
 import { createLead, updateLead } from "@/server/actions/leads";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
-import { ShareLocationButton } from "@/components/shared/share-location-button";
+import { MapsLocationInput } from "@/components/shared/maps-location-input";
+import { parseMapLink } from "@/lib/maps";
 import { TeamSelect } from "@/components/shared/team-select";
 
 type StaffOption = { id: string; name: string; designation: string };
@@ -27,11 +28,13 @@ export function LeadForm({
   userOptions,
   defaultValues,
   leadId,
+  mapsApiKey = null,
 }: {
   staffOptions: StaffOption[];
   userOptions: UserOption[];
   defaultValues?: Partial<LeadFormValues>;
   leadId?: string;
+  mapsApiKey?: string | null;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -114,21 +117,16 @@ export function LeadForm({
             <Label htmlFor="address">Full Address</Label>
             <Textarea id="address" {...register("address")} rows={2} />
           </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Location</Label>
-            <div className="flex flex-wrap items-center gap-2">
-              <ShareLocationButton onShare={async (link) => { setValue("mapLink", link); return { success: true }; }} />
-              {watch("mapLink") && (
-                <a
-                  href={watch("mapLink")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-                >
-                  <MapPin className="size-3" /> Location captured
-                </a>
-              )}
-            </div>
+          <div className="sm:col-span-2">
+            <MapsLocationInput
+              apiKey={mapsApiKey}
+              value={{
+                mapLink: watch("mapLink") || "",
+                lat: parseMapLink(watch("mapLink"))?.lat ?? null,
+                lng: parseMapLink(watch("mapLink"))?.lng ?? null,
+              }}
+              onChange={(next) => setValue("mapLink", next.mapLink, { shouldDirty: true })}
+            />
           </div>
         </CardContent>
       </Card>

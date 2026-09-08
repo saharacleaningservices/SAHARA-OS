@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
-import { isWhatsAppConfigured } from "@/lib/whatsapp";
+import { isWhatsAppReady } from "@/lib/whatsapp";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -10,8 +10,10 @@ import { Info } from "lucide-react";
 
 export default async function WhatsAppLogPage() {
   await requireRole(["ADMIN"]);
-  const configured = isWhatsAppConfigured();
-  const messages = await db.whatsAppMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 });
+  const [configured, messages] = await Promise.all([
+    isWhatsAppReady(),
+    db.whatsAppMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -22,9 +24,9 @@ export default async function WhatsAppLogPage() {
           <Info className="mt-0.5 size-4 shrink-0" />
           <p>
             <span className="font-medium">WhatsApp Cloud API isn&apos;t connected yet</span> — messages below are
-            queued, not sent. Set <code>WHATSAPP_ACCESS_TOKEN</code> and <code>WHATSAPP_PHONE_NUMBER_ID</code> (from
-            your Meta Business/WhatsApp Cloud API app) on Render to start sending — sends resume automatically, no
-            code change needed.
+            queued, not sent. Add your access token and phone number ID in{" "}
+            <a href="/settings" className="font-medium text-primary hover:underline">Settings → Integrations</a> to
+            start sending — the whole queue flushes automatically the moment you save, no code change needed.
           </p>
         </div>
       )}

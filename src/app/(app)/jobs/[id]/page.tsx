@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { FileText, Users, Pencil, ExternalLink } from "lucide-react";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getVehiclesForAssignment } from "@/server/vehicles";
+import { getResolvedIntegrations } from "@/server/integrations";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     redirect("/jobs");
   }
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS";
-  const vehicles = canManage ? await getVehiclesForAssignment() : [];
+  const [vehicles, { googleMaps }] = await Promise.all([
+    canManage ? getVehiclesForAssignment() : Promise.resolve([]),
+    getResolvedIntegrations(),
+  ]);
 
   const beforePhotos = job.photos.filter((p) => p.type === "BEFORE");
   const afterPhotos = job.photos.filter((p) => p.type === "AFTER");
@@ -208,6 +212,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             vehicles={vehicles}
             materials={job.materialIssues}
             canEdit={canManage}
+            mapsApiKey={googleMaps.apiKey}
           />
 
           <Card>

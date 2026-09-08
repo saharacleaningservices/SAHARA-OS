@@ -1,17 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, CheckCircle2, MapPin } from "lucide-react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
-import { ShareLocationButton } from "@/components/shared/share-location-button";
+import { MapsLocationInput, type MapsLocationValue } from "@/components/shared/maps-location-input";
 import { UpsellOfferCard, type UpsellOffer } from "@/components/shared/upsell-offer-card";
 import { publicBookLead } from "@/server/actions/public-booking";
 
-export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
+export function PublicBookingForm({
+  referralCode,
+  mapsApiKey = null,
+}: {
+  referralCode?: string;
+  mapsApiKey?: string | null;
+}) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
@@ -21,7 +27,7 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
   const [category, setCategory] = useState("HOME_DEEP_CLEANING");
   const [variant, setVariant] = useState("");
   const [notes, setNotes] = useState("");
-  const [mapLink, setMapLink] = useState("");
+  const [loc, setLoc] = useState<MapsLocationValue>({ mapLink: "", lat: null, lng: null });
   const [upsell, setUpsell] = useState<{ offer: UpsellOffer | null; accepted: boolean }>({ offer: null, accepted: false });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -41,7 +47,7 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
       serviceVariant: variant,
       serviceDate,
       notes,
-      mapLink,
+      mapLink: loc.mapLink,
       website: "",
       referralCode: referralCode || "",
       upsellRuleId: upsell.offer?.id || "",
@@ -111,14 +117,7 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
         <Textarea id="pb-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <ShareLocationButton onShare={async (link) => { setMapLink(link); return { success: true }; }} />
-        {mapLink && (
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-            <MapPin className="size-3" /> Location added
-          </span>
-        )}
-      </div>
+      <MapsLocationInput value={loc} onChange={setLoc} apiKey={mapsApiKey} />
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 

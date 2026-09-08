@@ -420,7 +420,8 @@ export const ModelName = {
   FineRecord: 'FineRecord',
   RewardRecord: 'RewardRecord',
   Invoice: 'Invoice',
-  JobVideo: 'JobVideo'
+  JobVideo: 'JobVideo',
+  IntegrationSettings: 'IntegrationSettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -436,7 +437,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo"
+    modelProps: "user" | "device" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2734,6 +2735,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    IntegrationSettings: {
+      payload: Prisma.$IntegrationSettingsPayload<ExtArgs>
+      fields: Prisma.IntegrationSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.IntegrationSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.IntegrationSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.IntegrationSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.IntegrationSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.IntegrationSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.IntegrationSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.IntegrationSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.IntegrationSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.IntegrationSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>
+        }
+        update: {
+          args: Prisma.IntegrationSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.IntegrationSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.IntegrationSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.IntegrationSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.IntegrationSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IntegrationSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.IntegrationSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIntegrationSettings>
+        }
+        groupBy: {
+          args: Prisma.IntegrationSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IntegrationSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.IntegrationSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IntegrationSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3299,6 +3374,26 @@ export const JobVideoScalarFieldEnum = {
 export type JobVideoScalarFieldEnum = (typeof JobVideoScalarFieldEnum)[keyof typeof JobVideoScalarFieldEnum]
 
 
+export const IntegrationSettingsScalarFieldEnum = {
+  id: 'id',
+  whatsappAccessToken: 'whatsappAccessToken',
+  whatsappPhoneNumberId: 'whatsappPhoneNumberId',
+  whatsappBusinessId: 'whatsappBusinessId',
+  whatsappApiVersion: 'whatsappApiVersion',
+  whatsappVerifiedAt: 'whatsappVerifiedAt',
+  whatsappLastError: 'whatsappLastError',
+  googleMapsApiKey: 'googleMapsApiKey',
+  googleMapsVerifiedAt: 'googleMapsVerifiedAt',
+  backupToken: 'backupToken',
+  gdriveFolderId: 'gdriveFolderId',
+  backupVerifiedAt: 'backupVerifiedAt',
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy'
+} as const
+
+export type IntegrationSettingsScalarFieldEnum = (typeof IntegrationSettingsScalarFieldEnum)[keyof typeof IntegrationSettingsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3627,6 +3722,7 @@ export type GlobalOmitConfig = {
   rewardRecord?: Prisma.RewardRecordOmit
   invoice?: Prisma.InvoiceOmit
   jobVideo?: Prisma.JobVideoOmit
+  integrationSettings?: Prisma.IntegrationSettingsOmit
 }
 
 /* Types for Logging */

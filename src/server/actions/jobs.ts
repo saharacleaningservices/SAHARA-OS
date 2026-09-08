@@ -307,7 +307,7 @@ export async function completeJobWithCertificate(jobId: string) {
 export async function updateJobLocation(jobId: string, mapLink: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
-  await db.job.update({ where: { id: jobId }, data: { mapLink } });
+  await db.job.update({ where: { id: jobId }, data: { mapLink: mapLink.trim() || null } });
   revalidatePath(`/jobs/${jobId}`);
   return { success: true as const };
 }
