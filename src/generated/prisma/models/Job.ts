@@ -45,6 +45,7 @@ export type JobMinAggregateOutputType = {
   alternateMobile: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
   service: $Enums.ServiceType | null
   serviceVariant: string | null
   scheduledDate: Date | null
@@ -77,6 +78,7 @@ export type JobMaxAggregateOutputType = {
   alternateMobile: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
   service: $Enums.ServiceType | null
   serviceVariant: string | null
   scheduledDate: Date | null
@@ -109,6 +111,7 @@ export type JobCountAggregateOutputType = {
   alternateMobile: number
   address: number
   area: number
+  pinCode: number
   service: number
   serviceVariant: number
   scheduledDate: number
@@ -153,6 +156,7 @@ export type JobMinAggregateInputType = {
   alternateMobile?: true
   address?: true
   area?: true
+  pinCode?: true
   service?: true
   serviceVariant?: true
   scheduledDate?: true
@@ -185,6 +189,7 @@ export type JobMaxAggregateInputType = {
   alternateMobile?: true
   address?: true
   area?: true
+  pinCode?: true
   service?: true
   serviceVariant?: true
   scheduledDate?: true
@@ -217,6 +222,7 @@ export type JobCountAggregateInputType = {
   alternateMobile?: true
   address?: true
   area?: true
+  pinCode?: true
   service?: true
   serviceVariant?: true
   scheduledDate?: true
@@ -336,6 +342,7 @@ export type JobGroupByOutputType = {
   alternateMobile: string | null
   address: string
   area: string
+  pinCode: string | null
   service: $Enums.ServiceType
   serviceVariant: string | null
   scheduledDate: Date
@@ -391,6 +398,7 @@ export type JobWhereInput = {
   alternateMobile?: Prisma.StringNullableFilter<"Job"> | string | null
   address?: Prisma.StringFilter<"Job"> | string
   area?: Prisma.StringFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Job"> | $Enums.ServiceType
   serviceVariant?: Prisma.StringNullableFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeFilter<"Job"> | Date | string
@@ -435,6 +443,7 @@ export type JobOrderByWithRelationInput = {
   alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
@@ -482,6 +491,7 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   alternateMobile?: Prisma.StringNullableFilter<"Job"> | string | null
   address?: Prisma.StringFilter<"Job"> | string
   area?: Prisma.StringFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Job"> | $Enums.ServiceType
   serviceVariant?: Prisma.StringNullableFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeFilter<"Job"> | Date | string
@@ -526,6 +536,7 @@ export type JobOrderByWithAggregationInput = {
   alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
@@ -566,6 +577,7 @@ export type JobScalarWhereWithAggregatesInput = {
   alternateMobile?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   address?: Prisma.StringWithAggregatesFilter<"Job"> | string
   area?: Prisma.StringWithAggregatesFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeWithAggregatesFilter<"Job"> | $Enums.ServiceType
   serviceVariant?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeWithAggregatesFilter<"Job"> | Date | string
@@ -597,6 +609,7 @@ export type JobCreateInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -639,6 +652,7 @@ export type JobUncheckedCreateInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -679,6 +693,7 @@ export type JobUpdateInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -721,6 +736,7 @@ export type JobUncheckedUpdateInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -762,6 +778,7 @@ export type JobCreateManyInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -793,6 +810,7 @@ export type JobUpdateManyMutationInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -823,6 +841,7 @@ export type JobUncheckedUpdateManyInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -865,6 +884,7 @@ export type JobCountOrderByAggregateInput = {
   alternateMobile?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
   service?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
@@ -902,6 +922,7 @@ export type JobMaxOrderByAggregateInput = {
   alternateMobile?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
   service?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
@@ -934,6 +955,7 @@ export type JobMinOrderByAggregateInput = {
   alternateMobile?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
   service?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
@@ -1244,6 +1266,7 @@ export type JobCreateWithoutSupervisorInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1285,6 +1308,7 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1353,6 +1377,7 @@ export type JobScalarWhereInput = {
   alternateMobile?: Prisma.StringNullableFilter<"Job"> | string | null
   address?: Prisma.StringFilter<"Job"> | string
   area?: Prisma.StringFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Job"> | $Enums.ServiceType
   serviceVariant?: Prisma.StringNullableFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeFilter<"Job"> | Date | string
@@ -1384,6 +1409,7 @@ export type JobCreateWithoutLeadInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1424,6 +1450,7 @@ export type JobUncheckedCreateWithoutLeadInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1489,6 +1516,7 @@ export type JobCreateWithoutAssignmentsInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1530,6 +1558,7 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1585,6 +1614,7 @@ export type JobUpdateWithoutAssignmentsInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1626,6 +1656,7 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1665,6 +1696,7 @@ export type JobCreateWithoutPhotosInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1706,6 +1738,7 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1761,6 +1794,7 @@ export type JobUpdateWithoutPhotosInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1802,6 +1836,7 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1841,6 +1876,7 @@ export type JobCreateWithoutCertificateInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1882,6 +1918,7 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -1937,6 +1974,7 @@ export type JobUpdateWithoutCertificateInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1978,6 +2016,7 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2017,6 +2056,7 @@ export type JobCreateWithoutPaymentsInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2058,6 +2098,7 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2113,6 +2154,7 @@ export type JobUpdateWithoutPaymentsInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2154,6 +2196,7 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2193,6 +2236,7 @@ export type JobCreateWithoutExpensesInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2234,6 +2278,7 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2289,6 +2334,7 @@ export type JobUpdateWithoutExpensesInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2330,6 +2376,7 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2369,6 +2416,7 @@ export type JobCreateWithoutActivityLogsInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2410,6 +2458,7 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2465,6 +2514,7 @@ export type JobUpdateWithoutActivityLogsInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2506,6 +2556,7 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2545,6 +2596,7 @@ export type JobCreateWithoutVehicleInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2586,6 +2638,7 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2650,6 +2703,7 @@ export type JobCreateWithoutMaterialIssuesInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2691,6 +2745,7 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2746,6 +2801,7 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2787,6 +2843,7 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2826,6 +2883,7 @@ export type JobCreateWithoutInvoiceInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2867,6 +2925,7 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -2922,6 +2981,7 @@ export type JobUpdateWithoutInvoiceInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2963,6 +3023,7 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3002,6 +3063,7 @@ export type JobCreateWithoutVideosInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -3043,6 +3105,7 @@ export type JobUncheckedCreateWithoutVideosInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -3098,6 +3161,7 @@ export type JobUpdateWithoutVideosInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3139,6 +3203,7 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3179,6 +3244,7 @@ export type JobCreateManySupervisorInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -3209,6 +3275,7 @@ export type JobUpdateWithoutSupervisorInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3250,6 +3317,7 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3290,6 +3358,7 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3320,6 +3389,7 @@ export type JobCreateManyLeadInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -3351,6 +3421,7 @@ export type JobUpdateWithoutLeadInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3391,6 +3462,7 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3431,6 +3503,7 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3463,6 +3536,7 @@ export type JobCreateManyVehicleInput = {
   alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
   serviceVariant?: string | null
   scheduledDate: Date | string
@@ -3493,6 +3567,7 @@ export type JobUpdateWithoutVehicleInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3534,6 +3609,7 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3574,6 +3650,7 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3690,6 +3767,7 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
   serviceVariant?: boolean
   scheduledDate?: boolean
@@ -3735,6 +3813,7 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
   serviceVariant?: boolean
   scheduledDate?: boolean
@@ -3770,6 +3849,7 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
   serviceVariant?: boolean
   scheduledDate?: boolean
@@ -3805,6 +3885,7 @@ export type JobSelectScalar = {
   alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
   serviceVariant?: boolean
   scheduledDate?: boolean
@@ -3828,7 +3909,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "service" | "serviceVariant" | "scheduledDate" | "scheduledTime" | "teamNumber" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "scheduledDate" | "scheduledTime" | "teamNumber" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -3880,6 +3961,7 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     alternateMobile: string | null
     address: string
     area: string
+    pinCode: string | null
     service: $Enums.ServiceType
     serviceVariant: string | null
     scheduledDate: Date
@@ -4344,6 +4426,7 @@ export interface JobFieldRefs {
   readonly alternateMobile: Prisma.FieldRef<"Job", 'String'>
   readonly address: Prisma.FieldRef<"Job", 'String'>
   readonly area: Prisma.FieldRef<"Job", 'String'>
+  readonly pinCode: Prisma.FieldRef<"Job", 'String'>
   readonly service: Prisma.FieldRef<"Job", 'ServiceType'>
   readonly serviceVariant: Prisma.FieldRef<"Job", 'String'>
   readonly scheduledDate: Prisma.FieldRef<"Job", 'DateTime'>

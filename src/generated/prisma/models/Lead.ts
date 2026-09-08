@@ -46,6 +46,8 @@ export type LeadMinAggregateOutputType = {
   email: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
+  addOnServices: string | null
   service: $Enums.ServiceType | null
   source: $Enums.LeadSource | null
   quoteAmount: number | null
@@ -79,6 +81,8 @@ export type LeadMaxAggregateOutputType = {
   email: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
+  addOnServices: string | null
   service: $Enums.ServiceType | null
   source: $Enums.LeadSource | null
   quoteAmount: number | null
@@ -112,6 +116,8 @@ export type LeadCountAggregateOutputType = {
   email: number
   address: number
   area: number
+  pinCode: number
+  addOnServices: number
   service: number
   source: number
   quoteAmount: number
@@ -157,6 +163,8 @@ export type LeadMinAggregateInputType = {
   email?: true
   address?: true
   area?: true
+  pinCode?: true
+  addOnServices?: true
   service?: true
   source?: true
   quoteAmount?: true
@@ -190,6 +198,8 @@ export type LeadMaxAggregateInputType = {
   email?: true
   address?: true
   area?: true
+  pinCode?: true
+  addOnServices?: true
   service?: true
   source?: true
   quoteAmount?: true
@@ -223,6 +233,8 @@ export type LeadCountAggregateInputType = {
   email?: true
   address?: true
   area?: true
+  pinCode?: true
+  addOnServices?: true
   service?: true
   source?: true
   quoteAmount?: true
@@ -343,6 +355,8 @@ export type LeadGroupByOutputType = {
   email: string | null
   address: string | null
   area: string
+  pinCode: string | null
+  addOnServices: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount: number | null
@@ -399,6 +413,8 @@ export type LeadWhereInput = {
   email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
   area?: Prisma.StringFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
@@ -442,6 +458,8 @@ export type LeadOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  addOnServices?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -488,6 +506,8 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
   area?: Prisma.StringFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
@@ -531,6 +551,8 @@ export type LeadOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  addOnServices?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -572,6 +594,8 @@ export type LeadScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   area?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeWithAggregatesFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceWithAggregatesFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableWithAggregatesFilter<"Lead"> | number | null
@@ -605,6 +629,8 @@ export type LeadCreateInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -645,6 +671,8 @@ export type LeadUncheckedCreateInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -685,6 +713,8 @@ export type LeadUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -725,6 +755,8 @@ export type LeadUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -765,6 +797,8 @@ export type LeadCreateManyInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -798,6 +832,8 @@ export type LeadUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -828,6 +864,8 @@ export type LeadUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -871,6 +909,8 @@ export type LeadCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
+  addOnServices?: Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrder
@@ -909,6 +949,8 @@ export type LeadMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
+  addOnServices?: Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrder
@@ -942,6 +984,8 @@ export type LeadMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
+  addOnServices?: Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrder
@@ -1246,6 +1290,8 @@ export type LeadCreateWithoutCreatedByInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1285,6 +1331,8 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1333,6 +1381,8 @@ export type LeadCreateWithoutAssignedToInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1372,6 +1422,8 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1439,6 +1491,8 @@ export type LeadScalarWhereInput = {
   email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
   area?: Prisma.StringFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
@@ -1488,6 +1542,8 @@ export type LeadCreateWithoutAssignedStaffInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1527,6 +1583,8 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1591,6 +1649,8 @@ export type LeadCreateWithoutQuotationsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1630,6 +1690,8 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1685,6 +1747,8 @@ export type LeadUpdateWithoutQuotationsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1724,6 +1788,8 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1763,6 +1829,8 @@ export type LeadCreateWithoutFollowUpsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1802,6 +1870,8 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1857,6 +1927,8 @@ export type LeadUpdateWithoutFollowUpsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1896,6 +1968,8 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -1935,6 +2009,8 @@ export type LeadCreateWithoutTimelineInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -1974,6 +2050,8 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2029,6 +2107,8 @@ export type LeadUpdateWithoutTimelineInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2068,6 +2148,8 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2107,6 +2189,8 @@ export type LeadCreateWithoutJobsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2146,6 +2230,8 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2201,6 +2287,8 @@ export type LeadUpdateWithoutJobsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2240,6 +2328,8 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2279,6 +2369,8 @@ export type LeadCreateWithoutPaymentsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2318,6 +2410,8 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2373,6 +2467,8 @@ export type LeadUpdateWithoutPaymentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2412,6 +2508,8 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2451,6 +2549,8 @@ export type LeadCreateWithoutActivityLogsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2490,6 +2590,8 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2545,6 +2647,8 @@ export type LeadUpdateWithoutActivityLogsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2584,6 +2688,8 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2623,6 +2729,8 @@ export type LeadCreateWithoutAmcContractsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2662,6 +2770,8 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2717,6 +2827,8 @@ export type LeadUpdateWithoutAmcContractsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2756,6 +2868,8 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2795,6 +2909,8 @@ export type LeadCreateManyCreatedByInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2827,6 +2943,8 @@ export type LeadCreateManyAssignedToInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -2859,6 +2977,8 @@ export type LeadUpdateWithoutCreatedByInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2898,6 +3018,8 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2937,6 +3059,8 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -2969,6 +3093,8 @@ export type LeadUpdateWithoutAssignedToInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3008,6 +3134,8 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3047,6 +3175,8 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3079,6 +3209,8 @@ export type LeadCreateManyAssignedStaffInput = {
   email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
@@ -3111,6 +3243,8 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3150,6 +3284,8 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3189,6 +3325,8 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -3306,6 +3444,8 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
@@ -3350,6 +3490,8 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
@@ -3386,6 +3528,8 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
@@ -3422,6 +3566,8 @@ export type LeadSelectScalar = {
   email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
@@ -3445,7 +3591,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -3494,6 +3640,8 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string | null
     address: string | null
     area: string
+    pinCode: string | null
+    addOnServices: string | null
     service: $Enums.ServiceType
     source: $Enums.LeadSource
     quoteAmount: number | null
@@ -3957,6 +4105,8 @@ export interface LeadFieldRefs {
   readonly email: Prisma.FieldRef<"Lead", 'String'>
   readonly address: Prisma.FieldRef<"Lead", 'String'>
   readonly area: Prisma.FieldRef<"Lead", 'String'>
+  readonly pinCode: Prisma.FieldRef<"Lead", 'String'>
+  readonly addOnServices: Prisma.FieldRef<"Lead", 'String'>
   readonly service: Prisma.FieldRef<"Lead", 'ServiceType'>
   readonly source: Prisma.FieldRef<"Lead", 'LeadSource'>
   readonly quoteAmount: Prisma.FieldRef<"Lead", 'Float'>

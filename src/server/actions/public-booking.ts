@@ -7,21 +7,27 @@ import { addTimelineEntry } from "@/server/timeline";
 import { COMPANY, SERVICE_CATEGORY_TO_LEGACY, SERVICE_LABELS } from "@/lib/constants";
 import { recordUpsellEvent } from "@/server/upsell";
 import { sendWhatsApp } from "@/lib/whatsapp";
+import { notify } from "@/server/notify";
 import { z } from "zod";
+
+const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOGLE"] as const;
 
 const publicBookingSchema = z.object({
   name: z.string().min(2, "Name is required"),
   mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
   alternateMobile: z.string().max(15).optional().or(z.literal("")),
   email: z.string().email("Enter a valid email").optional().or(z.literal("")),
-  area: z.string().min(2, "Area is required"),
+  area: z.string().optional().or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
+  pinCode: z.string().regex(/^\d{6}$/, "Enter a 6-digit PIN code").optional().or(z.literal("")),
   serviceCategory: z.string().min(1, "Pick a service"),
   serviceVariant: z.string().optional().or(z.literal("")),
+  addOnServices: z.array(z.string()).optional(),
   serviceDate: z.string().optional().or(z.literal("")),
   timeSlot: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   mapLink: z.string().optional().or(z.literal("")),
+  source: z.string().optional().or(z.literal("")),
   referralCode: z.string().optional().or(z.literal("")),
   upsellRuleId: z.string().optional().or(z.literal("")),
   upsellLabel: z.string().optional().or(z.literal("")),
@@ -47,6 +53,17 @@ export async function publicBookLead(values: unknown) {
   const legacyService = SERVICE_CATEGORY_TO_LEGACY[data.serviceCategory] ?? "HOME_DEEP_CLEANING";
   const leadNumber = await generateLeadNumber();
 
+  const source = (ONLINE_SOURCES as readonly string[]).includes((data.source || "").toUpperCase())
+    ? (data.source as string).toUpperCase()
+    : "WEBSITE";
+  // Area column stays NOT NULL — keep it populated from PIN / first address line.
+  const area =
+    (data.area && data.area.trim()) ||
+    data.pinCode ||
+    (data.address ? data.address.split(/[\n,]/)[0]!.trim().slice(0, 60) : "") ||
+    "—";
+  const addOns = (data.addOnServices ?? []).filter(Boolean);
+
   const lead = await db.lead.create({
     data: {
       leadNumber,
@@ -56,26 +73,45 @@ export async function publicBookLead(values: unknown) {
       whatsapp: data.mobile,
       email: data.email || null,
       address: data.address || null,
-      area: data.area,
+      area,
+      pinCode: data.pinCode || null,
+      addOnServices: addOns.length ? JSON.stringify(addOns) : null,
       service: legacyService as never,
       serviceCategory: data.serviceCategory as never,
       serviceVariant: data.serviceVariant || null,
       serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
       timeSlot: data.timeSlot || null,
-      source: "WEBSITE",
+      source: source as never,
       notes: data.notes || null,
       mapLink: data.mapLink || null,
       referralCode: data.referralCode || null,
     },
   });
 
+  // Automation: open a same-day high-priority call-back follow-up so the
+  // enquiry can't be missed. Confirmation promised within 5–15 minutes.
+  const followUpAt = new Date(Date.now() + 15 * 60 * 1000);
+  await db.followUp
+    .create({
+      data: {
+        leadId: lead.id,
+        dueDate: followUpAt,
+        type: "CALL",
+        priority: "HIGH",
+        notes: `New online booking ${leadNumber} — call to confirm schedule.`,
+      },
+    })
+    .catch(() => {});
+
   await addTimelineEntry({
     leadId: lead.id,
     type: "SYSTEM",
     body: [
-      "Booked online via app.saharacleaningservices.com/book (unverified — no OTP yet)",
+      `Booked online (${source.toLowerCase()}) via app.saharacleaningservices.com/book (unverified — no OTP yet)`,
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
+      addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
+      data.pinCode ? `PIN: ${data.pinCode}` : null,
       data.alternateMobile ? `Alt mobile: ${data.alternateMobile}` : null,
       data.email ? `Email: ${data.email}` : null,
     ]
@@ -106,9 +142,10 @@ export async function publicBookLead(values: unknown) {
       ``,
       `Booking ID: ${leadNumber}`,
       `Service: ${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}`,
+      addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
       data.serviceDate ? `Preferred date: ${data.serviceDate}` : null,
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
-      data.address || data.area ? `Address: ${data.address || data.area}` : null,
+      data.address ? `Address: ${data.address}${data.pinCode ? ` – ${data.pinCode}` : ""}` : null,
       ``,
       `Our team will call you shortly to confirm the schedule.`,
       `Reach us on ${COMPANY.phones.join(" / ")}.`,
@@ -118,6 +155,23 @@ export async function publicBookLead(values: unknown) {
     relatedType: "Lead",
     relatedId: lead.id,
   }).catch(() => {});
+
+  // Real-time alert: loud notification + popup + vibration; tap opens the lead.
+  await notify({
+    kind: "NEW_BOOKING",
+    title: `New booking — ${data.name}`,
+    body: [
+      `${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}`,
+      data.address || (data.pinCode ? `PIN ${data.pinCode}` : ""),
+      data.serviceDate ? `${data.serviceDate} ${data.timeSlot || ""}`.trim() : "",
+      `☎ ${data.mobile}`,
+    ]
+      .filter(Boolean)
+      .join(" · "),
+    href: `/leads/${lead.id}`,
+    whatsappToAdmin: true,
+    meta: { leadId: lead.id, leadNumber, source },
+  });
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");

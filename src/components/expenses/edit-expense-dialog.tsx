@@ -20,7 +20,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { expenseSchema, type ExpenseFormValues } from "@/lib/validation";
-import { EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
+import { EXPENSE_CATEGORY_LABELS, EXPENSE_CATEGORY_OPTIONS } from "@/lib/constants";
 import { updateExpense } from "@/server/actions/expenses";
 
 type EditableExpense = {
@@ -53,6 +53,10 @@ export function EditExpenseDialog({ expense }: { expense: EditableExpense }) {
       paidTo: expense.paidTo ?? "",
     },
   });
+
+  const categoryOptions = EXPENSE_CATEGORY_OPTIONS.some((o) => o.value === expense.category)
+    ? EXPENSE_CATEGORY_OPTIONS
+    : [{ value: expense.category, label: EXPENSE_CATEGORY_LABELS[expense.category] ?? expense.category }, ...EXPENSE_CATEGORY_OPTIONS];
 
   async function onSubmit(values: ExpenseFormValues) {
     setSubmitting(true);
@@ -87,7 +91,7 @@ export function EditExpenseDialog({ expense }: { expense: EditableExpense }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(EXPENSE_CATEGORY_LABELS).map(([value, label]) => (
+                {categoryOptions.map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>

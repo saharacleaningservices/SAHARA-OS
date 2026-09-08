@@ -1,13 +1,17 @@
 // Fine-grained permission rules layered on top of the section-level
 // ROLE_NAV_ACCESS matrix in constants.ts.
 //
-// Roles (2026-09 assignment):
-//   ADMIN       — Altaf Shaikh (admin@)          — full access
-//   OPERATIONS  — Shoyab Shaikh (accounts@)      — Operations Manager
-//   SUPERVISOR  — Francis D'Souza (operations@)  — Field Coordinator
-//   STAFF       — Vikas Shinde (staff@)          — Worker
-//   ACCOUNTS    — no current holder
-// Login emails are unchanged; only the role each account carries changed.
+// Final production access mapping (Master Prompt V1.0):
+//   ADMIN       — Altaf Shaikh    (admin@)        — Super Admin, full access
+//   OPERATIONS  — Francis Monteiro(operations@)   — Operations Manager
+//                 (jobs, staff, attendance, vehicles, AMC, customers, expenses;
+//                  NO security, NO profit dashboard, NO settings, NO user mgmt)
+//   ACCOUNTS    — Shoyab Shaikh   (accounts@)     — Office Assistant
+//                 (leads/CRM, quotations, follow-ups, customers, payments,
+//                  MyBillBook, reports; NO security, NO settings)
+//   SUPERVISOR  — Suresh Pawar    (supervisor@)   — Field Coordinator
+//   STAFF       — Vikas Shinde    (staff@)        — Field Staff (mobile only)
+// Login emails & passwords are unchanged; only roles/labels changed.
 
 export type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
@@ -16,9 +20,14 @@ export function canViewSalary(role: string): boolean {
   return role === "ADMIN";
 }
 
-/** Profit dashboard (revenue − expenses). Admin / Accountant only. */
+/** Profit dashboard (revenue − expenses − wages). Super Admin only. */
 export function canViewFinancials(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS";
+  return role === "ADMIN";
+}
+
+/** Security: device approvals, OTP relay, audit log, user/role management. Super Admin only. */
+export function canManageSecurity(role: string): boolean {
+  return role === "ADMIN";
 }
 
 /** Create / edit / delete / assign jobs and leads (vs. only progressing them). */
@@ -80,9 +89,9 @@ export function canViewRevenue(role: string): boolean {
   return role === "ADMIN" || role === "OPERATIONS" || role === "ACCOUNTS";
 }
 
-/** AMC contracts — office roles that deal with customers/scheduling. */
+/** AMC contracts — Super Admin + Operations Manager. */
 export function canManageAmc(role: string): boolean {
-  return role === "ADMIN" || role === "OPERATIONS" || role === "ACCOUNTS";
+  return role === "ADMIN" || role === "OPERATIONS";
 }
 
 /** Upsell combo rules — Admin configures them; everyone can see them offered in booking. */

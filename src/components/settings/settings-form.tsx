@@ -88,6 +88,10 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <Input id="email" type="email" {...register("email")} />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="website">Website</Label>
+            <Input id="website" placeholder="www.saharacleaningservices.com" {...register("website")} />
+          </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="address">Address</Label>
             <Textarea id="address" rows={2} {...register("address")} />

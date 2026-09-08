@@ -8,8 +8,10 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { EmptyState } from "@/components/shared/empty-state";
 import { AvailabilityBadge, AttendanceBadge, JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
+import { FileDown } from "lucide-react";
 import { NewStaffDialog } from "@/components/staff/new-staff-dialog";
 import { PayrollLedgerCard } from "@/components/staff/payroll-ledger-card";
+import { StaffDocumentsCard } from "@/components/staff/staff-documents-card";
 import { Button } from "@/components/ui/button";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
@@ -23,11 +25,17 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
   const staff = await getStaffDetail(id);
   if (!staff) notFound();
 
-  const presentDays = staff.attendance.filter((a) => a.status === "PRESENT").length;
+  const presentDays = staff.attendance.filter((a) => a.status === "PRESENT" || a.status === "HALF_DAY").length;
+  const absentDays = staff.attendance.filter((a) => a.status === "ABSENT").length;
   const totalWages = staff.attendance.reduce((sum, a) => sum + (a.wageForDay ?? 0), 0);
+  const documents: { label: string; url: string; uploadedAt: string }[] = staff.documents
+    ? JSON.parse(staff.documents)
+    : [];
 
   const now = new Date();
-  const ledger = canViewSalary(session.role) ? await getStaffLedger(staff.id, now.getFullYear(), now.getMonth() + 1) : null;
+  const showSalary = canViewSalary(session.role);
+  const ledger = showSalary ? await getStaffLedger(staff.id, now.getFullYear(), now.getMonth() + 1) : null;
+  const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${now.getFullYear()}&month=${now.getMonth() + 1}`;
 
   return (
     <div className="space-y-6">
@@ -38,15 +46,30 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
           <>
             <CallButton mobile={staff.mobile} />
             <WhatsAppButton mobile={staff.mobile} />
+            {showSalary && (
+              <Button variant="outline" asChild>
+                <a href={payslipHref} target="_blank" rel="noreferrer">
+                  <FileDown className="size-3.5" /> Salary Slip
+                </a>
+              </Button>
+            )}
             <NewStaffDialog
               staffId={staff.id}
               defaultValues={{
                 name: staff.name,
                 mobile: staff.mobile,
+                alternateMobile: staff.alternateMobile ?? "",
                 designation: staff.designation,
                 salaryType: staff.salaryType as "DAILY" | "MONTHLY",
                 dailyWage: staff.dailyWage ?? undefined,
                 monthlySalary: staff.monthlySalary ?? undefined,
+                joiningDate: (staff.joiningDate ?? staff.joinDate)
+                  ? new Date(staff.joiningDate ?? staff.joinDate).toISOString().slice(0, 10)
+                  : "",
+                reference: staff.reference ?? "",
+                bankAccount: staff.bankAccount ?? "",
+                bankIfsc: staff.bankIfsc ?? "",
+                gpayNumber: staff.gpayNumber ?? "",
                 notes: staff.notes ?? "",
               }}
               trigger={
@@ -70,28 +93,62 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
                 <p className="text-xs text-muted-foreground">Mobile</p>
                 <p className="font-medium text-foreground">{staff.mobile}</p>
               </div>
+              {staff.alternateMobile && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Alternate Mobile</p>
+                  <p className="font-medium text-foreground">{staff.alternateMobile}</p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-muted-foreground">Availability</p>
                 <AvailabilityBadge status={staff.availability} />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Joined</p>
-                <p className="font-medium text-foreground">{formatDate(staff.joinDate)}</p>
+                <p className="text-xs text-muted-foreground">Joining Date</p>
+                <p className="font-medium text-foreground">{formatDate(staff.joiningDate ?? staff.joinDate)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Salary</p>
+                <p className="text-xs text-muted-foreground">Reference</p>
+                <p className="font-medium text-foreground">{staff.reference ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Wage Type</p>
                 <p className="font-medium text-foreground">
-                  {staff.salaryType === "DAILY" ? `${formatINR(staff.dailyWage)}/day` : `${formatINR(staff.monthlySalary)}/month`}
+                  {staff.salaryType === "DAILY" ? "Daily Wage" : "Monthly Salary"}
                 </p>
               </div>
+              {showSalary && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Salary</p>
+                  <p className="font-medium text-foreground">
+                    {staff.salaryType === "DAILY" ? `${formatINR(staff.dailyWage)}/day` : `${formatINR(staff.monthlySalary)}/month`}
+                  </p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-muted-foreground">Present (last 30d)</p>
                 <p className="font-medium text-foreground">{presentDays} days</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Wages Paid (last 30d)</p>
-                <p className="font-medium text-foreground">{formatINR(totalWages)}</p>
+                <p className="text-xs text-muted-foreground">Absent (last 30d)</p>
+                <p className="font-medium text-foreground">{absentDays} days</p>
               </div>
+              {showSalary && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Wages Paid (last 30d)</p>
+                  <p className="font-medium text-foreground">{formatINR(totalWages)}</p>
+                </div>
+              )}
+              {(staff.bankAccount || staff.gpayNumber) && (
+                <div className="col-span-2 sm:col-span-3">
+                  <p className="text-xs text-muted-foreground">Payment Details</p>
+                  <p className="font-medium text-foreground">
+                    {staff.bankAccount ? `A/C ${staff.bankAccount}${staff.bankIfsc ? ` · ${staff.bankIfsc}` : ""}` : ""}
+                    {staff.bankAccount && staff.gpayNumber ? " · " : ""}
+                    {staff.gpayNumber ? `GPay ${staff.gpayNumber}` : ""}
+                  </p>
+                </div>
+              )}
               {staff.notes && (
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-muted-foreground">Notes</p>
@@ -132,6 +189,11 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
         </div>
 
         <div className="space-y-4">
+          <StaffDocumentsCard
+            staffId={staff.id}
+            documents={documents}
+            canEdit={session.role === "ADMIN" || session.role === "OPERATIONS"}
+          />
           {ledger && (
             <PayrollLedgerCard
               staffId={staff.id}

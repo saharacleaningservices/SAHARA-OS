@@ -7,6 +7,7 @@ import { paymentSchema } from "@/lib/validation";
 import { generateInvoiceNumber } from "@/lib/id-generators";
 import { addPaymentTimeline } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
+import { notify } from "@/server/notify";
 
 export async function createPayment(values: unknown) {
   const parsed = paymentSchema.safeParse(values);
@@ -26,6 +27,7 @@ export async function createPayment(values: unknown) {
       dueDate: new Date(data.dueDate),
       jobId: data.jobId || null,
       mybillbookInvoiceNo: data.mybillbookInvoiceNo || null,
+      invoiceAttachmentUrl: data.invoiceAttachmentUrl || null,
       notes: data.notes || null,
       recordedById: session?.sub,
     },
@@ -51,6 +53,9 @@ export async function updatePayment(id: string, values: unknown) {
       ...(d.dueDate && { dueDate: new Date(d.dueDate) }),
       ...(d.mybillbookInvoiceNo !== undefined && {
         mybillbookInvoiceNo: d.mybillbookInvoiceNo || null,
+      }),
+      ...(d.invoiceAttachmentUrl !== undefined && {
+        invoiceAttachmentUrl: d.invoiceAttachmentUrl || null,
       }),
       ...(d.notes !== undefined && { notes: d.notes || null }),
     },
@@ -95,6 +100,14 @@ export async function markPaymentPaid(paymentId: string) {
     `Payment received — ₹${payment.amount.toLocaleString("en-IN")} against invoice ${payment.invoiceNumber}`,
     { invoiceNumber: payment.invoiceNumber, amount: payment.amount }
   );
+
+  await notify({
+    kind: "PAYMENT_RECEIVED",
+    title: `Payment received — ₹${payment.amount.toLocaleString("en-IN")}`,
+    body: `${payment.clientName} · invoice ${payment.invoiceNumber}`,
+    href: "/payments",
+    whatsappToAdmin: true,
+  });
 
   revalidatePath("/payments");
   revalidatePath("/dashboard");

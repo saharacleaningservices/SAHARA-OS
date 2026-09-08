@@ -16,7 +16,17 @@ const dbPath = path.resolve(process.cwd(), (process.env.DATABASE_URL || "file:./
 const adapter = new PrismaBetterSQLite3({ url: `file:${dbPath}` });
 const db = new PrismaClient({ adapter });
 
-const DEMO_PASSWORD = "Sahara@2026";
+// Fresh-install bootstrap passwords. Each account gets a distinct one; every
+// non-admin account is flagged mustChangePassword and must set a personal
+// password on first login (see scripts/db-setup.mjs + /set-password).
+const DEMO_PASSWORD = "Sahara@2026"; // legacy default, kept for tests referencing it
+const BOOTSTRAP_PASSWORDS: Record<string, string> = {
+  "admin@saharacleaningservices.com": "Altaf#Sahara2026!",
+  "operations@saharacleaningservices.com": "Francis#Sahara2026!",
+  "accounts@saharacleaningservices.com": "Shoyab#Sahara2026!",
+  "supervisor@saharacleaningservices.com": "Suresh#Sahara2026!",
+  "staff@saharacleaningservices.com": "Vikas#Sahara2026!",
+};
 
 const AREAS = [
   "Magarpatta City",
@@ -80,7 +90,7 @@ async function main() {
   console.log("Seeding Sahara OS...");
 
   // ── Users ────────────────────────────────────────────────────────────
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const hash = (email: string) => bcrypt.hash(BOOTSTRAP_PASSWORDS[email] ?? DEMO_PASSWORD, 10);
 
   const altaf = await db.user.upsert({
     where: { email: "admin@saharacleaningservices.com" },
@@ -89,33 +99,35 @@ async function main() {
       name: "Altaf Shaikh",
       email: "admin@saharacleaningservices.com",
       phone: "7083347130",
-      passwordHash,
+      passwordHash: await hash("admin@saharacleaningservices.com"),
       role: "ADMIN",
     },
   });
 
-  // Francis D'Souza — Field Coordinator (keeps the operations@ login).
+  // Francis Monteiro — Operations Manager (operations@ login).
   const francis = await db.user.upsert({
     where: { email: "operations@saharacleaningservices.com" },
     update: {},
     create: {
-      name: "Francis D'Souza",
+      name: "Francis Monteiro",
       email: "operations@saharacleaningservices.com",
       phone: "8956567130",
-      passwordHash,
-      role: "SUPERVISOR",
+      passwordHash: await hash("operations@saharacleaningservices.com"),
+      role: "OPERATIONS",
+      mustChangePassword: true,
     },
   });
 
-  // Shoyab Shaikh — Operations Manager (keeps the accounts@ login).
+  // Shoyab Shaikh — Office Assistant (accounts@ login).
   const shoyab = await db.user.upsert({
     where: { email: "accounts@saharacleaningservices.com" },
     update: {},
     create: {
       name: "Shoyab Shaikh",
       email: "accounts@saharacleaningservices.com",
-      passwordHash,
-      role: "OPERATIONS",
+      passwordHash: await hash("accounts@saharacleaningservices.com"),
+      role: "ACCOUNTS",
+      mustChangePassword: true,
     },
   });
 
@@ -125,8 +137,9 @@ async function main() {
     create: {
       name: "Suresh Pawar",
       email: "supervisor@saharacleaningservices.com",
-      passwordHash,
+      passwordHash: await hash("supervisor@saharacleaningservices.com"),
       role: "SUPERVISOR",
+      mustChangePassword: true,
     },
   });
 
@@ -136,8 +149,9 @@ async function main() {
     create: {
       name: "Vikas Shinde",
       email: "staff@saharacleaningservices.com",
-      passwordHash,
+      passwordHash: await hash("staff@saharacleaningservices.com"),
       role: "STAFF",
+      mustChangePassword: true,
     },
   });
 
@@ -303,11 +317,14 @@ async function main() {
   console.log("Historical jobs for chart data created.");
 
   // ── Expenses ─────────────────────────────────────────────────────────
-  const expenseSeed: { category: "CHEMICALS" | "FUEL" | "EQUIPMENT" | "STAFF_ADVANCE" | "MISCELLANEOUS"; desc: string; range: [number, number] }[] = [
-    { category: "CHEMICALS", desc: "Cleaning chemicals & detergents restock", range: [500, 3200] },
+  const expenseSeed: { category: string; desc: string; range: [number, number] }[] = [
+    { category: "HOUSEKEEPING_MATERIAL", desc: "Housekeeping material & detergents restock", range: [500, 3200] },
     { category: "FUEL", desc: "Petrol for site-visit bikes", range: [300, 1500] },
+    { category: "AUTO_CAB_FARE", desc: "Auto / cab fare for site visits", range: [150, 900] },
     { category: "EQUIPMENT", desc: "Vacuum cleaner / scrubber purchase", range: [1500, 9000] },
+    { category: "BIKE_SERVICE", desc: "Bike servicing & repairs", range: [400, 2500] },
     { category: "STAFF_ADVANCE", desc: "Staff advance", range: [1000, 5000] },
+    { category: "VENDOR_PAYMENT", desc: "Vendor payment", range: [800, 6000] },
     { category: "MISCELLANEOUS", desc: "Miscellaneous site expense", range: [200, 2000] },
   ];
   for (let i = 0; i < 35; i++) {
@@ -315,7 +332,7 @@ async function main() {
     const amount = randInt(e.range[0], e.range[1]);
     await db.expense.create({
       data: {
-        category: e.category,
+        category: e.category as never,
         description: e.desc,
         amount,
         date: daysFromNow(-randInt(0, 90)),
@@ -328,7 +345,8 @@ async function main() {
   console.log("Expenses seeded.");
 
   console.log("\nSeed complete.");
-  console.log("Demo login password for all users:", DEMO_PASSWORD);
+  console.log("Bootstrap logins (non-admin accounts must set a personal password on first login):");
+  for (const [email, pw] of Object.entries(BOOTSTRAP_PASSWORDS)) console.log(`  ${email.padEnd(42)} ${pw}`);
   console.log([altaf, shoyab, francis, supervisorUser, staffUser].map((u) => `${u.role.padEnd(10)} ${u.email}`).join("\n"));
 }
 

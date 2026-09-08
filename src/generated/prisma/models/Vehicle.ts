@@ -20,8 +20,18 @@ export type VehicleModel = runtime.Types.Result.DefaultSelection<Prisma.$Vehicle
 
 export type AggregateVehicle = {
   _count: VehicleCountAggregateOutputType | null
+  _avg: VehicleAvgAggregateOutputType | null
+  _sum: VehicleSumAggregateOutputType | null
   _min: VehicleMinAggregateOutputType | null
   _max: VehicleMaxAggregateOutputType | null
+}
+
+export type VehicleAvgAggregateOutputType = {
+  currentKm: number | null
+}
+
+export type VehicleSumAggregateOutputType = {
+  currentKm: number | null
 }
 
 export type VehicleMinAggregateOutputType = {
@@ -29,6 +39,9 @@ export type VehicleMinAggregateOutputType = {
   name: string | null
   plateNumber: string | null
   type: string | null
+  currentKm: number | null
+  lastServiceDate: Date | null
+  nextServiceDate: Date | null
   isActive: boolean | null
   createdAt: Date | null
 }
@@ -38,6 +51,9 @@ export type VehicleMaxAggregateOutputType = {
   name: string | null
   plateNumber: string | null
   type: string | null
+  currentKm: number | null
+  lastServiceDate: Date | null
+  nextServiceDate: Date | null
   isActive: boolean | null
   createdAt: Date | null
 }
@@ -47,17 +63,31 @@ export type VehicleCountAggregateOutputType = {
   name: number
   plateNumber: number
   type: number
+  currentKm: number
+  lastServiceDate: number
+  nextServiceDate: number
   isActive: number
   createdAt: number
   _all: number
 }
 
 
+export type VehicleAvgAggregateInputType = {
+  currentKm?: true
+}
+
+export type VehicleSumAggregateInputType = {
+  currentKm?: true
+}
+
 export type VehicleMinAggregateInputType = {
   id?: true
   name?: true
   plateNumber?: true
   type?: true
+  currentKm?: true
+  lastServiceDate?: true
+  nextServiceDate?: true
   isActive?: true
   createdAt?: true
 }
@@ -67,6 +97,9 @@ export type VehicleMaxAggregateInputType = {
   name?: true
   plateNumber?: true
   type?: true
+  currentKm?: true
+  lastServiceDate?: true
+  nextServiceDate?: true
   isActive?: true
   createdAt?: true
 }
@@ -76,6 +109,9 @@ export type VehicleCountAggregateInputType = {
   name?: true
   plateNumber?: true
   type?: true
+  currentKm?: true
+  lastServiceDate?: true
+  nextServiceDate?: true
   isActive?: true
   createdAt?: true
   _all?: true
@@ -119,6 +155,18 @@ export type VehicleAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: VehicleAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: VehicleSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: VehicleMinAggregateInputType
@@ -149,6 +197,8 @@ export type VehicleGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: VehicleCountAggregateInputType | true
+  _avg?: VehicleAvgAggregateInputType
+  _sum?: VehicleSumAggregateInputType
   _min?: VehicleMinAggregateInputType
   _max?: VehicleMaxAggregateInputType
 }
@@ -158,9 +208,14 @@ export type VehicleGroupByOutputType = {
   name: string
   plateNumber: string
   type: string | null
+  currentKm: number | null
+  lastServiceDate: Date | null
+  nextServiceDate: Date | null
   isActive: boolean
   createdAt: Date
   _count: VehicleCountAggregateOutputType | null
+  _avg: VehicleAvgAggregateOutputType | null
+  _sum: VehicleSumAggregateOutputType | null
   _min: VehicleMinAggregateOutputType | null
   _max: VehicleMaxAggregateOutputType | null
 }
@@ -188,6 +243,9 @@ export type VehicleWhereInput = {
   name?: Prisma.StringFilter<"Vehicle"> | string
   plateNumber?: Prisma.StringFilter<"Vehicle"> | string
   type?: Prisma.StringNullableFilter<"Vehicle"> | string | null
+  currentKm?: Prisma.IntNullableFilter<"Vehicle"> | number | null
+  lastServiceDate?: Prisma.DateTimeNullableFilter<"Vehicle"> | Date | string | null
+  nextServiceDate?: Prisma.DateTimeNullableFilter<"Vehicle"> | Date | string | null
   isActive?: Prisma.BoolFilter<"Vehicle"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   jobs?: Prisma.JobListRelationFilter
@@ -198,6 +256,9 @@ export type VehicleOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   plateNumber?: Prisma.SortOrder
   type?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentKm?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastServiceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextServiceDate?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   jobs?: Prisma.JobOrderByRelationAggregateInput
@@ -211,6 +272,9 @@ export type VehicleWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.VehicleWhereInput | Prisma.VehicleWhereInput[]
   name?: Prisma.StringFilter<"Vehicle"> | string
   type?: Prisma.StringNullableFilter<"Vehicle"> | string | null
+  currentKm?: Prisma.IntNullableFilter<"Vehicle"> | number | null
+  lastServiceDate?: Prisma.DateTimeNullableFilter<"Vehicle"> | Date | string | null
+  nextServiceDate?: Prisma.DateTimeNullableFilter<"Vehicle"> | Date | string | null
   isActive?: Prisma.BoolFilter<"Vehicle"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   jobs?: Prisma.JobListRelationFilter
@@ -221,11 +285,16 @@ export type VehicleOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   plateNumber?: Prisma.SortOrder
   type?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentKm?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastServiceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextServiceDate?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.VehicleCountOrderByAggregateInput
+  _avg?: Prisma.VehicleAvgOrderByAggregateInput
   _max?: Prisma.VehicleMaxOrderByAggregateInput
   _min?: Prisma.VehicleMinOrderByAggregateInput
+  _sum?: Prisma.VehicleSumOrderByAggregateInput
 }
 
 export type VehicleScalarWhereWithAggregatesInput = {
@@ -236,6 +305,9 @@ export type VehicleScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Vehicle"> | string
   plateNumber?: Prisma.StringWithAggregatesFilter<"Vehicle"> | string
   type?: Prisma.StringNullableWithAggregatesFilter<"Vehicle"> | string | null
+  currentKm?: Prisma.IntNullableWithAggregatesFilter<"Vehicle"> | number | null
+  lastServiceDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Vehicle"> | Date | string | null
+  nextServiceDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Vehicle"> | Date | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Vehicle"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Vehicle"> | Date | string
 }
@@ -245,6 +317,9 @@ export type VehicleCreateInput = {
   name: string
   plateNumber: string
   type?: string | null
+  currentKm?: number | null
+  lastServiceDate?: Date | string | null
+  nextServiceDate?: Date | string | null
   isActive?: boolean
   createdAt?: Date | string
   jobs?: Prisma.JobCreateNestedManyWithoutVehicleInput
@@ -255,6 +330,9 @@ export type VehicleUncheckedCreateInput = {
   name: string
   plateNumber: string
   type?: string | null
+  currentKm?: number | null
+  lastServiceDate?: Date | string | null
+  nextServiceDate?: Date | string | null
   isActive?: boolean
   createdAt?: Date | string
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutVehicleInput
@@ -265,6 +343,9 @@ export type VehicleUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   plateNumber?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jobs?: Prisma.JobUpdateManyWithoutVehicleNestedInput
@@ -275,6 +356,9 @@ export type VehicleUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   plateNumber?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jobs?: Prisma.JobUncheckedUpdateManyWithoutVehicleNestedInput
@@ -285,6 +369,9 @@ export type VehicleCreateManyInput = {
   name: string
   plateNumber: string
   type?: string | null
+  currentKm?: number | null
+  lastServiceDate?: Date | string | null
+  nextServiceDate?: Date | string | null
   isActive?: boolean
   createdAt?: Date | string
 }
@@ -294,6 +381,9 @@ export type VehicleUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   plateNumber?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -303,6 +393,9 @@ export type VehicleUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   plateNumber?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,8 +410,15 @@ export type VehicleCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   plateNumber?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  currentKm?: Prisma.SortOrder
+  lastServiceDate?: Prisma.SortOrder
+  nextServiceDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type VehicleAvgOrderByAggregateInput = {
+  currentKm?: Prisma.SortOrder
 }
 
 export type VehicleMaxOrderByAggregateInput = {
@@ -326,6 +426,9 @@ export type VehicleMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   plateNumber?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  currentKm?: Prisma.SortOrder
+  lastServiceDate?: Prisma.SortOrder
+  nextServiceDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -335,8 +438,15 @@ export type VehicleMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   plateNumber?: Prisma.SortOrder
   type?: Prisma.SortOrder
+  currentKm?: Prisma.SortOrder
+  lastServiceDate?: Prisma.SortOrder
+  nextServiceDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type VehicleSumOrderByAggregateInput = {
+  currentKm?: Prisma.SortOrder
 }
 
 export type VehicleCreateNestedOneWithoutJobsInput = {
@@ -360,6 +470,9 @@ export type VehicleCreateWithoutJobsInput = {
   name: string
   plateNumber: string
   type?: string | null
+  currentKm?: number | null
+  lastServiceDate?: Date | string | null
+  nextServiceDate?: Date | string | null
   isActive?: boolean
   createdAt?: Date | string
 }
@@ -369,6 +482,9 @@ export type VehicleUncheckedCreateWithoutJobsInput = {
   name: string
   plateNumber: string
   type?: string | null
+  currentKm?: number | null
+  lastServiceDate?: Date | string | null
+  nextServiceDate?: Date | string | null
   isActive?: boolean
   createdAt?: Date | string
 }
@@ -394,6 +510,9 @@ export type VehicleUpdateWithoutJobsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   plateNumber?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -403,6 +522,9 @@ export type VehicleUncheckedUpdateWithoutJobsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   plateNumber?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentKm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -443,6 +565,9 @@ export type VehicleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   plateNumber?: boolean
   type?: boolean
+  currentKm?: boolean
+  lastServiceDate?: boolean
+  nextServiceDate?: boolean
   isActive?: boolean
   createdAt?: boolean
   jobs?: boolean | Prisma.Vehicle$jobsArgs<ExtArgs>
@@ -454,6 +579,9 @@ export type VehicleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   plateNumber?: boolean
   type?: boolean
+  currentKm?: boolean
+  lastServiceDate?: boolean
+  nextServiceDate?: boolean
   isActive?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["vehicle"]>
@@ -463,6 +591,9 @@ export type VehicleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   plateNumber?: boolean
   type?: boolean
+  currentKm?: boolean
+  lastServiceDate?: boolean
+  nextServiceDate?: boolean
   isActive?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["vehicle"]>
@@ -472,11 +603,14 @@ export type VehicleSelectScalar = {
   name?: boolean
   plateNumber?: boolean
   type?: boolean
+  currentKm?: boolean
+  lastServiceDate?: boolean
+  nextServiceDate?: boolean
   isActive?: boolean
   createdAt?: boolean
 }
 
-export type VehicleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "plateNumber" | "type" | "isActive" | "createdAt", ExtArgs["result"]["vehicle"]>
+export type VehicleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "plateNumber" | "type" | "currentKm" | "lastServiceDate" | "nextServiceDate" | "isActive" | "createdAt", ExtArgs["result"]["vehicle"]>
 export type VehicleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   jobs?: boolean | Prisma.Vehicle$jobsArgs<ExtArgs>
   _count?: boolean | Prisma.VehicleCountOutputTypeDefaultArgs<ExtArgs>
@@ -494,6 +628,9 @@ export type $VehiclePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     plateNumber: string
     type: string | null
+    currentKm: number | null
+    lastServiceDate: Date | null
+    nextServiceDate: Date | null
     isActive: boolean
     createdAt: Date
   }, ExtArgs["result"]["vehicle"]>
@@ -924,6 +1061,9 @@ export interface VehicleFieldRefs {
   readonly name: Prisma.FieldRef<"Vehicle", 'String'>
   readonly plateNumber: Prisma.FieldRef<"Vehicle", 'String'>
   readonly type: Prisma.FieldRef<"Vehicle", 'String'>
+  readonly currentKm: Prisma.FieldRef<"Vehicle", 'Int'>
+  readonly lastServiceDate: Prisma.FieldRef<"Vehicle", 'DateTime'>
+  readonly nextServiceDate: Prisma.FieldRef<"Vehicle", 'DateTime'>
   readonly isActive: Prisma.FieldRef<"Vehicle", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Vehicle", 'DateTime'>
 }

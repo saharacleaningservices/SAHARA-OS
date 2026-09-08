@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { leadSchema, staffSchema } from "@/lib/validation";
+import { deriveArea } from "@/lib/utils";
 import { generateLeadNumber, generateEmployeeCode } from "@/lib/id-generators";
 
 export type ImportRowResult = { row: number; status: "created" | "skipped" | "invalid"; message: string };
@@ -54,7 +55,8 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
         mobile: data.mobile,
         whatsapp: data.whatsapp || data.mobile,
         address: data.address || null,
-        area: data.area,
+        area: deriveArea(data),
+        pinCode: data.pinCode || null,
         service: data.service,
         source: data.source,
         quoteAmount: data.quoteAmount ?? null,

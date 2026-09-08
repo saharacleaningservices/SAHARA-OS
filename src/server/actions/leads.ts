@@ -12,6 +12,8 @@ import {
   timelineNoteSchema,
 } from "@/lib/validation";
 import { generateLeadNumber, generateQuoteNumber, generateJobNumber } from "@/lib/id-generators";
+import { deriveArea } from "@/lib/utils";
+import { notify } from "@/server/notify";
 import {
   QUOTATION_TERMS,
   LEAD_STAGES,
@@ -56,7 +58,9 @@ export async function createLead(values: unknown) {
       whatsapp: data.whatsapp || data.mobile,
       email: data.email || null,
       address: data.address || null,
-      area: data.area,
+      area: deriveArea(data),
+      pinCode: data.pinCode || null,
+      addOnServices: data.addOnServices?.length ? JSON.stringify(data.addOnServices) : null,
       service: data.service,
       source: data.source,
       quoteAmount: data.quoteAmount ?? null,
@@ -96,6 +100,13 @@ export async function createLead(values: unknown) {
     });
   }
 
+  await notify({
+    kind: "NEW_INQUIRY",
+    title: `New enquiry — ${data.name}`,
+    body: `${data.service.replaceAll("_", " ")} · ☎ ${data.mobile}`,
+    href: `/leads/${lead.id}`,
+  });
+
   revalidatePath("/leads");
   revalidatePath("/dashboard");
   return { success: true, leadId: lead.id };
@@ -117,7 +128,8 @@ export async function quickCaptureLead(values: unknown) {
       name: data.name,
       mobile: data.mobile,
       whatsapp: data.mobile,
-      area: data.area,
+      area: deriveArea(data),
+      pinCode: data.pinCode || null,
       service: data.service,
       source: "CALL",
       createdById: session?.sub,
@@ -153,6 +165,10 @@ export async function updateLead(id: string, values: unknown) {
       ...(data.email !== undefined && { email: data.email || null }),
       ...(data.address !== undefined && { address: data.address || null }),
       ...(data.area && { area: data.area }),
+      ...(data.pinCode !== undefined && { pinCode: data.pinCode || null }),
+      ...(data.addOnServices !== undefined && {
+        addOnServices: data.addOnServices?.length ? JSON.stringify(data.addOnServices) : null,
+      }),
       ...(data.service && { service: data.service }),
       ...(data.source && { source: data.source }),
       ...(data.quoteAmount !== undefined && { quoteAmount: data.quoteAmount }),
@@ -356,6 +372,13 @@ export async function scheduleVisit(leadId: string, date: string) {
     body: `Site visit scheduled for ${when.toLocaleString("en-IN")}`,
     authorId: session?.sub,
   });
+  const visitLead = await db.lead.findUnique({ where: { id: leadId }, select: { name: true, mobile: true } });
+  await notify({
+    kind: "SITE_VISIT",
+    title: `Site visit — ${visitLead?.name ?? "customer"}`,
+    body: `${when.toLocaleString("en-IN")}${visitLead?.mobile ? ` · ☎ ${visitLead.mobile}` : ""}`,
+    href: `/leads/${leadId}`,
+  });
   revalidatePath("/leads");
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/dashboard");
@@ -391,6 +414,18 @@ export async function addFollowUp(leadId: string, values: unknown) {
     meta: { type: data.type, priority: data.priority },
     authorId: session?.sub,
   });
+  // Instant alert only for imminent follow-ups (next 3 hours).
+  if (due.getTime() <= Date.now() + 3 * 3600 * 1000) {
+    const fl = await db.lead.findUnique({ where: { id: leadId }, select: { name: true, mobile: true } });
+    await notify({
+      kind: "FOLLOWUP_DUE",
+      title: `Follow-up due — ${fl?.name ?? "lead"}`,
+      body: `${FOLLOWUP_TYPE_LABELS[data.type]} at ${due.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}${
+        data.notes ? ` · ${data.notes}` : fl?.mobile ? ` · ☎ ${fl.mobile}` : ""
+      }`,
+      href: `/leads/${leadId}`,
+    });
+  }
   revalidatePath("/leads");
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/dashboard");
@@ -418,6 +453,60 @@ export async function toggleFollowUpDone(followUpId: string, leadId: string) {
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+/**
+ * Edit / reschedule an existing follow-up — change its due date & time,
+ * type, priority or notes. Fixes the "follow-up date can't be edited" gap:
+ * previously a follow-up could only be created then ticked done.
+ */
+export async function updateFollowUp(followUpId: string, leadId: string, values: unknown) {
+  const parsed = followUpSchema.partial().safeParse(values);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
+  }
+  const data = parsed.data;
+  const existing = await db.followUp.findUnique({ where: { id: followUpId } });
+  if (!existing || existing.leadId !== leadId) return { error: "Not found", success: false as const };
+
+  const session = await getSession();
+  const due =
+    data.dueDate !== undefined && data.dueDate
+      ? combineDateTime(data.dueDate, data.dueTime || undefined)
+      : existing.dueDate;
+
+  await db.followUp.update({
+    where: { id: followUpId },
+    data: {
+      dueDate: due,
+      ...(data.type !== undefined && { type: data.type }),
+      ...(data.priority !== undefined && { priority: data.priority }),
+      ...(data.notes !== undefined && { notes: data.notes || null }),
+    },
+  });
+
+  // Keep the lead's headline followUpDate in step with its earliest open follow-up.
+  const nextOpen = await db.followUp.findFirst({
+    where: { leadId, isDone: false },
+    orderBy: { dueDate: "asc" },
+  });
+  await db.lead.update({
+    where: { id: leadId },
+    data: { followUpDate: nextOpen?.dueDate ?? null },
+  });
+
+  await addTimelineEntry({
+    leadId,
+    type: "FOLLOW_UP",
+    body: `Follow-up rescheduled to ${due.toLocaleString("en-IN")}${
+      data.notes ? ` — ${data.notes}` : ""
+    }`,
+    authorId: session?.sub,
+  });
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/dashboard");
+  return { success: true as const };
 }
 
 export async function addNote(leadId: string, values: unknown) {

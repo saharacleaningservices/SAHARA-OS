@@ -558,29 +558,204 @@ addColumnIfMissing("Lead", "timeSlot", `"timeSlot" TEXT`);
 addColumnIfMissing("Job", "alternateMobile", `"alternateMobile" TEXT`);
 addColumnIfMissing("Job", "serviceVariant", `"serviceVariant" TEXT`);
 
-// One-time role re-assignment: Shoyab Shaikh becomes Operations Manager,
-// Francis D'Souza becomes Field Coordinator. Each guard checks the CURRENT
-// role, so this is a no-op once applied and safe to re-run. Login emails
-// and passwords are unchanged — only the role each account carries.
-const roleSwap = db.transaction(() => {
-  const a = db
-    .prepare(
-      `UPDATE "User" SET "role" = 'OPERATIONS' WHERE "email" = 'accounts@saharacleaningservices.com' AND "role" = 'ACCOUNTS'`
-    )
-    .run();
-  const b = db
-    .prepare(
-      `UPDATE "User" SET "role" = 'SUPERVISOR' WHERE "email" = 'operations@saharacleaningservices.com' AND "role" = 'OPERATIONS'`
-    )
-    .run();
-  if (a.changes || b.changes) {
-    console.log(
-      `Role re-assignment applied (accounts@ → OPERATIONS: ${a.changes}, operations@ → SUPERVISOR: ${b.changes}).`
-    );
-  }
-});
-roleSwap();
-
 console.log("Final go-live batch migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Final production access mapping (Master Prompt V1.0). Deterministic by
+// email → idempotent and safe to re-run. Login emails & passwords unchanged.
+//   admin@       Altaf Shaikh      → ADMIN       (Super Admin, full access)
+//   operations@  Francis Monteiro  → OPERATIONS  (Operations Manager)
+//   accounts@    Shoyab Shaikh     → ACCOUNTS    (Office Assistant)
+//   supervisor@  Suresh Pawar      → SUPERVISOR  (Field Coordinator)
+//   staff@       Vikas Shinde      → STAFF       (Field Staff)
+// ─────────────────────────────────────────────────────────────────────────
+const finalRoleMap = db.transaction(() => {
+  const rows = [
+    ["operations@saharacleaningservices.com", "OPERATIONS", "Francis Monteiro"],
+    ["accounts@saharacleaningservices.com", "ACCOUNTS", "Shoyab Shaikh"],
+    ["admin@saharacleaningservices.com", "ADMIN", "Altaf Shaikh"],
+    ["supervisor@saharacleaningservices.com", "SUPERVISOR", null],
+    ["staff@saharacleaningservices.com", "STAFF", null],
+  ];
+  let changed = 0;
+  for (const [email, role, name] of rows) {
+    const r = db
+      .prepare(`UPDATE "User" SET "role" = ? WHERE "email" = ? AND "role" != ?`)
+      .run(role, email, role);
+    changed += r.changes;
+    if (name) {
+      db.prepare(`UPDATE "User" SET "name" = ? WHERE "email" = ? AND "name" != ?`).run(
+        name,
+        email,
+        name
+      );
+    }
+  }
+  if (changed) console.log(`Final access mapping applied (${changed} role change(s)).`);
+});
+finalRoleMap();
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt V1.0 batch (2026-09-09) — additive columns + new tables for
+// the booking-form redesign, staff profiles, vehicles, AMC, payments,
+// company documents, security OTP and real-time notifications. Plus a
+// one-time, row-preserving rebuild of Lead / Expense to drop the stale enum
+// CHECK constraints that block the new LeadSource / ExpenseCategory values.
+// Everything below is idempotent and safe to re-run.
+// ─────────────────────────────────────────────────────────────────────────
+
+// --- row-preserving CHECK-constraint removal -----------------------------
+function dropEnumChecks(table) {
+  const row = db
+    .prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name=?`)
+    .get(table);
+  if (!row || !/\sCHECK\s*\("/i.test(row.sql)) return; // already clean → no-op
+  const indexes = db
+    .prepare(
+      `SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name=? AND sql IS NOT NULL`
+    )
+    .all(table);
+  const cols = db
+    .prepare(`PRAGMA table_info("${table}")`)
+    .all()
+    .map((c) => `"${c.name}"`)
+    .join(", ");
+  const newSql = row.sql
+    .replace(/\s+CHECK\s*\("[A-Za-z_]+"\s+IN\s*\([^)]*\)\)/gi, "")
+    .replace(new RegExp(`CREATE TABLE "${table}"`), `CREATE TABLE "${table}__new"`);
+  db.pragma("foreign_keys = OFF");
+  const rebuild = db.transaction(() => {
+    db.exec(newSql);
+    db.exec(`INSERT INTO "${table}__new" (${cols}) SELECT ${cols} FROM "${table}"`);
+    db.exec(`DROP TABLE "${table}"`);
+    db.exec(`ALTER TABLE "${table}__new" RENAME TO "${table}"`);
+    for (const i of indexes) db.exec(i.sql);
+  });
+  rebuild();
+  db.pragma("foreign_keys = ON");
+  const check = db.prepare(`PRAGMA integrity_check`).get();
+  console.log(
+    `Rebuilt "${table}" without enum CHECK constraints (integrity_check: ${
+      check.integrity_check ?? JSON.stringify(check)
+    }).`
+  );
+}
+dropEnumChecks("Lead");
+dropEnumChecks("Expense");
+
+// --- additive columns --------------------------------------------------
+addColumnIfMissing("Lead", "pinCode", `"pinCode" TEXT`);
+addColumnIfMissing("Lead", "addOnServices", `"addOnServices" TEXT`);
+addColumnIfMissing("Job", "pinCode", `"pinCode" TEXT`);
+
+addColumnIfMissing("Staff", "alternateMobile", `"alternateMobile" TEXT`);
+addColumnIfMissing("Staff", "joiningDate", `"joiningDate" DATETIME`);
+addColumnIfMissing("Staff", "reference", `"reference" TEXT`);
+addColumnIfMissing("Staff", "bankAccount", `"bankAccount" TEXT`);
+addColumnIfMissing("Staff", "bankIfsc", `"bankIfsc" TEXT`);
+addColumnIfMissing("Staff", "gpayNumber", `"gpayNumber" TEXT`);
+addColumnIfMissing("Staff", "documents", `"documents" TEXT`);
+
+addColumnIfMissing("Vehicle", "currentKm", `"currentKm" INTEGER`);
+addColumnIfMissing("Vehicle", "lastServiceDate", `"lastServiceDate" DATETIME`);
+addColumnIfMissing("Vehicle", "nextServiceDate", `"nextServiceDate" DATETIME`);
+
+addColumnIfMissing("AmcContract", "serviceReminderDate", `"serviceReminderDate" DATETIME`);
+addColumnIfMissing("AmcContract", "contractExpiryDate", `"contractExpiryDate" DATETIME`);
+
+addColumnIfMissing("Payment", "invoiceAttachmentUrl", `"invoiceAttachmentUrl" TEXT`);
+
+addColumnIfMissing("CompanySettings", "website", `"website" TEXT`);
+
+// The moment this flag is introduced, every non-admin account is asked to
+// replace the shared onboarding password with a personal one on next login.
+// Runs exactly once (only when the column is first added) → idempotent.
+if (addColumnIfMissing("User", "mustChangePassword", `"mustChangePassword" BOOLEAN NOT NULL DEFAULT false`)) {
+  const r = db
+    .prepare(
+      `UPDATE "User" SET "mustChangePassword" = 1 WHERE "email" != 'admin@saharacleaningservices.com'`
+    )
+    .run();
+  console.log(`Flagged ${r.changes} non-admin account(s) to set a personal password on next login.`);
+}
+
+addColumnIfMissing("IntegrationSettings", "mybillbookApiKey", `"mybillbookApiKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "mybillbookVerifiedAt", `"mybillbookVerifiedAt" DATETIME`);
+addColumnIfMissing("IntegrationSettings", "webPushPublicKey", `"webPushPublicKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "webPushPrivateKey", `"webPushPrivateKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "webPushSubject", `"webPushSubject" TEXT`);
+
+// --- new tables -------------------------------------------------------
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "CompanyDocument" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "category" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "sizeBytes" INTEGER,
+    "uploadedByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "CompanyDocument_category_idx" ON "CompanyDocument"("category");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "SecurityOtp" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "purpose" TEXT NOT NULL,
+    "targetUserId" TEXT NOT NULL,
+    "targetUserName" TEXT NOT NULL,
+    "targetUserEmail" TEXT NOT NULL,
+    "codeHash" TEXT NOT NULL,
+    "codePlain" TEXT,
+    "payload" TEXT,
+    "expiresAt" DATETIME NOT NULL,
+    "consumedAt" DATETIME,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "requestedByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+addColumnIfMissing("SecurityOtp", "codePlain", `"codePlain" TEXT`);
+addColumnIfMissing("SecurityOtp", "payload", `"payload" TEXT`);
+addColumnIfMissing("SecurityOtp", "requestedByName", `"requestedByName" TEXT`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SecurityOtp_targetUserId_idx" ON "SecurityOtp"("targetUserId");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SecurityOtp_expiresAt_idx" ON "SecurityOtp"("expiresAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Notification" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "body" TEXT,
+    "href" TEXT,
+    "critical" BOOLEAN NOT NULL DEFAULT false,
+    "meta" TEXT,
+    "readAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Notification_userId_readAt_idx" ON "Notification"("userId", "readAt");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Notification_createdAt_idx" ON "Notification"("createdAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "PushSubscription" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "endpoint" TEXT NOT NULL,
+    "p256dh" TEXT NOT NULL,
+    "auth" TEXT NOT NULL,
+    "userAgent" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastOkAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PushSubscription_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "PushSubscription_endpoint_key" ON "PushSubscription"("endpoint");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "PushSubscription_userId_idx" ON "PushSubscription"("userId");`);
+
+console.log("Master Prompt V1.0 batch migration complete.");
 
 db.close();

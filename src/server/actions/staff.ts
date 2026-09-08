@@ -21,10 +21,16 @@ export async function createStaff(values: unknown) {
       employeeCode,
       name: data.name,
       mobile: data.mobile,
+      alternateMobile: data.alternateMobile || null,
       designation: data.designation,
       salaryType: data.salaryType,
       dailyWage: data.salaryType === "DAILY" ? data.dailyWage ?? null : null,
       monthlySalary: data.salaryType === "MONTHLY" ? data.monthlySalary ?? null : null,
+      joiningDate: data.joiningDate ? new Date(data.joiningDate) : null,
+      reference: data.reference || null,
+      bankAccount: data.bankAccount || null,
+      bankIfsc: data.bankIfsc || null,
+      gpayNumber: data.gpayNumber || null,
       notes: data.notes || null,
     },
   });
@@ -44,15 +50,61 @@ export async function updateStaff(id: string, values: unknown) {
     data: {
       ...(data.name && { name: data.name }),
       ...(data.mobile && { mobile: data.mobile }),
+      ...(data.alternateMobile !== undefined && { alternateMobile: data.alternateMobile || null }),
       ...(data.designation && { designation: data.designation }),
       ...(data.salaryType && { salaryType: data.salaryType }),
       ...(data.dailyWage !== undefined && { dailyWage: data.dailyWage }),
       ...(data.monthlySalary !== undefined && { monthlySalary: data.monthlySalary }),
+      ...(data.joiningDate !== undefined && {
+        joiningDate: data.joiningDate ? new Date(data.joiningDate) : null,
+      }),
+      ...(data.reference !== undefined && { reference: data.reference || null }),
+      ...(data.bankAccount !== undefined && { bankAccount: data.bankAccount || null }),
+      ...(data.bankIfsc !== undefined && { bankIfsc: data.bankIfsc || null }),
+      ...(data.gpayNumber !== undefined && { gpayNumber: data.gpayNumber || null }),
       ...(data.notes !== undefined && { notes: data.notes || null }),
     },
   });
   revalidatePath("/staff");
   revalidatePath(`/staff/${id}`);
+  return { success: true as const };
+}
+
+type StaffDocument = { label: string; url: string; uploadedAt: string };
+
+/** Attach a document (Aadhaar, PAN, passbook, joining letter, …) to a staff
+ * member's document folder. Files are uploaded first via POST /api/upload. */
+export async function addStaffDocument(staffId: string, doc: { label: string; url: string }) {
+  const session = await getSession();
+  if (!session || (session.role !== "ADMIN" && session.role !== "OPERATIONS")) {
+    return { error: "Not authorized", success: false as const };
+  }
+  if (!doc.url?.startsWith("/uploads/") || !doc.label?.trim()) {
+    return { error: "Invalid document", success: false as const };
+  }
+  const staff = await db.staff.findUnique({ where: { id: staffId }, select: { documents: true } });
+  if (!staff) return { error: "Staff not found", success: false as const };
+
+  const list: StaffDocument[] = staff.documents ? JSON.parse(staff.documents) : [];
+  list.push({ label: doc.label.trim().slice(0, 60), url: doc.url, uploadedAt: new Date().toISOString() });
+  await db.staff.update({ where: { id: staffId }, data: { documents: JSON.stringify(list) } });
+  revalidatePath(`/staff/${staffId}`);
+  return { success: true as const };
+}
+
+export async function removeStaffDocument(staffId: string, url: string) {
+  const session = await getSession();
+  if (!session || (session.role !== "ADMIN" && session.role !== "OPERATIONS")) {
+    return { error: "Not authorized", success: false as const };
+  }
+  const staff = await db.staff.findUnique({ where: { id: staffId }, select: { documents: true } });
+  if (!staff) return { error: "Staff not found", success: false as const };
+  const list: StaffDocument[] = staff.documents ? JSON.parse(staff.documents) : [];
+  await db.staff.update({
+    where: { id: staffId },
+    data: { documents: JSON.stringify(list.filter((d) => d.url !== url)) },
+  });
+  revalidatePath(`/staff/${staffId}`);
   return { success: true as const };
 }
 

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { jobSchema, type JobFormValues } from "@/lib/validation";
@@ -23,13 +24,16 @@ export function JobEditForm({
   jobId,
   staffOptions,
   defaultValues,
+  defaultStaffIds = [],
 }: {
   jobId: string;
   staffOptions: StaffOption[];
   defaultValues: JobFormValues;
+  defaultStaffIds?: string[];
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<string[]>(defaultStaffIds);
 
   const {
     register,
@@ -43,7 +47,7 @@ export function JobEditForm({
 
   async function onSubmit(values: JobFormValues) {
     setSubmitting(true);
-    const res = await updateJob(jobId, values);
+    const res = await updateJob(jobId, { ...values, staffIds: selectedStaff });
     setSubmitting(false);
     if (res.error) {
       toast.error(res.error);
@@ -72,9 +76,9 @@ export function JobEditForm({
             {errors.customerMobile && <p className="text-xs text-destructive">{errors.customerMobile.message}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="area">Area</Label>
-            <Input id="area" {...register("area")} />
-            {errors.area && <p className="text-xs text-destructive">{errors.area.message}</p>}
+            <Label htmlFor="pinCode">PIN Code</Label>
+            <Input id="pinCode" {...register("pinCode")} inputMode="numeric" maxLength={6} placeholder="411028" />
+            {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
           </div>
           <div className="space-y-1.5">
             <Label>Service</Label>
@@ -130,6 +134,29 @@ export function JobEditForm({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Assign Crew</Label>
+            <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+              {staffOptions
+                .filter((s) => s.designation !== "Supervisor")
+                .map((s) => (
+                  <label key={s.id} className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-accent">
+                    <Checkbox
+                      checked={selectedStaff.includes(s.id)}
+                      onCheckedChange={(checked) =>
+                        setSelectedStaff((prev) => (checked ? [...prev, s.id] : prev.filter((id) => id !== s.id)))
+                      }
+                    />
+                    {s.name} <span className="text-xs text-muted-foreground">({s.designation})</span>
+                  </label>
+                ))}
+            </div>
+            {selectedStaff.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Crew: {selectedStaff.map((id) => staffOptions.find((s) => s.id === id)?.name).filter(Boolean).join(", ")}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="notes">Notes</Label>

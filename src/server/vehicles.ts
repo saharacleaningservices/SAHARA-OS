@@ -9,5 +9,8 @@ export async function getVehiclesForAssignment() {
 }
 
 export async function getAllVehicles() {
-  return db.vehicle.findMany({ orderBy: { name: "asc" }, include: { _count: { select: { jobs: true } } } });
+  return db.vehicle.findMany({
+    orderBy: { name: "asc" },
+    include: { _count: { select: { jobs: true } } },
+  });
 }

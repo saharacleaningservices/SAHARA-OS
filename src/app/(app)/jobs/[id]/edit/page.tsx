@@ -15,11 +15,13 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
       <JobEditForm
         jobId={job.id}
         staffOptions={staffOptions}
+        defaultStaffIds={job.assignments.map((a) => a.staffId)}
         defaultValues={{
           customerName: job.customerName,
           customerMobile: job.customerMobile,
           address: job.address,
           area: job.area,
+          pinCode: job.pinCode ?? "",
           service: job.service as never,
           scheduledDate: job.scheduledDate.toISOString().slice(0, 10),
           scheduledTime: job.scheduledTime,

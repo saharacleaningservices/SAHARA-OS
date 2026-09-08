@@ -55,6 +55,7 @@ export function LeadForm({
       email: "",
       address: "",
       area: "",
+      pinCode: "",
       service: "HOME_DEEP_CLEANING",
       source: "CALL",
       followUpDate: "",
@@ -115,13 +116,13 @@ export function LeadForm({
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="area">Area</Label>
-            <Input id="area" {...register("area")} placeholder="e.g. Magarpatta City" />
-            {errors.area && <p className="text-xs text-destructive">{errors.area.message}</p>}
+            <Label htmlFor="pinCode">PIN Code</Label>
+            <Input id="pinCode" {...register("pinCode")} placeholder="411028" inputMode="numeric" maxLength={6} />
+            {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="address">Full Address</Label>
-            <Textarea id="address" {...register("address")} rows={2} />
+            <Textarea id="address" {...register("address")} rows={2} placeholder="Flat / house no, building, street, landmark, area" />
           </div>
           <div className="sm:col-span-2">
             <MapsLocationInput

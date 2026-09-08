@@ -77,9 +77,12 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        <StatCard label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone="primary" />
-        <StatCard label="Tomorrow's Jobs" value={stats.tomorrowsJobsCount} icon={<CalendarClock className="size-4" />} />
+        <StatCard label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
         <StatCard label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} />
+        <StatCard label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
+        <StatCard label="Monthly Bookings" value={stats.monthlyBookingsCount} icon={<CalendarClock className="size-4" />} tone="primary" />
+        <StatCard label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
+        <StatCard label="Upcoming Jobs" value={stats.upcomingJobsCount} icon={<CalendarClock className="size-4" />} />
         <StatCard label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} />
         <StatCard label="Pending Follow-ups" value={stats.pendingFollowUpsCount} icon={<BellRing className="size-4" />} tone="warning" />
         <StatCard

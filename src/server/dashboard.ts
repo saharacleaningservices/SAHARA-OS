@@ -15,8 +15,12 @@ export async function getDashboardData() {
 
   const [
     todaysLeadsCount,
+    totalLeadsCount,
+    monthlyLeadsCount,
     siteVisitsToday,
     activeJobsCount,
+    upcomingJobsCount,
+    monthlyBookingsCount,
     todaysJobsCount,
     tomorrowsJobsCount,
     pendingPaymentsAgg,
@@ -41,8 +45,12 @@ export async function getDashboardData() {
     lastMonthExpenses,
   ] = await Promise.all([
     db.lead.count({ where: { deletedAt: null, createdAt: { gte: todayStart, lte: todayEnd } } }),
+    db.lead.count({ where: { deletedAt: null } }),
+    db.lead.count({ where: { deletedAt: null, createdAt: { gte: monthStart, lte: monthEnd } } }),
     db.lead.count({ where: { deletedAt: null, stage: "SITE_VISIT", followUpDate: { gte: todayStart, lte: todayEnd } } }),
     db.job.count({ where: { deletedAt: null, status: { in: ["ASSIGNED", "ON_THE_WAY", "STARTED"] } } }),
+    db.job.count({ where: { deletedAt: null, status: { not: "COMPLETED" }, scheduledDate: { gt: todayEnd } } }),
+    db.job.count({ where: { deletedAt: null, createdAt: { gte: monthStart, lte: monthEnd } } }),
     db.job.count({ where: { deletedAt: null, scheduledDate: { gte: todayStart, lte: todayEnd } } }),
     db.job.count({ where: { deletedAt: null, scheduledDate: { gte: tomorrowStart, lte: tomorrowEnd } } }),
     db.payment.aggregate({
@@ -132,6 +140,10 @@ export async function getDashboardData() {
   return {
     stats: {
       todaysLeadsCount,
+      totalLeadsCount,
+      monthlyLeadsCount,
+      monthlyBookingsCount,
+      upcomingJobsCount,
       siteVisitsToday,
       activeJobsCount,
       todaysJobsCount,

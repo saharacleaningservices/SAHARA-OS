@@ -6,36 +6,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { MapsLocationInput, type MapsLocationValue } from "@/components/shared/maps-location-input";
 import { UpsellOfferCard, type UpsellOffer } from "@/components/shared/upsell-offer-card";
-import { TIME_SLOTS } from "@/lib/constants";
+import { TIME_SLOTS, ADDON_SERVICES } from "@/lib/constants";
 import { publicBookLead } from "@/server/actions/public-booking";
 
 export function PublicBookingForm({
   referralCode,
   mapsApiKey = null,
+  leadSource = "",
 }: {
   referralCode?: string;
   mapsApiKey?: string | null;
+  leadSource?: string;
 }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [alternateMobile, setAlternateMobile] = useState("");
   const [email, setEmail] = useState("");
-  const [area, setArea] = useState("");
   const [address, setAddress] = useState("");
+  const [pinCode, setPinCode] = useState("");
   const [serviceDate, setServiceDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("");
   const [category, setCategory] = useState("HOME_DEEP_CLEANING");
   const [variant, setVariant] = useState("");
+  const [addOns, setAddOns] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [loc, setLoc] = useState<MapsLocationValue>({ mapLink: "", lat: null, lng: null });
   const [upsell, setUpsell] = useState<{ offer: UpsellOffer | null; accepted: boolean }>({ offer: null, accepted: false });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
+
+  function toggleAddOn(name: string) {
+    setAddOns((prev) => (prev.includes(name) ? prev.filter((a) => a !== name) : [...prev, name]));
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,15 +54,17 @@ export function PublicBookingForm({
       mobile,
       alternateMobile,
       email,
-      area,
       address,
+      pinCode,
       serviceCategory: category,
       serviceVariant: variant,
+      addOnServices: addOns,
       serviceDate,
       timeSlot,
       notes,
       mapLink: loc.mapLink,
       website: "",
+      source: leadSource,
       referralCode: referralCode || "",
       upsellRuleId: upsell.offer?.id || "",
       upsellLabel: upsell.offer?.label || "",
@@ -75,8 +85,8 @@ export function PublicBookingForm({
         <CheckCircle2 className="size-10 text-success" />
         <h2 className="text-lg font-semibold text-foreground">Thanks — request received!</h2>
         <p className="text-sm text-muted-foreground">
-          Your booking ID is <span className="font-semibold text-foreground">{done}</span>. Our team will call you
-          shortly to confirm the details, and you&apos;ll get a WhatsApp confirmation on {mobile || "your number"}.
+          Your booking ID is <span className="font-semibold text-foreground">{done}</span>. Our team will
+          confirm within 5–15 minutes, and you&apos;ll get a WhatsApp confirmation on {mobile || "your number"}.
         </p>
       </div>
     );
@@ -102,30 +112,45 @@ export function PublicBookingForm({
         <Label htmlFor="pb-email">Email (optional)</Label>
         <Input id="pb-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="pb-area">Area</Label>
-        <Input id="pb-area" value={area} onChange={(e) => setArea(e.target.value)} placeholder="e.g. Magarpatta City" required />
-      </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="pb-address">Full Address</Label>
-        <Textarea id="pb-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={2} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_130px]">
+        <div className="space-y-1.5">
+          <Label htmlFor="pb-address">Full Address</Label>
+          <Textarea id="pb-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder="Flat / house no, building, street, landmark" required />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="pb-pin">PIN Code</Label>
+          <Input id="pb-pin" inputMode="numeric" maxLength={6} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))} placeholder="411028" required />
+        </div>
       </div>
 
       <MapsLocationInput value={loc} onChange={setLoc} apiKey={mapsApiKey} />
 
       <ServiceCategoryPicker category={category} variant={variant} onCategoryChange={(v) => { setCategory(v); setVariant(""); }} onVariantChange={setVariant} />
 
+      <div className="space-y-2">
+        <Label>Add-on Services (optional)</Label>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {ADDON_SERVICES.map((svc) => (
+            <label
+              key={svc}
+              className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2 text-sm ${
+                addOns.includes(svc) ? "border-primary bg-accent" : "border-border"
+              }`}
+            >
+              <Checkbox checked={addOns.includes(svc)} onCheckedChange={() => toggleAddOn(svc)} />
+              <span>{svc}</span>
+            </label>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">Price will be shared after quotation.</p>
+      </div>
+
       <UpsellOfferCard category={category} onChange={(offer, accepted) => setUpsell({ offer, accepted })} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="pb-service-date">Requested Service Date</Label>
-          <Input
-            id="pb-service-date"
-            type="date"
-            value={serviceDate}
-            onChange={(e) => setServiceDate(e.target.value)}
-          />
+          <Input id="pb-service-date" type="date" value={serviceDate} onChange={(e) => setServiceDate(e.target.value)} />
         </div>
         <div className="space-y-1.5">
           <Label>Time Slot</Label>
@@ -146,15 +171,16 @@ export function PublicBookingForm({
 
       <div className="space-y-1.5">
         <Label htmlFor="pb-notes">Notes / Custom Requirement (optional)</Label>
-        <Textarea id="pb-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+        <Textarea id="pb-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Parking, lift, pets, urgent requirement…" />
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <Button type="submit" className="w-full" size="lg" disabled={submitting}>
         {submitting && <Loader2 className="animate-spin" />}
-        Request a Booking
+        Book Your Slot Now
       </Button>
+      <p className="text-center text-xs text-muted-foreground">Confirmation within 5–15 minutes.</p>
     </form>
   );
 }
