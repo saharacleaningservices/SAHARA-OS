@@ -12,7 +12,6 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
 import { PhotoUploader } from "@/components/jobs/photo-uploader";
 import { VideoUploader } from "@/components/jobs/video-uploader";
-import { SignatureCapture } from "@/components/jobs/signature-capture";
 import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { JobCardActions } from "@/components/jobs/job-card-actions";
@@ -134,9 +133,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <p className="font-medium text-foreground">{formatINR(job.jobValue)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Payment</p>
+                  <p className="text-xs text-muted-foreground">Advance Received</p>
+                  <p className="font-medium text-success">{formatINR(advance)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Balance Amount</p>
                   <p className="font-medium text-foreground">
-                    {paymentStatus} · Bal {formatINR(balance)}
+                    {formatINR(balance)} <span className="text-xs text-muted-foreground">({paymentStatus})</span>
                   </p>
                 </div>
                 <div>
@@ -266,15 +269,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             canEdit={canManage}
             mapsApiKey={googleMaps.apiKey}
           />
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer Signature</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SignatureCapture jobId={job.id} existingUrl={job.customerSignatureUrl} />
-            </CardContent>
-          </Card>
 
           {job.payments.length > 0 && (
             <Card>

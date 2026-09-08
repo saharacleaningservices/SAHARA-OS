@@ -24,7 +24,11 @@ export const LeadSource = {
   WHATSAPP: 'WHATSAPP',
   CALL: 'CALL',
   WEBSITE: 'WEBSITE',
-  GOOGLE: 'GOOGLE'
+  GOOGLE: 'GOOGLE',
+  GMB: 'GMB',
+  FACEBOOK: 'FACEBOOK',
+  INSTAGRAM: 'INSTAGRAM',
+  META: 'META'
 } as const
 
 export type LeadSource = (typeof LeadSource)[keyof typeof LeadSource]
@@ -76,11 +80,16 @@ export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
 export const ExpenseCategory = {
-  CHEMICALS: 'CHEMICALS',
+  HOUSEKEEPING_MATERIAL: 'HOUSEKEEPING_MATERIAL',
   FUEL: 'FUEL',
+  AUTO_CAB_FARE: 'AUTO_CAB_FARE',
   EQUIPMENT: 'EQUIPMENT',
+  BIKE_SERVICE: 'BIKE_SERVICE',
   STAFF_ADVANCE: 'STAFF_ADVANCE',
-  MISCELLANEOUS: 'MISCELLANEOUS'
+  VENDOR_PAYMENT: 'VENDOR_PAYMENT',
+  MISCELLANEOUS: 'MISCELLANEOUS',
+  CHEMICALS: 'CHEMICALS',
+  BACK_OFFICE: 'BACK_OFFICE'
 } as const
 
 export type ExpenseCategory = (typeof ExpenseCategory)[keyof typeof ExpenseCategory]

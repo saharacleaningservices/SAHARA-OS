@@ -18,6 +18,10 @@ export async function createAmc(values: unknown) {
   const nextVisitDate = new Date(startDate);
   nextVisitDate.setDate(nextVisitDate.getDate() + (AMC_FREQUENCY_DAYS[d.frequency] ?? 90));
 
+  // One-year contract term by default when no explicit expiry is given.
+  const defaultExpiry = new Date(startDate);
+  defaultExpiry.setFullYear(defaultExpiry.getFullYear() + 1);
+
   const contractNumber = await generateAmcNumber();
   const amc = await db.amcContract.create({
     data: {
@@ -32,6 +36,8 @@ export async function createAmc(values: unknown) {
       amount: d.amount,
       startDate,
       nextVisitDate,
+      serviceReminderDate: d.serviceReminderDate ? new Date(d.serviceReminderDate) : nextVisitDate,
+      contractExpiryDate: d.contractExpiryDate ? new Date(d.contractExpiryDate) : defaultExpiry,
       notes: d.notes || null,
       leadId: d.leadId || null,
     },

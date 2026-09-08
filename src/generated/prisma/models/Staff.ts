@@ -42,11 +42,18 @@ export type StaffMinAggregateOutputType = {
   name: string | null
   mobile: string | null
   designation: string | null
+  alternateMobile: string | null
   salaryType: $Enums.SalaryType | null
   dailyWage: number | null
   monthlySalary: number | null
   availability: $Enums.StaffAvailability | null
   joinDate: Date | null
+  joiningDate: Date | null
+  reference: string | null
+  bankAccount: string | null
+  bankIfsc: string | null
+  gpayNumber: string | null
+  documents: string | null
   isActive: boolean | null
   photoUrl: string | null
   notes: string | null
@@ -65,11 +72,18 @@ export type StaffMaxAggregateOutputType = {
   name: string | null
   mobile: string | null
   designation: string | null
+  alternateMobile: string | null
   salaryType: $Enums.SalaryType | null
   dailyWage: number | null
   monthlySalary: number | null
   availability: $Enums.StaffAvailability | null
   joinDate: Date | null
+  joiningDate: Date | null
+  reference: string | null
+  bankAccount: string | null
+  bankIfsc: string | null
+  gpayNumber: string | null
+  documents: string | null
   isActive: boolean | null
   photoUrl: string | null
   notes: string | null
@@ -88,11 +102,18 @@ export type StaffCountAggregateOutputType = {
   name: number
   mobile: number
   designation: number
+  alternateMobile: number
   salaryType: number
   dailyWage: number
   monthlySalary: number
   availability: number
   joinDate: number
+  joiningDate: number
+  reference: number
+  bankAccount: number
+  bankIfsc: number
+  gpayNumber: number
+  documents: number
   isActive: number
   photoUrl: number
   notes: number
@@ -123,11 +144,18 @@ export type StaffMinAggregateInputType = {
   name?: true
   mobile?: true
   designation?: true
+  alternateMobile?: true
   salaryType?: true
   dailyWage?: true
   monthlySalary?: true
   availability?: true
   joinDate?: true
+  joiningDate?: true
+  reference?: true
+  bankAccount?: true
+  bankIfsc?: true
+  gpayNumber?: true
+  documents?: true
   isActive?: true
   photoUrl?: true
   notes?: true
@@ -146,11 +174,18 @@ export type StaffMaxAggregateInputType = {
   name?: true
   mobile?: true
   designation?: true
+  alternateMobile?: true
   salaryType?: true
   dailyWage?: true
   monthlySalary?: true
   availability?: true
   joinDate?: true
+  joiningDate?: true
+  reference?: true
+  bankAccount?: true
+  bankIfsc?: true
+  gpayNumber?: true
+  documents?: true
   isActive?: true
   photoUrl?: true
   notes?: true
@@ -169,11 +204,18 @@ export type StaffCountAggregateInputType = {
   name?: true
   mobile?: true
   designation?: true
+  alternateMobile?: true
   salaryType?: true
   dailyWage?: true
   monthlySalary?: true
   availability?: true
   joinDate?: true
+  joiningDate?: true
+  reference?: true
+  bankAccount?: true
+  bankIfsc?: true
+  gpayNumber?: true
+  documents?: true
   isActive?: true
   photoUrl?: true
   notes?: true
@@ -279,11 +321,18 @@ export type StaffGroupByOutputType = {
   name: string
   mobile: string
   designation: string
+  alternateMobile: string | null
   salaryType: $Enums.SalaryType
   dailyWage: number | null
   monthlySalary: number | null
   availability: $Enums.StaffAvailability
   joinDate: Date
+  joiningDate: Date | null
+  reference: string | null
+  bankAccount: string | null
+  bankIfsc: string | null
+  gpayNumber: string | null
+  documents: string | null
   isActive: boolean
   photoUrl: string | null
   notes: string | null
@@ -325,11 +374,18 @@ export type StaffWhereInput = {
   name?: Prisma.StringFilter<"Staff"> | string
   mobile?: Prisma.StringFilter<"Staff"> | string
   designation?: Prisma.StringFilter<"Staff"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Staff"> | string | null
   salaryType?: Prisma.EnumSalaryTypeFilter<"Staff"> | $Enums.SalaryType
   dailyWage?: Prisma.FloatNullableFilter<"Staff"> | number | null
   monthlySalary?: Prisma.FloatNullableFilter<"Staff"> | number | null
   availability?: Prisma.EnumStaffAvailabilityFilter<"Staff"> | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  reference?: Prisma.StringNullableFilter<"Staff"> | string | null
+  bankAccount?: Prisma.StringNullableFilter<"Staff"> | string | null
+  bankIfsc?: Prisma.StringNullableFilter<"Staff"> | string | null
+  gpayNumber?: Prisma.StringNullableFilter<"Staff"> | string | null
+  documents?: Prisma.StringNullableFilter<"Staff"> | string | null
   isActive?: Prisma.BoolFilter<"Staff"> | boolean
   photoUrl?: Prisma.StringNullableFilter<"Staff"> | string | null
   notes?: Prisma.StringNullableFilter<"Staff"> | string | null
@@ -357,11 +413,18 @@ export type StaffOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   salaryType?: Prisma.SortOrder
   dailyWage?: Prisma.SortOrderInput | Prisma.SortOrder
   monthlySalary?: Prisma.SortOrderInput | Prisma.SortOrder
   availability?: Prisma.SortOrder
   joinDate?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  reference?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccount?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpayNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  documents?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -394,11 +457,18 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Staff"> | string
   mobile?: Prisma.StringFilter<"Staff"> | string
   designation?: Prisma.StringFilter<"Staff"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Staff"> | string | null
   salaryType?: Prisma.EnumSalaryTypeFilter<"Staff"> | $Enums.SalaryType
   dailyWage?: Prisma.FloatNullableFilter<"Staff"> | number | null
   monthlySalary?: Prisma.FloatNullableFilter<"Staff"> | number | null
   availability?: Prisma.EnumStaffAvailabilityFilter<"Staff"> | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  reference?: Prisma.StringNullableFilter<"Staff"> | string | null
+  bankAccount?: Prisma.StringNullableFilter<"Staff"> | string | null
+  bankIfsc?: Prisma.StringNullableFilter<"Staff"> | string | null
+  gpayNumber?: Prisma.StringNullableFilter<"Staff"> | string | null
+  documents?: Prisma.StringNullableFilter<"Staff"> | string | null
   isActive?: Prisma.BoolFilter<"Staff"> | boolean
   photoUrl?: Prisma.StringNullableFilter<"Staff"> | string | null
   notes?: Prisma.StringNullableFilter<"Staff"> | string | null
@@ -424,11 +494,18 @@ export type StaffOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   salaryType?: Prisma.SortOrder
   dailyWage?: Prisma.SortOrderInput | Prisma.SortOrder
   monthlySalary?: Prisma.SortOrderInput | Prisma.SortOrder
   availability?: Prisma.SortOrder
   joinDate?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  reference?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccount?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpayNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  documents?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -455,11 +532,18 @@ export type StaffScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Staff"> | string
   mobile?: Prisma.StringWithAggregatesFilter<"Staff"> | string
   designation?: Prisma.StringWithAggregatesFilter<"Staff"> | string
+  alternateMobile?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
   salaryType?: Prisma.EnumSalaryTypeWithAggregatesFilter<"Staff"> | $Enums.SalaryType
   dailyWage?: Prisma.FloatNullableWithAggregatesFilter<"Staff"> | number | null
   monthlySalary?: Prisma.FloatNullableWithAggregatesFilter<"Staff"> | number | null
   availability?: Prisma.EnumStaffAvailabilityWithAggregatesFilter<"Staff"> | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
+  joiningDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+  reference?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
+  bankAccount?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
+  bankIfsc?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
+  gpayNumber?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
+  documents?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Staff"> | boolean
   photoUrl?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
@@ -478,11 +562,18 @@ export type StaffCreateInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -509,11 +600,18 @@ export type StaffUncheckedCreateInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -540,11 +638,18 @@ export type StaffUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -571,11 +676,18 @@ export type StaffUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -602,11 +714,18 @@ export type StaffCreateManyInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -625,11 +744,18 @@ export type StaffUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -647,11 +773,18 @@ export type StaffUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -675,11 +808,18 @@ export type StaffCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   salaryType?: Prisma.SortOrder
   dailyWage?: Prisma.SortOrder
   monthlySalary?: Prisma.SortOrder
   availability?: Prisma.SortOrder
   joinDate?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
+  bankAccount?: Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrder
+  gpayNumber?: Prisma.SortOrder
+  documents?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -703,11 +843,18 @@ export type StaffMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   salaryType?: Prisma.SortOrder
   dailyWage?: Prisma.SortOrder
   monthlySalary?: Prisma.SortOrder
   availability?: Prisma.SortOrder
   joinDate?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
+  bankAccount?: Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrder
+  gpayNumber?: Prisma.SortOrder
+  documents?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -726,11 +873,18 @@ export type StaffMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   salaryType?: Prisma.SortOrder
   dailyWage?: Prisma.SortOrder
   monthlySalary?: Prisma.SortOrder
   availability?: Prisma.SortOrder
   joinDate?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
+  bankAccount?: Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrder
+  gpayNumber?: Prisma.SortOrder
+  documents?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   photoUrl?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -925,11 +1079,18 @@ export type StaffCreateWithoutUserInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -955,11 +1116,18 @@ export type StaffUncheckedCreateWithoutUserInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1001,11 +1169,18 @@ export type StaffUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1031,11 +1206,18 @@ export type StaffUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1061,11 +1243,18 @@ export type StaffCreateWithoutAttendanceInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1091,11 +1280,18 @@ export type StaffUncheckedCreateWithoutAttendanceInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1137,11 +1333,18 @@ export type StaffUpdateWithoutAttendanceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1167,11 +1370,18 @@ export type StaffUncheckedUpdateWithoutAttendanceInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1197,11 +1407,18 @@ export type StaffCreateWithoutLeadAssignmentsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1227,11 +1444,18 @@ export type StaffUncheckedCreateWithoutLeadAssignmentsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1273,11 +1497,18 @@ export type StaffUpdateWithoutLeadAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1303,11 +1534,18 @@ export type StaffUncheckedUpdateWithoutLeadAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1333,11 +1571,18 @@ export type StaffCreateWithoutSupervisedJobsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1363,11 +1608,18 @@ export type StaffUncheckedCreateWithoutSupervisedJobsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1409,11 +1661,18 @@ export type StaffUpdateWithoutSupervisedJobsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1439,11 +1698,18 @@ export type StaffUncheckedUpdateWithoutSupervisedJobsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1469,11 +1735,18 @@ export type StaffCreateWithoutJobAssignmentsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1499,11 +1772,18 @@ export type StaffUncheckedCreateWithoutJobAssignmentsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1545,11 +1825,18 @@ export type StaffUpdateWithoutJobAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1575,11 +1862,18 @@ export type StaffUncheckedUpdateWithoutJobAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1605,11 +1899,18 @@ export type StaffCreateWithoutExpensesInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1635,11 +1936,18 @@ export type StaffUncheckedCreateWithoutExpensesInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1681,11 +1989,18 @@ export type StaffUpdateWithoutExpensesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1711,11 +2026,18 @@ export type StaffUncheckedUpdateWithoutExpensesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1741,11 +2063,18 @@ export type StaffCreateWithoutAdvancesInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1771,11 +2100,18 @@ export type StaffUncheckedCreateWithoutAdvancesInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1817,11 +2153,18 @@ export type StaffUpdateWithoutAdvancesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1847,11 +2190,18 @@ export type StaffUncheckedUpdateWithoutAdvancesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1877,11 +2227,18 @@ export type StaffCreateWithoutFinesInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1907,11 +2264,18 @@ export type StaffUncheckedCreateWithoutFinesInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -1953,11 +2317,18 @@ export type StaffUpdateWithoutFinesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1983,11 +2354,18 @@ export type StaffUncheckedUpdateWithoutFinesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2013,11 +2391,18 @@ export type StaffCreateWithoutRewardsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -2043,11 +2428,18 @@ export type StaffUncheckedCreateWithoutRewardsInput = {
   name: string
   mobile: string
   designation: string
+  alternateMobile?: string | null
   salaryType?: $Enums.SalaryType
   dailyWage?: number | null
   monthlySalary?: number | null
   availability?: $Enums.StaffAvailability
   joinDate?: Date | string
+  joiningDate?: Date | string | null
+  reference?: string | null
+  bankAccount?: string | null
+  bankIfsc?: string | null
+  gpayNumber?: string | null
+  documents?: string | null
   isActive?: boolean
   photoUrl?: string | null
   notes?: string | null
@@ -2089,11 +2481,18 @@ export type StaffUpdateWithoutRewardsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2119,11 +2518,18 @@ export type StaffUncheckedUpdateWithoutRewardsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salaryType?: Prisma.EnumSalaryTypeFieldUpdateOperationsInput | $Enums.SalaryType
   dailyWage?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   monthlySalary?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   availability?: Prisma.EnumStaffAvailabilityFieldUpdateOperationsInput | $Enums.StaffAvailability
   joinDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpayNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documents?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2243,11 +2649,18 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name?: boolean
   mobile?: boolean
   designation?: boolean
+  alternateMobile?: boolean
   salaryType?: boolean
   dailyWage?: boolean
   monthlySalary?: boolean
   availability?: boolean
   joinDate?: boolean
+  joiningDate?: boolean
+  reference?: boolean
+  bankAccount?: boolean
+  bankIfsc?: boolean
+  gpayNumber?: boolean
+  documents?: boolean
   isActive?: boolean
   photoUrl?: boolean
   notes?: boolean
@@ -2276,11 +2689,18 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   mobile?: boolean
   designation?: boolean
+  alternateMobile?: boolean
   salaryType?: boolean
   dailyWage?: boolean
   monthlySalary?: boolean
   availability?: boolean
   joinDate?: boolean
+  joiningDate?: boolean
+  reference?: boolean
+  bankAccount?: boolean
+  bankIfsc?: boolean
+  gpayNumber?: boolean
+  documents?: boolean
   isActive?: boolean
   photoUrl?: boolean
   notes?: boolean
@@ -2300,11 +2720,18 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   mobile?: boolean
   designation?: boolean
+  alternateMobile?: boolean
   salaryType?: boolean
   dailyWage?: boolean
   monthlySalary?: boolean
   availability?: boolean
   joinDate?: boolean
+  joiningDate?: boolean
+  reference?: boolean
+  bankAccount?: boolean
+  bankIfsc?: boolean
+  gpayNumber?: boolean
+  documents?: boolean
   isActive?: boolean
   photoUrl?: boolean
   notes?: boolean
@@ -2324,11 +2751,18 @@ export type StaffSelectScalar = {
   name?: boolean
   mobile?: boolean
   designation?: boolean
+  alternateMobile?: boolean
   salaryType?: boolean
   dailyWage?: boolean
   monthlySalary?: boolean
   availability?: boolean
   joinDate?: boolean
+  joiningDate?: boolean
+  reference?: boolean
+  bankAccount?: boolean
+  bankIfsc?: boolean
+  gpayNumber?: boolean
+  documents?: boolean
   isActive?: boolean
   photoUrl?: boolean
   notes?: boolean
@@ -2341,7 +2775,7 @@ export type StaffSelectScalar = {
   deletedByName?: boolean
 }
 
-export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeCode" | "name" | "mobile" | "designation" | "salaryType" | "dailyWage" | "monthlySalary" | "availability" | "joinDate" | "isActive" | "photoUrl" | "notes" | "qrCode" | "userId" | "createdAt" | "updatedAt" | "isDemo" | "deletedAt" | "deletedByName", ExtArgs["result"]["staff"]>
+export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeCode" | "name" | "mobile" | "designation" | "alternateMobile" | "salaryType" | "dailyWage" | "monthlySalary" | "availability" | "joinDate" | "joiningDate" | "reference" | "bankAccount" | "bankIfsc" | "gpayNumber" | "documents" | "isActive" | "photoUrl" | "notes" | "qrCode" | "userId" | "createdAt" | "updatedAt" | "isDemo" | "deletedAt" | "deletedByName", ExtArgs["result"]["staff"]>
 export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Staff$userArgs<ExtArgs>
   attendance?: boolean | Prisma.Staff$attendanceArgs<ExtArgs>
@@ -2380,11 +2814,18 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     name: string
     mobile: string
     designation: string
+    alternateMobile: string | null
     salaryType: $Enums.SalaryType
     dailyWage: number | null
     monthlySalary: number | null
     availability: $Enums.StaffAvailability
     joinDate: Date
+    joiningDate: Date | null
+    reference: string | null
+    bankAccount: string | null
+    bankIfsc: string | null
+    gpayNumber: string | null
+    documents: string | null
     isActive: boolean
     photoUrl: string | null
     notes: string | null
@@ -2832,11 +3273,18 @@ export interface StaffFieldRefs {
   readonly name: Prisma.FieldRef<"Staff", 'String'>
   readonly mobile: Prisma.FieldRef<"Staff", 'String'>
   readonly designation: Prisma.FieldRef<"Staff", 'String'>
+  readonly alternateMobile: Prisma.FieldRef<"Staff", 'String'>
   readonly salaryType: Prisma.FieldRef<"Staff", 'SalaryType'>
   readonly dailyWage: Prisma.FieldRef<"Staff", 'Float'>
   readonly monthlySalary: Prisma.FieldRef<"Staff", 'Float'>
   readonly availability: Prisma.FieldRef<"Staff", 'StaffAvailability'>
   readonly joinDate: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly joiningDate: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly reference: Prisma.FieldRef<"Staff", 'String'>
+  readonly bankAccount: Prisma.FieldRef<"Staff", 'String'>
+  readonly bankIfsc: Prisma.FieldRef<"Staff", 'String'>
+  readonly gpayNumber: Prisma.FieldRef<"Staff", 'String'>
+  readonly documents: Prisma.FieldRef<"Staff", 'String'>
   readonly isActive: Prisma.FieldRef<"Staff", 'Boolean'>
   readonly photoUrl: Prisma.FieldRef<"Staff", 'String'>
   readonly notes: Prisma.FieldRef<"Staff", 'String'>

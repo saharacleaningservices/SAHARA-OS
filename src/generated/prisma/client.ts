@@ -122,6 +122,11 @@ export type ActivityLog = Prisma.ActivityLogModel
  */
 export type CompanySettings = Prisma.CompanySettingsModel
 /**
+ * Model CompanyDocument
+ * 
+ */
+export type CompanyDocument = Prisma.CompanyDocumentModel
+/**
  * Model AuditLog
  * 
  */
@@ -201,3 +206,18 @@ export type JobVideo = Prisma.JobVideoModel
  * 
  */
 export type IntegrationSettings = Prisma.IntegrationSettingsModel
+/**
+ * Model SecurityOtp
+ * 
+ */
+export type SecurityOtp = Prisma.SecurityOtpModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model PushSubscription
+ * 
+ */
+export type PushSubscription = Prisma.PushSubscriptionModel

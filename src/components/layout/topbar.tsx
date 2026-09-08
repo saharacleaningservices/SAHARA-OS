@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { GlobalSearch } from "@/components/shared/global-search";
+import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import { ROLE_LABELS } from "@/lib/constants";
 import { canSearchGlobally } from "@/lib/permissions";
 
@@ -65,6 +66,8 @@ export function Topbar({
       {canSearchGlobally(role) && (
         <p className="hidden truncate text-sm font-semibold text-foreground md:block">{pageLabel}</p>
       )}
+
+      <NotificationsBell />
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

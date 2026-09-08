@@ -123,11 +123,43 @@ export async function sweepAmcRenewalReminders() {
   return { sent, checked: contracts.length };
 }
 
+/** Fires an in-app + push notification for every follow-up that has come due
+ * today and hasn't been notified in the last 20 hours. */
+export async function sweepDueFollowUpNotifications() {
+  const { notify } = await import("@/server/notify");
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  const due = await db.followUp.findMany({
+    where: { isDone: false, dueDate: { lte: end }, lead: { deletedAt: null } },
+    include: { lead: { select: { id: true, name: true, mobile: true } } },
+    orderBy: { dueDate: "asc" },
+    take: 50,
+  });
+  const since = new Date(Date.now() - 20 * 3600 * 1000);
+  let sent = 0;
+  for (const f of due) {
+    const already = await db.notification.count({
+      where: { kind: "FOLLOWUP_DUE", createdAt: { gte: since }, meta: { contains: f.id } },
+    });
+    if (already) continue;
+    await notify({
+      kind: "FOLLOWUP_DUE",
+      title: `Follow-up due — ${f.lead.name}`,
+      body: `${f.notes || "Follow-up"}${f.lead.mobile ? ` · ☎ ${f.lead.mobile}` : ""}`,
+      href: `/leads/${f.lead.id}`,
+      meta: { followUpId: f.id },
+    });
+    sent += 1;
+  }
+  return { sent, checked: due.length };
+}
+
 export async function runAllReminderSweeps() {
-  const [customer, payment, amc] = await Promise.all([
+  const [customer, payment, amc, followUps] = await Promise.all([
     sweepCustomerReminders(),
     sweepPaymentReminders(),
     sweepAmcRenewalReminders(),
+    sweepDueFollowUpNotifications(),
   ]);
-  return { customer, payment, amc };
+  return { customer, payment, amc, followUps };
 }

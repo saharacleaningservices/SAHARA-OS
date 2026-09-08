@@ -19,6 +19,7 @@ import {
   regenerateBackupToken,
   updateBackupSettings,
   updateMapsSettings,
+  updateMyBillBookSettings,
   updateWhatsAppSettings,
 } from "@/server/integrations";
 
@@ -134,6 +135,26 @@ export async function clearMapsSettings() {
   const { error, session } = await requireAdmin();
   if (error) return { error };
   await updateMapsSettings({ apiKey: "", verifiedAt: null }, session);
+  refresh();
+  return { success: true as const };
+}
+
+// ── MyBillBook ────────────────────────────────────────────────────────────
+
+export async function saveMyBillBookSettings(values: unknown) {
+  const { error, session } = await requireAdmin();
+  if (error) return { error };
+  const parsed = z.object({ apiKey: z.string().optional() }).safeParse(values);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
+  await updateMyBillBookSettings({ apiKey: parsed.data.apiKey?.trim() ?? "" }, session);
+  refresh();
+  return { success: true as const };
+}
+
+export async function clearMyBillBookSettings() {
+  const { error, session } = await requireAdmin();
+  if (error) return { error };
+  await updateMyBillBookSettings({ apiKey: "" }, session);
   refresh();
   return { success: true as const };
 }

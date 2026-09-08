@@ -98,8 +98,9 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label>Area</Label>
-              <Input {...register("area")} />
+              <Label>PIN Code</Label>
+              <Input {...register("pinCode")} inputMode="numeric" maxLength={6} placeholder="411028" />
+              {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
             </div>
             <div className="space-y-1">
               <Label>Service</Label>

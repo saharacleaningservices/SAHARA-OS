@@ -1,12 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { writeFile, mkdir } from "node:fs/promises";
-import path from "node:path";
-import { randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { jobSchema } from "@/lib/validation";
+import { deriveArea } from "@/lib/utils";
+import { notify } from "@/server/notify";
 import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
@@ -40,7 +39,8 @@ export async function createJob(values: unknown) {
       customerMobile: data.customerMobile,
       alternateMobile: data.alternateMobile || null,
       address: data.address,
-      area: data.area,
+      area: deriveArea(data),
+      pinCode: data.pinCode || null,
       service: data.service,
       serviceVariant: data.serviceVariant || null,
       scheduledDate: new Date(data.scheduledDate),
@@ -57,6 +57,13 @@ export async function createJob(values: unknown) {
       data: data.staffIds.map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
     });
     await dispatchTeamForJob(job.id).catch(() => {});
+    const crew = await db.staff.findMany({ where: { id: { in: data.staffIds } }, select: { name: true } });
+    await notify({
+      kind: "CREW_UPDATE",
+      title: `Crew assigned — ${job.customerName}`,
+      body: `${job.jobNumber} · ${crew.map((c) => c.name).join(", ")} · ${new Date(job.scheduledDate).toLocaleDateString("en-IN")} ${job.scheduledTime}`,
+      href: `/jobs/${job.id}`,
+    });
   }
 
   if (data.leadId) {
@@ -91,6 +98,7 @@ export async function updateJob(id: string, values: unknown) {
       ...(d.alternateMobile !== undefined && { alternateMobile: d.alternateMobile || null }),
       ...(d.address && { address: d.address }),
       ...(d.area && { area: d.area }),
+      ...(d.pinCode !== undefined && { pinCode: d.pinCode || null }),
       ...(d.service && { service: d.service }),
       ...(d.serviceVariant !== undefined && { serviceVariant: d.serviceVariant || null }),
       ...(d.scheduledDate && { scheduledDate: new Date(d.scheduledDate) }),
@@ -103,6 +111,29 @@ export async function updateJob(id: string, values: unknown) {
       ...(d.notes !== undefined && { notes: d.notes || null }),
     },
   });
+
+  // Multi-crew assignment — replace the crew list when the form sends one.
+  if (d.staffIds !== undefined) {
+    const staffIds = [...new Set(d.staffIds.filter(Boolean))];
+    await db.jobAssignment.deleteMany({ where: { jobId: id } });
+    if (staffIds.length) {
+      await db.jobAssignment.createMany({
+        data: staffIds.map((staffId, i) => ({ jobId: id, staffId, isLead: i === 0 })),
+      });
+      await dispatchTeamForJob(id).catch(() => {});
+      const [job, crew] = await Promise.all([
+        db.job.findUnique({ where: { id }, select: { jobNumber: true, customerName: true } }),
+        db.staff.findMany({ where: { id: { in: staffIds } }, select: { name: true } }),
+      ]);
+      await notify({
+        kind: "CREW_UPDATE",
+        title: `Crew updated — ${job?.customerName ?? "job"}`,
+        body: `${job?.jobNumber ?? ""} · ${crew.map((c) => c.name).join(", ")}`,
+        href: `/jobs/${id}`,
+      });
+    }
+  }
+
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${id}`);
   revalidatePath("/dashboard");
@@ -173,23 +204,6 @@ export async function addJobVideo(jobId: string, url: string, caption?: string) 
   return { success: true as const };
 }
 
-export async function saveJobSignature(jobId: string, dataUrl: string) {
-  const match = /^data:image\/(png|jpeg);base64,(.+)$/.exec(dataUrl);
-  if (!match) return { error: "Invalid signature data", success: false as const };
-
-  const ext = match[1] === "jpeg" ? "jpg" : "png";
-  const buffer = Buffer.from(match[2], "base64");
-  const filename = `${Date.now()}-${randomUUID().slice(0, 8)}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads", "signatures");
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, filename), buffer);
-  const url = `/uploads/signatures/${filename}`;
-
-  await db.job.update({ where: { id: jobId }, data: { customerSignatureUrl: url, signedAt: new Date() } });
-  revalidatePath(`/jobs/${jobId}`);
-  return { success: true as const, url };
-}
-
 export async function completeJobWithCertificate(jobId: string) {
   const job = await db.job.findUnique({ where: { id: jobId }, include: { supervisor: true, certificate: true } });
   if (!job) return { error: "Job not found", success: false as const };
@@ -223,7 +237,7 @@ export async function completeJobWithCertificate(jobId: string) {
         customerName: job.customerName,
         serviceSummary: `${job.service.replaceAll("_", " ")} completed at ${job.area}.`,
         supervisorName: job.supervisor?.name,
-        signatureUrl: job.customerSignatureUrl,
+        signatureUrl: null,
       },
     });
     certificateId = certificate.id;

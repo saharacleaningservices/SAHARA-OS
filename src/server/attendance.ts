@@ -113,6 +113,41 @@ export async function getStaffLedger(staffId: string, year: number, month: numbe
   return { staff, attendance, advances, fines, rewards, presentDays, earned, advanceTotal, fineTotal, rewardTotal, netBalance };
 }
 
+/** Monthly attendance + payroll summary for every active staff member. */
+export async function getMonthlyLedgerForAllStaff(year: number, month: number) {
+  const staff = await db.staff.findMany({
+    where: { isActive: true, deletedAt: null },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, employeeCode: true, designation: true, salaryType: true },
+  });
+  const rows = await Promise.all(
+    staff.map(async (s) => {
+      const l = await getStaffLedger(s.id, year, month);
+      const presentDays = l.attendance.filter((a) => a.status === "PRESENT").length;
+      const halfDays = l.attendance.filter((a) => a.status === "HALF_DAY").length;
+      const absentDays = l.attendance.filter((a) => a.status === "ABSENT").length;
+      const offDays = l.attendance.filter((a) => a.status === "LEAVE").length;
+      return {
+        id: s.id,
+        name: s.name,
+        employeeCode: s.employeeCode,
+        designation: s.designation,
+        wageType: s.salaryType === "DAILY" ? "Daily" : "Monthly",
+        presentDays,
+        halfDays,
+        absentDays,
+        offDays,
+        advanceTotal: l.advanceTotal,
+        fineTotal: l.fineTotal,
+        rewardTotal: l.rewardTotal,
+        earned: l.earned,
+        netBalance: l.netBalance,
+      };
+    }),
+  );
+  return rows;
+}
+
 export async function sendDailyAttendanceSummary() {
   const summary = await getTodayAttendanceSummary();
   const adminNumbers = (process.env.ADMIN_WHATSAPP_NUMBERS || COMPANY.phones[0])

@@ -41,6 +41,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/uploads") ||
     pathname === "/favicon.ico" ||
+    pathname === "/sw.js" ||
     // Branding/PWA metadata routes — must be fetchable by the browser (tab
     // favicon, home-screen icon, manifest) and by logged-out visitors on
     // /login, so they can never be gated behind a session.
@@ -65,6 +66,11 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
+  // Authenticated pages that every role may reach (no section gating).
+  if (pathname === "/set-password" || pathname === "/profile") {
     return NextResponse.next();
   }
 

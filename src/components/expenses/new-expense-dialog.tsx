@@ -20,7 +20,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { expenseSchema, type ExpenseFormValues } from "@/lib/validation";
-import { EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
+import { EXPENSE_CATEGORY_OPTIONS } from "@/lib/constants";
 import { createExpense } from "@/server/actions/expenses";
 
 export function NewExpenseDialog() {
@@ -64,7 +64,7 @@ export function NewExpenseDialog() {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Record an Expense</DialogTitle>
-          <DialogDescription>Track chemicals, fuel, equipment, staff advances and more.</DialogDescription>
+          <DialogDescription>Track housekeeping material, fuel, cab fare, equipment, vendor payments and more.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="space-y-1">
@@ -74,7 +74,7 @@ export function NewExpenseDialog() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(EXPENSE_CATEGORY_LABELS).map(([value, label]) => (
+                {EXPENSE_CATEGORY_OPTIONS.map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>

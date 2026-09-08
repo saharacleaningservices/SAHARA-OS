@@ -62,6 +62,25 @@ export function toTelLink(mobile: string): string {
   return `tel:${digits}`;
 }
 
+/**
+ * The customer-facing Area field was removed from the booking / lead / job
+ * forms in favour of a full Address + PIN Code. The `area` column stays
+ * NOT NULL for existing reports, dashboards and job cards, so derive a value
+ * from PIN → first address line → placeholder.
+ */
+export function deriveArea(input: {
+  area?: string | null;
+  pinCode?: string | null;
+  address?: string | null;
+}): string {
+  return (
+    (input.area && input.area.trim()) ||
+    (input.pinCode && input.pinCode.trim()) ||
+    (input.address ? input.address.split(/[\n,]/)[0]!.trim().slice(0, 60) : "") ||
+    "—"
+  );
+}
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()

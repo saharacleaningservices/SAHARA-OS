@@ -7,18 +7,18 @@ import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { getDeviceToken, setDeviceCookie, generateDeviceToken, generateOtp, labelFromUserAgent } from "@/lib/device";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { deviceApprovalRequestMessage } from "@/lib/whatsapp-templates";
+import { notify } from "@/server/notify";
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
 
-// Roles that require the owner (Altaf) to approve every new device before a
-// session is issued. Deliberately not ADMIN (Altaf approves himself by
-// definition), not ACCOUNTS/STAFF (not in scope per the production
-// hardening spec — only Operations Manager and Field Supervisor logins are
-// gated).
-const DEVICE_GATED_ROLES = new Set(["OPERATIONS", "SUPERVISOR"]);
+// Roles that require the Super Admin (Altaf) to approve every new device
+// before a session is issued — the two office managers, Francis (OPERATIONS)
+// and Shoyab (ACCOUNTS). Not ADMIN (Altaf approves himself), not
+// SUPERVISOR/STAFF (field devices, out of scope).
+const DEVICE_GATED_ROLES = new Set(["OPERATIONS", "ACCOUNTS"]);
 const OTP_TTL_MINUTES = 15;
 
 export async function POST(request: NextRequest) {
@@ -120,6 +120,16 @@ export async function POST(request: NextRequest) {
         }).catch(() => {});
       }
 
+      // Instant alert to the Super Admin (in-app + push + WhatsApp).
+      await notify({
+        kind: "DEVICE_LOGIN",
+        title: "New device login needs approval",
+        body: `${user.name} (${user.email}) is trying to sign in from ${label}. OTP: ${otpCode}`,
+        href: "/admin/device-approvals",
+        whatsappToAdmin: false,
+        meta: { deviceId: device.id, ip },
+      });
+
       return NextResponse.json({ pending: true, deviceToken: token });
     }
   }
@@ -134,6 +144,17 @@ export async function POST(request: NextRequest) {
   });
 
   await setSessionCookie(token);
+
+  // Instant sign-in alert to the Super Admin for the two gated office accounts.
+  if (DEVICE_GATED_ROLES.has(user.role)) {
+    await notify({
+      kind: "LOGIN_ATTEMPT",
+      title: `${user.name} signed in`,
+      body: `${user.email} signed in from ${labelFromUserAgent(request.headers.get("user-agent"))} (${ip}).`,
+      href: "/admin/audit-log",
+      whatsappToAdmin: false,
+    });
+  }
 
   return NextResponse.json({
     user: { id: user.id, name: user.name, role: user.role, email: user.email },

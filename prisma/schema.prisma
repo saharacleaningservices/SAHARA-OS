@@ -34,6 +34,10 @@ enum LeadSource {
   CALL
   WEBSITE
   GOOGLE
+  GMB
+  FACEBOOK
+  INSTAGRAM
+  META
 }
 
 enum ServiceType {
@@ -70,11 +74,17 @@ enum PaymentStatus {
 }
 
 enum ExpenseCategory {
-  CHEMICALS
+  HOUSEKEEPING_MATERIAL
   FUEL
+  AUTO_CAB_FARE
   EQUIPMENT
+  BIKE_SERVICE
   STAFF_ADVANCE
+  VENDOR_PAYMENT
   MISCELLANEOUS
+  // legacy — kept so historical rows still deserialize
+  CHEMICALS
+  BACK_OFFICE
 }
 
 enum AttendanceStatus {
@@ -199,10 +209,13 @@ model User {
   role         Role
   avatarUrl    String?
   isActive     Boolean  @default(true)
+  mustChangePassword Boolean @default(false) // force a policy-compliant reset on next login
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   staffProfile      Staff?
+  pushSubscriptions PushSubscription[]
+  notifications     Notification[]
   leadsCreated      Lead[]        @relation("LeadCreatedBy")
   leadsAssigned     Lead[]        @relation("LeadAssignedTo")
   followUpsAssigned FollowUp[]    @relation("FollowUpAssignedTo")
@@ -245,11 +258,18 @@ model Staff {
   name              String
   mobile            String
   designation       String // e.g. Cleaning Executive, Supervisor, Painter, Pest Control Technician
+  alternateMobile   String?
   salaryType         SalaryType        @default(DAILY)
   dailyWage         Float?
   monthlySalary     Float?
   availability      StaffAvailability @default(AVAILABLE)
   joinDate          DateTime          @default(now())
+  joiningDate       DateTime?         // HR joining date (editable; joinDate is the system default)
+  reference         String?           // who referred / hired this staff member
+  bankAccount       String?
+  bankIfsc          String?
+  gpayNumber        String?
+  documents         String?           // JSON array [{label,url,uploadedAt}] — Aadhaar/PAN/passbook/etc.
   isActive          Boolean           @default(true)
   photoUrl          String?
   notes             String?
@@ -310,6 +330,8 @@ model Lead {
   email            String?
   address          String?
   area             String
+  pinCode          String?     // 6-digit PIN — replaces the free-text Area field on forms
+  addOnServices    String?     // JSON array of add-on service names picked on the booking form
   service          ServiceType
   source           LeadSource
   quoteAmount      Float?
@@ -425,6 +447,7 @@ model Job {
   alternateMobile  String?
   address          String
   area             String
+  pinCode          String?
   service          ServiceType
   serviceVariant   String? // "flat type" / package, carried from the Lead
 
@@ -534,6 +557,7 @@ model Payment {
   status            PaymentStatus @default(PENDING)
 
   mybillbookInvoiceNo String?
+  invoiceAttachmentUrl String?          // uploaded MyBillBook / manual invoice PDF or image
   lastReminderAt       DateTime?
   lastReminderChannel  ReminderChannel?
 
@@ -611,9 +635,25 @@ model CompanySettings {
   phone     String   @default("7083347130")
   email     String   @default("contact@saharacleaningservices.com")
   address   String   @default("Opp. South Gate, Magarpatta City, Hadapsar, Pune.")
+  website   String?
   logoUrl   String?
   googleReviewUrl String?
   updatedAt DateTime @updatedAt
+}
+
+// Company documents library — Profile PDF, PPT, GST, Shop Act, MSME,
+// certificates, brochures. Uploaded from /settings and shared to customers
+// over WhatsApp / email / direct download.
+model CompanyDocument {
+  id             String   @id @default(cuid())
+  category       String // PROFILE_PDF | PPT | GST | SHOP_ACT | MSME | CERTIFICATE | BROCHURE | OTHER
+  label          String
+  url            String
+  sizeBytes      Int?
+  uploadedByName String?
+  createdAt      DateTime @default(now())
+
+  @@index([category])
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -637,12 +677,15 @@ model AuditLog {
 }
 
 model Vehicle {
-  id          String   @id @default(cuid())
-  name        String
-  plateNumber String   @unique
-  type        String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id              String    @id @default(cuid())
+  name            String
+  plateNumber     String    @unique
+  type            String?
+  currentKm       Int?
+  lastServiceDate DateTime?
+  nextServiceDate DateTime? // next service reminder date
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
 
   jobs Job[]
 }
@@ -723,9 +766,11 @@ model AmcContract {
   frequency       AmcFrequency
   serviceCategory ServiceCategory?
   amount          Float
-  startDate       DateTime
-  nextVisitDate   DateTime
-  lastVisitDate   DateTime?
+  startDate           DateTime
+  nextVisitDate       DateTime
+  lastVisitDate       DateTime?
+  serviceReminderDate DateTime?
+  contractExpiryDate  DateTime?
   status          AmcStatus        @default(ACTIVE)
   notes           String?
   leadId          String?
@@ -887,6 +932,16 @@ model IntegrationSettings {
   googleMapsApiKey     String?
   googleMapsVerifiedAt DateTime?
 
+  // MyBillBook — invoice sync. API key encrypted at rest like whatsappAccessToken.
+  mybillbookApiKey     String?
+  mybillbookVerifiedAt DateTime?
+
+  // Web Push (VAPID). Public key is safe to ship to the browser; private key
+  // encrypted at rest. Generated once from /settings if not provided by env.
+  webPushPublicKey     String?
+  webPushPrivateKey    String?
+  webPushSubject       String?
+
   // Google Drive nightly off-site backup. backupToken is encrypted at rest
   // and authorises GET /api/backup for the GitHub Actions workflow; the
   // Drive OAuth credentials themselves live in GitHub repo secrets because
@@ -897,4 +952,63 @@ model IntegrationSettings {
 
   updatedAt DateTime @updatedAt
   updatedBy String?
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Security — OTP for password reset/change, always delivered to the Super
+// Admin (Altaf). Codes are hashed at rest.
+// ─────────────────────────────────────────────────────────────────────────
+
+model SecurityOtp {
+  id              String    @id @default(cuid())
+  purpose         String // PASSWORD_RESET | PASSWORD_CHANGE
+  targetUserId    String // whose password is being changed
+  targetUserName  String
+  targetUserEmail String
+  codeHash        String
+  codePlain       String? // readable ONLY on the Super Admin's /admin/security-approvals page (in-app relay when WhatsApp is offline)
+  payload         String? // e.g. the pending bcrypt hash to apply once the OTP is confirmed
+  expiresAt       DateTime
+  consumedAt      DateTime?
+  attempts        Int       @default(0)
+  requestedByName String?
+  createdAt       DateTime  @default(now())
+
+  @@index([targetUserId])
+  @@index([expiresAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Real-time notifications — role-routed in-app feed + Web Push fan-out.
+// ─────────────────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String // NEW_BOOKING | NEW_INQUIRY | PAYMENT_RECEIVED | FOLLOWUP_DUE | SITE_VISIT | CREW_UPDATE | DEVICE_LOGIN | PASSWORD_OTP | APPROVAL_REQUEST | LOGIN_ATTEMPT
+  title     String
+  body      String?
+  href      String?
+  critical  Boolean   @default(false)
+  meta      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+  lastOkAt  DateTime @default(now())
+
+  @@index([userId])
 }

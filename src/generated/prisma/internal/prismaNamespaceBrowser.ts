@@ -65,6 +65,7 @@ export const ModelName = {
   Expense: 'Expense',
   ActivityLog: 'ActivityLog',
   CompanySettings: 'CompanySettings',
+  CompanyDocument: 'CompanyDocument',
   AuditLog: 'AuditLog',
   Vehicle: 'Vehicle',
   MaterialIssue: 'MaterialIssue',
@@ -80,7 +81,10 @@ export const ModelName = {
   RewardRecord: 'RewardRecord',
   Invoice: 'Invoice',
   JobVideo: 'JobVideo',
-  IntegrationSettings: 'IntegrationSettings'
+  IntegrationSettings: 'IntegrationSettings',
+  SecurityOtp: 'SecurityOtp',
+  Notification: 'Notification',
+  PushSubscription: 'PushSubscription'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -105,6 +109,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   avatarUrl: 'avatarUrl',
   isActive: 'isActive',
+  mustChangePassword: 'mustChangePassword',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -136,11 +141,18 @@ export const StaffScalarFieldEnum = {
   name: 'name',
   mobile: 'mobile',
   designation: 'designation',
+  alternateMobile: 'alternateMobile',
   salaryType: 'salaryType',
   dailyWage: 'dailyWage',
   monthlySalary: 'monthlySalary',
   availability: 'availability',
   joinDate: 'joinDate',
+  joiningDate: 'joiningDate',
+  reference: 'reference',
+  bankAccount: 'bankAccount',
+  bankIfsc: 'bankIfsc',
+  gpayNumber: 'gpayNumber',
+  documents: 'documents',
   isActive: 'isActive',
   photoUrl: 'photoUrl',
   notes: 'notes',
@@ -184,6 +196,8 @@ export const LeadScalarFieldEnum = {
   email: 'email',
   address: 'address',
   area: 'area',
+  pinCode: 'pinCode',
+  addOnServices: 'addOnServices',
   service: 'service',
   source: 'source',
   quoteAmount: 'quoteAmount',
@@ -267,6 +281,7 @@ export const JobScalarFieldEnum = {
   alternateMobile: 'alternateMobile',
   address: 'address',
   area: 'area',
+  pinCode: 'pinCode',
   service: 'service',
   serviceVariant: 'serviceVariant',
   scheduledDate: 'scheduledDate',
@@ -345,6 +360,7 @@ export const PaymentScalarFieldEnum = {
   paidDate: 'paidDate',
   status: 'status',
   mybillbookInvoiceNo: 'mybillbookInvoiceNo',
+  invoiceAttachmentUrl: 'invoiceAttachmentUrl',
   lastReminderAt: 'lastReminderAt',
   lastReminderChannel: 'lastReminderChannel',
   recordedById: 'recordedById',
@@ -397,12 +413,26 @@ export const CompanySettingsScalarFieldEnum = {
   phone: 'phone',
   email: 'email',
   address: 'address',
+  website: 'website',
   logoUrl: 'logoUrl',
   googleReviewUrl: 'googleReviewUrl',
   updatedAt: 'updatedAt'
 } as const
 
 export type CompanySettingsScalarFieldEnum = (typeof CompanySettingsScalarFieldEnum)[keyof typeof CompanySettingsScalarFieldEnum]
+
+
+export const CompanyDocumentScalarFieldEnum = {
+  id: 'id',
+  category: 'category',
+  label: 'label',
+  url: 'url',
+  sizeBytes: 'sizeBytes',
+  uploadedByName: 'uploadedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type CompanyDocumentScalarFieldEnum = (typeof CompanyDocumentScalarFieldEnum)[keyof typeof CompanyDocumentScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {
@@ -425,6 +455,9 @@ export const VehicleScalarFieldEnum = {
   name: 'name',
   plateNumber: 'plateNumber',
   type: 'type',
+  currentKm: 'currentKm',
+  lastServiceDate: 'lastServiceDate',
+  nextServiceDate: 'nextServiceDate',
   isActive: 'isActive',
   createdAt: 'createdAt'
 } as const
@@ -502,6 +535,8 @@ export const AmcContractScalarFieldEnum = {
   startDate: 'startDate',
   nextVisitDate: 'nextVisitDate',
   lastVisitDate: 'lastVisitDate',
+  serviceReminderDate: 'serviceReminderDate',
+  contractExpiryDate: 'contractExpiryDate',
   status: 'status',
   notes: 'notes',
   leadId: 'leadId',
@@ -639,6 +674,11 @@ export const IntegrationSettingsScalarFieldEnum = {
   whatsappLastError: 'whatsappLastError',
   googleMapsApiKey: 'googleMapsApiKey',
   googleMapsVerifiedAt: 'googleMapsVerifiedAt',
+  mybillbookApiKey: 'mybillbookApiKey',
+  mybillbookVerifiedAt: 'mybillbookVerifiedAt',
+  webPushPublicKey: 'webPushPublicKey',
+  webPushPrivateKey: 'webPushPrivateKey',
+  webPushSubject: 'webPushSubject',
   backupToken: 'backupToken',
   gdriveFolderId: 'gdriveFolderId',
   backupVerifiedAt: 'backupVerifiedAt',
@@ -647,6 +687,55 @@ export const IntegrationSettingsScalarFieldEnum = {
 } as const
 
 export type IntegrationSettingsScalarFieldEnum = (typeof IntegrationSettingsScalarFieldEnum)[keyof typeof IntegrationSettingsScalarFieldEnum]
+
+
+export const SecurityOtpScalarFieldEnum = {
+  id: 'id',
+  purpose: 'purpose',
+  targetUserId: 'targetUserId',
+  targetUserName: 'targetUserName',
+  targetUserEmail: 'targetUserEmail',
+  codeHash: 'codeHash',
+  codePlain: 'codePlain',
+  payload: 'payload',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  attempts: 'attempts',
+  requestedByName: 'requestedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type SecurityOtpScalarFieldEnum = (typeof SecurityOtpScalarFieldEnum)[keyof typeof SecurityOtpScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  title: 'title',
+  body: 'body',
+  href: 'href',
+  critical: 'critical',
+  meta: 'meta',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const PushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  lastOkAt: 'lastOkAt'
+} as const
+
+export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
 
 
 export const SortOrder = {

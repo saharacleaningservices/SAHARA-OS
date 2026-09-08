@@ -19,12 +19,14 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { AttachmentInput } from "@/components/shared/attachment-input";
 import { paymentSchema, type PaymentFormValues } from "@/lib/validation";
 import { createPayment } from "@/server/actions/payments";
 
 export function NewPaymentDialog() {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [attachmentUrl, setAttachmentUrl] = useState("");
   const router = useRouter();
 
   const {
@@ -36,7 +38,7 @@ export function NewPaymentDialog() {
 
   async function onSubmit(values: PaymentFormValues) {
     setSubmitting(true);
-    const res = await createPayment(values);
+    const res = await createPayment({ ...values, invoiceAttachmentUrl: attachmentUrl });
     setSubmitting(false);
     if (res.error) {
       toast.error(res.error);
@@ -45,6 +47,7 @@ export function NewPaymentDialog() {
     toast.success("Invoice recorded");
     setOpen(false);
     reset();
+    setAttachmentUrl("");
     router.refresh();
   }
 
@@ -88,6 +91,7 @@ export function NewPaymentDialog() {
               <Input {...register("mybillbookInvoiceNo")} placeholder="Optional" />
             </div>
           </div>
+          <AttachmentInput value={attachmentUrl} onChange={setAttachmentUrl} folder="invoices" label="MyBillBook / Invoice Attachment" />
           <div className="space-y-1">
             <Label>Notes</Label>
             <Textarea rows={2} {...register("notes")} />

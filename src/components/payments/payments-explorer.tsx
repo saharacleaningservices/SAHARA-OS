@@ -27,6 +27,7 @@ type Payment = {
   dueDate: Date;
   status: string;
   mybillbookInvoiceNo: string | null;
+  invoiceAttachmentUrl: string | null;
   notes: string | null;
   job?: { jobNumber: string } | null;
 };
@@ -141,7 +142,22 @@ export function PaymentsExplorer({ payments }: { payments: Payment[] }) {
                       <p className="font-medium text-foreground">{p.clientName}</p>
                       {p.job && <p className="text-xs text-muted-foreground">{p.job.jobNumber}</p>}
                     </TableCell>
-                    <TableCell className="text-sm">{p.invoiceNumber}</TableCell>
+                    <TableCell className="text-sm">
+                      {p.invoiceNumber}
+                      {p.invoiceAttachmentUrl && (
+                        <a
+                          href={p.invoiceAttachmentUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="ml-1 text-xs text-primary underline"
+                        >
+                          invoice
+                        </a>
+                      )}
+                      {p.mybillbookInvoiceNo && (
+                        <span className="block text-xs text-muted-foreground">MBB {p.mybillbookInvoiceNo}</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-sm font-medium">{formatINR(p.amount)}</TableCell>
                     <TableCell className="text-sm">{formatDate(p.dueDate)}</TableCell>
                     <TableCell className="text-sm">

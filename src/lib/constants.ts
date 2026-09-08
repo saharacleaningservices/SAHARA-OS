@@ -53,7 +53,17 @@ export const LEGACY_TO_SERVICE_CATEGORY: Record<string, string> = {
 };
 
 export const SERVICE_CATALOG: Record<string, string[]> = {
-  HOME_DEEP_CLEANING: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow"],
+  HOME_DEEP_CLEANING: [
+    "1 BHK",
+    "2 BHK",
+    "3 BHK",
+    "4 BHK",
+    "5 BHK",
+    "Villa",
+    "Bungalow",
+    "Row House",
+    "Individual House",
+  ],
   INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Floor", "Fan", "Fridge", "Balcony"],
   PAINTING: [
     "Residential — Asian Oil Bond",
@@ -100,11 +110,32 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
 };
 
 export const LEAD_SOURCE_LABELS: Record<string, string> = {
-  WHATSAPP: "WhatsApp",
   CALL: "Call",
+  WHATSAPP: "WhatsApp",
   WEBSITE: "Website",
   GOOGLE: "Google",
+  GMB: "Google Business (GMB)",
+  FACEBOOK: "Facebook",
+  INSTAGRAM: "Instagram",
+  META: "Meta Ads",
 };
+
+// Add-on / upsell services a customer can pick on the booking form. No prices
+// in the current phase — "Price will be shared after quotation."
+export const ADDON_SERVICES = [
+  "Sofa",
+  "Mattress",
+  "Carpet",
+  "Window",
+  "Curtain",
+  "Fridge",
+  "Microwave",
+  "Fan",
+  "Pest Control",
+  "Interior Painting",
+  "Housekeeping",
+  "AMC",
+] as const;
 
 export const LEAD_SOURCE_OPTIONS = Object.entries(LEAD_SOURCE_LABELS).map(([value, label]) => ({
   value,
@@ -135,21 +166,27 @@ export const LEAD_STAGE_LABELS: Record<string, string> = {
   COMPLETED: "Completed",
 };
 
-// Booking time slots offered when a lead is confirmed.
+// Booking time slots — business arrival windows offered on the public booking
+// form, the CRM lead form and the Confirm-Booking dialog. Stored as a plain
+// string on Lead.timeSlot / Job.scheduledTime, so historical single-time values
+// ("10:00 AM") still render fine; only the picker options changed.
 export const TIME_SLOTS = [
-  "8:00 AM",
-  "9:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "1:00 PM",
-  "2:00 PM",
-  "3:00 PM",
-  "4:00 PM",
-  "5:00 PM",
+  "8:00 – 11:00",
+  "9:00 – 12:00",
+  "10:00 – 1:00",
+  "11:00 – 2:00",
+  "12:00 – 3:00",
+  "1:00 – 4:00",
+  "2:00 – 5:00",
+  "3:00 – 6:00",
+  "Flexible",
 ] as const;
 
 export type TimeSlot = (typeof TIME_SLOTS)[number];
+
+// Kept as an explicit alias for readability at call sites that mean "the
+// customer-facing arrival windows".
+export const BOOKING_SLOTS = TIME_SLOTS;
 
 export const FOLLOWUP_TYPE_LABELS: Record<string, string> = {
   CALL: "Call",
@@ -206,20 +243,46 @@ export const PAYMENT_STATUS_LABELS: Record<string, string> = {
   PAID: "Paid",
 };
 
+// Current expense categories offered in the picker.
+export const EXPENSE_CATEGORIES = [
+  "HOUSEKEEPING_MATERIAL",
+  "FUEL",
+  "AUTO_CAB_FARE",
+  "EQUIPMENT",
+  "BIKE_SERVICE",
+  "STAFF_ADVANCE",
+  "VENDOR_PAYMENT",
+  "MISCELLANEOUS",
+] as const;
+
+// Labels — includes the legacy keys (CHEMICALS, BACK_OFFICE) so historical
+// expense rows still render a readable name even though the picker no longer
+// offers them.
 export const EXPENSE_CATEGORY_LABELS: Record<string, string> = {
-  CHEMICALS: "Chemicals",
+  HOUSEKEEPING_MATERIAL: "Housekeeping Material",
   FUEL: "Fuel",
+  AUTO_CAB_FARE: "Auto / Cab Fare",
   EQUIPMENT: "Equipment",
+  BIKE_SERVICE: "Bike Service",
   STAFF_ADVANCE: "Staff Advance",
+  VENDOR_PAYMENT: "Vendor Payment",
   MISCELLANEOUS: "Miscellaneous",
+  // legacy
+  CHEMICALS: "Chemicals (legacy)",
+  BACK_OFFICE: "Back Office (legacy)",
 };
 
+export const EXPENSE_CATEGORY_OPTIONS = EXPENSE_CATEGORIES.map((value) => ({
+  value,
+  label: EXPENSE_CATEGORY_LABELS[value],
+}));
+
 export const ROLE_LABELS: Record<string, string> = {
-  ADMIN: "Admin",
+  ADMIN: "Super Admin",
   OPERATIONS: "Operations Manager",
-  ACCOUNTS: "Office Accountant",
+  ACCOUNTS: "Office Assistant",
   SUPERVISOR: "Field Coordinator",
-  STAFF: "Worker",
+  STAFF: "Field Staff",
 };
 
 // Route access matrix. Each role sees the modules relevant to their job;
@@ -233,41 +296,41 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   // expenses, revenue and operational reports, plus the AI assistant.
   // NOT the profit dashboard, staff wages, company settings, backups or
   // role management (those stay Admin-only, see permissions.ts).
+  // Operations Manager (Francis Monteiro): field operations end to end — jobs
+  // (all), staff, attendance, vehicles, AMC, customers, expenses and the AI
+  // assistant. NO security/device approvals, NO profit dashboard, NO user
+  // management, NO company settings.
   OPERATIONS: [
     "dashboard",
-    "leads",
     "jobs",
     "staff",
     "vehicles",
     "attendance",
     "amc",
-    "payments",
     "expenses",
-    "revenue",
-    "reports",
     "customers",
     "assistant",
     "profile",
   ],
-  // Office Accountant — kept for completeness; no user currently holds it.
+  // Office Assistant (Shoyab): front-office CRM — leads, quotations, follow-ups,
+  // customer records, payments (incl. MyBillBook attachments) and reports.
+  // NO security, NO settings, NO profit dashboard, NO staff/attendance/vehicles.
   ACCOUNTS: [
     "dashboard",
     "leads",
     "payments",
-    "expenses",
-    "profit",
     "reports",
     "customers",
     "assistant",
     "profile",
-    "revenue",
-    "amc",
   ],
-  // Field Coordinator (Francis): today's/tomorrow's jobs only (see
+  // Field Coordinator / Team Leader: today's & tomorrow's jobs only (see
   // jobScopeFor "TODAY_TOMORROW"). Call/WhatsApp the customer, open Maps,
-  // start/complete the job and upload photos — all from the job detail
-  // page. No revenue/profit/expenses/reports/staff/settings, no delete.
+  // start/complete the job and upload before/after photos & videos — all from
+  // the job detail page. No revenue/profit/expenses/reports/staff/settings.
   SUPERVISOR: ["dashboard", "jobs", "attendance", "profile"],
+  // Field Staff (Worker): mobile-only — mark attendance, see assigned jobs,
+  // upload before/after photos & videos, open Maps.
   STAFF: ["dashboard", "jobs", "profile", "attendance"],
 };
 
