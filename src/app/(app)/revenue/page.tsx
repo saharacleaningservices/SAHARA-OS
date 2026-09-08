@@ -6,7 +6,7 @@ import { Wallet, CalendarDays, ShieldCheck, Sparkles, Users, AlertTriangle } fro
 import { requireRole } from "@/lib/current-user";
 
 export default async function RevenueDashboardPage() {
-  await requireRole(["ADMIN", "ACCOUNTS"]);
+  await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
   const data = await getRevenueDashboard();
 
   return (

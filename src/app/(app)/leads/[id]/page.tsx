@@ -26,6 +26,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const supervisors = staff.filter((s) => s.designation === "Supervisor").map((s) => ({ id: s.id, name: s.name }));
   const canConfirm = !["JOB_SCHEDULED", "COMPLETED"].includes(lead.stage);
   const requestedServiceDate = lead.serviceDate ? lead.serviceDate.toISOString().slice(0, 10) : "";
+  const requestedTimeSlot = lead.timeSlot ?? "";
 
   return (
     <div className="space-y-6">
@@ -43,6 +44,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 leadId={lead.id}
                 supervisors={supervisors}
                 defaultServiceDate={requestedServiceDate}
+                defaultTimeSlot={requestedTimeSlot}
                 defaultTeam={lead.teamNumber}
               />
             )}
@@ -75,6 +77,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   stage={lead.stage}
                   supervisors={supervisors}
                   defaultServiceDate={requestedServiceDate}
+                  defaultTimeSlot={requestedTimeSlot}
                   defaultTeam={lead.teamNumber}
                 />
               </div>

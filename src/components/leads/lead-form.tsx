@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { leadSchema, type LeadFormValues } from "@/lib/validation";
-import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY } from "@/lib/constants";
+import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY, TIME_SLOTS } from "@/lib/constants";
 import { createLead, updateLead } from "@/server/actions/leads";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { MapsLocationInput } from "@/components/shared/maps-location-input";
@@ -50,6 +50,7 @@ export function LeadForm({
     defaultValues: {
       name: "",
       mobile: "",
+      alternateMobile: "",
       whatsapp: "",
       email: "",
       address: "",
@@ -58,6 +59,7 @@ export function LeadForm({
       source: "CALL",
       followUpDate: "",
       serviceDate: "",
+      timeSlot: "",
       teamNumber: "",
       assignedStaffId: "",
       assignedToId: "",
@@ -96,12 +98,16 @@ export function LeadForm({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="mobile">Mobile</Label>
-            <Input id="mobile" {...register("mobile")} placeholder="9876543210" />
+            <Input id="mobile" {...register("mobile")} placeholder="9876543210" inputMode="tel" />
             {errors.mobile && <p className="text-xs text-destructive">{errors.mobile.message}</p>}
           </div>
           <div className="space-y-1.5">
+            <Label htmlFor="alternateMobile">Alternate Mobile (optional)</Label>
+            <Input id="alternateMobile" {...register("alternateMobile")} placeholder="Second number" inputMode="tel" />
+          </div>
+          <div className="space-y-1.5">
             <Label htmlFor="whatsapp">WhatsApp (if different)</Label>
-            <Input id="whatsapp" {...register("whatsapp")} placeholder="Same as mobile" />
+            <Input id="whatsapp" {...register("whatsapp")} placeholder="Same as mobile" inputMode="tel" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="email">Email (optional)</Label>
@@ -167,11 +173,34 @@ export function LeadForm({
             <Label htmlFor="quoteAmount">Estimated Amount (₹)</Label>
             <Input id="quoteAmount" type="number" {...register("quoteAmount")} placeholder="Minimum ₹3,999" />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="serviceDate">Requested Service Date</Label>
-            <Input id="serviceDate" type="date" {...register("serviceDate")} />
-            <p className="text-xs text-muted-foreground">Date the customer asked for — separate from the follow-up date.</p>
+          <div className="grid grid-cols-2 gap-3 sm:col-span-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="serviceDate">Requested Service Date</Label>
+              <Input id="serviceDate" type="date" {...register("serviceDate")} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Time Slot</Label>
+              <Select
+                value={watch("timeSlot") || "NONE"}
+                onValueChange={(v) => setValue("timeSlot", v === "NONE" ? "" : v, { shouldDirty: true })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Any" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NONE">Any</SelectItem>
+                  {TIME_SLOTS.map((slot) => (
+                    <SelectItem key={slot} value={slot}>
+                      {slot}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+          <p className="-mt-2 text-xs text-muted-foreground sm:col-span-2">
+            Requested date/slot are what the customer asked for — separate from the follow-up date below.
+          </p>
           <div className="space-y-1.5">
             <Label htmlFor="followUpDate">Follow-up Date</Label>
             <Input id="followUpDate" type="date" {...register("followUpDate")} />

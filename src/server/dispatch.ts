@@ -13,6 +13,7 @@ export async function dispatchTeamForJob(jobId: string) {
     where: { id: jobId },
     include: {
       vehicle: true,
+      supervisor: true,
       materialIssues: true,
       assignments: { include: { staff: true } },
     },
@@ -21,14 +22,19 @@ export async function dispatchTeamForJob(jobId: string) {
 
   const body = teamDispatchMessage({
     customerName: job.customerName,
+    mobile: job.customerMobile,
     area: job.area,
+    address: job.address,
     mapLink: job.mapLink,
     service: SERVICE_LABELS[job.service] ?? job.service,
+    flatType: job.serviceVariant,
     date: job.scheduledDate,
     timeSlot: job.scheduledTime,
     team: job.teamNumber,
+    supervisor: job.supervisor?.name ?? null,
     vehicle: job.vehicle ? `${job.vehicle.name} (${job.vehicle.plateNumber})` : null,
     materials: job.materialIssues.map((m) => (m.quantity ? `${m.item} x${m.quantity}` : m.item)),
+    notes: job.notes,
   });
 
   let sent = 0;

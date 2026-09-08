@@ -22,7 +22,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-background">
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-64 lg:flex-col">
-        <SidebarNav role={role} />
+        <SidebarNav role={role} logoUrl={logoUrl} />
       </div>
       <div className="flex min-h-screen flex-col lg:pl-64">
         <Topbar name={name} role={role} logoUrl={logoUrl} />

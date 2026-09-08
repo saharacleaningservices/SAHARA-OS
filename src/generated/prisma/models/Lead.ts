@@ -41,6 +41,7 @@ export type LeadMinAggregateOutputType = {
   leadNumber: string | null
   name: string | null
   mobile: string | null
+  alternateMobile: string | null
   whatsapp: string | null
   email: string | null
   address: string | null
@@ -51,6 +52,7 @@ export type LeadMinAggregateOutputType = {
   stage: $Enums.LeadStage | null
   followUpDate: Date | null
   serviceDate: Date | null
+  timeSlot: string | null
   teamNumber: number | null
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
@@ -72,6 +74,7 @@ export type LeadMaxAggregateOutputType = {
   leadNumber: string | null
   name: string | null
   mobile: string | null
+  alternateMobile: string | null
   whatsapp: string | null
   email: string | null
   address: string | null
@@ -82,6 +85,7 @@ export type LeadMaxAggregateOutputType = {
   stage: $Enums.LeadStage | null
   followUpDate: Date | null
   serviceDate: Date | null
+  timeSlot: string | null
   teamNumber: number | null
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
@@ -103,6 +107,7 @@ export type LeadCountAggregateOutputType = {
   leadNumber: number
   name: number
   mobile: number
+  alternateMobile: number
   whatsapp: number
   email: number
   address: number
@@ -113,6 +118,7 @@ export type LeadCountAggregateOutputType = {
   stage: number
   followUpDate: number
   serviceDate: number
+  timeSlot: number
   teamNumber: number
   notes: number
   serviceCategory: number
@@ -146,6 +152,7 @@ export type LeadMinAggregateInputType = {
   leadNumber?: true
   name?: true
   mobile?: true
+  alternateMobile?: true
   whatsapp?: true
   email?: true
   address?: true
@@ -156,6 +163,7 @@ export type LeadMinAggregateInputType = {
   stage?: true
   followUpDate?: true
   serviceDate?: true
+  timeSlot?: true
   teamNumber?: true
   notes?: true
   serviceCategory?: true
@@ -177,6 +185,7 @@ export type LeadMaxAggregateInputType = {
   leadNumber?: true
   name?: true
   mobile?: true
+  alternateMobile?: true
   whatsapp?: true
   email?: true
   address?: true
@@ -187,6 +196,7 @@ export type LeadMaxAggregateInputType = {
   stage?: true
   followUpDate?: true
   serviceDate?: true
+  timeSlot?: true
   teamNumber?: true
   notes?: true
   serviceCategory?: true
@@ -208,6 +218,7 @@ export type LeadCountAggregateInputType = {
   leadNumber?: true
   name?: true
   mobile?: true
+  alternateMobile?: true
   whatsapp?: true
   email?: true
   address?: true
@@ -218,6 +229,7 @@ export type LeadCountAggregateInputType = {
   stage?: true
   followUpDate?: true
   serviceDate?: true
+  timeSlot?: true
   teamNumber?: true
   notes?: true
   serviceCategory?: true
@@ -326,6 +338,7 @@ export type LeadGroupByOutputType = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile: string | null
   whatsapp: string | null
   email: string | null
   address: string | null
@@ -336,6 +349,7 @@ export type LeadGroupByOutputType = {
   stage: $Enums.LeadStage
   followUpDate: Date | null
   serviceDate: Date | null
+  timeSlot: string | null
   teamNumber: number | null
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
@@ -380,6 +394,7 @@ export type LeadWhereInput = {
   leadNumber?: Prisma.StringFilter<"Lead"> | string
   name?: Prisma.StringFilter<"Lead"> | string
   mobile?: Prisma.StringFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableFilter<"Lead"> | string | null
   email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -390,6 +405,7 @@ export type LeadWhereInput = {
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
   teamNumber?: Prisma.IntNullableFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
@@ -421,6 +437,7 @@ export type LeadOrderByWithRelationInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsapp?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -431,6 +448,7 @@ export type LeadOrderByWithRelationInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
   teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -465,6 +483,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.LeadWhereInput | Prisma.LeadWhereInput[]
   name?: Prisma.StringFilter<"Lead"> | string
   mobile?: Prisma.StringFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableFilter<"Lead"> | string | null
   email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -475,6 +494,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
   teamNumber?: Prisma.IntNullableFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
@@ -506,6 +526,7 @@ export type LeadOrderByWithAggregationInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsapp?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -516,6 +537,7 @@ export type LeadOrderByWithAggregationInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
   teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -545,6 +567,7 @@ export type LeadScalarWhereWithAggregatesInput = {
   leadNumber?: Prisma.StringWithAggregatesFilter<"Lead"> | string
   name?: Prisma.StringWithAggregatesFilter<"Lead"> | string
   mobile?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -555,6 +578,7 @@ export type LeadScalarWhereWithAggregatesInput = {
   stage?: Prisma.EnumLeadStageWithAggregatesFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   teamNumber?: Prisma.IntNullableWithAggregatesFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableWithAggregatesFilter<"Lead"> | $Enums.ServiceCategory | null
@@ -576,6 +600,7 @@ export type LeadCreateInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -586,6 +611,7 @@ export type LeadCreateInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -614,6 +640,7 @@ export type LeadUncheckedCreateInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -624,6 +651,7 @@ export type LeadUncheckedCreateInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -652,6 +680,7 @@ export type LeadUpdateInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -662,6 +691,7 @@ export type LeadUpdateInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -690,6 +720,7 @@ export type LeadUncheckedUpdateInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -700,6 +731,7 @@ export type LeadUncheckedUpdateInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -728,6 +760,7 @@ export type LeadCreateManyInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -738,6 +771,7 @@ export type LeadCreateManyInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -759,6 +793,7 @@ export type LeadUpdateManyMutationInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -769,6 +804,7 @@ export type LeadUpdateManyMutationInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -787,6 +823,7 @@ export type LeadUncheckedUpdateManyInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -797,6 +834,7 @@ export type LeadUncheckedUpdateManyInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -828,6 +866,7 @@ export type LeadCountOrderByAggregateInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   whatsapp?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
@@ -838,6 +877,7 @@ export type LeadCountOrderByAggregateInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
+  timeSlot?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
@@ -864,6 +904,7 @@ export type LeadMaxOrderByAggregateInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   whatsapp?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
@@ -874,6 +915,7 @@ export type LeadMaxOrderByAggregateInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
+  timeSlot?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
@@ -895,6 +937,7 @@ export type LeadMinOrderByAggregateInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   whatsapp?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
@@ -905,6 +948,7 @@ export type LeadMinOrderByAggregateInput = {
   stage?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
+  timeSlot?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
@@ -1197,6 +1241,7 @@ export type LeadCreateWithoutCreatedByInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1207,6 +1252,7 @@ export type LeadCreateWithoutCreatedByInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1234,6 +1280,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1244,6 +1291,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1280,6 +1328,7 @@ export type LeadCreateWithoutAssignedToInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1290,6 +1339,7 @@ export type LeadCreateWithoutAssignedToInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1317,6 +1367,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1327,6 +1378,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1382,6 +1434,7 @@ export type LeadScalarWhereInput = {
   leadNumber?: Prisma.StringFilter<"Lead"> | string
   name?: Prisma.StringFilter<"Lead"> | string
   mobile?: Prisma.StringFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableFilter<"Lead"> | string | null
   email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -1392,6 +1445,7 @@ export type LeadScalarWhereInput = {
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
   teamNumber?: Prisma.IntNullableFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
@@ -1429,6 +1483,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1439,6 +1494,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1466,6 +1522,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1476,6 +1533,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1528,6 +1586,7 @@ export type LeadCreateWithoutQuotationsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1538,6 +1597,7 @@ export type LeadCreateWithoutQuotationsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1565,6 +1625,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1575,6 +1636,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1618,6 +1680,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1628,6 +1691,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -1655,6 +1719,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1665,6 +1730,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -1692,6 +1758,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1702,6 +1769,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1729,6 +1797,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1739,6 +1808,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1782,6 +1852,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1792,6 +1863,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -1819,6 +1891,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1829,6 +1902,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -1856,6 +1930,7 @@ export type LeadCreateWithoutTimelineInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1866,6 +1941,7 @@ export type LeadCreateWithoutTimelineInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1893,6 +1969,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -1903,6 +1980,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -1946,6 +2024,7 @@ export type LeadUpdateWithoutTimelineInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1956,6 +2035,7 @@ export type LeadUpdateWithoutTimelineInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -1983,6 +2063,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1993,6 +2074,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2020,6 +2102,7 @@ export type LeadCreateWithoutJobsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2030,6 +2113,7 @@ export type LeadCreateWithoutJobsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2057,6 +2141,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2067,6 +2152,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2110,6 +2196,7 @@ export type LeadUpdateWithoutJobsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2120,6 +2207,7 @@ export type LeadUpdateWithoutJobsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2147,6 +2235,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2157,6 +2246,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2184,6 +2274,7 @@ export type LeadCreateWithoutPaymentsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2194,6 +2285,7 @@ export type LeadCreateWithoutPaymentsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2221,6 +2313,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2231,6 +2324,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2274,6 +2368,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2284,6 +2379,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2311,6 +2407,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2321,6 +2418,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2348,6 +2446,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2358,6 +2457,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2385,6 +2485,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2395,6 +2496,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2438,6 +2540,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2448,6 +2551,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2475,6 +2579,7 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2485,6 +2590,7 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2512,6 +2618,7 @@ export type LeadCreateWithoutAmcContractsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2522,6 +2629,7 @@ export type LeadCreateWithoutAmcContractsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2549,6 +2657,7 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2559,6 +2668,7 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2602,6 +2712,7 @@ export type LeadUpdateWithoutAmcContractsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2612,6 +2723,7 @@ export type LeadUpdateWithoutAmcContractsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2639,6 +2751,7 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2649,6 +2762,7 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2676,6 +2790,7 @@ export type LeadCreateManyCreatedByInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2686,6 +2801,7 @@ export type LeadCreateManyCreatedByInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2706,6 +2822,7 @@ export type LeadCreateManyAssignedToInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2716,6 +2833,7 @@ export type LeadCreateManyAssignedToInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2736,6 +2854,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2746,6 +2865,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2773,6 +2893,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2783,6 +2904,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2810,6 +2932,7 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2820,6 +2943,7 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2840,6 +2964,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2850,6 +2975,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2877,6 +3003,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2887,6 +3014,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2914,6 +3042,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2924,6 +3053,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -2944,6 +3074,7 @@ export type LeadCreateManyAssignedStaffInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
   email?: string | null
   address?: string | null
@@ -2954,6 +3085,7 @@ export type LeadCreateManyAssignedStaffInput = {
   stage?: $Enums.LeadStage
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
+  timeSlot?: string | null
   teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
@@ -2974,6 +3106,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2984,6 +3117,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -3011,6 +3145,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3021,6 +3156,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -3048,6 +3184,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3058,6 +3195,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
@@ -3163,6 +3301,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
   email?: boolean
   address?: boolean
@@ -3173,6 +3312,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   stage?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
+  timeSlot?: boolean
   teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
@@ -3205,6 +3345,7 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
   email?: boolean
   address?: boolean
@@ -3215,6 +3356,7 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   stage?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
+  timeSlot?: boolean
   teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
@@ -3239,6 +3381,7 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
   email?: boolean
   address?: boolean
@@ -3249,6 +3392,7 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   stage?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
+  timeSlot?: boolean
   teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
@@ -3273,6 +3417,7 @@ export type LeadSelectScalar = {
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
   email?: boolean
   address?: boolean
@@ -3283,6 +3428,7 @@ export type LeadSelectScalar = {
   stage?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
+  timeSlot?: boolean
   teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
@@ -3299,7 +3445,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "email" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -3343,6 +3489,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     leadNumber: string
     name: string
     mobile: string
+    alternateMobile: string | null
     whatsapp: string | null
     email: string | null
     address: string | null
@@ -3353,6 +3500,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     stage: $Enums.LeadStage
     followUpDate: Date | null
     serviceDate: Date | null
+    timeSlot: string | null
     teamNumber: number | null
     notes: string | null
     serviceCategory: $Enums.ServiceCategory | null
@@ -3804,6 +3952,7 @@ export interface LeadFieldRefs {
   readonly leadNumber: Prisma.FieldRef<"Lead", 'String'>
   readonly name: Prisma.FieldRef<"Lead", 'String'>
   readonly mobile: Prisma.FieldRef<"Lead", 'String'>
+  readonly alternateMobile: Prisma.FieldRef<"Lead", 'String'>
   readonly whatsapp: Prisma.FieldRef<"Lead", 'String'>
   readonly email: Prisma.FieldRef<"Lead", 'String'>
   readonly address: Prisma.FieldRef<"Lead", 'String'>
@@ -3814,6 +3963,7 @@ export interface LeadFieldRefs {
   readonly stage: Prisma.FieldRef<"Lead", 'LeadStage'>
   readonly followUpDate: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly serviceDate: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly timeSlot: Prisma.FieldRef<"Lead", 'String'>
   readonly teamNumber: Prisma.FieldRef<"Lead", 'Int'>
   readonly notes: Prisma.FieldRef<"Lead", 'String'>
   readonly serviceCategory: Prisma.FieldRef<"Lead", 'ServiceCategory'>

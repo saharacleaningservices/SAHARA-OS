@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
-import { SERVICE_CATEGORY_TO_LEGACY, SERVICE_LABELS } from "@/lib/constants";
+import { COMPANY, SERVICE_CATEGORY_TO_LEGACY, SERVICE_LABELS } from "@/lib/constants";
 import { recordUpsellEvent } from "@/server/upsell";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { z } from "zod";
@@ -12,12 +12,14 @@ import { z } from "zod";
 const publicBookingSchema = z.object({
   name: z.string().min(2, "Name is required"),
   mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
+  alternateMobile: z.string().max(15).optional().or(z.literal("")),
   email: z.string().email("Enter a valid email").optional().or(z.literal("")),
   area: z.string().min(2, "Area is required"),
   address: z.string().optional().or(z.literal("")),
   serviceCategory: z.string().min(1, "Pick a service"),
   serviceVariant: z.string().optional().or(z.literal("")),
   serviceDate: z.string().optional().or(z.literal("")),
+  timeSlot: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   mapLink: z.string().optional().or(z.literal("")),
   referralCode: z.string().optional().or(z.literal("")),
@@ -50,6 +52,7 @@ export async function publicBookLead(values: unknown) {
       leadNumber,
       name: data.name,
       mobile: data.mobile,
+      alternateMobile: data.alternateMobile || null,
       whatsapp: data.mobile,
       email: data.email || null,
       address: data.address || null,
@@ -58,6 +61,7 @@ export async function publicBookLead(values: unknown) {
       serviceCategory: data.serviceCategory as never,
       serviceVariant: data.serviceVariant || null,
       serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
+      timeSlot: data.timeSlot || null,
       source: "WEBSITE",
       notes: data.notes || null,
       mapLink: data.mapLink || null,
@@ -71,6 +75,8 @@ export async function publicBookLead(values: unknown) {
     body: [
       "Booked online via app.saharacleaningservices.com/book (unverified — no OTP yet)",
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,
+      data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
+      data.alternateMobile ? `Alt mobile: ${data.alternateMobile}` : null,
       data.email ? `Email: ${data.email}` : null,
     ]
       .filter(Boolean)
@@ -88,13 +94,27 @@ export async function publicBookLead(values: unknown) {
   }
 
   // Booking confirmation is normally sent when the enquiry is confirmed into
-  // a job (see confirmBooking); this early one acknowledges the request
-  // itself, since a website enquiry has no scheduled slot yet.
+  // a job (see confirmBooking); this one acknowledges the request itself.
+  // Queues safely when the WhatsApp Cloud API isn't connected yet.
+  const svc = SERVICE_LABELS[legacyService] ?? legacyService;
   await sendWhatsApp({
     kind: "BOOKING_CONFIRMATION",
     toNumber: data.mobile,
     toName: data.name,
-    body: `Hi ${data.name}, thanks for booking ${SERVICE_LABELS[legacyService] ?? legacyService} with us! Reference ${leadNumber}. Our team will call you shortly to confirm.`,
+    body: [
+      `Hi ${data.name}, thank you for booking with ${COMPANY.name}! ✅`,
+      ``,
+      `Booking ID: ${leadNumber}`,
+      `Service: ${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}`,
+      data.serviceDate ? `Preferred date: ${data.serviceDate}` : null,
+      data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
+      data.address || data.area ? `Address: ${data.address || data.area}` : null,
+      ``,
+      `Our team will call you shortly to confirm the schedule.`,
+      `Reach us on ${COMPANY.phones.join(" / ")}.`,
+    ]
+      .filter((l) => l !== null)
+      .join("\n"),
     relatedType: "Lead",
     relatedId: lead.id,
   }).catch(() => {});

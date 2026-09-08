@@ -548,4 +548,39 @@ db.exec(`
 db.prepare(`INSERT OR IGNORE INTO "IntegrationSettings" ("id") VALUES ('default')`).run();
 console.log("Ensured IntegrationSettings table exists.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Final production go-live batch (2026-09-08) — additive columns for the
+// public booking form + job card, and a one-time role re-assignment.
+// ─────────────────────────────────────────────────────────────────────────
+
+addColumnIfMissing("Lead", "alternateMobile", `"alternateMobile" TEXT`);
+addColumnIfMissing("Lead", "timeSlot", `"timeSlot" TEXT`);
+addColumnIfMissing("Job", "alternateMobile", `"alternateMobile" TEXT`);
+addColumnIfMissing("Job", "serviceVariant", `"serviceVariant" TEXT`);
+
+// One-time role re-assignment: Shoyab Shaikh becomes Operations Manager,
+// Francis D'Souza becomes Field Coordinator. Each guard checks the CURRENT
+// role, so this is a no-op once applied and safe to re-run. Login emails
+// and passwords are unchanged — only the role each account carries.
+const roleSwap = db.transaction(() => {
+  const a = db
+    .prepare(
+      `UPDATE "User" SET "role" = 'OPERATIONS' WHERE "email" = 'accounts@saharacleaningservices.com' AND "role" = 'ACCOUNTS'`
+    )
+    .run();
+  const b = db
+    .prepare(
+      `UPDATE "User" SET "role" = 'SUPERVISOR' WHERE "email" = 'operations@saharacleaningservices.com' AND "role" = 'OPERATIONS'`
+    )
+    .run();
+  if (a.changes || b.changes) {
+    console.log(
+      `Role re-assignment applied (accounts@ → OPERATIONS: ${a.changes}, operations@ → SUPERVISOR: ${b.changes}).`
+    );
+  }
+});
+roleSwap();
+
+console.log("Final go-live batch migration complete.");
+
 db.close();

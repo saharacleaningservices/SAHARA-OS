@@ -38,9 +38,11 @@ export async function createJob(values: unknown) {
       leadId: data.leadId || null,
       customerName: data.customerName,
       customerMobile: data.customerMobile,
+      alternateMobile: data.alternateMobile || null,
       address: data.address,
       area: data.area,
       service: data.service,
+      serviceVariant: data.serviceVariant || null,
       scheduledDate: new Date(data.scheduledDate),
       scheduledTime: data.scheduledTime,
       teamNumber,
@@ -86,9 +88,11 @@ export async function updateJob(id: string, values: unknown) {
     data: {
       ...(d.customerName && { customerName: d.customerName }),
       ...(d.customerMobile && { customerMobile: d.customerMobile }),
+      ...(d.alternateMobile !== undefined && { alternateMobile: d.alternateMobile || null }),
       ...(d.address && { address: d.address }),
       ...(d.area && { area: d.area }),
       ...(d.service && { service: d.service }),
+      ...(d.serviceVariant !== undefined && { serviceVariant: d.serviceVariant || null }),
       ...(d.scheduledDate && { scheduledDate: new Date(d.scheduledDate) }),
       ...(d.scheduledTime && { scheduledTime: d.scheduledTime }),
       ...(d.teamNumber !== undefined && {

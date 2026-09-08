@@ -1,16 +1,24 @@
 import { z } from "zod";
+import { TIME_SLOTS } from "@/lib/constants";
 
 export const teamNumberSchema = z
   .union([z.literal(""), z.coerce.number().int().min(1).max(4)])
   .optional();
 
+export const timeSlotSchema = z
+  .enum(TIME_SLOTS as unknown as [string, ...string[]])
+  .optional()
+  .or(z.literal(""));
+
 export const leadSchema = z.object({
   name: z.string().min(2, "Name is required"),
   mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
+  alternateMobile: z.string().optional().or(z.literal("")),
   whatsapp: z.string().optional().or(z.literal("")),
   email: z.string().email("Enter a valid email").optional().or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
   area: z.string().min(2, "Area is required"),
+  timeSlot: timeSlotSchema,
   service: z.enum([
     "HOME_DEEP_CLEANING",
     "COMMERCIAL_CLEANING",
@@ -36,6 +44,7 @@ export type LeadFormValues = z.infer<typeof leadSchema>;
 export const jobSchema = z.object({
   customerName: z.string().min(2),
   customerMobile: z.string().min(10),
+  alternateMobile: z.string().optional().or(z.literal("")),
   address: z.string().min(2),
   area: z.string().min(2),
   service: z.enum([
@@ -45,6 +54,7 @@ export const jobSchema = z.object({
     "PEST_CONTROL",
     "INTERIOR_PAINTING",
   ]),
+  serviceVariant: z.string().optional().or(z.literal("")),
   scheduledDate: z.string().min(1),
   scheduledTime: z.string().min(1),
   teamNumber: teamNumberSchema,
@@ -146,18 +156,7 @@ export type FollowUpFormValues = z.infer<typeof followUpSchema>;
 
 export const confirmBookingSchema = z.object({
   serviceDate: z.string().min(1, "Pick a service date"),
-  timeSlot: z.enum([
-    "8 AM",
-    "9 AM",
-    "10 AM",
-    "11 AM",
-    "12 PM",
-    "1 PM",
-    "2 PM",
-    "3 PM",
-    "4 PM",
-    "5 PM",
-  ]),
+  timeSlot: z.enum(TIME_SLOTS as unknown as [string, ...string[]]),
   teamNumber: teamNumberSchema,
   supervisorId: z.string().optional().or(z.literal("")),
 });

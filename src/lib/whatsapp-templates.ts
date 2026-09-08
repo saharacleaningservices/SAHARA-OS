@@ -28,31 +28,86 @@ export function bookingConfirmationMessage(input: {
 
 export function teamDispatchMessage(input: {
   customerName: string;
+  mobile?: string | null;
   area: string;
+  address?: string | null;
   mapLink: string | null;
   service: string;
+  flatType?: string | null;
   date: Date;
   timeSlot: string;
   team?: number | null;
+  supervisor?: string | null;
   vehicle: string | null;
   materials: string[];
+  notes?: string | null;
 }) {
-  // Customer phone number is deliberately never included.
   const lines = [
     `📋 Job Dispatch — ${formatDate(input.date)}`,
     ``,
     input.team ? `Team: ${input.team}` : null,
     `Customer: ${input.customerName}`,
+    input.mobile ? `Mobile: ${input.mobile}` : null,
     `Area: ${input.area}`,
+    input.address ? `Address: ${input.address}` : null,
     input.mapLink ? `Map: ${input.mapLink}` : null,
     `Service: ${input.service}`,
-    `Time: ${input.timeSlot}`,
+    input.flatType ? `Flat / Type: ${input.flatType}` : null,
+    `Date: ${formatDate(input.date)}`,
+    `Time Slot: ${input.timeSlot}`,
+    input.supervisor ? `Supervisor: ${input.supervisor}` : null,
     `Vehicle: ${input.vehicle ?? "Not assigned yet"}`,
     input.materials.length ? `Material: ${input.materials.join(", ")}` : `Material: —`,
+    input.notes ? `Notes: ${input.notes}` : null,
     ``,
     `— ${COMPANY.name}`,
   ].filter(Boolean) as string[];
   return lines.join("\n");
+}
+
+/** Plain-text job card for sharing on WhatsApp (wa.me / Send). */
+export function jobCardMessage(input: {
+  jobNumber: string;
+  customerName: string;
+  mobile: string;
+  alternateMobile?: string | null;
+  address: string;
+  mapLink?: string | null;
+  date: Date;
+  timeSlot: string;
+  service: string;
+  flatType?: string | null;
+  team?: number | null;
+  supervisor?: string | null;
+  paymentStatus?: string | null;
+  advance?: number | null;
+  balance?: number | null;
+  notes?: string | null;
+}) {
+  return [
+    `🧾 ${COMPANY.name} — Job Card`,
+    `${input.jobNumber}`,
+    ``,
+    `Customer: ${input.customerName}`,
+    `Mobile: ${input.mobile}`,
+    input.alternateMobile ? `Alt: ${input.alternateMobile}` : null,
+    `Address: ${input.address}`,
+    input.mapLink ? `Map: ${input.mapLink}` : null,
+    ``,
+    `Date: ${formatDate(input.date)}`,
+    `Time Slot: ${input.timeSlot}`,
+    `Service: ${input.service}`,
+    input.flatType ? `Flat / Type: ${input.flatType}` : null,
+    input.team ? `Team: ${input.team}` : null,
+    input.supervisor ? `Supervisor: ${input.supervisor}` : null,
+    ``,
+    input.paymentStatus ? `Payment: ${input.paymentStatus}` : null,
+    input.advance != null ? `Advance: ${formatINR(input.advance)}` : null,
+    input.balance != null ? `Balance: ${formatINR(input.balance)}` : null,
+    input.notes ? `\nNotes: ${input.notes}` : null,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
 }
 
 export function customerReminderMessage(input: { customerName: string; service: string; date: Date; timeSlot: string }) {

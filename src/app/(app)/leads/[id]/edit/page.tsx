@@ -27,6 +27,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
         defaultValues={{
           name: lead.name,
           mobile: lead.mobile,
+          alternateMobile: lead.alternateMobile ?? "",
           whatsapp: lead.whatsapp ?? "",
           email: lead.email ?? "",
           address: lead.address ?? "",
@@ -36,6 +37,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
           quoteAmount: lead.quoteAmount ?? undefined,
           followUpDate: lead.followUpDate ? lead.followUpDate.toISOString().slice(0, 10) : "",
           serviceDate: lead.serviceDate ? lead.serviceDate.toISOString().slice(0, 10) : "",
+          timeSlot: lead.timeSlot ?? "",
           teamNumber: lead.teamNumber ?? "",
           assignedStaffId: lead.assignedStaffId ?? "",
           assignedToId: lead.assignedToId ?? "",

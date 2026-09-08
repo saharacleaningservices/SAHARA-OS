@@ -1,5 +1,7 @@
 import { LoginForm } from "@/components/auth/login-form";
+import { CompanyLogo } from "@/components/shared/company-logo";
 import { COMPANY } from "@/lib/constants";
+import { getCompanySettings } from "@/server/settings";
 import { ShieldCheck } from "lucide-react";
 
 export default async function LoginPage({
@@ -7,14 +9,23 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ next?: string }>;
 }) {
-  const { next } = await searchParams;
+  const [{ next }, settings] = await Promise.all([searchParams, getCompanySettings()]);
+  const hasLogo = Boolean(settings.logoUrl);
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="hidden flex-col justify-between bg-secondary p-10 text-white lg:flex sahara-gradient">
         <div className="flex items-center gap-2">
-          <img src="/icon.svg" alt="" aria-hidden className="size-10 rounded-lg" />
-          <span className="text-lg font-semibold">Sahara OS</span>
+          {hasLogo ? (
+            <span className="rounded-lg bg-white/95 px-3 py-2">
+              <CompanyLogo logoUrl={settings.logoUrl} className="h-8 w-auto max-w-[200px]" />
+            </span>
+          ) : (
+            <>
+              <img src="/icon.svg" alt="" aria-hidden className="size-10 rounded-lg" />
+              <span className="text-lg font-semibold">Sahara OS</span>
+            </>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -38,8 +49,14 @@ export default async function LoginPage({
 
       <div className="flex flex-col items-center justify-center gap-8 p-6 sm:p-10">
         <div className="flex flex-col items-center gap-2 lg:hidden">
-          <img src="/icon.svg" alt="" aria-hidden className="size-10 rounded-lg" />
-          <span className="text-lg font-semibold text-foreground">Sahara OS</span>
+          {hasLogo ? (
+            <CompanyLogo logoUrl={settings.logoUrl} className="h-9 w-auto max-w-[200px]" />
+          ) : (
+            <>
+              <img src="/icon.svg" alt="" aria-hidden className="size-10 rounded-lg" />
+              <span className="text-lg font-semibold text-foreground">Sahara OS</span>
+            </>
+          )}
         </div>
 
         <div className="w-full max-w-sm">

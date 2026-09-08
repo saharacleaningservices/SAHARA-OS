@@ -1,8 +1,10 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { ReportsExplorer } from "@/components/reports/reports-explorer";
 import { getReportsData } from "@/server/reports";
+import { requireRole } from "@/lib/current-user";
 
 export default async function ReportsPage() {
+  await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
   const data = await getReportsData();
 
   return (

@@ -72,12 +72,16 @@ export function canAccessJob(
   ownStaffId: string | null
 ): boolean {
   const scope = jobScopeFor(session.role);
-  if (scope === "ALL" || scope === "TODAY_TOMORROW") return true;
+  if (scope === "ALL") return true;
+  const now = new Date();
+  if (scope === "TODAY_TOMORROW") {
+    // Field Coordinator: today's and tomorrow's jobs only — any team.
+    return job.scheduledDate >= startOfDay(now) && job.scheduledDate <= endOfDay(addDays(now, 1));
+  }
   if (!ownStaffId) return false;
   const isOwnJob = job.supervisorId === ownStaffId || job.assignments.some((a) => a.staffId === ownStaffId);
   if (!isOwnJob) return false;
   if (scope === "OWN_TODAY_TOMORROW" || scope === "OWN_TODAY") {
-    const now = new Date();
     const daysAhead = scope === "OWN_TODAY" ? 0 : 1;
     return job.scheduledDate >= startOfDay(now) && job.scheduledDate <= endOfDay(addDays(now, daysAhead));
   }

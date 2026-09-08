@@ -8,8 +8,10 @@ import { LeadConversionChart } from "@/components/charts/lead-conversion-chart";
 import { StaffJobsChart, AvailabilityPieChart } from "@/components/charts/staff-utilization-chart";
 import { formatINR } from "@/lib/utils";
 import { TrendingUp, TrendingDown, Percent } from "lucide-react";
+import { requireRole } from "@/lib/current-user";
 
 export default async function ProfitDashboardPage() {
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const data = await getProfitData();
 
   const currentMonth = data.monthly[data.monthly.length - 1];

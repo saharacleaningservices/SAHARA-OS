@@ -27,6 +27,7 @@ export function ConfirmBookingDialog({
   leadId,
   supervisors = [],
   defaultServiceDate = "",
+  defaultTimeSlot = "",
   defaultTeam = null,
   trigger,
   open: controlledOpen,
@@ -35,6 +36,7 @@ export function ConfirmBookingDialog({
   leadId: string;
   supervisors?: SupervisorOption[];
   defaultServiceDate?: string;
+  defaultTimeSlot?: string;
   defaultTeam?: number | null;
   trigger?: React.ReactNode;
   open?: boolean;
@@ -45,7 +47,9 @@ export function ConfirmBookingDialog({
   const setOpen = onOpenChange ?? setUncontrolledOpen;
 
   const [serviceDate, setServiceDate] = useState(defaultServiceDate);
-  const [timeSlot, setTimeSlot] = useState<string>("");
+  const [timeSlot, setTimeSlot] = useState<string>(
+    (TIME_SLOTS as readonly string[]).includes(defaultTimeSlot) ? defaultTimeSlot : ""
+  );
   const [supervisorId, setSupervisorId] = useState<string>("");
   const [teamNumber, setTeamNumber] = useState<number | "">(defaultTeam ?? "");
   const [pending, startTransition] = useTransition();

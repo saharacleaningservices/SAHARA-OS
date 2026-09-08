@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { MapsLocationInput, type MapsLocationValue } from "@/components/shared/maps-location-input";
 import { UpsellOfferCard, type UpsellOffer } from "@/components/shared/upsell-offer-card";
+import { TIME_SLOTS } from "@/lib/constants";
 import { publicBookLead } from "@/server/actions/public-booking";
 
 export function PublicBookingForm({
@@ -20,10 +22,12 @@ export function PublicBookingForm({
 }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [alternateMobile, setAlternateMobile] = useState("");
   const [email, setEmail] = useState("");
   const [area, setArea] = useState("");
   const [address, setAddress] = useState("");
   const [serviceDate, setServiceDate] = useState("");
+  const [timeSlot, setTimeSlot] = useState("");
   const [category, setCategory] = useState("HOME_DEEP_CLEANING");
   const [variant, setVariant] = useState("");
   const [notes, setNotes] = useState("");
@@ -40,12 +44,14 @@ export function PublicBookingForm({
     const res = await publicBookLead({
       name,
       mobile,
+      alternateMobile,
       email,
       area,
       address,
       serviceCategory: category,
       serviceVariant: variant,
       serviceDate,
+      timeSlot,
       notes,
       mapLink: loc.mapLink,
       website: "",
@@ -69,8 +75,8 @@ export function PublicBookingForm({
         <CheckCircle2 className="size-10 text-success" />
         <h2 className="text-lg font-semibold text-foreground">Thanks — request received!</h2>
         <p className="text-sm text-muted-foreground">
-          Reference <span className="font-medium text-foreground">{done}</span>. Our team will call you shortly to
-          confirm the details.
+          Your booking ID is <span className="font-semibold text-foreground">{done}</span>. Our team will call you
+          shortly to confirm the details, and you&apos;ll get a WhatsApp confirmation on {mobile || "your number"}.
         </p>
       </div>
     );
@@ -82,9 +88,15 @@ export function PublicBookingForm({
         <Label htmlFor="pb-name">Your Name</Label>
         <Input id="pb-name" value={name} onChange={(e) => setName(e.target.value)} required />
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="pb-mobile">Mobile Number</Label>
-        <Input id="pb-mobile" inputMode="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="9876543210" required />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="pb-mobile">Mobile Number</Label>
+          <Input id="pb-mobile" inputMode="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="9876543210" required />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="pb-alt-mobile">Alternate Mobile (optional)</Label>
+          <Input id="pb-alt-mobile" inputMode="tel" value={alternateMobile} onChange={(e) => setAlternateMobile(e.target.value)} placeholder="Second number" />
+        </div>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="pb-email">Email (optional)</Label>
@@ -95,33 +107,51 @@ export function PublicBookingForm({
         <Input id="pb-area" value={area} onChange={(e) => setArea(e.target.value)} placeholder="e.g. Magarpatta City" required />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="pb-address">Full Address (optional)</Label>
+        <Label htmlFor="pb-address">Full Address</Label>
         <Textarea id="pb-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={2} />
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="pb-service-date">Preferred Service Date (optional)</Label>
-        <Input
-          id="pb-service-date"
-          type="date"
-          value={serviceDate}
-          onChange={(e) => setServiceDate(e.target.value)}
-        />
-      </div>
+
+      <MapsLocationInput value={loc} onChange={setLoc} apiKey={mapsApiKey} />
 
       <ServiceCategoryPicker category={category} variant={variant} onCategoryChange={(v) => { setCategory(v); setVariant(""); }} onVariantChange={setVariant} />
 
       <UpsellOfferCard category={category} onChange={(offer, accepted) => setUpsell({ offer, accepted })} />
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="pb-service-date">Requested Service Date</Label>
+          <Input
+            id="pb-service-date"
+            type="date"
+            value={serviceDate}
+            onChange={(e) => setServiceDate(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Time Slot</Label>
+          <Select value={timeSlot} onValueChange={setTimeSlot}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a slot" />
+            </SelectTrigger>
+            <SelectContent>
+              {TIME_SLOTS.map((slot) => (
+                <SelectItem key={slot} value={slot}>
+                  {slot}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="space-y-1.5">
-        <Label htmlFor="pb-notes">Anything else we should know? (optional)</Label>
+        <Label htmlFor="pb-notes">Notes / Custom Requirement (optional)</Label>
         <Textarea id="pb-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </div>
 
-      <MapsLocationInput value={loc} onChange={setLoc} apiKey={mapsApiKey} />
-
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <Button type="submit" className="w-full" disabled={submitting}>
+      <Button type="submit" className="w-full" size="lg" disabled={submitting}>
         {submitting && <Loader2 className="animate-spin" />}
         Request a Booking
       </Button>

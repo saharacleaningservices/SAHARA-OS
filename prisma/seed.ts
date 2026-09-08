@@ -94,6 +94,7 @@ async function main() {
     },
   });
 
+  // Francis D'Souza — Field Coordinator (keeps the operations@ login).
   const francis = await db.user.upsert({
     where: { email: "operations@saharacleaningservices.com" },
     update: {},
@@ -102,10 +103,11 @@ async function main() {
       email: "operations@saharacleaningservices.com",
       phone: "8956567130",
       passwordHash,
-      role: "OPERATIONS",
+      role: "SUPERVISOR",
     },
   });
 
+  // Shoyab Shaikh — Operations Manager (keeps the accounts@ login).
   const shoyab = await db.user.upsert({
     where: { email: "accounts@saharacleaningservices.com" },
     update: {},
@@ -113,7 +115,7 @@ async function main() {
       name: "Shoyab Shaikh",
       email: "accounts@saharacleaningservices.com",
       passwordHash,
-      role: "ACCOUNTS",
+      role: "OPERATIONS",
     },
   });
 

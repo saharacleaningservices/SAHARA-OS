@@ -15,12 +15,14 @@ export function StageSelect({
   stage,
   supervisors = [],
   defaultServiceDate = "",
+  defaultTimeSlot = "",
   defaultTeam = null,
 }: {
   leadId: string;
   stage: string;
   supervisors?: SupervisorOption[];
   defaultServiceDate?: string;
+  defaultTimeSlot?: string;
   defaultTeam?: number | null;
 }) {
   const [pending, startTransition] = useTransition();
@@ -62,6 +64,7 @@ export function StageSelect({
         leadId={leadId}
         supervisors={supervisors}
         defaultServiceDate={defaultServiceDate}
+        defaultTimeSlot={defaultTimeSlot}
         defaultTeam={defaultTeam}
         trigger={null}
         open={bookingOpen}

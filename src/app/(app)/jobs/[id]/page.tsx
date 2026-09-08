@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { FileText, Users, Pencil, ExternalLink } from "lucide-react";
+import { FileText, Users, Pencil, ExternalLink, Phone, MessageCircle, Navigation } from "lucide-react";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getVehiclesForAssignment } from "@/server/vehicles";
 import { getResolvedIntegrations } from "@/server/integrations";
@@ -15,9 +15,12 @@ import { VideoUploader } from "@/components/jobs/video-uploader";
 import { SignatureCapture } from "@/components/jobs/signature-capture";
 import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
+import { JobCardActions } from "@/components/jobs/job-card-actions";
 import { EmptyState } from "@/components/shared/empty-state";
-import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
+import { formatINR, formatDate, formatDateTime, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { jobCardMessage } from "@/lib/whatsapp-templates";
+import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -38,6 +41,28 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   const beforePhotos = job.photos.filter((p) => p.type === "BEFORE");
   const afterPhotos = job.photos.filter((p) => p.type === "AFTER");
+
+  const advance = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+  const balance = Math.max(job.jobValue - advance, 0);
+  const paymentStatus = balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partly Paid" : "Pending";
+  const jobCardShareText = jobCardMessage({
+    jobNumber: job.jobNumber,
+    customerName: job.customerName,
+    mobile: job.customerMobile,
+    alternateMobile: job.alternateMobile,
+    address: job.address,
+    mapLink: job.mapLink,
+    date: job.scheduledDate,
+    timeSlot: job.scheduledTime,
+    service: SERVICE_LABELS[job.service] ?? job.service,
+    flatType: job.serviceVariant,
+    team: job.teamNumber,
+    supervisor: job.supervisor?.name ?? null,
+    paymentStatus,
+    advance,
+    balance,
+    notes: job.notes,
+  });
 
   return (
     <div className="space-y-6">
@@ -82,13 +107,24 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         <div className="space-y-4 lg:col-span-2">
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="size-4" /> Job Card
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <JobCardActions jobId={job.id} jobNumber={job.jobNumber} shareText={jobCardShareText} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
               <CardTitle>Job Status</CardTitle>
               <JobStatusBadge status={job.status} />
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
                 <div>
-                  <p className="text-xs text-muted-foreground">Scheduled</p>
+                  <p className="text-xs text-muted-foreground">Date &amp; Time Slot</p>
                   <p className="font-medium text-foreground">
                     {formatDate(job.scheduledDate)} · {job.scheduledTime}
                   </p>
@@ -96,6 +132,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <div>
                   <p className="text-xs text-muted-foreground">Job Value</p>
                   <p className="font-medium text-foreground">{formatINR(job.jobValue)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Payment</p>
+                  <p className="font-medium text-foreground">
+                    {paymentStatus} · Bal {formatINR(balance)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Supervisor</p>
@@ -107,6 +149,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     {job.teamNumber ? `Team ${job.teamNumber}` : "—"}
                   </p>
                 </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Flat / Type</p>
+                  <p className="font-medium text-foreground">{job.serviceVariant ?? "—"}</p>
+                </div>
+                {job.alternateMobile && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Alternate Number</p>
+                    <p className="font-medium text-foreground">{job.alternateMobile}</p>
+                  </div>
+                )}
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-muted-foreground">Address</p>
                   <p className="font-medium text-foreground">{job.address}</p>
@@ -270,6 +322,32 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </Card>
         </div>
       </div>
+
+      {/* Mobile sticky action bar — Field Coordinator's core actions. */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-border bg-card/95 px-3 py-2.5 backdrop-blur lg:hidden">
+        <Button asChild className="flex-1" size="lg" variant="outline">
+          <a href={toTelLink(job.customerMobile)}>
+            <Phone className="size-4" /> Call
+          </a>
+        </Button>
+        <Button asChild className="flex-1 text-success" size="lg" variant="outline">
+          <a href={toWhatsAppLink(job.customerMobile)} target="_blank" rel="noreferrer">
+            <MessageCircle className="size-4" /> WhatsApp
+          </a>
+        </Button>
+        {(() => {
+          const c = job.mapLink ? parseMapLink(job.mapLink) : null;
+          const href = c ? buildDirectionsLink(c) : job.mapLink;
+          return href ? (
+            <Button asChild className="flex-1" size="lg" variant="outline">
+              <a href={href} target="_blank" rel="noreferrer">
+                <Navigation className="size-4" /> Maps
+              </a>
+            </Button>
+          ) : null;
+        })()}
+      </div>
+      <div className="h-16 lg:hidden" />
     </div>
   );
 }
