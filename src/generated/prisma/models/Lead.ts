@@ -59,6 +59,9 @@ export type LeadMinAggregateOutputType = {
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
+  packageName: string | null
+  comboServices: string | null
+  assignedStaffIds: string | null
   mapLink: string | null
   referralCode: string | null
   isDemo: boolean | null
@@ -94,6 +97,9 @@ export type LeadMaxAggregateOutputType = {
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
+  packageName: string | null
+  comboServices: string | null
+  assignedStaffIds: string | null
   mapLink: string | null
   referralCode: string | null
   isDemo: boolean | null
@@ -129,6 +135,9 @@ export type LeadCountAggregateOutputType = {
   notes: number
   serviceCategory: number
   serviceVariant: number
+  packageName: number
+  comboServices: number
+  assignedStaffIds: number
   mapLink: number
   referralCode: number
   isDemo: number
@@ -176,6 +185,9 @@ export type LeadMinAggregateInputType = {
   notes?: true
   serviceCategory?: true
   serviceVariant?: true
+  packageName?: true
+  comboServices?: true
+  assignedStaffIds?: true
   mapLink?: true
   referralCode?: true
   isDemo?: true
@@ -211,6 +223,9 @@ export type LeadMaxAggregateInputType = {
   notes?: true
   serviceCategory?: true
   serviceVariant?: true
+  packageName?: true
+  comboServices?: true
+  assignedStaffIds?: true
   mapLink?: true
   referralCode?: true
   isDemo?: true
@@ -246,6 +261,9 @@ export type LeadCountAggregateInputType = {
   notes?: true
   serviceCategory?: true
   serviceVariant?: true
+  packageName?: true
+  comboServices?: true
+  assignedStaffIds?: true
   mapLink?: true
   referralCode?: true
   isDemo?: true
@@ -368,6 +386,9 @@ export type LeadGroupByOutputType = {
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
+  packageName: string | null
+  comboServices: string | null
+  assignedStaffIds: string | null
   mapLink: string | null
   referralCode: string | null
   isDemo: boolean
@@ -426,6 +447,9 @@ export type LeadWhereInput = {
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
@@ -471,6 +495,9 @@ export type LeadOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageName?: Prisma.SortOrderInput | Prisma.SortOrder
+  comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -519,6 +546,9 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
@@ -564,6 +594,9 @@ export type LeadOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageName?: Prisma.SortOrderInput | Prisma.SortOrder
+  comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -607,6 +640,9 @@ export type LeadScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableWithAggregatesFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
@@ -642,6 +678,9 @@ export type LeadCreateInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -684,6 +723,9 @@ export type LeadUncheckedCreateInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -726,6 +768,9 @@ export type LeadUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -768,6 +813,9 @@ export type LeadUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -810,6 +858,9 @@ export type LeadCreateManyInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -845,6 +896,9 @@ export type LeadUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -877,6 +931,9 @@ export type LeadUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -922,6 +979,9 @@ export type LeadCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -962,6 +1022,9 @@ export type LeadMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -997,6 +1060,9 @@ export type LeadMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -1303,6 +1369,9 @@ export type LeadCreateWithoutCreatedByInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1344,6 +1413,9 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1394,6 +1466,9 @@ export type LeadCreateWithoutAssignedToInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1435,6 +1510,9 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1504,6 +1582,9 @@ export type LeadScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
@@ -1555,6 +1636,9 @@ export type LeadCreateWithoutAssignedStaffInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1596,6 +1680,9 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1662,6 +1749,9 @@ export type LeadCreateWithoutQuotationsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1703,6 +1793,9 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1760,6 +1853,9 @@ export type LeadUpdateWithoutQuotationsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1801,6 +1897,9 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1842,6 +1941,9 @@ export type LeadCreateWithoutFollowUpsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1883,6 +1985,9 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1940,6 +2045,9 @@ export type LeadUpdateWithoutFollowUpsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1981,6 +2089,9 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2022,6 +2133,9 @@ export type LeadCreateWithoutTimelineInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2063,6 +2177,9 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2120,6 +2237,9 @@ export type LeadUpdateWithoutTimelineInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2161,6 +2281,9 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2202,6 +2325,9 @@ export type LeadCreateWithoutJobsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2243,6 +2369,9 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2300,6 +2429,9 @@ export type LeadUpdateWithoutJobsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2341,6 +2473,9 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2382,6 +2517,9 @@ export type LeadCreateWithoutPaymentsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2423,6 +2561,9 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2480,6 +2621,9 @@ export type LeadUpdateWithoutPaymentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2521,6 +2665,9 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2562,6 +2709,9 @@ export type LeadCreateWithoutActivityLogsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2603,6 +2753,9 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2660,6 +2813,9 @@ export type LeadUpdateWithoutActivityLogsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2701,6 +2857,9 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2742,6 +2901,9 @@ export type LeadCreateWithoutAmcContractsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2783,6 +2945,9 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2840,6 +3005,9 @@ export type LeadUpdateWithoutAmcContractsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2881,6 +3049,9 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2922,6 +3093,9 @@ export type LeadCreateManyCreatedByInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2956,6 +3130,9 @@ export type LeadCreateManyAssignedToInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2990,6 +3167,9 @@ export type LeadUpdateWithoutCreatedByInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3031,6 +3211,9 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3072,6 +3255,9 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3106,6 +3292,9 @@ export type LeadUpdateWithoutAssignedToInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3147,6 +3336,9 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3188,6 +3380,9 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3222,6 +3417,9 @@ export type LeadCreateManyAssignedStaffInput = {
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -3256,6 +3454,9 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3297,6 +3498,9 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3338,6 +3542,9 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3457,6 +3664,9 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3503,6 +3713,9 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3541,6 +3754,9 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3579,6 +3795,9 @@ export type LeadSelectScalar = {
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3591,7 +3810,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "packageName" | "comboServices" | "assignedStaffIds" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -3653,6 +3872,9 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notes: string | null
     serviceCategory: $Enums.ServiceCategory | null
     serviceVariant: string | null
+    packageName: string | null
+    comboServices: string | null
+    assignedStaffIds: string | null
     mapLink: string | null
     referralCode: string | null
     isDemo: boolean
@@ -4118,6 +4340,9 @@ export interface LeadFieldRefs {
   readonly notes: Prisma.FieldRef<"Lead", 'String'>
   readonly serviceCategory: Prisma.FieldRef<"Lead", 'ServiceCategory'>
   readonly serviceVariant: Prisma.FieldRef<"Lead", 'String'>
+  readonly packageName: Prisma.FieldRef<"Lead", 'String'>
+  readonly comboServices: Prisma.FieldRef<"Lead", 'String'>
+  readonly assignedStaffIds: Prisma.FieldRef<"Lead", 'String'>
   readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
   readonly referralCode: Prisma.FieldRef<"Lead", 'String'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>

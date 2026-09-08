@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
@@ -10,6 +11,7 @@ export function StatCard({
   trendLabel,
   tone = "default",
   className,
+  href,
 }: {
   label: string;
   value: ReactNode;
@@ -18,6 +20,7 @@ export function StatCard({
   trendLabel?: string;
   tone?: "default" | "primary" | "success" | "warning" | "destructive";
   className?: string;
+  href?: string;
 }) {
   const toneStyles: Record<string, string> = {
     default: "bg-accent text-primary",
@@ -27,13 +30,8 @@ export function StatCard({
     destructive: "bg-destructive/15 text-destructive",
   };
 
-  return (
-    <div
-      className={cn(
-        "flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sahara-shadow",
-        className
-      )}
-    >
+  const inner = (
+    <>
       <div className="flex items-start justify-between">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         {icon && (
@@ -57,6 +55,20 @@ export function StatCard({
         )}
       </div>
       {trendLabel && <p className="text-xs text-muted-foreground -mt-2">{trendLabel}</p>}
-    </div>
+    </>
+  );
+
+  const base = cn(
+    "flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sahara-shadow",
+    href && "transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md",
+    className,
+  );
+
+  return href ? (
+    <Link href={href} className={base}>
+      {inner}
+    </Link>
+  ) : (
+    <div className={base}>{inner}</div>
   );
 }

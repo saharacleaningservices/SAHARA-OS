@@ -96,7 +96,7 @@ export function ChangePasswordDialog() {
           <DialogDescription>
             {otp
               ? "The Super Admin (Altaf) received a one-time code. Enter it here to finish."
-              : "Minimum 12 characters with an uppercase letter, a lowercase letter, a number and a special character."}
+              : "At least 6 characters. Every change is approved by the Super Admin with a one-time code."}
           </DialogDescription>
         </DialogHeader>
 

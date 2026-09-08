@@ -9,8 +9,9 @@ import { sendWhatsApp } from "@/lib/whatsapp";
 import { deviceApprovalRequestMessage } from "@/lib/whatsapp-templates";
 import { notify } from "@/server/notify";
 
+// Accepts a mobile number OR an email as the login ID.
 const loginSchema = z.object({
-  email: z.string().email(),
+  loginId: z.string().trim().min(3).max(120),
   password: z.string().min(1),
 });
 
@@ -39,20 +40,28 @@ export async function POST(request: NextRequest) {
   const parsed = loginSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Enter a valid email and password." }, { status: 400 });
+    return NextResponse.json({ error: "Enter your mobile number (or email) and password." }, { status: 400 });
   }
 
-  const { email, password } = parsed.data;
+  const { loginId, password } = parsed.data;
+  const id = loginId.toLowerCase();
+  const digits = loginId.replace(/\D/g, "");
 
-  const emailLimit = rateLimit(`login:email:${email.toLowerCase()}`, 5, 600);
-  if (!emailLimit.allowed) {
+  const accountLimit = rateLimit(`login:acct:${id}`, 5, 600);
+  if (!accountLimit.allowed) {
     return NextResponse.json(
       { error: "Too many attempts for this account. Try again in a few minutes." },
-      { status: 429, headers: { "Retry-After": String(emailLimit.retryAfterSeconds) } }
+      { status: 429, headers: { "Retry-After": String(accountLimit.retryAfterSeconds) } }
     );
   }
 
-  const user = await db.user.findUnique({ where: { email: email.toLowerCase() } });
+  // Look up by email or by mobile number (last 10 digits, to tolerate a
+  // leading 0 / +91 the user might type).
+  const user = id.includes("@")
+    ? await db.user.findUnique({ where: { email: id } })
+    : digits.length >= 10
+      ? await db.user.findFirst({ where: { phone: digits.slice(-10) } })
+      : null;
 
   if (!user || !user.isActive) {
     return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
@@ -60,6 +69,13 @@ export async function POST(request: NextRequest) {
 
   const valid = await verifyPassword(password, user.passwordHash);
   if (!valid) {
+    // Security alert to the Super Admin on a failed login for a real account.
+    await notify({
+      kind: "LOGIN_ATTEMPT",
+      title: "Failed login attempt",
+      body: `Wrong password for ${user.name} (${user.phone ?? user.email}) from ${labelFromUserAgent(request.headers.get("user-agent"))} · ${ip}`,
+      href: "/admin/security-approvals",
+    });
     return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
   }
 

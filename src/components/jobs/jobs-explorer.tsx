@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { MapPin } from "lucide-react";
 import { SearchInput } from "@/components/shared/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Pagination } from "@/components/shared/pagination";
 import { EmptyState } from "@/components/shared/empty-state";
-import { JobStatusBadge } from "@/components/shared/status-badge";
+import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
 import { BulkActionsBar } from "@/components/shared/bulk-actions-bar";
@@ -16,7 +18,8 @@ import { deleteJob, bulkDeleteJobs } from "@/server/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
-import { formatDate, formatINR } from "@/lib/utils";
+import { formatDate, formatINR, dayBucket } from "@/lib/utils";
+import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
 type Job = {
   id: string;
@@ -25,21 +28,37 @@ type Job = {
   customerMobile: string;
   area: string;
   service: string;
+  packageName?: string | null;
+  serviceVariant?: string | null;
   status: string;
   scheduledDate: Date;
   scheduledTime: string;
   jobValue: number;
   teamNumber?: number | null;
+  mapLink?: string | null;
   supervisor?: { name: string } | null;
   assignments: { staff: { name: string } }[];
+  payments: { status: string }[];
   vehicle?: { name: string; plateNumber: string } | null;
 };
 
 const PAGE_SIZE = 12;
 
+function jobPaymentStatus(job: Job) {
+  if (job.payments.length === 0) return null;
+  if (job.payments.some((p) => p.status === "OVERDUE")) return "OVERDUE";
+  if (job.payments.every((p) => p.status === "PAID")) return "PAID";
+  if (job.payments.some((p) => p.status === "DUE_SOON")) return "DUE_SOON";
+  return "PENDING";
+}
+
 export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManage?: boolean }) {
+  const params = useSearchParams();
+  const whenParam = params.get("when") ?? "";
+  const statusParam = params.get("status") ?? "";
+
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState(statusParam || "ALL");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -48,12 +67,20 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
     return jobs.filter((job) => {
       if (q && !`${job.customerName} ${job.jobNumber} ${job.area}`.toLowerCase().includes(q)) return false;
       if (statusFilter !== "ALL" && job.status !== statusFilter) return false;
+      if (whenParam === "today" && dayBucket(job.scheduledDate) !== "TODAY") return false;
+      if (whenParam === "tomorrow" && dayBucket(job.scheduledDate) !== "TOMORROW") return false;
       return true;
     });
-  }, [jobs, search, statusFilter]);
+  }, [jobs, search, statusFilter, whenParam]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  function mapHref(job: Job) {
+    if (!job.mapLink) return null;
+    const c = parseMapLink(job.mapLink);
+    return c ? buildDirectionsLink(c) : job.mapLink;
+  }
 
   return (
     <div className="space-y-3">
@@ -72,6 +99,12 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
             ))}
           </SelectContent>
         </Select>
+        {whenParam && (
+          <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
+            {whenParam === "today" ? "Today" : "Tomorrow"} only ·{" "}
+            <Link href="/jobs" className="underline">clear</Link>
+          </span>
+        )}
       </div>
 
       {canManage && (
@@ -87,90 +120,113 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
         <EmptyState title="No jobs found" description="Try adjusting your search or filters." />
       ) : (
         <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {canManage && (
-                  <TableHead className="w-8">
-                    <Checkbox
-                      checked={pageItems.length > 0 && pageItems.every((j) => selected.includes(j.id))}
-                      onCheckedChange={(checked) =>
-                        setSelected((prev) =>
-                          checked
-                            ? Array.from(new Set([...prev, ...pageItems.map((j) => j.id)]))
-                            : prev.filter((id) => !pageItems.some((j) => j.id === id))
-                        )
-                      }
-                    />
-                  </TableHead>
-                )}
-                <TableHead>Job</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Schedule</TableHead>
-                <TableHead>Team / Crew</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pageItems.map((job) => (
-                <TableRow key={job.id}>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
                   {canManage && (
-                    <TableCell>
+                    <TableHead className="w-8">
                       <Checkbox
-                        checked={selected.includes(job.id)}
+                        checked={pageItems.length > 0 && pageItems.every((j) => selected.includes(j.id))}
                         onCheckedChange={(checked) =>
-                          setSelected((prev) => (checked ? [...prev, job.id] : prev.filter((id) => id !== job.id)))
+                          setSelected((prev) =>
+                            checked
+                              ? Array.from(new Set([...prev, ...pageItems.map((j) => j.id)]))
+                              : prev.filter((id) => !pageItems.some((j) => j.id === id))
+                          )
                         }
                       />
-                    </TableCell>
+                    </TableHead>
                   )}
-                  <TableCell>
-                    <Link href={`/jobs/${job.id}`} className="font-medium text-foreground hover:underline">
-                      {job.customerName}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">
-                      {job.jobNumber} · {job.area}
-                    </p>
-                  </TableCell>
-                  <TableCell className="text-sm">{SERVICE_LABELS[job.service]}</TableCell>
-                  <TableCell className="text-sm">
-                    {formatDate(job.scheduledDate)} · {job.scheduledTime}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {job.teamNumber ? `Team ${job.teamNumber}` : job.supervisor?.name ?? "—"}
-                    {job.teamNumber && job.supervisor?.name ? (
-                      <span className="text-xs text-muted-foreground"> · {job.supervisor.name}</span>
-                    ) : null}
-                    {job.assignments.length > 0 && (
-                      <span className="text-xs text-muted-foreground"> +{job.assignments.length} crew</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm">{formatINR(job.jobValue)}</TableCell>
-                  <TableCell>
-                    <JobStatusBadge status={job.status} />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-end gap-1.5">
-                      <CallButton mobile={job.customerMobile} />
-                      <WhatsAppButton mobile={job.customerMobile} />
-                      {canManage && (
-                        <>
-                          <Button variant="outline" size="icon" className="size-8" aria-label="Edit job" asChild>
-                            <Link href={`/jobs/${job.id}/edit`}>
-                              <Pencil className="size-3.5" />
-                            </Link>
-                          </Button>
-                          <ConfirmDeleteButton action={deleteJob} id={job.id} entityLabel="job" />
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
+                  <TableHead>Job</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Schedule</TableHead>
+                  <TableHead>Team / Crew</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {pageItems.map((job) => {
+                  const isToday = dayBucket(job.scheduledDate) === "TODAY" && job.status !== "COMPLETED" && job.status !== "CANCELLED";
+                  const pay = jobPaymentStatus(job);
+                  const href = mapHref(job);
+                  return (
+                    <TableRow key={job.id} className={isToday ? "bg-success/10 ring-1 ring-inset ring-success/30" : undefined}>
+                      {canManage && (
+                        <TableCell>
+                          <Checkbox
+                            checked={selected.includes(job.id)}
+                            onCheckedChange={(checked) =>
+                              setSelected((prev) => (checked ? [...prev, job.id] : prev.filter((id) => id !== job.id)))
+                            }
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        <Link href={`/jobs/${job.id}`} className="font-medium text-foreground hover:underline">
+                          {job.customerName}
+                        </Link>
+                        <p className="text-xs text-muted-foreground">
+                          {job.jobNumber} · {job.area}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {SERVICE_LABELS[job.service]}
+                        {(job.serviceVariant || job.packageName) && (
+                          <p className="text-xs text-muted-foreground">
+                            {[job.serviceVariant, job.packageName].filter(Boolean).join(" · ")}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {isToday ? <span className="font-semibold text-success">Today</span> : formatDate(job.scheduledDate)} · {job.scheduledTime}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {job.teamNumber ? `Team ${job.teamNumber}` : "—"}
+                        {job.assignments.length > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            {job.assignments.map((a) => a.staff.name).join(", ")}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {pay ? <PaymentStatusBadge status={pay} /> : <span className="text-muted-foreground">—</span>}
+                        <p className="text-xs text-muted-foreground">{formatINR(job.jobValue)}</p>
+                      </TableCell>
+                      <TableCell>
+                        <JobStatusBadge status={job.status} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <CallButton mobile={job.customerMobile} />
+                          <WhatsAppButton mobile={job.customerMobile} />
+                          {href && (
+                            <Button asChild variant="outline" size="icon" className="size-8" title="Open in Maps">
+                              <a href={href} target="_blank" rel="noreferrer">
+                                <MapPin className="size-3.5" />
+                              </a>
+                            </Button>
+                          )}
+                          {canManage && (
+                            <>
+                              <Button variant="outline" size="icon" className="size-8" aria-label="Edit job" asChild>
+                                <Link href={`/jobs/${job.id}/edit`}>
+                                  <Pencil className="size-3.5" />
+                                </Link>
+                              </Button>
+                              <ConfirmDeleteButton action={deleteJob} id={job.id} entityLabel="job" />
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
         </>
       )}

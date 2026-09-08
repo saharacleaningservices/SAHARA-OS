@@ -95,6 +95,14 @@ export function JobEditForm({
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="serviceVariant">Flat / Type</Label>
+            <Input id="serviceVariant" {...register("serviceVariant")} placeholder="2 BHK / Sofa …" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="packageName">Package (optional)</Label>
+            <Input id="packageName" {...register("packageName")} placeholder="Premium / Platinum …" />
+          </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="address">Address</Label>
             <Textarea id="address" rows={2} {...register("address")} />

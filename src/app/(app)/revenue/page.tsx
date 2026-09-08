@@ -1,40 +1,69 @@
 import { getRevenueDashboard } from "@/server/revenue";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatINR } from "@/lib/utils";
-import { Wallet, CalendarDays, ShieldCheck, Sparkles, Users, AlertTriangle } from "lucide-react";
+import { Wallet, CalendarDays, ShieldCheck, Sparkles, Users, AlertTriangle, Percent, Ticket, Trophy } from "lucide-react";
 import { requireRole } from "@/lib/current-user";
+
+function RevenueBars({ rows, total }: { rows: { label: string; value: number }[]; total: number }) {
+  if (rows.length === 0) return <p className="text-sm text-muted-foreground">No completed jobs yet.</p>;
+  return (
+    <div className="space-y-2.5">
+      {rows.map((r) => (
+        <div key={r.label}>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-foreground">{r.label}</span>
+            <span className="font-medium text-foreground">{formatINR(r.value)}</span>
+          </div>
+          <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{ width: `${total > 0 ? Math.max(3, Math.round((r.value / total) * 100)) : 0}%` }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default async function RevenueDashboardPage() {
   await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
   const data = await getRevenueDashboard();
+  const serviceTotal = data.serviceRevenue.reduce((s, r) => s + r.value, 0);
+  const sourceTotal = data.sourceRevenue.reduce((s, r) => s + r.value, 0);
 
   return (
     <div className="space-y-6">
       <PageHeader title="Revenue Dashboard" description="Live revenue across bookings, AMC and upsells." />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard label="Today's Revenue" value={formatINR(data.todayRevenue)} icon={<Wallet className="size-4" />} tone="primary" />
         <StatCard label="Monthly Revenue" value={formatINR(data.monthlyRevenue)} icon={<CalendarDays className="size-4" />} tone="success" />
-        <StatCard
-          label="AMC Revenue"
-          value={formatINR(data.amcRevenue)}
-          icon={<ShieldCheck className="size-4" />}
-          tone="primary"
-        />
-        <StatCard
-          label="Upsell Revenue (this month)"
-          value={formatINR(data.upsellRevenue)}
-          icon={<Sparkles className="size-4" />}
-        />
-        <StatCard label="Repeat Customers" value={`${data.repeatCustomerPercent}%`} icon={<Users className="size-4" />} />
-        <StatCard label="Pending Payments" value={formatINR(data.pendingPayments)} icon={<AlertTriangle className="size-4" />} tone="warning" />
+        <StatCard label="Pending Collection" value={formatINR(data.pendingPayments)} icon={<AlertTriangle className="size-4" />} tone="warning" />
+        <StatCard label="Collection Rate" value={`${data.collectionRate}%`} icon={<Percent className="size-4" />} />
+        <StatCard label="Average Ticket" value={formatINR(data.avgTicket)} icon={<Ticket className="size-4" />} />
+        <StatCard label="Highest Job" value={formatINR(data.highestJobValue)} trendLabel={data.highestJobLabel} icon={<Trophy className="size-4" />} tone="primary" />
+        <StatCard label="AMC Revenue" value={formatINR(data.amcRevenue)} trendLabel={`${data.amcActiveCount} active`} icon={<ShieldCheck className="size-4" />} />
+        <StatCard label="Upsell Revenue (mo)" value={formatINR(data.upsellRevenue)} trendLabel={`${data.upsellAcceptedCount} accepted`} icon={<Sparkles className="size-4" />} />
+        <StatCard label="Repeat Customers" value={`${data.repeatCustomerPercent}%`} trendLabel={`of ${data.totalCustomers}`} icon={<Users className="size-4" />} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle>Service-wise Revenue</CardTitle></CardHeader>
+          <CardContent><RevenueBars rows={data.serviceRevenue} total={serviceTotal} /></CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Lead Source Revenue</CardTitle></CardHeader>
+          <CardContent><RevenueBars rows={data.sourceRevenue} total={sourceTotal} /></CardContent>
+        </Card>
       </div>
 
       <p className="text-xs text-muted-foreground">
-        AMC Revenue = total contract value of {data.amcActiveCount} active AMC contracts. Upsell Revenue = combo
-        offers accepted this month ({data.upsellAcceptedCount}). Repeat Customers = share of {data.totalCustomers}{" "}
-        customers with more than one completed job.
+        Collection Rate = collected / total invoiced. Average Ticket & service/source splits are computed over the
+        {" "}{data.completedJobCount} completed jobs. AMC Revenue = contract value of active AMC contracts.
       </p>
     </div>
   );

@@ -11,7 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateInput } from "@/components/ui/date-input";
 import { leadSchema, type LeadFormValues } from "@/lib/validation";
 import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY, TIME_SLOTS } from "@/lib/constants";
 import { createLead, updateLead } from "@/server/actions/leads";
@@ -63,14 +65,25 @@ export function LeadForm({
       timeSlot: "",
       teamNumber: "",
       assignedStaffId: "",
+      assignedStaffIds: [],
       assignedToId: "",
       notes: "",
       serviceCategory: "HOME_DEEP_CLEANING",
       serviceVariant: "",
+      packageName: "",
       mapLink: "",
       ...defaultValues,
     },
   });
+
+  const assignedStaffIds = watch("assignedStaffIds") ?? [];
+  function toggleStaff(id: string) {
+    const next = assignedStaffIds.includes(id)
+      ? assignedStaffIds.filter((x) => x !== id)
+      : [...assignedStaffIds, id];
+    setValue("assignedStaffIds", next, { shouldDirty: true });
+    setValue("assignedStaffId", next[0] ?? "", { shouldDirty: true });
+  }
 
   async function onSubmit(values: LeadFormValues) {
     setSubmitting(true);
@@ -147,12 +160,15 @@ export function LeadForm({
             <ServiceCategoryPicker
               category={watch("serviceCategory") || "HOME_DEEP_CLEANING"}
               variant={watch("serviceVariant") || ""}
+              packageName={watch("packageName") || ""}
               onCategoryChange={(v) => {
                 setValue("serviceCategory", v);
                 setValue("serviceVariant", "");
+                setValue("packageName", "");
                 setValue("service", (SERVICE_CATEGORY_TO_LEGACY[v] ?? "HOME_DEEP_CLEANING") as LeadFormValues["service"]);
               }}
               onVariantChange={(v) => setValue("serviceVariant", v)}
+              onPackageChange={(v) => setValue("packageName", v)}
             />
           </div>
           <div className="space-y-1.5">
@@ -177,7 +193,7 @@ export function LeadForm({
           <div className="grid grid-cols-2 gap-3 sm:col-span-2">
             <div className="space-y-1.5">
               <Label htmlFor="serviceDate">Requested Service Date</Label>
-              <Input id="serviceDate" type="date" {...register("serviceDate")} />
+              <DateInput id="serviceDate" {...register("serviceDate")} />
             </div>
             <div className="space-y-1.5">
               <Label>Time Slot</Label>
@@ -204,7 +220,7 @@ export function LeadForm({
           </p>
           <div className="space-y-1.5">
             <Label htmlFor="followUpDate">Follow-up Date</Label>
-            <Input id="followUpDate" type="date" {...register("followUpDate")} />
+            <DateInput id="followUpDate" {...register("followUpDate")} />
           </div>
           <TeamSelect
             value={watch("teamNumber")}
@@ -229,24 +245,25 @@ export function LeadForm({
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
-            <Label>Assign to Staff</Label>
-            <Select
-              value={watch("assignedStaffId") || "NONE"}
-              onValueChange={(v) => setValue("assignedStaffId", v === "NONE" ? "" : v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Unassigned" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NONE">Unassigned</SelectItem>
-                {staffOptions.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.name} ({s.designation})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Assign Staff (multiple)</Label>
+            <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+              {staffOptions.length === 0 ? (
+                <p className="px-1 py-1 text-sm text-muted-foreground">No active staff</p>
+              ) : (
+                staffOptions.map((s) => (
+                  <label key={s.id} className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-accent">
+                    <Checkbox checked={assignedStaffIds.includes(s.id)} onCheckedChange={() => toggleStaff(s.id)} />
+                    {s.name} <span className="text-xs text-muted-foreground">({s.designation})</span>
+                  </label>
+                ))
+              )}
+            </div>
+            {assignedStaffIds.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Assigned: {assignedStaffIds.map((id) => staffOptions.find((s) => s.id === id)?.name).filter(Boolean).join(", ")}
+              </p>
+            )}
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="notes">Notes</Label>

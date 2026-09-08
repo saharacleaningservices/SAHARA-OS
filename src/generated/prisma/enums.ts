@@ -60,10 +60,13 @@ export type LeadStage = (typeof LeadStage)[keyof typeof LeadStage]
 
 
 export const JobStatus = {
+  PENDING: 'PENDING',
   ASSIGNED: 'ASSIGNED',
   ON_THE_WAY: 'ON_THE_WAY',
   STARTED: 'STARTED',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+  POSTPONED: 'POSTPONED',
+  CANCELLED: 'CANCELLED'
 } as const
 
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
@@ -180,7 +183,9 @@ export const ServiceCategory = {
   INDIVIDUAL_CLEANING: 'INDIVIDUAL_CLEANING',
   PAINTING: 'PAINTING',
   PEST_CONTROL: 'PEST_CONTROL',
-  COMMERCIAL_CLEANING: 'COMMERCIAL_CLEANING'
+  HOUSEKEEPING: 'HOUSEKEEPING',
+  COMMERCIAL_CLEANING: 'COMMERCIAL_CLEANING',
+  AMC: 'AMC'
 } as const
 
 export type ServiceCategory = (typeof ServiceCategory)[keyof typeof ServiceCategory]

@@ -55,11 +55,15 @@ export type JobCardPdfProps = {
   flatType: string | null;
   team: string;
   supervisor: string;
+  crew?: string;
+  packageName?: string | null;
   paymentStatus: string;
   jobValue: number;
   advance: number;
   balance: number;
   notes: string | null;
+  /** Team card — hide customer phone + payment figures. */
+  audience?: "team" | "office";
 };
 
 function Field({ label, value, full = false }: { label: string; value: string; full?: boolean }) {
@@ -72,6 +76,7 @@ function Field({ label, value, full = false }: { label: string; value: string; f
 }
 
 export function JobCardDocument(props: JobCardPdfProps) {
+  const team = props.audience === "team";
   return (
     <Document title={`Job Card ${props.jobNumber}`}>
       <Page size="A4" style={styles.page}>
@@ -92,7 +97,7 @@ export function JobCardDocument(props: JobCardPdfProps) {
         </View>
 
         <View style={styles.titleBar}>
-          <Text style={styles.titleText}>JOB CARD</Text>
+          <Text style={styles.titleText}>JOB CARD{team ? " — TEAM COPY" : ""}</Text>
           <Text style={styles.titleMeta}>{props.jobNumber}</Text>
         </View>
 
@@ -100,8 +105,8 @@ export function JobCardDocument(props: JobCardPdfProps) {
           <Text style={styles.sectionTitle}>Customer</Text>
           <View style={styles.row}>
             <Field label="Name" value={props.customerName} />
-            <Field label="Mobile" value={props.mobile} />
-            <Field label="Alternate Number" value={props.alternateMobile || "—"} />
+            {team ? null : <Field label="Mobile" value={props.mobile} />}
+            {team ? null : <Field label="Alternate Number" value={props.alternateMobile || "—"} />}
             <Field label="Google Maps" value={props.mapLink ? "See link below" : "Not shared"} />
             <View style={styles.cellFull}>
               <Text style={styles.label}>Address</Text>
@@ -123,29 +128,33 @@ export function JobCardDocument(props: JobCardPdfProps) {
             <Field label="Time Slot" value={props.timeSlot} />
             <Field label="Service" value={props.service} />
             <Field label="Flat / Type" value={props.flatType || "—"} />
+            {props.packageName ? <Field label="Package" value={props.packageName} /> : null}
             <Field label="Team" value={props.team} />
+            {props.crew ? <Field label="Crew" value={props.crew} /> : null}
             <Field label="Supervisor" value={props.supervisor} />
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment</Text>
-          <View style={styles.payGrid}>
-            <View style={styles.payCell}>
-              <Text style={styles.payLabel}>Status</Text>
-              <Text style={styles.payValue}>{props.paymentStatus}</Text>
+        {team ? null : (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Payment</Text>
+            <View style={styles.payGrid}>
+              <View style={styles.payCell}>
+                <Text style={styles.payLabel}>Status</Text>
+                <Text style={styles.payValue}>{props.paymentStatus}</Text>
+              </View>
+              <View style={styles.payCell}>
+                <Text style={styles.payLabel}>Advance</Text>
+                <Text style={styles.payValue}>{inr(props.advance)}</Text>
+              </View>
+              <View style={styles.payCell}>
+                <Text style={styles.payLabel}>Balance</Text>
+                <Text style={styles.payValue}>{inr(props.balance)}</Text>
+              </View>
             </View>
-            <View style={styles.payCell}>
-              <Text style={styles.payLabel}>Advance</Text>
-              <Text style={styles.payValue}>{inr(props.advance)}</Text>
-            </View>
-            <View style={styles.payCell}>
-              <Text style={styles.payLabel}>Balance</Text>
-              <Text style={styles.payValue}>{inr(props.balance)}</Text>
-            </View>
+            <Text style={[styles.label, { marginTop: 8 }]}>Job Value: {inr(props.jobValue)}</Text>
           </View>
-          <Text style={[styles.label, { marginTop: 8 }]}>Job Value: {inr(props.jobValue)}</Text>
-        </View>
+        )}
 
         {props.notes ? (
           <View style={styles.section}>

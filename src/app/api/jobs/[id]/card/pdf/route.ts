@@ -31,6 +31,11 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const paymentStatus =
     balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partly Paid" : "Pending";
 
+  // Field crew always get the team copy (no customer phone / payment figures).
+  const fieldRole = session.role === "SUPERVISOR" || session.role === "STAFF";
+  const audience: "team" | "office" =
+    fieldRole || _request.nextUrl.searchParams.get("team") === "1" ? "team" : "office";
+
   const buffer = await renderToBuffer(
     JobCardDocument({
       jobNumber: job.jobNumber,
@@ -44,13 +49,16 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       timeSlot: job.scheduledTime,
       service: SERVICE_LABELS[job.service] ?? job.service,
       flatType: job.serviceVariant ?? null,
+      packageName: job.packageName ?? null,
       team: job.teamNumber ? `Team ${job.teamNumber}` : "—",
+      crew: job.assignments.map((a) => a.staff.name).join(", ") || undefined,
       supervisor: job.supervisor?.name ?? "—",
       paymentStatus,
       jobValue: job.jobValue,
       advance,
       balance,
       notes: job.notes ?? null,
+      audience,
     })
   );
 

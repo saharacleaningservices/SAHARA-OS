@@ -9,14 +9,13 @@ export const teamNumberSchema = z
 // windows both validate.
 export const timeSlotSchema = z.string().max(40).optional().or(z.literal(""));
 
-// Strong password policy — min 12 chars with upper, lower, digit and special.
+// Password policy. Kept deliberately light — office users may choose a simple
+// password. Security is enforced by Super-Admin device approval + OTP on
+// password change, not by complexity rules.
 export const strongPasswordSchema = z
   .string()
-  .min(12, "Use at least 12 characters")
-  .regex(/[A-Z]/, "Add an uppercase letter")
-  .regex(/[a-z]/, "Add a lowercase letter")
-  .regex(/[0-9]/, "Add a number")
-  .regex(/[^A-Za-z0-9]/, "Add a special character");
+  .min(6, "Use at least 6 characters")
+  .max(72, "Password is too long");
 
 export const LEAD_SOURCES = [
   "CALL",
@@ -57,10 +56,13 @@ export const leadSchema = z.object({
   serviceDate: z.string().optional().or(z.literal("")),
   teamNumber: teamNumberSchema,
   assignedStaffId: z.string().optional().or(z.literal("")),
+  assignedStaffIds: z.array(z.string()).optional(),
   assignedToId: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
   serviceCategory: z.string().optional().or(z.literal("")),
   serviceVariant: z.string().optional().or(z.literal("")),
+  packageName: z.string().optional().or(z.literal("")),
+  comboServices: z.array(z.string()).optional(),
   mapLink: z.string().optional().or(z.literal("")),
 });
 
@@ -81,6 +83,7 @@ export const jobSchema = z.object({
     "INTERIOR_PAINTING",
   ]),
   serviceVariant: z.string().optional().or(z.literal("")),
+  packageName: z.string().optional().or(z.literal("")),
   scheduledDate: z.string().min(1),
   scheduledTime: z.string().min(1),
   teamNumber: teamNumberSchema,

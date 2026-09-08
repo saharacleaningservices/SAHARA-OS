@@ -10,6 +10,7 @@
 // both approaches produce an identical schema. See README.md.
 
 import Database from "better-sqlite3";
+import bcrypt from "bcryptjs";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -572,7 +573,7 @@ console.log("Final go-live batch migration complete.");
 const finalRoleMap = db.transaction(() => {
   const rows = [
     ["operations@saharacleaningservices.com", "OPERATIONS", "Francis Monteiro"],
-    ["accounts@saharacleaningservices.com", "ACCOUNTS", "Shoyab Shaikh"],
+    ["accounts@saharacleaningservices.com", "ACCOUNTS", "Shoyab Kazi"],
     ["admin@saharacleaningservices.com", "ADMIN", "Altaf Shaikh"],
     ["supervisor@saharacleaningservices.com", "SUPERVISOR", null],
     ["staff@saharacleaningservices.com", "STAFF", null],
@@ -757,5 +758,59 @@ db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "PushSubscription_endpoint_key" ON "P
 db.exec(`CREATE INDEX IF NOT EXISTS "PushSubscription_userId_idx" ON "PushSubscription"("userId");`);
 
 console.log("Master Prompt V1.0 batch migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// v1.1 Production Polish (2026-09-09) — job status flow (PENDING/POSTPONED/
+// CANCELLED), booking packages & combos, multi-staff on leads. Additive +
+// idempotent. Job.status keeps a stale enum CHECK from the initial migration,
+// so rebuild the table (row-preserving) to drop it, same as Lead/Expense.
+// ─────────────────────────────────────────────────────────────────────────
+
+dropEnumChecks("Job");
+
+addColumnIfMissing("Lead", "packageName", `"packageName" TEXT`);
+addColumnIfMissing("Lead", "comboServices", `"comboServices" TEXT`);
+addColumnIfMissing("Lead", "assignedStaffIds", `"assignedStaffIds" TEXT`);
+addColumnIfMissing("Job", "packageName", `"packageName" TEXT`);
+addColumnIfMissing("Job", "comboServices", `"comboServices" TEXT`);
+
+console.log("v1.1 Production Polish migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// v1.1 — Mobile-number login for the three office users. One-time, guarded by
+// a 'V11_MOBILE_AUTH' AuditLog sentinel so passwords are NOT reset on every
+// deploy. Sets the login mobile number + a temporary password; each user is
+// then forced through /set-password on first login. Preserves all data.
+//   admin@       Altaf Shaikh     → 7083347130 / Sahara1  (Super Admin)
+//   operations@  Francis Monteiro → 8530207130 / Sahara2  (Operations Manager)
+//   accounts@    Shoyab Kazi      → 8956567130 / Sahara3  (Office Assistant)
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const alreadyDone = db
+    .prepare(`SELECT COUNT(*) AS c FROM "AuditLog" WHERE "action" = 'V11_MOBILE_AUTH'`)
+    .get().c;
+  if (!alreadyDone) {
+    const rows = [
+      ["admin@saharacleaningservices.com", "7083347130", "Sahara1", "ADMIN", "Altaf Shaikh"],
+      ["operations@saharacleaningservices.com", "8530207130", "Sahara2", "OPERATIONS", "Francis Monteiro"],
+      ["accounts@saharacleaningservices.com", "8956567130", "Sahara3", "ACCOUNTS", "Shoyab Kazi"],
+    ];
+    const apply = db.transaction(() => {
+      // Free up any phone numbers about to be reassigned first.
+      db.prepare(`UPDATE "User" SET "phone" = NULL WHERE "phone" IN ('7083347130','8530207130','8956567130')`).run();
+      for (const [email, phone, pw, role, name] of rows) {
+        db.prepare(
+          `UPDATE "User" SET "phone" = ?, "passwordHash" = ?, "role" = ?, "name" = ?, "mustChangePassword" = 1 WHERE "email" = ?`
+        ).run(phone, bcrypt.hashSync(pw, 10), role, name, email);
+      }
+      db.prepare(
+        `INSERT INTO "AuditLog" ("id","entityType","entityId","action","summary","createdAt")
+         VALUES (?, 'Security', 'auth', 'V11_MOBILE_AUTH', 'Mobile-number login enabled for the 3 office users; temporary passwords set', CURRENT_TIMESTAMP)`
+      ).run("migv11-mobile-auth");
+    });
+    apply();
+    console.log("v1.1 mobile-number auth applied (3 users → mobile login + temp password + must-change).");
+  }
+}
 
 db.close();

@@ -16,16 +16,17 @@ const dbPath = path.resolve(process.cwd(), (process.env.DATABASE_URL || "file:./
 const adapter = new PrismaBetterSQLite3({ url: `file:${dbPath}` });
 const db = new PrismaClient({ adapter });
 
-// Fresh-install bootstrap passwords. Each account gets a distinct one; every
-// non-admin account is flagged mustChangePassword and must set a personal
-// password on first login (see scripts/db-setup.mjs + /set-password).
+// Fresh-install bootstrap. The three office users log in with a MOBILE NUMBER
+// and a temporary password, and are forced through /set-password on first
+// login. See scripts/db-setup.mjs for the equivalent guarded migration that
+// applies this to the live database.
 const DEMO_PASSWORD = "Sahara@2026"; // legacy default, kept for tests referencing it
 const BOOTSTRAP_PASSWORDS: Record<string, string> = {
-  "admin@saharacleaningservices.com": "Altaf#Sahara2026!",
-  "operations@saharacleaningservices.com": "Francis#Sahara2026!",
-  "accounts@saharacleaningservices.com": "Shoyab#Sahara2026!",
-  "supervisor@saharacleaningservices.com": "Suresh#Sahara2026!",
-  "staff@saharacleaningservices.com": "Vikas#Sahara2026!",
+  "admin@saharacleaningservices.com": "Sahara1",
+  "operations@saharacleaningservices.com": "Sahara2",
+  "accounts@saharacleaningservices.com": "Sahara3",
+  "supervisor@saharacleaningservices.com": "Suresh1",
+  "staff@saharacleaningservices.com": "Vikas1",
 };
 
 const AREAS = [
@@ -101,30 +102,32 @@ async function main() {
       phone: "7083347130",
       passwordHash: await hash("admin@saharacleaningservices.com"),
       role: "ADMIN",
+      mustChangePassword: true,
     },
   });
 
-  // Francis Monteiro — Operations Manager (operations@ login).
+  // Francis Monteiro — Operations Manager (logs in with mobile 8530207130).
   const francis = await db.user.upsert({
     where: { email: "operations@saharacleaningservices.com" },
     update: {},
     create: {
       name: "Francis Monteiro",
       email: "operations@saharacleaningservices.com",
-      phone: "8956567130",
+      phone: "8530207130",
       passwordHash: await hash("operations@saharacleaningservices.com"),
       role: "OPERATIONS",
       mustChangePassword: true,
     },
   });
 
-  // Shoyab Shaikh — Office Assistant (accounts@ login).
+  // Shoyab Kazi — Office Assistant (logs in with mobile 8956567130).
   const shoyab = await db.user.upsert({
     where: { email: "accounts@saharacleaningservices.com" },
     update: {},
     create: {
-      name: "Shoyab Shaikh",
+      name: "Shoyab Kazi",
       email: "accounts@saharacleaningservices.com",
+      phone: "8956567130",
       passwordHash: await hash("accounts@saharacleaningservices.com"),
       role: "ACCOUNTS",
       mustChangePassword: true,

@@ -47,7 +47,8 @@ export function teamDispatchMessage(input: {
     ``,
     input.team ? `Team: ${input.team}` : null,
     `Customer: ${input.customerName}`,
-    input.mobile ? `Mobile: ${input.mobile}` : null,
+    // Customer phone is deliberately NOT shared with field crew — they reach
+    // the customer through the office. See the office job card for contact.
     `Area: ${input.area}`,
     input.address ? `Address: ${input.address}` : null,
     input.mapLink ? `Map: ${input.mapLink}` : null,
@@ -65,7 +66,11 @@ export function teamDispatchMessage(input: {
   return lines.join("\n");
 }
 
-/** Plain-text job card for sharing on WhatsApp (wa.me / Send). */
+/**
+ * Plain-text job card for sharing on WhatsApp (wa.me / Send).
+ * `audience: "team"` produces the crew-safe card — customer phone hidden,
+ * Maps link kept prominent. `audience: "office"` keeps the contact details.
+ */
 export function jobCardMessage(input: {
   jobNumber: string;
   customerName: string;
@@ -77,33 +82,39 @@ export function jobCardMessage(input: {
   timeSlot: string;
   service: string;
   flatType?: string | null;
+  packageName?: string | null;
   team?: number | null;
   supervisor?: string | null;
+  crew?: string[];
   paymentStatus?: string | null;
   advance?: number | null;
   balance?: number | null;
   notes?: string | null;
+  audience?: "team" | "office";
 }) {
+  const team = input.audience === "team";
   return [
-    `🧾 ${COMPANY.name} — Job Card`,
+    `🧾 ${COMPANY.name} — Job Card${team ? " (Team)" : ""}`,
     `${input.jobNumber}`,
     ``,
     `Customer: ${input.customerName}`,
-    `Mobile: ${input.mobile}`,
-    input.alternateMobile ? `Alt: ${input.alternateMobile}` : null,
+    team ? null : `Mobile: ${input.mobile}`,
+    team || !input.alternateMobile ? null : `Alt: ${input.alternateMobile}`,
     `Address: ${input.address}`,
-    input.mapLink ? `Map: ${input.mapLink}` : null,
+    input.mapLink ? `📍 Maps: ${input.mapLink}` : null,
     ``,
     `Date: ${formatDate(input.date)}`,
     `Time Slot: ${input.timeSlot}`,
     `Service: ${input.service}`,
     input.flatType ? `Flat / Type: ${input.flatType}` : null,
+    input.packageName ? `Package: ${input.packageName}` : null,
     input.team ? `Team: ${input.team}` : null,
+    input.crew && input.crew.length ? `Crew: ${input.crew.join(", ")}` : null,
     input.supervisor ? `Supervisor: ${input.supervisor}` : null,
-    ``,
-    input.paymentStatus ? `Payment: ${input.paymentStatus}` : null,
-    input.advance != null ? `Advance: ${formatINR(input.advance)}` : null,
-    input.balance != null ? `Balance: ${formatINR(input.balance)}` : null,
+    team ? null : ``,
+    team || !input.paymentStatus ? null : `Payment: ${input.paymentStatus}`,
+    team || input.advance == null ? null : `Advance: ${formatINR(input.advance)}`,
+    team || input.balance == null ? null : `Balance: ${formatINR(input.balance)}`,
     input.notes ? `\nNotes: ${input.notes}` : null,
   ]
     .filter((l) => l !== null)

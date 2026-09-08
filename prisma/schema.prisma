@@ -60,10 +60,13 @@ enum LeadStage {
 }
 
 enum JobStatus {
+  PENDING
   ASSIGNED
   ON_THE_WAY
   STARTED
   COMPLETED
+  POSTPONED
+  CANCELLED
 }
 
 enum PaymentStatus {
@@ -150,7 +153,9 @@ enum ServiceCategory {
   INDIVIDUAL_CLEANING
   PAINTING
   PEST_CONTROL
+  HOUSEKEEPING
   COMMERCIAL_CLEANING
+  AMC
 }
 
 // Phase 3 — Revenue, WhatsApp & Workforce Automation
@@ -344,6 +349,9 @@ model Lead {
 
   serviceCategory  ServiceCategory?
   serviceVariant   String?
+  packageName      String?   // optional package tier (Premium/Platinum/…)
+  comboServices    String?   // JSON array of combo bundles picked
+  assignedStaffIds String?   // JSON array of Staff ids — multi-staff assignment; assignedStaffId stays as the primary
   mapLink          String?
   referralCode     String?
 
@@ -450,6 +458,8 @@ model Job {
   pinCode          String?
   service          ServiceType
   serviceVariant   String? // "flat type" / package, carried from the Lead
+  packageName      String? // optional package tier, carried from the Lead
+  comboServices    String? // JSON array of combo bundles, carried from the Lead
 
   scheduledDate    DateTime
   scheduledTime    String // time slot, e.g. "10:00 AM"

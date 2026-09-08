@@ -22,6 +22,8 @@ const publicBookingSchema = z.object({
   pinCode: z.string().regex(/^\d{6}$/, "Enter a 6-digit PIN code").optional().or(z.literal("")),
   serviceCategory: z.string().min(1, "Pick a service"),
   serviceVariant: z.string().optional().or(z.literal("")),
+  packageName: z.string().optional().or(z.literal("")),
+  comboServices: z.array(z.string()).optional(),
   addOnServices: z.array(z.string()).optional(),
   serviceDate: z.string().optional().or(z.literal("")),
   timeSlot: z.string().optional().or(z.literal("")),
@@ -63,6 +65,7 @@ export async function publicBookLead(values: unknown) {
     (data.address ? data.address.split(/[\n,]/)[0]!.trim().slice(0, 60) : "") ||
     "—";
   const addOns = (data.addOnServices ?? []).filter(Boolean);
+  const combos = (data.comboServices ?? []).filter(Boolean);
 
   const lead = await db.lead.create({
     data: {
@@ -79,6 +82,8 @@ export async function publicBookLead(values: unknown) {
       service: legacyService as never,
       serviceCategory: data.serviceCategory as never,
       serviceVariant: data.serviceVariant || null,
+      packageName: data.packageName || null,
+      comboServices: combos.length ? JSON.stringify(combos) : null,
       serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
       timeSlot: data.timeSlot || null,
       source: source as never,
@@ -110,6 +115,8 @@ export async function publicBookLead(values: unknown) {
       `Booked online (${source.toLowerCase()}) via app.saharacleaningservices.com/book (unverified — no OTP yet)`,
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
+      data.packageName ? `Package: ${data.packageName}` : null,
+      combos.length ? `Combos: ${combos.join(", ")}` : null,
       addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
       data.pinCode ? `PIN: ${data.pinCode}` : null,
       data.alternateMobile ? `Alt mobile: ${data.alternateMobile}` : null,
@@ -141,7 +148,8 @@ export async function publicBookLead(values: unknown) {
       `Hi ${data.name}, thank you for booking with ${COMPANY.name}! ✅`,
       ``,
       `Booking ID: ${leadNumber}`,
-      `Service: ${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}`,
+      `Service: ${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}${data.packageName ? ` – ${data.packageName}` : ""}`,
+      combos.length ? `Combos: ${combos.join(", ")}` : null,
       addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
       data.serviceDate ? `Preferred date: ${data.serviceDate}` : null,
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,

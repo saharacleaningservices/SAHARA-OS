@@ -43,10 +43,12 @@ export async function createJob(values: unknown) {
       pinCode: data.pinCode || null,
       service: data.service,
       serviceVariant: data.serviceVariant || null,
+      packageName: data.packageName || null,
       scheduledDate: new Date(data.scheduledDate),
       scheduledTime: data.scheduledTime,
       teamNumber,
       supervisorId: data.supervisorId || null,
+      status: data.staffIds?.length ? "ASSIGNED" : "PENDING",
       jobValue: data.jobValue,
       notes: data.notes || null,
     },
@@ -101,6 +103,7 @@ export async function updateJob(id: string, values: unknown) {
       ...(d.pinCode !== undefined && { pinCode: d.pinCode || null }),
       ...(d.service && { service: d.service }),
       ...(d.serviceVariant !== undefined && { serviceVariant: d.serviceVariant || null }),
+      ...(d.packageName !== undefined && { packageName: d.packageName || null }),
       ...(d.scheduledDate && { scheduledDate: new Date(d.scheduledDate) }),
       ...(d.scheduledTime && { scheduledTime: d.scheduledTime }),
       ...(d.teamNumber !== undefined && {
@@ -161,11 +164,19 @@ export async function bulkDeleteJobs(ids: string[]) {
   return { success: true as const, count };
 }
 
-const STATUS_FLOW = ["ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;
-type JobStatus = (typeof STATUS_FLOW)[number];
+const ALL_STATUSES = [
+  "PENDING",
+  "ASSIGNED",
+  "ON_THE_WAY",
+  "STARTED",
+  "COMPLETED",
+  "POSTPONED",
+  "CANCELLED",
+] as const;
+type JobStatus = (typeof ALL_STATUSES)[number];
 
 export async function updateJobStatus(jobId: string, status: JobStatus) {
-  if (!STATUS_FLOW.includes(status)) return { error: "Invalid status", success: false as const };
+  if (!ALL_STATUSES.includes(status)) return { error: "Invalid status", success: false as const };
   const session = await getSession();
   const now = new Date();
 
