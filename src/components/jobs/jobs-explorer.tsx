@@ -38,7 +38,7 @@ type Job = {
   mapLink?: string | null;
   supervisor?: { name: string } | null;
   assignments: { staff: { name: string } }[];
-  payments: { status: string }[];
+  payments: { status: string; amount: number; paidAmount: number }[];
   vehicle?: { name: string; plateNumber: string } | null;
 };
 
@@ -192,8 +192,19 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                         )}
                       </TableCell>
                       <TableCell className="text-sm">
-                        {pay ? <PaymentStatusBadge status={pay} /> : <span className="text-muted-foreground">—</span>}
-                        <p className="text-xs text-muted-foreground">{formatINR(job.jobValue)}</p>
+                        {(() => {
+                          const adv = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+                          const total = job.payments.reduce((s, p) => s + (p.amount ?? 0), 0) || job.jobValue;
+                          const bal = Math.max(total - adv, 0);
+                          return (
+                            <>
+                              {pay ? <PaymentStatusBadge status={pay} /> : <span className="text-muted-foreground">Not raised</span>}
+                              <p className="text-xs text-muted-foreground">
+                                Adv {formatINR(adv)} · Bal {formatINR(bal)}
+                              </p>
+                            </>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell>
                         <JobStatusBadge status={job.status} />

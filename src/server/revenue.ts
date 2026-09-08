@@ -1,10 +1,11 @@
 import { db } from "@/lib/db";
-import { startOfDay, startOfMonth } from "date-fns";
+import { startOfDay, endOfDay, startOfMonth } from "date-fns";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 
 export async function getRevenueDashboard() {
   const now = new Date();
   const todayStart = startOfDay(now);
+  const todayEnd = endOfDay(now);
   const monthStart = startOfMonth(now);
 
   const [
@@ -31,6 +32,15 @@ export async function getRevenueDashboard() {
     }),
     db.job.findMany({ where: { deletedAt: null, status: "COMPLETED" }, select: { customerMobile: true } }),
   ]);
+
+  const collectedTodayRows = await db.payment.findMany({
+    where: { deletedAt: null, paidDate: { gte: todayStart, lte: todayEnd } },
+    select: { paidAmount: true, amount: true, status: true },
+  });
+  const todaysCollection = collectedTodayRows.reduce((s, p) => s + p.paidAmount, 0);
+  const advanceCollectedToday = collectedTodayRows
+    .filter((p) => p.status !== "PAID" && p.paidAmount < p.amount)
+    .reduce((s, p) => s + p.paidAmount, 0);
 
   const pendingTotal = pendingPayments.reduce((sum, p) => sum + Math.max(p.amount - p.paidAmount, 0), 0);
 
@@ -75,6 +85,9 @@ export async function getRevenueDashboard() {
     repeatCustomerPercent,
     totalCustomers,
     pendingPayments: pendingTotal,
+    balancePending: pendingTotal,
+    todaysCollection,
+    advanceCollectedToday,
     collectionRate,
     avgTicket,
     highestJobValue: highestJob?.value ?? 0,

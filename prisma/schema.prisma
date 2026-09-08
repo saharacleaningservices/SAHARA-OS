@@ -67,6 +67,7 @@ enum JobStatus {
   COMPLETED
   POSTPONED
   CANCELLED
+  REACTIVATED
 }
 
 enum PaymentStatus {
@@ -352,6 +353,12 @@ model Lead {
   packageName      String?   // optional package tier (Premium/Platinum/…)
   comboServices    String?   // JSON array of combo bundles picked
   assignedStaffIds String?   // JSON array of Staff ids — multi-staff assignment; assignedStaffId stays as the primary
+
+  // Advance payment captured at booking / manual lead entry. quoteAmount is
+  // the estimated total; balance is quoteAmount - advanceAmount.
+  advanceAmount    Float?
+  paymentMode      String?   // UPI | QR | BANK | CASH
+  paymentStatus    String?   // PENDING | PARTIAL | PAID | PENDING_ADVANCE
   mapLink          String?
   referralCode     String?
 
@@ -566,6 +573,7 @@ model Payment {
   paidDate          DateTime?
   status            PaymentStatus @default(PENDING)
 
+  mode                 String?          // UPI | QR | BANK | CASH — how the advance / collection was made
   mybillbookInvoiceNo String?
   invoiceAttachmentUrl String?          // uploaded MyBillBook / manual invoice PDF or image
   lastReminderAt       DateTime?
@@ -648,6 +656,16 @@ model CompanySettings {
   website   String?
   logoUrl   String?
   googleReviewUrl String?
+
+  // Payment collection details shown to customers (booking form) and used to
+  // build the "Send Payment Link" WhatsApp message.
+  upiId             String?
+  upiQrUrl          String?  // uploaded QR image
+  bankName          String?
+  bankAccountName   String?
+  bankAccountNumber String?
+  bankIfsc          String?
+
   updatedAt DateTime @updatedAt
 }
 

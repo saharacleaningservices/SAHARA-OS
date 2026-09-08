@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { LeadStageBadge, JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { FollowUpBoard } from "@/components/dashboard/followup-board";
+import { DashboardQuickActions } from "@/components/dashboard/dashboard-quick-actions";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
@@ -35,6 +36,7 @@ export default async function DashboardPage() {
   const {
     stats,
     recentLeads,
+    recentContacts,
     todaysJobs,
     overduePayments,
     followUpsToday,
@@ -47,18 +49,6 @@ export default async function DashboardPage() {
   const showProfit = canViewFinancials(session.role);
   const showBackOffice = session.role === "ADMIN" || session.role === "OPERATIONS";
 
-  const actions: { icon: string; text: string; href: string }[] = [];
-  if (followUpsOverdue.length > 0)
-    actions.push({ icon: "🔴", text: `${followUpsOverdue.length} overdue follow-up${followUpsOverdue.length > 1 ? "s" : ""}`, href: "/leads?due=overdue" });
-  if (stats.todaysJobsCount > 0)
-    actions.push({ icon: "🟢", text: `${stats.todaysJobsCount} job${stats.todaysJobsCount > 1 ? "s" : ""} today`, href: "/jobs?when=today" });
-  if (followUpsToday.length > 0)
-    actions.push({ icon: "🟡", text: `${followUpsToday.length} follow-up${followUpsToday.length > 1 ? "s" : ""} due today`, href: "/leads?due=today" });
-  if (stats.pendingAdvanceCount > 0)
-    actions.push({ icon: "🟡", text: `${stats.pendingAdvanceCount} advance pending`, href: "/payments" });
-  if (stats.reviewsPendingCount > 0)
-    actions.push({ icon: "⭐", text: `${stats.reviewsPendingCount} review${stats.reviewsPendingCount > 1 ? "s" : ""} pending`, href: "/reports" });
-
   return (
     <div className="space-y-6">
       <PageHeader
@@ -66,110 +56,86 @@ export default async function DashboardPage() {
         description="Here's what's happening at Sahara Cleaning Services today."
       />
 
-      {actions.length > 0 && (
-        <Card className="border-primary/30 bg-accent/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Today&apos;s Action</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {actions.map((a) => (
-              <Link
-                key={a.text}
-                href={a.href}
-                className="flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium hover:border-primary/50"
-              >
-                <span>{a.icon}</span> {a.text}
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* ── Operational quick actions + KPIs ─────────────────── */}
+        <div className="space-y-4 lg:col-span-2">
+          <DashboardQuickActions contacts={recentContacts} showPayments={showRevenue} />
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-3 gap-2 sm:max-w-md">
-        <Button asChild variant="outline" className="h-auto flex-col gap-1 py-3">
-          <Link href="/leads/new">
-            <Users className="size-4" />
-            <span className="text-xs">New Enquiry</span>
-          </Link>
-        </Button>
-        <Button asChild variant="outline" className="h-auto flex-col gap-1 py-3">
-          <Link href="/jobs">
-            <ClipboardList className="size-4" />
-            <span className="text-xs">New Job</span>
-          </Link>
-        </Button>
-        <Button asChild variant="outline" className="h-auto flex-col gap-1 py-3">
-          <Link href="/payments">
-            <IndianRupee className="size-4" />
-            <span className="text-xs">New Payment</span>
-          </Link>
-        </Button>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
+            <StatCard href="/leads" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} tone="default" />
+            <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
+            <StatCard href="/jobs" label="Monthly Bookings" value={stats.monthlyBookingsCount} icon={<CalendarClock className="size-4" />} tone="primary" />
+            <StatCard href="/jobs" label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
+            <StatCard href="/jobs?when=today" label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone={stats.todaysJobsCount > 0 ? "primary" : "default"} />
+            <StatCard href="/jobs" label="Upcoming Jobs" value={stats.upcomingJobsCount} icon={<CalendarClock className="size-4" />} />
+            <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} tone={stats.siteVisitsToday > 0 ? "primary" : "default"} />
+            <StatCard href="/leads?due=overdue" label="Overdue Follow-ups" value={followUpsOverdue.length} icon={<BellRing className="size-4" />} tone={followUpsOverdue.length > 0 ? "destructive" : "default"} />
+            {showRevenue && (
+              <>
+                <StatCard href="/payments?filter=today" label="Today's Revenue" value={formatINR(stats.revenueToday)} icon={<TrendingUp className="size-4" />} tone={stats.revenueToday > 0 ? "success" : "default"} />
+                <StatCard href="/payments?filter=pending" label="Pending Collection" value={formatINR(stats.pendingPaymentsTotal)} icon={<Wallet className="size-4" />} tone={stats.pendingPaymentsTotal > 0 ? "warning" : "default"} />
+                <StatCard href="/revenue" label="Monthly Revenue" value={formatINR(stats.monthlyRevenue)} trend={stats.revenueTrend} icon={<Wallet className="size-4" />} tone="primary" />
+              </>
+            )}
+            {showProfit && (
+              <StatCard href="/profit" label="Net Profit (month)" value={formatINR(stats.netProfit)} trend={stats.profitTrend} icon={<PiggyBank className="size-4" />} tone="success" />
+            )}
+          </div>
+        </div>
+
+        {/* ── Today's Action panel ────────────────────────────── */}
+        <div className="space-y-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Today&apos;s Action</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2">
+              <Link href="/jobs?when=today" className={`rounded-lg border p-3 hover:border-primary/50 ${stats.todaysJobsCount > 0 ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+                <p className="text-xs text-muted-foreground">Today&apos;s Jobs</p>
+                <p className="text-xl font-semibold text-foreground">{stats.todaysJobsCount}</p>
+              </Link>
+              <Link href="/payments?filter=pending" className={`rounded-lg border p-3 hover:border-primary/50 ${stats.pendingPaymentsTotal > 0 ? "border-warning/40 bg-warning/5" : "border-border"}`}>
+                <p className="text-xs text-muted-foreground">Pending Collection</p>
+                <p className="text-xl font-semibold text-foreground">{formatINR(stats.pendingPaymentsTotal)}</p>
+              </Link>
+              <Link href="/reports" className={`rounded-lg border p-3 hover:border-primary/50 ${stats.reviewsPendingCount > 0 ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+                <p className="text-xs text-muted-foreground">Review Requests</p>
+                <p className="text-xl font-semibold text-foreground">{stats.reviewsPendingCount}</p>
+              </Link>
+              <Link href="/staff" className="rounded-lg border border-border p-3 hover:border-primary/50">
+                <p className="text-xs text-muted-foreground">Staff On Job</p>
+                <p className="text-xl font-semibold text-foreground">{stats.staffOnJobCount}</p>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {followUpsOverdue.length > 0 && (
+            <Card className="border-destructive/30 bg-destructive/5">
+              <CardContent className="flex items-center justify-between py-3">
+                <p className="text-sm font-medium text-destructive">🔴 {followUpsOverdue.length} overdue follow-up{followUpsOverdue.length > 1 ? "s" : ""}</p>
+                <Button asChild size="sm" variant="outline"><Link href="/leads?due=overdue">Open</Link></Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
 
+      {/* secondary KPIs */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
-        <StatCard href="/leads" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} />
-        <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
-        <StatCard href="/jobs" label="Monthly Bookings" value={stats.monthlyBookingsCount} icon={<CalendarClock className="size-4" />} tone="primary" />
-        <StatCard href="/jobs" label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
-        <StatCard href="/jobs" label="Upcoming Jobs" value={stats.upcomingJobsCount} icon={<CalendarClock className="size-4" />} />
-        <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} />
-        <StatCard href="/leads?due=overdue" label="Pending Follow-ups" value={stats.pendingFollowUpsCount} icon={<BellRing className="size-4" />} tone="warning" />
-        <StatCard
-          href="/payments"
-          label="Pending Advance"
-          value={stats.pendingAdvanceCount}
-          trendLabel={formatINR(stats.pendingAdvanceTotal)}
-          icon={<Wallet className="size-4" />}
-          tone="warning"
-        />
-
         {showRevenue && (
-          <>
-            <StatCard
-              href="/payments"
-              label="Revenue Today"
-              value={formatINR(stats.revenueToday)}
-              icon={<TrendingUp className="size-4" />}
-              tone="success"
-            />
-            <StatCard
-              href="/payments"
-              label="Collections Today"
-              value={stats.collectionsTodayCount}
-              trendLabel="payments"
-              icon={<IndianRupee className="size-4" />}
-            />
-            <StatCard
-              href="/payments"
-              label="Pending Payments"
-              value={stats.pendingPaymentsCount}
-              trendLabel={formatINR(stats.pendingPaymentsTotal)}
-              icon={<Wallet className="size-4" />}
-              tone="warning"
-            />
-            <StatCard
-              href="/revenue"
-              label="Monthly Revenue"
-              value={formatINR(stats.monthlyRevenue)}
-              trend={stats.revenueTrend}
-              icon={<Wallet className="size-4" />}
-              tone="primary"
-            />
-          </>
-        )}
-        {showProfit && (
           <StatCard
-            href="/profit"
-            label="Net Profit (month)"
-            value={formatINR(stats.netProfit)}
-            trend={stats.profitTrend}
-            icon={<PiggyBank className="size-4" />}
-            tone="success"
+            href="/payments"
+            label="Pending Advance"
+            value={stats.pendingAdvanceCount}
+            trendLabel={formatINR(stats.pendingAdvanceTotal)}
+            icon={<Wallet className="size-4" />}
+            tone="warning"
           />
         )}
-
+        {showRevenue && (
+          <StatCard href="/payments?filter=paid" label="Collections Today" value={stats.collectionsTodayCount} trendLabel="payments" icon={<IndianRupee className="size-4" />} />
+        )}
         <StatCard href="/reports" label="Reviews Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} />
         <StatCard href="/staff" label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} />
         <StatCard href="/staff" label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} />

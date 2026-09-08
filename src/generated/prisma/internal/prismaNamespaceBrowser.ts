@@ -212,6 +212,9 @@ export const LeadScalarFieldEnum = {
   packageName: 'packageName',
   comboServices: 'comboServices',
   assignedStaffIds: 'assignedStaffIds',
+  advanceAmount: 'advanceAmount',
+  paymentMode: 'paymentMode',
+  paymentStatus: 'paymentStatus',
   mapLink: 'mapLink',
   referralCode: 'referralCode',
   isDemo: 'isDemo',
@@ -364,6 +367,7 @@ export const PaymentScalarFieldEnum = {
   dueDate: 'dueDate',
   paidDate: 'paidDate',
   status: 'status',
+  mode: 'mode',
   mybillbookInvoiceNo: 'mybillbookInvoiceNo',
   invoiceAttachmentUrl: 'invoiceAttachmentUrl',
   lastReminderAt: 'lastReminderAt',
@@ -421,6 +425,12 @@ export const CompanySettingsScalarFieldEnum = {
   website: 'website',
   logoUrl: 'logoUrl',
   googleReviewUrl: 'googleReviewUrl',
+  upiId: 'upiId',
+  upiQrUrl: 'upiQrUrl',
+  bankName: 'bankName',
+  bankAccountName: 'bankAccountName',
+  bankAccountNumber: 'bankAccountNumber',
+  bankIfsc: 'bankIfsc',
   updatedAt: 'updatedAt'
 } as const
 

@@ -48,6 +48,7 @@ export type PaymentMinAggregateOutputType = {
   dueDate: Date | null
   paidDate: Date | null
   status: $Enums.PaymentStatus | null
+  mode: string | null
   mybillbookInvoiceNo: string | null
   invoiceAttachmentUrl: string | null
   lastReminderAt: Date | null
@@ -73,6 +74,7 @@ export type PaymentMaxAggregateOutputType = {
   dueDate: Date | null
   paidDate: Date | null
   status: $Enums.PaymentStatus | null
+  mode: string | null
   mybillbookInvoiceNo: string | null
   invoiceAttachmentUrl: string | null
   lastReminderAt: Date | null
@@ -98,6 +100,7 @@ export type PaymentCountAggregateOutputType = {
   dueDate: number
   paidDate: number
   status: number
+  mode: number
   mybillbookInvoiceNo: number
   invoiceAttachmentUrl: number
   lastReminderAt: number
@@ -135,6 +138,7 @@ export type PaymentMinAggregateInputType = {
   dueDate?: true
   paidDate?: true
   status?: true
+  mode?: true
   mybillbookInvoiceNo?: true
   invoiceAttachmentUrl?: true
   lastReminderAt?: true
@@ -160,6 +164,7 @@ export type PaymentMaxAggregateInputType = {
   dueDate?: true
   paidDate?: true
   status?: true
+  mode?: true
   mybillbookInvoiceNo?: true
   invoiceAttachmentUrl?: true
   lastReminderAt?: true
@@ -185,6 +190,7 @@ export type PaymentCountAggregateInputType = {
   dueDate?: true
   paidDate?: true
   status?: true
+  mode?: true
   mybillbookInvoiceNo?: true
   invoiceAttachmentUrl?: true
   lastReminderAt?: true
@@ -297,6 +303,7 @@ export type PaymentGroupByOutputType = {
   dueDate: Date
   paidDate: Date | null
   status: $Enums.PaymentStatus
+  mode: string | null
   mybillbookInvoiceNo: string | null
   invoiceAttachmentUrl: string | null
   lastReminderAt: Date | null
@@ -345,6 +352,7 @@ export type PaymentWhereInput = {
   dueDate?: Prisma.DateTimeFilter<"Payment"> | Date | string
   paidDate?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   status?: Prisma.EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
+  mode?: Prisma.StringNullableFilter<"Payment"> | string | null
   mybillbookInvoiceNo?: Prisma.StringNullableFilter<"Payment"> | string | null
   invoiceAttachmentUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
   lastReminderAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
@@ -374,6 +382,7 @@ export type PaymentOrderByWithRelationInput = {
   dueDate?: Prisma.SortOrder
   paidDate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrderInput | Prisma.SortOrder
   mybillbookInvoiceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   invoiceAttachmentUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   lastReminderAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -406,6 +415,7 @@ export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   dueDate?: Prisma.DateTimeFilter<"Payment"> | Date | string
   paidDate?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   status?: Prisma.EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
+  mode?: Prisma.StringNullableFilter<"Payment"> | string | null
   mybillbookInvoiceNo?: Prisma.StringNullableFilter<"Payment"> | string | null
   invoiceAttachmentUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
   lastReminderAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
@@ -435,6 +445,7 @@ export type PaymentOrderByWithAggregationInput = {
   dueDate?: Prisma.SortOrder
   paidDate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrderInput | Prisma.SortOrder
   mybillbookInvoiceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   invoiceAttachmentUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   lastReminderAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -468,6 +479,7 @@ export type PaymentScalarWhereWithAggregatesInput = {
   dueDate?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
   paidDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
   status?: Prisma.EnumPaymentStatusWithAggregatesFilter<"Payment"> | $Enums.PaymentStatus
+  mode?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   mybillbookInvoiceNo?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   invoiceAttachmentUrl?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   lastReminderAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
@@ -491,6 +503,7 @@ export type PaymentCreateInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -519,6 +532,7 @@ export type PaymentUncheckedCreateInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -543,6 +557,7 @@ export type PaymentUpdateInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -571,6 +586,7 @@ export type PaymentUncheckedUpdateInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -597,6 +613,7 @@ export type PaymentCreateManyInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -620,6 +637,7 @@ export type PaymentUpdateManyMutationInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -644,6 +662,7 @@ export type PaymentUncheckedUpdateManyInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -679,6 +698,7 @@ export type PaymentCountOrderByAggregateInput = {
   dueDate?: Prisma.SortOrder
   paidDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   mybillbookInvoiceNo?: Prisma.SortOrder
   invoiceAttachmentUrl?: Prisma.SortOrder
   lastReminderAt?: Prisma.SortOrder
@@ -709,6 +729,7 @@ export type PaymentMaxOrderByAggregateInput = {
   dueDate?: Prisma.SortOrder
   paidDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   mybillbookInvoiceNo?: Prisma.SortOrder
   invoiceAttachmentUrl?: Prisma.SortOrder
   lastReminderAt?: Prisma.SortOrder
@@ -734,6 +755,7 @@ export type PaymentMinOrderByAggregateInput = {
   dueDate?: Prisma.SortOrder
   paidDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  mode?: Prisma.SortOrder
   mybillbookInvoiceNo?: Prisma.SortOrder
   invoiceAttachmentUrl?: Prisma.SortOrder
   lastReminderAt?: Prisma.SortOrder
@@ -917,6 +939,7 @@ export type PaymentCreateWithoutRecordedByInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -944,6 +967,7 @@ export type PaymentUncheckedCreateWithoutRecordedByInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -997,6 +1021,7 @@ export type PaymentScalarWhereInput = {
   dueDate?: Prisma.DateTimeFilter<"Payment"> | Date | string
   paidDate?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   status?: Prisma.EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
+  mode?: Prisma.StringNullableFilter<"Payment"> | string | null
   mybillbookInvoiceNo?: Prisma.StringNullableFilter<"Payment"> | string | null
   invoiceAttachmentUrl?: Prisma.StringNullableFilter<"Payment"> | string | null
   lastReminderAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
@@ -1020,6 +1045,7 @@ export type PaymentCreateWithoutLeadInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1046,6 +1072,7 @@ export type PaymentUncheckedCreateWithoutLeadInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1095,6 +1122,7 @@ export type PaymentCreateWithoutJobInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1121,6 +1149,7 @@ export type PaymentUncheckedCreateWithoutJobInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1170,6 +1199,7 @@ export type PaymentCreateWithoutInvoiceInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1197,6 +1227,7 @@ export type PaymentUncheckedCreateWithoutInvoiceInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1236,6 +1267,7 @@ export type PaymentUpdateWithoutInvoiceInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1263,6 +1295,7 @@ export type PaymentUncheckedUpdateWithoutInvoiceInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1288,6 +1321,7 @@ export type PaymentCreateManyRecordedByInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1310,6 +1344,7 @@ export type PaymentUpdateWithoutRecordedByInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1337,6 +1372,7 @@ export type PaymentUncheckedUpdateWithoutRecordedByInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1362,6 +1398,7 @@ export type PaymentUncheckedUpdateManyWithoutRecordedByInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1385,6 +1422,7 @@ export type PaymentCreateManyLeadInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1408,6 +1446,7 @@ export type PaymentUpdateWithoutLeadInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1434,6 +1473,7 @@ export type PaymentUncheckedUpdateWithoutLeadInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1459,6 +1499,7 @@ export type PaymentUncheckedUpdateManyWithoutLeadInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1483,6 +1524,7 @@ export type PaymentCreateManyJobInput = {
   dueDate: Date | string
   paidDate?: Date | string | null
   status?: $Enums.PaymentStatus
+  mode?: string | null
   mybillbookInvoiceNo?: string | null
   invoiceAttachmentUrl?: string | null
   lastReminderAt?: Date | string | null
@@ -1506,6 +1548,7 @@ export type PaymentUpdateWithoutJobInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1532,6 +1575,7 @@ export type PaymentUncheckedUpdateWithoutJobInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1557,6 +1601,7 @@ export type PaymentUncheckedUpdateManyWithoutJobInput = {
   dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paidDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
+  mode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mybillbookInvoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoiceAttachmentUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1584,6 +1629,7 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   dueDate?: boolean
   paidDate?: boolean
   status?: boolean
+  mode?: boolean
   mybillbookInvoiceNo?: boolean
   invoiceAttachmentUrl?: boolean
   lastReminderAt?: boolean
@@ -1613,6 +1659,7 @@ export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   dueDate?: boolean
   paidDate?: boolean
   status?: boolean
+  mode?: boolean
   mybillbookInvoiceNo?: boolean
   invoiceAttachmentUrl?: boolean
   lastReminderAt?: boolean
@@ -1641,6 +1688,7 @@ export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   dueDate?: boolean
   paidDate?: boolean
   status?: boolean
+  mode?: boolean
   mybillbookInvoiceNo?: boolean
   invoiceAttachmentUrl?: boolean
   lastReminderAt?: boolean
@@ -1669,6 +1717,7 @@ export type PaymentSelectScalar = {
   dueDate?: boolean
   paidDate?: boolean
   status?: boolean
+  mode?: boolean
   mybillbookInvoiceNo?: boolean
   invoiceAttachmentUrl?: boolean
   lastReminderAt?: boolean
@@ -1682,7 +1731,7 @@ export type PaymentSelectScalar = {
   deletedByName?: boolean
 }
 
-export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "leadId" | "clientName" | "clientMobile" | "amount" | "paidAmount" | "dueDate" | "paidDate" | "status" | "mybillbookInvoiceNo" | "invoiceAttachmentUrl" | "lastReminderAt" | "lastReminderChannel" | "recordedById" | "notes" | "createdAt" | "updatedAt" | "isDemo" | "deletedAt" | "deletedByName", ExtArgs["result"]["payment"]>
+export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "leadId" | "clientName" | "clientMobile" | "amount" | "paidAmount" | "dueDate" | "paidDate" | "status" | "mode" | "mybillbookInvoiceNo" | "invoiceAttachmentUrl" | "lastReminderAt" | "lastReminderChannel" | "recordedById" | "notes" | "createdAt" | "updatedAt" | "isDemo" | "deletedAt" | "deletedByName", ExtArgs["result"]["payment"]>
 export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Payment$jobArgs<ExtArgs>
   lead?: boolean | Prisma.Payment$leadArgs<ExtArgs>
@@ -1720,6 +1769,7 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     dueDate: Date
     paidDate: Date | null
     status: $Enums.PaymentStatus
+    mode: string | null
     mybillbookInvoiceNo: string | null
     invoiceAttachmentUrl: string | null
     lastReminderAt: Date | null
@@ -2169,6 +2219,7 @@ export interface PaymentFieldRefs {
   readonly dueDate: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly paidDate: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly status: Prisma.FieldRef<"Payment", 'PaymentStatus'>
+  readonly mode: Prisma.FieldRef<"Payment", 'String'>
   readonly mybillbookInvoiceNo: Prisma.FieldRef<"Payment", 'String'>
   readonly invoiceAttachmentUrl: Prisma.FieldRef<"Payment", 'String'>
   readonly lastReminderAt: Prisma.FieldRef<"Payment", 'DateTime'>

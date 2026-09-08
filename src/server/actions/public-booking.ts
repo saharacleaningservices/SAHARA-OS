@@ -25,6 +25,10 @@ const publicBookingSchema = z.object({
   packageName: z.string().optional().or(z.literal("")),
   comboServices: z.array(z.string()).optional(),
   addOnServices: z.array(z.string()).optional(),
+  estimatedAmount: z.coerce.number().min(0).optional(),
+  advanceAmount: z.coerce.number().min(0).optional(),
+  paymentMode: z.enum(["UPI", "QR", "BANK", "CASH"]).optional(),
+  advancePaid: z.boolean().optional(),
   serviceDate: z.string().optional().or(z.literal("")),
   timeSlot: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
@@ -67,6 +71,14 @@ export async function publicBookLead(values: unknown) {
   const addOns = (data.addOnServices ?? []).filter(Boolean);
   const combos = (data.comboServices ?? []).filter(Boolean);
 
+  const estimated = data.estimatedAmount && data.estimatedAmount > 0 ? data.estimatedAmount : null;
+  const advance = data.advancePaid && data.advanceAmount && data.advanceAmount > 0 ? data.advanceAmount : 0;
+  const paymentStatus = advance > 0
+    ? estimated && advance >= estimated
+      ? "PAID"
+      : "PARTIAL"
+    : "PENDING_ADVANCE";
+
   const lead = await db.lead.create({
     data: {
       leadNumber,
@@ -84,6 +96,10 @@ export async function publicBookLead(values: unknown) {
       serviceVariant: data.serviceVariant || null,
       packageName: data.packageName || null,
       comboServices: combos.length ? JSON.stringify(combos) : null,
+      quoteAmount: estimated,
+      advanceAmount: advance || null,
+      paymentMode: data.paymentMode || null,
+      paymentStatus,
       serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
       timeSlot: data.timeSlot || null,
       source: source as never,
@@ -92,6 +108,32 @@ export async function publicBookLead(values: unknown) {
       referralCode: data.referralCode || null,
     },
   });
+
+  // Customer-declared advance → a Payment row so it flows into the Payments
+  // module + revenue (marked from the booking form, unverified like the
+  // booking itself until the office confirms the screenshot).
+  if (advance > 0) {
+    const { generateInvoiceNumber } = await import("@/lib/id-generators");
+    const total = estimated ?? advance;
+    const dueDate = data.serviceDate ? new Date(data.serviceDate) : new Date(Date.now() + 7 * 86400000);
+    await db.payment
+      .create({
+        data: {
+          invoiceNumber: await generateInvoiceNumber(),
+          leadId: lead.id,
+          clientName: data.name,
+          clientMobile: data.mobile,
+          amount: total,
+          paidAmount: advance,
+          dueDate,
+          paidDate: new Date(),
+          status: advance >= total ? "PAID" : "PENDING",
+          mode: data.paymentMode || null,
+          notes: `Advance declared on the online booking form (${data.paymentMode ?? "—"})`,
+        },
+      })
+      .catch(() => {});
+  }
 
   // Automation: open a same-day high-priority call-back follow-up so the
   // enquiry can't be missed. Confirmation promised within 5–15 minutes.
@@ -118,6 +160,8 @@ export async function publicBookLead(values: unknown) {
       data.packageName ? `Package: ${data.packageName}` : null,
       combos.length ? `Combos: ${combos.join(", ")}` : null,
       addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
+      estimated ? `Estimated: ₹${estimated}` : null,
+      advance > 0 ? `Advance declared: ₹${advance} (${data.paymentMode ?? "—"})` : `Advance: pending`,
       data.pinCode ? `PIN: ${data.pinCode}` : null,
       data.alternateMobile ? `Alt mobile: ${data.alternateMobile}` : null,
       data.email ? `Email: ${data.email}` : null,

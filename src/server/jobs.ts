@@ -40,7 +40,7 @@ export async function getAllJobsForList(session?: SessionPayload) {
     include: {
       supervisor: { select: { name: true } },
       assignments: { include: { staff: { select: { name: true } } } },
-      payments: { select: { status: true } },
+      payments: { select: { status: true, amount: true, paidAmount: true } },
       vehicle: { select: { name: true, plateNumber: true } },
     },
   });

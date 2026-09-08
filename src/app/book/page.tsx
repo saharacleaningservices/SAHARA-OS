@@ -107,7 +107,19 @@ export default async function PublicBookingPage({
           </p>
         )}
 
-        <PublicBookingForm referralCode={ref} mapsApiKey={googleMaps.apiKey} leadSource={leadSource} />
+        <PublicBookingForm
+          referralCode={ref}
+          mapsApiKey={googleMaps.apiKey}
+          leadSource={leadSource}
+          paymentDetails={{
+            upiId: settings.upiId ?? null,
+            upiQrUrl: settings.upiQrUrl ?? null,
+            bankName: settings.bankName ?? null,
+            bankAccountName: settings.bankAccountName ?? null,
+            bankAccountNumber: settings.bankAccountNumber ?? null,
+            bankIfsc: settings.bankIfsc ?? null,
+          }}
+        />
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           Price will be shared after quotation. Or call / WhatsApp us directly at {CALL_NUMBER}.

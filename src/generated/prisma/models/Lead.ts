@@ -29,11 +29,13 @@ export type AggregateLead = {
 export type LeadAvgAggregateOutputType = {
   quoteAmount: number | null
   teamNumber: number | null
+  advanceAmount: number | null
 }
 
 export type LeadSumAggregateOutputType = {
   quoteAmount: number | null
   teamNumber: number | null
+  advanceAmount: number | null
 }
 
 export type LeadMinAggregateOutputType = {
@@ -62,6 +64,9 @@ export type LeadMinAggregateOutputType = {
   packageName: string | null
   comboServices: string | null
   assignedStaffIds: string | null
+  advanceAmount: number | null
+  paymentMode: string | null
+  paymentStatus: string | null
   mapLink: string | null
   referralCode: string | null
   isDemo: boolean | null
@@ -100,6 +105,9 @@ export type LeadMaxAggregateOutputType = {
   packageName: string | null
   comboServices: string | null
   assignedStaffIds: string | null
+  advanceAmount: number | null
+  paymentMode: string | null
+  paymentStatus: string | null
   mapLink: string | null
   referralCode: string | null
   isDemo: boolean | null
@@ -138,6 +146,9 @@ export type LeadCountAggregateOutputType = {
   packageName: number
   comboServices: number
   assignedStaffIds: number
+  advanceAmount: number
+  paymentMode: number
+  paymentStatus: number
   mapLink: number
   referralCode: number
   isDemo: number
@@ -155,11 +166,13 @@ export type LeadCountAggregateOutputType = {
 export type LeadAvgAggregateInputType = {
   quoteAmount?: true
   teamNumber?: true
+  advanceAmount?: true
 }
 
 export type LeadSumAggregateInputType = {
   quoteAmount?: true
   teamNumber?: true
+  advanceAmount?: true
 }
 
 export type LeadMinAggregateInputType = {
@@ -188,6 +201,9 @@ export type LeadMinAggregateInputType = {
   packageName?: true
   comboServices?: true
   assignedStaffIds?: true
+  advanceAmount?: true
+  paymentMode?: true
+  paymentStatus?: true
   mapLink?: true
   referralCode?: true
   isDemo?: true
@@ -226,6 +242,9 @@ export type LeadMaxAggregateInputType = {
   packageName?: true
   comboServices?: true
   assignedStaffIds?: true
+  advanceAmount?: true
+  paymentMode?: true
+  paymentStatus?: true
   mapLink?: true
   referralCode?: true
   isDemo?: true
@@ -264,6 +283,9 @@ export type LeadCountAggregateInputType = {
   packageName?: true
   comboServices?: true
   assignedStaffIds?: true
+  advanceAmount?: true
+  paymentMode?: true
+  paymentStatus?: true
   mapLink?: true
   referralCode?: true
   isDemo?: true
@@ -389,6 +411,9 @@ export type LeadGroupByOutputType = {
   packageName: string | null
   comboServices: string | null
   assignedStaffIds: string | null
+  advanceAmount: number | null
+  paymentMode: string | null
+  paymentStatus: string | null
   mapLink: string | null
   referralCode: string | null
   isDemo: boolean
@@ -450,6 +475,9 @@ export type LeadWhereInput = {
   packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
   comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
@@ -498,6 +526,9 @@ export type LeadOrderByWithRelationInput = {
   packageName?: Prisma.SortOrderInput | Prisma.SortOrder
   comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedStaffIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -549,6 +580,9 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
   comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
@@ -597,6 +631,9 @@ export type LeadOrderByWithAggregationInput = {
   packageName?: Prisma.SortOrderInput | Prisma.SortOrder
   comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedStaffIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -643,6 +680,9 @@ export type LeadScalarWhereWithAggregatesInput = {
   packageName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   comboServices?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   assignedStaffIds?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableWithAggregatesFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
@@ -681,6 +721,9 @@ export type LeadCreateInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -726,6 +769,9 @@ export type LeadUncheckedCreateInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -771,6 +817,9 @@ export type LeadUpdateInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -816,6 +865,9 @@ export type LeadUncheckedUpdateInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -861,6 +913,9 @@ export type LeadCreateManyInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -899,6 +954,9 @@ export type LeadUpdateManyMutationInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -934,6 +992,9 @@ export type LeadUncheckedUpdateManyInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -982,6 +1043,9 @@ export type LeadCountOrderByAggregateInput = {
   packageName?: Prisma.SortOrder
   comboServices?: Prisma.SortOrder
   assignedStaffIds?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -997,6 +1061,7 @@ export type LeadCountOrderByAggregateInput = {
 export type LeadAvgOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
 }
 
 export type LeadMaxOrderByAggregateInput = {
@@ -1025,6 +1090,9 @@ export type LeadMaxOrderByAggregateInput = {
   packageName?: Prisma.SortOrder
   comboServices?: Prisma.SortOrder
   assignedStaffIds?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -1063,6 +1131,9 @@ export type LeadMinOrderByAggregateInput = {
   packageName?: Prisma.SortOrder
   comboServices?: Prisma.SortOrder
   assignedStaffIds?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -1078,6 +1149,7 @@ export type LeadMinOrderByAggregateInput = {
 export type LeadSumOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
 }
 
 export type LeadScalarRelationFilter = {
@@ -1372,6 +1444,9 @@ export type LeadCreateWithoutCreatedByInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1416,6 +1491,9 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1469,6 +1547,9 @@ export type LeadCreateWithoutAssignedToInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1513,6 +1594,9 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1585,6 +1669,9 @@ export type LeadScalarWhereInput = {
   packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
   comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
@@ -1639,6 +1726,9 @@ export type LeadCreateWithoutAssignedStaffInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1683,6 +1773,9 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1752,6 +1845,9 @@ export type LeadCreateWithoutQuotationsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1796,6 +1892,9 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1856,6 +1955,9 @@ export type LeadUpdateWithoutQuotationsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1900,6 +2002,9 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1944,6 +2049,9 @@ export type LeadCreateWithoutFollowUpsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -1988,6 +2096,9 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2048,6 +2159,9 @@ export type LeadUpdateWithoutFollowUpsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2092,6 +2206,9 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2136,6 +2253,9 @@ export type LeadCreateWithoutTimelineInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2180,6 +2300,9 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2240,6 +2363,9 @@ export type LeadUpdateWithoutTimelineInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2284,6 +2410,9 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2328,6 +2457,9 @@ export type LeadCreateWithoutJobsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2372,6 +2504,9 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2432,6 +2567,9 @@ export type LeadUpdateWithoutJobsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2476,6 +2614,9 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2520,6 +2661,9 @@ export type LeadCreateWithoutPaymentsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2564,6 +2708,9 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2624,6 +2771,9 @@ export type LeadUpdateWithoutPaymentsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2668,6 +2818,9 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2712,6 +2865,9 @@ export type LeadCreateWithoutActivityLogsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2756,6 +2912,9 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2816,6 +2975,9 @@ export type LeadUpdateWithoutActivityLogsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2860,6 +3022,9 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2904,6 +3069,9 @@ export type LeadCreateWithoutAmcContractsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -2948,6 +3116,9 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -3008,6 +3179,9 @@ export type LeadUpdateWithoutAmcContractsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3052,6 +3226,9 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3096,6 +3273,9 @@ export type LeadCreateManyCreatedByInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -3133,6 +3313,9 @@ export type LeadCreateManyAssignedToInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -3170,6 +3353,9 @@ export type LeadUpdateWithoutCreatedByInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3214,6 +3400,9 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3258,6 +3447,9 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3295,6 +3487,9 @@ export type LeadUpdateWithoutAssignedToInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3339,6 +3534,9 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3383,6 +3581,9 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3420,6 +3621,9 @@ export type LeadCreateManyAssignedStaffInput = {
   packageName?: string | null
   comboServices?: string | null
   assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
   isDemo?: boolean
@@ -3457,6 +3661,9 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3501,6 +3708,9 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3545,6 +3755,9 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3667,6 +3880,9 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   packageName?: boolean
   comboServices?: boolean
   assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3716,6 +3932,9 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   packageName?: boolean
   comboServices?: boolean
   assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3757,6 +3976,9 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   packageName?: boolean
   comboServices?: boolean
   assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3798,6 +4020,9 @@ export type LeadSelectScalar = {
   packageName?: boolean
   comboServices?: boolean
   assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
   isDemo?: boolean
@@ -3810,7 +4035,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "packageName" | "comboServices" | "assignedStaffIds" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -3875,6 +4100,9 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     packageName: string | null
     comboServices: string | null
     assignedStaffIds: string | null
+    advanceAmount: number | null
+    paymentMode: string | null
+    paymentStatus: string | null
     mapLink: string | null
     referralCode: string | null
     isDemo: boolean
@@ -4343,6 +4571,9 @@ export interface LeadFieldRefs {
   readonly packageName: Prisma.FieldRef<"Lead", 'String'>
   readonly comboServices: Prisma.FieldRef<"Lead", 'String'>
   readonly assignedStaffIds: Prisma.FieldRef<"Lead", 'String'>
+  readonly advanceAmount: Prisma.FieldRef<"Lead", 'Float'>
+  readonly paymentMode: Prisma.FieldRef<"Lead", 'String'>
+  readonly paymentStatus: Prisma.FieldRef<"Lead", 'String'>
   readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
   readonly referralCode: Prisma.FieldRef<"Lead", 'String'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>

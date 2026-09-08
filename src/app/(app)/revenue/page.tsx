@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatINR } from "@/lib/utils";
-import { Wallet, CalendarDays, ShieldCheck, Sparkles, Users, AlertTriangle, Percent, Ticket, Trophy } from "lucide-react";
+import { Wallet, CalendarDays, ShieldCheck, Sparkles, Users, AlertTriangle, Percent, Ticket, Trophy, HandCoins, Banknote } from "lucide-react";
 import { requireRole } from "@/lib/current-user";
 
 function RevenueBars({ rows, total }: { rows: { label: string; value: number }[]; total: number }) {
@@ -40,8 +40,11 @@ export default async function RevenueDashboardPage() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard label="Today's Revenue" value={formatINR(data.todayRevenue)} icon={<Wallet className="size-4" />} tone="primary" />
+        <StatCard href="/payments?filter=paid" label="Today's Collection" value={formatINR(data.todaysCollection)} icon={<HandCoins className="size-4" />} tone="success" />
+        <StatCard label="Advance Collected Today" value={formatINR(data.advanceCollectedToday)} icon={<Banknote className="size-4" />} />
         <StatCard label="Monthly Revenue" value={formatINR(data.monthlyRevenue)} icon={<CalendarDays className="size-4" />} tone="success" />
-        <StatCard label="Pending Collection" value={formatINR(data.pendingPayments)} icon={<AlertTriangle className="size-4" />} tone="warning" />
+        <StatCard href="/payments?filter=pending" label="Pending Collection" value={formatINR(data.pendingPayments)} icon={<AlertTriangle className="size-4" />} tone="warning" />
+        <StatCard label="Balance Pending" value={formatINR(data.balancePending)} icon={<Wallet className="size-4" />} tone="warning" />
         <StatCard label="Collection Rate" value={`${data.collectionRate}%`} icon={<Percent className="size-4" />} />
         <StatCard label="Average Ticket" value={formatINR(data.avgTicket)} icon={<Ticket className="size-4" />} />
         <StatCard label="Highest Job" value={formatINR(data.highestJobValue)} trendLabel={data.highestJobLabel} icon={<Trophy className="size-4" />} tone="primary" />

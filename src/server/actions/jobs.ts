@@ -172,6 +172,7 @@ const ALL_STATUSES = [
   "COMPLETED",
   "POSTPONED",
   "CANCELLED",
+  "REACTIVATED",
 ] as const;
 type JobStatus = (typeof ALL_STATUSES)[number];
 

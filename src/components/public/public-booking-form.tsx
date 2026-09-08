@@ -11,17 +11,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { MapsLocationInput, type MapsLocationValue } from "@/components/shared/maps-location-input";
 import { UpsellOfferCard, type UpsellOffer } from "@/components/shared/upsell-offer-card";
-import { TIME_SLOTS, ADDON_SERVICES, COMBO_SERVICES } from "@/lib/constants";
+import { PaymentDetailsBox, type CompanyPaymentDetails } from "@/components/shared/payment-details-box";
+import { TIME_SLOTS, ADDON_SERVICES, COMBO_SERVICES, PAYMENT_MODES, PAYMENT_MODE_LABELS } from "@/lib/constants";
+import { formatINR } from "@/lib/utils";
 import { publicBookLead } from "@/server/actions/public-booking";
 
 export function PublicBookingForm({
   referralCode,
   mapsApiKey = null,
   leadSource = "",
+  paymentDetails,
 }: {
   referralCode?: string;
   mapsApiKey?: string | null;
   leadSource?: string;
+  paymentDetails: CompanyPaymentDetails;
 }) {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -39,9 +43,16 @@ export function PublicBookingForm({
   const [notes, setNotes] = useState("");
   const [loc, setLoc] = useState<MapsLocationValue>({ mapLink: "", lat: null, lng: null });
   const [upsell, setUpsell] = useState<{ offer: UpsellOffer | null; accepted: boolean }>({ offer: null, accepted: false });
+  const [estimated, setEstimated] = useState("");
+  const [advance, setAdvance] = useState("");
+  const [payMode, setPayMode] = useState("UPI");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<{ leadNumber: string; advancePaid: boolean } | null>(null);
+
+  const estNum = Number(estimated) || 0;
+  const advNum = Math.min(Number(advance) || 0, estNum || Infinity);
+  const balance = Math.max(estNum - advNum, 0);
 
   function toggleAddOn(name: string) {
     setAddOns((prev) => (prev.includes(name) ? prev.filter((a) => a !== name) : [...prev, name]));
@@ -50,8 +61,7 @@ export function PublicBookingForm({
     setCombos((prev) => (prev.includes(name) ? prev.filter((a) => a !== name) : [...prev, name]));
   }
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function submitBooking(advancePaid: boolean) {
     setError("");
     setSubmitting(true);
     const res = await publicBookLead({
@@ -73,6 +83,10 @@ export function PublicBookingForm({
       website: "",
       source: leadSource,
       referralCode: referralCode || "",
+      estimatedAmount: estNum || undefined,
+      advanceAmount: advancePaid ? advNum || undefined : undefined,
+      paymentMode: payMode,
+      advancePaid,
       upsellRuleId: upsell.offer?.id || "",
       upsellLabel: upsell.offer?.label || "",
       upsellValue: upsell.offer?.comboPrice ?? 0,
@@ -83,12 +97,23 @@ export function PublicBookingForm({
       setError(res.error ?? "Something went wrong");
       return;
     }
-    setDone(res.leadNumber);
+    setDone({ leadNumber: res.leadNumber, advancePaid });
+  }
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    submitBooking(false);
   }
 
   if (done) {
+    const row = (label: string, value: string) => (
+      <div className="flex justify-between gap-3">
+        <dt className="text-muted-foreground">{label}</dt>
+        <dd className="text-right font-medium text-foreground">{value}</dd>
+      </div>
+    );
     return (
-      <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-8 text-center sahara-shadow">
+      <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6 text-center sahara-shadow sm:p-8">
         <CheckCircle2 className="size-12 text-success" />
         <div>
           <h2 className="text-lg font-semibold text-foreground">Thanks — request received!</h2>
@@ -98,13 +123,21 @@ export function PublicBookingForm({
           </p>
         </div>
         <dl className="w-full space-y-1.5 rounded-lg border border-border bg-muted/30 p-3 text-left text-sm">
-          <div className="flex justify-between"><dt className="text-muted-foreground">Booking ID</dt><dd className="font-semibold text-foreground">{done}</dd></div>
-          {serviceDate && <div className="flex justify-between"><dt className="text-muted-foreground">Requested date</dt><dd className="font-medium text-foreground">{serviceDate}</dd></div>}
-          {timeSlot && <div className="flex justify-between"><dt className="text-muted-foreground">Time slot</dt><dd className="font-medium text-foreground">{timeSlot}</dd></div>}
+          {row("Booking ID", done.leadNumber)}
+          {row("Customer", name)}
+          {row("Service", `${variant || "—"}`)}
+          {packageName ? row("Package", packageName) : null}
+          {combos.length ? row("Combo Services", combos.join(", ")) : null}
+          {serviceDate ? row("Requested date", serviceDate) : null}
+          {timeSlot ? row("Time slot", timeSlot) : null}
+          {estNum ? row("Estimated", formatINR(estNum)) : null}
+          {estNum ? row("Advance", formatINR(done.advancePaid ? advNum : 0)) : null}
+          {estNum ? row("Balance", formatINR(done.advancePaid ? balance : estNum)) : null}
+          {row("Payment Status", done.advancePaid ? "Advance Paid" : "Pending Advance")}
         </dl>
         <div className="flex w-full flex-col gap-2">
           <a
-            href={`https://wa.me/918956567130?text=${encodeURIComponent(`Hi, I just booked online. My booking ID is ${done}.`)}`}
+            href={`https://wa.me/918956567130?text=${encodeURIComponent(`Hi, I just booked online. My booking ID is ${done.leadNumber}.`)}`}
             target="_blank"
             rel="noreferrer"
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-white"
@@ -230,12 +263,64 @@ export function PublicBookingForm({
         <Textarea id="pb-notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} placeholder="Parking, lift, pets, urgent requirement…" />
       </div>
 
+      {/* ── Advance payment (optional) ────────────────────────────── */}
+      <div className="space-y-3 rounded-xl border border-primary/20 bg-accent/30 p-4">
+        <p className="text-sm font-semibold text-foreground">Advance Payment (optional)</p>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Estimated ₹</Label>
+            <Input inputMode="numeric" value={estimated} onChange={(e) => setEstimated(e.target.value.replace(/\D/g, ""))} placeholder="0" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Advance ₹</Label>
+            <Input inputMode="numeric" value={advance} onChange={(e) => setAdvance(e.target.value.replace(/\D/g, ""))} placeholder="0" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Balance</Label>
+            <div className="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm font-medium">
+              {formatINR(balance)}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2">
+          {PAYMENT_MODES.map((m) => (
+            <button
+              type="button"
+              key={m}
+              onClick={() => setPayMode(m)}
+              className={`rounded-lg border px-2 py-2 text-xs font-medium ${
+                payMode === m ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"
+              }`}
+            >
+              {PAYMENT_MODE_LABELS[m]}
+            </button>
+          ))}
+        </div>
+
+        <PaymentDetailsBox mode={payMode} details={paymentDetails} />
+
+        <p className="text-xs text-muted-foreground">Price will be confirmed by our team after a quick quotation.</p>
+      </div>
+
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-        {submitting && <Loader2 className="animate-spin" />}
-        Book Your Slot Now
-      </Button>
+      <div className="space-y-2">
+        <Button
+          type="button"
+          className="w-full"
+          size="lg"
+          disabled={submitting}
+          onClick={() => submitBooking(true)}
+        >
+          {submitting && <Loader2 className="animate-spin" />}
+          {advNum > 0 ? `I've Paid ${formatINR(advNum)} Advance` : "I've Paid the Advance"}
+        </Button>
+        <Button type="submit" className="w-full" size="lg" variant="outline" disabled={submitting}>
+          {submitting && <Loader2 className="animate-spin" />}
+          Book Now, Pay Later
+        </Button>
+      </div>
       <p className="text-center text-xs text-muted-foreground">Confirmation within 5–15 minutes.</p>
     </form>
   );

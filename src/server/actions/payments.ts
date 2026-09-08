@@ -116,6 +116,61 @@ export async function markPaymentPaid(paymentId: string) {
   return { success: true as const };
 }
 
+/**
+ * Record a collection against a payment — a cash collection, a UPI/bank
+ * transfer, or "collect the full balance". Increments paidAmount and flips
+ * the row to PAID once fully covered.
+ */
+export async function recordCollection(
+  paymentId: string,
+  input: { amount?: number; mode?: "UPI" | "QR" | "BANK" | "CASH"; full?: boolean },
+) {
+  const session = await getSession();
+  const payment = await db.payment.findUnique({ where: { id: paymentId } });
+  if (!payment) return { error: "Payment not found", success: false as const };
+
+  const outstanding = Math.max(payment.amount - payment.paidAmount, 0);
+  const amount = input.full ? outstanding : Math.min(Math.max(input.amount ?? 0, 0), outstanding);
+  if (amount <= 0) return { error: "Enter an amount to collect", success: false as const };
+
+  const paidAmount = payment.paidAmount + amount;
+  const fullyPaid = paidAmount >= payment.amount - 0.01;
+
+  await db.payment.update({
+    where: { id: paymentId },
+    data: {
+      paidAmount,
+      status: fullyPaid ? "PAID" : payment.status,
+      paidDate: fullyPaid ? new Date() : payment.paidDate ?? new Date(),
+      mode: input.mode ?? payment.mode,
+      recordedById: session?.sub ?? payment.recordedById,
+    },
+  });
+
+  await addPaymentTimeline(
+    payment.leadId,
+    `Collected ₹${amount.toLocaleString("en-IN")}${input.mode ? ` (${input.mode})` : ""} against ${payment.invoiceNumber}${
+      fullyPaid ? " — fully paid" : ""
+    }`,
+    { invoiceNumber: payment.invoiceNumber, amount },
+  ).catch(() => {});
+
+  await notify({
+    kind: "PAYMENT_RECEIVED",
+    title: `Payment collected — ₹${amount.toLocaleString("en-IN")}`,
+    body: `${payment.clientName}${input.mode ? ` · ${input.mode}` : ""} · ${payment.invoiceNumber}`,
+    href: "/payments",
+    whatsappToAdmin: true,
+  });
+
+  revalidatePath("/payments");
+  revalidatePath("/dashboard");
+  revalidatePath("/profit");
+  revalidatePath("/revenue");
+  revalidatePath("/leads");
+  return { success: true as const, collected: amount, fullyPaid };
+}
+
 export async function recordReminder(paymentId: string, channel: "WHATSAPP" | "EMAIL" | "CALL") {
   await db.payment.update({
     where: { id: paymentId },

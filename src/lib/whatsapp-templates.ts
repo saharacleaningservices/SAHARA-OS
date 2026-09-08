@@ -121,6 +121,80 @@ export function jobCardMessage(input: {
     .join("\n");
 }
 
+/**
+ * Universal "Send Payment Link" message — used from Booking, Lead, Job and the
+ * Payment page. Includes the quote / advance / balance and the company's
+ * UPI / QR / bank instructions so the customer can pay without any typing.
+ */
+export function paymentRequestMessage(input: {
+  customerName?: string | null;
+  bookingId?: string | null;
+  service?: string | null;
+  packageName?: string | null;
+  quote?: number | null;
+  advance?: number | null;
+  balance: number;
+  upiId?: string | null;
+  upiQrUrl?: string | null;
+  bankName?: string | null;
+  bankAccountName?: string | null;
+  bankAccountNumber?: string | null;
+  bankIfsc?: string | null;
+  purpose?: "ADVANCE" | "BALANCE";
+}) {
+  const pay = [];
+  if (input.upiId) pay.push(`UPI: ${input.upiId}`);
+  if (input.upiQrUrl) pay.push(`Scan QR: ${input.upiQrUrl}`);
+  if (input.bankAccountNumber) {
+    pay.push(
+      `Bank Transfer:\n  ${input.bankAccountName ?? COMPANY.name}\n  A/C ${input.bankAccountNumber}` +
+        (input.bankIfsc ? `\n  IFSC ${input.bankIfsc}` : "") +
+        (input.bankName ? `\n  ${input.bankName}` : ""),
+    );
+  }
+  const amountDue = input.purpose === "BALANCE" ? input.balance : (input.advance ?? input.balance);
+  return [
+    `${COMPANY.name} — Payment ${input.purpose === "BALANCE" ? "Request (Balance)" : "Request"}`,
+    input.customerName ? `\nHi ${input.customerName},` : "",
+    input.bookingId ? `Booking ID: ${input.bookingId}` : null,
+    input.service ? `Service: ${input.service}${input.packageName ? ` – ${input.packageName}` : ""}` : null,
+    input.quote != null ? `Quote: ${formatINR(input.quote)}` : null,
+    input.advance != null ? `Advance: ${formatINR(input.advance)}` : null,
+    `Balance: ${formatINR(input.balance)}`,
+    ``,
+    `Amount to pay now: ${formatINR(Math.max(amountDue, 0))}`,
+    ``,
+    pay.length ? `Pay via:\n${pay.join("\n")}` : `Our team will share payment details shortly.`,
+    ``,
+    `Please share the payment screenshot once done. Thank you!`,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
+/** WhatsApp payment receipt after a collection. */
+export function paymentReceiptMessage(input: {
+  customerName?: string | null;
+  bookingId?: string | null;
+  service?: string | null;
+  amountPaid: number;
+  mode?: string | null;
+  balance: number;
+}) {
+  return [
+    `${COMPANY.name} — Payment Receipt`,
+    input.customerName ? `\nHi ${input.customerName},` : "",
+    `We have received ${formatINR(input.amountPaid)}${input.mode ? ` via ${input.mode}` : ""}. ✅`,
+    input.bookingId ? `Booking ID: ${input.bookingId}` : null,
+    input.service ? `Service: ${input.service}` : null,
+    input.balance > 0 ? `Balance remaining: ${formatINR(input.balance)}` : `Fully paid — thank you!`,
+    ``,
+    `— ${COMPANY.name}`,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
 export function customerReminderMessage(input: { customerName: string; service: string; date: Date; timeSlot: string }) {
   return `Hi ${input.customerName}, this is a reminder that your ${input.service} with ${COMPANY.name} is scheduled for ${formatDate(
     input.date
