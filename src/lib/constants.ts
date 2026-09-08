@@ -54,12 +54,31 @@ export const SERVICE_PACKAGES: Record<string, string[]> = {
 
 // Optional combo bundles offered on the booking form (multi-select, no prices).
 export const COMBO_SERVICES = [
-  "Deep Cleaning + Sofa",
-  "Deep Cleaning + Pest Control",
-  "Deep Cleaning + Mattress",
-  "Deep Cleaning + Curtains",
-  "Painting + Deep Cleaning",
+  "Sofa Cleaning",
+  "Mattress Cleaning",
+  "Bathroom Cleaning",
+  "Kitchen Cleaning",
+  "Pest Control",
 ] as const;
+
+// Payment collection methods.
+export const PAYMENT_MODES = ["UPI", "QR", "BANK", "CASH"] as const;
+export const PAYMENT_MODE_LABELS: Record<string, string> = {
+  UPI: "UPI",
+  QR: "QR Scan",
+  BANK: "Bank Transfer",
+  CASH: "Cash",
+};
+
+// Lead-level payment status (booking / manual entry). Job/Payment rows use the
+// PaymentStatus enum; "PARTIAL" is derived there.
+export const LEAD_PAYMENT_STATUSES = ["PENDING", "PENDING_ADVANCE", "PARTIAL", "PAID"] as const;
+export const LEAD_PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending",
+  PENDING_ADVANCE: "Pending Advance",
+  PARTIAL: "Partially Paid",
+  PAID: "Paid",
+};
 
 // Reverse of the above — used wherever only the legacy ServiceType is known
 // (e.g. Job.service) but a Phase 3 feature needs the newer ServiceCategory
@@ -90,14 +109,7 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
   PAINTING: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Full House", "Office / Commercial", "Exterior", "Waterproofing"],
   PEST_CONTROL: ["Cockroach", "Termite", "Bed Bug", "Rodent", "Mosquito", "General Pest Control"],
   HOUSEKEEPING: ["Daily", "Weekly", "Monthly", "One-time"],
-  COMMERCIAL_CLEANING: [
-    "Office Deep Cleaning",
-    "Carpet Cleaning",
-    "Chair Cleaning",
-    "Glass Cleaning",
-    "Facade Cleaning",
-    "Industrial Cleaning",
-  ],
+  COMMERCIAL_CLEANING: ["Office", "Shop", "Clinic", "Restaurant", "Showroom", "Warehouse"],
   AMC: ["Residential", "Commercial"],
 };
 
@@ -229,6 +241,7 @@ export const JOB_STATUSES = [
   "COMPLETED",
   "POSTPONED",
   "CANCELLED",
+  "REACTIVATED",
 ] as const;
 
 // The happy-path progression a field user steps through.
@@ -242,6 +255,7 @@ export const JOB_STATUS_LABELS: Record<string, string> = {
   COMPLETED: "Completed",
   POSTPONED: "Postponed",
   CANCELLED: "Cancelled",
+  REACTIVATED: "Reactivated",
 };
 
 export const PAYMENT_STATUS_LABELS: Record<string, string> = {

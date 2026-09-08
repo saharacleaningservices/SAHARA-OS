@@ -15,7 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateInput } from "@/components/ui/date-input";
 import { leadSchema, type LeadFormValues } from "@/lib/validation";
-import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY, TIME_SLOTS } from "@/lib/constants";
+import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY, TIME_SLOTS, PAYMENT_MODES, PAYMENT_MODE_LABELS, LEAD_PAYMENT_STATUSES, LEAD_PAYMENT_STATUS_LABELS } from "@/lib/constants";
+import { formatINR } from "@/lib/utils";
 import { createLead, updateLead } from "@/server/actions/leads";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { MapsLocationInput } from "@/components/shared/maps-location-input";
@@ -71,10 +72,17 @@ export function LeadForm({
       serviceCategory: "HOME_DEEP_CLEANING",
       serviceVariant: "",
       packageName: "",
+      advanceAmount: undefined,
+      paymentMode: "",
+      paymentStatus: "PENDING",
       mapLink: "",
       ...defaultValues,
     },
   });
+
+  const estimated = Number(watch("quoteAmount")) || 0;
+  const advReceived = Number(watch("advanceAmount")) || 0;
+  const leadBalance = Math.max(estimated - advReceived, 0);
 
   const assignedStaffIds = watch("assignedStaffIds") ?? [];
   function toggleStaff(id: string) {
@@ -189,6 +197,51 @@ export function LeadForm({
           <div className="space-y-1.5">
             <Label htmlFor="quoteAmount">Estimated Amount (₹)</Label>
             <Input id="quoteAmount" type="number" {...register("quoteAmount")} placeholder="Minimum ₹3,999" />
+          </div>
+
+          <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3 sm:col-span-2">
+            <p className="text-sm font-semibold text-foreground">Payment</p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Advance Received (₹)</Label>
+                <Input type="number" {...register("advanceAmount")} placeholder="0" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Balance</Label>
+                <div className="flex h-9 items-center rounded-md border border-input bg-background px-3 text-sm font-medium">
+                  {formatINR(leadBalance)}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Mode</Label>
+                <Select
+                  value={watch("paymentMode") || "NONE"}
+                  onValueChange={(v) => setValue("paymentMode", v === "NONE" ? "" : (v as LeadFormValues["paymentMode"]), { shouldDirty: true })}
+                >
+                  <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">—</SelectItem>
+                    {PAYMENT_MODES.map((m) => (
+                      <SelectItem key={m} value={m}>{PAYMENT_MODE_LABELS[m]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Payment Status</Label>
+              <Select
+                value={watch("paymentStatus") || "PENDING"}
+                onValueChange={(v) => setValue("paymentStatus", v as LeadFormValues["paymentStatus"], { shouldDirty: true })}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {LEAD_PAYMENT_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>{LEAD_PAYMENT_STATUS_LABELS[s]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:col-span-2">
             <div className="space-y-1.5">

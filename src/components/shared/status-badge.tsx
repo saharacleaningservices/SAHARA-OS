@@ -26,6 +26,7 @@ const JOB_STATUS_VARIANT: Record<string, "muted" | "info" | "warning" | "success
   COMPLETED: "success",
   POSTPONED: "muted",
   CANCELLED: "destructive",
+  REACTIVATED: "info",
 };
 
 const PAYMENT_STATUS_VARIANT: Record<string, "muted" | "warning" | "destructive" | "success"> = {

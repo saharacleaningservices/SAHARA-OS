@@ -28,6 +28,12 @@ export async function updateCompanySettings(values: unknown) {
       website: data.website || null,
       logoUrl: data.logoUrl || null,
       googleReviewUrl: data.googleReviewUrl || null,
+      upiId: data.upiId || null,
+      upiQrUrl: data.upiQrUrl || null,
+      bankName: data.bankName || null,
+      bankAccountName: data.bankAccountName || null,
+      bankAccountNumber: data.bankAccountNumber || null,
+      bankIfsc: data.bankIfsc || null,
     },
     update: {
       name: data.name,
@@ -37,6 +43,12 @@ export async function updateCompanySettings(values: unknown) {
       website: data.website || null,
       logoUrl: data.logoUrl || null,
       googleReviewUrl: data.googleReviewUrl || null,
+      upiId: data.upiId || null,
+      upiQrUrl: data.upiQrUrl || null,
+      bankName: data.bankName || null,
+      bankAccountName: data.bankAccountName || null,
+      bankAccountNumber: data.bankAccountNumber || null,
+      bankIfsc: data.bankIfsc || null,
     },
   });
 

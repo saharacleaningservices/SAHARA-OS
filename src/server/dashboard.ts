@@ -137,6 +137,33 @@ export async function getDashboardData() {
 
   const pendingPaymentsTotal = (pendingPaymentsAgg._sum.amount ?? 0) - (pendingPaymentsAgg._sum.paidAmount ?? 0);
 
+  // Recent contacts for the dashboard "Quick Call" tool.
+  const [recentLeadContacts, recentJobContacts] = await Promise.all([
+    db.lead.findMany({
+      where: { deletedAt: null },
+      orderBy: { updatedAt: "desc" },
+      take: 15,
+      select: { name: true, mobile: true },
+    }),
+    db.job.findMany({
+      where: { deletedAt: null },
+      orderBy: { updatedAt: "desc" },
+      take: 15,
+      select: { customerName: true, customerMobile: true },
+    }),
+  ]);
+  const seen = new Set<string>();
+  const recentContacts: { name: string; mobile: string }[] = [];
+  for (const c of [
+    ...recentLeadContacts.map((l) => ({ name: l.name, mobile: l.mobile })),
+    ...recentJobContacts.map((j) => ({ name: j.customerName, mobile: j.customerMobile })),
+  ]) {
+    if (!c.mobile || seen.has(c.mobile)) continue;
+    seen.add(c.mobile);
+    recentContacts.push(c);
+    if (recentContacts.length >= 12) break;
+  }
+
   return {
     stats: {
       todaysLeadsCount,
@@ -166,6 +193,7 @@ export async function getDashboardData() {
       profitTrend,
     },
     recentLeads,
+    recentContacts,
     todaysJobs,
     overduePayments,
     followUpsToday,

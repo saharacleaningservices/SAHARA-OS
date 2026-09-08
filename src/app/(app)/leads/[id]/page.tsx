@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { Pencil, FileText, ClipboardList, Wallet } from "lucide-react";
 import { getLeadDetail } from "@/server/leads";
 import { getStaffForAssignment } from "@/server/staff";
+import { getCompanySettings } from "@/server/settings";
+import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,8 +22,20 @@ import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [lead, staff] = await Promise.all([getLeadDetail(id), getStaffForAssignment()]);
+  const [lead, staff, settings] = await Promise.all([getLeadDetail(id), getStaffForAssignment(), getCompanySettings()]);
   if (!lead) notFound();
+
+  const estimated = lead.quoteAmount ?? 0;
+  const advance = lead.advanceAmount ?? 0;
+  const leadBalance = Math.max(estimated - advance, 0);
+  const paymentDetails = {
+    upiId: settings.upiId ?? null,
+    upiQrUrl: settings.upiQrUrl ?? null,
+    bankName: settings.bankName ?? null,
+    bankAccountName: settings.bankAccountName ?? null,
+    bankAccountNumber: settings.bankAccountNumber ?? null,
+    bankIfsc: settings.bankIfsc ?? null,
+  };
 
   const supervisors = staff.filter((s) => s.designation === "Supervisor").map((s) => ({ id: s.id, name: s.name }));
   const canConfirm = !["JOB_SCHEDULED", "COMPLETED"].includes(lead.stage);
@@ -38,6 +52,20 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             <CallButton mobile={lead.mobile} />
             <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
             <ScheduleVisitDialog leadId={lead.id} />
+            <SendPaymentLinkButton
+              mobile={lead.whatsapp || lead.mobile}
+              details={paymentDetails}
+              context={{
+                customerName: lead.name,
+                bookingId: lead.leadNumber,
+                service: SERVICE_LABELS[lead.service] ?? lead.service,
+                packageName: lead.packageName,
+                quote: estimated || null,
+                advance: advance || null,
+                balance: leadBalance || estimated,
+              }}
+              purpose={advance > 0 ? "BALANCE" : "ADVANCE"}
+            />
             <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} />
             {canConfirm && (
               <ConfirmBookingDialog

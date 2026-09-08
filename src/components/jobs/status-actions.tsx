@@ -10,6 +10,7 @@ import { JOB_STATUS_LABELS } from "@/lib/constants";
 
 const NEXT_STATUS: Record<string, { next: "ASSIGNED" | "ON_THE_WAY" | "STARTED" | "COMPLETED"; label: string; icon: typeof Truck }> = {
   PENDING: { next: "ASSIGNED", label: "Mark Assigned", icon: UserCheck },
+  REACTIVATED: { next: "ASSIGNED", label: "Mark Assigned", icon: UserCheck },
   ASSIGNED: { next: "ON_THE_WAY", label: "Mark On the Way", icon: Truck },
   ON_THE_WAY: { next: "STARTED", label: "Mark Started", icon: PlayCircle },
   STARTED: { next: "COMPLETED", label: "Mark Completed", icon: CheckCircle2 },
@@ -46,7 +47,7 @@ export function StatusActions({ jobId, status }: { jobId: string; status: string
     });
   }
 
-  function setStatus(next: "PENDING" | "POSTPONED" | "CANCELLED") {
+  function setStatus(next: "REACTIVATED" | "POSTPONED" | "CANCELLED") {
     startTransition(async () => {
       const res = await updateJobStatus(jobId, next);
       if (res.error) {
@@ -72,9 +73,9 @@ export function StatusActions({ jobId, status }: { jobId: string; status: string
   return (
     <div className="flex flex-wrap gap-2">
       {offFlow ? (
-        <Button size="sm" variant="outline" onClick={() => setStatus("PENDING")} disabled={pending}>
+        <Button size="sm" variant="outline" onClick={() => setStatus("REACTIVATED")} disabled={pending}>
           {pending ? <Loader2 className="animate-spin" /> : <RotateCcw className="size-3.5" />}
-          Reactivate (back to Pending)
+          Reactivate Job
         </Button>
       ) : (
         <>

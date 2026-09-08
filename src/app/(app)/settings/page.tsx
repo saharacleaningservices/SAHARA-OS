@@ -38,6 +38,12 @@ export default async function SettingsPage() {
           website: settings.website ?? "",
           logoUrl: settings.logoUrl ?? "",
           googleReviewUrl: settings.googleReviewUrl ?? "",
+          upiId: settings.upiId ?? "",
+          upiQrUrl: settings.upiQrUrl ?? "",
+          bankName: settings.bankName ?? "",
+          bankAccountName: settings.bankAccountName ?? "",
+          bankAccountNumber: settings.bankAccountNumber ?? "",
+          bankIfsc: settings.bankIfsc ?? "",
         }}
       />
       <IntegrationsPanel status={integrationStatus} mybillbookConfigured={isMyBillBookConfigured()} />

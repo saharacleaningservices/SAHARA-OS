@@ -11,7 +11,7 @@ import {
   callLogSchema,
   timelineNoteSchema,
 } from "@/lib/validation";
-import { generateLeadNumber, generateQuoteNumber, generateJobNumber } from "@/lib/id-generators";
+import { generateLeadNumber, generateQuoteNumber, generateJobNumber, generateInvoiceNumber } from "@/lib/id-generators";
 import { deriveArea } from "@/lib/utils";
 import { notify } from "@/server/notify";
 import {
@@ -75,11 +75,38 @@ export async function createLead(values: unknown) {
       serviceVariant: data.serviceVariant || null,
       packageName: data.packageName || null,
       comboServices: data.comboServices?.length ? JSON.stringify(data.comboServices) : null,
+      advanceAmount: data.advanceAmount ?? null,
+      paymentMode: data.paymentMode || null,
+      paymentStatus: data.paymentStatus || (data.advanceAmount ? "PARTIAL" : "PENDING"),
       mapLink: data.mapLink || null,
       createdById: session?.sub,
       assignedToId: data.assignedToId || session?.sub,
     },
   });
+
+  // Office recorded an advance → create the Payment row so it flows to the
+  // Payments module + revenue.
+  if (data.advanceAmount && data.advanceAmount > 0) {
+    const total = data.quoteAmount && data.quoteAmount > 0 ? data.quoteAmount : data.advanceAmount;
+    await db.payment
+      .create({
+        data: {
+          invoiceNumber: await generateInvoiceNumber(),
+          leadId: lead.id,
+          clientName: data.name,
+          clientMobile: data.mobile,
+          amount: total,
+          paidAmount: data.advanceAmount,
+          dueDate: data.serviceDate ? new Date(data.serviceDate) : new Date(Date.now() + 7 * 86400000),
+          paidDate: new Date(),
+          status: data.advanceAmount >= total ? "PAID" : "PENDING",
+          mode: data.paymentMode || null,
+          notes: `Advance recorded on lead ${leadNumber}`,
+          recordedById: session?.sub,
+        },
+      })
+      .catch(() => {});
+  }
 
   await addTimelineEntry({
     leadId: lead.id,
@@ -198,6 +225,9 @@ export async function updateLead(id: string, values: unknown) {
       ...(data.comboServices !== undefined && {
         comboServices: data.comboServices?.length ? JSON.stringify(data.comboServices) : null,
       }),
+      ...(data.advanceAmount !== undefined && { advanceAmount: data.advanceAmount ?? null }),
+      ...(data.paymentMode !== undefined && { paymentMode: data.paymentMode || null }),
+      ...(data.paymentStatus !== undefined && { paymentStatus: data.paymentStatus || null }),
       ...(data.mapLink !== undefined && { mapLink: data.mapLink || null }),
     },
   });
@@ -314,6 +344,34 @@ export async function confirmBooking(leadId: string, values: unknown) {
     await db.jobAssignment.createMany({
       data: [...new Set(leadStaffIds)].map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
     });
+  }
+
+  // Payments — attach any advance the customer already paid to the job, and
+  // make sure there's a Payment row for the balance (quote − advance).
+  const leadPayments = await db.payment.findMany({ where: { leadId, deletedAt: null } });
+  if (leadPayments.length > 0) {
+    await db.payment.updateMany({ where: { leadId, deletedAt: null }, data: { jobId: job.id, amount: jobValue } });
+  } else {
+    const advance = lead.advanceAmount ?? 0;
+    await db.payment
+      .create({
+        data: {
+          invoiceNumber: await generateInvoiceNumber(),
+          jobId: job.id,
+          leadId,
+          clientName: lead.name,
+          clientMobile: lead.mobile,
+          amount: jobValue,
+          paidAmount: advance,
+          dueDate: scheduledDate,
+          paidDate: advance > 0 ? new Date() : null,
+          status: advance >= jobValue && advance > 0 ? "PAID" : "PENDING",
+          mode: lead.paymentMode || null,
+          notes: `Booking confirmed from enquiry ${lead.leadNumber}`,
+          recordedById: session?.sub,
+        },
+      })
+      .catch(() => {});
   }
 
   await db.lead.update({

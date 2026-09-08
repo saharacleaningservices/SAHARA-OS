@@ -777,6 +777,26 @@ addColumnIfMissing("Job", "comboServices", `"comboServices" TEXT`);
 console.log("v1.1 Production Polish migration complete.");
 
 // ─────────────────────────────────────────────────────────────────────────
+// v1.2 — Advance payments through the flow. Additive columns only; no table
+// rebuild (Payment.status keeps its CHECK — "Partial" is derived, not stored;
+// JobStatus.REACTIVATED needs no CHECK change since the Job table CHECK was
+// already dropped in the v1.1 rebuild).
+// ─────────────────────────────────────────────────────────────────────────
+
+addColumnIfMissing("Lead", "advanceAmount", `"advanceAmount" REAL`);
+addColumnIfMissing("Lead", "paymentMode", `"paymentMode" TEXT`);
+addColumnIfMissing("Lead", "paymentStatus", `"paymentStatus" TEXT`);
+addColumnIfMissing("Payment", "mode", `"mode" TEXT`);
+addColumnIfMissing("CompanySettings", "upiId", `"upiId" TEXT`);
+addColumnIfMissing("CompanySettings", "upiQrUrl", `"upiQrUrl" TEXT`);
+addColumnIfMissing("CompanySettings", "bankName", `"bankName" TEXT`);
+addColumnIfMissing("CompanySettings", "bankAccountName", `"bankAccountName" TEXT`);
+addColumnIfMissing("CompanySettings", "bankAccountNumber", `"bankAccountNumber" TEXT`);
+addColumnIfMissing("CompanySettings", "bankIfsc", `"bankIfsc" TEXT`);
+
+console.log("v1.2 advance-payments migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
 // v1.1 — Mobile-number login for the three office users. One-time, guarded by
 // a 'V11_MOBILE_AUTH' AuditLog sentinel so passwords are NOT reset on every
 // deploy. Sets the login mobile number + a temporary password; each user is

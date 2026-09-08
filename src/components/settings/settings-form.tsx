@@ -32,27 +32,29 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
   });
 
   const logoUrl = watch("logoUrl");
+  const upiQrUrl = watch("upiQrUrl");
 
-  async function handleLogoUpload(file: File) {
+  async function handleUpload(file: File, folder: "logo" | "company-docs", field: "logoUrl" | "upiQrUrl", label: string) {
     setUploading(true);
     try {
       const body = new FormData();
       body.append("file", file);
-      body.append("folder", "logo");
+      body.append("folder", folder);
       const res = await fetch("/api/upload", { method: "POST", body });
       const json = await res.json();
       if (!res.ok) {
         toast.error(json.error ?? "Upload failed");
         return;
       }
-      setValue("logoUrl", json.url, { shouldDirty: true });
-      toast.success("Logo uploaded — save to apply");
+      setValue(field, json.url, { shouldDirty: true });
+      toast.success(`${label} uploaded — save to apply`);
     } catch {
       toast.error("Upload failed");
     } finally {
       setUploading(false);
     }
   }
+  const handleLogoUpload = (file: File) => handleUpload(file, "logo", "logoUrl", "Logo");
 
   async function onSubmit(values: CompanySettingsFormValues) {
     setSubmitting(true);
@@ -103,6 +105,68 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <p className="text-xs text-muted-foreground">
               Shown to customers after job completion (review request WhatsApp message + confirmation page).
             </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Payment Collection</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <p className="text-xs text-muted-foreground sm:col-span-2">
+            Shown to customers on the booking form and used to build the &quot;Send Payment Link&quot; WhatsApp message.
+          </p>
+          <div className="space-y-1.5">
+            <Label htmlFor="upiId">UPI ID</Label>
+            <Input id="upiId" placeholder="sahara@okhdfcbank" {...register("upiId")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Payment QR image</Label>
+            <div className="flex items-center gap-3">
+              {upiQrUrl ? (
+                <img src={upiQrUrl} alt="QR" className="size-14 rounded border border-border object-contain" />
+              ) : (
+                <span className="text-xs text-muted-foreground">No QR uploaded</span>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploading}
+                onClick={() => document.getElementById("qr-file")?.click()}
+              >
+                {uploading ? <Loader2 className="animate-spin" /> : <Upload className="size-4" />}
+                Upload QR
+              </Button>
+              <input
+                id="qr-file"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUpload(f, "company-docs", "upiQrUrl", "QR");
+                  e.target.value = "";
+                }}
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="bankAccountName">Bank Account Name</Label>
+            <Input id="bankAccountName" {...register("bankAccountName")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="bankAccountNumber">Account Number</Label>
+            <Input id="bankAccountNumber" {...register("bankAccountNumber")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="bankIfsc">IFSC</Label>
+            <Input id="bankIfsc" {...register("bankIfsc")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="bankName">Bank Name</Label>
+            <Input id="bankName" {...register("bankName")} />
           </div>
         </CardContent>
       </Card>

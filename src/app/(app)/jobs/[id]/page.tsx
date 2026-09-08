@@ -4,6 +4,8 @@ import { FileText, Users, Pencil, ExternalLink, Phone, MessageCircle, Navigation
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getVehiclesForAssignment } from "@/server/vehicles";
 import { getResolvedIntegrations } from "@/server/integrations";
+import { getCompanySettings } from "@/server/settings";
+import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,10 +35,19 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     redirect("/jobs");
   }
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS";
-  const [vehicles, { googleMaps }] = await Promise.all([
+  const [vehicles, { googleMaps }, settings] = await Promise.all([
     canManage ? getVehiclesForAssignment() : Promise.resolve([]),
     getResolvedIntegrations(),
+    getCompanySettings(),
   ]);
+  const paymentDetails = {
+    upiId: settings.upiId ?? null,
+    upiQrUrl: settings.upiQrUrl ?? null,
+    bankName: settings.bankName ?? null,
+    bankAccountName: settings.bankAccountName ?? null,
+    bankAccountNumber: settings.bankAccountNumber ?? null,
+    bankIfsc: settings.bankIfsc ?? null,
+  };
 
   const beforePhotos = job.photos.filter((p) => p.type === "BEFORE");
   const afterPhotos = job.photos.filter((p) => p.type === "AFTER");
@@ -77,6 +88,22 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           <>
             <CallButton mobile={job.customerMobile} />
             <WhatsAppButton mobile={job.customerMobile} />
+            {canManage && balance > 0 && (
+              <SendPaymentLinkButton
+                mobile={job.customerMobile}
+                details={paymentDetails}
+                context={{
+                  customerName: job.customerName,
+                  bookingId: job.jobNumber,
+                  service: SERVICE_LABELS[job.service] ?? job.service,
+                  packageName: job.packageName,
+                  quote: job.jobValue,
+                  advance,
+                  balance,
+                }}
+                purpose="BALANCE"
+              />
+            )}
             {canManage && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/jobs/${job.id}/edit`}>

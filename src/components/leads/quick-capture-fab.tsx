@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,6 +39,20 @@ export function QuickCaptureFab() {
     defaultValues: { service: "HOME_DEEP_CLEANING" },
   });
 
+  // Ctrl/⌘ + N opens Quick Capture from anywhere in the app.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "n" || e.key === "N") && !e.shiftKey) {
+        const t = e.target as HTMLElement | null;
+        if (t && ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName)) return;
+        e.preventDefault();
+        setOpen(true);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   async function onSubmit(values: QuickCaptureFormValues) {
     setSubmitting(true);
     const res = await quickCaptureLead(values);
@@ -61,10 +75,11 @@ export function QuickCaptureFab() {
         onClick={() => setOpen(true)}
         className="fixed right-4 z-40 h-14 gap-2 rounded-full px-5 shadow-lg sm:right-6 lg:right-8"
         style={{ bottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}
-        aria-label="New enquiry"
+        aria-label="Quick capture a lead (Ctrl+N)"
+        title="Quick Capture (Ctrl+N)"
       >
         <Zap className="size-5" />
-        <span className="hidden sm:inline">New Enquiry</span>
+        <span className="hidden sm:inline">Quick Capture</span>
       </Button>
 
       <Dialog
@@ -76,8 +91,8 @@ export function QuickCaptureFab() {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>New Enquiry</DialogTitle>
-            <DialogDescription>Just the essentials — fill in the rest later.</DialogDescription>
+            <DialogTitle>Quick Capture</DialogTitle>
+            <DialogDescription>Save a lead in 30 seconds — fill in the rest later.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div className="space-y-1">

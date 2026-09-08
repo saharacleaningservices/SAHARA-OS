@@ -52,6 +52,9 @@ export const leadSchema = z.object({
   ]),
   source: z.enum(LEAD_SOURCES),
   quoteAmount: z.coerce.number().min(0).optional(),
+  advanceAmount: z.coerce.number().min(0).optional(),
+  paymentMode: z.enum(["UPI", "QR", "BANK", "CASH"]).optional().or(z.literal("")),
+  paymentStatus: z.enum(["PENDING", "PENDING_ADVANCE", "PARTIAL", "PAID"]).optional().or(z.literal("")),
   followUpDate: z.string().optional().or(z.literal("")),
   serviceDate: z.string().optional().or(z.literal("")),
   teamNumber: teamNumberSchema,
@@ -159,6 +162,12 @@ export const companySettingsSchema = z.object({
   website: z.string().optional().or(z.literal("")),
   logoUrl: z.string().optional().or(z.literal("")),
   googleReviewUrl: z.string().optional().or(z.literal("")),
+  upiId: z.string().optional().or(z.literal("")),
+  upiQrUrl: z.string().optional().or(z.literal("")),
+  bankName: z.string().optional().or(z.literal("")),
+  bankAccountName: z.string().optional().or(z.literal("")),
+  bankAccountNumber: z.string().optional().or(z.literal("")),
+  bankIfsc: z.string().optional().or(z.literal("")),
 });
 
 export type CompanySettingsFormValues = z.infer<typeof companySettingsSchema>;
