@@ -172,3 +172,8 @@ export type Invoice = Prisma.InvoiceModel
  * 
  */
 export type JobVideo = Prisma.JobVideoModel
+/**
+ * Model IntegrationSettings
+ * 
+ */
+export type IntegrationSettings = Prisma.IntegrationSettingsModel

@@ -79,7 +79,8 @@ export const ModelName = {
   FineRecord: 'FineRecord',
   RewardRecord: 'RewardRecord',
   Invoice: 'Invoice',
-  JobVideo: 'JobVideo'
+  JobVideo: 'JobVideo',
+  IntegrationSettings: 'IntegrationSettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -622,6 +623,26 @@ export const JobVideoScalarFieldEnum = {
 } as const
 
 export type JobVideoScalarFieldEnum = (typeof JobVideoScalarFieldEnum)[keyof typeof JobVideoScalarFieldEnum]
+
+
+export const IntegrationSettingsScalarFieldEnum = {
+  id: 'id',
+  whatsappAccessToken: 'whatsappAccessToken',
+  whatsappPhoneNumberId: 'whatsappPhoneNumberId',
+  whatsappBusinessId: 'whatsappBusinessId',
+  whatsappApiVersion: 'whatsappApiVersion',
+  whatsappVerifiedAt: 'whatsappVerifiedAt',
+  whatsappLastError: 'whatsappLastError',
+  googleMapsApiKey: 'googleMapsApiKey',
+  googleMapsVerifiedAt: 'googleMapsVerifiedAt',
+  backupToken: 'backupToken',
+  gdriveFolderId: 'gdriveFolderId',
+  backupVerifiedAt: 'backupVerifiedAt',
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy'
+} as const
+
+export type IntegrationSettingsScalarFieldEnum = (typeof IntegrationSettingsScalarFieldEnum)[keyof typeof IntegrationSettingsScalarFieldEnum]
 
 
 export const SortOrder = {

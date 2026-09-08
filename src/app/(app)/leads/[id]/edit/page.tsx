@@ -4,13 +4,15 @@ import { LeadForm } from "@/components/leads/lead-form";
 import { getLeadDetail } from "@/server/leads";
 import { getStaffForAssignment } from "@/server/staff";
 import { getUsersForAssignment } from "@/server/users";
+import { getResolvedIntegrations } from "@/server/integrations";
 
 export default async function EditLeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [lead, staffOptions, userOptions] = await Promise.all([
+  const [lead, staffOptions, userOptions, { googleMaps }] = await Promise.all([
     getLeadDetail(id),
     getStaffForAssignment(),
     getUsersForAssignment(),
+    getResolvedIntegrations(),
   ]);
   if (!lead) notFound();
 
@@ -21,6 +23,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
         leadId={lead.id}
         staffOptions={staffOptions}
         userOptions={userOptions}
+        mapsApiKey={googleMaps.apiKey}
         defaultValues={{
           name: lead.name,
           mobile: lead.mobile,

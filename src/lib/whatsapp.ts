@@ -5,31 +5,31 @@
 // attendance summaries — goes through `sendWhatsApp()` below. It always
 // writes a `WhatsAppMessage` row first so nothing is ever silently lost:
 //
-//   - If WHATSAPP_ACCESS_TOKEN + WHATSAPP_PHONE_NUMBER_ID are configured,
-//     it calls the real Meta Graph API and marks the row SENT/FAILED.
-//   - If they are NOT configured (the default until Meta credentials are
-//     issued), the row is left QUEUED and nothing is sent. No code change
-//     is needed later — sends resume automatically the moment the two env
-//     vars are set on Render.
+//   - If the WhatsApp Cloud API is configured (credentials pasted in
+//     /settings → Integrations, or the WHATSAPP_* env vars), it calls the
+//     real Meta Graph API and marks the row SENT/FAILED.
+//   - If it is NOT configured, the row is left QUEUED and nothing is sent.
+//     No code change is needed later — the moment credentials are saved,
+//     `flushWhatsAppQueue()` runs automatically (see
+//     src/server/actions/integrations.ts) and every queued message goes out.
 //
-// Important real-world constraint: the official WhatsApp Cloud API has no
-// concept of "posting into an existing WhatsApp group" — that capability
-// simply isn't exposed to businesses via the API (only 1:1 business-
-// initiated or session messages). "Team schedule to Workers Group" is
-// therefore implemented as an individual Cloud API message sent to every
-// assigned staff member's own WhatsApp number — same information, same
-// moment, just not literally inside a phone-native group thread.
+// Credentials are resolved through src/server/integrations.ts, which reads
+// the IntegrationSettings row first and falls back to env vars.
 //
-// Outside a customer's 24-hour service window, Cloud API also requires a
-// pre-approved message template rather than free-form text. Until your
-// Meta Business Manager templates are approved, set WHATSAPP_USE_TEMPLATES
-// unset (default) to send free-form text — this works today for any number
-// that has messaged your business number in the last 24h (e.g. after a
-// /book submission or an inbound chat), and will simply fail (logged as
-// FAILED with Meta's error message, never thrown) for numbers outside that
-// window until templates are wired up.
+// Real-world constraint: the official WhatsApp Cloud API has no concept of
+// "posting into an existing WhatsApp group" — that capability isn't exposed
+// to businesses via the API. "Team schedule to Workers Group" is therefore
+// an individual Cloud API message sent to every assigned staff member's own
+// number — same information, same moment.
+//
+// Outside a customer's 24-hour service window Cloud API also requires a
+// pre-approved template rather than free-form text; until your Meta
+// templates are approved, free-form works for any number that messaged your
+// business number in the last 24h and is otherwise logged as FAILED with
+// Meta's error message (never thrown).
 
 import { db } from "@/lib/db";
+import { getResolvedIntegrations } from "@/server/integrations";
 
 export type WhatsAppKind =
   | "BOOKING_CONFIRMATION"
@@ -42,8 +42,18 @@ export type WhatsAppKind =
   | "DEVICE_APPROVAL"
   | "OTHER";
 
+/**
+ * Env-only quick check. Kept for callers that can't be async; prefer
+ * `isWhatsAppReady()` (which also sees credentials saved in Settings).
+ */
 export function isWhatsAppConfigured(): boolean {
   return Boolean(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID);
+}
+
+/** True if the Cloud API can send right now (Settings row OR env vars). */
+export async function isWhatsAppReady(): Promise<boolean> {
+  const { whatsapp } = await getResolvedIntegrations();
+  return whatsapp.configured;
 }
 
 function normalizeNumber(mobile: string): string {
@@ -53,11 +63,43 @@ function normalizeNumber(mobile: string): string {
   return digits;
 }
 
+type SendConfig = {
+  accessToken: string;
+  phoneNumberId: string;
+  apiVersion: string;
+};
+
+async function deliver(toNumber: string, body: string, cfg: SendConfig) {
+  const res = await fetch(
+    `https://graph.facebook.com/${cfg.apiVersion}/${cfg.phoneNumberId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cfg.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: toNumber,
+        type: "text",
+        text: { body, preview_url: false },
+      }),
+    }
+  );
+  const payload = await res.json().catch(() => ({}) as Record<string, unknown>);
+  if (!res.ok) {
+    const err =
+      (payload as { error?: { message?: string } })?.error?.message || `HTTP ${res.status}`;
+    return { ok: false as const, error: err };
+  }
+  const providerMessageId = (payload as { messages?: { id?: string }[] })?.messages?.[0]?.id;
+  return { ok: true as const, providerMessageId };
+}
+
 /**
  * Queues (and, if configured, sends) one WhatsApp message. Never throws —
  * failures are recorded on the WhatsAppMessage row so a broken number or
- * expired token never breaks the calling action (booking confirm, job
- * completion, a reminder sweep, etc).
+ * expired token never breaks the calling action.
  */
 export async function sendWhatsApp(input: {
   kind: WhatsAppKind;
@@ -81,41 +123,27 @@ export async function sendWhatsApp(input: {
     },
   });
 
-  if (!isWhatsAppConfigured()) {
+  const { whatsapp } = await getResolvedIntegrations();
+  if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
     return { queued: true as const, sent: false as const, id: message.id };
   }
 
   try {
-    const version = process.env.WHATSAPP_API_VERSION || "v21.0";
-    const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    const res = await fetch(`https://graph.facebook.com/${version}/${phoneId}/messages`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: toNumber,
-        type: "text",
-        text: { body: input.body, preview_url: false },
-      }),
+    const result = await deliver(toNumber, input.body, {
+      accessToken: whatsapp.accessToken,
+      phoneNumberId: whatsapp.phoneNumberId,
+      apiVersion: whatsapp.apiVersion,
     });
-    const payload = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      const errorMessage = payload?.error?.message || `HTTP ${res.status}`;
+    if (!result.ok) {
       await db.whatsAppMessage.update({
         where: { id: message.id },
-        data: { status: "FAILED", errorMessage },
+        data: { status: "FAILED", errorMessage: result.error },
       });
-      return { queued: false as const, sent: false as const, id: message.id, error: errorMessage };
+      return { queued: false as const, sent: false as const, id: message.id, error: result.error };
     }
-
-    const providerMessageId: string | undefined = payload?.messages?.[0]?.id;
     await db.whatsAppMessage.update({
       where: { id: message.id },
-      data: { status: "SENT", providerMessageId, sentAt: new Date() },
+      data: { status: "SENT", providerMessageId: result.providerMessageId, sentAt: new Date() },
     });
     return { queued: false as const, sent: true as const, id: message.id };
   } catch (err) {
@@ -133,4 +161,59 @@ export async function sendWhatsAppMany(inputs: Parameters<typeof sendWhatsApp>[0
     results.push(await sendWhatsApp(input));
   }
   return results;
+}
+
+/**
+ * Sends every message still sitting in the queue. Called automatically right
+ * after WhatsApp credentials are saved in Settings, and available as a
+ * manual "Flush queue" button. Optionally also retries recently FAILED
+ * messages (e.g. after fixing an expired token).
+ */
+export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?: number } = {}) {
+  const { includeFailed = false, limit = 300 } = opts;
+  const { whatsapp } = await getResolvedIntegrations();
+  if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
+    return { ok: false as const, reason: "WhatsApp is not configured", sent: 0, failed: 0 };
+  }
+
+  const cfg: SendConfig = {
+    accessToken: whatsapp.accessToken,
+    phoneNumberId: whatsapp.phoneNumberId,
+    apiVersion: whatsapp.apiVersion,
+  };
+
+  const pending = await db.whatsAppMessage.findMany({
+    where: { status: includeFailed ? { in: ["QUEUED", "FAILED"] } : "QUEUED" },
+    orderBy: { createdAt: "asc" },
+    take: limit,
+  });
+
+  let sent = 0;
+  let failed = 0;
+  for (const m of pending) {
+    try {
+      const result = await deliver(m.toNumber, m.body, cfg);
+      if (result.ok) {
+        await db.whatsAppMessage.update({
+          where: { id: m.id },
+          data: { status: "SENT", providerMessageId: result.providerMessageId, sentAt: new Date(), errorMessage: null },
+        });
+        sent += 1;
+      } else {
+        await db.whatsAppMessage.update({
+          where: { id: m.id },
+          data: { status: "FAILED", errorMessage: result.error },
+        });
+        failed += 1;
+      }
+    } catch (err) {
+      await db.whatsAppMessage.update({
+        where: { id: m.id },
+        data: { status: "FAILED", errorMessage: (err as Error).message },
+      });
+      failed += 1;
+    }
+  }
+
+  return { ok: true as const, sent, failed, processed: pending.length };
 }

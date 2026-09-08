@@ -520,4 +520,32 @@ addColumnIfMissing("Job", "teamNumber", `"teamNumber" INTEGER`);
 
 console.log("Coolify go-live migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Connector layer — one "default" row holding WhatsApp Cloud API, Google
+// Maps and Google Drive backup settings, editable from /settings without a
+// redeploy. New table only; nothing on existing tables is touched.
+// (idempotent, additive only.)
+// ─────────────────────────────────────────────────────────────────────────
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "IntegrationSettings" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
+    "whatsappAccessToken" TEXT,
+    "whatsappPhoneNumberId" TEXT,
+    "whatsappBusinessId" TEXT,
+    "whatsappApiVersion" TEXT NOT NULL DEFAULT 'v21.0',
+    "whatsappVerifiedAt" DATETIME,
+    "whatsappLastError" TEXT,
+    "googleMapsApiKey" TEXT,
+    "googleMapsVerifiedAt" DATETIME,
+    "backupToken" TEXT,
+    "gdriveFolderId" TEXT,
+    "backupVerifiedAt" DATETIME,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedBy" TEXT
+  );
+`);
+db.prepare(`INSERT OR IGNORE INTO "IntegrationSettings" ("id") VALUES ('default')`).run();
+console.log("Ensured IntegrationSettings table exists.");
+
 db.close();

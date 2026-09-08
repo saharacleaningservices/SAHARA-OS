@@ -856,3 +856,41 @@ model JobVideo {
 
   @@index([jobId])
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Connector settings — a single row ("default"), edited from
+// /settings → Integrations ("Connect Later"). Every third-party integration
+// reads its credentials from here FIRST, then falls back to the matching
+// environment variable, so a key can be pasted once in the UI without a
+// redeploy. Secret fields (whatsappAccessToken, backupToken) are stored
+// encrypted at rest with AES-256-GCM keyed off AUTH_SECRET — see
+// src/lib/crypto.ts and src/server/integrations.ts.
+// ─────────────────────────────────────────────────────────────────────────
+
+model IntegrationSettings {
+  id String @id @default("default")
+
+  // WhatsApp Cloud API (Meta). accessToken is encrypted at rest.
+  whatsappAccessToken   String?
+  whatsappPhoneNumberId String?
+  whatsappBusinessId    String?
+  whatsappApiVersion    String    @default("v21.0")
+  whatsappVerifiedAt    DateTime?
+  whatsappLastError     String?
+
+  // Google Maps JavaScript / Embed / Geocoding API. This key is delivered to
+  // the browser by design — restrict it by HTTP referrer in Google Cloud.
+  googleMapsApiKey     String?
+  googleMapsVerifiedAt DateTime?
+
+  // Google Drive nightly off-site backup. backupToken is encrypted at rest
+  // and authorises GET /api/backup for the GitHub Actions workflow; the
+  // Drive OAuth credentials themselves live in GitHub repo secrets because
+  // the upload runs inside GitHub Actions, not this server.
+  backupToken      String?
+  gdriveFolderId   String?
+  backupVerifiedAt DateTime?
+
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}

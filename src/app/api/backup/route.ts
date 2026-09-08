@@ -7,6 +7,7 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
+import { getResolvedIntegrations, markBackupVerified } from "@/server/integrations";
 
 // Streams a gzip tarball containing a consistent snapshot of the SQLite
 // database plus everything under public/uploads. Consumed by the daily
@@ -21,7 +22,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const token = process.env.BACKUP_TOKEN;
+  // Token comes from /settings → Integrations first, then the BACKUP_TOKEN
+  // env var (see src/server/integrations.ts).
+  const { backup } = await getResolvedIntegrations();
+  const token = backup.token;
   const provided = request.headers.get("authorization") ?? "";
   const isTokenAuth = Boolean(token) && provided === `Bearer ${token}`;
 
@@ -107,6 +111,8 @@ export async function GET(request: NextRequest) {
         },
       })
       .catch(() => {});
+    // Records "backup pipeline confirmed working" for the Integrations page.
+    markBackupVerified().catch(() => {});
 
     const nodeStream = fs.createReadStream(archive);
     nodeStream.on("close", () => fs.rmSync(workdir, { recursive: true, force: true }));
