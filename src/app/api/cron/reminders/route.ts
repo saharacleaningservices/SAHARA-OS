@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { runAllReminderSweeps } from "@/server/reminders";
 import { sendDailyAttendanceSummary } from "@/server/attendance";
+import { flushWhatsAppQueue } from "@/lib/whatsapp";
+import { flushSmsQueue } from "@/lib/sms";
 
 // Runs the WhatsApp reminder sweeps: customer job reminders (tomorrow's
 // jobs), payment reminders (due-soon/overdue balances), AMC renewal
@@ -29,6 +31,10 @@ export async function GET(request: NextRequest) {
 
   const reminders = await runAllReminderSweeps();
   const attendance = await sendDailyAttendanceSummary();
+  const [whatsappFlush, smsFlush] = await Promise.all([
+    flushWhatsAppQueue({ includeFailed: true }).catch(() => null),
+    flushSmsQueue({ includeFailed: true }).catch(() => null),
+  ]);
 
-  return NextResponse.json({ reminders, attendance });
+  return NextResponse.json({ reminders, attendance, whatsappFlush, smsFlush });
 }

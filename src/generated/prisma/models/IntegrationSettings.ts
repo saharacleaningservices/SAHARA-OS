@@ -42,6 +42,11 @@ export type IntegrationSettingsMinAggregateOutputType = {
   backupToken: string | null
   gdriveFolderId: string | null
   backupVerifiedAt: Date | null
+  smsProvider: string | null
+  smsApiKey: string | null
+  smsSenderId: string | null
+  smsEndpoint: string | null
+  smsVerifiedAt: Date | null
   updatedAt: Date | null
   updatedBy: string | null
 }
@@ -64,6 +69,11 @@ export type IntegrationSettingsMaxAggregateOutputType = {
   backupToken: string | null
   gdriveFolderId: string | null
   backupVerifiedAt: Date | null
+  smsProvider: string | null
+  smsApiKey: string | null
+  smsSenderId: string | null
+  smsEndpoint: string | null
+  smsVerifiedAt: Date | null
   updatedAt: Date | null
   updatedBy: string | null
 }
@@ -86,6 +96,11 @@ export type IntegrationSettingsCountAggregateOutputType = {
   backupToken: number
   gdriveFolderId: number
   backupVerifiedAt: number
+  smsProvider: number
+  smsApiKey: number
+  smsSenderId: number
+  smsEndpoint: number
+  smsVerifiedAt: number
   updatedAt: number
   updatedBy: number
   _all: number
@@ -110,6 +125,11 @@ export type IntegrationSettingsMinAggregateInputType = {
   backupToken?: true
   gdriveFolderId?: true
   backupVerifiedAt?: true
+  smsProvider?: true
+  smsApiKey?: true
+  smsSenderId?: true
+  smsEndpoint?: true
+  smsVerifiedAt?: true
   updatedAt?: true
   updatedBy?: true
 }
@@ -132,6 +152,11 @@ export type IntegrationSettingsMaxAggregateInputType = {
   backupToken?: true
   gdriveFolderId?: true
   backupVerifiedAt?: true
+  smsProvider?: true
+  smsApiKey?: true
+  smsSenderId?: true
+  smsEndpoint?: true
+  smsVerifiedAt?: true
   updatedAt?: true
   updatedBy?: true
 }
@@ -154,6 +179,11 @@ export type IntegrationSettingsCountAggregateInputType = {
   backupToken?: true
   gdriveFolderId?: true
   backupVerifiedAt?: true
+  smsProvider?: true
+  smsApiKey?: true
+  smsSenderId?: true
+  smsEndpoint?: true
+  smsVerifiedAt?: true
   updatedAt?: true
   updatedBy?: true
   _all?: true
@@ -249,6 +279,11 @@ export type IntegrationSettingsGroupByOutputType = {
   backupToken: string | null
   gdriveFolderId: string | null
   backupVerifiedAt: Date | null
+  smsProvider: string | null
+  smsApiKey: string | null
+  smsSenderId: string | null
+  smsEndpoint: string | null
+  smsVerifiedAt: Date | null
   updatedAt: Date
   updatedBy: string | null
   _count: IntegrationSettingsCountAggregateOutputType | null
@@ -292,6 +327,11 @@ export type IntegrationSettingsWhereInput = {
   backupToken?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   gdriveFolderId?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   backupVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
+  smsProvider?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsApiKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsSenderId?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsEndpoint?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"IntegrationSettings"> | Date | string
   updatedBy?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
 }
@@ -314,6 +354,11 @@ export type IntegrationSettingsOrderByWithRelationInput = {
   backupToken?: Prisma.SortOrderInput | Prisma.SortOrder
   gdriveFolderId?: Prisma.SortOrderInput | Prisma.SortOrder
   backupVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsSenderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsEndpoint?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
 }
@@ -339,6 +384,11 @@ export type IntegrationSettingsWhereUniqueInput = Prisma.AtLeast<{
   backupToken?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   gdriveFolderId?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   backupVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
+  smsProvider?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsApiKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsSenderId?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsEndpoint?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
+  smsVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"IntegrationSettings"> | Date | string
   updatedBy?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
 }, "id">
@@ -361,6 +411,11 @@ export type IntegrationSettingsOrderByWithAggregationInput = {
   backupToken?: Prisma.SortOrderInput | Prisma.SortOrder
   gdriveFolderId?: Prisma.SortOrderInput | Prisma.SortOrder
   backupVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsSenderId?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsEndpoint?: Prisma.SortOrderInput | Prisma.SortOrder
+  smsVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.IntegrationSettingsCountOrderByAggregateInput
@@ -389,6 +444,11 @@ export type IntegrationSettingsScalarWhereWithAggregatesInput = {
   backupToken?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
   gdriveFolderId?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
   backupVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"IntegrationSettings"> | Date | string | null
+  smsProvider?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
+  smsApiKey?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
+  smsSenderId?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
+  smsEndpoint?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
+  smsVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"IntegrationSettings"> | Date | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"IntegrationSettings"> | Date | string
   updatedBy?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
 }
@@ -411,6 +471,11 @@ export type IntegrationSettingsCreateInput = {
   backupToken?: string | null
   gdriveFolderId?: string | null
   backupVerifiedAt?: Date | string | null
+  smsProvider?: string | null
+  smsApiKey?: string | null
+  smsSenderId?: string | null
+  smsEndpoint?: string | null
+  smsVerifiedAt?: Date | string | null
   updatedAt?: Date | string
   updatedBy?: string | null
 }
@@ -433,6 +498,11 @@ export type IntegrationSettingsUncheckedCreateInput = {
   backupToken?: string | null
   gdriveFolderId?: string | null
   backupVerifiedAt?: Date | string | null
+  smsProvider?: string | null
+  smsApiKey?: string | null
+  smsSenderId?: string | null
+  smsEndpoint?: string | null
+  smsVerifiedAt?: Date | string | null
   updatedAt?: Date | string
   updatedBy?: string | null
 }
@@ -455,6 +525,11 @@ export type IntegrationSettingsUpdateInput = {
   backupToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gdriveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   backupVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  smsProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsSenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsEndpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -477,6 +552,11 @@ export type IntegrationSettingsUncheckedUpdateInput = {
   backupToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gdriveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   backupVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  smsProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsSenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsEndpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -499,6 +579,11 @@ export type IntegrationSettingsCreateManyInput = {
   backupToken?: string | null
   gdriveFolderId?: string | null
   backupVerifiedAt?: Date | string | null
+  smsProvider?: string | null
+  smsApiKey?: string | null
+  smsSenderId?: string | null
+  smsEndpoint?: string | null
+  smsVerifiedAt?: Date | string | null
   updatedAt?: Date | string
   updatedBy?: string | null
 }
@@ -521,6 +606,11 @@ export type IntegrationSettingsUpdateManyMutationInput = {
   backupToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gdriveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   backupVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  smsProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsSenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsEndpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -543,6 +633,11 @@ export type IntegrationSettingsUncheckedUpdateManyInput = {
   backupToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gdriveFolderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   backupVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  smsProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsSenderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsEndpoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  smsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -565,6 +660,11 @@ export type IntegrationSettingsCountOrderByAggregateInput = {
   backupToken?: Prisma.SortOrder
   gdriveFolderId?: Prisma.SortOrder
   backupVerifiedAt?: Prisma.SortOrder
+  smsProvider?: Prisma.SortOrder
+  smsApiKey?: Prisma.SortOrder
+  smsSenderId?: Prisma.SortOrder
+  smsEndpoint?: Prisma.SortOrder
+  smsVerifiedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
 }
@@ -587,6 +687,11 @@ export type IntegrationSettingsMaxOrderByAggregateInput = {
   backupToken?: Prisma.SortOrder
   gdriveFolderId?: Prisma.SortOrder
   backupVerifiedAt?: Prisma.SortOrder
+  smsProvider?: Prisma.SortOrder
+  smsApiKey?: Prisma.SortOrder
+  smsSenderId?: Prisma.SortOrder
+  smsEndpoint?: Prisma.SortOrder
+  smsVerifiedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
 }
@@ -609,6 +714,11 @@ export type IntegrationSettingsMinOrderByAggregateInput = {
   backupToken?: Prisma.SortOrder
   gdriveFolderId?: Prisma.SortOrder
   backupVerifiedAt?: Prisma.SortOrder
+  smsProvider?: Prisma.SortOrder
+  smsApiKey?: Prisma.SortOrder
+  smsSenderId?: Prisma.SortOrder
+  smsEndpoint?: Prisma.SortOrder
+  smsVerifiedAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
 }
@@ -633,6 +743,11 @@ export type IntegrationSettingsSelect<ExtArgs extends runtime.Types.Extensions.I
   backupToken?: boolean
   gdriveFolderId?: boolean
   backupVerifiedAt?: boolean
+  smsProvider?: boolean
+  smsApiKey?: boolean
+  smsSenderId?: boolean
+  smsEndpoint?: boolean
+  smsVerifiedAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
 }, ExtArgs["result"]["integrationSettings"]>
@@ -655,6 +770,11 @@ export type IntegrationSettingsSelectCreateManyAndReturn<ExtArgs extends runtime
   backupToken?: boolean
   gdriveFolderId?: boolean
   backupVerifiedAt?: boolean
+  smsProvider?: boolean
+  smsApiKey?: boolean
+  smsSenderId?: boolean
+  smsEndpoint?: boolean
+  smsVerifiedAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
 }, ExtArgs["result"]["integrationSettings"]>
@@ -677,6 +797,11 @@ export type IntegrationSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime
   backupToken?: boolean
   gdriveFolderId?: boolean
   backupVerifiedAt?: boolean
+  smsProvider?: boolean
+  smsApiKey?: boolean
+  smsSenderId?: boolean
+  smsEndpoint?: boolean
+  smsVerifiedAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
 }, ExtArgs["result"]["integrationSettings"]>
@@ -699,11 +824,16 @@ export type IntegrationSettingsSelectScalar = {
   backupToken?: boolean
   gdriveFolderId?: boolean
   backupVerifiedAt?: boolean
+  smsProvider?: boolean
+  smsApiKey?: boolean
+  smsSenderId?: boolean
+  smsEndpoint?: boolean
+  smsVerifiedAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
 }
 
-export type IntegrationSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsappAccessToken" | "whatsappPhoneNumberId" | "whatsappBusinessId" | "whatsappApiVersion" | "whatsappVerifiedAt" | "whatsappLastError" | "googleMapsApiKey" | "googleMapsVerifiedAt" | "mybillbookApiKey" | "mybillbookVerifiedAt" | "webPushPublicKey" | "webPushPrivateKey" | "webPushSubject" | "backupToken" | "gdriveFolderId" | "backupVerifiedAt" | "updatedAt" | "updatedBy", ExtArgs["result"]["integrationSettings"]>
+export type IntegrationSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsappAccessToken" | "whatsappPhoneNumberId" | "whatsappBusinessId" | "whatsappApiVersion" | "whatsappVerifiedAt" | "whatsappLastError" | "googleMapsApiKey" | "googleMapsVerifiedAt" | "mybillbookApiKey" | "mybillbookVerifiedAt" | "webPushPublicKey" | "webPushPrivateKey" | "webPushSubject" | "backupToken" | "gdriveFolderId" | "backupVerifiedAt" | "smsProvider" | "smsApiKey" | "smsSenderId" | "smsEndpoint" | "smsVerifiedAt" | "updatedAt" | "updatedBy", ExtArgs["result"]["integrationSettings"]>
 
 export type $IntegrationSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "IntegrationSettings"
@@ -726,6 +856,11 @@ export type $IntegrationSettingsPayload<ExtArgs extends runtime.Types.Extensions
     backupToken: string | null
     gdriveFolderId: string | null
     backupVerifiedAt: Date | null
+    smsProvider: string | null
+    smsApiKey: string | null
+    smsSenderId: string | null
+    smsEndpoint: string | null
+    smsVerifiedAt: Date | null
     updatedAt: Date
     updatedBy: string | null
   }, ExtArgs["result"]["integrationSettings"]>
@@ -1168,6 +1303,11 @@ export interface IntegrationSettingsFieldRefs {
   readonly backupToken: Prisma.FieldRef<"IntegrationSettings", 'String'>
   readonly gdriveFolderId: Prisma.FieldRef<"IntegrationSettings", 'String'>
   readonly backupVerifiedAt: Prisma.FieldRef<"IntegrationSettings", 'DateTime'>
+  readonly smsProvider: Prisma.FieldRef<"IntegrationSettings", 'String'>
+  readonly smsApiKey: Prisma.FieldRef<"IntegrationSettings", 'String'>
+  readonly smsSenderId: Prisma.FieldRef<"IntegrationSettings", 'String'>
+  readonly smsEndpoint: Prisma.FieldRef<"IntegrationSettings", 'String'>
+  readonly smsVerifiedAt: Prisma.FieldRef<"IntegrationSettings", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"IntegrationSettings", 'DateTime'>
   readonly updatedBy: Prisma.FieldRef<"IntegrationSettings", 'String'>
 }

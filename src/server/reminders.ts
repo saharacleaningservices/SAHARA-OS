@@ -92,32 +92,54 @@ export async function sweepPaymentReminders() {
   return { sent, checked: payments.length };
 }
 
-/** Reminds customers whose AMC next-visit date is within 3 days, once per due cycle. */
+/**
+ * AMC renewal / service reminders at 30, 7 and 1 day before the due date
+ * (contractExpiryDate → renewal, else serviceReminderDate / nextVisitDate →
+ * service visit). One reminder per contract per tier, WhatsApp + SMS.
+ */
 export async function sweepAmcRenewalReminders() {
-  const soon = addDays(new Date(), 3);
+  const { sendSMS } = await import("@/lib/sms");
+  const now = new Date();
+  const TIERS = [30, 7, 1];
   const contracts = await db.amcContract.findMany({
-    where: { deletedAt: null, status: "ACTIVE", nextVisitDate: { lte: soon } },
+    where: { deletedAt: null, status: "ACTIVE" },
   });
 
   let sent = 0;
   for (const c of contracts) {
+    const dueDate = c.contractExpiryDate ?? c.serviceReminderDate ?? c.nextVisitDate;
+    if (!dueDate) continue;
+    const daysLeft = Math.round((startOfDay(dueDate).getTime() - startOfDay(now).getTime()) / 86400000);
+    const tier = TIERS.find((t) => daysLeft <= t && daysLeft >= t - 1 && daysLeft >= 0);
+    if (tier == null) continue;
+
+    const marker = `AMC_T${tier}`;
     const already = await db.whatsAppMessage.findFirst({
-      where: {
-        kind: "AMC_RENEWAL",
-        relatedType: "AmcContract",
-        relatedId: c.id,
-        createdAt: { gte: addDays(new Date(), -7) },
-      },
+      where: { kind: "AMC_RENEWAL", relatedType: "AmcContract", relatedId: c.id, body: { contains: marker } },
     });
     if (already) continue;
+
+    const body =
+      `${marker} ` +
+      amcRenewalMessage({ customerName: c.customerName, nextVisitDate: dueDate, frequency: c.frequency }) +
+      (daysLeft <= 1 ? " (due tomorrow)" : ` (${daysLeft} days left)`);
+
     await sendWhatsApp({
       kind: "AMC_RENEWAL",
       toNumber: c.customerMobile,
       toName: c.customerName,
-      body: amcRenewalMessage({ customerName: c.customerName, nextVisitDate: c.nextVisitDate, frequency: c.frequency }),
+      body,
       relatedType: "AmcContract",
       relatedId: c.id,
-    });
+    }).catch(() => {});
+    await sendSMS({
+      kind: "REMINDER",
+      toNumber: c.customerMobile,
+      toName: c.customerName,
+      body,
+      relatedType: "AmcContract",
+      relatedId: c.id,
+    }).catch(() => {});
     sent += 1;
   }
   return { sent, checked: contracts.length };

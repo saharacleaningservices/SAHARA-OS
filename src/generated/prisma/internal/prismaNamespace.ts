@@ -427,6 +427,7 @@ export const ModelName = {
   Invoice: 'Invoice',
   JobVideo: 'JobVideo',
   IntegrationSettings: 'IntegrationSettings',
+  SmsMessage: 'SmsMessage',
   SecurityOtp: 'SecurityOtp',
   Notification: 'Notification',
   PushSubscription: 'PushSubscription'
@@ -445,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "securityOtp" | "notification" | "pushSubscription"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "securityOtp" | "notification" | "pushSubscription"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3187,6 +3188,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SmsMessage: {
+      payload: Prisma.$SmsMessagePayload<ExtArgs>
+      fields: Prisma.SmsMessageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SmsMessageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SmsMessageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>
+        }
+        findFirst: {
+          args: Prisma.SmsMessageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SmsMessageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>
+        }
+        findMany: {
+          args: Prisma.SmsMessageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>[]
+        }
+        create: {
+          args: Prisma.SmsMessageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>
+        }
+        createMany: {
+          args: Prisma.SmsMessageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SmsMessageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>[]
+        }
+        delete: {
+          args: Prisma.SmsMessageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>
+        }
+        update: {
+          args: Prisma.SmsMessageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>
+        }
+        deleteMany: {
+          args: Prisma.SmsMessageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SmsMessageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SmsMessageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>[]
+        }
+        upsert: {
+          args: Prisma.SmsMessageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SmsMessagePayload>
+        }
+        aggregate: {
+          args: Prisma.SmsMessageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSmsMessage>
+        }
+        groupBy: {
+          args: Prisma.SmsMessageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SmsMessageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SmsMessageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SmsMessageCountAggregateOutputType> | number
+        }
+      }
+    }
     SecurityOtp: {
       payload: Prisma.$SecurityOtpPayload<ExtArgs>
       fields: Prisma.SecurityOtpFieldRefs
@@ -4117,11 +4192,34 @@ export const IntegrationSettingsScalarFieldEnum = {
   backupToken: 'backupToken',
   gdriveFolderId: 'gdriveFolderId',
   backupVerifiedAt: 'backupVerifiedAt',
+  smsProvider: 'smsProvider',
+  smsApiKey: 'smsApiKey',
+  smsSenderId: 'smsSenderId',
+  smsEndpoint: 'smsEndpoint',
+  smsVerifiedAt: 'smsVerifiedAt',
   updatedAt: 'updatedAt',
   updatedBy: 'updatedBy'
 } as const
 
 export type IntegrationSettingsScalarFieldEnum = (typeof IntegrationSettingsScalarFieldEnum)[keyof typeof IntegrationSettingsScalarFieldEnum]
+
+
+export const SmsMessageScalarFieldEnum = {
+  id: 'id',
+  toNumber: 'toNumber',
+  toName: 'toName',
+  body: 'body',
+  kind: 'kind',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  relatedType: 'relatedType',
+  relatedId: 'relatedId',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SmsMessageScalarFieldEnum = (typeof SmsMessageScalarFieldEnum)[keyof typeof SmsMessageScalarFieldEnum]
 
 
 export const SecurityOtpScalarFieldEnum = {
@@ -4507,6 +4605,7 @@ export type GlobalOmitConfig = {
   invoice?: Prisma.InvoiceOmit
   jobVideo?: Prisma.JobVideoOmit
   integrationSettings?: Prisma.IntegrationSettingsOmit
+  smsMessage?: Prisma.SmsMessageOmit
   securityOtp?: Prisma.SecurityOtpOmit
   notification?: Prisma.NotificationOmit
   pushSubscription?: Prisma.PushSubscriptionOmit
