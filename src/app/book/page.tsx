@@ -107,18 +107,24 @@ export default async function PublicBookingPage({
               <a key={n.label} href={n.href} className="hover:text-primary">{n.label}</a>
             ))}
           </nav>
-          <a
-            href={toWhatsAppLink(WHATSAPP_NUMBER)}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 rounded-xl bg-success px-4 py-2 text-sm font-semibold text-white shadow-sm"
-          >
-            <Phone className="size-4" />
-            <span className="leading-tight">
-              Call / WhatsApp
-              <span className="block text-xs font-normal">{CALL_NUMBER}</span>
-            </span>
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href={`tel:+91${CALL_NUMBER}`}
+              className="sahara-pulse flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm sm:text-sm"
+            >
+              <Phone className="size-4" />
+              <span className="leading-tight">Call<span className="block font-normal">{CALL_NUMBER}</span></span>
+            </a>
+            <a
+              href={toWhatsAppLink(WHATSAPP_NUMBER)}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 rounded-xl bg-success px-3 py-2 text-xs font-semibold text-white shadow-sm sm:text-sm"
+            >
+              <Phone className="size-4" />
+              <span className="leading-tight">WhatsApp<span className="block font-normal">{WHATSAPP_NUMBER}</span></span>
+            </a>
+          </div>
         </div>
       </header>
 
@@ -275,21 +281,18 @@ export default async function PublicBookingPage({
       <footer className="text-white sahara-gradient">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-8 text-center sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-3">
-            <CompanyLogo logoUrl={settings.logoUrl} className="h-10 w-auto max-w-[160px] brightness-0 invert" showTm />
-            <p className="text-sm">
-              Making Pune Cleaner, Healthier &amp; Happier
-              <span className="block text-xs text-white/80">One Home, One Office at a Time.</span>
-            </p>
+            <CompanyLogo logoUrl={settings.logoUrl} className="h-11 w-auto max-w-[170px] brightness-0 invert" showTm />
           </div>
-          <div className="flex items-center gap-3">
-            <a href="https://facebook.com/saharacleaningservices" target="_blank" rel="noreferrer" aria-label="Facebook"><FaFacebookF className="size-4" /></a>
-            <a href="https://instagram.com/saharacleaningservices" target="_blank" rel="noreferrer" aria-label="Instagram"><FaInstagram className="size-4" /></a>
-            <a href="https://youtube.com/@saharacleaningservices" target="_blank" rel="noreferrer" aria-label="YouTube"><FaYoutube className="size-4" /></a>
-            {reviewUrl && <a href={reviewUrl} target="_blank" rel="noreferrer" aria-label="Google Reviews"><FaGoogle className="size-4" /></a>}
+          <div className="flex flex-col items-center gap-2 sm:items-end">
+            <p className="text-sm font-semibold">Residential &amp; Commercial Cleaning Services</p>
+            <div className="flex items-center gap-4">
+              <a href="https://facebook.com/saharacleaningservices" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:opacity-80"><FaFacebookF className="size-4" /></a>
+              <a href="https://instagram.com/saharacleaningservices" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:opacity-80"><FaInstagram className="size-4" /></a>
+              <a href="https://youtube.com/@saharacleaningservices" target="_blank" rel="noreferrer" aria-label="YouTube" className="hover:opacity-80"><FaYoutube className="size-4" /></a>
+              <a href={reviewUrl || "https://www.google.com/maps/search/Sahara+Cleaning+Services+Pune"} target="_blank" rel="noreferrer" aria-label="Google Business Profile" className="hover:opacity-80"><FaGoogle className="size-4" /></a>
+            </div>
+            <p className="text-xs text-white/85">Trusted by <span className="font-semibold">{happyCustomers} Customers</span> Across Pune</p>
           </div>
-          <p className="text-xs text-white/85">
-            Trusted by <span className="font-semibold">{happyCustomers} Customers</span> Across Pune
-          </p>
         </div>
         <div className="border-t border-white/15 py-2 text-center text-[11px] text-white/70">
           <Link href="/login" className="hover:text-white">Staff login</Link>

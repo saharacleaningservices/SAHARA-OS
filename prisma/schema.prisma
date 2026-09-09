@@ -158,6 +158,8 @@ enum ServiceCategory {
   HOUSEKEEPING
   COMMERCIAL_CLEANING
   AMC
+  CUSTOMIZER_PACKAGE
+  COMBO_PACKAGE
 }
 
 // Phase 3 — Revenue, WhatsApp & Workforce Automation

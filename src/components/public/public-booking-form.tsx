@@ -41,7 +41,14 @@ const CATEGORIES: { value: string; label: string }[] = [
   { value: "COMMERCIAL_CLEANING", label: "Commercial Cleaning" },
   { value: "PAINTING", label: "Interior Painting" },
   { value: "PEST_CONTROL", label: "Pest Control" },
+  { value: "CUSTOMIZER_PACKAGE", label: "Customizer Package" },
+  { value: "COMBO_PACKAGE", label: "Combo Package" },
 ];
+
+const SERVICE_TYPE_HINT: Record<string, string> = {
+  CUSTOMIZER_PACKAGE: "Pick the exact service you need — combine as many as you like.",
+  COMBO_PACKAGE: "Bundled services at a package price — final amount confirmed after a quick quotation.",
+};
 
 const ADDON_ICONS: Record<string, typeof Sofa> = {
   "Sofa Shampooing": Sofa,
@@ -272,21 +279,15 @@ export function PublicBookingForm({
       </div>
 
       <div className={fieldWrap}>
-        <Label>Select Service <span className="text-destructive">*</span></Label>
+        <Label>Service Type <span className="text-destructive">*</span></Label>
         <Select value={variant} onValueChange={setVariant} disabled={!category}>
-          <SelectTrigger><SelectValue placeholder={category ? "Select Service" : "Pick a category first"} /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={category ? "Select Service Type" : "Pick a category first"} /></SelectTrigger>
           <SelectContent>
             {serviceOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
           </SelectContent>
         </Select>
+        {SERVICE_TYPE_HINT[category] && <p className="text-xs text-muted-foreground">{SERVICE_TYPE_HINT[category]}</p>}
         {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
-      </div>
-
-      <div className="space-y-2">
-        <Label>Combo Package (optional)</Label>
-        <div className="rounded-lg border border-dashed border-border bg-muted/30 px-3 py-2.5 text-sm text-muted-foreground">
-          Choose Combo Package — <span className="font-medium">Coming Soon</span>
-        </div>
       </div>
 
       {/* Add-on services */}
