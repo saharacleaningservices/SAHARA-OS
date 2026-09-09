@@ -136,6 +136,14 @@ export async function getDashboardData() {
   const profitTrend = lastNetProfit !== 0 ? Math.round(((netProfit - lastNetProfit) / Math.abs(lastNetProfit)) * 100) : 0;
 
   const pendingPaymentsTotal = (pendingPaymentsAgg._sum.amount ?? 0) - (pendingPaymentsAgg._sum.paidAmount ?? 0);
+
+  // Repeat customers = mobile numbers with more than one job.
+  const jobMobiles = await db.job.groupBy({
+    by: ["customerMobile"],
+    where: { deletedAt: null },
+    _count: true,
+  });
+  const repeatCustomerCount = jobMobiles.filter((r) => r._count > 1).length;
   const collectionRate =
     monthlyRevenue + pendingPaymentsTotal > 0
       ? Math.round((monthlyRevenue / (monthlyRevenue + pendingPaymentsTotal)) * 100)
@@ -188,6 +196,7 @@ export async function getDashboardData() {
       collectionsTodayCount: collectionsTodayAgg._count,
       monthlyRevenue,
       collectionRate,
+      repeatCustomerCount,
       netProfit,
       staffAvailableCount,
       staffOnJobCount,

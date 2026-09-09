@@ -17,6 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
+import { getLeadSourceStats } from "@/server/owner";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -33,15 +34,18 @@ import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
 export default async function DashboardPage() {
   const session = await requireUser();
-  const {
-    stats,
-    recentLeads,
-    todaysJobs,
-    overduePayments,
-    followUpsToday,
-    followUpsTomorrow,
-    followUpsOverdue,
-  } = await getDashboardData();
+  const [
+    {
+      stats,
+      recentLeads,
+      todaysJobs,
+      overduePayments,
+      followUpsToday,
+      followUpsTomorrow,
+      followUpsOverdue,
+    },
+    sourceStats,
+  ] = await Promise.all([getDashboardData(), getLeadSourceStats(3)]);
 
   const firstName = session.name.split(" ")[0];
   const showRevenue = canViewRevenue(session.role);
@@ -79,6 +83,9 @@ export default async function DashboardPage() {
             <StatCard href="/jobs" label="Monthly Jobs" value={stats.monthlyBookingsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
             {showCrm && (
               <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} tone="indigo" glow={stats.siteVisitsToday > 0} />
+            )}
+            {showCrm && (
+              <StatCard href="/customers" label="Repeat Customers" value={stats.repeatCustomerCount} icon={<Users className="size-4" />} tone="purple" />
             )}
             {showRevenue && (
               <>
@@ -272,6 +279,31 @@ export default async function DashboardPage() {
           <FollowUpBoard today={followUpsToday} tomorrow={followUpsTomorrow} overdue={followUpsOverdue} />
         )}
       </div>
+
+      {showRevenue && sourceStats.length > 0 && (
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm">Lead Sources — last 3 months</CardTitle>
+            <Link href="/revenue" className="text-xs font-medium text-primary">Full analytics →</Link>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {sourceStats.slice(0, 6).map((s) => {
+              const max = Math.max(...sourceStats.map((x) => x.leads), 1);
+              return (
+                <div key={s.source}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-foreground">{s.label}</span>
+                    <span className="text-muted-foreground">{s.leads} leads · {s.conversion}% converted</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${(s.leads / max) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
