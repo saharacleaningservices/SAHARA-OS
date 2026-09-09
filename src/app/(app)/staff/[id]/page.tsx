@@ -12,15 +12,23 @@ import { FileDown } from "lucide-react";
 import { NewStaffDialog } from "@/components/staff/new-staff-dialog";
 import { PayrollLedgerCard } from "@/components/staff/payroll-ledger-card";
 import { StaffDocumentsCard } from "@/components/staff/staff-documents-card";
+import { MonthlyAttendanceCalendar } from "@/components/attendance/monthly-attendance-calendar";
 import { Button } from "@/components/ui/button";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
-import { canViewSalary, canManageStaffFinancials } from "@/lib/permissions";
-import { getStaffLedger } from "@/server/attendance";
+import { canViewSalary, canManageStaffFinancials, canManageAttendance } from "@/lib/permissions";
+import { getStaffLedger, getMonthMatrix } from "@/server/attendance";
 
-export default async function StaffDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function StaffDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ year?: string; month?: string }>;
+}) {
   const { id } = await params;
+  const { year: yStr, month: mStr } = await searchParams;
   const session = await requireUser();
   const staff = await getStaffDetail(id);
   if (!staff) notFound();
@@ -33,9 +41,15 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
     : [];
 
   const now = new Date();
+  const calYear = Number(yStr) || now.getFullYear();
+  const calMonth = Number(mStr) || now.getMonth() + 1;
   const showSalary = canViewSalary(session.role);
-  const ledger = showSalary ? await getStaffLedger(staff.id, now.getFullYear(), now.getMonth() + 1) : null;
-  const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${now.getFullYear()}&month=${now.getMonth() + 1}`;
+  const canAttendance = canManageAttendance(session.role);
+  const [ledger, matrix] = await Promise.all([
+    showSalary ? getStaffLedger(staff.id, calYear, calMonth) : Promise.resolve(null),
+    canAttendance ? getMonthMatrix(staff.id, calYear, calMonth) : Promise.resolve(null),
+  ]);
+  const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${calYear}&month=${calMonth}`;
 
   return (
     <div className="space-y-6">
@@ -220,7 +234,7 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
           {ledger && (
             <PayrollLedgerCard
               staffId={staff.id}
-              monthLabel={now.toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+              monthLabel={new Date(calYear, calMonth - 1, 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
               presentDays={ledger.presentDays}
               earned={ledger.earned}
               advanceTotal={ledger.advanceTotal}
@@ -230,14 +244,12 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
               canManage={canManageStaffFinancials(session.role)}
             />
           )}
-          <Card>
-            <CardHeader>
-              <CardTitle>Attendance (last 30 days)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {staff.attendance.length === 0 ? (
-                <EmptyState title="No attendance marked yet" />
-              ) : (
+          {!canAttendance && staff.attendance.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Attendance (last 30 days)</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <div className="max-h-96 overflow-y-auto">
                   <Table>
                     <TableHeader>
@@ -260,11 +272,24 @@ export default async function StaffDetailPage({ params }: { params: Promise<{ id
                     </TableBody>
                   </Table>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
+
+      {matrix && (
+        <MonthlyAttendanceCalendar
+          staffId={staff.id}
+          year={matrix.year}
+          month={matrix.month}
+          days={matrix.days}
+          totals={matrix.totals}
+          closed={matrix.closed}
+          canEdit={canAttendance}
+          canReopen={session.role === "ADMIN"}
+        />
+      )}
     </div>
   );
 }

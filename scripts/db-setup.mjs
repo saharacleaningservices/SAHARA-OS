@@ -837,4 +837,47 @@ console.log("v1.2 advance-payments migration complete.");
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v2.0 — Batch 1: Monthly attendance, salary ledger, audit
+// trail and month closing. Additive + row-preserving; safe to re-run.
+// ─────────────────────────────────────────────────────────────────────────
+
+// Attendance.status gained WEEKLY_OFF — drop the stale CHECK IN (...) so the
+// new value is accepted (row-preserving rebuild, keeps unique+indexes).
+dropEnumChecks("Attendance");
+
+addColumnIfMissing("Attendance", "markedByName", `"markedByName" TEXT`);
+addColumnIfMissing("Attendance", "updatedByName", `"updatedByName" TEXT`);
+addColumnIfMissing("Attendance", "updatedAt", `"updatedAt" DATETIME`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "AttendanceAudit" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "staffId" TEXT NOT NULL,
+    "staffName" TEXT NOT NULL,
+    "date" DATETIME NOT NULL,
+    "oldStatus" TEXT,
+    "newStatus" TEXT NOT NULL,
+    "editedByName" TEXT NOT NULL,
+    "editedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AttendanceAudit_staffId_date_idx" ON "AttendanceAudit"("staffId", "date");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AttendanceAudit_editedAt_idx" ON "AttendanceAudit"("editedAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "MonthClose" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "year" INTEGER NOT NULL,
+    "month" INTEGER NOT NULL,
+    "closedByName" TEXT NOT NULL,
+    "closedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "reopenedByName" TEXT,
+    "reopenedAt" DATETIME
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "MonthClose_year_month_key" ON "MonthClose"("year", "month");`);
+
+console.log("v2.0 batch-1 (attendance/salary) migration complete.");
+
 db.close();
