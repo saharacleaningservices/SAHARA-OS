@@ -50,7 +50,7 @@ export default async function LoginPage({
       <div className="flex flex-col items-center justify-center gap-8 p-6 sm:p-10">
         <div className="flex flex-col items-center gap-2 lg:hidden">
           {hasLogo ? (
-            <CompanyLogo logoUrl={settings.logoUrl} className="h-9 w-auto max-w-[200px]" />
+            <CompanyLogo logoUrl={settings.logoUrl} className="h-[52px] w-auto max-w-[200px]" showTm />
           ) : (
             <>
               <img src="/icon.svg" alt="" aria-hidden className="size-10 rounded-lg" />

@@ -21,3 +21,12 @@ export async function publicFileToDataUrl(publicPath: string): Promise<string | 
     return null;
   }
 }
+
+/**
+ * The brand logo for a PDF header: the admin-uploaded logo if it's a raster,
+ * else the committed /brand/sahara-logo.png. Returns null → the document
+ * renders its styled text header instead (never a broken image).
+ */
+export async function resolveBrandLogoDataUrl(logoUrl?: string | null): Promise<string | null> {
+  return (await publicFileToDataUrl(logoUrl ?? "")) ?? (await publicFileToDataUrl("/brand/sahara-logo.png"));
+}

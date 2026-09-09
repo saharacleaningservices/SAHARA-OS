@@ -24,7 +24,7 @@ export function SidebarNav({
       <div className="flex items-center gap-2 px-5 py-5">
         {logoUrl ? (
           <span className="rounded-lg bg-white/95 px-2.5 py-1.5">
-            <CompanyLogo logoUrl={logoUrl} className="h-7 w-auto max-w-[180px]" />
+            <CompanyLogo logoUrl={logoUrl} className="h-9 w-auto max-w-[180px]" showTm />
           </span>
         ) : (
           <>

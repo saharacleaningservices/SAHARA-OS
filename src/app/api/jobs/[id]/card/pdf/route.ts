@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { getJobDetail, canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { getCompanySettings } from "@/server/settings";
 import { JobCardDocument } from "@/lib/pdf/job-card-document";
-import { publicFileToDataUrl } from "@/lib/pdf/file-to-data-url";
+import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   }
 
   const settings = await getCompanySettings();
-  const logoDataUrl = settings.logoUrl ? await publicFileToDataUrl(settings.logoUrl) : null;
+  const logoDataUrl = await resolveBrandLogoDataUrl(settings.logoUrl);
 
   const advance = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
   const balance = Math.max(job.jobValue - advance, 0);
