@@ -12,15 +12,18 @@ import {
   Headphones,
   CalendarClock,
   IndianRupee,
-  Home as HomeIcon,
-  Building2,
-  PaintRoller,
-  Bug,
 } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaYoutube, FaGoogle } from "react-icons/fa6";
 import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { BookingStickyBar } from "@/components/public/booking-sticky-bar";
 import { BookingLinkPing } from "@/components/public/booking-link-ping";
+import {
+  HeroArt,
+  HomeCleaningArt,
+  CommercialCleaningArt,
+  InteriorPaintingArt,
+  PestControlArt,
+} from "@/components/public/service-illustrations";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { COMPANY } from "@/lib/constants";
 import { getResolvedIntegrations } from "@/server/integrations";
@@ -52,10 +55,10 @@ const WHY = [
 ];
 
 const SERVICES = [
-  { icon: HomeIcon, label: "Home Cleaning" },
-  { icon: Building2, label: "Commercial Cleaning" },
-  { icon: PaintRoller, label: "Interior Painting" },
-  { icon: Bug, label: "Pest Control" },
+  { art: HomeCleaningArt, label: "Home Deep Cleaning", desc: "Kitchen, bath, sofa, full home" },
+  { art: CommercialCleaningArt, label: "Commercial Cleaning", desc: "Office, shop, warehouse, more" },
+  { art: InteriorPaintingArt, label: "Interior Painting", desc: "Emulsion, lustre, texture" },
+  { art: PestControlArt, label: "Pest Control", desc: "Cockroach, termite, bed bugs" },
 ];
 
 const BOTTOM_TRUST = [
@@ -98,7 +101,7 @@ export default async function PublicBookingPage({
       {/* ── Header ─────────────────────────────────────────────── */}
       <header id="contact" className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <CompanyLogo logoUrl={settings.logoUrl} className="h-9 w-auto max-w-[190px]" />
+          <CompanyLogo logoUrl={settings.logoUrl} className="h-[46px] w-auto max-w-[180px]" showTm />
           <nav className="hidden items-center gap-6 text-sm font-medium text-foreground lg:flex">
             {NAV.map((n) => (
               <a key={n.label} href={n.href} className="hover:text-primary">{n.label}</a>
@@ -122,12 +125,28 @@ export default async function PublicBookingPage({
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="relative overflow-hidden text-white">
         <div className="absolute inset-0 sahara-gradient" />
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-10 text-center sm:py-14">
-          <p className="font-serif text-2xl italic sm:text-3xl">Clean Home. Healthy Family. Happier You!</p>
-          <p className="max-w-xl text-sm text-white/85 sm:text-base">
-            Pune&apos;s trusted team for home &amp; commercial cleaning, interior painting and pest control —
-            <span className="font-semibold"> professional, reliable, trusted.</span>
-          </p>
+        <div className="pointer-events-none absolute right-0 top-0 hidden h-full w-1/2 opacity-90 lg:block">
+          <HeroArt className="h-full w-full" />
+        </div>
+        <div className="relative mx-auto grid max-w-6xl items-center gap-4 px-4 py-10 sm:py-14 lg:grid-cols-2">
+          <div className="text-center lg:text-left">
+            <p className="font-serif text-2xl italic sm:text-4xl">Clean Home. Healthy Family. Happier You!</p>
+            <p className="mt-2 max-w-xl text-sm text-white/85 sm:text-base">
+              Pune&apos;s trusted team for home &amp; commercial cleaning, interior painting and pest control —
+              <span className="font-semibold"> professional, reliable, trusted.</span>
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2 lg:justify-start">
+              <a href="#book" className="rounded-full bg-white px-5 py-2 text-sm font-bold text-primary shadow-lg">Book Now</a>
+              {reviewUrl && (
+                <a href={reviewUrl} target="_blank" rel="noreferrer" className="rounded-full border border-white/60 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10">
+                  View Google Reviews
+                </a>
+              )}
+            </div>
+          </div>
+          <div className="lg:hidden">
+            <HeroArt className="mx-auto h-40 w-full max-w-sm" />
+          </div>
         </div>
       </section>
 
@@ -174,13 +193,21 @@ export default async function PublicBookingPage({
           <section id="services">
             <h3 className="mb-3 text-xl font-bold text-foreground">Our Services</h3>
             <div className="grid grid-cols-2 gap-3">
-              {SERVICES.map(({ icon: Icon, label }) => (
-                <div key={label} className="flex flex-col items-center gap-2 rounded-xl border border-border bg-white p-4 text-center shadow-sm">
-                  <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="text-xs font-semibold text-foreground">{label}</span>
-                </div>
+              {SERVICES.map(({ art: Art, label, desc }) => (
+                <a
+                  key={label}
+                  href="#book"
+                  className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition active:scale-[0.97]"
+                >
+                  <div className="h-20 w-full">
+                    <Art className="h-full w-full transition group-hover:scale-105" />
+                  </div>
+                  <div className="p-2.5">
+                    <p className="text-xs font-semibold text-foreground">{label}</p>
+                    <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{desc}</p>
+                    <span className="mt-1.5 inline-block text-[11px] font-semibold text-primary">Book Now →</span>
+                  </div>
+                </a>
               ))}
             </div>
           </section>
@@ -248,7 +275,7 @@ export default async function PublicBookingPage({
       <footer className="text-white sahara-gradient">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-8 text-center sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-3">
-            <CompanyLogo logoUrl={settings.logoUrl} className="h-9 w-auto max-w-[160px] brightness-0 invert" />
+            <CompanyLogo logoUrl={settings.logoUrl} className="h-10 w-auto max-w-[160px] brightness-0 invert" showTm />
             <p className="text-sm">
               Making Pune Cleaner, Healthier &amp; Happier
               <span className="block text-xs text-white/80">One Home, One Office at a Time.</span>

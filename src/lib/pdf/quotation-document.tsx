@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   logoText: { color: "#ffffff", fontSize: 16, fontWeight: 700 },
+  logoImg: { height: 36, width: "auto" },
   logoSub: { color: "#dbe9fd", fontSize: 8, marginTop: 2 },
   companyMeta: { textAlign: "right", fontSize: 8, color: "#5b7186", lineHeight: 1.5 },
   titleBar: {
@@ -87,6 +88,7 @@ export type QuotationPdfProps = {
   totalAmount: number;
   terms: string;
   qrDataUrl: string;
+  logoDataUrl?: string | null;
 };
 
 function inr(n: number) {
@@ -98,10 +100,14 @@ export function QuotationDocument(props: QuotationPdfProps) {
     <Document title={`Quotation ${props.quoteNumber}`}>
       <Page size="A4" style={styles.page}>
         <View style={styles.headerRow}>
-          <View style={styles.logoBox}>
-            <Text style={styles.logoText}>Sahara</Text>
-            <Text style={styles.logoSub}>Cleaning Services</Text>
-          </View>
+          {props.logoDataUrl ? (
+            <Image src={props.logoDataUrl} style={styles.logoImg} />
+          ) : (
+            <View style={styles.logoBox}>
+              <Text style={styles.logoText}>Sahara</Text>
+              <Text style={styles.logoSub}>Cleaning Services</Text>
+            </View>
+          )}
           <View style={styles.companyMeta}>
             <Text>{COMPANY.address}</Text>
             <Text>{COMPANY.phones.join("  /  ")}</Text>

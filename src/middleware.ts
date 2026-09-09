@@ -42,6 +42,7 @@ export async function middleware(request: NextRequest) {
     PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/uploads") ||
+    pathname.startsWith("/brand") ||
     pathname === "/favicon.ico" ||
     pathname === "/sw.js" ||
     // Branding/PWA metadata routes — must be fetchable by the browser (tab

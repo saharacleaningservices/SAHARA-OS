@@ -5,7 +5,7 @@ import { canViewSalary } from "@/lib/permissions";
 import { getStaffLedger } from "@/server/attendance";
 import { getCompanySettings } from "@/server/settings";
 import { PayslipDocument } from "@/lib/pdf/payslip-document";
-import { publicFileToDataUrl } from "@/lib/pdf/file-to-data-url";
+import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { formatINR } from "@/lib/utils";
 
 export const runtime = "nodejs";
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!ledger.staff) return NextResponse.json({ error: "Staff not found" }, { status: 404 });
 
   const settings = await getCompanySettings();
-  const logoDataUrl = settings.logoUrl ? await publicFileToDataUrl(settings.logoUrl) : null;
+  const logoDataUrl = await resolveBrandLogoDataUrl(settings.logoUrl);
 
   const monthLabel = new Date(year, month - 1, 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" });
   const daysInMonth = new Date(year, month, 0).getDate();
