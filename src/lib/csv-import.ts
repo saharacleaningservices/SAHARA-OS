@@ -252,3 +252,82 @@ export const STAFF_TEMPLATE_SAMPLE_ROWS = [
   ["Ganesh More", "9812345670", "Cleaning Executive", "Daily", "650", "", "Available weekends"],
   ["Sunita Kale", "9812345671", "Supervisor", "Monthly", "", "18000", ""],
 ];
+
+// ── Customers (bulk import — Excel / CSV / MyBillBook export) ─────────────
+
+export type CustomerImportRow = {
+  name: string;
+  mobile: string;
+  alternateMobile?: string;
+  address?: string;
+  area?: string;
+  serviceHistory?: string;
+  lastServiceDate?: string;
+  outstandingBalance?: number;
+  source?: string;
+};
+
+export const CUSTOMER_FIELD_ALIASES: Record<string, string[]> = {
+  name: ["name", "customer name", "party name", "client name", "full name"],
+  mobile: ["mobile", "phone", "phone number", "mobile number", "contact", "contact number", "party phone", "whatsapp"],
+  alternateMobile: ["alternate mobile", "alternate phone", "alt mobile", "secondary phone", "phone 2", "other number"],
+  address: ["address", "billing address", "shipping address", "full address", "customer address"],
+  area: ["area", "locality", "location", "region", "city"],
+  serviceHistory: ["service history", "services", "history", "past services", "work done"],
+  lastServiceDate: ["last service date", "last service", "last visit", "last job date", "last invoice date"],
+  outstandingBalance: ["outstanding balance", "outstanding", "balance", "closing balance", "due", "due amount", "pending amount"],
+  source: ["source", "lead source", "reference", "referred by"],
+};
+
+function dateFrom(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const t = raw.trim();
+  // dd/mm/yyyy or dd-mm-yyyy → yyyy-mm-dd
+  const m = t.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
+  if (m) {
+    const [, d, mo, y] = m;
+    const yr = y.length === 2 ? `20${y}` : y;
+    return `${yr}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`;
+  }
+  const parsed = new Date(t);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString().slice(0, 10);
+}
+
+export function validateCustomerRow(raw: CsvRow): RowValidation<CustomerImportRow> {
+  if (!raw.name && !raw.mobile) return { ok: false, error: "Empty row" };
+  const digits = (raw.mobile || "").replace(/[^\d]/g, "").slice(-10);
+  if (digits.length !== 10) {
+    return { ok: false, error: `Invalid mobile number "${raw.mobile ?? ""}" (need 10 digits)` };
+  }
+  const name = (raw.name || "").trim() || "Customer";
+  return {
+    ok: true,
+    data: {
+      name: name.slice(0, 120),
+      mobile: digits,
+      alternateMobile: (raw.alternateMobile || "").replace(/[^\d]/g, "").slice(-10) || undefined,
+      address: raw.address?.trim() || undefined,
+      area: raw.area?.trim() || undefined,
+      serviceHistory: raw.serviceHistory?.trim() || undefined,
+      lastServiceDate: dateFrom(raw.lastServiceDate),
+      outstandingBalance: numberFrom(raw.outstandingBalance),
+      source: raw.source?.trim() || undefined,
+    },
+  };
+}
+
+export const CUSTOMER_TEMPLATE_HEADERS = [
+  "Name",
+  "Mobile",
+  "Alternate Mobile",
+  "Address",
+  "Area",
+  "Service History",
+  "Last Service Date",
+  "Outstanding Balance",
+  "Source",
+];
+export const CUSTOMER_TEMPLATE_SAMPLE_ROWS = [
+  ["Rahul Verma", "9876543210", "9123456780", "A-401, Green Meadows, Kondhwa", "Kondhwa", "Home Deep Cleaning; Sofa Cleaning", "12/08/2026", "0", "Referral"],
+  ["Anita Desai", "9812345678", "", "Shop 6, FC Road", "FC Road", "Commercial Cleaning", "01/07/2026", "1500", "MyBillBook"],
+];
