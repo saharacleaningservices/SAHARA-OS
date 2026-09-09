@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { LeadStageBadge, JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { SendBookingFormButton } from "@/components/shared/send-booking-form-button";
+import { RepeatBookingButton } from "@/components/customers/repeat-booking-button";
 import { getCustomerHistory } from "@/server/customers";
 import { db } from "@/lib/db";
 import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
@@ -42,6 +43,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <CallButton mobile={mobile} />
             <WhatsAppButton mobile={mobile} />
             <SendBookingFormButton name={name} mobile={mobile} leadId={leads[0]?.id} />
+            {(jobs.length > 0 || master) && <RepeatBookingButton mobile={mobile} />}
             {jobs.some((j) => j.status === "COMPLETED") && (
               <SendBookingFormButton name={name} mobile={mobile} kind="REVIEW" />
             )}

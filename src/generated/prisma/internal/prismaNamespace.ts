@@ -3844,6 +3844,7 @@ export const CompanySettingsScalarFieldEnum = {
   googleReviewCount: 'googleReviewCount',
   happyCustomers: 'happyCustomers',
   featuredReviews: 'featuredReviews',
+  bankBalance: 'bankBalance',
   upiId: 'upiId',
   upiQrUrl: 'upiQrUrl',
   bankName: 'bankName',

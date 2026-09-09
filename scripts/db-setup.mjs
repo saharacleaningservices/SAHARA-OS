@@ -948,4 +948,10 @@ db.exec(`CREATE INDEX IF NOT EXISTS "Customer_area_idx" ON "Customer"("area");`)
 db.exec(`CREATE INDEX IF NOT EXISTS "Customer_lastServiceDate_idx" ON "Customer"("lastServiceDate");`);
 console.log("v3.1 batch-8 (customer master) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 9: Owner Dashboard (bank balance).
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("CompanySettings", "bankBalance", `"bankBalance" REAL`);
+console.log("v3.1 batch-9 (owner dashboard) migration complete.");
+
 db.close();

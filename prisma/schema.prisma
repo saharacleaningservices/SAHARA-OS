@@ -739,6 +739,7 @@ model CompanySettings {
   googleReviewCount String?  @default("1800+")
   happyCustomers    String?  @default("8000+")
   featuredReviews   String?  // JSON [{ name, text, rating }] shown in the booking-page carousel
+  bankBalance       Float?   // owner-maintained; shown on the Owner Dashboard
 
   // Payment collection details shown to customers (booking form) and used to
   // build the "Send Payment Link" WhatsApp message.

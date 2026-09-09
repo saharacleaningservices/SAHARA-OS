@@ -20,8 +20,18 @@ export type CompanySettingsModel = runtime.Types.Result.DefaultSelection<Prisma.
 
 export type AggregateCompanySettings = {
   _count: CompanySettingsCountAggregateOutputType | null
+  _avg: CompanySettingsAvgAggregateOutputType | null
+  _sum: CompanySettingsSumAggregateOutputType | null
   _min: CompanySettingsMinAggregateOutputType | null
   _max: CompanySettingsMaxAggregateOutputType | null
+}
+
+export type CompanySettingsAvgAggregateOutputType = {
+  bankBalance: number | null
+}
+
+export type CompanySettingsSumAggregateOutputType = {
+  bankBalance: number | null
 }
 
 export type CompanySettingsMinAggregateOutputType = {
@@ -37,6 +47,7 @@ export type CompanySettingsMinAggregateOutputType = {
   googleReviewCount: string | null
   happyCustomers: string | null
   featuredReviews: string | null
+  bankBalance: number | null
   upiId: string | null
   upiQrUrl: string | null
   bankName: string | null
@@ -59,6 +70,7 @@ export type CompanySettingsMaxAggregateOutputType = {
   googleReviewCount: string | null
   happyCustomers: string | null
   featuredReviews: string | null
+  bankBalance: number | null
   upiId: string | null
   upiQrUrl: string | null
   bankName: string | null
@@ -81,6 +93,7 @@ export type CompanySettingsCountAggregateOutputType = {
   googleReviewCount: number
   happyCustomers: number
   featuredReviews: number
+  bankBalance: number
   upiId: number
   upiQrUrl: number
   bankName: number
@@ -91,6 +104,14 @@ export type CompanySettingsCountAggregateOutputType = {
   _all: number
 }
 
+
+export type CompanySettingsAvgAggregateInputType = {
+  bankBalance?: true
+}
+
+export type CompanySettingsSumAggregateInputType = {
+  bankBalance?: true
+}
 
 export type CompanySettingsMinAggregateInputType = {
   id?: true
@@ -105,6 +126,7 @@ export type CompanySettingsMinAggregateInputType = {
   googleReviewCount?: true
   happyCustomers?: true
   featuredReviews?: true
+  bankBalance?: true
   upiId?: true
   upiQrUrl?: true
   bankName?: true
@@ -127,6 +149,7 @@ export type CompanySettingsMaxAggregateInputType = {
   googleReviewCount?: true
   happyCustomers?: true
   featuredReviews?: true
+  bankBalance?: true
   upiId?: true
   upiQrUrl?: true
   bankName?: true
@@ -149,6 +172,7 @@ export type CompanySettingsCountAggregateInputType = {
   googleReviewCount?: true
   happyCustomers?: true
   featuredReviews?: true
+  bankBalance?: true
   upiId?: true
   upiQrUrl?: true
   bankName?: true
@@ -197,6 +221,18 @@ export type CompanySettingsAggregateArgs<ExtArgs extends runtime.Types.Extension
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CompanySettingsAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CompanySettingsSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CompanySettingsMinAggregateInputType
@@ -227,6 +263,8 @@ export type CompanySettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   _count?: CompanySettingsCountAggregateInputType | true
+  _avg?: CompanySettingsAvgAggregateInputType
+  _sum?: CompanySettingsSumAggregateInputType
   _min?: CompanySettingsMinAggregateInputType
   _max?: CompanySettingsMaxAggregateInputType
 }
@@ -244,6 +282,7 @@ export type CompanySettingsGroupByOutputType = {
   googleReviewCount: string | null
   happyCustomers: string | null
   featuredReviews: string | null
+  bankBalance: number | null
   upiId: string | null
   upiQrUrl: string | null
   bankName: string | null
@@ -252,6 +291,8 @@ export type CompanySettingsGroupByOutputType = {
   bankIfsc: string | null
   updatedAt: Date
   _count: CompanySettingsCountAggregateOutputType | null
+  _avg: CompanySettingsAvgAggregateOutputType | null
+  _sum: CompanySettingsSumAggregateOutputType | null
   _min: CompanySettingsMinAggregateOutputType | null
   _max: CompanySettingsMaxAggregateOutputType | null
 }
@@ -287,6 +328,7 @@ export type CompanySettingsWhereInput = {
   googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   happyCustomers?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   featuredReviews?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankBalance?: Prisma.FloatNullableFilter<"CompanySettings"> | number | null
   upiId?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   upiQrUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   bankName?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
@@ -309,6 +351,7 @@ export type CompanySettingsOrderByWithRelationInput = {
   googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
   happyCustomers?: Prisma.SortOrderInput | Prisma.SortOrder
   featuredReviews?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankBalance?: Prisma.SortOrderInput | Prisma.SortOrder
   upiId?: Prisma.SortOrderInput | Prisma.SortOrder
   upiQrUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bankName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -334,6 +377,7 @@ export type CompanySettingsWhereUniqueInput = Prisma.AtLeast<{
   googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   happyCustomers?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   featuredReviews?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankBalance?: Prisma.FloatNullableFilter<"CompanySettings"> | number | null
   upiId?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   upiQrUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   bankName?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
@@ -356,6 +400,7 @@ export type CompanySettingsOrderByWithAggregationInput = {
   googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
   happyCustomers?: Prisma.SortOrderInput | Prisma.SortOrder
   featuredReviews?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankBalance?: Prisma.SortOrderInput | Prisma.SortOrder
   upiId?: Prisma.SortOrderInput | Prisma.SortOrder
   upiQrUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bankName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -364,8 +409,10 @@ export type CompanySettingsOrderByWithAggregationInput = {
   bankIfsc?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CompanySettingsCountOrderByAggregateInput
+  _avg?: Prisma.CompanySettingsAvgOrderByAggregateInput
   _max?: Prisma.CompanySettingsMaxOrderByAggregateInput
   _min?: Prisma.CompanySettingsMinOrderByAggregateInput
+  _sum?: Prisma.CompanySettingsSumOrderByAggregateInput
 }
 
 export type CompanySettingsScalarWhereWithAggregatesInput = {
@@ -384,6 +431,7 @@ export type CompanySettingsScalarWhereWithAggregatesInput = {
   googleReviewCount?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   happyCustomers?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   featuredReviews?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  bankBalance?: Prisma.FloatNullableWithAggregatesFilter<"CompanySettings"> | number | null
   upiId?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   upiQrUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   bankName?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
@@ -406,6 +454,7 @@ export type CompanySettingsCreateInput = {
   googleReviewCount?: string | null
   happyCustomers?: string | null
   featuredReviews?: string | null
+  bankBalance?: number | null
   upiId?: string | null
   upiQrUrl?: string | null
   bankName?: string | null
@@ -428,6 +477,7 @@ export type CompanySettingsUncheckedCreateInput = {
   googleReviewCount?: string | null
   happyCustomers?: string | null
   featuredReviews?: string | null
+  bankBalance?: number | null
   upiId?: string | null
   upiQrUrl?: string | null
   bankName?: string | null
@@ -450,6 +500,7 @@ export type CompanySettingsUpdateInput = {
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -472,6 +523,7 @@ export type CompanySettingsUncheckedUpdateInput = {
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -494,6 +546,7 @@ export type CompanySettingsCreateManyInput = {
   googleReviewCount?: string | null
   happyCustomers?: string | null
   featuredReviews?: string | null
+  bankBalance?: number | null
   upiId?: string | null
   upiQrUrl?: string | null
   bankName?: string | null
@@ -516,6 +569,7 @@ export type CompanySettingsUpdateManyMutationInput = {
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -538,6 +592,7 @@ export type CompanySettingsUncheckedUpdateManyInput = {
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -560,6 +615,7 @@ export type CompanySettingsCountOrderByAggregateInput = {
   googleReviewCount?: Prisma.SortOrder
   happyCustomers?: Prisma.SortOrder
   featuredReviews?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
   upiId?: Prisma.SortOrder
   upiQrUrl?: Prisma.SortOrder
   bankName?: Prisma.SortOrder
@@ -567,6 +623,10 @@ export type CompanySettingsCountOrderByAggregateInput = {
   bankAccountNumber?: Prisma.SortOrder
   bankIfsc?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CompanySettingsAvgOrderByAggregateInput = {
+  bankBalance?: Prisma.SortOrder
 }
 
 export type CompanySettingsMaxOrderByAggregateInput = {
@@ -582,6 +642,7 @@ export type CompanySettingsMaxOrderByAggregateInput = {
   googleReviewCount?: Prisma.SortOrder
   happyCustomers?: Prisma.SortOrder
   featuredReviews?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
   upiId?: Prisma.SortOrder
   upiQrUrl?: Prisma.SortOrder
   bankName?: Prisma.SortOrder
@@ -604,6 +665,7 @@ export type CompanySettingsMinOrderByAggregateInput = {
   googleReviewCount?: Prisma.SortOrder
   happyCustomers?: Prisma.SortOrder
   featuredReviews?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
   upiId?: Prisma.SortOrder
   upiQrUrl?: Prisma.SortOrder
   bankName?: Prisma.SortOrder
@@ -611,6 +673,10 @@ export type CompanySettingsMinOrderByAggregateInput = {
   bankAccountNumber?: Prisma.SortOrder
   bankIfsc?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CompanySettingsSumOrderByAggregateInput = {
+  bankBalance?: Prisma.SortOrder
 }
 
 
@@ -628,6 +694,7 @@ export type CompanySettingsSelect<ExtArgs extends runtime.Types.Extensions.Inter
   googleReviewCount?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
+  bankBalance?: boolean
   upiId?: boolean
   upiQrUrl?: boolean
   bankName?: boolean
@@ -650,6 +717,7 @@ export type CompanySettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   googleReviewCount?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
+  bankBalance?: boolean
   upiId?: boolean
   upiQrUrl?: boolean
   bankName?: boolean
@@ -672,6 +740,7 @@ export type CompanySettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   googleReviewCount?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
+  bankBalance?: boolean
   upiId?: boolean
   upiQrUrl?: boolean
   bankName?: boolean
@@ -694,6 +763,7 @@ export type CompanySettingsSelectScalar = {
   googleReviewCount?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
+  bankBalance?: boolean
   upiId?: boolean
   upiQrUrl?: boolean
   bankName?: boolean
@@ -703,7 +773,7 @@ export type CompanySettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "website" | "logoUrl" | "googleReviewUrl" | "googleRating" | "googleReviewCount" | "happyCustomers" | "featuredReviews" | "upiId" | "upiQrUrl" | "bankName" | "bankAccountName" | "bankAccountNumber" | "bankIfsc" | "updatedAt", ExtArgs["result"]["companySettings"]>
+export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "website" | "logoUrl" | "googleReviewUrl" | "googleRating" | "googleReviewCount" | "happyCustomers" | "featuredReviews" | "bankBalance" | "upiId" | "upiQrUrl" | "bankName" | "bankAccountName" | "bankAccountNumber" | "bankIfsc" | "updatedAt", ExtArgs["result"]["companySettings"]>
 
 export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CompanySettings"
@@ -721,6 +791,7 @@ export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.Int
     googleReviewCount: string | null
     happyCustomers: string | null
     featuredReviews: string | null
+    bankBalance: number | null
     upiId: string | null
     upiQrUrl: string | null
     bankName: string | null
@@ -1163,6 +1234,7 @@ export interface CompanySettingsFieldRefs {
   readonly googleReviewCount: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly happyCustomers: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly featuredReviews: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly bankBalance: Prisma.FieldRef<"CompanySettings", 'Float'>
   readonly upiId: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly upiQrUrl: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly bankName: Prisma.FieldRef<"CompanySettings", 'String'>

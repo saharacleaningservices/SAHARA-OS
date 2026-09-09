@@ -699,3 +699,60 @@ export async function updateLeadLocation(leadId: string, mapLink: string) {
   revalidatePath(`/leads/${leadId}`);
   return { success: true as const };
 }
+
+/** One-click repeat booking — clone the customer's last job into a fresh lead. */
+export async function createRepeatBooking(mobile: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  const digits = mobile.replace(/[^\d]/g, "").slice(-10);
+
+  const lastJob = await db.job.findFirst({
+    where: { customerMobile: digits, deletedAt: null },
+    orderBy: { scheduledDate: "desc" },
+  });
+  const master = await db.customer.findUnique({ where: { mobile: digits } }).catch(() => null);
+  const lastLead = await db.lead.findFirst({
+    where: { mobile: digits, deletedAt: null },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!lastJob && !lastLead && !master) return { error: "No history for this customer" };
+
+  const name = lastJob?.customerName || lastLead?.name || master?.name || "Customer";
+  const leadNumber = await generateLeadNumber();
+  const lead = await db.lead.create({
+    data: {
+      leadNumber,
+      name,
+      mobile: digits,
+      whatsapp: digits,
+      address: lastJob?.address || lastLead?.address || master?.address || null,
+      area: lastJob?.area || lastLead?.area || master?.area || "—",
+      service: (lastJob?.service || lastLead?.service || "HOME_DEEP_CLEANING") as never,
+      serviceVariant: lastJob?.serviceVariant || lastLead?.serviceVariant || null,
+      propertyType: lastJob?.propertyType || lastLead?.propertyType || null,
+      source: "CALL" as never,
+      stage: "NEW",
+      notes: `Repeat booking${lastJob ? ` — previous job ${lastJob.jobNumber}` : ""}`,
+      createdById: session.sub,
+      assignedToId: session.sub,
+    },
+  });
+
+  await addTimelineEntry({
+    leadId: lead.id,
+    type: "SYSTEM",
+    body: `Repeat booking created by ${session.name}${lastJob ? ` from job ${lastJob.jobNumber}` : ""}`,
+    authorId: session.sub,
+  }).catch(() => {});
+
+  await db.followUp
+    .create({
+      data: { leadId: lead.id, dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000), type: "CALL", priority: "HIGH", notes: "Confirm repeat booking details" },
+    })
+    .catch(() => {});
+
+  revalidatePath("/leads");
+  revalidatePath(`/customers/${digits}`);
+  return { success: true as const, leadId: lead.id, leadNumber };
+}
