@@ -313,30 +313,39 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-  // Operations Manager (Shoyab): runs day-to-day operations end to end —
-  // leads, jobs (all of them), staff, vehicles, attendance, payments,
-  // expenses, revenue and operational reports, plus the AI assistant.
-  // NOT the profit dashboard, staff wages, company settings, backups or
-  // role management (those stay Admin-only, see permissions.ts).
-  // Operations Manager (Francis Monteiro): field operations end to end — jobs
-  // (all), staff, attendance, vehicles, AMC, customers, expenses and the AI
-  // assistant. NO security/device approvals, NO profit dashboard, NO user
-  // management, NO company settings.
+  // Operations Manager (Shoyab Kazi — 8956567130 — and Francis Monteiro):
+  // runs day-to-day operations end to end. Full daily-operations access —
+  // leads / CRM, jobs (all of them), quotations, booking forms, staff,
+  // vehicles, attendance, AMC, payments, expenses, customers, revenue &
+  // operational reports, plus the AI assistant. Every operational WhatsApp
+  // action (booking form, quotation, payment link, receipt, job confirmation,
+  // reminder) works from this role's own logged-in device.
+  // LOCKED (Super Admin only, hidden — no disabled buttons): company &
+  // security settings, payment-collection / UPI / QR / bank-account editing,
+  // user & role management, permission management, backups, deployments,
+  // system configuration, the profit dashboard, staff wages, the WhatsApp
+  // send log, trash / audit log / device & security approvals.
   OPERATIONS: [
     "dashboard",
+    "leads",
     "jobs",
     "staff",
     "vehicles",
     "attendance",
     "amc",
+    "payments",
     "expenses",
+    "revenue",
     "customers",
+    "reports",
     "assistant",
     "profile",
   ],
-  // Office Assistant (Shoyab): front-office CRM — leads, quotations, follow-ups,
+  // Office Assistant: front-office CRM only — leads, quotations, follow-ups,
   // customer records, payments (incl. MyBillBook attachments) and reports.
   // NO security, NO settings, NO profit dashboard, NO staff/attendance/vehicles.
+  // (No user currently holds this role — Shoyab was promoted to Operations
+  // Manager; kept here so the scope is ready if a CRM-only clerk is added.)
   ACCOUNTS: [
     "dashboard",
     "leads",

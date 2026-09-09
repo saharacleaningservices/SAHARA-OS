@@ -16,10 +16,10 @@ const loginSchema = z.object({
 });
 
 // Roles that require the Super Admin (Altaf) to approve every new device
-// before a session is issued — the two office managers, Francis (OPERATIONS)
-// and Shoyab (ACCOUNTS). Not ADMIN (Altaf approves himself), not
-// SUPERVISOR/STAFF (field devices, out of scope).
-const DEVICE_GATED_ROLES = new Set(["OPERATIONS", "ACCOUNTS"]);
+// before a session is issued — the Operations Manager (Shoyab, OPERATIONS),
+// the Field Coordinator (Francis, SUPERVISOR) and any future Office Assistant
+// (ACCOUNTS). Not ADMIN (Altaf approves himself), not plain STAFF.
+const DEVICE_GATED_ROLES = new Set(["OPERATIONS", "ACCOUNTS", "SUPERVISOR"]);
 const OTP_TTL_MINUTES = 15;
 
 export async function POST(request: NextRequest) {

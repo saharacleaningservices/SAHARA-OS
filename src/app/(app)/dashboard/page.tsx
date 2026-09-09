@@ -27,7 +27,7 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { FollowUpBoard } from "@/components/dashboard/followup-board";
 import { DashboardQuickActions } from "@/components/dashboard/dashboard-quick-actions";
 import { formatINR, formatDate } from "@/lib/utils";
-import { SERVICE_LABELS } from "@/lib/constants";
+import { SERVICE_LABELS, canAccess } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
@@ -48,6 +48,12 @@ export default async function DashboardPage() {
   const showRevenue = canViewRevenue(session.role);
   const showProfit = canViewFinancials(session.role);
   const showBackOffice = session.role === "ADMIN" || session.role === "OPERATIONS";
+  // Field roles (Field Coordinator / Field Staff) get a today/tomorrow
+  // operations-only dashboard — no CRM, staff or reports cards, since those
+  // sections are hidden from them entirely.
+  const showCrm = canAccess(session.role, "leads");
+  const showStaffCards = canAccess(session.role, "staff");
+  const showReportsCards = canAccess(session.role, "reports");
 
   return (
     <div className="space-y-6">
@@ -62,15 +68,23 @@ export default async function DashboardPage() {
           <DashboardQuickActions contacts={recentContacts} showPayments={showRevenue} />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-            <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
-            <StatCard href="/leads" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} tone="default" />
-            <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
+            {showCrm && (
+              <>
+                <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
+                <StatCard href="/leads" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} tone="default" />
+                <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
+              </>
+            )}
             <StatCard href="/jobs" label="Monthly Bookings" value={stats.monthlyBookingsCount} icon={<CalendarClock className="size-4" />} tone="primary" />
             <StatCard href="/jobs" label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
             <StatCard href="/jobs?when=today" label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone={stats.todaysJobsCount > 0 ? "primary" : "default"} />
             <StatCard href="/jobs" label="Upcoming Jobs" value={stats.upcomingJobsCount} icon={<CalendarClock className="size-4" />} />
-            <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} tone={stats.siteVisitsToday > 0 ? "primary" : "default"} />
-            <StatCard href="/leads?due=overdue" label="Overdue Follow-ups" value={followUpsOverdue.length} icon={<BellRing className="size-4" />} tone={followUpsOverdue.length > 0 ? "destructive" : "default"} />
+            {showCrm && (
+              <>
+                <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} tone={stats.siteVisitsToday > 0 ? "primary" : "default"} />
+                <StatCard href="/leads?due=overdue" label="Overdue Follow-ups" value={followUpsOverdue.length} icon={<BellRing className="size-4" />} tone={followUpsOverdue.length > 0 ? "destructive" : "default"} />
+              </>
+            )}
             {showRevenue && (
               <>
                 <StatCard href="/payments?filter=today" label="Today's Revenue" value={formatINR(stats.revenueToday)} icon={<TrendingUp className="size-4" />} tone={stats.revenueToday > 0 ? "success" : "default"} />
@@ -95,22 +109,33 @@ export default async function DashboardPage() {
                 <p className="text-xs text-muted-foreground">Today&apos;s Jobs</p>
                 <p className="text-xl font-semibold text-foreground">{stats.todaysJobsCount}</p>
               </Link>
-              <Link href="/payments?filter=pending" className={`rounded-lg border p-3 hover:border-primary/50 ${stats.pendingPaymentsTotal > 0 ? "border-warning/40 bg-warning/5" : "border-border"}`}>
-                <p className="text-xs text-muted-foreground">Pending Collection</p>
-                <p className="text-xl font-semibold text-foreground">{formatINR(stats.pendingPaymentsTotal)}</p>
-              </Link>
-              <Link href="/reports" className={`rounded-lg border p-3 hover:border-primary/50 ${stats.reviewsPendingCount > 0 ? "border-primary/40 bg-primary/5" : "border-border"}`}>
-                <p className="text-xs text-muted-foreground">Review Requests</p>
-                <p className="text-xl font-semibold text-foreground">{stats.reviewsPendingCount}</p>
-              </Link>
-              <Link href="/staff" className="rounded-lg border border-border p-3 hover:border-primary/50">
-                <p className="text-xs text-muted-foreground">Staff On Job</p>
-                <p className="text-xl font-semibold text-foreground">{stats.staffOnJobCount}</p>
-              </Link>
+              {showRevenue && (
+                <Link href="/payments?filter=pending" className={`rounded-lg border p-3 hover:border-primary/50 ${stats.pendingPaymentsTotal > 0 ? "border-warning/40 bg-warning/5" : "border-border"}`}>
+                  <p className="text-xs text-muted-foreground">Pending Collection</p>
+                  <p className="text-xl font-semibold text-foreground">{formatINR(stats.pendingPaymentsTotal)}</p>
+                </Link>
+              )}
+              {showReportsCards && (
+                <Link href="/reports" className={`rounded-lg border p-3 hover:border-primary/50 ${stats.reviewsPendingCount > 0 ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+                  <p className="text-xs text-muted-foreground">Review Requests</p>
+                  <p className="text-xl font-semibold text-foreground">{stats.reviewsPendingCount}</p>
+                </Link>
+              )}
+              {showStaffCards ? (
+                <Link href="/staff" className="rounded-lg border border-border p-3 hover:border-primary/50">
+                  <p className="text-xs text-muted-foreground">Staff On Job</p>
+                  <p className="text-xl font-semibold text-foreground">{stats.staffOnJobCount}</p>
+                </Link>
+              ) : (
+                <Link href="/jobs/dispatch" className="rounded-lg border border-border p-3 hover:border-primary/50">
+                  <p className="text-xs text-muted-foreground">Team Dispatch</p>
+                  <p className="text-xl font-semibold text-foreground">Route</p>
+                </Link>
+              )}
             </CardContent>
           </Card>
 
-          {followUpsOverdue.length > 0 && (
+          {showCrm && followUpsOverdue.length > 0 && (
             <Card className="border-destructive/30 bg-destructive/5">
               <CardContent className="flex items-center justify-between py-3">
                 <p className="text-sm font-medium text-destructive">🔴 {followUpsOverdue.length} overdue follow-up{followUpsOverdue.length > 1 ? "s" : ""}</p>
@@ -136,9 +161,15 @@ export default async function DashboardPage() {
         {showRevenue && (
           <StatCard href="/payments?filter=paid" label="Collections Today" value={stats.collectionsTodayCount} trendLabel="payments" icon={<IndianRupee className="size-4" />} />
         )}
-        <StatCard href="/reports" label="Reviews Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} />
-        <StatCard href="/staff" label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} />
-        <StatCard href="/staff" label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} />
+        {showReportsCards && (
+          <StatCard href="/reports" label="Reviews Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} />
+        )}
+        {showStaffCards && (
+          <>
+            <StatCard href="/staff" label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} />
+            <StatCard href="/staff" label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} />
+          </>
+        )}
         {showBackOffice && (
           <>
             <StatCard href="/vehicles" label="Vehicles Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} />
@@ -148,6 +179,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {showCrm && (
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle>Recent Leads</CardTitle>
@@ -179,6 +211,7 @@ export default async function DashboardPage() {
             )}
           </CardContent>
         </Card>
+        )}
 
         <Card>
           <CardHeader className="flex-row items-center justify-between space-y-0">
@@ -253,7 +286,9 @@ export default async function DashboardPage() {
           </Card>
         )}
 
-        <FollowUpBoard today={followUpsToday} tomorrow={followUpsTomorrow} overdue={followUpsOverdue} />
+        {showCrm && (
+          <FollowUpBoard today={followUpsToday} tomorrow={followUpsTomorrow} overdue={followUpsOverdue} />
+        )}
       </div>
     </div>
   );

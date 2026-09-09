@@ -562,18 +562,22 @@ addColumnIfMissing("Job", "serviceVariant", `"serviceVariant" TEXT`);
 console.log("Final go-live batch migration complete.");
 
 // ─────────────────────────────────────────────────────────────────────────
-// Final production access mapping (Master Prompt V1.0). Deterministic by
-// email → idempotent and safe to re-run. Login emails & passwords unchanged.
+// Final production access mapping. Deterministic by email → idempotent and
+// safe to re-run. Login emails & passwords unchanged.
 //   admin@       Altaf Shaikh      → ADMIN       (Super Admin, full access)
-//   operations@  Francis Monteiro  → OPERATIONS  (Operations Manager)
-//   accounts@    Shoyab Shaikh     → ACCOUNTS    (Office Assistant)
+//   operations@  Francis Monteiro  → SUPERVISOR  (Field Coordinator — moved
+//                                    2026-09-09 from OPERATIONS to field-only
+//                                    today/tomorrow operations access)
+//   accounts@    Shoyab Kazi       → OPERATIONS  (Operations Manager — promoted
+//                                    2026-09-09 from ACCOUNTS / Office Assistant
+//                                    to full daily-operations access)
 //   supervisor@  Suresh Pawar      → SUPERVISOR  (Field Coordinator)
 //   staff@       Vikas Shinde      → STAFF       (Field Staff)
 // ─────────────────────────────────────────────────────────────────────────
 const finalRoleMap = db.transaction(() => {
   const rows = [
-    ["operations@saharacleaningservices.com", "OPERATIONS", "Francis Monteiro"],
-    ["accounts@saharacleaningservices.com", "ACCOUNTS", "Shoyab Kazi"],
+    ["operations@saharacleaningservices.com", "SUPERVISOR", "Francis Monteiro"],
+    ["accounts@saharacleaningservices.com", "OPERATIONS", "Shoyab Kazi"],
     ["admin@saharacleaningservices.com", "ADMIN", "Altaf Shaikh"],
     ["supervisor@saharacleaningservices.com", "SUPERVISOR", null],
     ["staff@saharacleaningservices.com", "STAFF", null],
@@ -802,8 +806,8 @@ console.log("v1.2 advance-payments migration complete.");
 // deploy. Sets the login mobile number + a temporary password; each user is
 // then forced through /set-password on first login. Preserves all data.
 //   admin@       Altaf Shaikh     → 7083347130 / Sahara1  (Super Admin)
-//   operations@  Francis Monteiro → 8530207130 / Sahara2  (Operations Manager)
-//   accounts@    Shoyab Kazi      → 8956567130 / Sahara3  (Office Assistant)
+//   operations@  Francis Monteiro → 8530207130 / Sahara2  (Field Coordinator)
+//   accounts@    Shoyab Kazi      → 8956567130 / Sahara3  (Operations Manager)
 // ─────────────────────────────────────────────────────────────────────────
 {
   const alreadyDone = db
@@ -812,8 +816,8 @@ console.log("v1.2 advance-payments migration complete.");
   if (!alreadyDone) {
     const rows = [
       ["admin@saharacleaningservices.com", "7083347130", "Sahara1", "ADMIN", "Altaf Shaikh"],
-      ["operations@saharacleaningservices.com", "8530207130", "Sahara2", "OPERATIONS", "Francis Monteiro"],
-      ["accounts@saharacleaningservices.com", "8956567130", "Sahara3", "ACCOUNTS", "Shoyab Kazi"],
+      ["operations@saharacleaningservices.com", "8530207130", "Sahara2", "SUPERVISOR", "Francis Monteiro"],
+      ["accounts@saharacleaningservices.com", "8956567130", "Sahara3", "OPERATIONS", "Shoyab Kazi"],
     ];
     const apply = db.transaction(() => {
       // Free up any phone numbers about to be reassigned first.

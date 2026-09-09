@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
+import { JobNotesEditor } from "@/components/jobs/job-notes-editor";
 import { PhotoUploader } from "@/components/jobs/photo-uploader";
 import { VideoUploader } from "@/components/jobs/video-uploader";
 import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
@@ -204,12 +205,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <p className="text-xs text-muted-foreground">Address</p>
                   <p className="font-medium text-foreground">{job.address}</p>
                 </div>
-                {job.notes && (
-                  <div className="col-span-2 sm:col-span-3">
-                    <p className="text-xs text-muted-foreground">Notes</p>
-                    <p className="font-medium text-foreground">{job.notes}</p>
-                  </div>
-                )}
+              </div>
+              <div>
+                <p className="mb-1.5 text-xs text-muted-foreground">Notes / Remarks</p>
+                <JobNotesEditor jobId={job.id} notes={job.notes} />
               </div>
               <StatusActions jobId={job.id} status={job.status} />
             </CardContent>

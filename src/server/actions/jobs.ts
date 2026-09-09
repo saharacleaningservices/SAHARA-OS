@@ -342,6 +342,21 @@ export async function updateJobLocation(jobId: string, mapLink: string) {
   return { success: true as const };
 }
 
+/** Field-progress notes / remarks. Available to every role that can open the
+ * job (Field Coordinator included) — the full job edit form stays manager-only. */
+export async function updateJobNotes(jobId: string, notes: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" };
+  const trimmed = notes.trim();
+  if (trimmed.length > 2000) return { error: "Notes are too long (2000 characters max)" };
+  await db.job.update({ where: { id: jobId }, data: { notes: trimmed || null } });
+  await db.activityLog.create({
+    data: { jobId, actorId: session.sub, action: "Job notes updated" },
+  });
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true as const };
+}
+
 export async function assignVehicle(jobId: string, vehicleId: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };

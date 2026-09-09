@@ -106,7 +106,8 @@ async function main() {
     },
   });
 
-  // Francis Monteiro — Operations Manager (logs in with mobile 8530207130).
+  // Francis Monteiro — Field Coordinator / Field Operations (logs in with
+  // mobile 8530207130). Today + tomorrow jobs only; no CRM/payments/settings.
   const francis = await db.user.upsert({
     where: { email: "operations@saharacleaningservices.com" },
     update: {},
@@ -115,12 +116,13 @@ async function main() {
       email: "operations@saharacleaningservices.com",
       phone: "8530207130",
       passwordHash: await hash("operations@saharacleaningservices.com"),
-      role: "OPERATIONS",
+      role: "SUPERVISOR",
       mustChangePassword: true,
     },
   });
 
-  // Shoyab Kazi — Office Assistant (logs in with mobile 8956567130).
+  // Shoyab Kazi — Operations Manager (logs in with mobile 8956567130).
+  // Full daily-operations access (leads/CRM, jobs, payments, staff, etc.).
   const shoyab = await db.user.upsert({
     where: { email: "accounts@saharacleaningservices.com" },
     update: {},
@@ -129,7 +131,7 @@ async function main() {
       email: "accounts@saharacleaningservices.com",
       phone: "8956567130",
       passwordHash: await hash("accounts@saharacleaningservices.com"),
-      role: "ACCOUNTS",
+      role: "OPERATIONS",
       mustChangePassword: true,
     },
   });
