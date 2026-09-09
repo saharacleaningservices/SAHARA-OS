@@ -86,6 +86,7 @@ export const ModelName = {
   Invoice: 'Invoice',
   JobVideo: 'JobVideo',
   IntegrationSettings: 'IntegrationSettings',
+  SmsMessage: 'SmsMessage',
   SecurityOtp: 'SecurityOtp',
   Notification: 'Notification',
   PushSubscription: 'PushSubscription'
@@ -776,11 +777,34 @@ export const IntegrationSettingsScalarFieldEnum = {
   backupToken: 'backupToken',
   gdriveFolderId: 'gdriveFolderId',
   backupVerifiedAt: 'backupVerifiedAt',
+  smsProvider: 'smsProvider',
+  smsApiKey: 'smsApiKey',
+  smsSenderId: 'smsSenderId',
+  smsEndpoint: 'smsEndpoint',
+  smsVerifiedAt: 'smsVerifiedAt',
   updatedAt: 'updatedAt',
   updatedBy: 'updatedBy'
 } as const
 
 export type IntegrationSettingsScalarFieldEnum = (typeof IntegrationSettingsScalarFieldEnum)[keyof typeof IntegrationSettingsScalarFieldEnum]
+
+
+export const SmsMessageScalarFieldEnum = {
+  id: 'id',
+  toNumber: 'toNumber',
+  toName: 'toName',
+  body: 'body',
+  kind: 'kind',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  relatedType: 'relatedType',
+  relatedId: 'relatedId',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt'
+} as const
+
+export type SmsMessageScalarFieldEnum = (typeof SmsMessageScalarFieldEnum)[keyof typeof SmsMessageScalarFieldEnum]
 
 
 export const SecurityOtpScalarFieldEnum = {

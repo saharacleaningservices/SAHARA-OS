@@ -203,6 +203,11 @@ export type JobVideo = Prisma.JobVideoModel
  */
 export type IntegrationSettings = Prisma.IntegrationSettingsModel
 /**
+ * Model SmsMessage
+ * 
+ */
+export type SmsMessage = Prisma.SmsMessageModel
+/**
  * Model SecurityOtp
  * 
  */

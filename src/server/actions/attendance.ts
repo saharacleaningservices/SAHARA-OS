@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { sendWhatsApp } from "@/lib/whatsapp";
+import { sendSMS } from "@/lib/sms";
 import { staffAttendanceMessage } from "@/lib/whatsapp-templates";
 import {
   checkIn,
@@ -52,7 +53,10 @@ async function notifyStaffAttendance(staffId: string, status: string, when: Date
     advance: ledger.advanceTotal,
     runningSalary: ledger.runningSalary,
   });
-  await sendWhatsApp({ kind: "ATTENDANCE_SUMMARY", toNumber: staff.mobile, toName: staff.name, body, relatedType: "Staff", relatedId: staffId });
+  // KhataBook-style — WhatsApp first, SMS as the fallback. Both queue and
+  // flush automatically once their gateway credentials are saved.
+  await sendWhatsApp({ kind: "ATTENDANCE_SUMMARY", toNumber: staff.mobile, toName: staff.name, body, relatedType: "Staff", relatedId: staffId }).catch(() => {});
+  await sendSMS({ kind: "ATTENDANCE", toNumber: staff.mobile, toName: staff.name, body, relatedType: "Staff", relatedId: staffId }).catch(() => {});
 }
 
 function bump() {

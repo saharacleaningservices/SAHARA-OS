@@ -1062,8 +1062,37 @@ model IntegrationSettings {
   gdriveFolderId   String?
   backupVerifiedAt DateTime?
 
+  // SMS gateway (fallback channel for staff notifications + review requests).
+  // apiKey encrypted at rest. provider is a free-text label (MSG91 / Twilio /
+  // Fast2SMS / …); the send call is a generic HTTPS POST — see src/lib/sms.ts.
+  smsProvider     String?
+  smsApiKey       String?
+  smsSenderId     String?
+  smsEndpoint     String?
+  smsVerifiedAt   DateTime?
+
   updatedAt DateTime @updatedAt
   updatedBy String?
+}
+
+// Every SMS the app sends (staff attendance, review requests, reminders).
+// Queued when no gateway is configured; flushed automatically once creds land.
+model SmsMessage {
+  id          String   @id @default(cuid())
+  toNumber    String
+  toName      String?
+  body        String
+  kind        String   @default("OTHER")
+  status      String   @default("QUEUED") // QUEUED | SENT | FAILED
+  attempts    Int      @default(0)
+  error       String?
+  relatedType String?
+  relatedId   String?
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────────────────

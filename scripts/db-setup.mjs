@@ -954,4 +954,32 @@ console.log("v3.1 batch-8 (customer master) migration complete.");
 addColumnIfMissing("CompanySettings", "bankBalance", `"bankBalance" REAL`);
 console.log("v3.1 batch-9 (owner dashboard) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 10: SMS gateway + delivery log + missed-call lead.
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("IntegrationSettings", "smsProvider", `"smsProvider" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsApiKey", `"smsApiKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsSenderId", `"smsSenderId" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsEndpoint", `"smsEndpoint" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsVerifiedAt", `"smsVerifiedAt" DATETIME`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "SmsMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "toNumber" TEXT NOT NULL,
+    "toName" TEXT,
+    "body" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'OTHER',
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "error" TEXT,
+    "relatedType" TEXT,
+    "relatedId" TEXT,
+    "sentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_status_idx" ON "SmsMessage"("status");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_createdAt_idx" ON "SmsMessage"("createdAt");`);
+console.log("v3.1 batch-10 (sms gateway) migration complete.");
+
 db.close();

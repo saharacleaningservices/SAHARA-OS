@@ -33,6 +33,11 @@ export type IntegrationSettingsRow = {
   backupToken: string | null;
   gdriveFolderId: string | null;
   backupVerifiedAt: Date | null;
+  smsProvider: string | null;
+  smsApiKey: string | null;
+  smsSenderId: string | null;
+  smsEndpoint: string | null;
+  smsVerifiedAt: Date | null;
   updatedAt: Date;
   updatedBy: string | null;
 };
@@ -80,6 +85,15 @@ export type ResolvedIntegrations = {
     gdriveFolderId: string | null;
     verifiedAt: Date | null;
   };
+  sms: {
+    configured: boolean;
+    source: Source;
+    provider: string | null;
+    apiKey: string | null;
+    senderId: string | null;
+    endpoint: string | null;
+    verifiedAt: Date | null;
+  };
 };
 
 /** Fully resolved + decrypted config for server-side use only. */
@@ -113,6 +127,13 @@ export async function getResolvedIntegrations(): Promise<ResolvedIntegrations> {
   const backupToken = backupTokenDb || backupTokenEnv;
   const backupSource: Source = !backupToken ? null : backupTokenDb ? "db" : "env";
 
+  const smsKeyDb = decryptSecret(row.smsApiKey);
+  const smsKeyEnv = process.env.SMS_API_KEY || null;
+  const smsApiKey = smsKeyDb || smsKeyEnv;
+  const smsEndpoint = row.smsEndpoint || process.env.SMS_ENDPOINT || null;
+  const smsConfigured = Boolean(smsApiKey && smsEndpoint);
+  const smsSource: Source = !smsConfigured ? null : smsKeyDb ? "db" : "env";
+
   return {
     whatsapp: {
       configured: waConfigured,
@@ -142,6 +163,15 @@ export async function getResolvedIntegrations(): Promise<ResolvedIntegrations> {
       tokenSource: backupSource,
       gdriveFolderId: row.gdriveFolderId || process.env.GDRIVE_FOLDER_ID || null,
       verifiedAt: row.backupVerifiedAt,
+    },
+    sms: {
+      configured: smsConfigured,
+      source: smsSource,
+      provider: row.smsProvider || process.env.SMS_PROVIDER || null,
+      apiKey: smsApiKey,
+      senderId: row.smsSenderId || process.env.SMS_SENDER_ID || null,
+      endpoint: smsEndpoint,
+      verifiedAt: row.smsVerifiedAt,
     },
   };
 }

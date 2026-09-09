@@ -2,42 +2,70 @@ import { PageHeader } from "@/components/shared/page-header";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { isWhatsAppReady } from "@/lib/whatsapp";
+import { isSmsReady } from "@/lib/sms";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { formatDateTime } from "@/lib/utils";
 import { Info } from "lucide-react";
 
-export default async function WhatsAppLogPage() {
+export default async function MessageLogPage() {
   await requireRole(["ADMIN"]);
-  const [configured, messages] = await Promise.all([
+  const [waReady, smsReady, waMsgs, smsMsgs] = await Promise.all([
     isWhatsAppReady(),
+    isSmsReady(),
     db.whatsAppMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
+    db.smsMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }).catch(() => []),
   ]);
+
+  const rows = [
+    ...waMsgs.map((m) => ({
+      id: m.id,
+      channel: "WhatsApp",
+      createdAt: m.createdAt,
+      kind: m.kind,
+      to: `${m.toName ? `${m.toName} · ` : ""}${m.toNumber}`,
+      body: m.body,
+      status: m.status,
+      error: m.errorMessage ?? null,
+    })),
+    ...smsMsgs.map((m) => ({
+      id: m.id,
+      channel: "SMS",
+      createdAt: m.createdAt,
+      kind: m.kind,
+      to: `${m.toName ? `${m.toName} · ` : ""}${m.toNumber}`,
+      body: m.body,
+      status: m.status,
+      error: m.error ?? null,
+    })),
+  ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
     <div className="space-y-6">
-      <PageHeader title="WhatsApp Log" description="Every automated WhatsApp message the CRM has sent or queued" />
+      <PageHeader title="Message Log" description="Every automated WhatsApp & SMS message the CRM has sent or queued" />
 
-      {!configured && (
+      {(!waReady || !smsReady) && (
         <div className="flex gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
           <Info className="mt-0.5 size-4 shrink-0" />
           <p>
-            <span className="font-medium">WhatsApp Cloud API isn&apos;t connected yet</span> — messages below are
-            queued, not sent. Add your access token and phone number ID in{" "}
-            <a href="/settings" className="font-medium text-primary hover:underline">Settings → Integrations</a> to
-            start sending — the whole queue flushes automatically the moment you save, no code change needed.
+            {!waReady && <>WhatsApp Cloud API not connected. </>}
+            {!smsReady && <>SMS gateway not connected. </>}
+            Queued messages flush automatically the moment credentials are saved in{" "}
+            <a href="/settings" className="font-medium text-primary hover:underline">Settings → Integrations</a> —
+            no code change needed. Failed sends are retried by the daily cron.
           </p>
         </div>
       )}
 
-      {messages.length === 0 ? (
-        <EmptyState title="No WhatsApp messages yet" />
+      {rows.length === 0 ? (
+        <EmptyState title="No messages yet" />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>When</TableHead>
+              <TableHead>Channel</TableHead>
               <TableHead>Kind</TableHead>
               <TableHead>To</TableHead>
               <TableHead>Message</TableHead>
@@ -45,13 +73,14 @@ export default async function WhatsAppLogPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {messages.map((m) => (
-              <TableRow key={m.id}>
+            {rows.map((m) => (
+              <TableRow key={`${m.channel}-${m.id}`}>
                 <TableCell className="whitespace-nowrap text-sm">{formatDateTime(m.createdAt)}</TableCell>
-                <TableCell className="text-sm">{m.kind.replaceAll("_", " ")}</TableCell>
                 <TableCell className="text-sm">
-                  {m.toName ? `${m.toName} · ` : ""}{m.toNumber}
+                  <Badge variant={m.channel === "WhatsApp" ? "success" : "muted"}>{m.channel}</Badge>
                 </TableCell>
+                <TableCell className="text-sm">{m.kind.replaceAll("_", " ")}</TableCell>
+                <TableCell className="text-sm">{m.to}</TableCell>
                 <TableCell className="max-w-md truncate text-sm text-muted-foreground" title={m.body}>
                   {m.body}
                 </TableCell>
@@ -59,7 +88,7 @@ export default async function WhatsAppLogPage() {
                   <Badge variant={m.status === "SENT" ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>
                     {m.status}
                   </Badge>
-                  {m.errorMessage && <p className="mt-1 text-xs text-destructive">{m.errorMessage}</p>}
+                  {m.error && <p className="mt-1 max-w-[200px] truncate text-xs text-destructive" title={m.error}>{m.error}</p>}
                 </TableCell>
               </TableRow>
             ))}

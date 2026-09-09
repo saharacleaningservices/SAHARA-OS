@@ -14,6 +14,7 @@ const PUBLIC_PATHS = [
   "/api/backup",
   "/api/cron",
   "/api/booking-link",
+  "/api/webhook",
   "/book",
   "/j/",
 ];
