@@ -43,10 +43,9 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <CallButton mobile={mobile} />
             <WhatsAppButton mobile={mobile} />
             <SendBookingFormButton name={name} mobile={mobile} leadId={leads[0]?.id} />
+            <SendBookingFormButton name={name} mobile={mobile} leadId={leads[0]?.id} kind="PAYMENT" />
+            <SendBookingFormButton name={name} mobile={mobile} leadId={leads[0]?.id} kind="REVIEW" />
             {(jobs.length > 0 || master) && <RepeatBookingButton mobile={mobile} />}
-            {jobs.some((j) => j.status === "COMPLETED") && (
-              <SendBookingFormButton name={name} mobile={mobile} kind="REVIEW" />
-            )}
           </>
         }
       />

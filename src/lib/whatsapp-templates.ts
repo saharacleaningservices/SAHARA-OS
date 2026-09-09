@@ -253,6 +253,20 @@ export function reviewRequestMessage(input: {
   return `Hi ${input.customerName}, thank you for choosing ${COMPANY.name} for your ${input.service}! We hope you're happy with the work. See your before/after photos + refer & earn code here: https://app.saharacleaningservices.com/j/${input.jobNumber}${link}\n\nCall us on ${COMPANY.phones[0]} for anything you need.`;
 }
 
+/** Day-3 gentle nudge in the review sequence (stops once a review is received). */
+export function reviewReminderMessage(input: { customerName: string; googleReviewUrl: string | null }) {
+  const link = input.googleReviewUrl
+    ? ` ${input.googleReviewUrl}`
+    : "";
+  return [
+    `Hi ${input.customerName}, hope everything's been great since your ${COMPANY.name} service! 🌟`,
+    ``,
+    `If you have 30 seconds, a quick Google review would mean a lot to our team:${link}`,
+    ``,
+    `Thank you! — ${COMPANY.name}. Call ${COMPANY.phones[0]} if anything needs attention.`,
+  ].join("\n");
+}
+
 export function bookingFormMessage(input: { customerName: string; url: string }) {
   return [
     `Hi ${input.customerName}, book your cleaning service with ${COMPANY.name} in a few taps 👇`,
@@ -261,6 +275,36 @@ export function bookingFormMessage(input: { customerName: string; url: string })
     ``,
     `Your name & number are already filled in — just pick the service, date and time.`,
     `Questions? Call/WhatsApp ${COMPANY.phones[0]}.`,
+  ].join("\n");
+}
+
+export function galleryShareMessage(input: { customerName: string }) {
+  return [
+    `Hi ${input.customerName}, take a look at our recent work at ${COMPANY.name} — before & after photos and videos 👇`,
+    ``,
+    GALLERY_PUBLIC_URL,
+    ``,
+    `Like what you see? Call/WhatsApp ${COMPANY.phones[0]} to book your service.`,
+  ].join("\n");
+}
+
+export function paymentOptionsMessage(input: { customerName: string; upiId?: string | null; upiQrUrl?: string | null; bankName?: string | null; bankAccountName?: string | null; bankAccountNumber?: string | null; bankIfsc?: string | null }) {
+  const pay: string[] = [];
+  if (input.upiId) pay.push(`UPI: ${input.upiId}`);
+  if (input.upiQrUrl) pay.push(`Scan QR: ${input.upiQrUrl}`);
+  if (input.bankAccountNumber) {
+    pay.push(
+      `Bank Transfer:\n  ${input.bankAccountName ?? COMPANY.name}\n  A/C ${input.bankAccountNumber}` +
+        (input.bankIfsc ? `\n  IFSC ${input.bankIfsc}` : "") +
+        (input.bankName ? `\n  ${input.bankName}` : ""),
+    );
+  }
+  return [
+    `Hi ${input.customerName}, here are the payment options for ${COMPANY.name}:`,
+    ``,
+    pay.length ? pay.join("\n") : `Our team will share the exact amount and payment details shortly.`,
+    ``,
+    `Please share the payment screenshot once done. Call ${COMPANY.phones[0]} for any help.`,
   ].join("\n");
 }
 

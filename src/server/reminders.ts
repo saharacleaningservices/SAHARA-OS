@@ -6,7 +6,13 @@
 import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { sendWhatsApp } from "@/lib/whatsapp";
-import { customerReminderMessage, paymentReminderWhatsAppMessage, amcRenewalMessage } from "@/lib/whatsapp-templates";
+import {
+  customerReminderMessage,
+  paymentReminderWhatsAppMessage,
+  amcRenewalMessage,
+  reviewRequestMessage,
+  reviewReminderMessage,
+} from "@/lib/whatsapp-templates";
 import { computePaymentStatus } from "@/lib/payment-status";
 
 function startOfDay(d: Date) {
@@ -176,12 +182,133 @@ export async function sweepDueFollowUpNotifications() {
   return { sent, checked: due.length };
 }
 
+/**
+ * Review campaign: Day 1 "Google review please" and Day 3 gentle reminder
+ * after a job is completed. The sequence STOPS the moment a Review row exists
+ * for that customer (dated after the job completed) — never nags a customer
+ * who has already reviewed. WhatsApp + SMS, one message per tier per job.
+ */
+export async function sweepReviewCampaign() {
+  const { sendSMS } = await import("@/lib/sms");
+  const now = new Date();
+  const windowStart = addDays(startOfDay(now), -4);
+
+  const jobs = await db.job.findMany({
+    where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: windowStart, lte: now } },
+  });
+  const settings = await db.companySettings.findUnique({ where: { id: "default" } });
+  const reviewUrl = settings?.googleReviewUrl ?? null;
+
+  let sent = 0;
+  for (const job of jobs) {
+    if (!job.completedAt) continue;
+    const daysSince = Math.floor((startOfDay(now).getTime() - startOfDay(job.completedAt).getTime()) / 86400000);
+    const tier = daysSince === 1 ? "D1" : daysSince === 3 ? "D3" : null;
+    if (!tier) continue;
+
+    // Stop the sequence once the customer has left a review.
+    const reviewed = await db.review.findFirst({
+      where: { customerMobile: job.customerMobile, createdAt: { gte: job.completedAt } },
+    });
+    if (reviewed) continue;
+
+    const marker = `RC_${tier}`;
+    const already = await db.whatsAppMessage.findFirst({
+      where: { kind: "REVIEW_CAMPAIGN", relatedType: "Job", relatedId: job.id, body: { contains: marker } },
+    });
+    if (already) continue;
+
+    const body =
+      `${marker} ` +
+      (tier === "D1"
+        ? reviewRequestMessage({
+            customerName: job.customerName,
+            service: SERVICE_LABELS[job.service] ?? job.service,
+            googleReviewUrl: reviewUrl,
+            jobNumber: job.jobNumber,
+          })
+        : reviewReminderMessage({ customerName: job.customerName, googleReviewUrl: reviewUrl }));
+
+    await sendWhatsApp({
+      kind: "REVIEW_CAMPAIGN",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      body,
+      relatedType: "Job",
+      relatedId: job.id,
+    }).catch(() => {});
+    await sendSMS({
+      kind: "REVIEW",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      body,
+      relatedType: "Job",
+      relatedId: job.id,
+    }).catch(() => {});
+    sent += 1;
+  }
+  return { sent, checked: jobs.length };
+}
+
+/**
+ * Automatic review request ~2 hours after a payment is fully collected — for
+ * jobs where the completion-time review request never went out (e.g. payment
+ * collected later). One per job; skipped if the customer already reviewed.
+ */
+export async function sweepPostPaymentReview() {
+  const now = new Date();
+  const from = new Date(now.getTime() - 24 * 3600 * 1000);
+  const until = new Date(now.getTime() - 2 * 3600 * 1000);
+
+  const payments = await db.payment.findMany({
+    where: { deletedAt: null, status: "PAID", jobId: { not: null }, paidDate: { gte: from, lte: until } },
+  });
+
+  const settings = await db.companySettings.findUnique({ where: { id: "default" } });
+  const reviewUrl = settings?.googleReviewUrl ?? null;
+
+  let sent = 0;
+  for (const p of payments) {
+    if (!p.jobId) continue;
+    const already = await db.whatsAppMessage.findFirst({
+      where: { kind: { in: ["REVIEW_REQUEST", "REVIEW_CAMPAIGN"] }, relatedType: "Job", relatedId: p.jobId },
+    });
+    if (already) continue;
+
+    const job = await db.job.findUnique({ where: { id: p.jobId } });
+    if (!job || job.deletedAt) continue;
+
+    const reviewed = await db.review.findFirst({
+      where: { customerMobile: job.customerMobile, createdAt: { gte: p.paidDate ?? from } },
+    });
+    if (reviewed) continue;
+
+    await sendWhatsApp({
+      kind: "REVIEW_REQUEST",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      body: reviewRequestMessage({
+        customerName: job.customerName,
+        service: SERVICE_LABELS[job.service] ?? job.service,
+        googleReviewUrl: reviewUrl,
+        jobNumber: job.jobNumber,
+      }),
+      relatedType: "Job",
+      relatedId: job.id,
+    }).catch(() => {});
+    sent += 1;
+  }
+  return { sent, checked: payments.length };
+}
+
 export async function runAllReminderSweeps() {
-  const [customer, payment, amc, followUps] = await Promise.all([
+  const [customer, payment, amc, followUps, reviewCampaign, postPaymentReview] = await Promise.all([
     sweepCustomerReminders(),
     sweepPaymentReminders(),
     sweepAmcRenewalReminders(),
     sweepDueFollowUpNotifications(),
+    sweepReviewCampaign(),
+    sweepPostPaymentReview(),
   ]);
-  return { customer, payment, amc, followUps };
+  return { customer, payment, amc, followUps, reviewCampaign, postPaymentReview };
 }

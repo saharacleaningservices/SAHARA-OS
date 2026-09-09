@@ -3,16 +3,26 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Send, MessageCircle, ListChecks } from "lucide-react";
+import { Loader2, Send, MessageCircle, ListChecks, IndianRupee, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createBookingLink } from "@/server/actions/booking-links";
 
-type Kind = "BOOKING_FORM" | "FOLLOWUP" | "REVIEW";
+type Kind = "BOOKING_FORM" | "FOLLOWUP" | "REVIEW" | "PAYMENT" | "GALLERY";
 
 const LABEL: Record<Kind, string> = {
   BOOKING_FORM: "Send Booking Form",
   FOLLOWUP: "Send Follow-up",
-  REVIEW: "Send Review Request",
+  REVIEW: "Send Review Link",
+  PAYMENT: "Send Payment Link",
+  GALLERY: "Send Gallery",
+};
+
+const ICON: Record<Kind, typeof Send> = {
+  BOOKING_FORM: Send,
+  FOLLOWUP: Send,
+  REVIEW: ListChecks,
+  PAYMENT: IndianRupee,
+  GALLERY: Images,
 };
 
 export function SendBookingFormButton({
@@ -63,7 +73,7 @@ export function SendBookingFormButton({
 
   return (
     <Button variant={variant} size={size} onClick={send} disabled={pending}>
-      {pending ? <Loader2 className="size-3.5 animate-spin" /> : kind === "REVIEW" ? <ListChecks className="size-3.5" /> : <Send className="size-3.5" />}
+      {pending ? <Loader2 className="size-3.5 animate-spin" /> : (() => { const I = ICON[kind]; return <I className="size-3.5" />; })()}
       {LABEL[kind]}
     </Button>
   );

@@ -4,12 +4,13 @@ import { AttendanceList } from "@/components/attendance/attendance-list";
 import { AttendanceMonthlySummary } from "@/components/attendance/monthly-summary";
 import { MonthlyAttendanceCalendar } from "@/components/attendance/monthly-attendance-calendar";
 import { OfficeAttendanceClock } from "@/components/attendance/office-attendance-clock";
+import { MyAttendanceCard } from "@/components/attendance/my-attendance-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollText } from "lucide-react";
 import { requireUser } from "@/lib/current-user";
 import { canManageAttendance, canViewSalary } from "@/lib/permissions";
-import { listTodayAttendanceAll, getMonthlyLedgerForAllStaff, getMonthMatrix } from "@/server/attendance";
+import { listTodayAttendanceAll, getMonthlyLedgerForAllStaff, getMonthMatrix, getMyStaffLedger } from "@/server/attendance";
 import { db } from "@/lib/db";
 
 export default async function AttendancePage({
@@ -35,10 +36,11 @@ export default async function AttendancePage({
 
   const selectedId = staffParam && staffList.some((s) => s.id === staffParam) ? staffParam : staffList[0]?.id;
 
-  const [all, monthly, matrix] = await Promise.all([
+  const [all, monthly, matrix, myLedger] = await Promise.all([
     listTodayAttendanceAll(),
     canManage ? getMonthlyLedgerForAllStaff(year, month) : Promise.resolve([]),
     canManage && selectedId ? getMonthMatrix(selectedId, year, month) : Promise.resolve(null),
+    getMyStaffLedger(session.sub, year, month),
   ]);
 
   return (
@@ -57,6 +59,8 @@ export default async function AttendancePage({
 
       {/* Office clock — Altaf / Shoaib / Francis */}
       <OfficeAttendanceClock rows={all} staff={staffList} />
+
+      {myLedger && <MyAttendanceCard ledger={myLedger} />}
 
       {(canManage || isFieldCoordinator) && (
         <div className="space-y-3">

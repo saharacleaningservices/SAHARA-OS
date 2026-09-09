@@ -53,6 +53,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             <CallButton mobile={lead.mobile} />
             <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
             <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} />
+            <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} kind="REVIEW" />
             <ScheduleVisitDialog leadId={lead.id} />
             <SendPaymentLinkButton
               mobile={lead.whatsapp || lead.mobile}

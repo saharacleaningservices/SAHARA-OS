@@ -6,14 +6,20 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { sendSMS } from "@/lib/sms";
-import { bookingFormMessage, followUpNudgeMessage, reviewRequestMessage } from "@/lib/whatsapp-templates";
+import {
+  bookingFormMessage,
+  followUpNudgeMessage,
+  reviewRequestMessage,
+  galleryShareMessage,
+  paymentOptionsMessage,
+} from "@/lib/whatsapp-templates";
 import { getCompanySettings } from "@/server/settings";
 import { addTimelineEntry } from "@/server/timeline";
 import { toWhatsAppLink } from "@/lib/utils";
 
 const BASE = "https://app.saharacleaningservices.com";
 
-type Kind = "BOOKING_FORM" | "FOLLOWUP" | "REVIEW";
+type Kind = "BOOKING_FORM" | "FOLLOWUP" | "REVIEW" | "PAYMENT" | "GALLERY";
 
 function bookUrl(token: string, name: string, mobile: string) {
   const q = new URLSearchParams({ bl: token, customer: name, phone: mobile });
@@ -60,10 +66,22 @@ export async function createBookingLink(input: {
       customerName: name,
       service: "cleaning service",
       googleReviewUrl: settings.googleReviewUrl ?? null,
-      jobNumber: input.jobId ? "" : "",
+      jobNumber: "",
     });
   } else if (kind === "FOLLOWUP") {
     text = followUpNudgeMessage({ customerName: name, url: bookUrl(token, name, mobile) });
+  } else if (kind === "GALLERY") {
+    text = galleryShareMessage({ customerName: name });
+  } else if (kind === "PAYMENT") {
+    text = paymentOptionsMessage({
+      customerName: name,
+      upiId: settings.upiId ?? null,
+      upiQrUrl: settings.upiQrUrl ?? null,
+      bankName: settings.bankName ?? null,
+      bankAccountName: settings.bankAccountName ?? null,
+      bankAccountNumber: settings.bankAccountNumber ?? null,
+      bankIfsc: settings.bankIfsc ?? null,
+    });
   } else {
     text = bookingFormMessage({ customerName: name, url: bookUrl(token, name, mobile) });
   }
@@ -88,7 +106,16 @@ export async function createBookingLink(input: {
   }).catch(() => {});
 
   if (input.leadId) {
-    const label = kind === "REVIEW" ? "Review request sent" : kind === "FOLLOWUP" ? "Follow-up sent" : "Booking Form Sent";
+    const label =
+      kind === "REVIEW"
+        ? "Review request sent"
+        : kind === "FOLLOWUP"
+          ? "Follow-up sent"
+          : kind === "PAYMENT"
+            ? "Payment options sent"
+            : kind === "GALLERY"
+              ? "Before/After gallery sent"
+              : "Booking Form Sent";
     await addTimelineEntry({
       leadId: input.leadId,
       type: "SYSTEM",
@@ -97,7 +124,7 @@ export async function createBookingLink(input: {
   }
 
   // 24h follow-up so a sent form is never forgotten.
-  if (kind !== "REVIEW" && input.leadId) {
+  if ((kind === "BOOKING_FORM" || kind === "FOLLOWUP") && input.leadId) {
     await db.followUp
       .create({
         data: {
