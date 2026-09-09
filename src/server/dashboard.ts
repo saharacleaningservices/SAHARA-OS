@@ -136,6 +136,10 @@ export async function getDashboardData() {
   const profitTrend = lastNetProfit !== 0 ? Math.round(((netProfit - lastNetProfit) / Math.abs(lastNetProfit)) * 100) : 0;
 
   const pendingPaymentsTotal = (pendingPaymentsAgg._sum.amount ?? 0) - (pendingPaymentsAgg._sum.paidAmount ?? 0);
+  const collectionRate =
+    monthlyRevenue + pendingPaymentsTotal > 0
+      ? Math.round((monthlyRevenue / (monthlyRevenue + pendingPaymentsTotal)) * 100)
+      : 0;
 
   // Recent contacts for the dashboard "Quick Call" tool.
   const [recentLeadContacts, recentJobContacts] = await Promise.all([
@@ -183,6 +187,7 @@ export async function getDashboardData() {
       revenueToday: collectionsTodayAgg._sum.paidAmount ?? 0,
       collectionsTodayCount: collectionsTodayAgg._count,
       monthlyRevenue,
+      collectionRate,
       netProfit,
       staffAvailableCount,
       staffOnJobCount,

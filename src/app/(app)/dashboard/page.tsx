@@ -4,6 +4,7 @@ import {
   MapPin,
   ClipboardList,
   CalendarClock,
+  CalendarRange,
   Wallet,
   TrendingUp,
   PiggyBank,
@@ -14,7 +15,6 @@ import {
   Star,
   BellRing,
   ArrowRight,
-  IndianRupee,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
 import { PageHeader } from "@/components/shared/page-header";
@@ -36,7 +36,6 @@ export default async function DashboardPage() {
   const {
     stats,
     recentLeads,
-    recentContacts,
     todaysJobs,
     overduePayments,
     followUpsToday,
@@ -65,35 +64,49 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* ── Operational quick actions + KPIs ─────────────────── */}
         <div className="space-y-4 lg:col-span-2">
-          <DashboardQuickActions contacts={recentContacts} showPayments={showRevenue} />
+          <DashboardQuickActions />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
             {showCrm && (
               <>
-                <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="primary" />
-                <StatCard href="/leads" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} tone="default" />
-                <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<Users className="size-4" />} />
+                <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="blue" />
+                <StatCard href="/leads?due=today" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} tone="blue" />
+                <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
               </>
             )}
-            <StatCard href="/jobs" label="Monthly Bookings" value={stats.monthlyBookingsCount} icon={<CalendarClock className="size-4" />} tone="primary" />
-            <StatCard href="/jobs" label="Active Jobs" value={stats.activeJobsCount} icon={<ClipboardList className="size-4" />} />
-            <StatCard href="/jobs?when=today" label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone={stats.todaysJobsCount > 0 ? "primary" : "default"} />
-            <StatCard href="/jobs" label="Upcoming Jobs" value={stats.upcomingJobsCount} icon={<CalendarClock className="size-4" />} />
+            <StatCard href="/jobs?when=today" label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone="blue" glow={stats.todaysJobsCount > 0} />
+            <StatCard href="/jobs?when=tomorrow" label="Tomorrow's Jobs" value={stats.tomorrowsJobsCount} icon={<CalendarClock className="size-4" />} tone="blue" />
+            <StatCard href="/jobs" label="Monthly Jobs" value={stats.monthlyBookingsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
             {showCrm && (
-              <>
-                <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} tone={stats.siteVisitsToday > 0 ? "primary" : "default"} />
-                <StatCard href="/leads?due=overdue" label="Overdue Follow-ups" value={followUpsOverdue.length} icon={<BellRing className="size-4" />} tone={followUpsOverdue.length > 0 ? "destructive" : "default"} />
-              </>
+              <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} tone="indigo" glow={stats.siteVisitsToday > 0} />
             )}
             {showRevenue && (
               <>
-                <StatCard href="/payments?filter=today" label="Today's Revenue" value={formatINR(stats.revenueToday)} icon={<TrendingUp className="size-4" />} tone={stats.revenueToday > 0 ? "success" : "default"} />
-                <StatCard href="/payments?filter=pending" label="Pending Collection" value={formatINR(stats.pendingPaymentsTotal)} icon={<Wallet className="size-4" />} tone={stats.pendingPaymentsTotal > 0 ? "warning" : "default"} />
-                <StatCard href="/revenue" label="Monthly Revenue" value={formatINR(stats.monthlyRevenue)} trend={stats.revenueTrend} icon={<Wallet className="size-4" />} tone="primary" />
+                <StatCard href="/payments?filter=today" label="Today's Revenue" value={formatINR(stats.revenueToday)} icon={<TrendingUp className="size-4" />} tone="green" />
+                <StatCard href="/revenue" label="Monthly Revenue" value={formatINR(stats.monthlyRevenue)} trend={stats.revenueTrend} trendLabel={`${stats.collectionRate}% collected`} icon={<Wallet className="size-4" />} tone="green" />
+                <StatCard href="/payments?filter=pending" label="Pending Collection" value={formatINR(stats.pendingPaymentsTotal)} icon={<Wallet className="size-4" />} tone="orange" glow={stats.pendingPaymentsTotal > 0} />
+              </>
+            )}
+            {showReportsCards && (
+              <StatCard href="/reports" label="Review Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} tone="orange" />
+            )}
+            {showCrm && (
+              <StatCard href="/leads?due=overdue" label="Overdue Follow-ups" value={followUpsOverdue.length} icon={<BellRing className="size-4" />} tone="red" glow={followUpsOverdue.length > 0} />
+            )}
+            {showStaffCards && (
+              <>
+                <StatCard href="/staff" label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} tone="purple" />
+                <StatCard href="/staff" label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} tone="teal" />
+              </>
+            )}
+            {showBackOffice && (
+              <>
+                <StatCard href="/vehicles" label="Vehicle Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} tone="indigo" />
+                <StatCard href="/amc" label="Upcoming AMC" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} tone="gold" />
               </>
             )}
             {showProfit && (
-              <StatCard href="/profit" label="Net Profit (month)" value={formatINR(stats.netProfit)} trend={stats.profitTrend} icon={<PiggyBank className="size-4" />} tone="success" />
+              <StatCard href="/profit" label="Net Profit (month)" value={formatINR(stats.netProfit)} trend={stats.profitTrend} icon={<PiggyBank className="size-4" />} tone="green" />
             )}
           </div>
         </div>
@@ -146,37 +159,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* secondary KPIs */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {showRevenue && (
-          <StatCard
-            href="/payments"
-            label="Pending Advance"
-            value={stats.pendingAdvanceCount}
-            trendLabel={formatINR(stats.pendingAdvanceTotal)}
-            icon={<Wallet className="size-4" />}
-            tone="warning"
-          />
-        )}
-        {showRevenue && (
-          <StatCard href="/payments?filter=paid" label="Collections Today" value={stats.collectionsTodayCount} trendLabel="payments" icon={<IndianRupee className="size-4" />} />
-        )}
-        {showReportsCards && (
-          <StatCard href="/reports" label="Reviews Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} />
-        )}
-        {showStaffCards && (
-          <>
-            <StatCard href="/staff" label="Team On Job" value={stats.staffOnJobCount} icon={<HardHat className="size-4" />} />
-            <StatCard href="/staff" label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} />
-          </>
-        )}
-        {showBackOffice && (
-          <>
-            <StatCard href="/vehicles" label="Vehicles Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} />
-            <StatCard href="/amc" label="Upcoming AMC (7d)" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} />
-          </>
-        )}
-      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {showCrm && (
