@@ -54,6 +54,7 @@ export const ModelName = {
   Staff: 'Staff',
   Attendance: 'Attendance',
   AttendanceAudit: 'AttendanceAudit',
+  GalleryItem: 'GalleryItem',
   Customer: 'Customer',
   BookingLink: 'BookingLink',
   MonthClose: 'MonthClose',
@@ -206,6 +207,25 @@ export const AttendanceAuditScalarFieldEnum = {
 } as const
 
 export type AttendanceAuditScalarFieldEnum = (typeof AttendanceAuditScalarFieldEnum)[keyof typeof AttendanceAuditScalarFieldEnum]
+
+
+export const GalleryItemScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  kind: 'kind',
+  category: 'category',
+  url: 'url',
+  thumbnailUrl: 'thumbnailUrl',
+  caption: 'caption',
+  jobId: 'jobId',
+  pairKey: 'pairKey',
+  featured: 'featured',
+  sortOrder: 'sortOrder',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt'
+} as const
+
+export type GalleryItemScalarFieldEnum = (typeof GalleryItemScalarFieldEnum)[keyof typeof GalleryItemScalarFieldEnum]
 
 
 export const CustomerScalarFieldEnum = {
