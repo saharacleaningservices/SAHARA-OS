@@ -36,6 +36,7 @@ const publicBookingSchema = z.object({
   mapLink: z.string().optional().or(z.literal("")),
   source: z.string().optional().or(z.literal("")),
   referralCode: z.string().optional().or(z.literal("")),
+  bookingLinkToken: z.string().optional().or(z.literal("")),
   upsellRuleId: z.string().optional().or(z.literal("")),
   upsellLabel: z.string().optional().or(z.literal("")),
   upsellValue: z.coerce.number().optional(),
@@ -235,6 +236,16 @@ export async function publicBookLead(values: unknown) {
     whatsappToAdmin: true,
     meta: { leadId: lead.id, leadNumber, source },
   });
+
+  // Close the loop on a personalized CRM link, if this booking came from one.
+  if (data.bookingLinkToken) {
+    await db.bookingLink
+      .updateMany({
+        where: { token: data.bookingLinkToken, submittedAt: null },
+        data: { submittedAt: new Date(), leadId: lead.id },
+      })
+      .catch(() => {});
+  }
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");

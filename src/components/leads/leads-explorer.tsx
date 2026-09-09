@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
 import { BulkActionsBar } from "@/components/shared/bulk-actions-bar";
+import { BulkOutreachButton } from "@/components/leads/bulk-outreach-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { deleteLead, bulkDeleteLeads } from "@/server/actions/leads";
 import { Button } from "@/components/ui/button";
@@ -220,7 +221,13 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
           entityLabel="lead"
           onClear={() => setSelected([])}
           onDelete={() => bulkDeleteLeads(selected)}
-        />
+        >
+          <BulkOutreachButton
+            customers={leads
+              .filter((l) => selected.includes(l.id))
+              .map((l) => ({ id: l.id, name: l.name, mobile: l.mobile }))}
+          />
+        </BulkActionsBar>
         {filtered.length === 0 ? (
           <EmptyState title="No leads match your filters" description="Try adjusting search or filters." />
         ) : (

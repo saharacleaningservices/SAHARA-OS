@@ -342,6 +342,26 @@ model AttendanceAudit {
   @@index([editedAt])
 }
 
+// A personalized customer link (booking form / follow-up / review request)
+// sent over WhatsApp from the CRM. Tracks the funnel: sent → opened → submitted.
+model BookingLink {
+  id           String    @id @default(cuid())
+  token        String    @unique
+  kind         String    @default("BOOKING_FORM") // BOOKING_FORM | FOLLOWUP | REVIEW
+  customerName String
+  customerMobile String
+  leadId       String?
+  jobId        String?
+  createdByName String
+  sentAt       DateTime  @default(now())
+  openedAt     DateTime?
+  submittedAt  DateTime?
+  followUpMade Boolean   @default(false)
+
+  @@index([customerMobile])
+  @@index([sentAt])
+}
+
 // One row per closed payroll month. Present + reopenedAt == null → locked.
 model MonthClose {
   id             String    @id @default(cuid())

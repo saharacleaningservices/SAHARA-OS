@@ -898,4 +898,28 @@ db.prepare(
 ).run();
 console.log("v2.0 batch-2 (premium booking) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 7: personalized customer booking links.
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "BookingLink" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "token" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'BOOKING_FORM',
+    "customerName" TEXT NOT NULL,
+    "customerMobile" TEXT NOT NULL,
+    "leadId" TEXT,
+    "jobId" TEXT,
+    "createdByName" TEXT NOT NULL,
+    "sentAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "openedAt" DATETIME,
+    "submittedAt" DATETIME,
+    "followUpMade" BOOLEAN NOT NULL DEFAULT 0
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "BookingLink_token_key" ON "BookingLink"("token");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "BookingLink_customerMobile_idx" ON "BookingLink"("customerMobile");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "BookingLink_sentAt_idx" ON "BookingLink"("sentAt");`);
+console.log("v3.1 batch-7 (booking links) migration complete.");
+
 db.close();

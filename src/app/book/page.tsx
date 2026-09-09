@@ -20,6 +20,7 @@ import {
 import { FaFacebookF, FaInstagram, FaYoutube, FaGoogle } from "react-icons/fa6";
 import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { BookingStickyBar } from "@/components/public/booking-sticky-bar";
+import { BookingLinkPing } from "@/components/public/booking-link-ping";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { COMPANY } from "@/lib/constants";
 import { getResolvedIntegrations } from "@/server/integrations";
@@ -67,7 +68,7 @@ const BOTTOM_TRUST = [
 export default async function PublicBookingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ref?: string; source?: string; src?: string; customer?: string; phone?: string; name?: string; mobile?: string }>;
+  searchParams: Promise<{ ref?: string; source?: string; src?: string; customer?: string; phone?: string; name?: string; mobile?: string; bl?: string }>;
 }) {
   const sp = await searchParams;
   const [{ googleMaps }, settings] = await Promise.all([getResolvedIntegrations(), getCompanySettings()]);
@@ -206,12 +207,14 @@ export default async function PublicBookingPage({
               Referred by a friend — code {sp.ref} applied
             </p>
           )}
+          <BookingLinkPing token={sp.bl} />
           <PublicBookingForm
             referralCode={sp.ref}
             mapsApiKey={googleMaps.apiKey}
             leadSource={leadSource}
             prefillName={prefillName}
             prefillMobile={prefillMobile}
+            bookingLinkToken={sp.bl}
             paymentDetails={{
               upiId: settings.upiId ?? null,
               upiQrUrl: settings.upiQrUrl ?? null,

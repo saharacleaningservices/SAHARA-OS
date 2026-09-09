@@ -57,6 +57,7 @@ export function PublicBookingForm({
   paymentDetails,
   prefillName = "",
   prefillMobile = "",
+  bookingLinkToken = "",
 }: {
   referralCode?: string;
   mapsApiKey?: string | null;
@@ -64,6 +65,7 @@ export function PublicBookingForm({
   paymentDetails: CompanyPaymentDetails;
   prefillName?: string;
   prefillMobile?: string;
+  bookingLinkToken?: string;
 }) {
   const [name, setName] = useState(prefillName);
   const [mobile, setMobile] = useState(prefillMobile);
@@ -123,6 +125,7 @@ export function PublicBookingForm({
       website: "",
       source: leadSource,
       referralCode: referralCode || "",
+      bookingLinkToken: bookingLinkToken || "",
       estimatedAmount: estNum || undefined,
       advanceAmount: advancePaid ? advNum : undefined,
       paymentMode: payMode,

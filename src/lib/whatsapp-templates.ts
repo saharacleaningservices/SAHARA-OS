@@ -224,6 +224,27 @@ export function reviewRequestMessage(input: {
   return `Hi ${input.customerName}, thank you for choosing ${COMPANY.name} for your ${input.service}! We hope you're happy with the work. See your before/after photos + refer & earn code here: https://app.saharacleaningservices.com/j/${input.jobNumber}${link}\n\nCall us on ${COMPANY.phones[0]} for anything you need.`;
 }
 
+export function bookingFormMessage(input: { customerName: string; url: string }) {
+  return [
+    `Hi ${input.customerName}, book your cleaning service with ${COMPANY.name} in a few taps 👇`,
+    ``,
+    input.url,
+    ``,
+    `Your name & number are already filled in — just pick the service, date and time.`,
+    `Questions? Call/WhatsApp ${COMPANY.phones[0]}.`,
+  ].join("\n");
+}
+
+export function followUpNudgeMessage(input: { customerName: string; url: string }) {
+  return [
+    `Hi ${input.customerName}, just following up on your cleaning enquiry with ${COMPANY.name}.`,
+    ``,
+    `You can confirm your booking here: ${input.url}`,
+    ``,
+    `Or reply here and our team will help you directly.`,
+  ].join("\n");
+}
+
 export function amcRenewalMessage(input: { customerName: string; nextVisitDate: Date; frequency: string }) {
   return `Hi ${input.customerName}, your ${COMPANY.name} AMC (${input.frequency.toLowerCase()}) visit is due on ${formatDate(
     input.nextVisitDate
