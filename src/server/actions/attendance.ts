@@ -52,6 +52,7 @@ async function notifyStaffAttendance(staffId: string, status: string, when: Date
     workingDays: ledger.presentDays,
     advance: ledger.advanceTotal,
     runningSalary: ledger.runningSalary,
+    balance: ledger.finalSalary,
   });
   // KhataBook-style — WhatsApp first, SMS as the fallback. Both queue and
   // flush automatically once their gateway credentials are saved.

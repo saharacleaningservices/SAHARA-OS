@@ -5,6 +5,7 @@ import { randomBytes } from "node:crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { sendWhatsApp } from "@/lib/whatsapp";
+import { sendSMS } from "@/lib/sms";
 import { bookingFormMessage, followUpNudgeMessage, reviewRequestMessage } from "@/lib/whatsapp-templates";
 import { getCompanySettings } from "@/server/settings";
 import { addTimelineEntry } from "@/server/timeline";
@@ -67,10 +68,18 @@ export async function createBookingLink(input: {
     text = bookingFormMessage({ customerName: name, url: bookUrl(token, name, mobile) });
   }
 
-  // Queue for the Cloud API (goes out when connected) + return an instant
-  // click-to-chat URL for the staff member's own WhatsApp.
+  // Queue for the Cloud API + SMS fallback (both go out when connected) and
+  // return an instant click-to-chat URL for the staff member's own WhatsApp.
   await sendWhatsApp({
-    kind: "OTHER",
+    kind: kind === "REVIEW" ? "REVIEW_REQUEST" : "OTHER",
+    toNumber: mobile,
+    toName: name,
+    body: text,
+    relatedType: "BookingLink",
+    relatedId: link.id,
+  }).catch(() => {});
+  await sendSMS({
+    kind: kind === "REVIEW" ? "REVIEW" : "OTHER",
     toNumber: mobile,
     toName: name,
     body: text,

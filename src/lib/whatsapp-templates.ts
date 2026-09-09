@@ -295,18 +295,24 @@ export function staffAttendanceMessage(input: {
   workingDays: number;
   advance: number;
   runningSalary: number;
+  balance?: number;
 }) {
   const hour = input.date.getHours();
   const greet = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+  const balance = input.balance ?? Math.max(input.runningSalary - input.advance, 0);
   return [
-    `${greet} ${input.name},`,
+    `${greet} ${input.name} 🙏`,
+    `${COMPANY.name}`,
     ``,
-    `${formatDate(input.date)} Attendance: ${STATUS_WORD[input.status] ?? input.status}`,
-    `Working Days: ${input.workingDays}`,
-    `Advance: ${formatINR(input.advance)}`,
-    `Current Salary Running: ${formatINR(input.runningSalary)}`,
+    `📅 ${formatDate(input.date)}`,
+    `Attendance: ${STATUS_WORD[input.status] ?? input.status}`,
+    `Total Working Days: ${input.workingDays}`,
     ``,
-    `— ${COMPANY.name}`,
+    `💰 Earned Salary: ${formatINR(input.runningSalary)}`,
+    `➖ Advance Taken: ${formatINR(input.advance)}`,
+    `✅ Current Balance: ${formatINR(balance)}`,
+    ``,
+    `For any query, contact the office: ${COMPANY.phones[0]}`,
   ].join("\n");
 }
 
