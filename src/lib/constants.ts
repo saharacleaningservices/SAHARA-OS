@@ -382,6 +382,7 @@ export const ATTENDANCE_STATUS_LABELS: Record<string, string> = {
   ABSENT: "Absent",
   HALF_DAY: "Half Day",
   LEAVE: "Leave",
+  WEEKLY_OFF: "Weekly Off",
 };
 
 export const QUOTATION_TERMS = `1. Prices are inclusive of standard materials & labour unless stated otherwise.

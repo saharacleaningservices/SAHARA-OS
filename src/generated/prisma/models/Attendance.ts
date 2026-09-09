@@ -50,6 +50,9 @@ export type AttendanceMinAggregateOutputType = {
   gpsLng: number | null
   method: string | null
   notes: string | null
+  markedByName: string | null
+  updatedByName: string | null
+  updatedAt: Date | null
   createdAt: Date | null
 }
 
@@ -65,6 +68,9 @@ export type AttendanceMaxAggregateOutputType = {
   gpsLng: number | null
   method: string | null
   notes: string | null
+  markedByName: string | null
+  updatedByName: string | null
+  updatedAt: Date | null
   createdAt: Date | null
 }
 
@@ -80,6 +86,9 @@ export type AttendanceCountAggregateOutputType = {
   gpsLng: number
   method: number
   notes: number
+  markedByName: number
+  updatedByName: number
+  updatedAt: number
   createdAt: number
   _all: number
 }
@@ -109,6 +118,9 @@ export type AttendanceMinAggregateInputType = {
   gpsLng?: true
   method?: true
   notes?: true
+  markedByName?: true
+  updatedByName?: true
+  updatedAt?: true
   createdAt?: true
 }
 
@@ -124,6 +136,9 @@ export type AttendanceMaxAggregateInputType = {
   gpsLng?: true
   method?: true
   notes?: true
+  markedByName?: true
+  updatedByName?: true
+  updatedAt?: true
   createdAt?: true
 }
 
@@ -139,6 +154,9 @@ export type AttendanceCountAggregateInputType = {
   gpsLng?: true
   method?: true
   notes?: true
+  markedByName?: true
+  updatedByName?: true
+  updatedAt?: true
   createdAt?: true
   _all?: true
 }
@@ -241,6 +259,9 @@ export type AttendanceGroupByOutputType = {
   gpsLng: number | null
   method: string
   notes: string | null
+  markedByName: string | null
+  updatedByName: string | null
+  updatedAt: Date | null
   createdAt: Date
   _count: AttendanceCountAggregateOutputType | null
   _avg: AttendanceAvgAggregateOutputType | null
@@ -279,6 +300,9 @@ export type AttendanceWhereInput = {
   gpsLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   method?: Prisma.StringFilter<"Attendance"> | string
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  markedByName?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  updatedByName?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  updatedAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
   staff?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.StaffWhereInput>
 }
@@ -295,6 +319,9 @@ export type AttendanceOrderByWithRelationInput = {
   gpsLng?: Prisma.SortOrderInput | Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  markedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   staff?: Prisma.StaffOrderByWithRelationInput
 }
@@ -315,6 +342,9 @@ export type AttendanceWhereUniqueInput = Prisma.AtLeast<{
   gpsLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   method?: Prisma.StringFilter<"Attendance"> | string
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  markedByName?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  updatedByName?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  updatedAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
   staff?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.StaffWhereInput>
 }, "id" | "staffId_date">
@@ -331,6 +361,9 @@ export type AttendanceOrderByWithAggregationInput = {
   gpsLng?: Prisma.SortOrderInput | Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  markedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AttendanceCountOrderByAggregateInput
   _avg?: Prisma.AttendanceAvgOrderByAggregateInput
@@ -354,6 +387,9 @@ export type AttendanceScalarWhereWithAggregatesInput = {
   gpsLng?: Prisma.FloatNullableWithAggregatesFilter<"Attendance"> | number | null
   method?: Prisma.StringWithAggregatesFilter<"Attendance"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Attendance"> | string | null
+  markedByName?: Prisma.StringNullableWithAggregatesFilter<"Attendance"> | string | null
+  updatedByName?: Prisma.StringNullableWithAggregatesFilter<"Attendance"> | string | null
+  updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Attendance"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Attendance"> | Date | string
 }
 
@@ -368,6 +404,9 @@ export type AttendanceCreateInput = {
   gpsLng?: number | null
   method?: string
   notes?: string | null
+  markedByName?: string | null
+  updatedByName?: string | null
+  updatedAt?: Date | string | null
   createdAt?: Date | string
   staff: Prisma.StaffCreateNestedOneWithoutAttendanceInput
 }
@@ -384,6 +423,9 @@ export type AttendanceUncheckedCreateInput = {
   gpsLng?: number | null
   method?: string
   notes?: string | null
+  markedByName?: string | null
+  updatedByName?: string | null
+  updatedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -398,6 +440,9 @@ export type AttendanceUpdateInput = {
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  markedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staff?: Prisma.StaffUpdateOneRequiredWithoutAttendanceNestedInput
 }
@@ -414,6 +459,9 @@ export type AttendanceUncheckedUpdateInput = {
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  markedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -429,6 +477,9 @@ export type AttendanceCreateManyInput = {
   gpsLng?: number | null
   method?: string
   notes?: string | null
+  markedByName?: string | null
+  updatedByName?: string | null
+  updatedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -443,6 +494,9 @@ export type AttendanceUpdateManyMutationInput = {
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  markedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -458,6 +512,9 @@ export type AttendanceUncheckedUpdateManyInput = {
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  markedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -488,6 +545,9 @@ export type AttendanceCountOrderByAggregateInput = {
   gpsLng?: Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  markedByName?: Prisma.SortOrder
+  updatedByName?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -509,6 +569,9 @@ export type AttendanceMaxOrderByAggregateInput = {
   gpsLng?: Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  markedByName?: Prisma.SortOrder
+  updatedByName?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -524,6 +587,9 @@ export type AttendanceMinOrderByAggregateInput = {
   gpsLng?: Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  markedByName?: Prisma.SortOrder
+  updatedByName?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -590,6 +656,9 @@ export type AttendanceCreateWithoutStaffInput = {
   gpsLng?: number | null
   method?: string
   notes?: string | null
+  markedByName?: string | null
+  updatedByName?: string | null
+  updatedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -604,6 +673,9 @@ export type AttendanceUncheckedCreateWithoutStaffInput = {
   gpsLng?: number | null
   method?: string
   notes?: string | null
+  markedByName?: string | null
+  updatedByName?: string | null
+  updatedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -647,6 +719,9 @@ export type AttendanceScalarWhereInput = {
   gpsLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   method?: Prisma.StringFilter<"Attendance"> | string
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  markedByName?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  updatedByName?: Prisma.StringNullableFilter<"Attendance"> | string | null
+  updatedAt?: Prisma.DateTimeNullableFilter<"Attendance"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
 }
 
@@ -661,6 +736,9 @@ export type AttendanceCreateManyStaffInput = {
   gpsLng?: number | null
   method?: string
   notes?: string | null
+  markedByName?: string | null
+  updatedByName?: string | null
+  updatedAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -675,6 +753,9 @@ export type AttendanceUpdateWithoutStaffInput = {
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  markedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -689,6 +770,9 @@ export type AttendanceUncheckedUpdateWithoutStaffInput = {
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  markedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -703,6 +787,9 @@ export type AttendanceUncheckedUpdateManyWithoutStaffInput = {
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  markedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -720,6 +807,9 @@ export type AttendanceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   gpsLng?: boolean
   method?: boolean
   notes?: boolean
+  markedByName?: boolean
+  updatedByName?: boolean
+  updatedAt?: boolean
   createdAt?: boolean
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attendance"]>
@@ -736,6 +826,9 @@ export type AttendanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   gpsLng?: boolean
   method?: boolean
   notes?: boolean
+  markedByName?: boolean
+  updatedByName?: boolean
+  updatedAt?: boolean
   createdAt?: boolean
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attendance"]>
@@ -752,6 +845,9 @@ export type AttendanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   gpsLng?: boolean
   method?: boolean
   notes?: boolean
+  markedByName?: boolean
+  updatedByName?: boolean
+  updatedAt?: boolean
   createdAt?: boolean
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attendance"]>
@@ -768,10 +864,13 @@ export type AttendanceSelectScalar = {
   gpsLng?: boolean
   method?: boolean
   notes?: boolean
+  markedByName?: boolean
+  updatedByName?: boolean
+  updatedAt?: boolean
   createdAt?: boolean
 }
 
-export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "status" | "checkInTime" | "checkOutTime" | "wageForDay" | "gpsLat" | "gpsLng" | "method" | "notes" | "createdAt", ExtArgs["result"]["attendance"]>
+export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "status" | "checkInTime" | "checkOutTime" | "wageForDay" | "gpsLat" | "gpsLng" | "method" | "notes" | "markedByName" | "updatedByName" | "updatedAt" | "createdAt", ExtArgs["result"]["attendance"]>
 export type AttendanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
 }
@@ -799,6 +898,9 @@ export type $AttendancePayload<ExtArgs extends runtime.Types.Extensions.Internal
     gpsLng: number | null
     method: string
     notes: string | null
+    markedByName: string | null
+    updatedByName: string | null
+    updatedAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["attendance"]>
   composites: {}
@@ -1235,6 +1337,9 @@ export interface AttendanceFieldRefs {
   readonly gpsLng: Prisma.FieldRef<"Attendance", 'Float'>
   readonly method: Prisma.FieldRef<"Attendance", 'String'>
   readonly notes: Prisma.FieldRef<"Attendance", 'String'>
+  readonly markedByName: Prisma.FieldRef<"Attendance", 'String'>
+  readonly updatedByName: Prisma.FieldRef<"Attendance", 'String'>
+  readonly updatedAt: Prisma.FieldRef<"Attendance", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Attendance", 'DateTime'>
 }
     

@@ -103,7 +103,8 @@ export const AttendanceStatus = {
   PRESENT: 'PRESENT',
   ABSENT: 'ABSENT',
   HALF_DAY: 'HALF_DAY',
-  LEAVE: 'LEAVE'
+  LEAVE: 'LEAVE',
+  WEEKLY_OFF: 'WEEKLY_OFF'
 } as const
 
 export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]

@@ -394,6 +394,8 @@ export const ModelName = {
   Device: 'Device',
   Staff: 'Staff',
   Attendance: 'Attendance',
+  AttendanceAudit: 'AttendanceAudit',
+  MonthClose: 'MonthClose',
   Lead: 'Lead',
   Quotation: 'Quotation',
   FollowUp: 'FollowUp',
@@ -441,7 +443,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "securityOtp" | "notification" | "pushSubscription"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "securityOtp" | "notification" | "pushSubscription"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -738,6 +740,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AttendanceCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AttendanceCountAggregateOutputType> | number
+        }
+      }
+    }
+    AttendanceAudit: {
+      payload: Prisma.$AttendanceAuditPayload<ExtArgs>
+      fields: Prisma.AttendanceAuditFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AttendanceAuditFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AttendanceAuditFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>
+        }
+        findFirst: {
+          args: Prisma.AttendanceAuditFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AttendanceAuditFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>
+        }
+        findMany: {
+          args: Prisma.AttendanceAuditFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>[]
+        }
+        create: {
+          args: Prisma.AttendanceAuditCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>
+        }
+        createMany: {
+          args: Prisma.AttendanceAuditCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AttendanceAuditCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>[]
+        }
+        delete: {
+          args: Prisma.AttendanceAuditDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>
+        }
+        update: {
+          args: Prisma.AttendanceAuditUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>
+        }
+        deleteMany: {
+          args: Prisma.AttendanceAuditDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AttendanceAuditUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AttendanceAuditUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>[]
+        }
+        upsert: {
+          args: Prisma.AttendanceAuditUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AttendanceAuditPayload>
+        }
+        aggregate: {
+          args: Prisma.AttendanceAuditAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAttendanceAudit>
+        }
+        groupBy: {
+          args: Prisma.AttendanceAuditGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AttendanceAuditGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AttendanceAuditCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AttendanceAuditCountAggregateOutputType> | number
+        }
+      }
+    }
+    MonthClose: {
+      payload: Prisma.$MonthClosePayload<ExtArgs>
+      fields: Prisma.MonthCloseFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MonthCloseFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MonthCloseFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>
+        }
+        findFirst: {
+          args: Prisma.MonthCloseFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MonthCloseFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>
+        }
+        findMany: {
+          args: Prisma.MonthCloseFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>[]
+        }
+        create: {
+          args: Prisma.MonthCloseCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>
+        }
+        createMany: {
+          args: Prisma.MonthCloseCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MonthCloseCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>[]
+        }
+        delete: {
+          args: Prisma.MonthCloseDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>
+        }
+        update: {
+          args: Prisma.MonthCloseUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>
+        }
+        deleteMany: {
+          args: Prisma.MonthCloseDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MonthCloseUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MonthCloseUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>[]
+        }
+        upsert: {
+          args: Prisma.MonthCloseUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MonthClosePayload>
+        }
+        aggregate: {
+          args: Prisma.MonthCloseAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMonthClose>
+        }
+        groupBy: {
+          args: Prisma.MonthCloseGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthCloseGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MonthCloseCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MonthCloseCountAggregateOutputType> | number
         }
       }
     }
@@ -3225,10 +3375,40 @@ export const AttendanceScalarFieldEnum = {
   gpsLng: 'gpsLng',
   method: 'method',
   notes: 'notes',
+  markedByName: 'markedByName',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt',
   createdAt: 'createdAt'
 } as const
 
 export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
+
+
+export const AttendanceAuditScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  staffName: 'staffName',
+  date: 'date',
+  oldStatus: 'oldStatus',
+  newStatus: 'newStatus',
+  editedByName: 'editedByName',
+  editedAt: 'editedAt'
+} as const
+
+export type AttendanceAuditScalarFieldEnum = (typeof AttendanceAuditScalarFieldEnum)[keyof typeof AttendanceAuditScalarFieldEnum]
+
+
+export const MonthCloseScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  month: 'month',
+  closedByName: 'closedByName',
+  closedAt: 'closedAt',
+  reopenedByName: 'reopenedByName',
+  reopenedAt: 'reopenedAt'
+} as const
+
+export type MonthCloseScalarFieldEnum = (typeof MonthCloseScalarFieldEnum)[keyof typeof MonthCloseScalarFieldEnum]
 
 
 export const LeadScalarFieldEnum = {
@@ -3884,6 +4064,13 @@ export type EnumAttendanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
  * Reference to a field of type 'ServiceType'
  */
 export type EnumServiceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceType'>
@@ -3901,13 +4088,6 @@ export type EnumLeadSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'LeadStage'
  */
 export type EnumLeadStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadStage'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 
@@ -4099,6 +4279,8 @@ export type GlobalOmitConfig = {
   device?: Prisma.DeviceOmit
   staff?: Prisma.StaffOmit
   attendance?: Prisma.AttendanceOmit
+  attendanceAudit?: Prisma.AttendanceAuditOmit
+  monthClose?: Prisma.MonthCloseOmit
   lead?: Prisma.LeadOmit
   quotation?: Prisma.QuotationOmit
   followUp?: Prisma.FollowUpOmit

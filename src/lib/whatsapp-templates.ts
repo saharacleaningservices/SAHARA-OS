@@ -256,3 +256,58 @@ export function dailyAttendanceSummaryMessage(input: { date: Date; present: numb
     `Total Staff: ${input.total}`,
   ].join("\n");
 }
+
+// ── Staff self-notifications (Phase 6) — queued until the WhatsApp API is live.
+
+const STATUS_WORD: Record<string, string> = {
+  PRESENT: "Present",
+  ABSENT: "Absent",
+  HALF_DAY: "Half Day",
+  LEAVE: "Leave",
+  WEEKLY_OFF: "Weekly Off",
+};
+
+export function staffAttendanceMessage(input: {
+  name: string;
+  date: Date;
+  status: string;
+  workingDays: number;
+  advance: number;
+  runningSalary: number;
+}) {
+  const hour = input.date.getHours();
+  const greet = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+  return [
+    `${greet} ${input.name},`,
+    ``,
+    `${formatDate(input.date)} Attendance: ${STATUS_WORD[input.status] ?? input.status}`,
+    `Working Days: ${input.workingDays}`,
+    `Advance: ${formatINR(input.advance)}`,
+    `Current Salary Running: ${formatINR(input.runningSalary)}`,
+    ``,
+    `— ${COMPANY.name}`,
+  ].join("\n");
+}
+
+export function staffAdvanceMessage(input: { name: string; amount: number; advanceTotal: number; runningSalary: number }) {
+  return [
+    `${input.name}, an advance of ${formatINR(input.amount)} has been recorded.`,
+    ``,
+    `Total Advance this month: ${formatINR(input.advanceTotal)}`,
+    `Current Salary Running: ${formatINR(input.runningSalary)}`,
+    ``,
+    `— ${COMPANY.name}`,
+  ].join("\n");
+}
+
+export function staffSalarySlipMessage(input: { name: string; monthLabel: string; workingDays: number; advance: number; finalSalary: number }) {
+  return [
+    `${input.name}, your salary slip for ${input.monthLabel} is ready.`,
+    ``,
+    `Working Days: ${input.workingDays}`,
+    `Advance: ${formatINR(input.advance)}`,
+    `Final Salary: ${formatINR(input.finalSalary)}`,
+    ``,
+    `— ${COMPANY.name}`,
+  ].join("\n");
+}

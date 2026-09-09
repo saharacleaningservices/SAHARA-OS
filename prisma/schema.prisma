@@ -96,6 +96,7 @@ enum AttendanceStatus {
   ABSENT
   HALF_DAY
   LEAVE
+  WEEKLY_OFF
 }
 
 enum PhotoType {
@@ -315,11 +316,43 @@ model Attendance {
   gpsLng       Float? // future GPS attendance
   method       String            @default("MANUAL") // MANUAL | QR | GPS (future-ready)
   notes        String?
+  markedByName String? // office user who first set this day
+  updatedByName String? // office user who last edited it
+  updatedAt    DateTime?
   createdAt    DateTime          @default(now())
 
   @@unique([staffId, date])
   @@index([date])
   @@index([status])
+}
+
+// Immutable edit trail for attendance — every create/change writes a row here.
+// Never deleted (Phase 4: "No permanent deletion").
+model AttendanceAudit {
+  id         String   @id @default(cuid())
+  staffId    String
+  staffName  String
+  date       DateTime
+  oldStatus  String? // null = first time the day was marked
+  newStatus  String
+  editedByName String
+  editedAt   DateTime @default(now())
+
+  @@index([staffId, date])
+  @@index([editedAt])
+}
+
+// One row per closed payroll month. Present + reopenedAt == null → locked.
+model MonthClose {
+  id             String    @id @default(cuid())
+  year           Int
+  month          Int // 1-12
+  closedByName   String
+  closedAt       DateTime  @default(now())
+  reopenedByName String?
+  reopenedAt     DateTime?
+
+  @@unique([year, month])
 }
 
 // ─────────────────────────────────────────────────────────────────────────

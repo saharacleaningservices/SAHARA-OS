@@ -62,6 +62,16 @@ export type Staff = Prisma.StaffModel
  */
 export type Attendance = Prisma.AttendanceModel
 /**
+ * Model AttendanceAudit
+ * 
+ */
+export type AttendanceAudit = Prisma.AttendanceAuditModel
+/**
+ * Model MonthClose
+ * 
+ */
+export type MonthClose = Prisma.MonthCloseModel
+/**
  * Model Lead
  * 
  */

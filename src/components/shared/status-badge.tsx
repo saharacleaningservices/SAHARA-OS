@@ -48,6 +48,7 @@ const ATTENDANCE_VARIANT: Record<string, "success" | "warning" | "destructive" |
   HALF_DAY: "warning",
   ABSENT: "destructive",
   LEAVE: "muted",
+  WEEKLY_OFF: "muted",
 };
 
 export function LeadStageBadge({ stage }: { stage: string }) {

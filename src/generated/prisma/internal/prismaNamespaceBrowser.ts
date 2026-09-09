@@ -53,6 +53,8 @@ export const ModelName = {
   Device: 'Device',
   Staff: 'Staff',
   Attendance: 'Attendance',
+  AttendanceAudit: 'AttendanceAudit',
+  MonthClose: 'MonthClose',
   Lead: 'Lead',
   Quotation: 'Quotation',
   FollowUp: 'FollowUp',
@@ -180,10 +182,40 @@ export const AttendanceScalarFieldEnum = {
   gpsLng: 'gpsLng',
   method: 'method',
   notes: 'notes',
+  markedByName: 'markedByName',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt',
   createdAt: 'createdAt'
 } as const
 
 export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
+
+
+export const AttendanceAuditScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  staffName: 'staffName',
+  date: 'date',
+  oldStatus: 'oldStatus',
+  newStatus: 'newStatus',
+  editedByName: 'editedByName',
+  editedAt: 'editedAt'
+} as const
+
+export type AttendanceAuditScalarFieldEnum = (typeof AttendanceAuditScalarFieldEnum)[keyof typeof AttendanceAuditScalarFieldEnum]
+
+
+export const MonthCloseScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  month: 'month',
+  closedByName: 'closedByName',
+  closedAt: 'closedAt',
+  reopenedByName: 'reopenedByName',
+  reopenedAt: 'reopenedAt'
+} as const
+
+export type MonthCloseScalarFieldEnum = (typeof MonthCloseScalarFieldEnum)[keyof typeof MonthCloseScalarFieldEnum]
 
 
 export const LeadScalarFieldEnum = {
