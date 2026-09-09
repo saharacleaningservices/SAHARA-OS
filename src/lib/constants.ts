@@ -91,36 +91,33 @@ export const LEGACY_TO_SERVICE_CATEGORY: Record<string, string> = {
   COMMERCIAL_CLEANING: "COMMERCIAL_CLEANING",
 };
 
-// Master Prompt v2.0 Phase 2 — customer-facing service dropdowns. "Select
+// Master Prompt v3.1 Phase 2 — customer-facing service dropdowns. "Select
 // Service" (this catalog) is distinct from "Property Type" (PROPERTY_TYPES).
 export const SERVICE_CATALOG: Record<string, string[]> = {
   HOME_DEEP_CLEANING: [
     "Full Home Cleaning",
-    "Sofa Cleaning (min 5 seats)",
-    "Mattress Cleaning (min 2)",
-    "Carpet Cleaning (min 2)",
-    "Window Cleaning (₹250/window, min 5)",
-    "Bathroom Cleaning (₹1000, min 2 bathrooms)",
-    "Kitchen Deep Cleaning (₹1600 onwards)",
+    "Sofa Cleaning",
+    "Mattress Cleaning",
+    "Carpet Cleaning",
+    "Window Cleaning",
+    "Bathroom Cleaning",
+    "Kitchen Deep Cleaning",
   ],
   INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Fan", "Fridge", "Balcony"],
   PAINTING: [
-    "Oil Bound Painting",
-    "Emulsion Painting",
+    "Oil Bound",
     "Premium Emulsion",
+    "Royal Emulsion",
     "Royal Lustre",
-    "Oil Lustre",
     "Texture Painting",
-    "Putty + Paint",
-    "Full Interior Painting",
   ],
   PEST_CONTROL: [
+    "Cockroach",
+    "Bed Bugs",
+    "Rodent",
+    "Termite",
+    "Mosquito",
     "General Pest Control",
-    "Cockroach Treatment",
-    "Bed Bug Treatment",
-    "Rodent Treatment",
-    "Termite Treatment",
-    "Mosquito Treatment",
   ],
   HOUSEKEEPING: ["Daily", "Weekly", "Monthly", "One-time"],
   COMMERCIAL_CLEANING: [
@@ -129,11 +126,21 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
     "Warehouse Cleaning",
     "Hospital Cleaning",
     "Factory Cleaning",
-    "Society / Common Area Cleaning",
     "Restaurant Cleaning",
-    "Customized Commercial Cleaning",
+    "School Cleaning",
   ],
   AMC: ["Residential", "Commercial"],
+};
+
+// Helper text shown under the "Select Service" dropdown for services that
+// carry a minimum quantity or an indicative starting price.
+export const SERVICE_RULES: Record<string, string> = {
+  "Sofa Cleaning": "Minimum 5 seats",
+  "Mattress Cleaning": "Minimum 2 mattresses",
+  "Carpet Cleaning": "Minimum 2 carpets",
+  "Window Cleaning": "₹250 / window · minimum 5 windows",
+  "Bathroom Cleaning": "₹1000 · minimum 2 bathrooms",
+  "Kitchen Deep Cleaning": "₹1600 onwards",
 };
 
 // Property type — asked once, options depend on whether the category is a
@@ -145,17 +152,13 @@ export function propertyTypesFor(category: string): readonly string[] {
   return COMMERCIAL_CATEGORIES.includes(category) ? COMMERCIAL_PROPERTY_TYPES : HOME_PROPERTY_TYPES;
 }
 
-// Add-on services with indicative pricing shown on the booking form.
+// Add-on services with indicative pricing shown on the booking form
+// (matches the approved booking-page mockup).
 export const ADDON_SERVICE_PRICES: { name: string; price: string }[] = [
   { name: "Sofa Shampooing", price: "₹499 / seat" },
-  { name: "Mattress Shampooing", price: "₹399" },
-  { name: "Carpet Cleaning", price: "₹250 onwards" },
+  { name: "Mattress Cleaning", price: "₹399 / mattress" },
   { name: "Refrigerator Cleaning", price: "₹499" },
-  { name: "Bathroom Cleaning", price: "₹1000" },
-  { name: "Kitchen Deep Cleaning", price: "₹1600" },
-  { name: "Cockroach Treatment", price: "₹999" },
-  { name: "Bed Bug Treatment", price: "₹1499" },
-  { name: "Rodent Treatment", price: "₹999" },
+  { name: "Pest Control", price: "₹899 onwards" },
 ];
 
 export const LEAD_SOURCE_LABELS: Record<string, string> = {
