@@ -103,7 +103,32 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <Label htmlFor="googleReviewUrl">Google Review Link (optional)</Label>
             <Input id="googleReviewUrl" placeholder="https://g.page/r/.../review" {...register("googleReviewUrl")} />
             <p className="text-xs text-muted-foreground">
-              Shown to customers after job completion (review request WhatsApp message + confirmation page).
+              Opened by the &ldquo;View Google Reviews&rdquo; buttons on the booking page and after job completion.
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="googleRating">Google Rating</Label>
+            <Input id="googleRating" placeholder="4.9" {...register("googleRating")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="googleReviewCount">Google Review Count</Label>
+            <Input id="googleReviewCount" placeholder="1800+" {...register("googleReviewCount")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="happyCustomers">Happy Customers</Label>
+            <Input id="happyCustomers" placeholder="8000+" {...register("happyCustomers")} />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="featuredReviews">Featured Reviews (booking-page carousel)</Label>
+            <Textarea
+              id="featuredReviews"
+              rows={4}
+              placeholder='[{"name":"Priya S.","text":"Excellent deep cleaning, team was on time.","rating":5}]'
+              {...register("featuredReviews")}
+            />
+            <p className="text-xs text-muted-foreground">
+              JSON array of {`{ name, text, rating }`}. Leave blank to show just the rating + &ldquo;View all&rdquo; button.
+              Live Google Business Profile sync is planned separately.
             </p>
           </div>
         </CardContent>

@@ -10,7 +10,12 @@ import { cn } from "@/lib/utils";
  * ships with every build and can never go missing after a redeploy. It's
  * the fallback every logo image on every page ultimately degrades to.
  */
-export const DEFAULT_LOGO_URL = "/uploads/logo/sahara-logo.svg";
+// The official bundled brand mark. Drop the real PNG at
+// public/brand/sahara-logo.png (transparent background, original proportions)
+// and it becomes the default logo everywhere — no other change needed.
+export const DEFAULT_LOGO_URL = "/brand/sahara-logo.png";
+// Last-resort fallback that always exists in the repo.
+const BUNDLED_FALLBACK = "/uploads/logo/sahara-logo.svg";
 
 export function CompanyLogo({
   logoUrl,
@@ -39,7 +44,8 @@ export function CompanyLogo({
       // fall back to the bundled default instead of showing a broken-image
       // icon. Guarded so a broken default itself can't loop forever.
       onError={() => {
-        if (src !== DEFAULT_LOGO_URL) setSrc(DEFAULT_LOGO_URL);
+        if (src !== DEFAULT_LOGO_URL && src !== BUNDLED_FALLBACK) setSrc(DEFAULT_LOGO_URL);
+        else if (src === DEFAULT_LOGO_URL) setSrc(BUNDLED_FALLBACK);
       }}
     />
   );
