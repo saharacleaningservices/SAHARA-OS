@@ -54,6 +54,7 @@ export const ModelName = {
   Staff: 'Staff',
   Attendance: 'Attendance',
   AttendanceAudit: 'AttendanceAudit',
+  Customer: 'Customer',
   BookingLink: 'BookingLink',
   MonthClose: 'MonthClose',
   Lead: 'Lead',
@@ -204,6 +205,26 @@ export const AttendanceAuditScalarFieldEnum = {
 } as const
 
 export type AttendanceAuditScalarFieldEnum = (typeof AttendanceAuditScalarFieldEnum)[keyof typeof AttendanceAuditScalarFieldEnum]
+
+
+export const CustomerScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  mobile: 'mobile',
+  alternateMobile: 'alternateMobile',
+  address: 'address',
+  area: 'area',
+  serviceHistory: 'serviceHistory',
+  lastServiceDate: 'lastServiceDate',
+  outstandingBalance: 'outstandingBalance',
+  source: 'source',
+  notes: 'notes',
+  importBatchId: 'importBatchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
 export const BookingLinkScalarFieldEnum = {

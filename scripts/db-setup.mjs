@@ -922,4 +922,30 @@ db.exec(`CREATE INDEX IF NOT EXISTS "BookingLink_customerMobile_idx" ON "Booking
 db.exec(`CREATE INDEX IF NOT EXISTS "BookingLink_sentAt_idx" ON "BookingLink"("sentAt");`);
 console.log("v3.1 batch-7 (booking links) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 8: master Customer table (bulk import).
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Customer" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "mobile" TEXT NOT NULL,
+    "alternateMobile" TEXT,
+    "address" TEXT,
+    "area" TEXT,
+    "serviceHistory" TEXT,
+    "lastServiceDate" DATETIME,
+    "outstandingBalance" REAL NOT NULL DEFAULT 0,
+    "source" TEXT,
+    "notes" TEXT,
+    "importBatchId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Customer_mobile_key" ON "Customer"("mobile");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Customer_area_idx" ON "Customer"("area");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Customer_lastServiceDate_idx" ON "Customer"("lastServiceDate");`);
+console.log("v3.1 batch-8 (customer master) migration complete.");
+
 db.close();

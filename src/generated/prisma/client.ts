@@ -67,6 +67,11 @@ export type Attendance = Prisma.AttendanceModel
  */
 export type AttendanceAudit = Prisma.AttendanceAuditModel
 /**
+ * Model Customer
+ * 
+ */
+export type Customer = Prisma.CustomerModel
+/**
  * Model BookingLink
  * 
  */

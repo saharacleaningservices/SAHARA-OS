@@ -342,6 +342,30 @@ model AttendanceAudit {
   @@index([editedAt])
 }
 
+// Imported / master customer record. The CRM still derives "customers" from
+// Leads + Jobs by mobile; this table is an additive master layer for the
+// existing 6000-customer base (bulk import, merge-by-mobile). Never blocks
+// or replaces lead/job history.
+model Customer {
+  id                 String    @id @default(cuid())
+  name               String
+  mobile             String    @unique
+  alternateMobile    String?
+  address            String?
+  area               String?
+  serviceHistory     String?
+  lastServiceDate    DateTime?
+  outstandingBalance Float     @default(0)
+  source             String?
+  notes              String?
+  importBatchId      String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([area])
+  @@index([lastServiceDate])
+}
+
 // A personalized customer link (booking form / follow-up / review request)
 // sent over WhatsApp from the CRM. Tracks the funnel: sent → opened → submitted.
 model BookingLink {

@@ -14,10 +14,10 @@ import { SERVICE_LABELS } from "@/lib/constants";
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ mobile: string }> }) {
   const { mobile } = await params;
-  const { leads, jobs, payments, reviews } = await getCustomerHistory(mobile);
-  if (leads.length === 0 && jobs.length === 0 && payments.length === 0) notFound();
+  const { leads, jobs, payments, reviews, master } = await getCustomerHistory(mobile);
+  if (leads.length === 0 && jobs.length === 0 && payments.length === 0 && !master) notFound();
 
-  const name = leads[0]?.name || jobs[0]?.customerName || "Customer";
+  const name = master?.name || leads[0]?.name || jobs[0]?.customerName || "Customer";
   const totalRevenue = payments.filter((p) => p.status === "PAID").reduce((s, p) => s + p.paidAmount, 0);
   const allPhotos = jobs.flatMap((j) => j.photos);
   const isRepeat = jobs.length > 1 || (jobs.length >= 1 && leads.length >= 1);
@@ -48,6 +48,22 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           </>
         }
       />
+
+      {master && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Customer Profile{master.source ? ` · ${master.source}` : ""}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <div><p className="text-xs text-muted-foreground">Area</p><p className="font-medium text-foreground">{master.area ?? "—"}</p></div>
+            <div><p className="text-xs text-muted-foreground">Alt. Mobile</p><p className="font-medium text-foreground">{master.alternateMobile ?? "—"}</p></div>
+            <div><p className="text-xs text-muted-foreground">Last Service</p><p className="font-medium text-foreground">{master.lastServiceDate ? formatDate(master.lastServiceDate) : "—"}</p></div>
+            <div><p className="text-xs text-muted-foreground">Outstanding</p><p className={`font-medium ${master.outstandingBalance > 0 ? "text-destructive" : "text-foreground"}`}>{formatINR(master.outstandingBalance)}</p></div>
+            {master.address && <div className="col-span-2 sm:col-span-4"><p className="text-xs text-muted-foreground">Address</p><p className="font-medium text-foreground">{master.address}</p></div>}
+            {master.serviceHistory && <div className="col-span-2 sm:col-span-4"><p className="text-xs text-muted-foreground">Service History</p><p className="font-medium text-foreground">{master.serviceHistory}</p></div>}
+          </CardContent>
+        </Card>
+      )}
 
       {bookingLinks.length > 0 && (
         <Card>
