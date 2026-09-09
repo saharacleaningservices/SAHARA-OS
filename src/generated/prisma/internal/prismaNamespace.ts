@@ -395,6 +395,7 @@ export const ModelName = {
   Staff: 'Staff',
   Attendance: 'Attendance',
   AttendanceAudit: 'AttendanceAudit',
+  BookingLink: 'BookingLink',
   MonthClose: 'MonthClose',
   Lead: 'Lead',
   Quotation: 'Quotation',
@@ -443,7 +444,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "securityOtp" | "notification" | "pushSubscription"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "securityOtp" | "notification" | "pushSubscription"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -814,6 +815,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AttendanceAuditCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AttendanceAuditCountAggregateOutputType> | number
+        }
+      }
+    }
+    BookingLink: {
+      payload: Prisma.$BookingLinkPayload<ExtArgs>
+      fields: Prisma.BookingLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BookingLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BookingLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.BookingLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BookingLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>
+        }
+        findMany: {
+          args: Prisma.BookingLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>[]
+        }
+        create: {
+          args: Prisma.BookingLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>
+        }
+        createMany: {
+          args: Prisma.BookingLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BookingLinkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>[]
+        }
+        delete: {
+          args: Prisma.BookingLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>
+        }
+        update: {
+          args: Prisma.BookingLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.BookingLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BookingLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BookingLinkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>[]
+        }
+        upsert: {
+          args: Prisma.BookingLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.BookingLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBookingLink>
+        }
+        groupBy: {
+          args: Prisma.BookingLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BookingLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingLinkCountAggregateOutputType> | number
         }
       }
     }
@@ -3398,6 +3473,24 @@ export const AttendanceAuditScalarFieldEnum = {
 export type AttendanceAuditScalarFieldEnum = (typeof AttendanceAuditScalarFieldEnum)[keyof typeof AttendanceAuditScalarFieldEnum]
 
 
+export const BookingLinkScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  kind: 'kind',
+  customerName: 'customerName',
+  customerMobile: 'customerMobile',
+  leadId: 'leadId',
+  jobId: 'jobId',
+  createdByName: 'createdByName',
+  sentAt: 'sentAt',
+  openedAt: 'openedAt',
+  submittedAt: 'submittedAt',
+  followUpMade: 'followUpMade'
+} as const
+
+export type BookingLinkScalarFieldEnum = (typeof BookingLinkScalarFieldEnum)[keyof typeof BookingLinkScalarFieldEnum]
+
+
 export const MonthCloseScalarFieldEnum = {
   id: 'id',
   year: 'year',
@@ -4286,6 +4379,7 @@ export type GlobalOmitConfig = {
   staff?: Prisma.StaffOmit
   attendance?: Prisma.AttendanceOmit
   attendanceAudit?: Prisma.AttendanceAuditOmit
+  bookingLink?: Prisma.BookingLinkOmit
   monthClose?: Prisma.MonthCloseOmit
   lead?: Prisma.LeadOmit
   quotation?: Prisma.QuotationOmit

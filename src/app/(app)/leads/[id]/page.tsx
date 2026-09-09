@@ -5,6 +5,7 @@ import { getLeadDetail } from "@/server/leads";
 import { getStaffForAssignment } from "@/server/staff";
 import { getCompanySettings } from "@/server/settings";
 import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
+import { SendBookingFormButton } from "@/components/shared/send-booking-form-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           <>
             <CallButton mobile={lead.mobile} />
             <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
+            <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} />
             <ScheduleVisitDialog leadId={lead.id} />
             <SendPaymentLinkButton
               mobile={lead.whatsapp || lead.mobile}

@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
   "/api/auth/device-status",
   "/api/backup",
   "/api/cron",
+  "/api/booking-link",
   "/book",
   "/j/",
 ];

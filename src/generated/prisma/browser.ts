@@ -43,6 +43,11 @@ export type Attendance = Prisma.AttendanceModel
  */
 export type AttendanceAudit = Prisma.AttendanceAuditModel
 /**
+ * Model BookingLink
+ * 
+ */
+export type BookingLink = Prisma.BookingLinkModel
+/**
  * Model MonthClose
  * 
  */
