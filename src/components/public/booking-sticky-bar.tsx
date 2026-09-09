@@ -46,7 +46,7 @@ export function BookingStickyBar({
           <MessageCircle className="size-6" />
         </a>
         <a href={toTelLink(callNumber)} title={`Call ${callNumber}`}
-          className="flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-xl transition hover:scale-105">
+          className="sahara-pulse flex size-14 items-center justify-center rounded-full bg-primary text-white shadow-xl transition hover:scale-105">
           <Phone className="size-6" />
         </a>
       </div>

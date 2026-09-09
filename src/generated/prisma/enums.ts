@@ -187,7 +187,9 @@ export const ServiceCategory = {
   PEST_CONTROL: 'PEST_CONTROL',
   HOUSEKEEPING: 'HOUSEKEEPING',
   COMMERCIAL_CLEANING: 'COMMERCIAL_CLEANING',
-  AMC: 'AMC'
+  AMC: 'AMC',
+  CUSTOMIZER_PACKAGE: 'CUSTOMIZER_PACKAGE',
+  COMBO_PACKAGE: 'COMBO_PACKAGE'
 } as const
 
 export type ServiceCategory = (typeof ServiceCategory)[keyof typeof ServiceCategory]

@@ -151,6 +151,19 @@
   background: linear-gradient(135deg, #0b5ed7 0%, #0a2540 100%);
 }
 
+/* Utility: attention pulse ring for the Call button */
+@keyframes sahara-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0.5); }
+  70% { box-shadow: 0 0 0 14px rgba(11, 94, 215, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0); }
+}
+.sahara-pulse {
+  animation: sahara-pulse-ring 1.6s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sahara-pulse { animation: none; }
+}
+
 /* Signature pad canvas */
 .signature-canvas {
   touch-action: none;

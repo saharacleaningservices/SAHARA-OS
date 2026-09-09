@@ -33,6 +33,8 @@ export const SERVICE_CATEGORY_LABELS: Record<string, string> = {
   HOUSEKEEPING: "Housekeeping",
   COMMERCIAL_CLEANING: "Commercial Cleaning",
   AMC: "AMC / Annual Contract",
+  CUSTOMIZER_PACKAGE: "Customizer Package",
+  COMBO_PACKAGE: "Combo Package",
 };
 
 export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
@@ -43,6 +45,8 @@ export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
   HOUSEKEEPING: "HOUSEKEEPING",
   COMMERCIAL_CLEANING: "COMMERCIAL_CLEANING",
   AMC: "HOUSEKEEPING",
+  CUSTOMIZER_PACKAGE: "HOUSEKEEPING",
+  COMBO_PACKAGE: "HOME_DEEP_CLEANING",
 };
 
 // Optional package tiers per category (future pricing hooks off these).
@@ -130,6 +134,27 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
     "School Cleaning",
   ],
   AMC: ["Residential", "Commercial"],
+  // Master Prompt v3.3 — category-driven customized & combo workflows.
+  CUSTOMIZER_PACKAGE: [
+    "Sofa Cleaning",
+    "Carpet Cleaning",
+    "Window Cleaning",
+    "Mattress Cleaning",
+    "Balcony Cleaning",
+    "Kitchen Cleaning",
+    "Chimney Cleaning",
+    "Refrigerator Cleaning",
+    "Fan Cleaning",
+    "Floor Cleaning",
+  ],
+  COMBO_PACKAGE: [
+    "Home Cleaning + Sofa Shampooing",
+    "Home Cleaning + Pest Control",
+    "Kitchen + Bathroom Deep Clean",
+    "Sofa + Carpet + Mattress",
+    "Full Home + Pest Control + Sofa",
+    "Move-in / Move-out Combo",
+  ],
 };
 
 // Helper text shown under the "Select Service" dropdown for services that

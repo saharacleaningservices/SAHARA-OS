@@ -203,13 +203,23 @@ export function MapsLocationInput({
               <X className="size-3" /> Remove
             </button>
           </div>
-          {apiKey && coords && (
-            <iframe
-              title="Location preview"
-              className="h-40 w-full rounded-md border-0"
-              loading="lazy"
-              src={buildEmbedUrl(coords, apiKey)}
-            />
+          {coords && (
+            apiKey ? (
+              <iframe
+                title="Location preview"
+                className="h-40 w-full rounded-md border-0"
+                loading="lazy"
+                src={buildEmbedUrl(coords, apiKey)}
+              />
+            ) : (
+              // Keyless preview so a pasted link always shows a map.
+              <iframe
+                title="Location preview"
+                className="h-40 w-full rounded-md border-0"
+                loading="lazy"
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.004}%2C${coords.lat - 0.003}%2C${coords.lng + 0.004}%2C${coords.lat + 0.003}&layer=mapnik&marker=${coords.lat}%2C${coords.lng}`}
+              />
+            )
           )}
         </div>
       )}
