@@ -3,27 +3,56 @@
 // edited without touching send/queue logic — mirrors the existing
 // src/lib/ai/quotation.ts + payment-reminder.ts pattern.
 import { COMPANY } from "@/lib/constants";
+import { GALLERY_PUBLIC_URL, CLEANING_TIPS_URL } from "@/lib/gallery";
 import { formatINR, formatDate } from "@/lib/utils";
 
-export function bookingConfirmationMessage(input: {
+type BookingConfirmationInput = {
   customerName: string;
   service: string;
   area: string;
+  address?: string | null;
   date: Date;
   timeSlot: string;
   jobNumber: string;
-}) {
+  team?: number | null;
+  supervisorName?: string | null;
+  supervisorMobile?: string | null;
+};
+
+export function bookingConfirmationMessage(input: BookingConfirmationInput) {
+  const teamLine = input.team ? `Team: Sahara Team ${input.team}` : `Team: Assigned & briefed`;
+  const supLine = input.supervisorName
+    ? `Supervisor: ${input.supervisorName}${input.supervisorMobile ? ` (${input.supervisorMobile})` : ""}`
+    : null;
   return [
     `Hi ${input.customerName}, your booking with ${COMPANY.name} is confirmed! ✅`,
     ``,
+    `Booking ID: ${input.jobNumber}`,
+    `Date: ${formatDate(input.date)}`,
+    `Time: ${input.timeSlot}`,
     `Service: ${input.service}`,
-    `Location: ${input.area}`,
-    `Date: ${formatDate(input.date)} at ${input.timeSlot}`,
-    `Booking ref: ${input.jobNumber}`,
-    `Track it here: https://app.saharacleaningservices.com/j/${input.jobNumber}`,
+    `Address: ${input.address?.trim() || input.area}`,
+    teamLine,
+    supLine,
     ``,
-    `Our team will reach you on time. Call us on ${COMPANY.phones[0]} for any changes.`,
-  ].join("\n");
+    `Track your booking: https://app.saharacleaningservices.com/j/${input.jobNumber}`,
+    `Before/After gallery: ${GALLERY_PUBLIC_URL}`,
+    `Cleaning & aftercare tips: ${CLEANING_TIPS_URL}`,
+    ``,
+    `Our team will reach you on time. Call ${COMPANY.phones[0]} for any changes.`,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
+/** Short SMS fallback for the booking confirmation. */
+export function bookingConfirmationSms(input: BookingConfirmationInput) {
+  return [
+    `${COMPANY.name}: Booking ${input.jobNumber} confirmed.`,
+    `${formatDate(input.date)} ${input.timeSlot} - ${input.service}.`,
+    `Track: https://app.saharacleaningservices.com/j/${input.jobNumber}`,
+    `Help: ${COMPANY.phones[0]}`,
+  ].join(" ");
 }
 
 export function teamDispatchMessage(input: {

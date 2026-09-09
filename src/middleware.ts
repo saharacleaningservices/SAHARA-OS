@@ -17,6 +17,7 @@ const PUBLIC_PATHS = [
   "/api/webhook",
   "/book",
   "/j/",
+  "/gallery",
 ];
 
 function getSectionFromPath(pathname: string): string | null {

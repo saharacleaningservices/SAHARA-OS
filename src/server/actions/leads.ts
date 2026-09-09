@@ -27,7 +27,8 @@ import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendWhatsApp } from "@/lib/whatsapp";
-import { bookingConfirmationMessage } from "@/lib/whatsapp-templates";
+import { bookingConfirmationMessage, bookingConfirmationSms } from "@/lib/whatsapp-templates";
+import { sendSMS } from "@/lib/sms";
 
 const MIN_JOB_VALUE = COMPANY.minimumJobValue;
 
@@ -398,18 +399,34 @@ export async function confirmBooking(leadId: string, values: unknown) {
     data: { jobId: job.id, actorId: session?.sub, action: `Job ${jobNumber} created from enquiry ${lead.leadNumber}` },
   });
 
+  const supervisor = data.supervisorId
+    ? await db.user.findUnique({ where: { id: data.supervisorId }, select: { name: true, phone: true } }).catch(() => null)
+    : null;
+  const confirmationInput = {
+    customerName: lead.name,
+    service: SERVICE_LABELS[lead.service] ?? lead.service,
+    area: lead.area,
+    address: lead.address,
+    date: scheduledDate,
+    timeSlot: data.timeSlot,
+    jobNumber,
+    team: teamNumber,
+    supervisorName: supervisor?.name ?? null,
+    supervisorMobile: supervisor?.phone ?? null,
+  };
   await sendWhatsApp({
     kind: "BOOKING_CONFIRMATION",
     toNumber: lead.mobile,
     toName: lead.name,
-    body: bookingConfirmationMessage({
-      customerName: lead.name,
-      service: SERVICE_LABELS[lead.service] ?? lead.service,
-      area: lead.area,
-      date: scheduledDate,
-      timeSlot: data.timeSlot,
-      jobNumber,
-    }),
+    body: bookingConfirmationMessage(confirmationInput),
+    relatedType: "Job",
+    relatedId: job.id,
+  }).catch(() => {});
+  await sendSMS({
+    kind: "REMINDER",
+    toNumber: lead.mobile,
+    toName: lead.name,
+    body: bookingConfirmationSms(confirmationInput),
     relatedType: "Job",
     relatedId: job.id,
   }).catch(() => {});

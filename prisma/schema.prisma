@@ -344,6 +344,28 @@ model AttendanceAudit {
   @@index([editedAt])
 }
 
+// Marketing gallery — before/after photos and result videos, uploaded by the
+// office and reused on the booking page, in WhatsApp links and review campaigns.
+model GalleryItem {
+  id           String   @id @default(cuid())
+  type         String   @default("PHOTO") // PHOTO | VIDEO
+  kind         String   @default("GENERAL") // BEFORE | AFTER | GENERAL
+  category     String? // Home Cleaning | Commercial | Painting | Pest Control
+  url          String
+  thumbnailUrl String?
+  caption      String?
+  jobId        String?
+  pairKey      String? // links a BEFORE + AFTER of the same job
+  featured     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdByName String
+  createdAt    DateTime @default(now())
+
+  @@index([type])
+  @@index([featured])
+  @@index([category])
+}
+
 // Imported / master customer record. The CRM still derives "customers" from
 // Leads + Jobs by mobile; this table is an additive master layer for the
 // existing 6000-customer base (bulk import, merge-by-mobile). Never blocks

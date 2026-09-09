@@ -25,9 +25,11 @@ import {
   PestControlArt,
 } from "@/components/public/service-illustrations";
 import { CompanyLogo } from "@/components/shared/company-logo";
+import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { COMPANY } from "@/lib/constants";
 import { getResolvedIntegrations } from "@/server/integrations";
 import { getCompanySettings } from "@/server/settings";
+import { getFeaturedGallery } from "@/server/actions/gallery";
 import { toWhatsAppLink } from "@/lib/utils";
 
 export const metadata = {
@@ -42,7 +44,7 @@ const NAV = [
   { label: "Home", href: "#top" },
   { label: "Our Services", href: "#services" },
   { label: "Reviews", href: "#reviews" },
-  { label: "Gallery", href: "#gallery" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -74,7 +76,11 @@ export default async function PublicBookingPage({
   searchParams: Promise<{ ref?: string; source?: string; src?: string; customer?: string; phone?: string; name?: string; mobile?: string; bl?: string }>;
 }) {
   const sp = await searchParams;
-  const [{ googleMaps }, settings] = await Promise.all([getResolvedIntegrations(), getCompanySettings()]);
+  const [{ googleMaps }, settings, galleryItems] = await Promise.all([
+    getResolvedIntegrations(),
+    getCompanySettings(),
+    getFeaturedGallery(24),
+  ]);
   const leadSource = (sp.source || sp.src || "").toUpperCase();
   const rating = settings.googleRating || "4.9";
   const reviewCount = settings.googleReviewCount || "1800+";
@@ -260,8 +266,22 @@ export default async function PublicBookingPage({
         </div>
       </main>
 
+      {/* ── Before & After gallery ────────────────────────────── */}
+      {galleryItems.length > 0 && (
+        <section id="gallery" className="scroll-mt-20 border-y border-border bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-8">
+            <BeforeAfterGallery items={galleryItems} />
+            <div className="mt-5 text-center">
+              <a href="/gallery" target="_blank" rel="noreferrer" className="text-sm font-semibold text-primary hover:underline">
+                See all our work →
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── Bottom trust row ──────────────────────────────────── */}
-      <div id="gallery" className="border-y border-border bg-white">
+      <div className="border-y border-border bg-white">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-6 sm:grid-cols-4">
           {BOTTOM_TRUST.map(({ icon: Icon, title, sub }) => (
             <div key={title} className="flex items-center gap-3">

@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/session";
 import { isSameOrigin } from "@/lib/csrf";
 
-const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo"];
+const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo", "gallery"];
 const AUDIO_FOLDERS = ["voice"];
 const VIDEO_FOLDERS = ["videos"];
 // Document folders accept images OR PDFs — staff KYC docs, company profile

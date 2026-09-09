@@ -43,6 +43,11 @@ export type Attendance = Prisma.AttendanceModel
  */
 export type AttendanceAudit = Prisma.AttendanceAuditModel
 /**
+ * Model GalleryItem
+ * 
+ */
+export type GalleryItem = Prisma.GalleryItemModel
+/**
  * Model Customer
  * 
  */

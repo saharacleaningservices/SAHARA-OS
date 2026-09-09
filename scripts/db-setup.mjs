@@ -982,4 +982,31 @@ db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_status_idx" ON "SmsMessage"("sta
 db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_createdAt_idx" ON "SmsMessage"("createdAt");`);
 console.log("v3.1 batch-10 (sms gateway) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.3 — Batch 14: marketing gallery (before/after photos and
+// result videos), reused on the booking page, WhatsApp links and review
+// campaigns. New table only; additive + idempotent.
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "GalleryItem" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "type" TEXT NOT NULL DEFAULT 'PHOTO',
+    "kind" TEXT NOT NULL DEFAULT 'GENERAL',
+    "category" TEXT,
+    "url" TEXT NOT NULL,
+    "thumbnailUrl" TEXT,
+    "caption" TEXT,
+    "jobId" TEXT,
+    "pairKey" TEXT,
+    "featured" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdByName" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_type_idx" ON "GalleryItem"("type");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_featured_idx" ON "GalleryItem"("featured");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_category_idx" ON "GalleryItem"("category");`);
+console.log("v3.3 batch-14 (marketing gallery) migration complete.");
+
 db.close();
