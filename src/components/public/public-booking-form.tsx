@@ -12,7 +12,7 @@ import { ServiceCategoryPicker } from "@/components/shared/service-category-pick
 import { MapsLocationInput, type MapsLocationValue } from "@/components/shared/maps-location-input";
 import { UpsellOfferCard, type UpsellOffer } from "@/components/shared/upsell-offer-card";
 import { PaymentDetailsBox, type CompanyPaymentDetails } from "@/components/shared/payment-details-box";
-import { TIME_SLOTS, ADDON_SERVICES, COMBO_SERVICES, PAYMENT_MODES, PAYMENT_MODE_LABELS } from "@/lib/constants";
+import { TIME_SLOTS, ADDON_SERVICE_PRICES, COMBO_SERVICES, PAYMENT_MODES, PAYMENT_MODE_LABELS, propertyTypesFor } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { publicBookLead } from "@/server/actions/public-booking";
 
@@ -32,11 +32,11 @@ export function PublicBookingForm({
   const [alternateMobile, setAlternateMobile] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
-  const [pinCode, setPinCode] = useState("");
   const [serviceDate, setServiceDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("");
   const [category, setCategory] = useState("HOME_DEEP_CLEANING");
   const [variant, setVariant] = useState("");
+  const [propertyType, setPropertyType] = useState("");
   const [packageName, setPackageName] = useState("");
   const [addOns, setAddOns] = useState<string[]>([]);
   const [combos, setCombos] = useState<string[]>([]);
@@ -70,9 +70,10 @@ export function PublicBookingForm({
       alternateMobile,
       email,
       address,
-      pinCode,
+      pinCode: "",
       serviceCategory: category,
       serviceVariant: variant,
+      propertyType,
       packageName,
       comboServices: combos,
       addOnServices: addOns,
@@ -126,6 +127,7 @@ export function PublicBookingForm({
           {row("Booking ID", done.leadNumber)}
           {row("Customer", name)}
           {row("Service", `${variant || "—"}`)}
+          {propertyType ? row("Property Type", propertyType) : null}
           {packageName ? row("Package", packageName) : null}
           {combos.length ? row("Combo Services", combos.join(", ")) : null}
           {serviceDate ? row("Requested date", serviceDate) : null}
@@ -144,14 +146,12 @@ export function PublicBookingForm({
           >
             Message us on WhatsApp
           </a>
-          <button
-            type="button"
-            disabled
-            className="w-full cursor-not-allowed rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground"
-            title="Booking tracking is coming soon"
+          <a
+            href="tel:+917083347130"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary px-4 py-2.5 text-sm font-semibold text-primary"
           >
-            Track Booking (coming soon)
-          </button>
+            Call 7083347130
+          </a>
         </div>
       </div>
     );
@@ -177,15 +177,9 @@ export function PublicBookingForm({
         <Label htmlFor="pb-email">Email (optional)</Label>
         <Input id="pb-email" type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_130px]">
-        <div className="space-y-1.5">
-          <Label htmlFor="pb-address">Full Address</Label>
-          <Textarea id="pb-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder="Flat / house no, building, street, landmark" required />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="pb-pin">PIN Code</Label>
-          <Input id="pb-pin" inputMode="numeric" maxLength={6} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))} placeholder="411028" required />
-        </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="pb-address">Full Address</Label>
+        <Textarea id="pb-address" value={address} onChange={(e) => setAddress(e.target.value)} rows={2} placeholder="Flat / house no, building, street, area, landmark" required />
       </div>
 
       <MapsLocationInput value={loc} onChange={setLoc} apiKey={mapsApiKey} />
@@ -194,10 +188,29 @@ export function PublicBookingForm({
         category={category}
         variant={variant}
         packageName={packageName}
-        onCategoryChange={(v) => { setCategory(v); setVariant(""); setPackageName(""); }}
+        onCategoryChange={(v) => { setCategory(v); setVariant(""); setPackageName(""); setPropertyType(""); }}
         onVariantChange={setVariant}
         onPackageChange={setPackageName}
       />
+
+      <div className="space-y-1.5">
+        <Label>Property Type</Label>
+        <Select value={propertyType} onValueChange={setPropertyType}>
+          <SelectTrigger><SelectValue placeholder="Select property type" /></SelectTrigger>
+          <SelectContent>
+            {propertyTypesFor(category).map((t) => (
+              <SelectItem key={t} value={t}>{t}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Combo Package (optional)</Label>
+        <div className="rounded-lg border border-dashed border-border bg-muted/30 px-3 py-2.5 text-sm text-muted-foreground">
+          Choose Combo Package — <span className="font-medium">Coming Soon</span>
+        </div>
+      </div>
 
       <div className="space-y-2">
         <Label>Combo Services (optional)</Label>
@@ -218,20 +231,23 @@ export function PublicBookingForm({
 
       <div className="space-y-2">
         <Label>Add-on Services (optional)</Label>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {ADDON_SERVICES.map((svc) => (
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {ADDON_SERVICE_PRICES.map(({ name: svc, price }) => (
             <label
               key={svc}
-              className={`flex cursor-pointer items-center gap-2 rounded-lg border p-2 text-sm ${
+              className={`flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-2.5 text-sm ${
                 addOns.includes(svc) ? "border-primary bg-accent" : "border-border"
               }`}
             >
-              <Checkbox checked={addOns.includes(svc)} onCheckedChange={() => toggleAddOn(svc)} />
-              <span>{svc}</span>
+              <span className="flex items-center gap-2">
+                <Checkbox checked={addOns.includes(svc)} onCheckedChange={() => toggleAddOn(svc)} />
+                <span>{svc}</span>
+              </span>
+              <span className="text-xs font-medium text-muted-foreground">{price}</span>
             </label>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Price will be shared after quotation.</p>
+        <p className="text-xs text-muted-foreground">Indicative pricing — final amount confirmed after a quick quotation.</p>
       </div>
 
       <UpsellOfferCard category={category} onChange={(offer, accepted) => setUpsell({ offer, accepted })} />
@@ -314,11 +330,11 @@ export function PublicBookingForm({
           onClick={() => submitBooking(true)}
         >
           {submitting && <Loader2 className="animate-spin" />}
-          {advNum > 0 ? `I've Paid ${formatINR(advNum)} Advance` : "I've Paid the Advance"}
+          {advNum > 0 ? `Pay ${formatINR(advNum)} Advance` : "Pay Advance"}
         </Button>
         <Button type="submit" className="w-full" size="lg" variant="outline" disabled={submitting}>
           {submitting && <Loader2 className="animate-spin" />}
-          Book Now, Pay Later
+          Pay Later &amp; Confirm Booking
         </Button>
       </div>
       <p className="text-center text-xs text-muted-foreground">Confirmation within 5–15 minutes.</p>

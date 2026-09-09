@@ -321,6 +321,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
       area: lead.area,
       service: lead.service,
       serviceVariant: lead.serviceVariant,
+      propertyType: lead.propertyType,
       packageName: lead.packageName,
       comboServices: lead.comboServices,
       pinCode: lead.pinCode,

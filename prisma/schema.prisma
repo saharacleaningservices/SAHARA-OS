@@ -383,6 +383,7 @@ model Lead {
 
   serviceCategory  ServiceCategory?
   serviceVariant   String?
+  propertyType     String?   // 1-5 BHK / Villa / Office / Shop … (v2.0 booking form)
   packageName      String?   // optional package tier (Premium/Platinum/…)
   comboServices    String?   // JSON array of combo bundles picked
   assignedStaffIds String?   // JSON array of Staff ids — multi-staff assignment; assignedStaffId stays as the primary
@@ -498,6 +499,7 @@ model Job {
   pinCode          String?
   service          ServiceType
   serviceVariant   String? // "flat type" / package, carried from the Lead
+  propertyType     String? // carried from the Lead
   packageName      String? // optional package tier, carried from the Lead
   comboServices    String? // JSON array of combo bundles, carried from the Lead
 
@@ -688,7 +690,11 @@ model CompanySettings {
   address   String   @default("Opp. South Gate, Magarpatta City, Hadapsar, Pune.")
   website   String?
   logoUrl   String?
-  googleReviewUrl String?
+  googleReviewUrl   String?
+  googleRating      String?  @default("4.9")
+  googleReviewCount String?  @default("1800+")
+  happyCustomers    String?  @default("8000+")
+  featuredReviews   String?  // JSON [{ name, text, rating }] shown in the booking-page carousel
 
   // Payment collection details shown to customers (booking form) and used to
   // build the "Send Payment Link" WhatsApp message.

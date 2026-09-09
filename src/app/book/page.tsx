@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Phone, MessageCircle, Globe, ShieldCheck, BadgeCheck, Lock, IndianRupee, Sparkles, Clock3, Award } from "lucide-react";
+import { Phone, MessageCircle, Globe, ShieldCheck, BadgeCheck, Star, IndianRupee, Sparkles, Clock3, Award } from "lucide-react";
 import { FaInstagram, FaFacebookF } from "react-icons/fa6";
 import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { BookingFloatingContacts } from "@/components/public/booking-floating-contacts";
@@ -29,6 +29,17 @@ export default async function PublicBookingPage({
   ]);
   const leadSource = (source || src || "").toUpperCase();
   const website = settings.website || COMPANY.website;
+  const rating = settings.googleRating || "4.9";
+  const reviewCount = settings.googleReviewCount || "1800+";
+  const happyCustomers = settings.happyCustomers || "8000+";
+  const reviewUrl = settings.googleReviewUrl || "";
+  let featured: { name: string; text: string; rating?: number }[] = [];
+  try {
+    const parsed = settings.featuredReviews ? JSON.parse(settings.featuredReviews) : [];
+    if (Array.isArray(parsed)) featured = parsed.filter((r) => r && r.text && r.name).slice(0, 5);
+  } catch {
+    featured = [];
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -78,8 +89,25 @@ export default async function PublicBookingPage({
               Pune&apos;s Trusted Deep Cleaning Experts
             </h2>
             <p className="text-sm text-white/85 sm:text-base">
-              Home • Office • Pest Control • Interior Painting
+              Home Cleaning • Commercial Cleaning • Interior Painting • Pest Control
             </p>
+
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold">
+              <span className="flex items-center gap-1 rounded-full bg-white/15 px-3 py-1">
+                <Star className="size-3.5 fill-current text-yellow-300" /> {rating}/5
+              </span>
+              <span className="rounded-full bg-white/15 px-3 py-1">{reviewCount} Reviews</span>
+              <span className="rounded-full bg-white/15 px-3 py-1">{happyCustomers} Customers Served</span>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              <a href="#book" className="rounded-full bg-white px-5 py-2 text-sm font-bold text-primary shadow-lg">Book Now</a>
+              {reviewUrl && (
+                <a href={reviewUrl} target="_blank" rel="noreferrer" className="rounded-full border border-white/60 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10">
+                  View Google Reviews
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -87,15 +115,40 @@ export default async function PublicBookingPage({
       {/* ── Trust strip ──────────────────────────────────────────── */}
       <div className="bg-success text-success-foreground">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-1.5 px-4 py-2.5 text-[11px] font-semibold sm:text-xs">
-          <span className="flex items-center gap-1.5"><Lock className="size-3.5" /> SSL Secure</span>
-          <span className="flex items-center gap-1.5"><BadgeCheck className="size-3.5" /> Verified Business</span>
-          <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5" /> GST Registered</span>
-          <span className="flex items-center gap-1.5"><IndianRupee className="size-3.5" /> No Hidden Charges</span>
+          <span className="flex items-center gap-1.5"><Star className="size-3.5 fill-current" /> {rating}/5 Google Rating</span>
+          <span className="flex items-center gap-1.5"><BadgeCheck className="size-3.5" /> {reviewCount} Google Reviews</span>
+          <span className="flex items-center gap-1.5"><ShieldCheck className="size-3.5" /> {happyCustomers} Happy Customers</span>
+          <span className="flex items-center gap-1.5"><IndianRupee className="size-3.5" /> Trusted Cleaning Service in Pune</span>
         </div>
       </div>
 
+      {reviewUrl && (
+        <div className="border-b border-border bg-card">
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 px-4 py-4 text-center">
+            <div className="flex items-center gap-1 text-warning">
+              {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="size-4 fill-current" />)}
+              <span className="ml-1.5 text-sm font-semibold text-foreground">{rating} · {reviewCount} reviews</span>
+            </div>
+            {featured.length > 0 && (
+              <div className="flex w-full snap-x gap-3 overflow-x-auto pb-1">
+                {featured.map((r, i) => (
+                  <blockquote key={i} className="min-w-[240px] max-w-[280px] snap-start rounded-xl border border-border bg-muted/30 p-3 text-left">
+                    <p className="text-warning">{"★".repeat(Math.round(r.rating || 5))}</p>
+                    <p className="mt-1 text-xs text-foreground">&ldquo;{r.text}&rdquo;</p>
+                    <footer className="mt-1.5 text-[11px] font-medium text-muted-foreground">— {r.name}</footer>
+                  </blockquote>
+                ))}
+              </div>
+            )}
+            <a href={reviewUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-primary px-4 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5">
+              <Star className="size-3.5" /> View all Google Reviews
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* ── Booking form ─────────────────────────────────────────── */}
-      <main className="mx-auto max-w-xl px-4 py-8">
+      <main id="book" className="mx-auto max-w-xl px-4 py-8 scroll-mt-4">
         {/* urgency banner */}
         <div className="mb-4 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-center text-xs font-semibold text-success">
           ⚡ Today&apos;s slots are filling fast — book now to lock your preferred time.

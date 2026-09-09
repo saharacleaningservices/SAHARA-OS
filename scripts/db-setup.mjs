@@ -880,4 +880,22 @@ db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "MonthClose_year_month_key" ON "Month
 
 console.log("v2.0 batch-1 (attendance/salary) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v2.0 — Batch 2: Premium booking page. Additive columns only.
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("Lead", "propertyType", `"propertyType" TEXT`);
+addColumnIfMissing("Job", "propertyType", `"propertyType" TEXT`);
+addColumnIfMissing("CompanySettings", "googleRating", `"googleRating" TEXT`);
+addColumnIfMissing("CompanySettings", "googleReviewCount", `"googleReviewCount" TEXT`);
+addColumnIfMissing("CompanySettings", "happyCustomers", `"happyCustomers" TEXT`);
+addColumnIfMissing("CompanySettings", "featuredReviews", `"featuredReviews" TEXT`);
+db.prepare(
+  `UPDATE "CompanySettings" SET
+     "googleRating" = COALESCE("googleRating", '4.9'),
+     "googleReviewCount" = COALESCE("googleReviewCount", '1800+'),
+     "happyCustomers" = COALESCE("happyCustomers", '8000+')
+   WHERE "id" = 'default'`
+).run();
+console.log("v2.0 batch-2 (premium booking) migration complete.");
+
 db.close();
