@@ -396,6 +396,57 @@ export async function getStaffLedger(staffId: string, year: number, month: numbe
   };
 }
 
+/**
+ * The signed-in user's own attendance + salary figures for a month — powers
+ * the "My Attendance & Salary" card in the Staff Portal. Resolves User → Staff
+ * by the linked userId, falling back to a phone-number match. Returns null if
+ * the account isn't linked to a field-staff record.
+ */
+export async function getMyStaffLedger(userId: string | null, year: number, month: number) {
+  if (!userId) return null;
+  let staff = await db.staff.findFirst({ where: { userId, deletedAt: null } });
+  if (!staff) {
+    const user = await db.user.findUnique({ where: { id: userId }, select: { phone: true } });
+    const digits = (user?.phone ?? "").replace(/\D/g, "").slice(-10);
+    if (digits.length === 10) {
+      staff = await db.staff.findFirst({ where: { mobile: { contains: digits }, deletedAt: null } });
+    }
+  }
+  if (!staff) return null;
+
+  const ledger = await getStaffLedger(staff.id, year, month);
+  const absentDays = ledger.attendance.filter((a) => a.status === "ABSENT").length;
+  const leaveDays = ledger.attendance.filter((a) => a.status === "LEAVE").length;
+  const weeklyOffDays = ledger.attendance.filter((a) => a.status === "WEEKLY_OFF").length;
+
+  // Overtime hours = worked time beyond 8h on any day with both a check-in and
+  // check-out recorded.
+  const overtimeHours = ledger.attendance.reduce((sum, a) => {
+    if (!a.checkInTime || !a.checkOutTime) return sum;
+    const hrs = (new Date(a.checkOutTime).getTime() - new Date(a.checkInTime).getTime()) / 3600000;
+    return sum + Math.max(hrs - 8, 0);
+  }, 0);
+
+  return {
+    staff: { id: staff.id, name: staff.name, employeeCode: staff.employeeCode, designation: staff.designation },
+    year,
+    month,
+    presentDays: ledger.presentDays,
+    fullDays: ledger.fullDays,
+    halfDays: ledger.halfDays,
+    absentDays,
+    leaveDays,
+    weeklyOffDays,
+    overtimeHours: Math.round(overtimeHours * 10) / 10,
+    payableDays: ledger.payableDays,
+    earned: ledger.earned,
+    advanceTotal: ledger.advanceTotal,
+    fineTotal: ledger.fineTotal,
+    rewardTotal: ledger.rewardTotal,
+    balance: ledger.netBalance,
+  };
+}
+
 /** Monthly attendance + payroll summary for every active staff member. */
 export async function getMonthlyLedgerForAllStaff(year: number, month: number) {
   const staff = await db.staff.findMany({

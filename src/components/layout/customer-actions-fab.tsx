@@ -13,6 +13,8 @@ import {
   MessageSquare,
   Phone,
   Copy,
+  IndianRupee,
+  Images,
 } from "lucide-react";
 import { toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { searchCustomersQuick, sendCustomerSMS } from "@/server/actions/customer-actions";
@@ -42,7 +44,7 @@ export function CustomerActionsFab() {
     setRows([]);
   }
 
-  function act(kind: "BOOKING_FORM" | "REVIEW") {
+  function act(kind: "BOOKING_FORM" | "REVIEW" | "PAYMENT" | "GALLERY") {
     if (!picked) return;
     startTransition(async () => {
       const r = await createBookingLink({ kind, name: picked.name, mobile: picked.mobile, leadId: picked.leadId });
@@ -51,7 +53,13 @@ export function CustomerActionsFab() {
         return;
       }
       window.open(r.waUrl, "_blank", "noopener");
-      toast.success(kind === "REVIEW" ? "Review link created" : "Booking form link created");
+      const msg: Record<typeof kind, string> = {
+        BOOKING_FORM: "Booking form link created",
+        REVIEW: "Review link created",
+        PAYMENT: "Payment link created",
+        GALLERY: "Gallery link created",
+      };
+      toast.success(msg[kind]);
     });
   }
 
@@ -82,6 +90,8 @@ export function CustomerActionsFab() {
     ? [
         { label: "Send Booking Form", icon: Send, run: () => act("BOOKING_FORM") },
         { label: "Send Google Review Link", icon: Star, run: () => act("REVIEW") },
+        { label: "Send Payment Link", icon: IndianRupee, run: () => act("PAYMENT") },
+        { label: "Send Before/After Gallery", icon: Images, run: () => act("GALLERY") },
         { label: "WhatsApp Customer", icon: MessageCircle, href: toWhatsAppLink(picked.mobile) },
         { label: "SMS Customer", icon: MessageSquare, run: sms },
         { label: "Call Customer", icon: Phone, href: toTelLink(picked.mobile) },
