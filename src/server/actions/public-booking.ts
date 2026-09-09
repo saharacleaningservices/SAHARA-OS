@@ -19,9 +19,10 @@ const publicBookingSchema = z.object({
   email: z.string().email("Enter a valid email").optional().or(z.literal("")),
   area: z.string().optional().or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
-  pinCode: z.string().regex(/^\d{6}$/, "Enter a 6-digit PIN code").optional().or(z.literal("")),
+  pinCode: z.string().optional().or(z.literal("")),
   serviceCategory: z.string().min(1, "Pick a service"),
   serviceVariant: z.string().optional().or(z.literal("")),
+  propertyType: z.string().optional().or(z.literal("")),
   packageName: z.string().optional().or(z.literal("")),
   comboServices: z.array(z.string()).optional(),
   addOnServices: z.array(z.string()).optional(),
@@ -71,6 +72,13 @@ export async function publicBookLead(values: unknown) {
   const addOns = (data.addOnServices ?? []).filter(Boolean);
   const combos = (data.comboServices ?? []).filter(Boolean);
 
+  // Repeat-customer detection — never blocks the booking; the app has no
+  // separate Customer table (customers are grouped by mobile), so there is no
+  // duplicate record to create. Flag it so the office sees the history.
+  const priorLeads = await db.lead.count({ where: { mobile: data.mobile, deletedAt: null } });
+  const priorJobs = await db.job.count({ where: { customerMobile: data.mobile, deletedAt: null } });
+  const isRepeatCustomer = priorLeads + priorJobs > 0;
+
   const estimated = data.estimatedAmount && data.estimatedAmount > 0 ? data.estimatedAmount : null;
   const advance = data.advancePaid && data.advanceAmount && data.advanceAmount > 0 ? data.advanceAmount : 0;
   const paymentStatus = advance > 0
@@ -94,6 +102,7 @@ export async function publicBookLead(values: unknown) {
       service: legacyService as never,
       serviceCategory: data.serviceCategory as never,
       serviceVariant: data.serviceVariant || null,
+      propertyType: data.propertyType || null,
       packageName: data.packageName || null,
       comboServices: combos.length ? JSON.stringify(combos) : null,
       quoteAmount: estimated,
@@ -155,6 +164,8 @@ export async function publicBookLead(values: unknown) {
     type: "SYSTEM",
     body: [
       `Booked online (${source.toLowerCase()}) via app.saharacleaningservices.com/book (unverified — no OTP yet)`,
+      isRepeatCustomer ? `⭐ Existing customer — ${priorLeads} prior enquir${priorLeads === 1 ? "y" : "ies"}, ${priorJobs} job(s) on this number` : null,
+      data.propertyType ? `Property type: ${data.propertyType}` : null,
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
       data.packageName ? `Package: ${data.packageName}` : null,
@@ -211,7 +222,7 @@ export async function publicBookLead(values: unknown) {
   // Real-time alert: loud notification + popup + vibration; tap opens the lead.
   await notify({
     kind: "NEW_BOOKING",
-    title: `New booking — ${data.name}`,
+    title: `New booking — ${data.name}${isRepeatCustomer ? " (repeat customer)" : ""}`,
     body: [
       `${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}`,
       data.address || (data.pinCode ? `PIN ${data.pinCode}` : ""),

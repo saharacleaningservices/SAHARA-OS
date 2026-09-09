@@ -91,27 +91,72 @@ export const LEGACY_TO_SERVICE_CATEGORY: Record<string, string> = {
   COMMERCIAL_CLEANING: "COMMERCIAL_CLEANING",
 };
 
+// Master Prompt v2.0 Phase 2 — customer-facing service dropdowns. "Select
+// Service" (this catalog) is distinct from "Property Type" (PROPERTY_TYPES).
 export const SERVICE_CATALOG: Record<string, string[]> = {
   HOME_DEEP_CLEANING: [
-    "1 RK",
-    "1 BHK",
-    "2 BHK",
-    "3 BHK",
-    "4 BHK",
-    "5 BHK",
-    "Duplex",
-    "Villa",
-    "Bungalow",
-    "Row House",
-    "Individual House",
+    "Full Home Cleaning",
+    "Sofa Cleaning (min 5 seats)",
+    "Mattress Cleaning (min 2)",
+    "Carpet Cleaning (min 2)",
+    "Window Cleaning (₹250/window, min 5)",
+    "Bathroom Cleaning (₹1000, min 2 bathrooms)",
+    "Kitchen Deep Cleaning (₹1600 onwards)",
   ],
-  INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Floor", "Fan", "Fridge", "Balcony"],
-  PAINTING: ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Full House", "Office / Commercial", "Exterior", "Waterproofing"],
-  PEST_CONTROL: ["Cockroach", "Termite", "Bed Bug", "Rodent", "Mosquito", "General Pest Control"],
+  INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Fan", "Fridge", "Balcony"],
+  PAINTING: [
+    "Oil Bound Painting",
+    "Emulsion Painting",
+    "Premium Emulsion",
+    "Royal Lustre",
+    "Oil Lustre",
+    "Texture Painting",
+    "Putty + Paint",
+    "Full Interior Painting",
+  ],
+  PEST_CONTROL: [
+    "General Pest Control",
+    "Cockroach Treatment",
+    "Bed Bug Treatment",
+    "Rodent Treatment",
+    "Termite Treatment",
+    "Mosquito Treatment",
+  ],
   HOUSEKEEPING: ["Daily", "Weekly", "Monthly", "One-time"],
-  COMMERCIAL_CLEANING: ["Office", "Shop", "Clinic", "Restaurant", "Showroom", "Warehouse"],
+  COMMERCIAL_CLEANING: [
+    "Office Cleaning",
+    "Shop Cleaning",
+    "Warehouse Cleaning",
+    "Hospital Cleaning",
+    "Factory Cleaning",
+    "Society / Common Area Cleaning",
+    "Restaurant Cleaning",
+    "Customized Commercial Cleaning",
+  ],
   AMC: ["Residential", "Commercial"],
 };
+
+// Property type — asked once, options depend on whether the category is a
+// commercial one. Stored on Lead.propertyType / Job.propertyType.
+export const HOME_PROPERTY_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow", "Row House"] as const;
+export const COMMERCIAL_PROPERTY_TYPES = ["Office", "Shop", "Showroom", "Warehouse", "Factory", "Hospital / Clinic", "Restaurant", "Society / Complex"] as const;
+export const COMMERCIAL_CATEGORIES = ["COMMERCIAL_CLEANING"];
+export function propertyTypesFor(category: string): readonly string[] {
+  return COMMERCIAL_CATEGORIES.includes(category) ? COMMERCIAL_PROPERTY_TYPES : HOME_PROPERTY_TYPES;
+}
+
+// Add-on services with indicative pricing shown on the booking form.
+export const ADDON_SERVICE_PRICES: { name: string; price: string }[] = [
+  { name: "Sofa Shampooing", price: "₹499 / seat" },
+  { name: "Mattress Shampooing", price: "₹399" },
+  { name: "Carpet Cleaning", price: "₹250 onwards" },
+  { name: "Refrigerator Cleaning", price: "₹499" },
+  { name: "Bathroom Cleaning", price: "₹1000" },
+  { name: "Kitchen Deep Cleaning", price: "₹1600" },
+  { name: "Cockroach Treatment", price: "₹999" },
+  { name: "Bed Bug Treatment", price: "₹1499" },
+  { name: "Rodent Treatment", price: "₹999" },
+];
 
 export const LEAD_SOURCE_LABELS: Record<string, string> = {
   CALL: "Call",
