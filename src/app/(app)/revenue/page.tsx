@@ -1,5 +1,6 @@
 import { getRevenueDashboard } from "@/server/revenue";
 import { getServiceAnalytics } from "@/server/analytics";
+import { getLeadSourceStats } from "@/server/owner";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +34,11 @@ function RevenueBars({ rows, total }: { rows: { label: string; value: number }[]
 
 export default async function RevenueDashboardPage() {
   await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
-  const [data, analytics] = await Promise.all([getRevenueDashboard(), getServiceAnalytics()]);
+  const [data, analytics, sourceStats] = await Promise.all([
+    getRevenueDashboard(),
+    getServiceAnalytics(),
+    getLeadSourceStats(3),
+  ]);
   const serviceTotal = data.serviceRevenue.reduce((s, r) => s + r.value, 0);
   const sourceTotal = data.sourceRevenue.reduce((s, r) => s + r.value, 0);
 
@@ -113,6 +118,37 @@ export default async function RevenueDashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* ── Lead source intelligence ─────────────────────────────── */}
+      {sourceStats.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>Lead Source Intelligence — last 3 months</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Source</TableHead>
+                  <TableHead className="text-right">Leads</TableHead>
+                  <TableHead className="text-right">Converted</TableHead>
+                  <TableHead className="text-right">Conversion</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sourceStats.map((s) => (
+                  <TableRow key={s.source}>
+                    <TableCell className="text-sm font-medium text-foreground">{s.label}</TableCell>
+                    <TableCell className="text-right text-sm">{s.leads}</TableCell>
+                    <TableCell className="text-right text-sm">{s.converted}</TableCell>
+                    <TableCell className="text-right text-sm font-medium">{s.conversion}%</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       <p className="text-xs text-muted-foreground">
         Collection Rate = collected / total invoiced. Average Ticket & service/source splits are computed over the
