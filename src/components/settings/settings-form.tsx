@@ -202,7 +202,7 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/30 p-4">
-            <CompanyLogo logoUrl={logoUrl} className="h-12 w-auto max-w-[220px]" />
+            <CompanyLogo logoUrl={logoUrl} className="h-12 w-auto max-w-[220px]" showTm />
           </div>
           <div className="flex items-center gap-3">
             <Button
@@ -228,10 +228,11 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <p className="text-xs text-muted-foreground">PNG, JPG or SVG · up to 8MB</p>
           </div>
           <p className="text-xs text-muted-foreground">
-            This custom logo shows in the header. The sidebar icon, login page, browser favicon and app icon always
-            use Sahara OS&apos;s built-in mark, so they stay reliable even if this upload is ever lost — and if it
-            ever fails to load, the header falls back to the built-in mark automatically rather than showing a
-            broken image.
+            This logo now appears everywhere — sidebar, header, login page, booking page, footer, browser
+            favicon and app icon — right after the official file at <code>/brand/sahara-logo.png</code> if
+            that has been added (that one always wins when present). If this upload is ever lost, missing or
+            fails to load, every surface falls back to the built-in Sahara mark automatically, so nothing
+            ever shows a broken image.
           </p>
         </CardContent>
       </Card>
