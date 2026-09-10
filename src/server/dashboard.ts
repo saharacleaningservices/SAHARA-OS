@@ -35,6 +35,7 @@ export async function getDashboardData() {
     reviews30Count,
     recentLeads,
     todaysJobs,
+    upcomingJobs,
     overduePayments,
     followUpsToday,
     followUpsTomorrow,
@@ -83,6 +84,12 @@ export async function getDashboardData() {
       orderBy: { scheduledTime: "asc" },
       include: { supervisor: true },
       take: 8,
+    }),
+    db.job.findMany({
+      where: { deletedAt: null, status: { not: "COMPLETED" }, scheduledDate: { gte: todayStart, lte: weekAheadEnd } },
+      orderBy: [{ scheduledDate: "asc" }, { scheduledTime: "asc" }],
+      include: { supervisor: true },
+      take: 10,
     }),
     db.payment.findMany({
       where: { deletedAt: null, status: "OVERDUE" },
@@ -209,6 +216,7 @@ export async function getDashboardData() {
     recentLeads,
     recentContacts,
     todaysJobs,
+    upcomingJobs,
     overduePayments,
     followUpsToday,
     followUpsTomorrow,
