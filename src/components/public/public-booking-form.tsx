@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -264,7 +265,7 @@ export function PublicBookingForm({
           <Label htmlFor="pb-date">Preferred Date <span className="text-destructive">*</span></Label>
           <div className={iconInput}>
             <CalendarDays className={`${iconEl} size-4`} />
-            <Input id="pb-date" type="date" className="pl-9" value={serviceDate} onChange={(e) => setServiceDate(e.target.value)} required />
+            <DateInput id="pb-date" className="pl-9" value={serviceDate} onChange={(e) => setServiceDate(e.target.value)} required />
           </div>
         </div>
         <div className={fieldWrap}>
