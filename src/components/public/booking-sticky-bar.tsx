@@ -26,7 +26,7 @@ export function BookingStickyBar({
         <a href={toWhatsAppLink(whatsappNumber)} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-success">
           <MessageCircle className="size-5" /> WhatsApp
         </a>
-        <a href="#book" className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-semibold text-foreground">
+        <a href="#book" className="sahara-pulse flex flex-col items-center gap-0.5 rounded-lg py-2.5 text-[11px] font-semibold text-foreground">
           <CalendarCheck className="size-5" /> Book Now
         </a>
         <a
