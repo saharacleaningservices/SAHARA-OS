@@ -27,6 +27,7 @@ import { LeadStageBadge, JobStatusBadge } from "@/components/shared/status-badge
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { FollowUpBoard } from "@/components/dashboard/followup-board";
 import { DashboardQuickActions } from "@/components/dashboard/dashboard-quick-actions";
+import { UpcomingJobsTable } from "@/components/dashboard/upcoming-jobs-table";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, canAccess } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
@@ -39,6 +40,7 @@ export default async function DashboardPage() {
       stats,
       recentLeads,
       todaysJobs,
+      upcomingJobs,
       overduePayments,
       followUpsToday,
       followUpsTomorrow,
@@ -64,6 +66,48 @@ export default async function DashboardPage() {
         title={`Welcome back, ${firstName}`}
         description="Here's what's happening at Sahara Cleaning Services today."
       />
+
+      {/* Sahara CRM Dashboard Redesign — Phase 1: the four numbers the
+          office checks first, above everything else. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard
+          href="/jobs?when=today"
+          label="Today's Jobs"
+          value={stats.todaysJobsCount}
+          icon={<ClipboardList className="size-4" />}
+          tone="primary"
+          glow={stats.todaysJobsCount > 0}
+        />
+        {showRevenue && (
+          <StatCard
+            href="/payments?filter=pending"
+            label="Pending Collection"
+            value={formatINR(stats.pendingPaymentsTotal)}
+            icon={<Wallet className="size-4" />}
+            tone="orange"
+            glow={stats.pendingPaymentsTotal > 0}
+          />
+        )}
+        {showCrm && (
+          <StatCard
+            href="/leads?due=today"
+            label="Today's Leads"
+            value={stats.todaysLeadsCount}
+            icon={<Users className="size-4" />}
+            tone="blue"
+          />
+        )}
+        {showCrm && (
+          <StatCard
+            href="/leads?stage=SITE_VISIT"
+            label="Site Visits Today"
+            value={stats.siteVisitsToday}
+            icon={<MapPin className="size-4" />}
+            tone="indigo"
+            glow={stats.siteVisitsToday > 0}
+          />
+        )}
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* ── Operational quick actions + KPIs ─────────────────── */}
@@ -166,40 +210,41 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      <UpcomingJobsTable jobs={upcomingJobs} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {showCrm && (
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Recent Leads</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/leads">
-                View all <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-1">
-            {recentLeads.length === 0 ? (
-              <EmptyState title="No leads yet" description="New leads will show up here." />
-            ) : (
-              recentLeads.map((lead) => (
-                <Link
-                  key={lead.id}
-                  href={`/leads/${lead.id}`}
-                  className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/50"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-foreground">{lead.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {SERVICE_LABELS[lead.service]} · {lead.area}
-                    </p>
-                  </div>
-                  <LeadStageBadge stage={lead.stage} />
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Recent Leads</CardTitle>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/leads">
+                  View all <ArrowRight className="size-3.5" />
                 </Link>
-              ))
-            )}
-          </CardContent>
-        </Card>
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-1">
+              {recentLeads.length === 0 ? (
+                <EmptyState title="No leads yet" description="New leads will show up here." />
+              ) : (
+                recentLeads.map((lead) => (
+                  <Link
+                    key={lead.id}
+                    href={`/leads/${lead.id}`}
+                    className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/50"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{lead.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {SERVICE_LABELS[lead.service]} · {lead.area}
+                      </p>
+                    </div>
+                    <LeadStageBadge stage={lead.stage} />
+                  </Link>
+                ))
+              )}
+            </CardContent>
+          </Card>
         )}
 
         <Card>
