@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, addDays } from "date-fns";
+import { getTodayAttendanceSummary } from "@/server/attendance";
 
 export async function getDashboardData() {
   const now = new Date();
@@ -44,6 +45,10 @@ export async function getDashboardData() {
     lastMonthPayments,
     monthExpenses,
     lastMonthExpenses,
+    convertedLeadsCount,
+    vehiclesInUseCount,
+    recentReviews,
+    attendanceSummary,
   ] = await Promise.all([
     db.lead.count({ where: { deletedAt: null, createdAt: { gte: todayStart, lte: todayEnd } } }),
     db.lead.count({ where: { deletedAt: null } }),
@@ -130,6 +135,33 @@ export async function getDashboardData() {
       where: { deletedAt: null, date: { gte: lastMonthStart, lte: lastMonthEnd } },
       _sum: { amount: true },
     }),
+    // Conversion Rate — leads that reached CONFIRMED or later in the current
+    // pipeline (Pending Job / Completed), all-time against totalLeadsCount.
+    // All-time (not "this month") so a small monthly lead volume doesn't
+    // make the percentage swing wildly day to day.
+    db.lead.count({ where: { deletedAt: null, stage: { in: ["CONFIRMED", "JOB_SCHEDULED", "COMPLETED"] } } }),
+    // Vehicle Status — active vehicles currently tied to a job in progress
+    // today (Assigned/On the Way/Started). vehiclesActiveCount minus this is
+    // "available".
+    db.vehicle.count({
+      where: {
+        isActive: true,
+        jobs: {
+          some: {
+            deletedAt: null,
+            scheduledDate: { gte: todayStart, lte: todayEnd },
+            status: { in: ["ASSIGNED", "ON_THE_WAY", "STARTED"] },
+          },
+        },
+      },
+    }),
+    // Recent Reviews — real Review rows (customerMobile/rating/comment).
+    // Nothing in the app writes to this table yet (no review-capture flow
+    // wired up), so this list renders empty until that exists — no fake data.
+    db.review.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
+    // Staff Attendance — today's Present/Absent/Half-day summary, reusing
+    // the same aggregation the Attendance page and WhatsApp summary use.
+    getTodayAttendanceSummary(),
   ]);
 
   const monthlyRevenue = monthPayments._sum.paidAmount ?? 0;
@@ -155,6 +187,8 @@ export async function getDashboardData() {
     monthlyRevenue + pendingPaymentsTotal > 0
       ? Math.round((monthlyRevenue / (monthlyRevenue + pendingPaymentsTotal)) * 100)
       : 0;
+
+  const conversionRate = totalLeadsCount > 0 ? Math.round((convertedLeadsCount / totalLeadsCount) * 100) : 0;
 
   // Recent contacts for the dashboard "Quick Call" tool.
   const [recentLeadContacts, recentJobContacts] = await Promise.all([
@@ -212,9 +246,17 @@ export async function getDashboardData() {
       reviewsPendingCount: Math.max(completed30Count - reviews30Count, 0),
       revenueTrend,
       profitTrend,
+      convertedLeadsCount,
+      conversionRate,
+      vehiclesInUseCount,
+      attendancePresent: attendanceSummary.present,
+      attendanceAbsent: attendanceSummary.absent,
+      attendanceHalfDay: attendanceSummary.halfDay,
+      attendanceTotal: attendanceSummary.total,
     },
     recentLeads,
     recentContacts,
+    recentReviews,
     todaysJobs,
     upcomingJobs,
     overduePayments,
