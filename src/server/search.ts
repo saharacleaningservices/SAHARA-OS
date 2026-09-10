@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 
 export type SearchResult = {
-  type: "Lead" | "Job" | "Staff" | "Payment" | "Vehicle";
+  type: "Lead" | "Job" | "Staff" | "Payment" | "Vehicle" | "Customer";
   id: string;
   title: string;
   subtitle: string;
@@ -13,7 +13,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
   const q = query.trim();
   if (q.length < 2) return [];
 
-  const [leads, jobs, staff, payments, vehicles] = await Promise.all([
+  const [leads, jobs, staff, payments, vehicles, customers] = await Promise.all([
     db.lead.findMany({
       where: {
         deletedAt: null,
@@ -55,6 +55,15 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       take: 6,
       select: { id: true, name: true, plateNumber: true },
     }),
+    // Imported customer master records — catches customers with no lead or
+    // job yet (e.g. Excel-imported contacts) that the queries above miss.
+    db.customer
+      .findMany({
+        where: { OR: [{ name: { contains: q } }, { mobile: { contains: q } }, { area: { contains: q } }] },
+        take: 6,
+        select: { mobile: true, name: true, area: true },
+      })
+      .catch(() => []),
   ]);
 
   return [
@@ -92,6 +101,13 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       title: v.name,
       subtitle: v.plateNumber,
       href: `/vehicles`,
+    })),
+    ...customers.map((c) => ({
+      type: "Customer" as const,
+      id: c.mobile,
+      title: c.name,
+      subtitle: [c.mobile, c.area].filter(Boolean).join(" · "),
+      href: `/customers/${c.mobile}`,
     })),
   ];
 }
