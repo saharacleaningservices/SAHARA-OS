@@ -8,13 +8,17 @@ import { LeadStageBadge, JobStatusBadge, PaymentStatusBadge } from "@/components
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { SendBookingFormButton } from "@/components/shared/send-booking-form-button";
 import { RepeatBookingButton } from "@/components/customers/repeat-booking-button";
+import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog";
 import { getCustomerHistory } from "@/server/customers";
+import { requireUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ mobile: string }> }) {
   const { mobile } = await params;
+  const session = await requireUser();
+  const canEdit = session.role === "ADMIN" || session.role === "ACCOUNTS";
   const { leads, jobs, payments, reviews, master } = await getCustomerHistory(mobile);
   if (leads.length === 0 && jobs.length === 0 && payments.length === 0 && !master) notFound();
 
@@ -22,8 +26,9 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const totalRevenue = payments.filter((p) => p.status === "PAID").reduce((s, p) => s + p.paidAmount, 0);
   const allPhotos = jobs.flatMap((j) => j.photos);
   const isRepeat = jobs.length > 1 || (jobs.length >= 1 && leads.length >= 1);
+  const digits = mobile.replace(/[^\d]/g, "").slice(-10);
   const bookingLinks = await db.bookingLink
-    .findMany({ where: { customerMobile: mobile.replace(/[^\d]/g, "").slice(-10) }, orderBy: { sentAt: "desc" }, take: 10 })
+    .findMany({ where: { customerMobile: digits }, orderBy: { sentAt: "desc" }, take: 10 })
     .catch(() => []);
 
   return (
@@ -46,6 +51,24 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <SendBookingFormButton name={name} mobile={mobile} leadId={leads[0]?.id} kind="PAYMENT" />
             <SendBookingFormButton name={name} mobile={mobile} leadId={leads[0]?.id} kind="REVIEW" />
             {(jobs.length > 0 || master) && <RepeatBookingButton mobile={mobile} />}
+            {canEdit && (
+              <EditCustomerDialog
+                mobile={digits}
+                defaultName={name}
+                initial={
+                  master
+                    ? {
+                        name: master.name,
+                        alternateMobile: master.alternateMobile,
+                        address: master.address,
+                        area: master.area,
+                        outstandingBalance: master.outstandingBalance,
+                        source: master.source,
+                      }
+                    : null
+                }
+              />
+            )}
           </>
         }
       />
@@ -152,7 +175,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     <JobStatusBadge status={job.status} />
                   </Link>
                 ))
-              )}
+              }
               {allPhotos.length > 0 && (
                 <div className="grid grid-cols-3 gap-2 pt-2 sm:grid-cols-4">
                   {allPhotos.slice(0, 8).map((p) => (
