@@ -22,20 +22,12 @@ export function SidebarNav({
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center gap-2 px-5 py-5">
-        {logoUrl ? (
-          <span className="rounded-lg bg-white/95 px-2.5 py-1.5">
-            <CompanyLogo logoUrl={logoUrl} className="h-9 w-auto max-w-[180px]" showTm />
-          </span>
-        ) : (
-          <>
-            {/* Square app-icon mark — bundled /icon.svg (also the favicon). */}
-            <img src="/icon.svg" alt="" aria-hidden className="size-9 rounded-lg" />
-            <div>
-              <p className="text-sm font-semibold text-white leading-tight">Sahara OS</p>
-              <p className="text-[11px] text-sidebar-foreground/70 leading-tight">Sahara Cleaning Services</p>
-            </div>
-          </>
-        )}
+        {/* Always resolves through CompanyLogo: real /brand logo once uploaded,
+            else the admin-uploaded Settings logo, else the bundled placeholder
+            mark — so the sidebar always matches every other surface. */}
+        <span className="rounded-lg bg-white/95 px-2.5 py-1.5">
+          <CompanyLogo logoUrl={logoUrl} className="h-9 w-auto max-w-[180px]" showTm />
+        </span>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
