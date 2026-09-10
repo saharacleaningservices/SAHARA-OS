@@ -37,7 +37,10 @@ import { formatINR } from "@/lib/utils";
 import { publicBookLead } from "@/server/actions/public-booking";
 
 // The four customer-facing categories shown on the public booking page.
-const CATEGORIES: { value: string; label: string }[] = [
+// Exported so the landing page above the form (src/app/book/page.tsx) can
+// build its "Service Categories" cards and validate the ?category= deep link
+// off the same single source of truth instead of a second hardcoded list.
+export const CATEGORIES: { value: string; label: string }[] = [
   { value: "HOME_DEEP_CLEANING", label: "Home Cleaning" },
   { value: "COMMERCIAL_CLEANING", label: "Commercial Cleaning" },
   { value: "PAINTING", label: "Interior Painting" },
@@ -66,6 +69,7 @@ export function PublicBookingForm({
   prefillName = "",
   prefillMobile = "",
   bookingLinkToken = "",
+  initialCategory = "",
 }: {
   referralCode?: string;
   mapsApiKey?: string | null;
@@ -74,13 +78,18 @@ export function PublicBookingForm({
   prefillName?: string;
   prefillMobile?: string;
   bookingLinkToken?: string;
+  /** Pre-selects Service Category, e.g. from a "Book Now" card on the landing
+   *  page above (?category=HOME_DEEP_CLEANING). Purely an initial value —
+   *  the customer can still change it, and every other field/behaviour below
+   *  is unchanged. */
+  initialCategory?: string;
 }) {
   const [name, setName] = useState(prefillName);
   const [mobile, setMobile] = useState(prefillMobile);
   const [address, setAddress] = useState("");
   const [serviceDate, setServiceDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(initialCategory || "");
   const [variant, setVariant] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [addOns, setAddOns] = useState<string[]>([]);
