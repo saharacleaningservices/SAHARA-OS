@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { ClipboardList, CalendarClock, CalendarRange, Route } from "lucide-react";
+import { UserPlus, ClipboardList, Route, Wallet } from "lucide-react";
 
-// Master Prompt v2.0 Phase 3 — Quick Call and Quick Capture removed.
-// The dashboard now leads with the four day-to-day operations views.
+// Sahara CRM Dashboard Redesign — Phase 1: one-tap actions for the four
+// most common things done from the dashboard.
 const ACTIONS = [
-  { href: "/jobs?when=today", label: "Today's Jobs", icon: ClipboardList },
-  { href: "/jobs?when=tomorrow", label: "Tomorrow's Jobs", icon: CalendarClock },
-  { href: "/jobs", label: "Monthly Jobs", icon: CalendarRange },
-  { href: "/jobs/dispatch", label: "Team Dispatch", icon: Route },
+  { href: "/leads/new", label: "New Lead", icon: UserPlus },
+  { href: "/jobs", label: "New Job", icon: ClipboardList },
+  { href: "/jobs/dispatch", label: "Dispatch Team", icon: Route },
+  { href: "/payments", label: "Record Payment", icon: Wallet },
 ] as const;
 
 export function DashboardQuickActions() {
