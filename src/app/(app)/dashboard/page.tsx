@@ -52,7 +52,7 @@ export default async function DashboardPage() {
   const firstName = session.name.split(" ")[0];
   const showRevenue = canViewRevenue(session.role);
   const showProfit = canViewFinancials(session.role);
-  const showBackOffice = session.role === "ADMIN" || session.role === "OPERATIONS";
+  const showBackOffice = session.role === "ADMIN" || session.role === "ACCOUNTS";
   // Field roles (Field Coordinator / Field Staff) get a today/tomorrow
   // operations-only dashboard — no CRM, staff or reports cards, since those
   // sections are hidden from them entirely.
