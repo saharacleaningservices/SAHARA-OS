@@ -376,7 +376,7 @@ export const EXPENSE_CATEGORY_OPTIONS = EXPENSE_CATEGORIES.map((value) => ({
 export const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Super Admin",
   OPERATIONS: "Operations Manager",
-  ACCOUNTS: "Office Assistant",
+  ACCOUNTS: "Accounts & Operations Editor",
   SUPERVISOR: "Field Coordinator",
   STAFF: "Field Staff",
 };
