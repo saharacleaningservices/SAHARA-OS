@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   Phone,
@@ -18,12 +19,6 @@ import { PublicBookingForm, CATEGORIES } from "@/components/public/public-bookin
 import { BookingStickyBar } from "@/components/public/booking-sticky-bar";
 import { BookingLinkPing } from "@/components/public/booking-link-ping";
 import { HeroCarousel } from "@/components/public/hero-carousel";
-import {
-  HomeCleaningArt,
-  CommercialCleaningArt,
-  InteriorPaintingArt,
-  PestControlArt,
-} from "@/components/public/service-illustrations";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { COMPANY } from "@/lib/constants";
@@ -58,14 +53,15 @@ const WHY = [
   { icon: Smile, label: "100% Customer Satisfaction" },
 ];
 
-// Card art/description + the Service Category value each maps to in
+// Card image/description + the Service Category value each maps to in
 // PublicBookingForm's CATEGORIES — clicking a card scrolls to the form below
-// with that category already selected (?category=... deep link).
+// with that category already selected (?category=... deep link). Images are
+// the real, committed brand photography under /public/brand/services.
 const SERVICES = [
-  { art: HomeCleaningArt, label: "Home Deep Cleaning", desc: "Kitchen, bath, sofa, full home", cat: "HOME_DEEP_CLEANING" },
-  { art: CommercialCleaningArt, label: "Commercial Cleaning", desc: "Office, shop, warehouse, more", cat: "COMMERCIAL_CLEANING" },
-  { art: InteriorPaintingArt, label: "Interior Painting", desc: "Emulsion, lustre, texture", cat: "PAINTING" },
-  { art: PestControlArt, label: "Pest Control", desc: "Cockroach, termite, bed bugs", cat: "PEST_CONTROL" },
+  { img: "/brand/services/home-cleaning.png", label: "Home Deep Cleaning", desc: "Kitchen, bath, sofa, full home", cat: "HOME_DEEP_CLEANING" },
+  { img: "/brand/services/office-cleaning.png", label: "Commercial Cleaning", desc: "Office, shop, warehouse, more", cat: "COMMERCIAL_CLEANING" },
+  { img: "/brand/services/interior-painting.png", label: "Interior Painting", desc: "Emulsion, lustre, texture", cat: "PAINTING" },
+  { img: "/brand/services/pest-control.png", label: "Pest Control", desc: "Cockroach, termite, bed bugs", cat: "PEST_CONTROL" },
 ];
 
 const BOTTOM_TRUST = [
@@ -112,7 +108,7 @@ export default async function PublicBookingPage({
 
   return (
     <div id="top" className="min-h-screen bg-[#eef4fb] pb-20 lg:pb-0">
-      {/* ── Header ─────────────────────────────────────────────── */}
+      {/* ── Header ────────────────────────────────────────────── */}
       <header id="contact" className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <CompanyLogo logoUrl={settings.logoUrl} className="h-[46px] w-auto max-w-[180px]" showTm />
@@ -213,14 +209,20 @@ export default async function PublicBookingPage({
           <section id="services">
             <h3 className="mb-3 text-xl font-bold text-foreground">Our Services</h3>
             <div className="grid grid-cols-2 gap-3">
-              {SERVICES.map(({ art: Art, label, desc, cat }) => (
+              {SERVICES.map(({ img, label, desc, cat }) => (
                 <Link
                   key={label}
                   href={`/book?category=${cat}#book`}
                   className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition active:scale-[0.97]"
                 >
-                  <div className="h-20 w-full">
-                    <Art className="h-full w-full transition group-hover:scale-105" />
+                  <div className="relative h-20 w-full overflow-hidden">
+                    <Image
+                      src={img}
+                      alt={label}
+                      fill
+                      sizes="200px"
+                      className="object-cover transition group-hover:scale-105"
+                    />
                   </div>
                   <div className="p-2.5">
                     <p className="text-xs font-semibold text-foreground">{label}</p>
@@ -361,8 +363,6 @@ export default async function PublicBookingPage({
         </div>
 
         <div className="border-t border-white/15 py-2 text-center text-[11px] text-white/70">
-          <Link href="/login" className="hover:text-white">Staff login</Link>
-          <span className="mx-2">·</span>
           {COMPANY.name}
           <sup className="ml-0.5 text-[0.7em]">™</sup>
         </div>
