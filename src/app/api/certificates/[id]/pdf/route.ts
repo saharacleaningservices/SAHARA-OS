@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { db } from "@/lib/db";
 import { CertificateDocument } from "@/lib/pdf/certificate-document";
-import { publicFileToDataUrl } from "@/lib/pdf/file-to-data-url";
+import { publicFileToDataUrl, resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { formatDate } from "@/lib/utils";
+import { getCompanySettings } from "@/server/settings";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,6 +15,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   const signatureDataUrl = certificate.signatureUrl ? await publicFileToDataUrl(certificate.signatureUrl) : null;
+  const settings = await getCompanySettings();
+  const logoDataUrl = await resolveBrandLogoDataUrl(settings.logoUrl);
 
   const buffer = await renderToBuffer(
     CertificateDocument({
@@ -24,6 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       supervisorName: certificate.supervisorName,
       signatureUrl: certificate.signatureUrl,
       signatureDataUrl,
+      logoDataUrl,
     })
   );
 
