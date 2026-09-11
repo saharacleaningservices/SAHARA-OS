@@ -67,7 +67,7 @@ export async function getOwnerAlerts() {
       where: { deletedAt: null, status: "OVERDUE" },
       orderBy: { dueDate: "asc" },
       take: 8,
-      select: { id: true, clientName: true, amount: true, paidAmount: true, dueDate: true, invoiceNumber: true },
+      select: { id: true, clientMobile: true, clientName: true, amount: true, paidAmount: true, dueDate: true, invoiceNumber: true },
     }),
     db.lead.findMany({
       where: {
