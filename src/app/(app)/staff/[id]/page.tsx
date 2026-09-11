@@ -229,7 +229,7 @@ export default async function StaffDetailPage({
           <StaffDocumentsCard
             staffId={staff.id}
             documents={documents}
-            canEdit={session.role === "ADMIN" || session.role === "OPERATIONS"}
+            canEdit={session.role === "ADMIN" || session.role === "ACCOUNTS"}
           />
           {ledger && (
             <PayrollLedgerCard
