@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import { staffSchema } from "@/lib/validation";
 import { generateEmployeeCode } from "@/lib/id-generators";
 import { softDeleteMany } from "@/server/audit";
+import { canDeleteRecords } from "@/lib/permissions";
 
 export async function createStaff(values: unknown) {
   const parsed = staffSchema.safeParse(values);
@@ -76,7 +77,7 @@ type StaffDocument = { label: string; url: string; uploadedAt: string };
  * member's document folder. Files are uploaded first via POST /api/upload. */
 export async function addStaffDocument(staffId: string, doc: { label: string; url: string }) {
   const session = await getSession();
-  if (!session || (session.role !== "ADMIN" && session.role !== "OPERATIONS")) {
+  if (!session || !canDeleteRecords(session.role)) {
     return { error: "Not authorized", success: false as const };
   }
   if (!doc.url?.startsWith("/uploads/") || !doc.label?.trim()) {
@@ -94,7 +95,7 @@ export async function addStaffDocument(staffId: string, doc: { label: string; ur
 
 export async function removeStaffDocument(staffId: string, url: string) {
   const session = await getSession();
-  if (!session || (session.role !== "ADMIN" && session.role !== "OPERATIONS")) {
+  if (!session || !canDeleteRecords(session.role)) {
     return { error: "Not authorized", success: false as const };
   }
   const staff = await db.staff.findUnique({ where: { id: staffId }, select: { documents: true } });
@@ -110,7 +111,7 @@ export async function removeStaffDocument(staffId: string, url: string) {
 
 export async function deleteStaff(id: string) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Admin only" };
+  if (!session || !canDeleteRecords(session.role)) return { error: "Not authorized" };
   await softDeleteMany("Staff", [id], session);
   revalidatePath("/staff");
   return { success: true };
@@ -118,7 +119,7 @@ export async function deleteStaff(id: string) {
 
 export async function bulkDeleteStaff(ids: string[]) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Admin only" };
+  if (!session || !canDeleteRecords(session.role)) return { error: "Not authorized" };
   const count = await softDeleteMany("Staff", ids, session);
   revalidatePath("/staff");
   return { success: true as const, count };
