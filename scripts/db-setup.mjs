@@ -1010,3 +1010,27 @@ db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_category_idx" ON "GalleryItem"(
 console.log("v3.3 batch-14 (marketing gallery) migration complete.");
 
 db.close();
+// ─────────────────────────────────────────────────────────────────────────
+// Owner Command Center — monthly business revenue target (ADMIN-editable).
+// New table only; additive + idempotent. Opens its own short-lived
+// connection since the module-level `db` above is already closed by this
+// point in the script.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const ownerDb = new Database(dbPath);
+  ownerDb.pragma("foreign_keys = ON");
+  ownerDb.exec(`
+CREATE TABLE IF NOT EXISTS "BusinessTarget" (
+"id" TEXT NOT NULL PRIMARY KEY,
+"year" INTEGER NOT NULL,
+"month" INTEGER NOT NULL,
+"targetAmount" REAL NOT NULL,
+"setByName" TEXT,
+"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+`);
+  ownerDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "BusinessTarget_year_month_key" ON "BusinessTarget"("year", "month");`);
+  console.log("Owner Command Center (business target) migration complete.");
+  ownerDb.close();
+}
