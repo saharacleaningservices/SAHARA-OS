@@ -1179,3 +1179,18 @@ model PushSubscription {
 
   @@index([userId])
 }
+// ─────────────────────────────────────────────────────────────────────────
+// Owner Command Center — ADMIN-editable monthly business revenue target.
+// ─────────────────────────────────────────────────────────────────────────
+
+model BusinessTarget {
+  id           String   @id @default(cuid())
+  year         Int
+  month        Int      // 1-12
+  targetAmount Float
+  setByName    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([year, month])
+}
