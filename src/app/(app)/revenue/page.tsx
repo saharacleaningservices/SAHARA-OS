@@ -33,7 +33,9 @@ function RevenueBars({ rows, total }: { rows: { label: string; value: number }[]
 }
 
 export default async function RevenueDashboardPage() {
-  await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
+  // Revenue Dashboard is explicitly restricted to Super Admin only (Profit &
+  // Revenue stay owner-only) — see src/lib/permissions.ts canViewRevenue.
+  await requireRole(["ADMIN"]);
   const [data, analytics, sourceStats] = await Promise.all([
     getRevenueDashboard(),
     getServiceAnalytics(),
