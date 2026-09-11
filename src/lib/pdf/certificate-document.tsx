@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
   logoBox: { backgroundColor: "#0B5ED7", borderRadius: 8, paddingVertical: 10, paddingHorizontal: 14 },
   logoText: { color: "#ffffff", fontSize: 16, fontWeight: 700 },
   logoSub: { color: "#dbe9fd", fontSize: 8, marginTop: 2 },
+  logoImg: { height: 36, width: "auto" },
   certNo: { fontSize: 9, color: "#5b7186" },
   titleWrap: { alignItems: "center", marginBottom: 28 },
   title: { fontSize: 22, fontWeight: 700, color: "#0A2540", letterSpacing: 2 },
@@ -40,6 +41,7 @@ export type CertificatePdfProps = {
   supervisorName: string | null;
   signatureUrl: string | null;
   signatureDataUrl?: string | null;
+  logoDataUrl?: string | null;
 };
 
 export function CertificateDocument(props: CertificatePdfProps) {
@@ -48,10 +50,14 @@ export function CertificateDocument(props: CertificatePdfProps) {
       <Page size="A4" style={styles.page}>
         <View style={styles.border}>
           <View style={styles.headerRow}>
-            <View style={styles.logoBox}>
-              <Text style={styles.logoText}>Sahara</Text>
-              <Text style={styles.logoSub}>Cleaning Services</Text>
-            </View>
+            {props.logoDataUrl ? (
+              <Image src={props.logoDataUrl} style={styles.logoImg} />
+            ) : (
+              <View style={styles.logoBox}>
+                <Text style={styles.logoText}>Sahara</Text>
+                <Text style={styles.logoSub}>Cleaning Services</Text>
+              </View>
+            )}
             <Text style={styles.certNo}>Certificate No: {props.certificateNumber}{"\n"}Issued: {props.issuedDate}</Text>
           </View>
 
