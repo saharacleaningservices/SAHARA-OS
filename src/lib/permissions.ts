@@ -6,8 +6,9 @@
 // OPERATIONS — Francis Monteiro (operations@) — dispatch-only: today's &
 //   tomorrow's jobs, view + edit. Nothing else.
 // ACCOUNTS — Shoyab "Shoaib" Shaikh (accounts@) — near-full day-to-day
-//   operations (leads, jobs, dispatch, staff, vehicles, attendance, AMC,
-//   payments, expenses, customers, reports, gallery, message log-view).
+//   operations (leads, jobs, dispatch, staff incl. salary/financials/
+//   documents, vehicles, attendance, AMC, payments, expenses, customers,
+//   reports, gallery, message log).
 //   NO security, NO device/security approvals, NO audit log, NO profit or
 //   revenue dashboards, NO system settings.
 // SUPERVISOR — Suresh Pawar (supervisor@) — Field Coordinator
@@ -16,9 +17,9 @@
 
 export type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
-/** Admin only — staff wages/salary figures. */
+/** Staff wages/salary figures — Super Admin + Accounts (full Staff module access). */
 export function canViewSalary(role: string): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Profit dashboard (revenue − expenses − wages). Super Admin only. */
@@ -100,9 +101,9 @@ export function canManageUpsellRules(role: string): boolean {
   return role === "ADMIN";
 }
 
-/** Advances/fines/rewards against a staff member's pay — Admin only. */
+/** Advances/fines/rewards against a staff member's pay — Super Admin + Accounts (full Staff module access). */
 export function canManageStaffFinancials(role: string): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Full attendance list + admin-side corrections (Worker only sees/marks their own). */
@@ -112,5 +113,5 @@ export function canManageAttendance(role: string): boolean {
 
 /** WhatsApp send log resend controls (viewing the log page itself is gated separately by role on the page). */
 export function canViewWhatsAppLog(role: string): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
