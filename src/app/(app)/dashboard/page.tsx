@@ -36,8 +36,14 @@ import { SERVICE_LABELS, canAccess } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
+import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-center";
+
 export default async function DashboardPage() {
   const session = await requireUser();
+
+  if (session.role === "ADMIN") {
+    return <OwnerCommandCenter ownerName={session.name.split(" ")[0]} />;
+  }
   const [
     {
       stats,
