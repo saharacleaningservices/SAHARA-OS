@@ -17,6 +17,7 @@ export async function getPublicJobSummary(jobNumber: string) {
       photos: { orderBy: { uploadedAt: "asc" } },
       videos: { orderBy: { uploadedAt: "asc" } },
       certificate: true,
+      payments: true,
     },
   });
   if (!job) return null;
@@ -27,10 +28,25 @@ export async function getPublicJobSummary(jobNumber: string) {
     db.upsellRule.findFirst({ where: { triggerCategory: triggerCategory as never, isActive: true } }),
   ]);
 
+  // Balance still owed across this job's payment rows — used to decide
+  // whether the public page (and the WhatsApp "Pay Now" button that links
+  // to it) shows a payment section at all. Mirrors the same calculation in
+  // src/server/actions/leads.ts's confirmBooking().
+  const balanceDue = job.payments.reduce((sum, p) => sum + Math.max(p.amount - (p.paidAmount ?? 0), 0), 0);
+
   return {
     job,
     googleReviewUrl: settings?.googleReviewUrl ?? null,
     offer,
     referralCode: referralCodeForMobile(job.customerMobile),
+    balanceDue,
+    payment: {
+      upiId: settings?.upiId ?? null,
+      upiQrUrl: settings?.upiQrUrl ?? null,
+      bankName: settings?.bankName ?? null,
+      bankAccountName: settings?.bankAccountName ?? null,
+      bankAccountNumber: settings?.bankAccountNumber ?? null,
+      bankIfsc: settings?.bankIfsc ?? null,
+    },
   };
 }
