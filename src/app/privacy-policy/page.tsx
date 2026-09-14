@@ -10,6 +10,14 @@ export const metadata = {
   description: "How Sahara Cleaning Services collects, uses and protects your information.",
 };
 
+// Force dynamic (request-time) rendering: this page reads live company
+// settings from the database via getCompanySettings(). The database file
+// only exists via the runtime persistent volume, not inside the isolated
+// Docker build stage, so letting Next.js statically prerender this page at
+// build time crashes the build with "Cannot open database because the
+// directory does not exist". Deferring to request time avoids that.
+export const dynamic = "force-dynamic";
+
 const CALL_NUMBER = COMPANY.phones[0];
 const WHATSAPP_NUMBER = COMPANY.phones[1];
 
