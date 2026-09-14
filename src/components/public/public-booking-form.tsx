@@ -32,22 +32,20 @@ import {
   propertyTypesFor,
   SERVICE_CATALOG,
   SERVICE_RULES,
+  CATEGORIES,
 } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { publicBookLead } from "@/server/actions/public-booking";
 
-// The four customer-facing categories shown on the public booking page.
-// Exported so the landing page above the form (src/app/book/page.tsx) can
-// build its "Service Categories" cards and validate the ?category= deep link
-// off the same single source of truth instead of a second hardcoded list.
-export const CATEGORIES: { value: string; label: string }[] = [
-  { value: "HOME_DEEP_CLEANING", label: "Home Cleaning" },
-  { value: "COMMERCIAL_CLEANING", label: "Commercial Cleaning" },
-  { value: "PAINTING", label: "Interior Painting" },
-  { value: "PEST_CONTROL", label: "Pest Control" },
-  { value: "CUSTOMIZER_PACKAGE", label: "Customizer Package" },
-  { value: "COMBO_PACKAGE", label: "Combo Package" },
-];
+// The four customer-facing categories shown on the public booking page are
+// defined in src/lib/constants.ts (exported as CATEGORIES) and re-exported
+// here so existing call sites that import CATEGORIES from this module keep
+// working. Moved out of this "use client" file because the Server Component
+// landing page (src/app/book/page.tsx) reads CATEGORIES during SSR — a plain
+// constant imported from a "use client" module resolves to a client-reference
+// proxy on the server rather than the real array, which crashed production
+// with "TypeError: CATEGORIES.some is not a function".
+export { CATEGORIES };
 
 const SERVICE_TYPE_HINT: Record<string, string> = {
   CUSTOMIZER_PACKAGE: "Pick the exact service you need — combine as many as you like.",
@@ -79,9 +77,9 @@ export function PublicBookingForm({
   prefillMobile?: string;
   bookingLinkToken?: string;
   /** Pre-selects Service Category, e.g. from a "Book Now" card on the landing
-   *  page above (?category=HOME_DEEP_CLEANING). Purely an initial value —
-   *  the customer can still change it, and every other field/behaviour below
-   *  is unchanged. */
+   * page above (?category=HOME_DEEP_CLEANING). Purely an initial value —
+   * the customer can still change it, and every other field/behaviour below
+   * is unchanged. */
   initialCategory?: string;
 }) {
   const [name, setName] = useState(prefillName);

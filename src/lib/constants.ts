@@ -49,6 +49,24 @@ export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
   COMBO_PACKAGE: "HOME_DEEP_CLEANING",
 };
 
+// The customer-facing categories shown on the public booking page (Service
+// Category dropdown + the landing page's Service Category cards/deep link).
+// Defined here — NOT inside the "use client" PublicBookingForm — because the
+// Server Component booking page (src/app/book/page.tsx) reads this array
+// during SSR; importing a plain constant from a "use client" module into a
+// Server Component resolves to a client-reference proxy on the server (not
+// the real array), which crashed production with
+// "TypeError: CATEGORIES.some is not a function". Both the client form and
+// the server page now import this same array from here.
+export const CATEGORIES: { value: string; label: string }[] = [
+  { value: "HOME_DEEP_CLEANING", label: "Home Cleaning" },
+  { value: "COMMERCIAL_CLEANING", label: "Commercial Cleaning" },
+  { value: "PAINTING", label: "Interior Painting" },
+  { value: "PEST_CONTROL", label: "Pest Control" },
+  { value: "CUSTOMIZER_PACKAGE", label: "Customizer Package" },
+  { value: "COMBO_PACKAGE", label: "Combo Package" },
+];
+
 // Optional package tiers per category (future pricing hooks off these).
 export const SERVICE_PACKAGES: Record<string, string[]> = {
   HOME_DEEP_CLEANING: ["Premium", "Platinum", "Diamond"],
