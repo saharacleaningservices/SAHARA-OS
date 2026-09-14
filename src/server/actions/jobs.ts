@@ -11,7 +11,7 @@ import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendWhatsApp } from "@/lib/whatsapp";
-import { reviewRequestMessage } from "@/lib/whatsapp-templates";
+import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
 import { syncInvoiceToMyBillBook } from "@/lib/mybillbook";
 import { SERVICE_LABELS } from "@/lib/constants";
 
@@ -176,12 +176,51 @@ const ALL_STATUSES = [
 ] as const;
 type JobStatus = (typeof ALL_STATUSES)[number];
 
+/**
+ * Sends the "Job Completed — leave a Google Review" WhatsApp message exactly
+ * once per job, the moment its status becomes COMPLETED — regardless of
+ * which completion action triggered it (the plain "Mark Completed" status
+ * button via updateJobStatus below, or "Complete & Generate Certificate" via
+ * completeJobWithCertificate), and regardless of the job's originating lead
+ * source (website booking, manual CRM entry, or GMB — all leads funnel into
+ * the same Job model). A WhatsAppMessage existence check guards against a
+ * duplicate send if both completion paths somehow run for the same job,
+ * mirroring the dedup pattern already used in src/server/reminders.ts.
+ */
+async function sendJobCompletionReview(job: {
+  id: string;
+  jobNumber: string;
+  customerName: string;
+  customerMobile: string;
+  service: string;
+}) {
+  const already = await db.whatsAppMessage.findFirst({
+    where: { kind: "REVIEW_REQUEST", relatedType: "Job", relatedId: job.id },
+  });
+  if (already) return;
+
+  const settings = await db.companySettings.findUnique({ where: { id: "default" } });
+  await sendWhatsApp({
+    kind: "REVIEW_REQUEST",
+    toNumber: job.customerMobile,
+    toName: job.customerName,
+    body: premiumReviewRequestMessage({
+      customerName: job.customerName,
+      jobNumber: job.jobNumber,
+      service: SERVICE_LABELS[job.service] ?? job.service,
+      googleReviewUrl: settings?.googleReviewUrl ?? null,
+    }),
+    relatedType: "Job",
+    relatedId: job.id,
+  });
+}
+
 export async function updateJobStatus(jobId: string, status: JobStatus) {
   if (!ALL_STATUSES.includes(status)) return { error: "Invalid status", success: false as const };
   const session = await getSession();
   const now = new Date();
 
-  await db.job.update({
+  const job = await db.job.update({
     where: { id: jobId },
     data: {
       status,
@@ -194,6 +233,10 @@ export async function updateJobStatus(jobId: string, status: JobStatus) {
   await db.activityLog.create({
     data: { jobId, actorId: session?.sub, action: `Status changed to ${status.replaceAll("_", " ")}` },
   });
+
+  if (status === "COMPLETED") {
+    await sendJobCompletionReview(job).catch(() => {});
+  }
 
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${jobId}`);
@@ -298,7 +341,9 @@ export async function completeJobWithCertificate(jobId: string) {
         customerName: job.customerName,
         customerMobile: job.customerMobile,
         customerAddress: job.address,
-        lineItems: JSON.stringify([{ name: serviceLabel, description: `${serviceLabel} — ${job.area}`, amount: job.jobValue }]),
+        lineItems: JSON.stringify([
+          { name: serviceLabel, description: `${serviceLabel} — ${job.area}`, amount: job.jobValue },
+        ]),
         subTotal: job.jobValue,
         gstPercent: 0,
         gstAmount: 0,
@@ -308,20 +353,9 @@ export async function completeJobWithCertificate(jobId: string) {
     await syncInvoiceToMyBillBook(invoice.id).catch(() => {});
   }
 
-  // Review request — sent once, right after completion.
-  await sendWhatsApp({
-    kind: "REVIEW_REQUEST",
-    toNumber: job.customerMobile,
-    toName: job.customerName,
-    body: reviewRequestMessage({
-      customerName: job.customerName,
-      service: SERVICE_LABELS[job.service] ?? job.service,
-      googleReviewUrl: (await db.companySettings.findUnique({ where: { id: "default" } }))?.googleReviewUrl ?? null,
-      jobNumber: job.jobNumber,
-    }),
-    relatedType: "Job",
-    relatedId: jobId,
-  }).catch(() => {});
+  // Review request — sent once, right after completion (shared helper also
+  // covers the plain "Mark Completed" status-button path in updateJobStatus).
+  await sendJobCompletionReview(job).catch(() => {});
 
   await db.activityLog.create({
     data: { jobId, actorId: session?.sub, action: "Job marked complete — certificate & invoice generated" },
@@ -383,13 +417,15 @@ export async function sendTeamDispatch(jobId: string) {
   const session = await getSession();
   if (!session) return { success: false as const, error: "Not authorized", sent: 0, queued: 0 };
   const result = await dispatchTeamForJob(jobId);
-  await db.activityLog.create({
-    data: {
-      jobId,
-      actorId: session.sub,
-      action: `Team dispatch sent (${result.sent} sent, ${result.queued} queued — no WhatsApp credentials yet)`,
-    },
-  }).catch(() => {});
+  await db.activityLog
+    .create({
+      data: {
+        jobId,
+        actorId: session.sub,
+        action: `Team dispatch sent (${result.sent} sent, ${result.queued} queued — no WhatsApp credentials yet)`,
+      },
+    })
+    .catch(() => {});
   revalidatePath(`/jobs/${jobId}`);
   return { success: true as const, error: undefined as string | undefined, sent: result.sent, queued: result.queued };
 }

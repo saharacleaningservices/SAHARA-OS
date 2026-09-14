@@ -27,8 +27,7 @@ import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendWhatsApp } from "@/lib/whatsapp";
-import { bookingConfirmationMessage, bookingConfirmationSms } from "@/lib/whatsapp-templates";
-import { sendSMS } from "@/lib/sms";
+import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
 
 const MIN_JOB_VALUE = COMPANY.minimumJobValue;
 
@@ -215,9 +214,10 @@ export async function updateLead(id: string, values: unknown) {
         assignedStaffIds: data.assignedStaffIds?.length ? JSON.stringify(data.assignedStaffIds) : null,
         assignedStaffId: data.assignedStaffIds?.[0] ?? null,
       }),
-      ...(data.assignedStaffIds === undefined && data.assignedStaffId !== undefined && {
-        assignedStaffId: data.assignedStaffId || null,
-      }),
+      ...(data.assignedStaffIds === undefined &&
+        data.assignedStaffId !== undefined && {
+          assignedStaffId: data.assignedStaffId || null,
+        }),
       ...(data.assignedToId !== undefined && { assignedToId: data.assignedToId || null }),
       ...(data.notes !== undefined && { notes: data.notes || null }),
       ...(data.serviceCategory !== undefined && { serviceCategory: (data.serviceCategory as never) || null }),
@@ -304,8 +304,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
   }
 
   const scheduledDate = new Date(data.serviceDate);
-  const jobValue =
-    lead.quoteAmount && lead.quoteAmount >= MIN_JOB_VALUE ? lead.quoteAmount : MIN_JOB_VALUE;
+  const jobValue = lead.quoteAmount && lead.quoteAmount >= MIN_JOB_VALUE ? lead.quoteAmount : MIN_JOB_VALUE;
 
   // Team carries over from the enquiry; the confirm dialog can override it.
   const teamNumber = normalizeTeam(data.teamNumber) ?? lead.teamNumber ?? null;
@@ -399,37 +398,39 @@ export async function confirmBooking(leadId: string, values: unknown) {
     data: { jobId: job.id, actorId: session?.sub, action: `Job ${jobNumber} created from enquiry ${lead.leadNumber}` },
   });
 
-  const supervisor = data.supervisorId
-    ? await db.user.findUnique({ where: { id: data.supervisorId }, select: { name: true, phone: true } }).catch(() => null)
-    : null;
-  const confirmationInput = {
-    customerName: lead.name,
-    service: SERVICE_LABELS[lead.service] ?? lead.service,
-    area: lead.area,
-    address: lead.address,
-    date: scheduledDate,
-    timeSlot: data.timeSlot,
-    jobNumber,
-    team: teamNumber,
-    supervisorName: supervisor?.name ?? null,
-    supervisorMobile: supervisor?.phone ?? null,
-  };
-  await sendWhatsApp({
-    kind: "BOOKING_CONFIRMATION",
-    toNumber: lead.mobile,
-    toName: lead.name,
-    body: bookingConfirmationMessage(confirmationInput),
-    relatedType: "Job",
-    relatedId: job.id,
-  }).catch(() => {});
-  await sendSMS({
-    kind: "REMINDER",
-    toNumber: lead.mobile,
-    toName: lead.name,
-    body: bookingConfirmationSms(confirmationInput),
-    relatedType: "Job",
-    relatedId: job.id,
-  }).catch(() => {});
+  // Balance due right now (quote − advance actually paid), used in the
+  // "Pay After Service" line of the premium confirmation message below.
+  const paymentRow = await db.payment.findFirst({ where: { jobId: job.id } });
+  const balanceDue = paymentRow ? Math.max(paymentRow.amount - (paymentRow.paidAmount ?? 0), 0) : jobValue;
+
+  // ONE premium WhatsApp booking-confirmation message — identical whether the
+  // enquiry's source was WEBSITE, CALL/manual CRM entry, GMB, or any other
+  // LeadSource, since every source funnels through this single confirmBooking()
+  // action. SMS is intentionally NOT sent for this flow — WhatsApp is the
+  // single channel. Guarded against a duplicate send the same way
+  // src/server/reminders.ts guards its own sends.
+  const alreadySent = await db.whatsAppMessage.findFirst({
+    where: { kind: "BOOKING_CONFIRMATION", relatedType: "Job", relatedId: job.id },
+  });
+  if (!alreadySent) {
+    await sendWhatsApp({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: lead.mobile,
+      toName: lead.name,
+      body: premiumBookingConfirmationMessage({
+        customerName: lead.name,
+        jobNumber,
+        service: SERVICE_LABELS[lead.service] ?? lead.service,
+        date: scheduledDate,
+        timeSlot: data.timeSlot,
+        address: lead.address,
+        area: lead.area,
+        balanceDue,
+      }),
+      relatedType: "Job",
+      relatedId: job.id,
+    }).catch(() => {});
+  }
   await dispatchTeamForJob(job.id).catch(() => {});
 
   revalidatePath("/leads");
@@ -596,9 +597,7 @@ export async function updateFollowUp(followUpId: string, leadId: string, values:
   await addTimelineEntry({
     leadId,
     type: "FOLLOW_UP",
-    body: `Follow-up rescheduled to ${due.toLocaleString("en-IN")}${
-      data.notes ? ` — ${data.notes}` : ""
-    }`,
+    body: `Follow-up rescheduled to ${due.toLocaleString("en-IN")}${data.notes ? ` — ${data.notes}` : ""}`,
     authorId: session?.sub,
   });
   revalidatePath("/leads");
@@ -666,7 +665,7 @@ export async function logCall(leadId: string, values: unknown) {
 export async function createQuotation(
   leadId: string,
   services: { name: string; description: string; amount: number }[],
-  gstPercent: number
+  gstPercent: number,
 ) {
   const lead = await db.lead.findUnique({ where: { id: leadId } });
   if (!lead) return { error: "Lead not found" };
@@ -765,7 +764,13 @@ export async function createRepeatBooking(mobile: string) {
 
   await db.followUp
     .create({
-      data: { leadId: lead.id, dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000), type: "CALL", priority: "HIGH", notes: "Confirm repeat booking details" },
+      data: {
+        leadId: lead.id,
+        dueDate: new Date(Date.now() + 2 * 60 * 60 * 1000),
+        type: "CALL",
+        priority: "HIGH",
+        notes: "Confirm repeat booking details",
+      },
     })
     .catch(() => {});
 
