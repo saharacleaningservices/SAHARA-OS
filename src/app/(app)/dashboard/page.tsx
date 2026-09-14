@@ -62,7 +62,7 @@ export default async function DashboardPage() {
   const firstName = session.name.split(" ")[0];
   const showRevenue = canViewRevenue(session.role);
   const showProfit = canViewFinancials(session.role);
-  const showBackOffice = session.role === "ADMIN" || session.role === "ACCOUNTS";
+  const showBackOffice = session.role === "ACCOUNTS";
   // Field roles (Field Coordinator / Field Staff) get a today/tomorrow
   // operations-only dashboard — no CRM, staff or reports cards, since those
   // sections are hidden from them entirely.
@@ -211,7 +211,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Today's Action panel ────────────────────────────── */}
+        {/* ── Today's Action panel ───────────────────────────── */}
         <div className="space-y-3">
           <Card>
             <CardHeader className="pb-2">
@@ -416,7 +416,7 @@ export default async function DashboardPage() {
                     <div className="h-full rounded-full bg-primary" style={{ width: `${(s.leads / max) * 100}%` }} />
                 </div>
               </div>
-              );
+            );
             })}
           </CardContent>
         </Card>
