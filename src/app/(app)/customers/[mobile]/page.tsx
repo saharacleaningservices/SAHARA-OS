@@ -175,7 +175,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     <JobStatusBadge status={job.status} />
                   </Link>
                 ))
-              }
+              )}
               {allPhotos.length > 0 && (
                 <div className="grid grid-cols-3 gap-2 pt-2 sm:grid-cols-4">
                   {allPhotos.slice(0, 8).map((p) => (
