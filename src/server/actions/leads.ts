@@ -399,7 +399,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
   });
 
   // Balance due right now (quote − advance actually paid), used in the
-  // "Pay After Service" line of the premium confirmation message below.
+  // "Pay Now / Payment Link" line of the premium confirmation message below.
   const paymentRow = await db.payment.findFirst({ where: { jobId: job.id } });
   const balanceDue = paymentRow ? Math.max(paymentRow.amount - (paymentRow.paidAmount ?? 0), 0) : jobValue;
 
@@ -413,6 +413,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
     where: { kind: "BOOKING_CONFIRMATION", relatedType: "Job", relatedId: job.id },
   });
   if (!alreadySent) {
+    const settings = await db.companySettings.findUnique({ where: { id: "default" } });
     await sendWhatsApp({
       kind: "BOOKING_CONFIRMATION",
       toNumber: lead.mobile,
@@ -426,6 +427,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
         address: lead.address,
         area: lead.area,
         balanceDue,
+        googleReviewUrl: settings?.googleReviewUrl ?? null,
       }),
       relatedType: "Job",
       relatedId: job.id,
