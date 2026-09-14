@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Check, Loader2, Plus, CalendarClock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -134,8 +135,8 @@ export function FollowUpsPanel({ leadId, followUps }: { leadId: string; followUp
             editingId === f.id ? (
               <div key={f.id} className="space-y-2 rounded-lg border border-primary p-3">
                 <div className="grid grid-cols-2 gap-2">
-                  <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                  <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+                  <DateInput value={date} onChange={(e) => setDate(e.target.value)} />
+                  <DateInput type="time" value={time} onChange={(e) => setTime(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Select value={type} onValueChange={setType}>
@@ -197,8 +198,8 @@ export function FollowUpsPanel({ leadId, followUps }: { leadId: string; followUp
       {showForm ? (
         <div className="space-y-2 rounded-lg border border-border p-3">
           <div className="grid grid-cols-2 gap-2">
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-            <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            <DateInput value={date} onChange={(e) => setDate(e.target.value)} />
+            <DateInput type="time" value={time} onChange={(e) => setTime(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Select value={type} onValueChange={setType}>

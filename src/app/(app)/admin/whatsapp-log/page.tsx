@@ -10,7 +10,7 @@ import { formatDateTime } from "@/lib/utils";
 import { Info } from "lucide-react";
 
 export default async function MessageLogPage() {
-  await requireRole(["ADMIN"]);
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const [waReady, smsReady, waMsgs, smsMsgs] = await Promise.all([
     isWhatsAppReady(),
     isSmsReady(),

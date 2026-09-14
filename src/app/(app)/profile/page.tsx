@@ -35,7 +35,7 @@ export default async function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/30 p-4">
-            <CompanyLogo logoUrl={settings.logoUrl} className="h-12 w-auto max-w-[220px]" />
+            <CompanyLogo logoUrl={settings.logoUrl} className="h-12 w-auto max-w-[220px]" showTm />
             <div>
               <p className="text-sm font-medium text-foreground">{settings.name}</p>
               <a href={`https://${website}`} target="_blank" rel="noreferrer" className="text-xs text-primary">

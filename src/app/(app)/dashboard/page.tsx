@@ -15,6 +15,9 @@ import {
   Star,
   BellRing,
   ArrowRight,
+  Percent,
+  CalendarCheck,
+  ClipboardCheck,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
 import { getLeadSourceStats } from "@/server/owner";
@@ -33,8 +36,14 @@ import { SERVICE_LABELS, canAccess } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
+import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-center";
+
 export default async function DashboardPage() {
   const session = await requireUser();
+
+  if (session.role === "ADMIN") {
+    return <OwnerCommandCenter ownerName={session.name.split(" ")[0]} />;
+  }
   const [
     {
       stats,
@@ -45,6 +54,7 @@ export default async function DashboardPage() {
       followUpsToday,
       followUpsTomorrow,
       followUpsOverdue,
+      recentReviews,
     },
     sourceStats,
   ] = await Promise.all([getDashboardData(), getLeadSourceStats(3)]);
@@ -52,13 +62,14 @@ export default async function DashboardPage() {
   const firstName = session.name.split(" ")[0];
   const showRevenue = canViewRevenue(session.role);
   const showProfit = canViewFinancials(session.role);
-  const showBackOffice = session.role === "ADMIN" || session.role === "OPERATIONS";
+  const showBackOffice = session.role === "ADMIN" || session.role === "ACCOUNTS";
   // Field roles (Field Coordinator / Field Staff) get a today/tomorrow
   // operations-only dashboard — no CRM, staff or reports cards, since those
   // sections are hidden from them entirely.
   const showCrm = canAccess(session.role, "leads");
   const showStaffCards = canAccess(session.role, "staff");
   const showReportsCards = canAccess(session.role, "reports");
+  const upcomingFollowUpsCount = followUpsToday.length + followUpsTomorrow.length;
 
   return (
     <div className="space-y-6">
@@ -131,6 +142,26 @@ export default async function DashboardPage() {
             {showCrm && (
               <StatCard href="/customers" label="Repeat Customers" value={stats.repeatCustomerCount} icon={<Users className="size-4" />} tone="purple" />
             )}
+            {showCrm && (
+              <StatCard
+                href="/leads"
+                label="Conversion Rate"
+                value={`${stats.conversionRate}%`}
+                trendLabel={`${stats.convertedLeadsCount} of ${stats.totalLeadsCount} leads`}
+                icon={<Percent className="size-4" />}
+                tone="teal"
+              />
+            )}
+            {showCrm && (
+              <StatCard
+                href="/leads?due=today"
+                label="Upcoming Follow-ups"
+                value={upcomingFollowUpsCount}
+                trendLabel="Today + tomorrow"
+                icon={<CalendarCheck className="size-4" />}
+                tone="blue"
+              />
+            )}
             {showRevenue && (
               <>
                 <StatCard href="/payments?filter=today" label="Today's Revenue" value={formatINR(stats.revenueToday)} icon={<TrendingUp className="size-4" />} tone="green" />
@@ -151,8 +182,26 @@ export default async function DashboardPage() {
               </>
             )}
             {showBackOffice && (
+              <StatCard
+                href="/attendance"
+                label="Staff Attendance Today"
+                value={`${stats.attendancePresent}/${stats.attendanceTotal}`}
+                trendLabel={`${stats.attendanceAbsent} absent · ${stats.attendanceHalfDay} half-day`}
+                icon={<ClipboardCheck className="size-4" />}
+                tone="teal"
+              />
+            )}
+            {showBackOffice && (
               <>
                 <StatCard href="/vehicles" label="Vehicle Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} tone="indigo" />
+                <StatCard
+                  href="/vehicles"
+                  label="Vehicles In Use"
+                  value={stats.vehiclesInUseCount}
+                  trendLabel={`${Math.max(stats.vehiclesActiveCount - stats.vehiclesInUseCount, 0)} available today`}
+                  icon={<Truck className="size-4" />}
+                  tone="gold"
+                />
                 <StatCard href="/amc" label="Upcoming AMC" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} tone="gold" />
               </>
             )}
@@ -323,6 +372,29 @@ export default async function DashboardPage() {
         {showCrm && (
           <FollowUpBoard today={followUpsToday} tomorrow={followUpsTomorrow} overdue={followUpsOverdue} />
         )}
+
+        {showReportsCards && (
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Recent Reviews</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1">
+              {recentReviews.length === 0 ? (
+                <EmptyState title="No reviews yet" description="Customer reviews will show up here once captured." />
+              ) : (
+                recentReviews.map((r) => (
+                  <div key={r.id} className="flex items-center justify-between gap-3 rounded-lg px-2 py-2.5">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{r.customerName ?? r.customerMobile}</p>
+                      {r.comment && <p className="truncate text-xs text-muted-foreground">{r.comment}</p>}
+                    </div>
+                    <span className="shrink-0 text-sm font-semibold text-amber-500">{"★".repeat(Math.max(0, Math.min(5, r.rating)))}</span>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {showRevenue && sourceStats.length > 0 && (
@@ -342,8 +414,8 @@ export default async function DashboardPage() {
                   </div>
                   <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
                     <div className="h-full rounded-full bg-primary" style={{ width: `${(s.leads / max) * 100}%` }} />
-                  </div>
                 </div>
+              </div>
               );
             })}
           </CardContent>

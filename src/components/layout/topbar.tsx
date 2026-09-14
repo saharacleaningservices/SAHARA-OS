@@ -72,7 +72,7 @@ export function Topbar({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 rounded-md py-1 pl-1 pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <CompanyLogo logoUrl={logoUrl} className="h-7 w-auto max-w-[120px] sm:h-8 sm:max-w-[150px]" />
+            <CompanyLogo logoUrl={logoUrl} className="h-7 w-auto max-w-[120px] sm:h-8 sm:max-w-[150px]" showTm />
             <span className="hidden text-left sm:block">
               <span className="block text-sm font-medium leading-tight text-foreground">{name}</span>
               <span className="block text-xs leading-tight text-muted-foreground">

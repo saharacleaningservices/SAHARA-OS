@@ -15,7 +15,9 @@ import { TrendingUp, TrendingDown, Percent } from "lucide-react";
 import { requireRole } from "@/lib/current-user";
 
 export default async function ProfitDashboardPage() {
-  const session = await requireRole(["ADMIN", "ACCOUNTS"]);
+  // Profit Dashboard is explicitly restricted to Super Admin only (see
+  // src/lib/permissions.ts canViewFinancials) — Accounts does not get it.
+  const session = await requireRole(["ADMIN"]);
   const isOwner = session.role === "ADMIN";
   const [data, owner, settings] = await Promise.all([
     getProfitData(),

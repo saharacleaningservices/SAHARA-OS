@@ -1,23 +1,25 @@
 // Fine-grained permission rules layered on top of the section-level
 // ROLE_NAV_ACCESS matrix in constants.ts.
 //
-// Final production access mapping (Master Prompt V1.0):
-//   ADMIN       — Altaf Shaikh    (admin@)        — Super Admin, full access
-//   OPERATIONS  — Francis Monteiro(operations@)   — Operations Manager
-//                 (jobs, staff, attendance, vehicles, AMC, customers, expenses;
-//                  NO security, NO profit dashboard, NO settings, NO user mgmt)
-//   ACCOUNTS    — Shoyab Shaikh   (accounts@)     — Office Assistant
-//                 (leads/CRM, quotations, follow-ups, customers, payments,
-//                  MyBillBook, reports; NO security, NO settings)
-//   SUPERVISOR  — Suresh Pawar    (supervisor@)   — Field Coordinator
-//   STAFF       — Vikas Shinde    (staff@)        — Field Staff (mobile only)
-// Login emails & passwords are unchanged; only roles/labels changed.
+// Current access mapping:
+// ADMIN — Altaf Shaikh (admin@) — Super Admin, full access
+// OPERATIONS — Francis Monteiro (operations@) — dispatch-only: today's &
+//   tomorrow's jobs, view + edit. Nothing else.
+// ACCOUNTS — Shoyab "Shoaib" Shaikh (accounts@) — near-full day-to-day
+//   operations (leads, jobs, dispatch, staff incl. salary/financials/
+//   documents, vehicles, attendance, AMC, payments, expenses, customers,
+//   reports, gallery, message log).
+//   NO security, NO device/security approvals, NO audit log, NO profit or
+//   revenue dashboards, NO system settings.
+// SUPERVISOR — Suresh Pawar (supervisor@) — Field Coordinator
+// STAFF — Vikas Shinde (staff@) — Field Staff (mobile only)
+// Login emails & passwords are unchanged; only role permissions changed.
 
 export type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
-/** Admin only — staff wages/salary figures. */
+/** Staff wages/salary figures — Super Admin + Accounts (full Staff module access). */
 export function canViewSalary(role: string): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Profit dashboard (revenue − expenses − wages). Super Admin only. */
@@ -32,12 +34,12 @@ export function canManageSecurity(role: string): boolean {
 
 /** Create / edit / delete / assign jobs and leads (vs. only progressing them). */
 export function canManageJobs(role: string): boolean {
-  return role === "ADMIN" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Soft-delete individual records (leads, jobs, payments, expenses). */
 export function canDeleteRecords(role: string): boolean {
-  return role === "ADMIN" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Company settings, backups, logo/branding. */
@@ -61,37 +63,37 @@ export function canExportCustomers(role: string): boolean {
 
 /** Vehicle & material allocation. */
 export function canAllocateResources(role: string): boolean {
-  return role === "ADMIN" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /**
  * How far a role's job list reaches:
- * - ALL: every job (Admin)
- * - TODAY_TOMORROW: only jobs scheduled today or tomorrow (Operations Manager)
+ * - ALL: every job (Admin, Accounts)
+ * - TODAY_TOMORROW: only jobs scheduled today or tomorrow (Operations —
+ *   Francis — and Field Coordinator)
  * - OWN_TODAY_TOMORROW: only jobs the user supervises or is assigned to,
- *   AND only if scheduled today or tomorrow (Field Supervisor — "Allow
- *   ONLY: Today's jobs, Tomorrow's jobs")
+ *   AND only if scheduled today or tomorrow
  * - OWN_TODAY: only the user's own jobs scheduled today (Worker)
  */
 export type JobScope = "ALL" | "TODAY_TOMORROW" | "OWN_TODAY_TOMORROW" | "OWN_TODAY";
 
 export function jobScopeFor(role: string): JobScope {
-  // Operations Manager schedules and oversees every job → ALL.
+  if (role === "OPERATIONS") return "TODAY_TOMORROW"; // Francis: dispatch-only, today + tomorrow
   if (role === "SUPERVISOR") return "TODAY_TOMORROW"; // Field Coordinator: today + tomorrow, all teams
   if (role === "STAFF") return "OWN_TODAY";
-  return "ALL";
+  return "ALL"; // ADMIN, ACCOUNTS
 }
 
 // Phase 3 — Revenue, WhatsApp & Workforce Automation
 
-/** Revenue dashboard + revenue/collections tiles. Admin + Operations Manager. */
+/** Revenue dashboard + revenue/collections tiles. Super Admin only. */
 export function canViewRevenue(role: string): boolean {
-  return role === "ADMIN" || role === "OPERATIONS" || role === "ACCOUNTS";
+  return role === "ADMIN";
 }
 
-/** AMC contracts — Super Admin + Operations Manager. */
+/** AMC contracts — Super Admin + Accounts. */
 export function canManageAmc(role: string): boolean {
-  return role === "ADMIN" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Upsell combo rules — Admin configures them; everyone can see them offered in booking. */
@@ -99,18 +101,17 @@ export function canManageUpsellRules(role: string): boolean {
   return role === "ADMIN";
 }
 
-/** Advances/fines/rewards against a staff member's pay — Admin only, since
- * the Operations Manager has no salary visibility (see canViewSalary). */
+/** Advances/fines/rewards against a staff member's pay — Super Admin + Accounts (full Staff module access). */
 export function canManageStaffFinancials(role: string): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Full attendance list + admin-side corrections (Worker only sees/marks their own). */
 export function canManageAttendance(role: string): boolean {
-  return role === "ADMIN" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
-/** WhatsApp send log + resend controls. */
+/** WhatsApp send log resend controls (viewing the log page itself is gated separately by role on the page). */
 export function canViewWhatsAppLog(role: string): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }

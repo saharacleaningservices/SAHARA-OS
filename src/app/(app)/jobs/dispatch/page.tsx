@@ -20,7 +20,7 @@ export default async function DispatchPage({
   searchParams: Promise<{ date?: string }>;
 }) {
   const session = await requireUser();
-  if (session.role !== "ADMIN" && session.role !== "OPERATIONS" && session.role !== "SUPERVISOR") {
+  if (session.role !== "ADMIN" && session.role !== "OPERATIONS" && session.role !== "SUPERVISOR" && session.role !== "ACCOUNTS") {
     redirect("/jobs");
   }
   const { date } = await searchParams;
