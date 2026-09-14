@@ -19,6 +19,7 @@ import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY, TIME_SLOTS, PAYMENT_MO
 import { formatINR } from "@/lib/utils";
 import { createLead, updateLead } from "@/server/actions/leads";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
+import { ServiceQuantityFields } from "@/components/shared/service-quantity-fields";
 import { MapsLocationInput } from "@/components/shared/maps-location-input";
 import { parseMapLink } from "@/lib/maps";
 import { TeamSelect } from "@/components/shared/team-select";
@@ -41,6 +42,14 @@ export function LeadForm({
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+
+  // Booking Form V2 parity — dynamic Service Type quantity/size sub-fields
+  // (see ServiceQuantityFields) feed a live suggested estimate and a
+  // selection summary that gets appended to Notes on submit, same as the
+  // public booking form does. estimateTouched stops the auto-fill once the
+  // user has typed their own Estimated Amount.
+  const [estimateTouched, setEstimateTouched] = useState(false);
+  const [selectionNotesLines, setSelectionNotesLines] = useState<string[]>([]);
 
   const {
     register,
@@ -93,9 +102,18 @@ export function LeadForm({
     setValue("assignedStaffId", next[0] ?? "", { shouldDirty: true });
   }
 
+  const quoteAmountField = register("quoteAmount");
+
   async function onSubmit(values: LeadFormValues) {
     setSubmitting(true);
-    const res = leadId ? await updateLead(leadId, values) : await createLead(values);
+    // Fold the dynamic quantity/size selections (Sofa seats, Mattress size,
+    // Bathroom/Kitchen/Carpet/Window/Curtain quantity, Painting rooms/sq ft/
+    // putty, Pest property size, Housekeeping staff/hours) into Notes — same
+    // composition the public booking form uses — so nothing the staff
+    // selected is lost even though Lead has no dedicated columns for them.
+    const mergedNotes = [values.notes?.trim(), selectionNotesLines.join("\n")].filter(Boolean).join("\n\n");
+    const finalValues = { ...values, notes: mergedNotes };
+    const res = leadId ? await updateLead(leadId, finalValues) : await createLead(finalValues);
     setSubmitting(false);
     if (res.error) {
       toast.error(res.error);
@@ -179,6 +197,17 @@ export function LeadForm({
               onPackageChange={(v) => setValue("packageName", v)}
             />
           </div>
+          <div className="sm:col-span-2">
+            <ServiceQuantityFields
+              key={`${watch("serviceCategory") || ""}-${watch("serviceVariant") || ""}`}
+              category={watch("serviceCategory") || ""}
+              variant={watch("serviceVariant") || ""}
+              onEstimate={(amt) => {
+                if (amt > 0 && !estimateTouched) setValue("quoteAmount", amt, { shouldDirty: true });
+              }}
+              onNotesLines={setSelectionNotesLines}
+            />
+          </div>
           <div className="space-y-1.5">
             <Label>Lead Source</Label>
             <Select value={watch("source")} onValueChange={(v) => setValue("source", v as LeadFormValues["source"])}>
@@ -196,7 +225,16 @@ export function LeadForm({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="quoteAmount">Estimated Amount (₹)</Label>
-            <Input id="quoteAmount" type="number" {...register("quoteAmount")} placeholder="Minimum ₹3,999" />
+            <Input
+              id="quoteAmount"
+              type="number"
+              {...quoteAmountField}
+              onChange={(e) => {
+                quoteAmountField.onChange(e);
+                setEstimateTouched(true);
+              }}
+              placeholder="Minimum ₹3,999"
+            />
           </div>
 
           <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3 sm:col-span-2">
