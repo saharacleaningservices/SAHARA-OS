@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Loader2,
   CheckCircle2,
@@ -33,9 +33,22 @@ import {
   SERVICE_CATALOG,
   SERVICE_RULES,
   CATEGORIES,
+  SOFA_SEATER_OPTIONS,
+  SOFA_SEATER_PRICES,
+  MATTRESS_SIZE_OPTIONS,
+  MATTRESS_UNIT_PRICE,
+  HOME_SERVICE_UNIT_PRICE,
+  PAINT_TYPE_RATE_PER_SQFT,
+  PUTTY_RATE_PER_SQFT,
+  PEST_PROPERTY_SIZE_OPTIONS,
+  PEST_PROPERTY_SIZE_PRICES,
+  HOUSEKEEPING_SHIFT_HOURS,
+  HOUSEKEEPING_HOURLY_RATE,
+  HEAR_ABOUT_US_OPTIONS,
 } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { publicBookLead } from "@/server/actions/public-booking";
+import { getSlotAvailability } from "@/server/actions/slot-availability";
 
 // The four customer-facing categories shown on the public booking page are
 // defined in src/lib/constants.ts (exported as CATEGORIES) and re-exported
@@ -58,6 +71,54 @@ const ADDON_ICONS: Record<string, typeof Sofa> = {
   "Refrigerator Cleaning": Refrigerator,
   "Pest Control": Bug,
 };
+
+// Simple +/- quantity field shared by the Booking Form V2 dynamic
+// sub-fields (Bathrooms, Kitchens, Carpets, Windows, Curtain pairs, Rooms,
+// Staff Count, etc). Defined at module scope (not inside the form
+// component) so it keeps a stable identity across re-renders.
+function QtyStepper({
+  label,
+  value,
+  onChange,
+  min = 1,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  min?: number;
+}) {
+  const num = Number(value) || 0;
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(String(Math.max(min, (num || min) - 1)))}
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-lg font-semibold text-foreground active:scale-95"
+          aria-label={`Decrease ${label}`}
+        >
+          −
+        </button>
+        <Input
+          inputMode="numeric"
+          className="w-16 text-center"
+          value={value}
+          onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+          placeholder={String(min)}
+        />
+        <button
+          type="button"
+          onClick={() => onChange(String((num || min - 1) + 1))}
+          className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-lg font-semibold text-foreground active:scale-95"
+          aria-label={`Increase ${label}`}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function PublicBookingForm({
   referralCode,
@@ -95,11 +156,52 @@ export function PublicBookingForm({
   const [loc, setLoc] = useState<MapsLocationValue>({ mapLink: "", lat: null, lng: null });
   const [payChoice, setPayChoice] = useState<"ADVANCE" | "LATER">("ADVANCE");
   const [estimated, setEstimated] = useState("");
+  const [estimatedTouched, setEstimatedTouched] = useState(false);
   const [advance, setAdvance] = useState("");
   const [payMode, setPayMode] = useState("UPI");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ leadNumber: string; advancePaid: boolean } | null>(null);
+
+  // Booking Form V2 — optional lead-source field.
+  const [hearAboutUs, setHearAboutUs] = useState("");
+
+  // Booking Form V2 — dynamic service sub-fields.
+  const [sofaSeater, setSofaSeater] = useState("");
+  const [bathroomQty, setBathroomQty] = useState("");
+  const [kitchenQty, setKitchenQty] = useState("");
+  const [carpetQty, setCarpetQty] = useState("");
+  const [windowQty, setWindowQty] = useState("");
+  const [mattressSize, setMattressSize] = useState("");
+  const [mattressQty, setMattressQty] = useState("");
+  const [curtainQty, setCurtainQty] = useState("");
+  const [paintRooms, setPaintRooms] = useState("");
+  const [paintSqft, setPaintSqft] = useState("");
+  const [puttyRequired, setPuttyRequired] = useState<"" | "YES" | "NO">("");
+  const [pestPropertySize, setPestPropertySize] = useState("");
+  const [housekeepingStaffCount, setHousekeepingStaffCount] = useState("");
+  const [housekeepingShiftHours, setHousekeepingShiftHours] = useState("");
+
+  // Smart Calendar — real (never fabricated) slot-availability estimate for
+  // the selected date. "Not a final confirmation" — the office team always
+  // verifies before a slot is locked in.
+  const [slotInfo, setSlotInfo] = useState<{ label: string; isFull: boolean } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!serviceDate) {
+      setSlotInfo(null);
+      return;
+    }
+    getSlotAvailability(serviceDate).then((res) => {
+      if (!cancelled && res.ok) setSlotInfo({ label: res.label, isFull: res.isFull });
+    }).catch(() => {
+      if (!cancelled) setSlotInfo(null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [serviceDate]);
 
   const estNum = Number(estimated) || 0;
   const advNum = Math.min(Number(advance) || 0, estNum || Infinity);
@@ -107,8 +209,91 @@ export function PublicBookingForm({
   const serviceOptions = category ? SERVICE_CATALOG[category] ?? [] : [];
   const serviceRule = variant ? SERVICE_RULES[variant] : "";
 
+  // Live indicative price from the dynamic sub-field selections — recomputed
+  // on every render so it updates instantly as the customer picks options.
+  function computeSuggestedEstimate(): number {
+    if (category === "HOME_DEEP_CLEANING") {
+      if (variant === "Sofa Cleaning" && sofaSeater) return SOFA_SEATER_PRICES[sofaSeater] ?? 0;
+      if (variant === "Mattress Cleaning" && mattressSize) {
+        const qty = Number(mattressQty) || 1;
+        return (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
+      }
+      const qtyByVariant: Record<string, string> = {
+        "Bathroom Cleaning": bathroomQty,
+        "Kitchen Deep Cleaning": kitchenQty,
+        "Carpet Cleaning": carpetQty,
+        "Window Cleaning": windowQty,
+        "Curtain Cleaning": curtainQty,
+      };
+      if (variant && HOME_SERVICE_UNIT_PRICE[variant] && qtyByVariant[variant]) {
+        const qty = Number(qtyByVariant[variant]) || 1;
+        return HOME_SERVICE_UNIT_PRICE[variant] * qty;
+      }
+    }
+    if (category === "PAINTING") {
+      const sqft = Number(paintSqft) || 0;
+      const rate = variant ? PAINT_TYPE_RATE_PER_SQFT[variant] ?? 0 : 0;
+      if (sqft > 0 && rate > 0) {
+        let total = sqft * rate;
+        if (puttyRequired === "YES") total += sqft * PUTTY_RATE_PER_SQFT;
+        return Math.round(total);
+      }
+    }
+    if (category === "PEST_CONTROL" && pestPropertySize) {
+      return PEST_PROPERTY_SIZE_PRICES[pestPropertySize] ?? 0;
+    }
+    if (category === "HOUSEKEEPING" && housekeepingShiftHours && housekeepingStaffCount) {
+      const hours = parseInt(housekeepingShiftHours, 10) || 0;
+      const staff = Number(housekeepingStaffCount) || 1;
+      return Math.round(hours * staff * HOUSEKEEPING_HOURLY_RATE);
+    }
+    return 0;
+  }
+
+  const suggestedEstimate = computeSuggestedEstimate();
+
+  // Auto-fill the Estimated field the instant a sub-field selection produces
+  // a price — but only while the customer hasn't typed their own number in
+  // that field, so we never silently overwrite a manually entered estimate.
+  useEffect(() => {
+    if (!estimatedTouched && suggestedEstimate > 0) {
+      setEstimated(String(suggestedEstimate));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedEstimate, estimatedTouched]);
+
   function toggleAddOn(n: string) {
     setAddOns((prev) => (prev.includes(n) ? prev.filter((a) => a !== n) : [...prev, n]));
+  }
+
+  // Compose the dynamic sub-field selections + optional lead-source answer
+  // into a readable notes block. No schema changes needed — Lead.notes is
+  // already a free-text field fully wired through to the CRM timeline.
+  function buildSelectionNotes(): string {
+    const lines: string[] = [];
+    if (category === "HOME_DEEP_CLEANING") {
+      if (variant === "Sofa Cleaning" && sofaSeater) lines.push(`Sofa: ${sofaSeater}`);
+      if (variant === "Bathroom Cleaning" && bathroomQty) lines.push(`Bathrooms: ${bathroomQty}`);
+      if (variant === "Kitchen Deep Cleaning" && kitchenQty) lines.push(`Kitchens: ${kitchenQty}`);
+      if (variant === "Carpet Cleaning" && carpetQty) lines.push(`Carpets: ${carpetQty}`);
+      if (variant === "Window Cleaning" && windowQty) lines.push(`Windows: ${windowQty}`);
+      if (variant === "Mattress Cleaning" && mattressSize) {
+        lines.push(`Mattress: ${mattressSize}${mattressQty ? ` x ${mattressQty}` : ""}`);
+      }
+      if (variant === "Curtain Cleaning" && curtainQty) lines.push(`Curtain Pairs: ${curtainQty}`);
+    }
+    if (category === "PAINTING") {
+      if (paintRooms) lines.push(`Rooms: ${paintRooms}`);
+      if (paintSqft) lines.push(`Area: ${paintSqft} sq ft`);
+      if (puttyRequired) lines.push(`Putty Required: ${puttyRequired === "YES" ? "Yes" : "No"}`);
+    }
+    if (category === "PEST_CONTROL" && pestPropertySize) lines.push(`Property Size: ${pestPropertySize}`);
+    if (category === "HOUSEKEEPING") {
+      if (housekeepingStaffCount) lines.push(`Staff Count: ${housekeepingStaffCount}`);
+      if (housekeepingShiftHours) lines.push(`Shift Hours: ${housekeepingShiftHours}`);
+    }
+    if (hearAboutUs) lines.push(`Heard about Sahara via: ${hearAboutUs}`);
+    return lines.join("\n");
   }
 
   async function submitBooking(e: React.FormEvent) {
@@ -119,6 +304,8 @@ export function PublicBookingForm({
       return;
     }
     const advancePaid = payChoice === "ADVANCE" && advNum > 0;
+    const selectionNotes = buildSelectionNotes();
+    const combinedNotes = [notes.trim(), selectionNotes].filter(Boolean).join("\n\n");
     setSubmitting(true);
     const res = await publicBookLead({
       name,
@@ -135,7 +322,7 @@ export function PublicBookingForm({
       addOnServices: addOns,
       serviceDate,
       timeSlot,
-      notes,
+      notes: combinedNotes,
       mapLink: loc.mapLink,
       website: "",
       source: leadSource,
@@ -249,7 +436,14 @@ export function PublicBookingForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className={fieldWrap}>
           <Label>Service Category <span className="text-destructive">*</span></Label>
-          <Select value={category} onValueChange={(v) => { setCategory(v); setVariant(""); setPropertyType(""); }}>
+          <Select
+            value={category}
+            onValueChange={(v) => {
+              setCategory(v);
+              setVariant("");
+              setPropertyType("");
+            }}
+          >
             <SelectTrigger><SelectValue placeholder="Select Service Category" /></SelectTrigger>
             <SelectContent>
               {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
@@ -274,6 +468,11 @@ export function PublicBookingForm({
             <CalendarDays className={`${iconEl} size-4`} />
             <DateInput id="pb-date" className="pl-9" value={serviceDate} onChange={(e) => setServiceDate(e.target.value)} required />
           </div>
+          {slotInfo && (
+            <p className={`text-xs font-medium ${slotInfo.isFull ? "text-destructive" : "text-success"}`}>
+              {slotInfo.label} <span className="font-normal text-muted-foreground">(estimated — not a final confirmation)</span>
+            </p>
+          )}
         </div>
         <div className={fieldWrap}>
           <Label>Preferred Time <span className="text-destructive">*</span></Label>
@@ -288,7 +487,23 @@ export function PublicBookingForm({
 
       <div className={fieldWrap}>
         <Label>Service Type <span className="text-destructive">*</span></Label>
-        <Select value={variant} onValueChange={setVariant} disabled={!category}>
+        <Select
+          value={variant}
+          onValueChange={(v) => {
+            setVariant(v);
+            // Reset sub-fields that belong to a different service so stale
+            // selections never linger (and never leak into notes/pricing).
+            setSofaSeater("");
+            setBathroomQty("");
+            setKitchenQty("");
+            setCarpetQty("");
+            setWindowQty("");
+            setMattressSize("");
+            setMattressQty("");
+            setCurtainQty("");
+          }}
+          disabled={!category}
+        >
           <SelectTrigger><SelectValue placeholder={category ? "Select Service Type" : "Pick a category first"} /></SelectTrigger>
           <SelectContent>
             {serviceOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
@@ -297,6 +512,112 @@ export function PublicBookingForm({
         {SERVICE_TYPE_HINT[category] && <p className="text-xs text-muted-foreground">{SERVICE_TYPE_HINT[category]}</p>}
         {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
       </div>
+
+      {/* ── Dynamic service sub-fields (Booking Form V2) ─────────────── */}
+      {category === "HOME_DEEP_CLEANING" && variant === "Sofa Cleaning" && (
+        <div className={fieldWrap}>
+          <Label>Sofa Size <span className="text-destructive">*</span></Label>
+          <Select value={sofaSeater} onValueChange={setSofaSeater}>
+            <SelectTrigger><SelectValue placeholder="Select seater" /></SelectTrigger>
+            <SelectContent>
+              {SOFA_SEATER_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      {category === "HOME_DEEP_CLEANING" && variant === "Bathroom Cleaning" && (
+        <QtyStepper label="Number of Bathrooms" value={bathroomQty} onChange={setBathroomQty} min={2} />
+      )}
+      {category === "HOME_DEEP_CLEANING" && variant === "Kitchen Deep Cleaning" && (
+        <QtyStepper label="Number of Kitchens" value={kitchenQty} onChange={setKitchenQty} min={1} />
+      )}
+      {category === "HOME_DEEP_CLEANING" && variant === "Carpet Cleaning" && (
+        <QtyStepper label="Number of Carpets" value={carpetQty} onChange={setCarpetQty} min={2} />
+      )}
+      {category === "HOME_DEEP_CLEANING" && variant === "Window Cleaning" && (
+        <QtyStepper label="Number of Windows" value={windowQty} onChange={setWindowQty} min={5} />
+      )}
+      {category === "HOME_DEEP_CLEANING" && variant === "Mattress Cleaning" && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className={fieldWrap}>
+            <Label>Mattress Size <span className="text-destructive">*</span></Label>
+            <Select value={mattressSize} onValueChange={setMattressSize}>
+              <SelectTrigger><SelectValue placeholder="Single or Double" /></SelectTrigger>
+              <SelectContent>
+                {MATTRESS_SIZE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <QtyStepper label="Number of Mattresses" value={mattressQty} onChange={setMattressQty} min={2} />
+        </div>
+      )}
+      {category === "HOME_DEEP_CLEANING" && variant === "Curtain Cleaning" && (
+        <QtyStepper label="Number of Pairs" value={curtainQty} onChange={setCurtainQty} min={2} />
+      )}
+
+      {category === "PAINTING" && (
+        <div className="space-y-4 rounded-xl border border-border p-3.5">
+          <p className="text-sm font-semibold text-foreground">Painting Details</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <QtyStepper label="Number of Rooms" value={paintRooms} onChange={setPaintRooms} min={1} />
+            <div className={fieldWrap}>
+              <Label>Square Feet (approx.)</Label>
+              <Input inputMode="numeric" value={paintSqft} onChange={(e) => setPaintSqft(e.target.value.replace(/\D/g, ""))} placeholder="e.g. 1200" />
+            </div>
+          </div>
+          <div className={fieldWrap}>
+            <Label>Putty Required?</Label>
+            <div className="flex gap-2">
+              {(["YES", "NO"] as const).map((opt) => (
+                <button
+                  type="button"
+                  key={opt}
+                  onClick={() => setPuttyRequired(opt)}
+                  className={`rounded-lg border px-4 py-2 text-xs font-semibold ${
+                    puttyRequired === opt ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"
+                  }`}
+                >
+                  {opt === "YES" ? "Yes" : "No"}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">Paint Type is picked above in Service Type.</p>
+          </div>
+        </div>
+      )}
+
+      {category === "PEST_CONTROL" && (
+        <div className={fieldWrap}>
+          <Label>Property Size</Label>
+          <Select value={pestPropertySize} onValueChange={setPestPropertySize}>
+            <SelectTrigger><SelectValue placeholder="Select property size" /></SelectTrigger>
+            <SelectContent>
+              {PEST_PROPERTY_SIZE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {category === "HOUSEKEEPING" && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 rounded-xl border border-border p-3.5">
+          <QtyStepper label="Staff Count" value={housekeepingStaffCount} onChange={setHousekeepingStaffCount} min={1} />
+          <div className={fieldWrap}>
+            <Label>Shift Hours</Label>
+            <Select value={housekeepingShiftHours} onValueChange={setHousekeepingShiftHours}>
+              <SelectTrigger><SelectValue placeholder="Select shift hours" /></SelectTrigger>
+              <SelectContent>
+                {HOUSEKEEPING_SHIFT_HOURS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
+      {suggestedEstimate > 0 && (
+        <p className="rounded-lg bg-accent px-3 py-2 text-xs font-medium text-accent-foreground">
+          Estimated from your selections: <span className="font-bold">{formatINR(suggestedEstimate)}</span> — filled into Estimated ₹ below, you can edit it.
+        </p>
+      )}
 
       {/* Add-on services */}
       <div className="space-y-2.5">
@@ -356,7 +677,15 @@ export function PublicBookingForm({
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Estimated ₹</Label>
-                <Input inputMode="numeric" value={estimated} onChange={(e) => setEstimated(e.target.value.replace(/\D/g, ""))} placeholder="0" />
+                <Input
+                  inputMode="numeric"
+                  value={estimated}
+                  onChange={(e) => {
+                    setEstimated(e.target.value.replace(/\D/g, ""));
+                    setEstimatedTouched(true);
+                  }}
+                  placeholder="0"
+                />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Advance ₹</Label>
@@ -378,6 +707,16 @@ export function PublicBookingForm({
             <PaymentDetailsBox mode={payMode} details={paymentDetails} />
           </div>
         )}
+      </div>
+
+      <div className={fieldWrap}>
+        <Label>How did you hear about Sahara? <span className="font-normal text-muted-foreground">(Optional)</span></Label>
+        <Select value={hearAboutUs} onValueChange={setHearAboutUs}>
+          <SelectTrigger><SelectValue placeholder="Select an option" /></SelectTrigger>
+          <SelectContent>
+            {HEAR_ABOUT_US_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-1.5">
