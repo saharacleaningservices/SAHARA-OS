@@ -6,10 +6,9 @@ import {
   Users,
   ShieldCheck,
   ShieldCheck as ShieldIcon,
-  Leaf,
   Clock3,
-  Settings2,
-  Smile,
+  FlaskConical,
+  Wrench,
   Headphones,
   CalendarClock,
   IndianRupee,
@@ -21,6 +20,7 @@ import { BookingLinkPing } from "@/components/public/booking-link-ping";
 import { HeroCarousel } from "@/components/public/hero-carousel";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
+import { ReviewsCarousel } from "@/components/public/reviews-carousel";
 import { COMPANY, CATEGORIES } from "@/lib/constants";
 import { getResolvedIntegrations } from "@/server/integrations";
 import { getCompanySettings } from "@/server/settings";
@@ -32,8 +32,6 @@ export const metadata = {
   description: "Pune's trusted cleaning experts — Home, Commercial, Interior Painting & Pest Control.",
 };
 
-// Both numbers live in one place (src/lib/constants.ts) so the header, the
-// footer and the mobile sticky bar can never drift out of sync.
 const CALL_NUMBER = COMPANY.phones[0];
 const WHATSAPP_NUMBER = COMPANY.phones[1];
 
@@ -46,17 +44,12 @@ const NAV = [
 ];
 
 const WHY = [
+  { icon: FlaskConical, label: "Professional Chemicals" },
+  { icon: Wrench, label: "Advanced Equipment" },
   { icon: ShieldCheck, label: "Trained & Verified Staff" },
-  { icon: Leaf, label: "Eco-Friendly Products" },
-  { icon: Clock3, label: "On-Time Service" },
-  { icon: Settings2, label: "Modern Equipment" },
-  { icon: Smile, label: "100% Customer Satisfaction" },
+  { icon: Clock3, label: "On Time Service" },
 ];
 
-// Card image/description + the Service Category value each maps to in
-// PublicBookingForm's CATEGORIES — clicking a card scrolls to the form below
-// with that category already selected (?category=... deep link). Images are
-// the real, committed brand photography under /public/brand/services.
 const SERVICES = [
   { img: "/brand/services/home-cleaning.png", label: "Home Deep Cleaning", desc: "Kitchen, bath, sofa, full home", cat: "HOME_DEEP_CLEANING" },
   { img: "/brand/services/office-cleaning.png", label: "Commercial Cleaning", desc: "Office, shop, warehouse, more", cat: "COMMERCIAL_CLEANING" },
@@ -89,8 +82,6 @@ export default async function PublicBookingPage({
   const reviewUrl = settings.googleReviewUrl || "";
   const prefillName = (sp.customer || sp.name || "").slice(0, 80);
   const prefillMobile = (sp.phone || sp.mobile || "").replace(/[^\d]/g, "").slice(-10);
-  // Only accept a category that PublicBookingForm actually offers — anything
-  // else (or a missing param) is simply ignored and the form starts blank.
   const initialCategory = CATEGORIES.some((c) => c.value === sp.category) ? sp.category : undefined;
 
   let featured: { name: string; text: string; rating?: number }[] = [];
@@ -100,18 +91,13 @@ export default async function PublicBookingPage({
   } catch {
     featured = [];
   }
-  const testimonial = featured[0] ?? {
-    name: "Priya Sharma",
-    text: "Excellent service! Very professional team and great results. Highly recommended!",
-    rating: 5,
-  };
 
   return (
     <div id="top" className="min-h-screen bg-[#eef4fb] pb-20 lg:pb-0">
       {/* ── Header ────────────────────────────────────────────── */}
       <header id="contact" className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <CompanyLogo logoUrl={settings.logoUrl} className="h-[46px] w-auto max-w-[180px]" showTm />
+          <CompanyLogo logoUrl={settings.logoUrl} className="-ml-1 h-[46px] w-auto max-w-[180px] sm:-ml-2" showTm />
           <nav className="hidden items-center gap-6 text-sm font-medium text-foreground lg:flex">
             {NAV.map((n) => (
               <a key={n.label} href={n.href} className="hover:text-primary">{n.label}</a>
@@ -194,16 +180,19 @@ export default async function PublicBookingPage({
         <aside className="space-y-6">
           <section id="about">
             <h3 className="mb-3 text-xl font-bold text-foreground">Why Choose Sahara?</h3>
-            <ul className="space-y-2.5">
+            <div className="grid grid-cols-2 gap-3">
               {WHY.map(({ icon: Icon, label }) => (
-                <li key={label} className="flex items-center gap-3 text-sm text-foreground">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-success/10 text-success">
-                    <Icon className="size-4" />
+                <div
+                  key={label}
+                  className="flex flex-col items-center gap-2 rounded-xl border border-border bg-white p-4 text-center shadow-sm transition hover:shadow-md"
+                >
+                  <span className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-success/15 text-primary">
+                    <Icon className="size-5" />
                   </span>
-                  {label}
-                </li>
+                  <p className="text-xs font-semibold leading-snug text-foreground">{label}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
 
           <section id="services">
@@ -234,19 +223,7 @@ export default async function PublicBookingPage({
             </div>
           </section>
 
-          <section id="reviews" className="rounded-xl border border-border bg-white p-4 shadow-sm">
-            <div className="mb-1.5 flex items-center gap-1 text-yellow-400">
-              {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="size-4 fill-current" />)}
-            </div>
-            <p className="text-sm text-foreground">&ldquo;{testimonial.text}&rdquo;</p>
-            <p className="mt-2 text-sm font-semibold text-foreground">— {testimonial.name}</p>
-            <p className="text-xs text-muted-foreground">Verified Google Review</p>
-            {reviewUrl && (
-              <a href={reviewUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
-                <FaGoogle className="size-3.5" /> Read all Google Reviews
-              </a>
-            )}
-          </section>
+          <ReviewsCarousel reviews={featured} reviewUrl={reviewUrl} />
         </aside>
 
         {/* Form */}
@@ -334,6 +311,8 @@ export default async function PublicBookingPage({
               <li><a href="#about" className="hover:text-white">About</a></li>
               <li><a href="#reviews" className="hover:text-white">Reviews</a></li>
               <li><a href="#contact" className="hover:text-white">Contact</a></li>
+              <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link></li>
             </ul>
           </div>
 
@@ -354,17 +333,23 @@ export default async function PublicBookingPage({
             <p className="text-xs font-semibold uppercase tracking-wide text-white/60">Contact</p>
             <ul className="space-y-1.5 text-white/85">
               {COMPANY.phones.map((p) => (
-                <li key={p}><a href={`tel:+91${p}`} className="hover:text-white">{p}</a></li>
+                <li key={p} className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                  <span className="text-white/70">{p}</span>
+                  <a href={`tel:+91${p}`} className="hover:text-white">Call</a>
+                  <span className="text-white/40">·</span>
+                  <a href={toWhatsAppLink(p)} target="_blank" rel="noreferrer" className="hover:text-white">WhatsApp</a>
+                </li>
               ))}
               <li><a href={`mailto:${COMPANY.email}`} className="break-all hover:text-white">{COMPANY.email}</a></li>
+              <li><a href={`https://${COMPANY.website}`} target="_blank" rel="noreferrer" className="break-all hover:text-white">{COMPANY.website}</a></li>
               <li className="text-white/70">{COMPANY.address}</li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/15 py-2 text-center text-[11px] text-white/70">
-          {COMPANY.name}
-          <sup className="ml-0.5 text-[0.7em]">™</sup>
+        <div className="border-t border-white/15 py-3 text-center text-[11px] text-white/70">
+          <p>{COMPANY.name}<sup className="ml-0.5 text-[0.7em]">™</sup></p>
+          <p className="mt-1">Developed by Sahara Cleaning Services</p>
         </div>
       </footer>
 
