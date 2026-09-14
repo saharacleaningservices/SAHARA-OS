@@ -23,7 +23,9 @@ import { expenseSchema, type ExpenseFormValues } from "@/lib/validation";
 import { EXPENSE_CATEGORY_OPTIONS } from "@/lib/constants";
 import { createExpense } from "@/server/actions/expenses";
 
-export function NewExpenseDialog() {
+type JobOption = { id: string; jobNumber: string; customerName: string };
+
+export function NewExpenseDialog({ jobOptions = [] }: { jobOptions?: JobOption[] }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -102,6 +104,30 @@ export function NewExpenseDialog() {
             <Label>Paid To</Label>
             <Input {...register("paidTo")} placeholder="Vendor / staff name" />
           </div>
+          {jobOptions.length > 0 && (
+            <div className="space-y-1">
+              <Label>Link to Job (optional)</Label>
+              <Select
+                value={watch("jobId") || "none"}
+                onValueChange={(v) => setValue("jobId", v === "none" ? "" : v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Not linked to a job" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Not linked to a job</SelectItem>
+                  {jobOptions.map((j) => (
+                    <SelectItem key={j.id} value={j.id}>
+                      {j.jobNumber} · {j.customerName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Shows this expense on the job&apos;s page so cost-per-job stays accurate.
+              </p>
+            </div>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
