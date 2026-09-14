@@ -126,7 +126,10 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
     "Kitchen Deep Cleaning",
     "Curtain Cleaning",
   ],
-  INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Fan", "Fridge", "Balcony"],
+  // Master Prompt overnight batch — added "Curtain" as the 9th item so every
+  // Individual Cleaning service supports its own quantity (Kitchen, Bathroom,
+  // Sofa, Mattress, Window, Curtain, Fan, Fridge, Balcony).
+  INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Curtain", "Fan", "Fridge", "Balcony"],
   PAINTING: [
     "Oil Bound",
     "Premium Emulsion",
