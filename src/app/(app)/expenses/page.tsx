@@ -3,6 +3,7 @@ import { StatCard } from "@/components/shared/stat-card";
 import { ExpensesExplorer } from "@/components/expenses/expenses-explorer";
 import { NewExpenseDialog } from "@/components/expenses/new-expense-dialog";
 import { getAllExpensesForList } from "@/server/expenses";
+import { getJobsForSelection } from "@/server/jobs";
 import { EXPENSE_CATEGORY_LABELS, EXPENSE_CATEGORIES } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { SprayCan, Fuel, Car, Wrench, Bike, HandCoins, Store, Receipt } from "lucide-react";
@@ -19,7 +20,7 @@ const CATEGORY_ICON: Record<string, typeof Receipt> = {
 };
 
 export default async function ExpensesPage() {
-  const expenses = await getAllExpensesForList();
+  const [expenses, jobOptions] = await Promise.all([getAllExpensesForList(), getJobsForSelection()]);
   // Show a tile for every current category, plus any legacy category that
   // still has spend recorded against it.
   const legacyWithSpend = [...new Set(expenses.map((e) => e.category))].filter(
@@ -35,7 +36,7 @@ export default async function ExpensesPage() {
       <PageHeader
         title="Expenses"
         description={`${expenses.length} expenses tracked`}
-        actions={<NewExpenseDialog />}
+        actions={<NewExpenseDialog jobOptions={jobOptions} />}
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
