@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { FileText, Users, Pencil, ExternalLink, Phone, MessageCircle, Navigation } from "lucide-react";
+import { FileText, Users, Pencil, ExternalLink, Phone, MessageCircle, Navigation, Receipt } from "lucide-react";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getVehiclesForAssignment } from "@/server/vehicles";
 import { getResolvedIntegrations } from "@/server/integrations";
@@ -57,6 +57,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const advance = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
   const balance = Math.max(job.jobValue - advance, 0);
   const paymentStatus = balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partly Paid" : "Pending";
+  const totalExpenses = job.expenses.reduce((s, e) => s + e.amount, 0);
 
   const cardBase = {
     jobNumber: job.jobNumber,
@@ -329,6 +330,34 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     </div>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {job.expenses.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Receipt className="size-4" /> Job Expenses
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {job.expenses.map((e) => (
+                  <div key={e.id} className="flex items-center justify-between rounded-lg border border-border p-3">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{e.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(e.date)}
+                        {e.paidTo ? ` · ${e.paidTo}` : ""}
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">{formatINR(e.amount)}</span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between border-t border-border pt-2 text-sm font-semibold text-foreground">
+                  <span>Total spent on this job</span>
+                  <span>{formatINR(totalExpenses)}</span>
+                </div>
               </CardContent>
             </Card>
           )}
