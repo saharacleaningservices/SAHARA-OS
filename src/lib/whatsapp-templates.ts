@@ -55,6 +55,184 @@ export function bookingConfirmationSms(input: BookingConfirmationInput) {
   ].join(" ");
 }
 
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+/**
+ * Very small, deterministic parser for the fixed set of time-slot labels
+ * used on the booking form (e.g. "8:00 – 11:00", "1:00 – 4:00", "Flexible").
+ * Hours 1–7 with no AM/PM marker are afternoon slots (the service day runs
+ * roughly 8 AM–6 PM), everything else (8–12) is taken as-is. Falls back to
+ * a 9 AM–12 PM default for anything unrecognized.
+ */
+function parseServiceTimeSlot(slot: string | null | undefined): {
+  startH: number;
+  startM: number;
+  endH: number;
+  endM: number;
+} {
+  const fallback = { startH: 9, startM: 0, endH: 12, endM: 0 };
+  if (!slot || slot.toLowerCase() === "flexible") return fallback;
+  const parts = slot
+    .split(/[–-]/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (parts.length !== 2) return fallback;
+  const parseOne = (s: string) => {
+    const m = s.match(/(\d{1,2})(?::(\d{2}))?/);
+    if (!m) return null;
+    let h = parseInt(m[1], 10);
+    const min = m[2] ? parseInt(m[2], 10) : 0;
+    if (h >= 1 && h <= 7) h += 12;
+    return { h, min };
+  };
+  const a = parseOne(parts[0]);
+  const b = parseOne(parts[1]);
+  if (!a || !b) return fallback;
+  return { startH: a.h, startM: a.min, endH: b.h, endM: b.min };
+}
+
+/**
+ * Builds a Google Calendar "add event" link for a scheduled service visit.
+ * `date` is read with UTC getters (it originates from a plain "YYYY-MM-DD"
+ * string, which JS parses as UTC midnight) so the emitted date is never
+ * shifted by the server's local timezone; the emitted datetime string has
+ * no trailing "Z", so Google Calendar renders it as a floating local time —
+ * correct for the IST wall-clock hours the booking form already collects.
+ */
+function googleCalendarLink(input: {
+  title: string;
+  date: Date;
+  timeSlot: string | null;
+  location: string;
+  details: string;
+}) {
+  const { startH, startM, endH, endM } = parseServiceTimeSlot(input.timeSlot);
+  const y = input.date.getUTCFullYear();
+  const mo = pad2(input.date.getUTCMonth() + 1);
+  const d = pad2(input.date.getUTCDate());
+  const start = `${y}${mo}${d}T${pad2(startH)}${pad2(startM)}00`;
+  const end = `${y}${mo}${d}T${pad2(endH)}${pad2(endM)}00`;
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: input.title,
+    dates: `${start}/${end}`,
+    details: input.details,
+    location: input.location,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/**
+ * Premium "Interactive Booking" WhatsApp confirmation — the ONE message sent
+ * the moment a booking is confirmed, whether the enquiry started on the
+ * website booking form, was entered manually in the CRM, or came in as a
+ * Google Business Profile (GMB) lead. All three paths flow through the same
+ * confirmBooking() action (src/server/actions/leads.ts), so this is always
+ * the single, de-duplicated confirmation for a job — see the WhatsAppMessage
+ * lookup guard there before this is sent.
+ *
+ * Exactly three actions are shown — View Booking, Pay After Service, Add to
+ * Calendar. The Google Review ask is intentionally NOT part of this message:
+ * it is sent separately, only once the job's status becomes COMPLETED (see
+ * premiumReviewRequestMessage below), so we never ask for a review before
+ * the work is actually done.
+ *
+ * WhatsApp's Cloud API only supports more than 3 buttons, or any link-type
+ * button (e.g. "View Booking Details" as a tappable link), inside a
+ * pre-approved Meta message Template — not in a plain-text/ad-hoc message.
+ * Until an approved template name is available, the three actions below are
+ * rendered as clearly-labelled tappable links so the customer gets the same
+ * information and the same destinations today. Once a Meta template is
+ * approved, swap the sendWhatsApp() call in confirmBooking() for a
+ * `type: "template"` send using these same three destinations (trackingUrl /
+ * payment line / calendarUrl) as the template's button parameters — no other
+ * change needed here.
+ */
+export function premiumBookingConfirmationMessage(input: {
+  customerName: string;
+  jobNumber: string;
+  service: string;
+  date: Date;
+  timeSlot: string;
+  address?: string | null;
+  area: string;
+  balanceDue?: number | null;
+}) {
+  const trackingUrl = `https://app.saharacleaningservices.com/j/${input.jobNumber}`;
+  const location = input.address?.trim() || input.area;
+  const calendarUrl = googleCalendarLink({
+    title: `${input.service} — ${COMPANY.name}`,
+    date: input.date,
+    timeSlot: input.timeSlot,
+    location,
+    details: `Booking ${input.jobNumber} with ${COMPANY.name}. Track: ${trackingUrl}`,
+  });
+  const paymentLine =
+    input.balanceDue && input.balanceDue > 0
+      ? `Pay After Service — ${formatINR(input.balanceDue)} due on completion`
+      : `Pay After Service — fully settled, thank you!`;
+
+  return [
+    `✅ *Booking Confirmed — ${COMPANY.name}*`,
+    ``,
+    `Hi ${input.customerName}, your booking is confirmed!`,
+    ``,
+    `👤 Customer Name: ${input.customerName}`,
+    `🆔 Booking ID: ${input.jobNumber}`,
+    `🧹 Service: ${input.service}`,
+    `🗓️ Date & Time: ${formatDate(input.date)}, ${input.timeSlot}`,
+    `📍 Address: ${location}`,
+    ``,
+    `— — — — — — — — — —`,
+    `📄 View Booking Details: ${trackingUrl}`,
+    `💳 ${paymentLine}`,
+    `📅 Add to Calendar: ${calendarUrl}`,
+    `— — — — — — — — — —`,
+    ``,
+    `📞 ${COMPANY.phones[0]}`,
+    `📱 ${COMPANY.phones[1]}`,
+    `🌐 ${COMPANY.website ?? "www.saharacleaningservices.com"}`,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
+/**
+ * Premium "Job Completed" Google Review request — sent ONCE a Job's status
+ * transitions to COMPLETED (see src/server/actions/jobs.ts), never as part
+ * of the booking confirmation. Matches the visual design language of
+ * premiumBookingConfirmationMessage above so the customer recognizes it as
+ * the same premium Sahara flow. De-duplicated the same way (a WhatsAppMessage
+ * lookup guard with kind "REVIEW_REQUEST" + relatedType "Job" before send).
+ */
+export function premiumReviewRequestMessage(input: {
+  customerName: string;
+  jobNumber: string;
+  service: string;
+  googleReviewUrl?: string | null;
+}) {
+  const trackingUrl = `https://app.saharacleaningservices.com/j/${input.jobNumber}`;
+  return [
+    `🎉 *Service Completed — ${COMPANY.name}*`,
+    ``,
+    `Hi ${input.customerName}, thank you for choosing us for your ${input.service}!`,
+    `We hope you're happy with the work.`,
+    ``,
+    `— — — — — — — — — —`,
+    input.googleReviewUrl ? `⭐ Leave a Google Review: ${input.googleReviewUrl}` : null,
+    `📄 View Booking / Before-After Photos: ${trackingUrl}`,
+    `— — — — — — — — — —`,
+    ``,
+    `📞 ${COMPANY.phones[0]}`,
+    `📱 ${COMPANY.phones[1]}`,
+    `🌐 ${COMPANY.website ?? "www.saharacleaningservices.com"}`,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
 export function teamDispatchMessage(input: {
   customerName: string;
   mobile?: string | null;
