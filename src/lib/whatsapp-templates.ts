@@ -55,75 +55,6 @@ export function bookingConfirmationSms(input: BookingConfirmationInput) {
   ].join(" ");
 }
 
-function pad2(n: number) {
-  return String(n).padStart(2, "0");
-}
-
-/**
- * Very small, deterministic parser for the fixed set of time-slot labels
- * used on the booking form (e.g. "8:00 – 11:00", "1:00 – 4:00", "Flexible").
- * Hours 1–7 with no AM/PM marker are afternoon slots (the service day runs
- * roughly 8 AM–6 PM), everything else (8–12) is taken as-is. Falls back to
- * a 9 AM–12 PM default for anything unrecognized.
- */
-function parseServiceTimeSlot(slot: string | null | undefined): {
-  startH: number;
-  startM: number;
-  endH: number;
-  endM: number;
-} {
-  const fallback = { startH: 9, startM: 0, endH: 12, endM: 0 };
-  if (!slot || slot.toLowerCase() === "flexible") return fallback;
-  const parts = slot
-    .split(/[–-]/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  if (parts.length !== 2) return fallback;
-  const parseOne = (s: string) => {
-    const m = s.match(/(\d{1,2})(?::(\d{2}))?/);
-    if (!m) return null;
-    let h = parseInt(m[1], 10);
-    const min = m[2] ? parseInt(m[2], 10) : 0;
-    if (h >= 1 && h <= 7) h += 12;
-    return { h, min };
-  };
-  const a = parseOne(parts[0]);
-  const b = parseOne(parts[1]);
-  if (!a || !b) return fallback;
-  return { startH: a.h, startM: a.min, endH: b.h, endM: b.min };
-}
-
-/**
- * Builds a Google Calendar "add event" link for a scheduled service visit.
- * `date` is read with UTC getters (it originates from a plain "YYYY-MM-DD"
- * string, which JS parses as UTC midnight) so the emitted date is never
- * shifted by the server's local timezone; the emitted datetime string has
- * no trailing "Z", so Google Calendar renders it as a floating local time —
- * correct for the IST wall-clock hours the booking form already collects.
- */
-function googleCalendarLink(input: {
-  title: string;
-  date: Date;
-  timeSlot: string | null;
-  location: string;
-  details: string;
-}) {
-  const { startH, startM, endH, endM } = parseServiceTimeSlot(input.timeSlot);
-  const y = input.date.getUTCFullYear();
-  const mo = pad2(input.date.getUTCMonth() + 1);
-  const d = pad2(input.date.getUTCDate());
-  const start = `${y}${mo}${d}T${pad2(startH)}${pad2(startM)}00`;
-  const end = `${y}${mo}${d}T${pad2(endH)}${pad2(endM)}00`;
-  const params = new URLSearchParams({
-    action: "TEMPLATE",
-    text: input.title,
-    dates: `${start}/${end}`,
-    details: input.details,
-    location: input.location,
-  });
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
 /**
  * Premium "Interactive Booking" WhatsApp confirmation — the ONE message sent
  * the moment a booking is confirmed, whether the enquiry started on the
@@ -133,22 +64,26 @@ function googleCalendarLink(input: {
  * the single, de-duplicated confirmation for a job — see the WhatsAppMessage
  * lookup guard there before this is sent.
  *
- * Exactly three actions are shown — View Booking, Pay After Service, Add to
- * Calendar. The Google Review ask is intentionally NOT part of this message:
- * it is sent separately, only once the job's status becomes COMPLETED (see
- * premiumReviewRequestMessage below), so we never ask for a review before
- * the work is actually done.
+ * Matches the approved Sahara branded WhatsApp mockup: four actions — View
+ * Booking Details, Pay Now / Payment Link, Before/After Photos and Google
+ * Review — plus a footer with both support numbers, the website and email.
+ * The Payment link only appears while a balance is actually due; once
+ * settled it reads as a plain confirmation line instead. The Google Review
+ * link only appears when Settings → Google Review Link is filled in.
  *
  * WhatsApp's Cloud API only supports more than 3 buttons, or any link-type
- * button (e.g. "View Booking Details" as a tappable link), inside a
- * pre-approved Meta message Template — not in a plain-text/ad-hoc message.
- * Until an approved template name is available, the three actions below are
- * rendered as clearly-labelled tappable links so the customer gets the same
- * information and the same destinations today. Once a Meta template is
- * approved, swap the sendWhatsApp() call in confirmBooking() for a
- * `type: "template"` send using these same three destinations (trackingUrl /
- * payment line / calendarUrl) as the template's button parameters — no other
- * change needed here.
+ * button (e.g. "View Booking Details" as a tappable button rather than a
+ * pasted link), inside a pre-approved Meta message Template — not in a
+ * plain-text/ad-hoc message. See BOOKING_CONFIRMATION_META_TEMPLATE below
+ * for the exact template (header image, body variables, buttons) to submit
+ * for approval in Meta Business Manager once WhatsApp Cloud API is
+ * connected. Until then, the four actions below are rendered as
+ * clearly-labelled tappable links so the customer gets the same
+ * information and the same destinations today. Once the template is
+ * APPROVED, swap the sendWhatsApp() call in confirmBooking() for a
+ * `type: "template"` send using BOOKING_CONFIRMATION_META_TEMPLATE's
+ * component values (trackingUrl / balance / gallery / review as the
+ * button + body parameters) — no other change needed here.
  */
 export function premiumBookingConfirmationMessage(input: {
   customerName: string;
@@ -159,45 +94,128 @@ export function premiumBookingConfirmationMessage(input: {
   address?: string | null;
   area: string;
   balanceDue?: number | null;
+  googleReviewUrl?: string | null;
 }) {
   const trackingUrl = `https://app.saharacleaningservices.com/j/${input.jobNumber}`;
   const location = input.address?.trim() || input.area;
-  const calendarUrl = googleCalendarLink({
-    title: `${input.service} — ${COMPANY.name}`,
-    date: input.date,
-    timeSlot: input.timeSlot,
-    location,
-    details: `Booking ${input.jobNumber} with ${COMPANY.name}. Track: ${trackingUrl}`,
-  });
-  const paymentLine =
-    input.balanceDue && input.balanceDue > 0
-      ? `Pay After Service — ${formatINR(input.balanceDue)} due on completion`
-      : `Pay After Service — fully settled, thank you!`;
+  const hasBalance = !!input.balanceDue && input.balanceDue > 0;
+  const paymentLine = hasBalance
+    ? `💳 Pay Now / Payment Link — ${formatINR(input.balanceDue!)} due: ${trackingUrl}#payment`
+    : `💳 Payment — fully settled, thank you!`;
 
   return [
     `✅ *Booking Confirmed — ${COMPANY.name}*`,
     ``,
-    `Hi ${input.customerName}, your booking is confirmed!`,
+    `Hi ${input.customerName},`,
+    `*Your booking has been confirmed!* ✅`,
+    `Thank you for choosing ${COMPANY.name}. We're excited to serve you!`,
     ``,
-    `👤 Customer Name: ${input.customerName}`,
     `🆔 Booking ID: ${input.jobNumber}`,
+    `🗓️ Service Date: ${formatDate(input.date)}`,
+    `⏰ Time: ${input.timeSlot}`,
     `🧹 Service: ${input.service}`,
-    `🗓️ Date & Time: ${formatDate(input.date)}, ${input.timeSlot}`,
     `📍 Address: ${location}`,
+    ``,
+    `👥 Our team will arrive on time. You'll get a WhatsApp message before they start.`,
+    `Keep your space ready, we'll take care of the rest! 🙏`,
     ``,
     `— — — — — — — — — —`,
     `📄 View Booking Details: ${trackingUrl}`,
-    `💳 ${paymentLine}`,
-    `📅 Add to Calendar: ${calendarUrl}`,
+    paymentLine,
+    `🖼️ Before/After Photos: ${GALLERY_PUBLIC_URL}`,
+    input.googleReviewUrl ? `⭐ Give Google Review: ${input.googleReviewUrl}` : null,
     `— — — — — — — — — —`,
     ``,
-    `📞 ${COMPANY.phones[0]}`,
-    `📱 ${COMPANY.phones[1]}`,
+    `Need help? We're just a message away!`,
+    `📞 Operational Support: ${COMPANY.phones[1]}`,
+    `📱 Booking & Feedback: ${COMPANY.phones[0]}`,
     `🌐 ${COMPANY.website ?? "www.saharacleaningservices.com"}`,
+    `✉️ ${COMPANY.email}`,
   ]
     .filter((l) => l !== null)
     .join("\n");
 }
+
+/**
+ * The exact Meta WhatsApp message Template to create in Business Manager
+ * once WhatsApp Cloud API is connected (Settings → Integrations). Mirrors
+ * premiumBookingConfirmationMessage above 1:1, translated into Meta's real
+ * template constraints (verified against Meta's current template rules —
+ * a template may mix button groups but not interleave them, with a hard
+ * cap of 2 URL buttons and 1 phone-number button per template):
+ *
+ *   HEADER  — IMAGE, the official Sahara logo (/brand/sahara-logo.png)
+ *   BODY    — 5 variables: {{1}} name, {{2}} booking ID, {{3}} date,
+ *             {{4}} time, {{5}} service, {{6}} address — plus the fixed
+ *             friendly note and the fixed contact block (footer can't hold
+ *             two numbers + a website + an email, so they live in the body).
+ *   BUTTONS — URL "View Booking Details" (dynamic /j/{{1}} suffix),
+ *             URL "Pay Now / Payment Link" (dynamic /j/{{1}}#payment),
+ *             QUICK_REPLY "Before / After Photos",
+ *             QUICK_REPLY "Give Google Review".
+ *             The two QUICK_REPLY buttons don't open a link directly —
+ *             Meta templates cap URL buttons at 2 — so the webhook
+ *             (src/app/api/webhooks/whatsapp/route.ts, once built) replies
+ *             instantly with the gallery / review link when tapped. This
+ *             keeps all four actions on the confirmation message, exactly
+ *             like the approved mockup, while staying inside Meta's rules.
+ *
+ * Category UTILITY (transactional, sent outside the 24-hour session window
+ * without needing a prior customer message). Submit this exact JSON via
+ * Meta Business Manager → WhatsApp Manager → Message Templates, or the
+ * Cloud API POST /{waba-id}/message_templates endpoint.
+ */
+export const BOOKING_CONFIRMATION_META_TEMPLATE = {
+  name: "booking_confirmation_v1",
+  language: "en",
+  category: "UTILITY",
+  components: [
+    {
+      type: "HEADER",
+      format: "IMAGE",
+      example: { header_url: ["https://app.saharacleaningservices.com/brand/sahara-logo.png"] },
+    },
+    {
+      type: "BODY",
+      text:
+        "Hi {{1}},\n*Your booking has been confirmed!* ✅\nThank you for choosing Sahara Cleaning Services. We're excited to serve you!\n\n" +
+        "🆔 Booking ID: {{2}}\n🗓️ Service Date: {{3}}\n⏰ Time: {{4}}\n🧹 Service: {{5}}\n📍 Address: {{6}}\n\n" +
+        "👥 Our team will arrive on time. You'll get a WhatsApp message before they start.\nKeep your space ready, we'll take care of the rest! 🙏\n\n" +
+        "Need help? We're just a message away!\n📞 Operational Support: 8956567130\n📱 Booking & Feedback: 7083347130\n🌐 www.saharacleaningservices.com\n✉️ contact@saharacleaningservices.com",
+      example: {
+        body_text: [
+          [
+            "Altaf Shaikh",
+            "SHR-240916-001",
+            "Tue, 17 Sept 2026",
+            "10:00 AM – 1:00 PM",
+            "Full Home Deep Cleaning",
+            "Andheri West, Mumbai",
+          ],
+        ],
+      },
+    },
+    {
+      type: "BUTTONS",
+      buttons: [
+        {
+          type: "URL",
+          text: "View Booking Details",
+          url: "https://app.saharacleaningservices.com/j/{{1}}",
+          example: ["https://app.saharacleaningservices.com/j/SHR-240916-001"],
+        },
+        {
+          type: "URL",
+          text: "Pay Now / Payment Link",
+          url: "https://app.saharacleaningservices.com/j/{{1}}#payment",
+          example: ["https://app.saharacleaningservices.com/j/SHR-240916-001#payment"],
+        },
+        { type: "QUICK_REPLY", text: "Before / After Photos" },
+        { type: "QUICK_REPLY", text: "Give Google Review" },
+      ],
+    },
+  ],
+} as const;
 
 /**
  * Premium "Job Completed" Google Review request — sent ONCE a Job's status
