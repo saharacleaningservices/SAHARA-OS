@@ -36,7 +36,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (!canAccessJob(session, job, ownStaffId)) {
     redirect("/jobs");
   }
-  const canManage = session.role === "ADMIN" || session.role === "OPERATIONS";
+  const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
   const [vehicles, { googleMaps }, settings] = await Promise.all([
     canManage ? getVehiclesForAssignment() : Promise.resolve([]),
     getResolvedIntegrations(),

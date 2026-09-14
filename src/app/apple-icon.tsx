@@ -1,14 +1,59 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-// Apple touch icon / PWA app icon — same brand mark as src/app/icon.svg,
-// rendered as a real PNG via Next's built-in ImageResponse so no external
-// image-processing tool is needed. This file (and icon.svg) live in the
-// git-committed app source, so — unlike a logo uploaded through Settings —
-// they always ship with the build and can never go missing after a deploy.
-export default function AppleIcon() {
+// Apple touch icon / PWA app icon.
+//
+// Preference order (mirrors CompanyLogo's resolution order):
+//   1. The official brand PNG at /public/brand/sahara-logo.png, once the
+//      owner drops it in — read straight off disk and embedded so the icon
+//      always matches the real logo everywhere else.
+//   2. The bundled placeholder mark below — guaranteed to exist in every
+//      build, so this can never break even though the brand file genuinely
+//      does not exist yet.
+async function readBrandPngDataUrl(): Promise<string | null> {
+  try {
+    const filePath = path.join(process.cwd(), "public", "brand", "sahara-logo.png");
+    const buf = await readFile(filePath);
+    return `data:image/png;base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
+export default async function AppleIcon() {
+  const brandDataUrl = await readBrandPngDataUrl();
+
+  if (brandDataUrl) {
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#ffffff",
+            borderRadius: 40,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={brandDataUrl}
+            width={150}
+            height={150}
+            style={{ objectFit: "contain" }}
+          />
+        </div>
+      ),
+      { ...size }
+    );
+  }
+
   return new ImageResponse(
     (
       <div

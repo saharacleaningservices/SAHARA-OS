@@ -13,6 +13,7 @@ const ICONS: Record<SearchResult["type"], React.ComponentType<{ className?: stri
   Staff: UserCog,
   Payment: IndianRupee,
   Vehicle: Truck,
+  Customer: Users,
 };
 
 export function GlobalSearch() {
