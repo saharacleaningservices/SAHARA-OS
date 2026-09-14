@@ -86,18 +86,69 @@ export function CustomerActionsFab() {
     }
   }
 
-  const ACTIONS = picked
+  type Action = { label: string; icon: typeof Send; run?: () => void; href?: string };
+
+  // Grouped into the three categories from the master brief so staff can
+  // scan by intent instead of hunting through a flat grid: talk to the
+  // customer directly, send them something booking-related, or send them
+  // something that builds trust (proof of work / social proof).
+  const commActions: Action[] = picked
     ? [
-        { label: "Send Booking Form", icon: Send, run: () => act("BOOKING_FORM") },
-        { label: "Send Google Review Link", icon: Star, run: () => act("REVIEW") },
-        { label: "Send Payment Link", icon: IndianRupee, run: () => act("PAYMENT") },
-        { label: "Send Before/After Gallery", icon: Images, run: () => act("GALLERY") },
         { label: "WhatsApp Customer", icon: MessageCircle, href: toWhatsAppLink(picked.mobile) },
-        { label: "SMS Customer", icon: MessageSquare, run: sms },
         { label: "Call Customer", icon: Phone, href: toTelLink(picked.mobile) },
-        { label: "Copy Booking Link", icon: Copy, run: copyLink },
+        { label: "SMS Customer", icon: MessageSquare, run: sms },
       ]
     : [];
+
+  const bookingActions: Action[] = picked
+    ? [
+        { label: "Send Booking Form", icon: Send, run: () => act("BOOKING_FORM") },
+        { label: "Booking Overview Link", icon: Copy, run: copyLink },
+        { label: "Send Payment Link", icon: IndianRupee, run: () => act("PAYMENT") },
+      ]
+    : [];
+
+  const trustActions: Action[] = picked
+    ? [
+        { label: "Before/After Gallery", icon: Images, run: () => act("GALLERY") },
+        { label: "Google Review Link", icon: Star, run: () => act("REVIEW") },
+      ]
+    : [];
+
+  function ActionButton({ a }: { a: Action }) {
+    return a.href ? (
+      <a
+        href={a.href}
+        target={a.href.startsWith("http") ? "_blank" : undefined}
+        rel="noreferrer"
+        className="flex flex-col items-center gap-1.5 rounded-xl border border-border p-3 text-center text-xs font-medium text-foreground hover:border-primary/40"
+      >
+        <a.icon className="size-5 text-primary" /> {a.label}
+      </a>
+    ) : (
+      <button
+        onClick={a.run}
+        disabled={pending}
+        className="flex flex-col items-center gap-1.5 rounded-xl border border-border p-3 text-center text-xs font-medium text-foreground hover:border-primary/40 disabled:opacity-50"
+      >
+        <a.icon className="size-5 text-primary" /> {a.label}
+      </button>
+    );
+  }
+
+  function ActionGroup({ title, actions }: { title: string; actions: Action[] }) {
+    if (actions.length === 0) return null;
+    return (
+      <div className="space-y-1.5">
+        <p className="px-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
+        <div className="grid grid-cols-3 gap-2">
+          {actions.map((a) => (
+            <ActionButton key={a.label} a={a} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -153,30 +204,11 @@ export function CustomerActionsFab() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 p-3">
-                {ACTIONS.map((a) =>
-                  a.href ? (
-                    <a
-                      key={a.label}
-                      href={a.href}
-                      target={a.href.startsWith("http") ? "_blank" : undefined}
-                      rel="noreferrer"
-                      className="flex flex-col items-center gap-1.5 rounded-xl border border-border p-3 text-center text-xs font-medium text-foreground hover:border-primary/40"
-                    >
-                      <a.icon className="size-5 text-primary" /> {a.label}
-                    </a>
-                  ) : (
-                    <button
-                      key={a.label}
-                      onClick={a.run}
-                      disabled={pending}
-                      className="flex flex-col items-center gap-1.5 rounded-xl border border-border p-3 text-center text-xs font-medium text-foreground hover:border-primary/40 disabled:opacity-50"
-                    >
-                      <a.icon className="size-5 text-primary" /> {a.label}
-                    </button>
-                  ),
-                )}
-                <button onClick={() => setPicked(null)} className="col-span-2 mt-1 text-xs font-medium text-muted-foreground hover:text-foreground">
+              <div className="space-y-3 p-3">
+                <ActionGroup title="Communication" actions={commActions} />
+                <ActionGroup title="Booking" actions={bookingActions} />
+                <ActionGroup title="Trust" actions={trustActions} />
+                <button onClick={() => setPicked(null)} className="w-full pt-1 text-center text-xs font-medium text-muted-foreground hover:text-foreground">
                   ← Pick a different customer
                 </button>
               </div>
