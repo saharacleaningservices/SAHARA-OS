@@ -97,7 +97,10 @@ export default async function PublicBookingPage({
       {/* ── Header ────────────────────────────────────────────── */}
       <header id="contact" className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <CompanyLogo logoUrl={settings.logoUrl} className="-ml-1 h-[46px] w-auto max-w-[180px] sm:-ml-2" showTm />
+          {/* The Sahara wordmark image already has a TM mark above the worker's
+              head — showTm is intentionally omitted here so we don't render a
+              second, duplicate ™ floating beside the logo (TM logo fix). */}
+          <CompanyLogo logoUrl={settings.logoUrl} className="-ml-1 h-[46px] w-auto max-w-[180px] sm:-ml-2" />
           <nav className="hidden items-center gap-6 text-sm font-medium text-foreground lg:flex">
             {NAV.map((n) => (
               <a key={n.label} href={n.href} className="hover:text-primary">{n.label}</a>
@@ -290,7 +293,9 @@ export default async function PublicBookingPage({
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-10 text-sm sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="space-y-3">
-            <CompanyLogo logoUrl={settings.logoUrl} className="h-11 w-auto max-w-[170px] brightness-0 invert" showTm />
+            {/* Same fix as the header logo — the wordmark image already carries
+                its own TM mark, so showTm is omitted to avoid a duplicate. */}
+            <CompanyLogo logoUrl={settings.logoUrl} className="h-11 w-auto max-w-[170px] brightness-0 invert" />
             <p className="max-w-xs text-xs leading-relaxed text-white/75">
               Residential &amp; Commercial Cleaning Services — trusted by{" "}
               <span className="font-semibold text-white">{happyCustomers} customers</span> across Pune.
