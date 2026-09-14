@@ -124,6 +124,7 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
     "Window Cleaning",
     "Bathroom Cleaning",
     "Kitchen Deep Cleaning",
+    "Curtain Cleaning",
   ],
   INDIVIDUAL_CLEANING: ["Kitchen", "Bathroom", "Sofa", "Mattress", "Window", "Fan", "Fridge", "Balcony"],
   PAINTING: [
@@ -184,6 +185,7 @@ export const SERVICE_RULES: Record<string, string> = {
   "Window Cleaning": "₹250 / window · minimum 5 windows",
   "Bathroom Cleaning": "₹1000 · minimum 2 bathrooms",
   "Kitchen Deep Cleaning": "₹1600 onwards",
+  "Curtain Cleaning": "₹199 / pair · minimum 2 pairs",
 };
 
 // Property type — asked once, options depend on whether the category is a
@@ -236,6 +238,85 @@ export const LEAD_SOURCE_OPTIONS = Object.entries(LEAD_SOURCE_LABELS).map(([valu
   value,
   label,
 }));
+
+// ─────────────────────────────────────────────────────────────────────────
+// Booking Form V2 — dynamic service sub-fields & indicative live pricing.
+//
+// These figures power the "Estimated from your selections" suggestion shown
+// while the customer fills the form (see PublicBookingForm). They are
+// ESTIMATE-ONLY: the number is offered as a one-click suggestion into the
+// existing "Estimated ₹" field, never submitted on its own or treated as a
+// final price. The office team always confirms the real amount. Tune these
+// numbers any time — they don't affect quotations, jobs or existing pricing
+// logic elsewhere in the CRM.
+// ─────────────────────────────────────────────────────────────────────────
+
+export const SOFA_SEATER_OPTIONS = ["1 Seater", "2 Seater", "3 Seater", "5 Seater", "6 Seater", "7 Seater", "L Shape"] as const;
+export const SOFA_SEATER_PRICES: Record<string, number> = {
+  "1 Seater": 499,
+  "2 Seater": 899,
+  "3 Seater": 1299,
+  "5 Seater": 1999,
+  "6 Seater": 2399,
+  "7 Seater": 2799,
+  "L Shape": 2499,
+};
+
+export const MATTRESS_SIZE_OPTIONS = ["Single", "Double"] as const;
+export const MATTRESS_UNIT_PRICE: Record<string, number> = { Single: 399, Double: 599 };
+
+// Per-unit indicative price for the simple "quantity" style Home Cleaning
+// sub-services (Bathroom / Kitchen / Carpet / Window / Curtain Cleaning).
+export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
+  "Bathroom Cleaning": 500,
+  "Kitchen Deep Cleaning": 1600,
+  "Carpet Cleaning": 299,
+  "Window Cleaning": 250,
+  "Curtain Cleaning": 199, // per pair
+};
+
+export const PAINT_TYPE_RATE_PER_SQFT: Record<string, number> = {
+  "Oil Bound": 14,
+  "Premium Emulsion": 18,
+  "Royal Emulsion": 22,
+  "Royal Lustre": 26,
+  "Texture Painting": 45,
+};
+export const PUTTY_RATE_PER_SQFT = 12;
+
+export const PEST_PROPERTY_SIZE_OPTIONS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Commercial / Shop"] as const;
+export const PEST_PROPERTY_SIZE_PRICES: Record<string, number> = {
+  "1 BHK": 899,
+  "2 BHK": 1299,
+  "3 BHK": 1699,
+  "4 BHK+": 2199,
+  "Commercial / Shop": 1999,
+};
+
+export const HOUSEKEEPING_SHIFT_HOURS = ["4 Hours", "6 Hours", "8 Hours", "12 Hours"] as const;
+export const HOUSEKEEPING_HOURLY_RATE = 60; // ₹ per staff, per hour — indicative
+
+// Customer-facing "How did you hear about Sahara?" — a distinct, always
+// optional field from the internal LEAD_SOURCE_* enum above (which tracks
+// ?source= links / GMB / Meta ad attribution). This one is the customer's
+// own free choice, saved into the lead's notes for owner reporting, and never
+// overwrites the tracked `source` field on Lead.
+export const HEAR_ABOUT_US_OPTIONS = [
+  "Google Search",
+  "Google Maps",
+  "Instagram",
+  "Facebook",
+  "WhatsApp",
+  "Friend / Referral",
+  "Existing Customer",
+  "Other",
+] as const;
+
+// Smart Calendar — a configurable daily job capacity used to compute a real
+// "X slots left" estimate for the selected date (never a fabricated number).
+// Raise or lower this to match how many jobs the team can realistically take
+// on in a day.
+export const DAILY_BOOKING_CAPACITY = 8;
 
 export const LEAD_STAGES = [
   "NEW",
