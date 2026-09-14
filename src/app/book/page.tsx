@@ -15,13 +15,13 @@ import {
   IndianRupee,
 } from "lucide-react";
 import { FaFacebookF, FaInstagram, FaYoutube, FaGoogle } from "react-icons/fa6";
-import { PublicBookingForm, CATEGORIES } from "@/components/public/public-booking-form";
+import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { BookingStickyBar } from "@/components/public/booking-sticky-bar";
 import { BookingLinkPing } from "@/components/public/booking-link-ping";
 import { HeroCarousel } from "@/components/public/hero-carousel";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
-import { COMPANY } from "@/lib/constants";
+import { COMPANY, CATEGORIES } from "@/lib/constants";
 import { getResolvedIntegrations } from "@/server/integrations";
 import { getCompanySettings } from "@/server/settings";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -308,7 +308,7 @@ export default async function PublicBookingPage({
         </div>
       </div>
 
-      {/* ── Footer ────────────────────────────────────────────── */}
+      {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="text-white sahara-gradient">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-10 text-sm sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
