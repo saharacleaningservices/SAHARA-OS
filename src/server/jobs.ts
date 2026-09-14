@@ -119,6 +119,10 @@ export async function getJobDetail(id: string) {
       certificate: true,
       payments: true,
       invoice: true,
+      // Expenses linked to this job (fuel, material, staff advance, vendor
+      // payment, etc. tagged with jobId when recorded) — surfaced on the
+      // Job Detail page so cost-per-job is visible without leaving the job.
+      expenses: { where: { deletedAt: null }, orderBy: { date: "desc" } },
       activityLogs: { orderBy: { createdAt: "desc" }, include: { actor: { select: { name: true } } } },
     },
   });
@@ -145,4 +149,20 @@ export function canAccessJob(
     return job.scheduledDate >= startOfDay(now) && job.scheduledDate <= endOfDay(addDays(now, daysAhead));
   }
   return true;
+}
+
+/**
+ * Lightweight job list for pickers — currently used by the "Link to Job"
+ * selector on the Record an Expense dialog, so an expense (fuel, material,
+ * staff advance, vendor payment...) can be tagged to the job it was spent
+ * on. Ordered most-recent-first and capped so the dropdown stays fast on a
+ * large job history.
+ */
+export async function getJobsForSelection() {
+  return db.job.findMany({
+    where: { deletedAt: null },
+    orderBy: { scheduledDate: "desc" },
+    take: 200,
+    select: { id: true, jobNumber: true, customerName: true },
+  });
 }
