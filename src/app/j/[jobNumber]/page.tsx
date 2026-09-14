@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import { CheckCircle2, Star, Sparkles, Gift, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
+import { CheckCircle2, Star, Sparkles, Gift, Image as ImageIcon, Video as VideoIcon, Wallet, Copy } from "lucide-react";
 import { getPublicJobSummary } from "@/server/public-job";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatINR } from "@/lib/utils";
 
 export const metadata = { title: "Your Booking — Sahara Cleaning Services" };
 
@@ -11,10 +11,11 @@ export default async function PublicJobConfirmationPage({ params }: { params: Pr
   const data = await getPublicJobSummary(jobNumber);
   if (!data) notFound();
 
-  const { job, googleReviewUrl, offer, referralCode } = data;
+  const { job, googleReviewUrl, offer, referralCode, balanceDue, payment } = data;
   const before = job.photos.filter((p) => p.type === "BEFORE");
   const after = job.photos.filter((p) => p.type === "AFTER");
   const bookLink = `https://app.saharacleaningservices.com/book?ref=${referralCode}`;
+  const hasPaymentDetails = !!(payment.upiId || payment.upiQrUrl || payment.bankAccountNumber);
 
   return (
     <div className="min-h-screen bg-background px-4 py-8 sm:py-12">
@@ -31,6 +32,43 @@ export default async function PublicJobConfirmationPage({ params }: { params: Pr
           </p>
           <p className="text-xs text-muted-foreground">Ref: {job.jobNumber}</p>
         </div>
+
+        {balanceDue > 0 && (
+          <section id="payment" className="scroll-mt-6 space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4 sahara-shadow">
+            <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <Wallet className="size-4 text-primary" /> Payment
+            </h2>
+            <p className="text-sm text-foreground">
+              Amount due: <span className="font-semibold">{formatINR(balanceDue)}</span>
+            </p>
+            {hasPaymentDetails ? (
+              <div className="space-y-2 text-sm text-muted-foreground">
+                {payment.upiId && (
+                  <p className="flex flex-wrap items-center gap-1.5">
+                    <Copy className="size-3.5" /> UPI: <span className="font-medium text-foreground">{payment.upiId}</span>
+                  </p>
+                )}
+                {payment.upiQrUrl && (
+                  <img src={payment.upiQrUrl} alt="Scan to pay" className="h-40 w-40 rounded-md border border-border object-contain bg-white" />
+                )}
+                {payment.bankAccountNumber && (
+                  <p>
+                    Bank Transfer — {payment.bankAccountName ?? COMPANY.name}
+                    <br />
+                    A/C {payment.bankAccountNumber}
+                    {payment.bankIfsc ? ` · IFSC ${payment.bankIfsc}` : ""}
+                    {payment.bankName ? ` · ${payment.bankName}` : ""}
+                  </p>
+                )}
+                <p>Please share the payment screenshot on WhatsApp once done. Thank you!</p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Our team will share payment details shortly, or call/WhatsApp {COMPANY.phones[0]}.
+              </p>
+            )}
+          </section>
+        )}
 
         {(before.length > 0 || after.length > 0) && (
           <section className="space-y-2 rounded-xl border border-border bg-card p-4 sahara-shadow">
