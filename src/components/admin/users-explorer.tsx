@@ -12,7 +12,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { NewUserDialog } from "@/components/admin/new-user-dialog";
 import { updateUserRole, setUserActive, resetUserPassword } from "@/server/actions/users";
 import { ROLE_LABELS } from "@/lib/constants";
-import { formatDateTime } from "@/lib/utils";
 
 type UserRow = {
   id: string;
@@ -22,7 +21,11 @@ type UserRow = {
   role: string;
   isActive: boolean;
   mustChangePassword: boolean;
-  createdAt: Date;
+  // Pre-formatted server-side (see admin/users/page.tsx) so the client
+  // never runs its own Intl.DateTimeFormat on this value — that was
+  // producing different text on the server vs. the browser's local
+  // timezone and causing a hydration mismatch on this page.
+  createdAtLabel: string;
 };
 
 const ROLES = ["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR", "STAFF"];
@@ -151,7 +154,7 @@ export function UsersExplorer({ users, currentUserId }: { users: UserRow[]; curr
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{formatDateTime(u.createdAt)}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{u.createdAtLabel}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="outline" onClick={() => resetPassword(u.id, u.name)} disabled={pending}>
