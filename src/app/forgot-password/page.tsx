@@ -4,6 +4,11 @@ import { COMPANY } from "@/lib/constants";
 import { getCompanySettings } from "@/server/settings";
 import { ShieldCheck } from "lucide-react";
 
+// This page must never be statically prerendered at build time: it calls
+// getCompanySettings() (a DB read) on every render, and the build
+// container has no database available (only the runtime container does).
+export const dynamic = "force-dynamic";
+
 export default async function ForgotPasswordPage() {
   const settings = await getCompanySettings();
 
