@@ -22,17 +22,33 @@ import { SERVICE_LABELS } from "@/lib/constants";
 
 type LineItem = { name: string; description: string; amount: number };
 
+// Custom Package (CUSTOMIZER_PACKAGE) / Individual Cleaning quantity
+// selections carry no price — ServiceQuantityFields records each one as a
+// plain Notes line prefixed "Custom Package —" / "Individual Cleaning —"
+// (see src/components/shared/service-quantity-fields.tsx). Pull those back
+// out so a freshly opened Generate Quotation dialog already lists exactly
+// what the customer selected, as $0 "price to be confirmed" line items, so
+// staff aren't the ones who have to remember to retype them.
+function selectionLinesFromNotes(notes?: string | null): string[] {
+  return (notes ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith("Custom Package —") || l.startsWith("Individual Cleaning —"));
+}
+
 export function QuotationDialog({
   leadId,
   service,
   suggestedAmount,
   area,
+  notes,
   trigger,
 }: {
   leadId: string;
   service: string;
   suggestedAmount?: number | null;
   area: string;
+  notes?: string | null;
   trigger?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -42,6 +58,11 @@ export function QuotationDialog({
       description: `${SERVICE_LABELS[service] ?? service} at ${area}`,
       amount: suggestedAmount ?? 3999,
     },
+    ...selectionLinesFromNotes(notes).map((line) => ({
+      name: line,
+      description: `${line} — price to be confirmed`,
+      amount: 0,
+    })),
   ]);
   const [gstPercent, setGstPercent] = useState(0);
   const [pending, startTransition] = useTransition();
