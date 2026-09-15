@@ -35,7 +35,20 @@ import { suggestFollowUpAction } from "@/lib/ai/followups";
 import { createQuotation, toggleFollowUpDone } from "@/server/actions/leads";
 import { recordReminder } from "@/server/actions/payments";
 
-type Lead = { id: string; leadNumber: string; name: string; mobile: string; area: string; service: string; stage: string; quoteAmount: number | null };
+type Lead = {
+  id: string;
+  leadNumber: string;
+  name: string;
+  mobile: string;
+  area: string;
+  service: string;
+  stage: string;
+  quoteAmount: number | null;
+  // Carries any Custom Package / Individual Cleaning quantity selections
+  // (see service-quantity-fields.tsx) through to draftQuotation() so the
+  // suggested quotation lists them — quantity only, no price.
+  notes: string | null;
+};
 type Payment = { id: string; invoiceNumber: string; clientName: string; clientMobile: string | null; amount: number; paidAmount: number; dueDate: Date; status: string };
 type JobNeedingCrew = { id: string; jobNumber: string; customerName: string; service: string; area: string; scheduledDate: Date; scheduledTime: string; crewCount: number };
 type DueFollowUp = { id: string; dueDate: Date; type: string; notes: string | null; lead: { id: string; name: string; mobile: string; area: string; service: string; stage: string } };
