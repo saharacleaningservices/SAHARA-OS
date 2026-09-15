@@ -11,8 +11,14 @@ import { isSameOrigin } from "@/lib/csrf";
 // Restores dev.db (and public/uploads) from a .tar.gz produced by GET
 // /api/backup. Admin-only, requires typed confirmation client-side. Takes a
 // timestamped safety copy of the current database before touching anything,
-// then exits the process so Render restarts it against the restored file —
+// then exits the process so Coolify restarts it against the restored file —
 // safer than swapping the file under a live database connection.
+//
+// Every failure path below writes a BackupEvent{kind:"RESTORE", status:
+// "FAILED"} plus an AuditLog row, mirroring the logging GET /api/backup
+// already does on every path (src/app/api/backup/route.ts) — previously
+// this route only logged on success, so a failed restore left no trace for
+// the admin who ran it or anyone auditing later.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,13 +32,43 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Admin only" }, { status: 401 });
   }
 
+  // Fire-and-forget, mirroring the backup route's pattern — logging must
+  // never itself cause the restore response to fail or hang.
+  function logFailure(reason: string, fileName?: string) {
+    db.backupEvent
+      .create({
+        data: {
+          kind: "RESTORE",
+          triggeredBy: session!.email,
+          fileName: fileName ?? null,
+          status: "FAILED",
+          notes: reason,
+        },
+      })
+      .catch(() => {});
+    db.auditLog
+      .create({
+        data: {
+          entityType: "Backup",
+          entityId: fileName || "upload",
+          action: "RESTORE_BACKUP_FAILED",
+          summary: reason,
+          actorName: session!.name,
+          actorEmail: session!.email,
+        },
+      })
+      .catch(() => {});
+  }
+
   const formData = await request.formData();
   const file = formData.get("file");
   const confirm = String(formData.get("confirm") || "");
   if (confirm !== "RESTORE") {
+    logFailure("Restore rejected — confirmation text did not match");
     return NextResponse.json({ error: "Confirmation text did not match" }, { status: 400 });
   }
   if (!(file instanceof File)) {
+    logFailure("Restore rejected — no file provided");
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
@@ -49,11 +85,15 @@ export async function POST(request: NextRequest) {
     fs.mkdirSync(extractDir);
     const tar = spawnSync("tar", ["--force-local", "-xzf", uploadPath, "-C", extractDir], { encoding: "utf8" });
     if (tar.status !== 0) {
+      logFailure(`Could not read the archive: ${tar.stderr || tar.error}`, file.name);
+      fs.rmSync(workdir, { recursive: true, force: true });
       return NextResponse.json({ error: `Could not read the archive: ${tar.stderr || tar.error}` }, { status: 400 });
     }
 
     const restoredDbPath = path.join(extractDir, "dev.db");
     if (!fs.existsSync(restoredDbPath)) {
+      logFailure("Archive doesn't contain a dev.db — not a Sahara OS backup", file.name);
+      fs.rmSync(workdir, { recursive: true, force: true });
       return NextResponse.json({ error: "Archive doesn't contain a dev.db — not a Sahara OS backup" }, { status: 400 });
     }
 
@@ -64,6 +104,8 @@ export async function POST(request: NextRequest) {
       check.close();
       if (!hasUsers || hasUsers.c < 1) throw new Error("no users in backup");
     } catch {
+      logFailure("The backup file failed validation (SQLite/User-table check) — restore aborted", file.name);
+      fs.rmSync(workdir, { recursive: true, force: true });
       return NextResponse.json({ error: "The backup file failed validation — restore aborted" }, { status: 400 });
     }
 
@@ -83,6 +125,17 @@ export async function POST(request: NextRequest) {
       fs.cpSync(restoredUploads, liveUploads, { recursive: true });
     }
 
+    db.backupEvent
+      .create({
+        data: {
+          kind: "RESTORE",
+          triggeredBy: session.email,
+          fileName: file.name || "upload",
+          status: "SUCCESS",
+          notes: `Safety copy: ${path.basename(safetyPath)}`,
+        },
+      })
+      .catch(() => {});
     await db.auditLog.create({
       data: {
         entityType: "Backup",
@@ -96,11 +149,12 @@ export async function POST(request: NextRequest) {
 
     fs.rmSync(workdir, { recursive: true, force: true });
 
-    // Respond first, then exit so Render restarts against the new file
+    // Respond first, then exit so Coolify restarts against the new file
     // instead of swapping it under the live, already-open connection.
     setTimeout(() => process.exit(1), 300);
-    return NextResponse.json({ success: true, restarting: true });
+    return NextResponse.json({ success: true, restarting: true, safetyFile: path.basename(safetyPath) });
   } catch (err) {
+    logFailure(`Restore failed: ${(err as Error).message}`, file instanceof File ? file.name : undefined);
     fs.rmSync(workdir, { recursive: true, force: true });
     return NextResponse.json({ error: `Restore failed: ${(err as Error).message}` }, { status: 500 });
   }
