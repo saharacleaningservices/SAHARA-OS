@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Download, Upload, Loader2, ShieldAlert } from "lucide-react";
+import { Download, Upload, Loader2, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,9 +40,15 @@ export function BackupsCard({ events }: { events: BackupEventRow[] }) {
   const [confirmText, setConfirmText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+  // Set once a restore succeeds — swaps the dialog to a persistent
+  // confirmation panel (with the safety-copy filename) instead of a toast
+  // that disappears right as the app restarts and the page becomes
+  // unresponsive for a few seconds.
+  const [restoredInfo, setRestoredInfo] = useState<{ safetyFile?: string } | null>(null);
 
   const lastAuto = events.find((e) => e.kind === "AUTO" && e.status === "SUCCESS");
   const lastManual = events.find((e) => e.kind === "MANUAL" && e.status === "SUCCESS");
+  const lastRestore = events.find((e) => e.kind === "RESTORE");
 
   async function restore() {
     if (!file) {
@@ -65,8 +71,8 @@ export function BackupsCard({ events }: { events: BackupEventRow[] }) {
         setBusy(false);
         return;
       }
-      toast.success("Restored. The app is restarting — reload in about 30 seconds.");
-      setRestoreOpen(false);
+      toast.success("Restore complete — the app is restarting.");
+      setRestoredInfo({ safetyFile: json.safetyFile });
     } catch {
       toast.error("Restore failed — the app may already be restarting.");
     } finally {
@@ -80,7 +86,7 @@ export function BackupsCard({ events }: { events: BackupEventRow[] }) {
         <CardTitle>Backups</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-lg border border-border p-3">
             <p className="text-xs text-muted-foreground">Last automatic backup (daily, 2 AM IST → Google Drive)</p>
             <p className="text-sm font-medium text-foreground">
@@ -93,6 +99,21 @@ export function BackupsCard({ events }: { events: BackupEventRow[] }) {
               {lastManual ? formatDateTime(lastManual.createdAt) : "Never"}
             </p>
           </div>
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">Last restore</p>
+            <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+              {lastRestore ? (
+                <>
+                  {formatDateTime(lastRestore.createdAt)}
+                  <Badge variant={lastRestore.status === "SUCCESS" ? "success" : "destructive"}>
+                    {lastRestore.status}
+                  </Badge>
+                </>
+              ) : (
+                "Never"
+              )}
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -102,45 +123,83 @@ export function BackupsCard({ events }: { events: BackupEventRow[] }) {
             </a>
           </Button>
 
-          <Dialog open={restoreOpen} onOpenChange={setRestoreOpen}>
+          <Dialog
+            open={restoreOpen}
+            onOpenChange={(v) => {
+              setRestoreOpen(v);
+              // Start clean each time the dialog is opened, so a previous
+              // restore's confirmation panel never lingers into the next one.
+              if (v) {
+                setRestoredInfo(null);
+                setFile(null);
+                setConfirmText("");
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button variant="destructive">
                 <Upload className="size-4" /> Restore from Backup
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-sm">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <ShieldAlert className="size-4 text-destructive" /> Restore Database
-                </DialogTitle>
-                <DialogDescription>
-                  This replaces the live database with the uploaded backup and restarts the app. A safety copy of
-                  the current data is kept automatically. This cannot be undone from the app.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label>Backup file (.tar.gz)</Label>
-                  <Input
-                    type="file"
-                    accept=".tar.gz,application/gzip"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>Type RESTORE to confirm</Label>
-                  <Input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="RESTORE" />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setRestoreOpen(false)} disabled={busy}>
-                  Cancel
-                </Button>
-                <Button variant="destructive" onClick={restore} disabled={busy || confirmText !== "RESTORE" || !file}>
-                  {busy && <Loader2 className="animate-spin" />}
-                  Restore & Restart
-                </Button>
-              </DialogFooter>
+              {restoredInfo ? (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <ShieldCheck className="size-4 text-emerald-600" /> Restore Complete
+                    </DialogTitle>
+                    <DialogDescription>
+                      The database has been restored and the app is restarting. This page will stop
+                      responding for about 30 seconds — reload after that.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-1.5 rounded-lg border border-border bg-muted/40 p-3 text-sm">
+                    <p className="text-foreground">Safety copy of the previous database was saved on the server:</p>
+                    <p className="break-all font-mono text-xs text-muted-foreground">
+                      {restoredInfo.safetyFile ?? "dev.db.before-restore-*"}
+                    </p>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={() => window.location.reload()}>Reload now</Button>
+                  </DialogFooter>
+                </>
+              ) : (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <ShieldAlert className="size-4 text-destructive" /> Restore Database
+                    </DialogTitle>
+                    <DialogDescription>
+                      This replaces the live database with the uploaded backup and restarts the app. A
+                      safety copy of the current data is kept automatically. This cannot be undone from
+                      the app.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label>Backup file (.tar.gz)</Label>
+                      <Input
+                        type="file"
+                        accept=".tar.gz,application/gzip"
+                        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Type RESTORE to confirm</Label>
+                      <Input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="RESTORE" />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setRestoreOpen(false)} disabled={busy}>
+                      Cancel
+                    </Button>
+                    <Button variant="destructive" onClick={restore} disabled={busy || confirmText !== "RESTORE" || !file}>
+                      {busy && <Loader2 className="animate-spin" />}
+                      Restore & Restart
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
             </DialogContent>
           </Dialog>
         </div>
