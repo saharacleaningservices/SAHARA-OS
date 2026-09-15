@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendWhatsApp } from "@/lib/whatsapp";
+import { sendWhatsApp, setWhatsAppOptOut, setWhatsAppOptIn } from "@/lib/whatsapp";
 import { getCompanySettings } from "@/server/settings";
 import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
 
@@ -13,12 +13,13 @@ import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
 // as the 5000+ customer bulk broadcast. This route only needs to exist and
 // behave correctly so that step, whenever it happens, just works:
 //
-//   Callback URL:   https://app.saharacleaningservices.com/api/webhooks/whatsapp
-//   Verify token:   whatever value is set as WHATSAPP_WEBHOOK_VERIFY_TOKEN
-//                   in the Coolify environment (Settings → Environment
-//                   Variables on the app) — pick any long random string and
-//                   paste the same value into the Meta dashboard field.
-//   Subscribe to:   messages (for the Quick Reply button auto-replies below)
+// Callback URL: https://app.saharacleaningservices.com/api/webhooks/whatsapp
+// Verify token: whatever value is set as WHATSAPP_WEBHOOK_VERIFY_TOKEN
+//               in the Coolify environment (Settings → Environment
+//               Variables on the app) — pick any long random string and
+//               paste the same value into the Meta dashboard field.
+// Subscribe to: messages (for the Quick Reply button auto-replies and the
+//               STOP/START opt-out handling below)
 
 export const dynamic = "force-dynamic";
 
@@ -44,21 +45,39 @@ export async function GET(req: NextRequest) {
 
 type MetaStatusError = { title?: string; message?: string };
 type MetaStatus = { id?: string; status?: string; errors?: MetaStatusError[] };
-type MetaInboundMessage = { id?: string; from?: string; type?: string; button?: { text?: string; payload?: string } };
+type MetaInboundMessage = {
+  id?: string;
+  from?: string;
+  type?: string;
+  button?: { text?: string; payload?: string };
+  text?: { body?: string };
+};
 type MetaChangeValue = { messages?: MetaInboundMessage[]; statuses?: MetaStatus[] };
 type MetaChange = { value?: MetaChangeValue };
 type MetaEntry = { changes?: MetaChange[] };
 type MetaWebhookPayload = { entry?: MetaEntry[] };
 
+// Meta Cloud API policy requires honoring an opt-out reply immediately, and
+// symmetrically an opt-in reply resubscribes. Matched on the whole trimmed
+// message body (case-insensitive) so a customer just typing "stop" — not a
+// sentence that happens to contain it — is what triggers this.
+const OPT_OUT_KEYWORDS = /^(stop|unsubscribe|opt\s*out|cancel)$/i;
+const OPT_IN_KEYWORDS = /^(start|subscribe|opt\s*in)$/i;
+
 /**
- * POST — two things land here:
+ * POST — three things land here:
  *
- * 1. Quick Reply button taps on the booking-confirmation template ("Before /
+ * 1. Plain-text STOP/UNSUBSCRIBE (and START/SUBSCRIBE to reverse it) —
+ *    flips WhatsAppConsent (see src/lib/whatsapp.ts) and sends exactly one
+ *    confirmation reply, bypassing the opt-out gate for that one reply only
+ *    (skipConsentCheck) so the confirmation itself isn't blocked by the
+ *    opt-out it's confirming.
+ * 2. Quick Reply button taps on the booking-confirmation template ("Before /
  *    After Photos" and "Give Google Review" — see
  *    BOOKING_CONFIRMATION_META_TEMPLATE in whatsapp-templates.ts) arrive as
  *    inbound type:"button" messages. A Quick Reply button carries no URL of
  *    its own, so we auto-reply with the real link the button promised.
- * 2. Delivery-status callbacks (sent/delivered/read/failed) are matched to
+ * 3. Delivery-status callbacks (sent/delivered/read/failed) are matched to
  *    the WhatsAppMessage row by providerMessageId. Only "failed" is
  *    persisted — WhatsAppStatus only models QUEUED/SENT/FAILED today, so a
  *    "delivered"/"read" callback is acknowledged (200) without a schema
@@ -108,7 +127,35 @@ async function handleInboundMessages(value: MetaChangeValue) {
   const reviewUrl = settings?.googleReviewUrl || "";
 
   for (const m of messages) {
-    if (m.type !== "button" || !m.from || !m.button?.text) continue;
+    if (!m.from) continue;
+
+    if (m.type === "text") {
+      const body = (m.text?.body || "").trim();
+      if (OPT_OUT_KEYWORDS.test(body)) {
+        await setWhatsAppOptOut(m.from, "CUSTOMER_REPLY", `Replied "${body}"`);
+        await sendWhatsApp({
+          kind: "OTHER",
+          toNumber: m.from,
+          body: "You've been unsubscribed from Sahara Cleaning Services WhatsApp messages. Reply START to resubscribe any time.",
+          relatedType: "WhatsAppWebhook",
+          relatedId: m.id,
+          skipConsentCheck: true,
+        });
+      } else if (OPT_IN_KEYWORDS.test(body)) {
+        await setWhatsAppOptIn(m.from);
+        await sendWhatsApp({
+          kind: "OTHER",
+          toNumber: m.from,
+          body: "You're resubscribed to Sahara Cleaning Services WhatsApp updates. Reply STOP any time to opt out again.",
+          relatedType: "WhatsAppWebhook",
+          relatedId: m.id,
+          skipConsentCheck: true,
+        });
+      }
+      continue;
+    }
+
+    if (m.type !== "button" || !m.button?.text) continue;
     const from = m.from;
     const label = m.button.text;
 
