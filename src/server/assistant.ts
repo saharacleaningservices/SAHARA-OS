@@ -31,7 +31,10 @@ export async function getAssistantOverview() {
       where: { stage: { in: ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] } },
       orderBy: { createdAt: "desc" },
       take: 15,
-      select: { id: true, leadNumber: true, name: true, mobile: true, area: true, service: true, stage: true, quoteAmount: true },
+      // notes is included so draftQuotation() can surface Custom Package /
+      // Individual Cleaning quantity selections in the suggested quotation
+      // (see src/lib/ai/quotation.ts) — nothing else about this query changed.
+      select: { id: true, leadNumber: true, name: true, mobile: true, area: true, service: true, stage: true, quoteAmount: true, notes: true },
     }),
     db.payment.findMany({
       where: { status: { not: "PAID" } },
