@@ -189,6 +189,22 @@ export const changePasswordSchema = z
 
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
 
+// Self-service "Forgot Password" — for a user who is locked out and can't
+// use the Change Password dialog (which requires signing in first). Same
+// owner-OTP confirmation as changePasswordSchema, minus currentPassword.
+export const forgotPasswordSchema = z
+  .object({
+        mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
+        newPassword: strongPasswordSchema,
+        confirmPassword: z.string().min(1, "Confirm your new password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+  });
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
 // ── Phase 1: Smart Enquiry Hub ─────────────────────────────────────────
 
 export const quickCaptureSchema = z.object({
