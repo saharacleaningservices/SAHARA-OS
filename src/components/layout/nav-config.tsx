@@ -1,34 +1,37 @@
 import {
-  LayoutDashboard,
-  Users,
-  Users2,
-  ClipboardList,
-  UserCog,
-  IndianRupee,
-  Receipt,
-  TrendingUp,
-  FileText,
-  Sparkles,
-  Truck,
-  BookUser,
-  Trash2,
-  ScrollText,
-  ShieldCheck,
-  CalendarCheck,
-  Wallet,
-  MessageCircle,
-  Smartphone,
-  ShieldAlert,
-  Route,
-  Images,
-  type LucideIcon,
+    LayoutDashboard,
+    Users,
+    Users2,
+    ClipboardList,
+    UserCog,
+    IndianRupee,
+    Receipt,
+    TrendingUp,
+    FileText,
+    Sparkles,
+    Truck,
+    BookUser,
+    Trash2,
+    ScrollText,
+    ShieldCheck,
+    CalendarCheck,
+    Wallet,
+    MessageCircle,
+    Smartphone,
+    ShieldAlert,
+    Route,
+    Images,
+    Home,
+    Bug,
+    PaintRoller,
+    type LucideIcon,
 } from "lucide-react";
 
 export type NavItem = {
-  label: string;
-  href: string;
-  section: string;
-  icon: LucideIcon;
+    label: string;
+    href: string;
+    section: string;
+    icon: LucideIcon;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -42,6 +45,9 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "AMC Contracts", href: "/amc", section: "amc", icon: ShieldCheck },
   { label: "Payments", href: "/payments", section: "payments", icon: IndianRupee },
   { label: "Expenses", href: "/expenses", section: "expenses", icon: Receipt },
+  { label: "Housekeeping", href: "/jobs?service=HOUSEKEEPING", section: "service-housekeeping", icon: Home },
+  { label: "Pest Control", href: "/jobs?service=PEST_CONTROL", section: "service-pest-control", icon: Bug },
+  { label: "Interior Painting", href: "/jobs?service=INTERIOR_PAINTING", section: "service-interior-painting", icon: PaintRoller },
   { label: "Revenue Dashboard", href: "/revenue", section: "revenue", icon: Wallet },
   { label: "Profit Dashboard", href: "/profit", section: "profit", icon: TrendingUp },
   { label: "Customers", href: "/customers", section: "customers", icon: BookUser },
@@ -54,4 +60,4 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Message Log", href: "/admin/whatsapp-log", section: "whatsapp-log", icon: MessageCircle },
   { label: "Device Approvals", href: "/admin/device-approvals", section: "device-approvals", icon: Smartphone },
   { label: "Security Approvals", href: "/admin/security-approvals", section: "security-approvals", icon: ShieldAlert },
-];
+  ];
