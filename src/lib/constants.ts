@@ -489,31 +489,54 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-  // Operations role — currently Francis Monteiro. Dispatch-only: today's &
-  // tomorrow's jobs, view + edit (see jobScopeFor "TODAY_TOMORROW" below),
-  // plus marking his own attendance. Everything else is hidden: no
-  // leads/payments/expenses/customers/profit/revenue/security/settings/admin
-  // modules.
-  OPERATIONS: ["dashboard", "jobs", "attendance", "profile"],
-  // Accounts role — currently Shoyab "Shoaib" Shaikh. Per Sahara OS Final
-  // Master Prompt v2 (Original Requirements Lock), Priority 1: exactly
-  // Dashboard, Leads/CRM, Jobs (incl. Team Dispatch — shares the "jobs"
-  // section), Staff, Vehicles, Attendance, AMC, Payments, Expenses,
-  // Customers. Reports and Settings are explicitly hidden for this role, as
-  // are Gallery/Message Log/AI Assistant (not in the approved module list).
-  ACCOUNTS: [
-    "dashboard",
-    "leads",
-    "jobs",
-    "staff",
-    "vehicles",
-    "attendance",
-    "amc",
-    "payments",
-    "expenses",
-    "customers",
-    "profile",
-  ],
+    // Operations role — currently Francis Monteiro (Field Supervisor).
+    // Operational access without financial control: Dashboard, Leads/CRM,
+    // Jobs (incl. Team Dispatch — shares the "jobs" section), Staff, Vehicles,
+    // AMC Contracts, and the filtered Housekeeping/Pest Control/Interior
+    // Painting job views. Attendance is intentionally NOT included for this
+    // role. No payments/expenses/revenue/profit/customers/reports/security/
+    // settings/admin modules.
+    OPERATIONS: [
+          "dashboard",
+          "leads",
+          "jobs",
+          "staff",
+          "vehicles",
+          "amc",
+          "service-housekeeping",
+          "service-pest-control",
+          "service-interior-painting",
+          "profile",
+        ],
+    // Accounts role — currently Shoyab "Shoaib" Shaikh (Operations Manager).
+    // Same working CRM as Super Admin except owner-only security/account
+    // settings: Dashboard, Leads/CRM, Jobs (incl. Team Dispatch), Staff,
+    // Vehicles, Attendance, AMC Contracts, Payments, Expenses, the filtered
+    // Housekeeping/Pest Control/Interior Painting job views, Revenue
+    // Dashboard, Customers, Reports, AI Assistant, Gallery, Trash (restore).
+    // Owner-only sections (Profit, User Management, Audit Log, WhatsApp Log,
+    // Device/Security Approvals) remain hidden.
+    ACCOUNTS: [
+          "dashboard",
+          "leads",
+          "jobs",
+          "staff",
+          "vehicles",
+          "attendance",
+          "amc",
+          "payments",
+          "expenses",
+          "service-housekeeping",
+          "service-pest-control",
+          "service-interior-painting",
+          "revenue",
+          "customers",
+          "reports",
+          "assistant",
+          "admin",
+          "trash",
+          "profile",
+        ],
   // Field Coordinator / Team Leader: today's & tomorrow's jobs only (see
   // jobScopeFor "TODAY_TOMORROW"). Call/WhatsApp the customer, open Maps,
   // start/complete the job and upload before/after photos & videos — all from
