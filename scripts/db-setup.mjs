@@ -564,15 +564,15 @@ console.log("Final go-live batch migration complete.");
 // ─────────────────────────────────────────────────────────────────────────
 // Final production access mapping. Deterministic by email → idempotent and
 // safe to re-run. Login emails & passwords unchanged.
-//   admin@       Altaf Shaikh      → ADMIN       (Super Admin, full access)
-//   operations@  Francis Monteiro  → SUPERVISOR  (Field Coordinator — moved
-//                                    2026-09-09 from OPERATIONS to field-only
-//                                    today/tomorrow operations access)
-//   accounts@    Shoyab Kazi       → OPERATIONS  (Operations Manager — promoted
-//                                    2026-09-09 from ACCOUNTS / Office Assistant
-//                                    to full daily-operations access)
-//   supervisor@  Suresh Pawar      → SUPERVISOR  (Field Coordinator)
-//   staff@       Vikas Shinde      → STAFF       (Field Staff)
+// admin@       Altaf Shaikh      → ADMIN (Super Admin, full access)
+// operations@  Francis Monteiro  → SUPERVISOR (Field Coordinator — moved
+//                                   2026-09-09 from OPERATIONS to field-only
+//                                   today/tomorrow operations access)
+// accounts@    Shoyab Kazi       → OPERATIONS (Operations Manager — promoted
+//                                   2026-09-09 from ACCOUNTS / Office Assistant
+//                                   to full daily-operations access)
+// supervisor@  Suresh Pawar      → SUPERVISOR (Field Coordinator)
+// staff@       Vikas Shinde      → STAFF (Field Staff)
 // ─────────────────────────────────────────────────────────────────────────
 const finalRoleMap = db.transaction(() => {
   const rows = [
@@ -805,9 +805,9 @@ console.log("v1.2 advance-payments migration complete.");
 // a 'V11_MOBILE_AUTH' AuditLog sentinel so passwords are NOT reset on every
 // deploy. Sets the login mobile number + a temporary password; each user is
 // then forced through /set-password on first login. Preserves all data.
-//   admin@       Altaf Shaikh     → 7083347130 / Sahara1  (Super Admin)
-//   operations@  Francis Monteiro → 8530207130 / Sahara2  (Field Coordinator)
-//   accounts@    Shoyab Kazi      → 8956567130 / Sahara3  (Operations Manager)
+// admin@       Altaf Shaikh      → 7083347130 / Sahara1 (Super Admin)
+// operations@  Francis Monteiro  → 8530207130 / Sahara2 (Field Coordinator)
+// accounts@    Shoyab Kazi       → 8956567130 / Sahara3 (Operations Manager)
 // ─────────────────────────────────────────────────────────────────────────
 {
   const alreadyDone = db
@@ -891,9 +891,9 @@ addColumnIfMissing("CompanySettings", "happyCustomers", `"happyCustomers" TEXT`)
 addColumnIfMissing("CompanySettings", "featuredReviews", `"featuredReviews" TEXT`);
 db.prepare(
   `UPDATE "CompanySettings" SET
-     "googleRating" = COALESCE("googleRating", '4.9'),
-     "googleReviewCount" = COALESCE("googleReviewCount", '1800+'),
-     "happyCustomers" = COALESCE("happyCustomers", '8000+')
+    "googleRating" = COALESCE("googleRating", '4.9'),
+    "googleReviewCount" = COALESCE("googleReviewCount", '1800+'),
+    "happyCustomers" = COALESCE("happyCustomers", '8000+')
    WHERE "id" = 'default'`
 ).run();
 console.log("v2.0 batch-2 (premium booking) migration complete.");
@@ -1009,6 +1009,29 @@ db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_featured_idx" ON "GalleryItem"(
 db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_category_idx" ON "GalleryItem"("category");`);
 console.log("v3.3 batch-14 (marketing gallery) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Phase D — WhatsApp consent/opt-out tracking (idempotent, additive only).
+// New table only; sendWhatsApp() / flushWhatsAppQueue() check it before
+// every send, and the inbound webhook flips it on a STOP/START reply. See
+// src/lib/whatsapp.ts and src/app/api/webhooks/whatsapp/route.ts.
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "WhatsAppConsent" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "phoneNumber" TEXT NOT NULL,
+    "optedOut" BOOLEAN NOT NULL DEFAULT false,
+    "optedOutAt" DATETIME,
+    "optedOutVia" TEXT,
+    "reinstatedAt" DATETIME,
+    "notes" TEXT,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "WhatsAppConsent_phoneNumber_key" ON "WhatsAppConsent"("phoneNumber");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "WhatsAppConsent_optedOut_idx" ON "WhatsAppConsent"("optedOut");`);
+console.log("Phase D (WhatsApp consent tracking) migration complete.");
+
 db.close();
 // ─────────────────────────────────────────────────────────────────────────
 // Owner Command Center — monthly business revenue target (ADMIN-editable).
@@ -1020,16 +1043,16 @@ db.close();
   const ownerDb = new Database(dbPath);
   ownerDb.pragma("foreign_keys = ON");
   ownerDb.exec(`
-CREATE TABLE IF NOT EXISTS "BusinessTarget" (
-"id" TEXT NOT NULL PRIMARY KEY,
-"year" INTEGER NOT NULL,
-"month" INTEGER NOT NULL,
-"targetAmount" REAL NOT NULL,
-"setByName" TEXT,
-"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-`);
+    CREATE TABLE IF NOT EXISTS "BusinessTarget" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "year" INTEGER NOT NULL,
+      "month" INTEGER NOT NULL,
+      "targetAmount" REAL NOT NULL,
+      "setByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
   ownerDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "BusinessTarget_year_month_key" ON "BusinessTarget"("year", "month");`);
   console.log("Owner Command Center (business target) migration complete.");
   ownerDb.close();
