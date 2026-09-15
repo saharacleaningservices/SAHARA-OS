@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { UsersExplorer } from "@/components/admin/users-explorer";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
+import { formatDateTime } from "@/lib/utils";
 
 export default async function UsersPage() {
   // Owner-only — create accounts, change roles, activate/deactivate, reset
@@ -10,7 +11,7 @@ export default async function UsersPage() {
   // page gate).
   const session = await requireRole(["ADMIN"]);
 
-  const users = await db.user.findMany({
+  const rawUsers = await db.user.findMany({
     orderBy: [{ isActive: "desc" }, { name: "asc" }],
     select: {
       id: true,
@@ -23,6 +24,17 @@ export default async function UsersPage() {
       createdAt: true,
     },
   });
+
+  // Format the date on the server and pass a plain string down. Formatting
+  // Date objects client-side (via Intl.DateTimeFormat with no explicit
+  // timeZone) produces different text on the server (container's local
+  // time) vs. the browser (viewer's local time), which caused a React
+  // hydration mismatch on this page. A server-formatted string sidesteps
+  // that entirely — the client just renders what it's given.
+  const users = rawUsers.map((u) => ({
+    ...u,
+    createdAtLabel: formatDateTime(u.createdAt),
+  }));
 
   return (
     <div className="space-y-6">
