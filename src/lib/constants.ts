@@ -490,10 +490,11 @@ export const ROLE_LABELS: Record<string, string> = {
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
   // Operations role — currently Francis Monteiro. Dispatch-only: today's &
-  // tomorrow's jobs, view + edit (see jobScopeFor "TODAY_TOMORROW" below).
-  // Everything else is hidden: no leads/payments/expenses/customers/
-  // profit/revenue/security/settings/admin modules.
-  OPERATIONS: ["dashboard", "jobs", "profile"],
+  // tomorrow's jobs, view + edit (see jobScopeFor "TODAY_TOMORROW" below),
+  // plus marking his own attendance. Everything else is hidden: no
+  // leads/payments/expenses/customers/profit/revenue/security/settings/admin
+  // modules.
+  OPERATIONS: ["dashboard", "jobs", "attendance", "profile"],
   // Accounts role — currently Shoyab "Shoaib" Shaikh. Near-full day-to-day
   // operations: leads/CRM, jobs (all), dispatch, staff (incl. attendance &
   // documents), vehicles, attendance, AMC, payments, expenses, customers
