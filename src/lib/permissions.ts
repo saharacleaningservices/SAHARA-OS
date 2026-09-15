@@ -5,12 +5,12 @@
 // ADMIN — Altaf Shaikh (admin@) — Super Admin, full access
 // OPERATIONS — Francis Monteiro (operations@) — dispatch-only: today's &
 //   tomorrow's jobs, view + edit. Nothing else.
-// ACCOUNTS — Shoyab "Shoaib" Shaikh (accounts@) — near-full day-to-day
-//   operations (leads, jobs, dispatch, staff incl. salary/financials/
+// ACCOUNTS — Shoyab "Shoaib" Shaikh (accounts@) — full operational parity
+//   with Super Admin (leads, jobs, dispatch, staff incl. salary/financials/
 //   documents, vehicles, attendance, AMC, payments, expenses, customers,
-//   reports, gallery, message log).
-//   NO security, NO device/security approvals, NO audit log, NO profit or
-//   revenue dashboards, NO system settings.
+//   reports, gallery, trash, revenue dashboard, Owner Command Center home).
+//   NO security, NO device/security approvals, NO audit log, NO profit
+//   dashboard, NO WhatsApp log, NO system settings — owner-only.
 // SUPERVISOR — Suresh Pawar (supervisor@) — Field Coordinator
 // STAFF — Vikas Shinde (staff@) — Field Staff (mobile only)
 // Login emails & passwords are unchanged; only role permissions changed.
@@ -86,9 +86,9 @@ export function jobScopeFor(role: string): JobScope {
 
 // Phase 3 — Revenue, WhatsApp & Workforce Automation
 
-/** Revenue dashboard + revenue/collections tiles. Super Admin only. */
+/** Revenue dashboard + revenue/collections tiles. Super Admin + Accounts (Profit stays owner-only). */
 export function canViewRevenue(role: string): boolean {
-  return role === "ADMIN";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** AMC contracts — Super Admin + Accounts. */
@@ -111,7 +111,7 @@ export function canManageAttendance(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
 }
 
-/** WhatsApp send log resend controls (viewing the log page itself is gated separately by role on the page). */
+/** WhatsApp send log resend controls (viewing the log page itself is gated separately by role on the page). Super Admin only — owner-only per access spec. */
 export function canViewWhatsAppLog(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS";
+  return role === "ADMIN";
 }
