@@ -254,3 +254,21 @@ export const amcSchema = z.object({
 });
 
 export type AmcFormValues = z.infer<typeof amcSchema>;
+
+// ── Admin User Management ──────────────────────────────────────────────
+
+export const USER_ROLES = ["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR", "STAFF"] as const;
+
+export const createUserSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Enter a valid email"),
+  phone: z
+    .string()
+    .regex(/^\d{10}$/, "Enter a 10-digit mobile number")
+    .optional()
+    .or(z.literal("")),
+  role: z.enum(USER_ROLES),
+  password: strongPasswordSchema,
+});
+
+export type CreateUserFormValues = z.infer<typeof createUserSchema>;
