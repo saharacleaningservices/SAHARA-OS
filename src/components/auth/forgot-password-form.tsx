@@ -1,5 +1,4 @@
-const x = <div className="a">
-  <p>hi</p>
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
