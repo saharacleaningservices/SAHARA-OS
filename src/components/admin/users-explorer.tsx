@@ -60,8 +60,8 @@ export function UsersExplorer({ users, currentUserId }: { users: UserRow[]; curr
   function resetPassword(id: string, name: string) {
     startTransition(async () => {
       const res = await resetUserPassword(id);
-      if (res.error) {
-        toast.error(res.error);
+      if (res.error || !res.tempPassword) {
+        toast.error(res.error ?? "Failed to reset password");
         return;
       }
       setCopied(false);
