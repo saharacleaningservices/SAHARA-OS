@@ -345,6 +345,13 @@ export async function confirmBooking(leadId: string, values: unknown) {
     await db.jobAssignment.createMany({
       data: [...new Set(leadStaffIds)].map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
     });
+    const crew = await db.staff.findMany({ where: { id: { in: leadStaffIds } }, select: { name: true } });
+        await notify({
+                kind: "CREW_UPDATE",
+                title: `Crew assigned — ${job.customerName}`,
+                body: `${job.jobNumber} · ${crew.map((c) => c.name).join(", ")} · ${scheduledDate.toLocaleDateString("en-IN")} ${data.timeSlot}`,
+                href: `/jobs/${job.id}`,
+        });
   }
 
   // Payments — attach any advance the customer already paid to the job, and
