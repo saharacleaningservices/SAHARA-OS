@@ -5,13 +5,16 @@
 // attendance summaries — goes through `sendWhatsApp()` below. It always
 // writes a `WhatsAppMessage` row first so nothing is ever silently lost:
 //
-//   - If the WhatsApp Cloud API is configured (credentials pasted in
-//     /settings → Integrations, or the WHATSAPP_* env vars), it calls the
-//     real Meta Graph API and marks the row SENT/FAILED.
-//   - If it is NOT configured, the row is left QUEUED and nothing is sent.
-//     No code change is needed later — the moment credentials are saved,
-//     `flushWhatsAppQueue()` runs automatically (see
-//     src/server/actions/integrations.ts) and every queued message goes out.
+// - If the recipient has opted out (see WhatsAppConsent / isOptedOut()
+//   below), the row is written as FAILED with a clear reason and nothing is
+//   sent — Meta Cloud API policy requires honoring STOP-style replies.
+// - If the WhatsApp Cloud API is configured (credentials pasted in
+//   /settings → Integrations, or the WHATSAPP_* env vars), it calls the
+//   real Meta Graph API and marks the row SENT/FAILED.
+// - If it is NOT configured, the row is left QUEUED and nothing is sent.
+//   No code change is needed later — the moment credentials are saved,
+//   `flushWhatsAppQueue()` runs automatically (see
+//   src/server/actions/integrations.ts) and every queued message goes out.
 //
 // Credentials are resolved through src/server/integrations.ts, which reads
 // the IntegrationSettings row first and falls back to env vars.
@@ -57,11 +60,59 @@ export async function isWhatsAppReady(): Promise<boolean> {
   return whatsapp.configured;
 }
 
-function normalizeNumber(mobile: string): string {
+// Exported so the inbound webhook (and anything else matching a raw Meta
+// "from" number against our records) normalizes the same way sendWhatsApp()
+// does — a mismatch here would silently break opt-out matching.
+export function normalizeNumber(mobile: string): string {
   const digits = mobile.replace(/\D/g, "");
   if (digits.length === 10) return `91${digits}`;
   if (digits.startsWith("0") && digits.length === 11) return `91${digits.slice(1)}`;
   return digits;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Consent / opt-out tracking (Phase D). One row per phone number, checked
+// before every send. Flipped automatically by the inbound webhook when a
+// customer texts an opt-out/opt-in keyword (see
+// src/app/api/webhooks/whatsapp/route.ts), and manageable by hand from the
+// Message Log (src/app/(app)/admin/whatsapp-log).
+// ─────────────────────────────────────────────────────────────────────────
+
+export const WHATSAPP_OPT_OUT_ERROR = "Recipient opted out of WhatsApp messages";
+
+/** True if this number has opted out — checked by sendWhatsApp() before every send. */
+export async function isOptedOut(mobile: string): Promise<boolean> {
+  const phoneNumber = normalizeNumber(mobile);
+  const row = await db.whatsAppConsent.findUnique({ where: { phoneNumber } });
+  return row?.optedOut === true;
+}
+
+/** Records an opt-out. `via` distinguishes an inbound STOP reply from a manual admin action. */
+export async function setWhatsAppOptOut(mobile: string, via: "CUSTOMER_REPLY" | "MANUAL", notes?: string) {
+  const phoneNumber = normalizeNumber(mobile);
+  await db.whatsAppConsent.upsert({
+    where: { phoneNumber },
+    create: { phoneNumber, optedOut: true, optedOutAt: new Date(), optedOutVia: via, notes: notes ?? null },
+    update: { optedOut: true, optedOutAt: new Date(), optedOutVia: via, notes: notes ?? null },
+  });
+}
+
+/** Reverses an opt-out — an inbound START/SUBSCRIBE reply, or an admin reinstating by hand. */
+export async function setWhatsAppOptIn(mobile: string) {
+  const phoneNumber = normalizeNumber(mobile);
+  await db.whatsAppConsent.upsert({
+    where: { phoneNumber },
+    create: { phoneNumber, optedOut: false, reinstatedAt: new Date() },
+    update: { optedOut: false, reinstatedAt: new Date() },
+  });
+}
+
+/** Every currently opted-out number, most recently opted-out first — for the Message Log admin view. */
+export async function listOptedOutNumbers() {
+  return db.whatsAppConsent.findMany({
+    where: { optedOut: true },
+    orderBy: { optedOutAt: "desc" },
+  });
 }
 
 type SendConfig = {
@@ -99,8 +150,8 @@ async function deliver(toNumber: string, body: string, cfg: SendConfig) {
 
 /**
  * Queues (and, if configured, sends) one WhatsApp message. Never throws —
- * failures are recorded on the WhatsAppMessage row so a broken number or
- * expired token never breaks the calling action.
+ * failures are recorded on the WhatsAppMessage row so a broken number, an
+ * opted-out recipient, or an expired token never breaks the calling action.
  */
 export async function sendWhatsApp(input: {
   kind: WhatsAppKind;
@@ -109,8 +160,13 @@ export async function sendWhatsApp(input: {
   body: string;
   relatedType?: string;
   relatedId?: string;
+  // Only for the opt-out/opt-in confirmation reply the inbound webhook sends
+  // immediately after flipping consent — every other caller must go through
+  // the normal opt-out gate below.
+  skipConsentCheck?: boolean;
 }) {
   const toNumber = normalizeNumber(input.toNumber);
+  const optedOut = input.skipConsentCheck ? false : await isOptedOut(toNumber);
 
   const message = await db.whatsAppMessage.create({
     data: {
@@ -120,9 +176,14 @@ export async function sendWhatsApp(input: {
       body: input.body,
       relatedType: input.relatedType ?? null,
       relatedId: input.relatedId ?? null,
-      status: "QUEUED",
+      status: optedOut ? "FAILED" : "QUEUED",
+      errorMessage: optedOut ? WHATSAPP_OPT_OUT_ERROR : null,
     },
   });
+
+  if (optedOut) {
+    return { queued: false as const, sent: false as const, id: message.id, error: WHATSAPP_OPT_OUT_ERROR };
+  }
 
   const { whatsapp } = await getResolvedIntegrations();
   if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
@@ -168,7 +229,8 @@ export async function sendWhatsAppMany(inputs: Parameters<typeof sendWhatsApp>[0
  * Sends every message still sitting in the queue. Called automatically right
  * after WhatsApp credentials are saved in Settings, and available as a
  * manual "Flush queue" button. Optionally also retries recently FAILED
- * messages (e.g. after fixing an expired token).
+ * messages (e.g. after fixing an expired token). Messages to a number that
+ * has since opted out are marked FAILED instead of being (re)sent.
  */
 export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?: number } = {}) {
   const { includeFailed = false, limit = 300 } = opts;
@@ -191,7 +253,16 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
 
   let sent = 0;
   let failed = 0;
+  let skippedOptedOut = 0;
   for (const m of pending) {
+    if (await isOptedOut(m.toNumber)) {
+      await db.whatsAppMessage.update({
+        where: { id: m.id },
+        data: { status: "FAILED", errorMessage: WHATSAPP_OPT_OUT_ERROR },
+      });
+      skippedOptedOut += 1;
+      continue;
+    }
     try {
       const result = await deliver(m.toNumber, m.body, cfg);
       if (result.ok) {
@@ -216,5 +287,5 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
     }
   }
 
-  return { ok: true as const, sent, failed, processed: pending.length };
+  return { ok: true as const, sent, failed, skippedOptedOut, processed: pending.length };
 }
