@@ -56,6 +56,7 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
   const params = useSearchParams();
   const whenParam = params.get("when") ?? "";
   const statusParam = params.get("status") ?? "";
+  const serviceParam = params.get("service") ?? "";
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(statusParam || "ALL");
@@ -69,9 +70,10 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
       if (statusFilter !== "ALL" && job.status !== statusFilter) return false;
       if (whenParam === "today" && dayBucket(job.scheduledDate) !== "TODAY") return false;
       if (whenParam === "tomorrow" && dayBucket(job.scheduledDate) !== "TOMORROW") return false;
+      if (serviceParam && job.service !== serviceParam) return false;      
       return true;
     });
-  }, [jobs, search, statusFilter, whenParam]);
+  }, [jobs, search, statusFilter, whenParam, serviceParam]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -99,9 +101,8 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
             ))}
           </SelectContent>
         </Select>
-        {whenParam && (
-          <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
-            {whenParam === "today" ? "Today" : "Tomorrow"} only ·{" "}
+        {(whenParam || serviceParam) && (
+              <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">{whenParam === "today" ? "Today" : whenParam === "tomorrow" ? "Tomorrow" : SERVICE_LABELS[serviceParam]} only ·{" "}
             <Link href="/jobs" className="underline">clear</Link>
           </span>
         )}
