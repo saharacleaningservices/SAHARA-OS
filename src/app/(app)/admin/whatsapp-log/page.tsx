@@ -1,21 +1,23 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
-import { isWhatsAppReady } from "@/lib/whatsapp";
+import { isWhatsAppReady, listOptedOutNumbers } from "@/lib/whatsapp";
 import { isSmsReady } from "@/lib/sms";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
+import { WhatsAppConsentCard } from "@/components/settings/whatsapp-consent-card";
 import { formatDateTime } from "@/lib/utils";
 import { Info } from "lucide-react";
 
 export default async function MessageLogPage() {
   await requireRole(["ADMIN", "ACCOUNTS"]);
-  const [waReady, smsReady, waMsgs, smsMsgs] = await Promise.all([
+  const [waReady, smsReady, waMsgs, smsMsgs, optedOut] = await Promise.all([
     isWhatsAppReady(),
     isSmsReady(),
     db.whatsAppMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
     db.smsMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }).catch(() => []),
+    listOptedOutNumbers(),
   ]);
 
   const rows = [
@@ -57,6 +59,8 @@ export default async function MessageLogPage() {
           </p>
         </div>
       )}
+
+      <WhatsAppConsentCard optedOut={optedOut} />
 
       {rows.length === 0 ? (
         <EmptyState title="No messages yet" />
