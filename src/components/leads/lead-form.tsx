@@ -16,8 +16,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateInput } from "@/components/ui/date-input";
 import { leadSchema, type LeadFormValues } from "@/lib/validation";
 import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY, TIME_SLOTS, PAYMENT_MODES, PAYMENT_MODE_LABELS, LEAD_PAYMENT_STATUSES, LEAD_PAYMENT_STATUS_LABELS } from "@/lib/constants";
-import { formatINR } from "@/lib/utils";
+import { formatINR, formatDate } from "@/lib/utils";
 import { createLead, updateLead } from "@/server/actions/leads";
+import { getRepeatCustomerSummary } from "@/server/actions/customer-actions";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { ServiceQuantityFields } from "@/components/shared/service-quantity-fields";
 import { MapsLocationInput } from "@/components/shared/maps-location-input";
@@ -50,6 +51,24 @@ export function LeadForm({
   // user has typed their own Estimated Amount.
   const [estimateTouched, setEstimateTouched] = useState(false);
   const [selectionNotesLines, setSelectionNotesLines] = useState<string[]>([]);
+
+    // Repeat-customer banner — populated when the mobile field's onBlur
+    // finds history (previous jobs, last service date, lifetime revenue)
+    // for that number, so office staff spot a returning customer instantly.
+    const [repeatCustomer, setRepeatCustomer] = useState<Awaited<ReturnType<typeof getRepeatCustomerSummary>>>(null);
+    const [checkingRepeat, setCheckingRepeat] = useState(false);
+    async function handleMobileBlur(value: string) {
+          if (leadId) return; // only relevant when creating a brand-new lead
+          const digits = (value || "").replace(/\D/g, "").slice(-10);
+          if (digits.length !== 10) {
+                  setRepeatCustomer(null);
+                  return;
+          }
+          setCheckingRepeat(true);
+          const summary = await getRepeatCustomerSummary(digits).catch(() => null);
+          setCheckingRepeat(false);
+          setRepeatCustomer(summary);
+    }
 
   const {
     register,
@@ -138,8 +157,30 @@ export function LeadForm({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="mobile">Mobile</Label>
-            <Input id="mobile" {...register("mobile")} placeholder="9876543210" inputMode="tel" />
+        <Input
+                    id="mobile"
+          {...register("mobile")}
+                    placeholder="9876543210"
+                    inputMode="tel"
+                    onBlur={(e) => {
+                                  register("mobile").onBlur(e);
+                                  handleMobileBlur(e.target.value);
+                    }}
+                  />
             {errors.mobile && <p className="text-xs text-destructive">{errors.mobile.message}</p>}
+            {checkingRepeat && <p className="text-xs text-muted-foreground">Checking customer history…</p>}
+            {repeatCustomer && (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-2.5">
+                            <p className="text-xs font-semibold text-primary">
+                                          Repeat Customer{repeatCustomer.name ? ` — ${repeatCustomer.name}` : ""}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {repeatCustomer.jobCount} previous job{repeatCustomer.jobCount === 1 ? "" : "s"}
+                              {repeatCustomer.lastServiceDate ? ` · Last service: ${formatDate(repeatCustomer.lastServiceDate)}` : ""}
+                              {" · "}Total revenue: {formatINR(repeatCustomer.totalRevenue)}
+                            </p>
+                </div>
+                  )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="alternateMobile">Alternate Mobile (optional)</Label>
