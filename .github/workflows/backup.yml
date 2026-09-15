@@ -54,3 +54,18 @@ jobs:
           KEEP_DAILY: "30"
           KEEP_MONTHLY: "12"
         run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
+
+      # Runs whether the job succeeded or a step above failed — the app's own
+      # BackupEvent logging (src/app/api/backup/route.ts) only knows about
+      # the download step; this is the one place that can also see a failure
+      # in verification, the Google Drive upload, or retention cleanup, and
+      # surface it somewhere a human will actually notice it (the run's
+      # summary tab) instead of only in the raw job log.
+      - name: Report outcome
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Backup **succeeded** — \`${ARCHIVE:-unknown}\` verified and uploaded to Google Drive." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "❌ Backup **failed** — see the job log above for which step failed (archive: \`${ARCHIVE:-not downloaded}\`)." >> "$GITHUB_STEP_SUMMARY"
+          fi
