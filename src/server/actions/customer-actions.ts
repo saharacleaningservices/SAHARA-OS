@@ -177,3 +177,33 @@ export async function upsertCustomerProfile(
   revalidatePath("/dashboard");
   return { success: true as const };
 }
+
+
+  /**
+     * Repeat-customer lookup for the New Lead form — called when office staff
+ * finish typing a mobile number so a returning customer's history (job
+ * count, last service date, lifetime revenue) shows immediately, before
+ * the enquiry is even saved. Returns null for a brand-new number.
+ */
+export async function getRepeatCustomerSummary(mobile: string) {
+    const session = await getSession();
+    if (!session) return null;
+    const digits = mobile.replace(/\D/g, "").slice(-10);
+    if (digits.length !== 10) return null;
+
+  const { getCustomerHistory } = await import("@/server/customers");
+    const { leads, jobs, payments, master } = await getCustomerHistory(digits);
+    if (leads.length === 0 && jobs.length === 0 && payments.length === 0 && !master) return null;
+
+  const totalRevenue = payments.filter((p) => p.status === "PAID").reduce((s, p) => s + p.paidAmount, 0);
+    const name = master?.name || leads[0]?.name || jobs[0]?.customerName || null;
+    const lastServiceDate = jobs[0]?.scheduledDate ?? master?.lastServiceDate ?? null;
+
+  return {
+        name,
+        jobCount: jobs.length,
+        leadCount: leads.length,
+        lastServiceDate,
+        totalRevenue,
+  };
+}
