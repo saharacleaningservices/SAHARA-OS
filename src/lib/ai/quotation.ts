@@ -17,11 +17,27 @@ export type QuotationDraft = {
   message: string;
 };
 
+// Custom Package (CUSTOMIZER_PACKAGE) and Individual Cleaning quantity
+// selections have no per-item price — by explicit production instruction,
+// office staff price those manually. ServiceQuantityFields records each
+// selection as a plain Notes line prefixed "Custom Package —" / "Individual
+// Cleaning —" (see src/components/shared/service-quantity-fields.tsx). This
+// pulls those lines back out so quotation generation can list exactly what
+// was selected, as $0 "price to be confirmed" line items, without inventing
+// a number.
+function selectionLinesFromNotes(notes?: string | null): string[] {
+  return (notes ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.startsWith("Custom Package —") || l.startsWith("Individual Cleaning —"));
+}
+
 export function draftQuotation(lead: {
   name: string;
   service: string;
   area: string;
   quoteAmount?: number | null;
+  notes?: string | null;
 }): QuotationDraft {
   const label = SERVICE_LABELS[lead.service] ?? lead.service;
   const base = Math.max(
@@ -32,6 +48,12 @@ export function draftQuotation(lead: {
   const lineItems: QuotationLineItem[] = [
     { name: label, description: `${label} — ${lead.area}`, amount: base },
   ];
+
+  const selectionLines = selectionLinesFromNotes(lead.notes);
+  for (const line of selectionLines) {
+    lineItems.push({ name: line, description: `${line} — price to be confirmed`, amount: 0 });
+  }
+
   const subTotal = lineItems.reduce((s, i) => s + i.amount, 0);
   const gstPercent = 0;
   const gstAmount = Math.round((subTotal * gstPercent) / 100);
@@ -42,6 +64,9 @@ export function draftQuotation(lead: {
     ``,
     `Here's your quote for *${label}* at ${lead.area}:`,
     `• ${label} — ${formatINR(base)}`,
+    ...(selectionLines.length > 0
+      ? [``, `Also selected (price to be confirmed):`, ...selectionLines.map((l) => `• ${l}`)]
+      : []),
     `Total: ${formatINR(total)}`,
     ``,
     `This quote is valid for 7 days. 50% advance confirms your booking; the balance is due on completion.`,
