@@ -69,7 +69,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               }}
               purpose={advance > 0 ? "BALANCE" : "ADVANCE"}
             />
-            <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} />
+            <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} />
             {canConfirm && (
               <ConfirmBookingDialog
                 leadId={lead.id}
