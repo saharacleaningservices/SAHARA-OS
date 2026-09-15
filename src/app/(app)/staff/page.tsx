@@ -1,10 +1,13 @@
+import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { StaffExplorer } from "@/components/staff/staff-explorer";
 import { NewStaffDialog } from "@/components/staff/new-staff-dialog";
 import { StaffImportDialog } from "@/components/staff/staff-import-dialog";
+import { Button } from "@/components/ui/button";
 import { getAllStaffForList } from "@/server/staff";
 import { requireUser } from "@/lib/current-user";
 import { canViewSalary } from "@/lib/permissions";
+import { BarChart3 } from "lucide-react";
 
 export default async function StaffPage() {
   const session = await requireUser();
@@ -24,6 +27,11 @@ export default async function StaffPage() {
         actions={
           showSalary ? (
             <>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/staff/performance">
+                  <BarChart3 className="mr-1.5 size-4" /> Performance Report
+                </Link>
+              </Button>
               <StaffImportDialog />
               <NewStaffDialog />
             </>
