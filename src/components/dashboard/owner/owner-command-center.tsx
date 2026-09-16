@@ -64,12 +64,19 @@ function dayCardBody(data: DayData) {
 }
 
 /**
- * Owner Command Center — the ADMIN-only home dashboard. Everything here
- * reads from real data (getOwnerCommandCenterHome, getOwnerSnapshot,
- * getCompanySettings, getDashboardData); nothing is fabricated. Judgment
- * calls made while building this are noted inline where they matter.
+    * Owner Command Center — the ADMIN + ACCOUNTS home dashboard. Everything
+ * here reads from real data (getOwnerCommandCenterHome, getOwnerSnapshot,
+ * getCompanySettings, getDashboardData); nothing is fabricated. showProfit
+ * controls the Net Profit / Bank Balance tiles below — false for Accounts,
+ * since Profit stays owner-only.
  */
-export async function OwnerCommandCenter({ ownerName }: { ownerName: string }) {
+export async function OwnerCommandCenter({
+  ownerName,
+  showProfit,
+}: {
+  ownerName: string;
+  showProfit: boolean;
+}) {
   const [home, snapshot, settings, dashboard] = await Promise.all([
     getOwnerCommandCenterHome(),
     getOwnerSnapshot(),
@@ -315,10 +322,12 @@ export async function OwnerCommandCenter({ ownerName }: { ownerName: string }) {
               <p className="text-xs text-muted-foreground">Expenses (month)</p>
               <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.expenses)}</p>
             </div>
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">Net Profit</p>
-              <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.netProfit)}</p>
-            </div>
+            {showProfit && (
+              <div className="rounded-lg border border-border p-3">
+                <p className="text-xs text-muted-foreground">Net Profit</p>
+                <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.netProfit)}</p>
+              </div>
+            )}
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground">Pending Collections</p>
               <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.pendingCollections)}</p>
@@ -332,7 +341,7 @@ export async function OwnerCommandCenter({ ownerName }: { ownerName: string }) {
                 <div className="h-full rounded-full bg-success" style={{ width: `${collectionPercent}%` }} />
               </div>
             </div>
-            {snapshot.bankBalance != null && (
+            {showProfit && snapshot.bankBalance != null && (
               <div className="col-span-2 rounded-lg border border-border p-3">
                 <p className="text-xs text-muted-foreground">Bank Balance</p>
                 <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.bankBalance)}</p>
