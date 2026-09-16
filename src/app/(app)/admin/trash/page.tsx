@@ -6,7 +6,10 @@ import { requireRole } from "@/lib/current-user";
 const ENTITY_TYPES: EntityType[] = ["Lead", "Job", "Staff", "Payment", "Expense"];
 
 export default async function TrashPage() {
-  await requireRole(["ADMIN"]);
+  // Trash: Super Admin + Accounts (full operational parity) — Audit Log
+  // stays owner-only, but Trash/restore is part of Accounts' day-to-day
+  // record management (see src/lib/permissions.ts canDeleteRecords).
+  await requireRole(["ADMIN", "ACCOUNTS"]);
 
   const [lists, demo] = await Promise.all([
     Promise.all(ENTITY_TYPES.map((t) => listTrash(t))),
