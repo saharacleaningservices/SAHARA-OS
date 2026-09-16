@@ -41,8 +41,13 @@ import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-c
 export default async function DashboardPage() {
   const session = await requireUser();
 
-  if (session.role === "ADMIN") {
-    return <OwnerCommandCenter ownerName={session.name.split(" ")[0]} />;
+  if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
+    return (
+    <OwnerCommandCenter
+      ownerName={session.name.split(" ")[0]}
+      showProfit={session.role === "ADMIN"}
+    />
+  );
   }
   const [
     {
