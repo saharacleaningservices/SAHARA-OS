@@ -24,10 +24,17 @@ function extractNumber(obj: Record<string, unknown>): string | null {
 }
 
 async function handle(req: NextRequest, raw: Record<string, unknown>) {
+  // Fail CLOSED, not open: if neither token env var is configured, this
+  // endpoint used to skip the check entirely (the `token &&` guard made the
+  // whole condition false, so `if` never fired) — meaning anyone could POST
+  // an arbitrary phone number and create real leads, or attach a fake
+  // "missed call" timeline entry to an existing customer's lead. Found in
+  // the 2026-09-21 security audit; fixed to always require a match against
+  // a configured token, never silently accept when unconfigured.
   const token = process.env.MISSED_CALL_TOKEN || process.env.CRON_TOKEN;
   const provided = req.headers.get("authorization") ?? "";
   const qToken = req.nextUrl.searchParams.get("token") ?? "";
-  if (token && provided !== `Bearer ${token}` && qToken !== token) {
+  if (!token || (provided !== `Bearer ${token}` && qToken !== token)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

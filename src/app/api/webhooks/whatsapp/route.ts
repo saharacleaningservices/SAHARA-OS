@@ -1,8 +1,33 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sendWhatsApp, setWhatsAppOptOut, setWhatsAppOptIn } from "@/lib/whatsapp";
 import { getCompanySettings } from "@/server/settings";
 import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
+
+/**
+ * Verifies Meta's X-Hub-Signature-256 header (HMAC-SHA256 of the raw body,
+ * keyed with the Meta App Secret) so this endpoint only trusts payloads that
+ * genuinely came from Meta — found missing in the 2026-09-21 security audit
+ * (without this, anyone could POST an arbitrary payload and, among other
+ * things, make sendWhatsApp() queue/send a message to any phone number they
+ * specify). Skips verification (not a rejection) when WHATSAPP_APP_SECRET
+ * isn't configured yet, matching this project's "queue always, deliver/
+ * verify only when configured" pattern — there's no real inbound Meta
+ * traffic to protect until the Cloud API is actually connected, and this
+ * activates automatically the moment that secret is set.
+ */
+function isValidMetaSignature(rawBody: string, header: string | null): boolean {
+  const secret = process.env.WHATSAPP_APP_SECRET;
+  if (!secret) return true;
+  if (!header?.startsWith("sha256=")) return false;
+  const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
+  const provided = header.slice("sha256=".length);
+  const expectedBuf = Buffer.from(expected, "hex");
+  const providedBuf = Buffer.from(provided, "hex");
+  if (expectedBuf.length !== providedBuf.length) return false;
+  return timingSafeEqual(expectedBuf, providedBuf);
+}
 
 // Meta WhatsApp Cloud API webhook — receives inbound customer messages and
 // delivery-status callbacks for every message sendWhatsApp() sends (see
@@ -88,9 +113,14 @@ const OPT_IN_KEYWORDS = /^(start|subscribe|opt\s*in)$/i;
  * customer's fault.
  */
 export async function POST(req: NextRequest) {
+  const rawBody = await req.text();
+  if (!isValidMetaSignature(rawBody, req.headers.get("x-hub-signature-256"))) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
   let payload: MetaWebhookPayload | null = null;
   try {
-    payload = (await req.json()) as MetaWebhookPayload;
+    payload = JSON.parse(rawBody) as MetaWebhookPayload;
   } catch {
     return NextResponse.json({ ok: true });
   }
