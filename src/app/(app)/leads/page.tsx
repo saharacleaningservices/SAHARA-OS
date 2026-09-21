@@ -13,6 +13,7 @@ import { formatINR } from "@/lib/utils";
 
 export default async function LeadsPage() {
   const session = await requireUser();
+  const isSupervisor = session.role === "SUPERVISOR";
   const [leads, userOptions, stats] = await Promise.all([
     getAllLeadsForList(session),
     getUsersForAssignment(),
@@ -24,10 +25,17 @@ export default async function LeadsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Lead CRM"
-        description={`${leads.length} leads across the pipeline`}
+        description={
+          isSupervisor
+            ? `${leads.length} today/tomorrow leads & active enquiries`
+            : `${leads.length} leads across the pipeline`
+        }
         actions={
           <>
-            <LeadImportDialog userOptions={userOptions} />
+            {/* Bulk import is an administrative action, not day-to-day
+                today/tomorrow operational editing — hidden for Francis
+                (SUPERVISOR), per his 2026-09-21 final policy. */}
+            {!isSupervisor && <LeadImportDialog userOptions={userOptions} />}
             <Button asChild>
               <Link href="/leads/new">
                 <Plus className="size-4" /> New Lead

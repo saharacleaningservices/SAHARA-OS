@@ -21,6 +21,12 @@ export type ImportSummary = { results: ImportRowResult[]; created: number; merge
 
 export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
   const session = await getSession();
+  // Bulk import is an administrative action, not day-to-day today/tomorrow
+  // operational editing — blocked for Francis (SUPERVISOR) at the action
+  // level too, not just by hiding the Import button (2026-09-21 policy).
+  if (session?.role === "SUPERVISOR") {
+    return { results: [{ row: 0, status: "invalid", message: "Not authorized" }], created: 0 };
+  }
   const results: ImportRowResult[] = [];
   let created = 0;
 
