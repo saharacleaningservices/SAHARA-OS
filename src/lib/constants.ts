@@ -286,37 +286,38 @@ export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
 
 // Customized Service (manual CRM lead entry, internal key CUSTOMIZER_PACKAGE
 // unchanged — see SERVICE_CATEGORY_LABELS) — per-item quantity-based unit
-// rates. Every service here reuses a rate that's already configured
-// elsewhere for the same real service, never an invented number:
+// rates. These are DEFAULT pre-fills only, never a locked/read-only rate —
+// staff can always overwrite the Unit Price for any item (owner mandate
+// 2026-09-21: "Remove fixed Unit Price. Make Unit Price editable."). Every
+// default here reuses a rate that's already configured elsewhere for the
+// same real service, never an invented number:
 //  - Carpet/Window/Bathroom match Home Deep Cleaning's existing per-unit
 //    price (HOME_SERVICE_UNIT_PRICE).
 //  - Refrigerator matches the existing ADDON_SERVICE_PRICES entry.
-// Sofa Cleaning is NOT here — the owner explicitly defined a separate
-// selectable-rate structure for it instead (CUSTOMIZED_SOFA_RATE_OPTIONS
-// below), distinct from both this fixed-auto-rate list and the customer-
-// facing ₹499/seat "Sofa Shampooing" upsell (ADDON_SERVICE_PRICES), which
-// stays untouched on the public Booking Form.
-// Mattress Cleaning is priced by size instead (MATTRESS_UNIT_PRICE — Single
-// vs Double genuinely have different real rates, so a size picker stays).
+//  - Sofa Cleaning defaults to the middle of the owner-defined per-seat
+//    tiers (200/250/300 — see CUSTOMIZED_SOFA_RATE_OPTIONS), distinct from
+//    the customer-facing ₹499/seat "Sofa Shampooing" Booking Form upsell
+//    (ADDON_SERVICE_PRICES), which stays untouched.
+// Mattress Cleaning is pre-filled by size instead (MATTRESS_UNIT_PRICE —
+// Single vs Double genuinely have different real rates) but is likewise
+// editable, not locked.
 // Every other Customized Service item in SERVICE_CATALOG (Balcony/Kitchen/
-// Chimney/Fan/Floor Cleaning) has no configured rate yet — staff enter the
-// real quoted unit price manually; never auto-filled or invented (see
-// ServiceQuantityFields).
+// Chimney/Fan/Floor Cleaning) has no default yet — the field simply starts
+// blank and staff enter the real quoted unit price (see ServiceQuantityFields).
 export const CUSTOMIZER_FIXED_UNIT_PRICE: Record<string, number> = {
   "Carpet Cleaning": 299,
   "Window Cleaning": 250,
   "Bathroom Cleaning": 500,
   "Refrigerator Cleaning": 499,
+  "Sofa Cleaning": 250,
 };
 
 // Display-only unit noun for every Customized Service item in
-// SERVICE_CATALOG.CUSTOMIZER_PACKAGE (Mattress Cleaning excepted — it shows
-// its own size-derived unit directly, see ServiceQuantityFields), so the
-// Unit Price field always shows the correct unit even for the items that
-// have no configured rate yet and stay manual entry (e.g. "₹ / balcony"
-// instead of a bare "₹"). This is a display label only — it does not imply
-// a rate is configured; see CUSTOMIZER_FIXED_UNIT_PRICE for which items
-// actually auto-fill.
+// SERVICE_CATALOG.CUSTOMIZER_PACKAGE, so the Unit Price field always shows
+// the correct unit even for the items that have no default rate yet and
+// stay manual entry (e.g. "₹ / balcony" instead of a bare "₹"). This is a
+// display label only — it does not imply a rate is configured; see
+// CUSTOMIZER_FIXED_UNIT_PRICE for which items get a default pre-fill.
 export const CUSTOMIZER_UNIT_LABEL: Record<string, string> = {
   "Sofa Cleaning": "seat",
   "Carpet Cleaning": "carpet",
@@ -328,13 +329,15 @@ export const CUSTOMIZER_UNIT_LABEL: Record<string, string> = {
   "Refrigerator Cleaning": "fridge",
   "Fan Cleaning": "fan",
   "Floor Cleaning": "sq ft",
+  "Mattress Cleaning": "mattress",
 };
 
-// Manual CRM Sofa Cleaning rate tiers for Customized Service — owner-defined
-// (2026-09-21), deliberately separate from the customer-facing ₹499/seat
-// "Sofa Shampooing" Booking Form upsell (ADDON_SERVICE_PRICES), which must
-// stay exactly as configured. Staff pick one of these three per-seat rates,
-// or type a custom one — see ServiceQuantityFields.
+// Manual CRM Sofa Cleaning quick-fill rate chips for Customized Service —
+// owner-defined (2026-09-21), deliberately separate from the customer-facing
+// ₹499/seat "Sofa Shampooing" Booking Form upsell (ADDON_SERVICE_PRICES),
+// which must stay exactly as configured. Shown as one-click shortcuts next
+// to the editable Unit Price input — not a locked selector — see
+// ServiceQuantityFields.
 export const CUSTOMIZED_SOFA_RATE_OPTIONS = [200, 250, 300] as const;
 
 export const PAINT_TYPE_RATE_PER_SQFT: Record<string, number> = {
