@@ -709,6 +709,8 @@ export async function createQuotation(
   services: { name: string; description: string; amount: number }[],
   gstPercent: number,
 ) {
+  const scopeError = await assertLeadEditable(leadId);
+  if (scopeError) return scopeError;
   const lead = await db.lead.findUnique({ where: { id: leadId } });
   if (!lead) return { error: "Lead not found" };
 
@@ -752,6 +754,8 @@ export async function createQuotation(
 export async function updateLeadLocation(leadId: string, mapLink: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
+  const scopeError = await assertLeadEditable(leadId);
+  if (scopeError) return scopeError;
   await db.lead.update({ where: { id: leadId }, data: { mapLink } });
   await addTimelineEntry({ leadId, type: "SYSTEM", body: "Location shared", authorId: session.sub });
   revalidatePath(`/leads/${leadId}`);
