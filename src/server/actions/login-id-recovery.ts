@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { forgotLoginIdSchema } from "@/lib/validation";
-import { notify } from "@/server/notify";
 
 /**
  * "Forgot Login ID?" — for a user who remembers their name but not which
@@ -12,15 +11,16 @@ import { notify } from "@/server/notify";
  * mobile number or email, there's no separate username field). No session
  * required.
  *
- * Never reveals whether a name matches an account, and never sends the
- * actual mobile/email back to the browser — same human-verified pattern as
- * password reset: only the Super Admin is told the real value, over the
- * existing notify() channel (in-app + push + WhatsApp, whichever is
- * connected), and relays it to the requester directly. This also means no
- * new SMS/WhatsApp provider is needed — it reuses the same queued delivery
- * already in place for password-reset OTPs.
+ * Same owner-approval pattern as password reset: never reveals whether a
+ * name matches an account (identical response either way), and the actual
+ * login ID is never sent back to the browser until a one-time code — sent
+ * only to the fixed owner-controlled recovery contact (COMPANY.phones[0] /
+ * COMPANY.email), never to the account being recovered — is confirmed. See
+ * requestLoginIdOtp/confirmLoginIdOtp in src/server/security.ts.
  */
-export async function requestLoginIdRecovery(values: unknown) {
+type RequestResult = { error: string } | { error?: undefined; otpRequired: true; otpId: string; ttlMinutes: number };
+
+export async function requestLoginIdRecovery(values: unknown): Promise<RequestResult> {
   const hdrs = await headers();
   const ip = clientIp(hdrs);
 
@@ -46,18 +46,38 @@ export async function requestLoginIdRecovery(values: unknown) {
   const activeUsers = await db.user.findMany({ where: { isActive: true }, select: { id: true, name: true, phone: true, email: true } });
   const user = activeUsers.find((u) => u.name.trim().toLowerCase() === name.toLowerCase());
 
-  // Always the same response whether or not a match was found, so this form
-  // never leaks which names have accounts. Only a real match notifies Altaf.
+  // Always the same response shape whether or not a match was found, so
+  // this form never leaks which names have accounts. Only a real match
+  // actually raises an OTP.
   if (user) {
-    await notify({
-      kind: "LOGIN_ID_RECOVERY",
-      title: "Login ID recovery requested",
-      body: `"${name}" asked to recover their login ID. On file: mobile ${user.phone ?? "—"}, email ${user.email}. Call them back to confirm it's really them before sharing it.`,
-      href: "/admin/security-approvals",
-      whatsappToAdmin: true,
-      meta: { targetUserId: user.id },
+    const { requestLoginIdOtp } = await import("@/server/security");
+    const loginId = user.phone ? `Mobile: ${user.phone}` : `Email: ${user.email}`;
+    const { otpId, ttlMinutes } = await requestLoginIdOtp({
+      targetUserId: user.id,
+      targetUserName: user.name,
+      targetUserEmail: user.email,
+      loginId,
+      requestedByName: name,
     });
+    return { otpRequired: true as const, otpId, ttlMinutes };
   }
 
-  return { requested: true as const };
+  return { otpRequired: true as const, otpId: "", ttlMinutes: 20 };
+}
+
+type ConfirmResult = { error: string } | { error?: undefined; success: true; loginId: string };
+
+/** Step 2 — reveal the login ID once the Super Admin's OTP is confirmed. */
+export async function confirmLoginIdRecovery(otpId: string, code: string): Promise<ConfirmResult> {
+  if (!otpId || !code?.trim()) return { error: "Enter the code from the Super Admin" };
+
+  const hdrs = await headers();
+  const ip = clientIp(hdrs);
+  const limit = rateLimit(`loginid:confirm:${ip}`, 10, 600);
+  if (!limit.allowed) {
+    return { error: "Too many attempts. Try again in a few minutes." };
+  }
+
+  const { confirmLoginIdOtp } = await import("@/server/security");
+  return confirmLoginIdOtp(otpId, code);
 }
