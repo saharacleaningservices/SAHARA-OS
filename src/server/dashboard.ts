@@ -1,14 +1,28 @@
 import { db } from "@/lib/db";
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, addDays } from "date-fns";
 import { getTodayAttendanceSummary } from "@/server/attendance";
+import { supervisorLeadWhere } from "@/server/leads";
 
-export async function getDashboardData() {
+/**
+ * `role` scopes the two "actionable booking visibility" lists — upcomingJobs
+ * and recentLeads — for Francis (SUPERVISOR) only, per his 2026-09-21 final
+ * policy ("Calendar/actionable booking visibility should be limited to
+ * today + tomorrow" on the Dashboard specifically). This dashboard query
+ * previously had zero role awareness at all: upcomingJobs pulled a full
+ * week ahead and recentLeads pulled the 6 most recently created leads
+ * globally, both rendered on the shared dashboard page regardless of role
+ * — a real gap found in the second Francis policy audit. Every other role
+ * (ADMIN/ACCOUNTS/OPERATIONS/STAFF) is completely unaffected — omit `role`
+ * or pass a non-SUPERVISOR role for the original unscoped behavior.
+ */
+export async function getDashboardData(role?: string) {
   const now = new Date();
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
   const tomorrowStart = startOfDay(addDays(now, 1));
   const tomorrowEnd = endOfDay(addDays(now, 1));
   const weekAheadEnd = endOfDay(addDays(now, 7));
+  const isSupervisor = role === "SUPERVISOR";
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
@@ -83,7 +97,11 @@ export async function getDashboardData() {
     db.followUp.count({ where: { isDone: false, dueDate: { lte: todayEnd }, lead: { deletedAt: null } } }),
     db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: subMonths(now, 1) } } }),
     db.review.count({ where: { createdAt: { gte: subMonths(now, 1) } } }),
-    db.lead.findMany({ where: { deletedAt: null }, orderBy: { createdAt: "desc" }, take: 6 }),
+    db.lead.findMany({
+      where: isSupervisor ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    }),
     db.job.findMany({
       where: { deletedAt: null, scheduledDate: { gte: todayStart, lte: todayEnd } },
       orderBy: { scheduledTime: "asc" },
@@ -91,7 +109,11 @@ export async function getDashboardData() {
       take: 8,
     }),
     db.job.findMany({
-      where: { deletedAt: null, status: { not: "COMPLETED" }, scheduledDate: { gte: todayStart, lte: weekAheadEnd } },
+      where: {
+        deletedAt: null,
+        status: { not: "COMPLETED" },
+        scheduledDate: { gte: todayStart, lte: isSupervisor ? tomorrowEnd : weekAheadEnd },
+      },
       orderBy: [{ scheduledDate: "asc" }, { scheduledTime: "asc" }],
       include: { supervisor: true },
       take: 10,
@@ -190,16 +212,22 @@ export async function getDashboardData() {
 
   const conversionRate = totalLeadsCount > 0 ? Math.round((convertedLeadsCount / totalLeadsCount) * 100) : 0;
 
-  // Recent contacts for the dashboard "Quick Call" tool.
+  // Recent contacts for the dashboard "Quick Call" tool. Not currently
+  // rendered by the shared (non-owner) dashboard page, but scoped for
+  // SUPERVISOR anyway (defense in depth) since it's cheap and this is
+  // exactly the "historical lead/job data outside the permitted scope"
+  // category his policy forbids.
   const [recentLeadContacts, recentJobContacts] = await Promise.all([
     db.lead.findMany({
-      where: { deletedAt: null },
+      where: isSupervisor ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
       orderBy: { updatedAt: "desc" },
       take: 15,
       select: { name: true, mobile: true },
     }),
     db.job.findMany({
-      where: { deletedAt: null },
+      where: isSupervisor
+        ? { deletedAt: null, scheduledDate: { gte: todayStart, lte: tomorrowEnd } }
+        : { deletedAt: null },
       orderBy: { updatedAt: "desc" },
       take: 15,
       select: { customerName: true, customerMobile: true },

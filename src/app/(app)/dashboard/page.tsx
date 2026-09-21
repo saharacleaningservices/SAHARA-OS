@@ -72,7 +72,7 @@ export default async function DashboardPage() {
     sourceStats,
     calendar,
   ] = await Promise.all([
-    getDashboardData(),
+    getDashboardData(session.role),
     getLeadSourceStats(3),
     getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, calendarDetailLevel),
   ]);

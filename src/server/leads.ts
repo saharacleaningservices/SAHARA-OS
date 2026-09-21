@@ -14,7 +14,7 @@ import type { SessionPayload } from "@/lib/session";
  * OPERATIONS (Shoyab) and ADMIN/ACCOUNTS are unrestricted here — this
  * scope applies to SUPERVISOR only.
  */
-function supervisorLeadWhere() {
+export function supervisorLeadWhere() {
   const now = new Date();
   const todayStart = startOfDay(now);
   const tomorrowEnd = endOfDay(addDays(now, 1));
@@ -22,7 +22,7 @@ function supervisorLeadWhere() {
     OR: [
       { followUpDate: { gte: todayStart, lte: tomorrowEnd } },
       { serviceDate: { gte: todayStart, lte: tomorrowEnd } },
-      { createdAt: { gte: todayStart }, stage: { notIn: ["COMPLETED", "CANCELLED"] as const } },
+      { createdAt: { gte: todayStart }, stage: { notIn: ["COMPLETED", "CANCELLED"] as never } },
     ],
   };
 }

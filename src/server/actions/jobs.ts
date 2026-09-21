@@ -433,6 +433,8 @@ export async function assignVehicle(jobId: string, vehicleId: string) {
 export async function addMaterialIssue(jobId: string, item: string, quantity: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   if (!item.trim()) return { error: "Enter a material name" };
   await db.materialIssue.create({
     data: { jobId, item: item.trim(), quantity: quantity.trim() || null, issuedByName: session.name },

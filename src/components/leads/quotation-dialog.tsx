@@ -92,14 +92,14 @@ export function QuotationDialog({
   function submit() {
     startTransition(async () => {
       const res = await createQuotation(leadId, items, gstPercent);
-      if (res.error) {
+      if ("error" in res && res.error) {
         toast.error(res.error);
         return;
       }
       toast.success("Quotation generated");
       setOpen(false);
       router.refresh();
-      if (res.quotationId) {
+      if ("quotationId" in res && res.quotationId) {
         window.open(`/api/quotations/${res.quotationId}/pdf`, "_blank");
       }
     });

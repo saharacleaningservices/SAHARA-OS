@@ -7,9 +7,20 @@ import { getSession } from "@/lib/session";
 import { staffSchema } from "@/lib/validation";
 import { generateEmployeeCode } from "@/lib/id-generators";
 import { softDeleteMany } from "@/server/audit";
-import { canDeleteRecords } from "@/lib/permissions";
+import { canDeleteRecords, canViewSalary } from "@/lib/permissions";
 
+/**
+ * createStaff/updateStaff carry wage/bank/GPay fields and had no role check
+ * at all before the 2026-09-21 Francis policy audit — only the UI trigger
+ * (the Add/Edit Staff dialog) was hidden for roles without canViewSalary,
+ * which doesn't stop a direct action call. Gating by canViewSalary matches
+ * what the Staff list page (staff/page.tsx) and the now-fixed Staff detail
+ * page already enforce in the UI — not a new restriction on any role that
+ * could actually reach this before.
+ */
 export async function createStaff(values: unknown) {
+  const session = await getSession();
+  if (!canViewSalary(session?.role ?? "")) return { error: "Not authorized", success: false as const };
   const parsed = staffSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -41,6 +52,8 @@ export async function createStaff(values: unknown) {
 }
 
 export async function updateStaff(id: string, values: unknown) {
+  const session = await getSession();
+  if (!canViewSalary(session?.role ?? "")) return { error: "Not authorized", success: false as const };
   const parsed = staffSchema.partial().safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };

@@ -67,31 +67,44 @@ export default async function StaffDetailPage({
                 </a>
               </Button>
             )}
-            <NewStaffDialog
-              staffId={staff.id}
-              defaultValues={{
-                name: staff.name,
-                mobile: staff.mobile,
-                alternateMobile: staff.alternateMobile ?? "",
-                designation: staff.designation,
-                salaryType: staff.salaryType as "DAILY" | "MONTHLY",
-                dailyWage: staff.dailyWage ?? undefined,
-                monthlySalary: staff.monthlySalary ?? undefined,
-                joiningDate: (staff.joiningDate ?? staff.joinDate)
-                  ? new Date(staff.joiningDate ?? staff.joinDate).toISOString().slice(0, 10)
-                  : "",
-                reference: staff.reference ?? "",
-                bankAccount: staff.bankAccount ?? "",
-                bankIfsc: staff.bankIfsc ?? "",
-                gpayNumber: staff.gpayNumber ?? "",
-                notes: staff.notes ?? "",
-              }}
-              trigger={
-                <Button variant="outline">
-                  <Pencil className="size-3.5" /> Edit
-                </Button>
-              }
-            />
+            {/* Real gap found in the 2026-09-21 Francis policy audit: this
+                Edit dialog was rendered unconditionally, carrying
+                dailyWage/monthlySalary/bankAccount/bankIfsc/gpayNumber as
+                defaultValues regardless of role — present in the page's
+                props/hydration data even though the passive display fields
+                elsewhere on this page were already correctly gated by
+                showSalary. The Staff LIST page (staff/page.tsx) already
+                gates its own Add/Edit capability behind showSalary — this
+                brings the detail page in line with that same, already-
+                settled pattern (not a new restriction: OPERATIONS never
+                had this on the list page either). */}
+            {showSalary && (
+              <NewStaffDialog
+                staffId={staff.id}
+                defaultValues={{
+                  name: staff.name,
+                  mobile: staff.mobile,
+                  alternateMobile: staff.alternateMobile ?? "",
+                  designation: staff.designation,
+                  salaryType: staff.salaryType as "DAILY" | "MONTHLY",
+                  dailyWage: staff.dailyWage ?? undefined,
+                  monthlySalary: staff.monthlySalary ?? undefined,
+                  joiningDate: (staff.joiningDate ?? staff.joinDate)
+                    ? new Date(staff.joiningDate ?? staff.joinDate).toISOString().slice(0, 10)
+                    : "",
+                  reference: staff.reference ?? "",
+                  bankAccount: staff.bankAccount ?? "",
+                  bankIfsc: staff.bankIfsc ?? "",
+                  gpayNumber: staff.gpayNumber ?? "",
+                  notes: staff.notes ?? "",
+                }}
+                trigger={
+                  <Button variant="outline">
+                    <Pencil className="size-3.5" /> Edit
+                  </Button>
+                }
+              />
+            )}
           </>
         }
       />
