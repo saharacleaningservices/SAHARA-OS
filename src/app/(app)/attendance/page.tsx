@@ -24,9 +24,13 @@ export default async function AttendancePage({
   const year = Number(yStr) || now.getFullYear();
   const month = Number(mStr) || now.getMonth() + 1;
 
-  const canManage = canManageAttendance(session.role); // ADMIN | OPERATIONS
+  const canManage = canManageAttendance(session.role); // ADMIN | ACCOUNTS — payroll-editing capability
   const canReopen = session.role === "ADMIN";
-  const isFieldCoordinator = session.role === "SUPERVISOR";
+  // Francis (OPERATIONS) and Field Coordinators (SUPERVISOR) get the team
+  // attendance view for operational visibility, not the correction/edit
+  // capability — canManage (passed to AttendanceList below) stays
+  // ADMIN/ACCOUNTS-only regardless of this flag.
+  const canViewTeamAttendance = session.role === "SUPERVISOR" || session.role === "OPERATIONS";
 
   const staffList = await db.staff.findMany({
     where: { isActive: true, deletedAt: null },
@@ -62,7 +66,7 @@ export default async function AttendancePage({
 
       {myLedger && <MyAttendanceCard ledger={myLedger} />}
 
-      {(canManage || isFieldCoordinator) && (
+      {(canManage || canViewTeamAttendance) && (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-foreground">Today — All Staff</h2>
           <AttendanceList rows={all} canManage={canManage} />

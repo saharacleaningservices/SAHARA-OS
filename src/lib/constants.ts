@@ -489,26 +489,29 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-    // Operations role — currently Francis Monteiro (Field Supervisor).
+    // Operations role — currently Francis (Operations Manager).
     // Operational access without financial control: Dashboard, Leads/CRM,
     // Jobs (incl. Team Dispatch — shares the "jobs" section), Staff, Vehicles,
-    // AMC Contracts, and the filtered Housekeeping/Pest Control/Interior
-    // Painting job views. Attendance is intentionally NOT included for this
-    // role. No payments/expenses/revenue/profit/customers/reports/security/
-    // settings/admin modules.
+    // Attendance, AMC Contracts, and the filtered Housekeeping/Pest Control/
+    // Interior Painting job views. No payments/expenses/revenue/profit/
+    // customers/reports/security/settings/admin modules — per the owner's
+    // 2026-09-21 decision, Francis DOES get Attendance (see
+    // SAHARA_OS_MASTER_REQUIREMENTS.md #2), scoped to view + operate the
+    // attendance clock, not the payroll-editing capabilities Accounts has.
     OPERATIONS: [
           "dashboard",
           "leads",
           "jobs",
           "staff",
           "vehicles",
+          "attendance",
           "amc",
           "service-housekeeping",
           "service-pest-control",
           "service-interior-painting",
           "profile",
         ],
-    // Accounts role — currently Shoyab "Shoaib" Shaikh (Operations Manager).
+    // Accounts role — currently Shoaib (Accounts & Operations Editor).
     // Same working CRM as Super Admin except owner-only security/account
     // settings: Dashboard, Leads/CRM, Jobs (incl. Team Dispatch), Staff,
     // Vehicles, Attendance, AMC Contracts, Payments, Expenses, the filtered

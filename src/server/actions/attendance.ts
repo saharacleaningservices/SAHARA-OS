@@ -27,20 +27,22 @@ async function ownStaffId(userId: string) {
 }
 
 /**
- * Altaf (ADMIN) / Shoaib (ACCOUNTS) operate attendance from the office;
- * Francis (OPERATIONS) is included for parity with canEditCalendar below
- * but never reaches this page — ROLE_NAV_ACCESS keeps "attendance" out of
- * his nav entirely; SUPERVISOR (Field Coordinator) needs it for their own
- * self check-in, which is the one case that page is in their nav for.
+ * Altaf (ADMIN) / Shoaib (ACCOUNTS) / Francis (OPERATIONS) all operate the
+ * office attendance clock — ROLE_NAV_ACCESS gives all three "attendance"
+ * (per the owner's 2026-09-21 decision for Francis). SUPERVISOR (Field
+ * Coordinator) needs it for their own self check-in.
  */
 function canOperateAttendance(role?: string) {
   return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
 }
 /**
- * Editing the calendar / backfill / bulk / month-close — Admin + Accounts
- * (the office managers who actually see this UI, per canManageAttendance in
- * src/lib/permissions.ts). OPERATIONS is kept for parity but unreachable
- * today since Francis's nav never includes "attendance".
+ * Editing the calendar / backfill / bulk / month-close stays an Admin +
+ * Accounts capability (per canManageAttendance in src/lib/permissions.ts,
+ * which gates every edit control on the Attendance page) — Francis gets
+ * view + the office clock (above), not calendar correction. OPERATIONS is
+ * kept in this allow-list for backward compatibility, but has no UI path to
+ * reach these actions: the page never renders their buttons/dropdowns for
+ * him, only for canManage roles.
  */
 function canEditCalendar(role?: string) {
   return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";

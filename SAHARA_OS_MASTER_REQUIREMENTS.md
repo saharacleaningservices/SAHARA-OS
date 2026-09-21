@@ -34,9 +34,11 @@ Nav access + working edit capability for: Dashboard, Leads/CRM, Jobs, Team Dispa
 Operational edit capabilities required: add/edit/update/remove staff; attendance calendar/date-wise marking; in/out attendance entries; lead add/edit/update/follow-up/status; customer data entry/update; job editing and operational updates; team dispatch and assignment.
 
 ### 2. Francis (OPERATIONS)
-Needs: Dashboard, Leads/CRM, Jobs, Team Dispatch, Staff, Vehicles, AMC Contracts, Housekeeping, Pest Control, Interior Painting.
+Needs: Dashboard, Leads/CRM, Jobs, Team Dispatch, Staff, Vehicles, **Attendance**, AMC Contracts, Housekeeping, Pest Control, Interior Painting.
 
-Must **not** receive: Attendance, Payments, Expenses, Revenue, Profit, Security/settings controls, Owner-only controls, or other restricted financial/security functions.
+> **Amended 2026-09-21 (owner decision)**: Attendance moved from "must not receive" to "needs" — Francis gets the operational attendance clock and team view, scoped to the approved Operations permissions (view + office check-in/out), not the payroll-editing capability Accounts has (calendar correction/backfill/bulk/month-close stays Admin+Accounts-only).
+
+Must **not** receive: Payments, Expenses, Revenue, Profit, Security/settings controls, Owner-only controls, or other restricted financial/security functions.
 
 ### 3. Leads / CRM
 Complete the enquiry-to-conversion workflow: Inquiry → Call → Quotation → Follow-up → Conversion → Job → Payment → Review.
