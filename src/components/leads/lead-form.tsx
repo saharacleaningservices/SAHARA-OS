@@ -243,6 +243,7 @@ export function LeadForm({
               key={`${watch("serviceCategory") || ""}-${watch("serviceVariant") || ""}`}
               category={watch("serviceCategory") || ""}
               variant={watch("serviceVariant") || ""}
+              initialSelectionNotes={leadId ? defaultValues?.notes : undefined}
               onEstimate={(amt) => {
                 if (amt > 0 && !estimateTouched) setValue("quoteAmount", amt, { shouldDirty: true });
               }}
