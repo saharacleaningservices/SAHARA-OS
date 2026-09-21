@@ -7,7 +7,7 @@ export default async function ReportsPage() {
   // OPERATIONS (Francis) is intentionally excluded — ROLE_NAV_ACCESS never
   // includes "reports" for him, and this must match it exactly (defense in
   // depth: no gap for a future nav-matrix change to fall into).
-  await requireRole(["ADMIN", "ACCOUNTS"]);
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"]);
   const data = await getReportsData();
 
   return (

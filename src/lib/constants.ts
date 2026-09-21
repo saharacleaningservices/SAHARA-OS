@@ -548,15 +548,20 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-    // Operations role — currently Francis (Operations Manager).
-    // Operational access without financial control: Dashboard, Leads/CRM,
-    // Jobs (incl. Team Dispatch — shares the "jobs" section), Staff, Vehicles,
-    // Attendance, AMC Contracts, and the filtered Housekeeping/Pest Control/
-    // Interior Painting job views. No payments/expenses/revenue/profit/
-    // customers/reports/security/settings/admin modules — per the owner's
-    // 2026-09-21 decision, Francis DOES get Attendance (see
-    // SAHARA_OS_MASTER_REQUIREMENTS.md #2), scoped to view + operate the
-    // attendance clock, not the payroll-editing capabilities Accounts has.
+    // Operations Manager role — final role policy, owner decision 2026-09-21:
+    // full day-to-day operational access — Dashboard, Leads/CRM, Jobs (incl.
+    // Team Dispatch — shares the "jobs" section), Staff, Vehicles,
+    // Attendance (view + operate the office clock only — no calendar edit/
+    // backfill/bulk/month-close, see canManageAttendance), AMC, Payments
+    // (record/edit — no owner financial settings), Expenses (add/edit
+    // operational categories — no owner financial controls), the filtered
+    // Housekeeping/Pest Control/Interior Painting job views, Customers,
+    // Reports, AI Assistant, Gallery (via "admin"), Trash (restore only —
+    // see canRestoreRecords, never the bulk/destructive canManageDataSafety
+    // actions). Deliberately excluded: Revenue Dashboard, Profit, staff
+    // salary/wage figures (canViewSalary stays Admin+Accounts), User
+    // Management, Audit Log, Device/Security Approvals, WhatsApp Log,
+    // system settings.
     OPERATIONS: [
           "dashboard",
           "leads",
@@ -565,9 +570,16 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "vehicles",
           "attendance",
           "amc",
+          "payments",
+          "expenses",
           "service-housekeeping",
           "service-pest-control",
           "service-interior-painting",
+          "customers",
+          "reports",
+          "assistant",
+          "admin",
+          "trash",
           "profile",
         ],
     // Accounts role — currently Shoaib (Accounts & Operations Editor).
@@ -603,11 +615,32 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "trash",
           "profile",
         ],
-  // Field Coordinator / Team Leader: today's & tomorrow's jobs only (see
-  // jobScopeFor "TODAY_TOMORROW"). Call/WhatsApp the customer, open Maps,
-  // start/complete the job and upload before/after photos & videos — all from
-  // the job detail page. No revenue/profit/expenses/reports/staff/settings.
-  SUPERVISOR: ["dashboard", "jobs", "attendance", "profile"],
+  // Field Coordinator role — final role policy, owner decision 2026-09-21:
+  // the SAME full operational access as Operations Manager above (identical
+  // list, see that block's comment for the exact rationale/exclusions).
+  // Job list itself stays scoped to today/tomorrow (jobScopeFor
+  // "TODAY_TOMORROW") — that's a separate, unchanged data-level scope, not
+  // a module-access restriction.
+  SUPERVISOR: [
+    "dashboard",
+    "leads",
+    "jobs",
+    "staff",
+    "vehicles",
+    "attendance",
+    "amc",
+    "payments",
+    "expenses",
+    "service-housekeeping",
+    "service-pest-control",
+    "service-interior-painting",
+    "customers",
+    "reports",
+    "assistant",
+    "admin",
+    "trash",
+    "profile",
+  ],
   // Field Staff (Worker): mobile-only — mark attendance, see assigned jobs,
   // upload before/after photos & videos, open Maps.
   STAFF: ["dashboard", "jobs", "profile", "attendance"],

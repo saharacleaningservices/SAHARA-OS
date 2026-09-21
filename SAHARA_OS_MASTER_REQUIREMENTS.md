@@ -5,7 +5,12 @@ _Authoritative baseline as given by the business owner on 2026-09-21. This super
 ## Ground-truth context (verified against the codebase, not part of the spec itself)
 
 - **Codebase**: `origin/coolify-deploy` (local branch `coolify-deploy-current`) is where this work lives — it is a separate line of history from `origin/main`, which is what's currently live on Render and lacks all of it. See STATUS.md §0 before assuming anything here is deployed.
-- **Role mapping** (from `src/lib/constants.ts`): **Shoaib = ACCOUNTS role**, **Francis = OPERATIONS role**, Altaf = ADMIN (owner/Super Admin). The spec below refers to people by name; the codebase gates by role.
+- **Role mapping — CORRECTED 2026-09-21, supersedes every earlier version of this line.** Requirements #1/#2 below were originally written against an incorrect name↔role assumption ("Shoaib = ACCOUNTS", "Francis = OPERATIONS"). The owner has since confirmed the actual mapping directly, matching the original seed migration (`scripts/db-setup.mjs`, `V11_MOBILE_AUTH`) and the real staff-assignment list observed in production (`Altaf Shaikh (ADMIN)`, `Francis Monteiro (SUPERVISOR)`, `Shoyab Kazi (OPERATIONS)`):
+  - **Altaf = ADMIN** (owner / Super Admin) — unchanged.
+  - **Shoyab = OPERATIONS role** ("Shoaib" elsewhere in this document/history is the same person, alternate spelling — not a separate ACCOUNTS-role user).
+  - **Francis = SUPERVISOR role** ("Field Coordinator"), not OPERATIONS.
+  - The **ACCOUNTS** role exists in the codebase's permission architecture but is not currently assigned to any real production user as far as this session has observed — requirement #1 below (originally "Shoaib/ACCOUNTS") describes the ACCOUNTS role's capabilities, which remain implemented and available for whoever is assigned that role in the future; it does not describe Shoyab, who holds OPERATIONS.
+  - Everywhere below (and in `SAHARA_OS_STATUS.md`) that says "Francis (OPERATIONS)" from before 2026-09-21's correction actually governed the OPERATIONS role — which the owner has since confirmed is Shoyab's role, not Francis's. The *role's* permissions were implemented correctly throughout; only the name attached to that role in comments/docs was wrong. Francis (SUPERVISOR) did already have Attendance from the SUPERVISOR role's original access list, independent of that mix-up.
 
 ## Rules
 
@@ -33,12 +38,16 @@ Nav access + working edit capability for: Dashboard, Leads/CRM, Jobs, Team Dispa
 
 Operational edit capabilities required: add/edit/update/remove staff; attendance calendar/date-wise marking; in/out attendance entries; lead add/edit/update/follow-up/status; customer data entry/update; job editing and operational updates; team dispatch and assignment.
 
-### 2. Francis (OPERATIONS)
-Needs: Dashboard, Leads/CRM, Jobs, Team Dispatch, Staff, Vehicles, **Attendance**, AMC Contracts, Housekeeping, Pest Control, Interior Painting.
+### 2. OPERATIONS role (Shoyab) and SUPERVISOR role (Francis)
 
-> **Amended 2026-09-21 (owner decision)**: Attendance moved from "must not receive" to "needs" — Francis gets the operational attendance clock and team view, scoped to the approved Operations permissions (view + office check-in/out), not the payroll-editing capability Accounts has (calendar correction/backfill/bulk/month-close stays Admin+Accounts-only).
-
-Must **not** receive: Payments, Expenses, Revenue, Profit, Security/settings controls, Owner-only controls, or other restricted financial/security functions.
+> **SUPERSEDED 2026-09-21 (owner's final role policy)** — replaces every earlier version of this requirement, including the "Attendance moved from must-not-receive to needs" amendment (which is now subsumed by the broader grant below) and the original "must not receive Payments/Expenses" restriction (explicitly reversed by the owner after being flagged as a conflict — see `SAHARA_OS_STATUS.md` for the flag-and-confirm exchange).
+>
+> **Both OPERATIONS (Shoyab) and SUPERVISOR (Francis) get identical, full day-to-day operational access**:
+> Dashboard, Leads/CRM, Jobs (incl. Team Dispatch), Staff, Attendance (view + operate the office clock only — calendar correction/backfill/bulk/month-close stays Admin+Accounts-only), Vehicles, AMC Contracts, Housekeeping, Pest Control, Interior Painting, Customers, Reports, AI Assistant, Gallery, Trash (**restore only** — never permanent/bulk delete), Payments (**record/edit payment records and update collection status** — not owner financial settings), Expenses (**add/edit operational expense categories**: fuel, auto/cab fare, equipment, staff advance, vendor payment, miscellaneous — not owner financial controls).
+>
+> Must **still not** receive: Profit Dashboard, User Management, Audit Log, Security/Device Approvals, Revenue Dashboard, staff salary/wage figures, WhatsApp Log, system Settings, or any other owner-only financial/security function. Permanent/bulk delete (`canManageDataSafety`) stays Admin-only; restoring an individual record from Trash is a separate, less sensitive capability (`canRestoreRecords`) both roles now have.
+>
+> The SUPERVISOR role's job-list scope itself (today/tomorrow only, see `jobScopeFor`) is unchanged by this — this requirement widened *which modules/features* both roles can use, not *how many jobs* they see.
 
 ### 3. Leads / CRM
 Complete the enquiry-to-conversion workflow: Inquiry → Call → Quotation → Follow-up → Conversion → Job → Payment → Review.
