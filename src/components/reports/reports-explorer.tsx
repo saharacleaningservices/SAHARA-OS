@@ -1,15 +1,20 @@
 "use client";
 
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PaymentStatusBadge } from "@/components/shared/status-badge";
-import { Download, FileText } from "lucide-react";
-import { formatINR, formatDate } from "@/lib/utils";
+import { LogReviewDialog } from "@/components/reports/log-review-dialog";
+import { Download, FileText, Star, Loader2 } from "lucide-react";
+import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { downloadCsv } from "@/lib/csv-export";
+import { markReviewReplied } from "@/server/actions/reviews";
 
 type Job = {
   id: string;
@@ -25,19 +30,33 @@ type Job = {
 type Photo = { id: string; type: string; url: string; caption: string | null; uploadedAt: Date; job: { jobNumber: string; customerName: string } };
 type Payment = { id: string; invoiceNumber: string; clientName: string; amount: number; paidAmount: number; status: string; dueDate: Date; paidDate: Date | null; createdAt: Date };
 type Certificate = { id: string; certificateNumber: string; customerName: string; issuedDate: Date; serviceSummary: string };
+type Review = {
+  id: string;
+  customerMobile: string;
+  customerName: string | null;
+  rating: number;
+  comment: string | null;
+  createdAt: Date;
+  replied: boolean;
+  repliedAt: Date | null;
+  replyNote: string | null;
+};
 
 export function ReportsExplorer({
   jobs,
   photos,
   payments,
   certificates,
+  reviews,
 }: {
   jobs: Job[];
   photos: Photo[];
   payments: Payment[];
   certificates: Certificate[];
+  reviews: Review[];
 }) {
   const paidPayments = payments.filter((p) => p.status === "PAID");
+  const pendingReplyCount = reviews.filter((r) => !r.replied).length;
 
   return (
     <Tabs defaultValue="jobs">
@@ -47,6 +66,9 @@ export function ReportsExplorer({
         <TabsTrigger value="invoices">Invoice History</TabsTrigger>
         <TabsTrigger value="paymenthistory">Payment History</TabsTrigger>
         <TabsTrigger value="certificates">Certificates</TabsTrigger>
+        <TabsTrigger value="reviews">
+          Reviews{pendingReplyCount > 0 && <Badge variant="destructive" className="ml-1.5 text-[10px]">{pendingReplyCount}</Badge>}
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="jobs" className="space-y-3">
@@ -224,6 +246,76 @@ export function ReportsExplorer({
           </div>
         )}
       </TabsContent>
+
+      <TabsContent value="reviews" className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            {reviews.length === 0
+              ? "No reviews logged yet."
+              : pendingReplyCount > 0
+                ? `${pendingReplyCount} review${pendingReplyCount > 1 ? "s" : ""} waiting on a reply.`
+                : "All logged reviews have been replied to."}
+          </p>
+          <LogReviewDialog />
+        </div>
+        {reviews.length === 0 ? (
+          <EmptyState title="No reviews yet" description="Log a review as soon as one lands on Google." />
+        ) : (
+          <div className="space-y-2">
+            {reviews.map((r) => (
+              <div key={r.id} className="rounded-lg border border-border p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="flex text-amber-400">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`size-3.5 ${i < r.rating ? "fill-amber-400" : "text-muted-foreground"}`} />
+                        ))}
+                      </span>
+                      <p className="text-sm font-medium text-foreground">{r.customerName || r.customerMobile}</p>
+                    </div>
+                    {r.comment && <p className="mt-1 text-sm text-muted-foreground">{r.comment}</p>}
+                    <p className="mt-1 text-xs text-muted-foreground">{formatDate(r.createdAt)}</p>
+                    {r.replied && (
+                      <p className="mt-1 text-xs text-success">
+                        Replied {r.repliedAt ? formatDateTime(r.repliedAt) : ""}
+                        {r.replyNote ? ` — ${r.replyNote}` : ""}
+                      </p>
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    {r.replied ? (
+                      <Badge variant="success">Replied</Badge>
+                    ) : (
+                      <MarkRepliedButton reviewId={r.id} />
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </TabsContent>
     </Tabs>
+  );
+}
+
+function MarkRepliedButton({ reviewId }: { reviewId: string }) {
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  function markReplied() {
+    startTransition(async () => {
+      await markReviewReplied(reviewId);
+      toast.success("Marked as replied");
+      router.refresh();
+    });
+  }
+
+  return (
+    <Button size="sm" variant="outline" onClick={markReplied} disabled={pending}>
+      {pending ? <Loader2 className="size-3.5 animate-spin" /> : null}
+      Mark Replied
+    </Button>
   );
 }

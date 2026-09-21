@@ -141,6 +141,15 @@ export const expenseSchema = z.object({
 
 export type ExpenseFormValues = z.infer<typeof expenseSchema>;
 
+export const reviewSchema = z.object({
+  customerMobile: z.string().min(10, "Enter a valid mobile number"),
+  customerName: z.string().optional().or(z.literal("")),
+  rating: z.coerce.number().min(1).max(5),
+  comment: z.string().optional().or(z.literal("")),
+});
+
+export type ReviewFormValues = z.infer<typeof reviewSchema>;
+
 export const paymentSchema = z.object({
   clientName: z.string().min(2),
   clientMobile: z.string().optional().or(z.literal("")),
