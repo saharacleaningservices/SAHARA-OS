@@ -73,8 +73,8 @@ export async function getMonthlyBusinessReport(forDate: Date = subMonths(new Dat
   };
 }
 
-export async function sendMonthlyBusinessSummary() {
-  const report = await getMonthlyBusinessReport();
+export async function sendMonthlyBusinessSummary(forDate?: Date) {
+  const report = await getMonthlyBusinessReport(forDate);
   const adminNumbers = (process.env.ADMIN_WHATSAPP_NUMBERS || COMPANY.phones[0])
     .split(",")
     .map((n) => n.trim())
