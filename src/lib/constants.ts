@@ -307,14 +307,24 @@ export const CUSTOMIZER_FIXED_UNIT_PRICE: Record<string, number> = {
   "Refrigerator Cleaning": 499,
 };
 
-// Display-only unit noun for each Customized Service rate above (and for
-// Sofa Cleaning's own rate picker below), so the Unit Price field can show
-// e.g. "₹299 / carpet" instead of a bare number.
+// Display-only unit noun for every Customized Service item in
+// SERVICE_CATALOG.CUSTOMIZER_PACKAGE (Mattress Cleaning excepted — it shows
+// its own size-derived unit directly, see ServiceQuantityFields), so the
+// Unit Price field always shows the correct unit even for the items that
+// have no configured rate yet and stay manual entry (e.g. "₹ / balcony"
+// instead of a bare "₹"). This is a display label only — it does not imply
+// a rate is configured; see CUSTOMIZER_FIXED_UNIT_PRICE for which items
+// actually auto-fill.
 export const CUSTOMIZER_UNIT_LABEL: Record<string, string> = {
   "Sofa Cleaning": "seat",
   "Carpet Cleaning": "carpet",
   "Window Cleaning": "window",
+  "Balcony Cleaning": "balcony",
+  "Kitchen Cleaning": "kitchen",
+  "Chimney Cleaning": "chimney",
   "Refrigerator Cleaning": "fridge",
+  "Fan Cleaning": "fan",
+  "Floor Cleaning": "sq ft",
 };
 
 // Manual CRM Sofa Cleaning rate tiers for Customized Service — owner-defined

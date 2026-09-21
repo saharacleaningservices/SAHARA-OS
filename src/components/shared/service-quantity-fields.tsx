@@ -578,7 +578,7 @@ export function ServiceQuantityFields({
             </div>
           ) : (
             <div className={fieldWrap}>
-              <Label>Unit Price (₹)</Label>
+              <Label>Unit Price (₹{CUSTOMIZER_UNIT_LABEL[variant] ? ` / ${CUSTOMIZER_UNIT_LABEL[variant]}` : ""})</Label>
               <Input
                 inputMode="numeric"
                 value={czUnitPrice}
