@@ -25,11 +25,22 @@
 //   WhatsApp Log — kept for Accounts per the owner's explicit decision,
 //   Owner Command Center home). NO security, NO device/security approvals,
 //   NO audit log, NO profit dashboard, NO system settings — owner-only.
-// SUPERVISOR — Field Coordinator: same full operational access as
-//   OPERATIONS above, per the owner's 2026-09-21 decision that both roles
-//   get identical day-to-day capability (previously scoped to only
-//   today/tomorrow's own jobs — that job-list scope itself is unchanged,
-//   see jobScopeFor below, only the module/feature access was widened).
+// SUPERVISOR — Field Coordinator (Francis): SUPERSEDED 2026-09-21 — an
+//   explicit "IMPORTANT POLICY OVERRIDE" from the owner replaced the
+//   earlier-that-day "identical to OPERATIONS" policy with a deliberately
+//   narrower one. Now: Dashboard, Leads/CRM, Jobs (incl. Team Dispatch),
+//   Staff, Vehicles, Attendance ONLY — no AMC, Payments, Expenses,
+//   Housekeeping/Pest Control/Interior Painting, Customers database,
+//   Reports, AI Assistant, Gallery, Trash. Within Jobs/Leads: view+edit
+//   scoped to today/tomorrow (canAccessJob / lead scoping in server/
+//   leads.ts), past records view-only, nothing beyond tomorrow. Staff/
+//   Attendance: operational info only — salary/wage/payroll/bank details/
+//   private documents all hidden (same canViewSalary gate as everyone
+//   else who isn't ADMIN/ACCOUNTS, now also fixed to hide bank/GPay
+//   details it had accidentally been leaking to every role). May still
+//   send a customer Booking Form/Review/Payment link and Call/WhatsApp
+//   from a Job/Lead's own detail page — sending a payment link is not the
+//   same as Payments-module access, and isn't gated by it.
 // STAFF — Field Staff: own jobs/attendance only, mobile-first.
 
 export type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
@@ -49,7 +60,13 @@ export function canManageSecurity(role: string): boolean {
   return role === "ADMIN";
 }
 
-/** Create / edit / assign jobs and leads (vs. only progressing them). Delete stays separate — see canDeleteRecords. */
+/**
+ * Create / edit / assign jobs and leads (vs. only progressing them). Delete
+ * stays separate — see canDeleteRecords. SUPERVISOR keeps this (Francis
+ * still edits jobs/leads day to day) but is further time-scoped to
+ * today/tomorrow at the record level — see canAccessJob (server/jobs.ts)
+ * and the equivalent Lead scoping (server/leads.ts), not here.
+ */
 export function canManageJobs(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
 }
@@ -69,21 +86,33 @@ export function canManageDataSafety(role: string): boolean {
   return role === "ADMIN";
 }
 
-/** Restore an individual soft-deleted record from Trash — deliberately broader than canManageDataSafety's bulk/destructive actions, since undoing one accidental delete isn't the same risk as bulk-wiping demo data. */
+/**
+ * Restore an individual soft-deleted record from Trash — deliberately
+ * broader than canManageDataSafety's bulk/destructive actions, since
+ * undoing one accidental delete isn't the same risk as bulk-wiping demo
+ * data. SUPERVISOR removed 2026-09-21 — Trash isn't part of Francis's
+ * narrowed module list.
+ */
 export function canRestoreRecords(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
 }
 
-/** Cross-module global search + full customer database browsing/export. */
+/**
+ * Cross-module global search + full customer database browsing/export.
+ * SUPERVISOR removed 2026-09-21 — this bundles unrestricted customer
+ * database access, which Francis's narrowed policy explicitly forbids
+ * ("must NOT have unrestricted access to the Customers database").
+ */
 export function canSearchGlobally(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
 }
 
+/** SUPERVISOR removed 2026-09-21 — same reasoning as canSearchGlobally. */
 export function canExportCustomers(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
 }
 
-/** Vehicle & material allocation. */
+/** Vehicle & material allocation. SUPERVISOR keeps this — Vehicles stays in Francis's narrowed 2026-09-21 module list, needed for Team Dispatch. */
 export function canAllocateResources(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
 }
@@ -113,9 +142,13 @@ export function canViewRevenue(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
 }
 
-/** AMC contracts — full edit access per the 2026-09-21 role policy. */
+/**
+ * AMC contracts — full edit access per the 2026-09-21 role policy.
+ * SUPERVISOR removed the same day (later same-day policy override) — AMC
+ * isn't part of Francis's narrowed module list.
+ */
 export function canManageAmc(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
 }
 
 /** Upsell combo rules — Admin configures them; everyone can see them offered in booking. */

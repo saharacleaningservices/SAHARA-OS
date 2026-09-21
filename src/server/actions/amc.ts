@@ -8,8 +8,11 @@ import { generateAmcNumber } from "@/lib/id-generators";
 import { AMC_FREQUENCY_DAYS } from "@/lib/constants";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { amcRenewalMessage } from "@/lib/whatsapp-templates";
+import { canManageAmc } from "@/lib/permissions";
 
 export async function createAmc(values: unknown) {
+  const session = await getSession();
+  if (!canManageAmc(session?.role ?? "")) return { error: "Not authorized", success: false as const };
   const parsed = amcSchema.safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   const d = parsed.data;
@@ -49,7 +52,7 @@ export async function createAmc(values: unknown) {
 
 export async function recordAmcVisit(amcId: string, visitDate: string, notes: string) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canManageAmc(session.role)) return { error: "Not authorized" };
 
   const amc = await db.amcContract.findUnique({ where: { id: amcId } });
   if (!amc) return { error: "AMC contract not found" };
@@ -71,7 +74,7 @@ export async function recordAmcVisit(amcId: string, visitDate: string, notes: st
 
 export async function cancelAmc(amcId: string) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canManageAmc(session.role)) return { error: "Not authorized" };
   await db.amcContract.update({ where: { id: amcId }, data: { status: "CANCELLED" } });
   revalidatePath("/amc");
   return { success: true as const };
@@ -79,7 +82,7 @@ export async function cancelAmc(amcId: string) {
 
 export async function deleteAmc(id: string) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canManageAmc(session.role)) return { error: "Not authorized" };
   await db.amcContract.update({ where: { id }, data: { deletedAt: new Date(), deletedByName: session.name } });
   await db.auditLog.create({
     data: {
@@ -97,7 +100,7 @@ export async function deleteAmc(id: string) {
 
 export async function sendAmcRenewalNow(amcId: string) {
   const session = await getSession();
-  if (!session) return { success: false as const, error: "Not authorized" };
+  if (!session || !canManageAmc(session.role)) return { success: false as const, error: "Not authorized" };
   const amc = await db.amcContract.findUnique({ where: { id: amcId } });
   if (!amc) return { success: false as const, error: "AMC contract not found" };
 

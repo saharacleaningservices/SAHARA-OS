@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Pencil, FileText, ClipboardList, Wallet } from "lucide-react";
-import { getLeadDetail } from "@/server/leads";
+import { getLeadDetail, canAccessLead } from "@/server/leads";
+import { requireUser } from "@/lib/current-user";
 import { getStaffForAssignment } from "@/server/staff";
 import { getCompanySettings } from "@/server/settings";
 import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
@@ -23,8 +24,14 @@ import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const session = await requireUser();
   const [lead, staff, settings] = await Promise.all([getLeadDetail(id), getStaffForAssignment(), getCompanySettings()]);
   if (!lead) notFound();
+  // Francis (SUPERVISOR) final policy, 2026-09-21: direct-URL access to a
+  // lead outside his today/tomorrow/active-enquiry window must be blocked
+  // here too, not just hidden from the list — this page previously had no
+  // session check at all.
+  if (!canAccessLead(session, lead)) redirect("/leads");
 
   const estimated = lead.quoteAmount ?? 0;
   const advance = lead.advanceAmount ?? 0;

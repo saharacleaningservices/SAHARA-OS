@@ -14,7 +14,7 @@ import { formatINR } from "@/lib/utils";
 export default async function LeadsPage() {
   const session = await requireUser();
   const [leads, userOptions, stats] = await Promise.all([
-    getAllLeadsForList(),
+    getAllLeadsForList(session),
     getUsersForAssignment(),
     getLeadsPageStats(),
   ]);

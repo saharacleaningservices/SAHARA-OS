@@ -28,6 +28,26 @@ import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
+import { canAccessLead } from "@/server/leads";
+
+/**
+ * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit allowed lead/booking
+ * operational fields only for TODAY and TOMORROW" — enforced here, at the
+ * server-action level, not just by hiding the edit UI, so a direct action
+ * call can't bypass it. No-op (returns null) for every other role.
+ */
+async function assertLeadEditable(leadId: string): Promise<{ error: string } | null> {
+  const session = await getSession();
+  if (!session || session.role !== "SUPERVISOR") return null;
+  const lead = await db.lead.findUnique({
+    where: { id: leadId },
+    select: { followUpDate: true, serviceDate: true, createdAt: true, stage: true },
+  });
+  if (!lead || !canAccessLead(session, lead)) {
+    return { error: "You can only edit today's and tomorrow's leads/bookings" };
+  }
+  return null;
+}
 
 const MIN_JOB_VALUE = COMPANY.minimumJobValue;
 
@@ -180,6 +200,8 @@ export async function quickCaptureLead(values: unknown) {
 }
 
 export async function updateLead(id: string, values: unknown) {
+  const scopeError = await assertLeadEditable(id);
+  if (scopeError) return scopeError;
   const parsed = leadSchema.partial().safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
@@ -270,7 +292,13 @@ export async function updateLeadStage(leadId: string, stage: LeadStage) {
   }
 
   const session = await getSession();
-  const current = await db.lead.findUnique({ where: { id: leadId }, select: { stage: true } });
+  const current = await db.lead.findUnique({
+    where: { id: leadId },
+    select: { stage: true, followUpDate: true, serviceDate: true, createdAt: true },
+  });
+  if (session?.role === "SUPERVISOR" && (!current || !canAccessLead(session, current))) {
+    return { error: "You can only update today's and tomorrow's leads/bookings", success: false as const };
+  }
   await db.lead.update({ where: { id: leadId }, data: { stage } });
   await addTimelineEntry({
     leadId,
@@ -297,6 +325,9 @@ export async function confirmBooking(leadId: string, values: unknown) {
 
   const lead = await db.lead.findUnique({ where: { id: leadId } });
   if (!lead) return { error: "Lead not found", success: false as const };
+  if (session?.role === "SUPERVISOR" && !canAccessLead(session, lead)) {
+    return { error: "You can only confirm bookings for today's and tomorrow's leads", success: false as const };
+  }
 
   const existingJob = await db.job.findFirst({ where: { leadId } });
   if (existingJob) {
@@ -451,6 +482,8 @@ export async function confirmBooking(leadId: string, values: unknown) {
 
 export async function scheduleVisit(leadId: string, date: string) {
   if (!date) return { error: "Pick a date", success: false as const };
+  const scopeError = await assertLeadEditable(leadId);
+  if (scopeError) return { ...scopeError, success: false as const };
   const session = await getSession();
   const when = new Date(date);
   await db.lead.update({

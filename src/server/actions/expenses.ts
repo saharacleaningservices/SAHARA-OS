@@ -6,13 +6,27 @@ import { getSession } from "@/lib/session";
 import { expenseSchema } from "@/lib/validation";
 import { softDeleteMany } from "@/server/audit";
 
+/**
+ * None of these actions had ANY role check at all before the 2026-09-21
+ * Francis policy audit — only page-level nav access (middleware +
+ * ROLE_NAV_ACCESS) gated the Expenses module, which stops a restricted
+ * role from ever seeing the page but doesn't stop a direct Server Action
+ * call. Matches who actually has "expenses" in ROLE_NAV_ACCESS
+ * (src/lib/constants.ts): ADMIN, ACCOUNTS, OPERATIONS. SUPERVISOR
+ * (Francis) and STAFF are excluded — same as everyone without page access.
+ */
+function canAccessExpenses(role: string | undefined): boolean {
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+}
+
 export async function createExpense(values: unknown) {
+  const session = await getSession();
+  if (!canAccessExpenses(session?.role)) return { error: "Not authorized", success: false as const };
   const parsed = expenseSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const data = parsed.data;
-  const session = await getSession();
 
   await db.expense.create({
     data: {
@@ -34,6 +48,8 @@ export async function createExpense(values: unknown) {
 }
 
 export async function updateExpense(id: string, values: unknown) {
+  const session = await getSession();
+  if (!canAccessExpenses(session?.role)) return { error: "Not authorized", success: false as const };
   const parsed = expenseSchema.partial().safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -57,7 +73,7 @@ export async function updateExpense(id: string, values: unknown) {
 
 export async function deleteExpense(id: string) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canAccessExpenses(session.role)) return { error: "Not authorized" };
   await softDeleteMany("Expense", [id], session);
   revalidatePath("/expenses");
   revalidatePath("/profit");
@@ -67,7 +83,7 @@ export async function deleteExpense(id: string) {
 
 export async function bulkDeleteExpenses(ids: string[]) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canAccessExpenses(session.role)) return { error: "Not authorized" };
   const count = await softDeleteMany("Expense", ids, session);
   revalidatePath("/expenses");
   revalidatePath("/profit");

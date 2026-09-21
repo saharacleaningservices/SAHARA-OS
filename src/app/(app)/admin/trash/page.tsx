@@ -9,7 +9,8 @@ export default async function TrashPage() {
   // Trash: Super Admin + Accounts (full operational parity) — Audit Log
   // stays owner-only, but Trash/restore is part of Accounts' day-to-day
   // record management (see src/lib/permissions.ts canDeleteRecords).
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"]);
+  // SUPERVISOR (Francis) removed 2026-09-21 — Trash isn't part of his narrowed module list.
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
 
   const [lists, demo] = await Promise.all([
     Promise.all(ENTITY_TYPES.map((t) => listTrash(t))),

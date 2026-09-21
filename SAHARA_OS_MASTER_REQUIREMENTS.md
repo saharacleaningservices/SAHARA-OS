@@ -40,16 +40,31 @@ Operational edit capabilities required: add/edit/update/remove staff; attendance
 
 ### 2. OPERATIONS role (Shoyab) and SUPERVISOR role (Francis)
 
-> **SUPERSEDED 2026-09-21 (owner's final role policy)** — replaces every earlier version of this requirement, including the "Attendance moved from must-not-receive to needs" amendment (which is now subsumed by the broader grant below) and the original "must not receive Payments/Expenses" restriction (explicitly reversed by the owner after being flagged as a conflict — see `SAHARA_OS_STATUS.md` for the flag-and-confirm exchange).
+> **IMPORTANT POLICY OVERRIDE — CURRENT FINAL FRANCIS POLICY (2026-09-21)**, issued explicitly as superseding every earlier version of this requirement, including the "both roles get identical access" policy that stood earlier the same day. Where any earlier text in this document, in code comments, or in `SAHARA_OS_STATUS.md` describes Francis/SUPERVISOR as having the same access as Shoyab/OPERATIONS, **that is no longer current** — this block is the only authority for Francis's access going forward.
 >
-> **Both OPERATIONS (Shoyab) and SUPERVISOR (Francis) get identical, full day-to-day operational access**:
-> Dashboard, Leads/CRM, Jobs (incl. Team Dispatch), Staff, Attendance (view + operate the office clock only — calendar correction/backfill/bulk/month-close stays Admin+Accounts-only), Vehicles, AMC Contracts, Housekeeping, Pest Control, Interior Painting, Customers, Reports, AI Assistant, Gallery, Trash (**restore only** — never permanent/bulk delete), Payments (**record/edit payment records and update collection status** — not owner financial settings), Expenses (**add/edit operational expense categories**: fuel, auto/cab fare, equipment, staff advance, vendor payment, miscellaneous — not owner financial controls).
+> **OPERATIONS (Shoyab) — unchanged, still full day-to-day operational access**: Dashboard, Leads/CRM, Jobs (incl. Team Dispatch), Staff, Attendance (view + operate the office clock only), Vehicles, AMC Contracts, Housekeeping, Pest Control, Interior Painting, Customers, Reports, AI Assistant, Gallery, Trash (restore only), Payments (record/edit, not owner financial settings), Expenses (add/edit operational categories, not owner financial controls). Still excluded: Profit Dashboard, User Management, Audit Log, Security/Device Approvals, Revenue Dashboard, staff salary/wage figures, WhatsApp Log, system Settings.
 >
-> Must **still not** receive: Profit Dashboard, User Management, Audit Log, Security/Device Approvals, Revenue Dashboard, staff salary/wage figures, WhatsApp Log, system Settings, or any other owner-only financial/security function. Permanent/bulk delete (`canManageDataSafety`) stays Admin-only; restoring an individual record from Trash is a separate, less sensitive capability (`canRestoreRecords`) both roles now have.
+> **SUPERVISOR (Francis) — deliberately narrower, effective 2026-09-21**:
 >
-> The SUPERVISOR role's job-list scope itself (today/tomorrow only, see `jobScopeFor`) is unchanged by this — this requirement widened *which modules/features* both roles can use, not *how many jobs* they see.
+> **Navigation — exactly these 7 sections, nothing else**: Dashboard, Leads/CRM, Jobs (incl. Team Dispatch — shares the Jobs section), Staff, Vehicles, Attendance, plus his own Profile.
 >
-> **Re-confirmed 2026-09-21 (Phase 1-10 production polish prompt)**: that prompt's own Phase 2 text proposed reversing two parts of this policy — removing Expenses from both roles, and narrowing SUPERVISOR's module list below OPERATIONS's (dropping AMC, Customers, Reports, AI Assistant, Gallery, Trash Restore). Both were flagged as conflicts against this settled policy before touching any code; the owner confirmed **keep this policy exactly as written above, no change** on both points. No code changes were made for Phase 2 as a result — it was already compliant.
+> **Removed/hidden/blocked, at both the nav and the server-action/API level (not just hidden in the UI)**: Payments, Expenses, Revenue Dashboard, Profit Dashboard, Reports, the standalone Customers database, User Management, Security/Settings, AMC, the Housekeeping/Pest Control/Interior Painting service views, Gallery, Trash.
+>
+> **Within Jobs/Leads — time-scoped, not just module-gated**:
+> - TODAY and TOMORROW: view + edit allowed operational fields (`canAccessJob` in `server/jobs.ts`; the equivalent Lead scope in `server/leads.ts`).
+> - PAST: view-only where legitimately needed (a lead that's an active/recent enquiry, or one whose follow-up/service date falls today/tomorrow, stays visible and editable; anything else outside that window is not reachable, including by direct URL or a direct action call).
+> - Beyond tomorrow: no editable access.
+> - Team Dispatch operational action and the Job Card: **today only** (stricter than the general today/tomorrow window).
+>
+> **Customer Actions** — may send a Booking Form link, Review link, Payment link, and Call/WhatsApp a customer, all from a Job or Lead's own detail page. Sending a Payment Link does **not** grant Payments-module or payment-record access — that stays blocked per above.
+>
+> **Staff** — operational field-coordination info only. Hidden completely: salary, wage, payroll, bank/payment account details, private staff documents.
+>
+> **Attendance** — calendar-wise Present/Absent/Leave/Weekly Off only. No salary or payroll information.
+>
+> **Customers** — no unrestricted database access (no global customer search/browse). Only the customer information tied to his own today/tomorrow leads/jobs is visible, through those pages directly.
+>
+> Implementation note: this override was verified against every place SUPERVISOR previously inherited OPERATIONS-level access — `ROLE_NAV_ACCESS`, `permissions.ts`'s fine-grained functions, every page's `requireRole` array, and every server action that mutates Jobs/Leads/Payments/Expenses/AMC/Customers data (several of which had **no role check at all** before this pass — a pre-existing gap for every role, not introduced by this change, now closed for Payments/Expenses/AMC generally and for SUPERVISOR specifically everywhere else). See `SAHARA_OS_STATUS.md` for the full list of files touched and the reasoning for each.
 
 ### 3. Leads / CRM
 Complete the enquiry-to-conversion workflow: Inquiry → Call → Quotation → Follow-up → Conversion → Job → Payment → Review.

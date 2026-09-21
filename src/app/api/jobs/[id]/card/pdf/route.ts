@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
+import { startOfDay, endOfDay } from "date-fns";
 import { getSession } from "@/lib/session";
 import { getJobDetail, canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { getCompanySettings } from "@/server/settings";
@@ -21,6 +22,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const ownStaffId = await getOwnStaffId(session.sub);
   if (!canAccessJob(session, job, ownStaffId)) {
     return new NextResponse("Forbidden", { status: 403 });
+  }
+  // Francis (SUPERVISOR) final policy, 2026-09-21: the Job Card is a
+  // TODAY-ONLY operational action for him — canAccessJob alone allows
+  // today+tomorrow, so add the stricter same-day check here specifically.
+  if (session.role === "SUPERVISOR" && (job.scheduledDate < startOfDay(new Date()) || job.scheduledDate > endOfDay(new Date()))) {
+    return new NextResponse("Job Card is only available for today's jobs", { status: 403 });
   }
 
   const settings = await getCompanySettings();

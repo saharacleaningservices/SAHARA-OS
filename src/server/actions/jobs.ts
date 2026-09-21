@@ -14,6 +14,28 @@ import { sendWhatsApp } from "@/lib/whatsapp";
 import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
 import { syncInvoiceToMyBillBook } from "@/lib/mybillbook";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { canAccessJob, getOwnStaffId } from "@/server/jobs";
+
+/**
+ * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit ... only for TODAY
+ * and TOMORROW" — enforced here at the server-action level (this action had
+ * no session check at all before), not just by hiding/redirecting the edit
+ * page, so a direct action call can't bypass it. No-op for every other role.
+ */
+async function assertJobEditable(jobId: string): Promise<{ error: string; success: false } | null> {
+  const session = await getSession();
+  if (!session || session.role !== "SUPERVISOR") return null;
+  const job = await db.job.findUnique({
+    where: { id: jobId },
+    select: { scheduledDate: true, supervisorId: true, assignments: { select: { staffId: true } } },
+  });
+  if (!job) return { error: "Job not found", success: false };
+  const ownStaffId = await getOwnStaffId(session.sub);
+  if (!canAccessJob(session, job, ownStaffId)) {
+    return { error: "You can only edit today's and tomorrow's jobs", success: false };
+  }
+  return null;
+}
 
 export async function createJob(values: unknown) {
   const parsed = jobSchema.safeParse(values);
@@ -87,6 +109,8 @@ export async function createJob(values: unknown) {
 }
 
 export async function updateJob(id: string, values: unknown) {
+  const scopeError = await assertJobEditable(id);
+  if (scopeError) return scopeError;
   const parsed = jobSchema.partial().safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -217,6 +241,8 @@ async function sendJobCompletionReview(job: {
 
 export async function updateJobStatus(jobId: string, status: JobStatus) {
   if (!ALL_STATUSES.includes(status)) return { error: "Invalid status", success: false as const };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   const session = await getSession();
   const now = new Date();
 
@@ -371,6 +397,8 @@ export async function completeJobWithCertificate(jobId: string) {
 export async function updateJobLocation(jobId: string, mapLink: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   await db.job.update({ where: { id: jobId }, data: { mapLink: mapLink.trim() || null } });
   revalidatePath(`/jobs/${jobId}`);
   return { success: true as const };
@@ -394,6 +422,8 @@ export async function updateJobNotes(jobId: string, notes: string) {
 export async function assignVehicle(jobId: string, vehicleId: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   await db.job.update({ where: { id: jobId }, data: { vehicleId: vehicleId || null } });
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/jobs");
@@ -416,6 +446,17 @@ export async function addMaterialIssue(jobId: string, item: string, quantity: st
 export async function sendTeamDispatch(jobId: string) {
   const session = await getSession();
   if (!session) return { success: false as const, error: "Not authorized", sent: 0, queued: 0 };
+  // Francis (SUPERVISOR) final policy, 2026-09-21: Team Dispatch is a
+  // TODAY-ONLY operational action for him.
+  if (session.role === "SUPERVISOR") {
+    const job = await db.job.findUnique({ where: { id: jobId }, select: { scheduledDate: true } });
+    const now = new Date();
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    if (!job || job.scheduledDate < startToday || job.scheduledDate > endToday) {
+      return { success: false as const, error: "Team Dispatch is only available for today's jobs", sent: 0, queued: 0 };
+    }
+  }
   const result = await dispatchTeamForJob(jobId);
   await db.activityLog
     .create({

@@ -9,13 +9,27 @@ import { addPaymentTimeline } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { notify } from "@/server/notify";
 
+/**
+ * None of these actions had ANY role check at all before the 2026-09-21
+ * Francis policy audit — only page-level nav access (middleware +
+ * ROLE_NAV_ACCESS) gated the Payments module, which stops a restricted
+ * role from ever seeing the page but doesn't stop a direct Server Action
+ * call. Matches who actually has "payments" in ROLE_NAV_ACCESS
+ * (src/lib/constants.ts): ADMIN, ACCOUNTS, OPERATIONS. SUPERVISOR
+ * (Francis) and STAFF are excluded — same as everyone without page access.
+ */
+function canAccessPayments(role: string | undefined): boolean {
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+}
+
 export async function createPayment(values: unknown) {
+  const session = await getSession();
+  if (!canAccessPayments(session?.role)) return { error: "Not authorized", success: false as const };
   const parsed = paymentSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const data = parsed.data;
-  const session = await getSession();
   const invoiceNumber = await generateInvoiceNumber();
 
   await db.payment.create({
@@ -39,6 +53,8 @@ export async function createPayment(values: unknown) {
 }
 
 export async function updatePayment(id: string, values: unknown) {
+  const session = await getSession();
+  if (!canAccessPayments(session?.role)) return { error: "Not authorized", success: false as const };
   const parsed = paymentSchema.partial().safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -68,7 +84,7 @@ export async function updatePayment(id: string, values: unknown) {
 
 export async function deletePayment(id: string) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canAccessPayments(session.role)) return { error: "Not authorized" };
   await softDeleteMany("Payment", [id], session);
   revalidatePath("/payments");
   revalidatePath("/dashboard");
@@ -78,7 +94,7 @@ export async function deletePayment(id: string) {
 
 export async function bulkDeletePayments(ids: string[]) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canAccessPayments(session.role)) return { error: "Not authorized" };
   const count = await softDeleteMany("Payment", ids, session);
   revalidatePath("/payments");
   revalidatePath("/dashboard");
@@ -87,6 +103,8 @@ export async function bulkDeletePayments(ids: string[]) {
 }
 
 export async function markPaymentPaid(paymentId: string) {
+  const session = await getSession();
+  if (!canAccessPayments(session?.role)) return { error: "Not authorized", success: false as const };
   const payment = await db.payment.findUnique({ where: { id: paymentId } });
   if (!payment) return { error: "Payment not found", success: false as const };
 
@@ -126,6 +144,7 @@ export async function recordCollection(
   input: { amount?: number; mode?: "UPI" | "QR" | "BANK" | "CASH"; full?: boolean },
 ) {
   const session = await getSession();
+  if (!canAccessPayments(session?.role)) return { error: "Not authorized", success: false as const };
   const payment = await db.payment.findUnique({ where: { id: paymentId } });
   if (!payment) return { error: "Payment not found", success: false as const };
 
@@ -172,6 +191,8 @@ export async function recordCollection(
 }
 
 export async function recordReminder(paymentId: string, channel: "WHATSAPP" | "EMAIL" | "CALL") {
+  const session = await getSession();
+  if (!canAccessPayments(session?.role)) return { error: "Not authorized", success: false as const };
   await db.payment.update({
     where: { id: paymentId },
     data: { lastReminderAt: new Date(), lastReminderChannel: channel },

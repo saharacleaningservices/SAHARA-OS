@@ -618,32 +618,23 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "trash",
           "profile",
         ],
-  // Field Coordinator role — final role policy, owner decision 2026-09-21:
-  // the SAME full operational access as Operations Manager above (identical
-  // list, see that block's comment for the exact rationale/exclusions).
-  // Job list itself stays scoped to today/tomorrow (jobScopeFor
-  // "TODAY_TOMORROW") — that's a separate, unchanged data-level scope, not
-  // a module-access restriction.
-  SUPERVISOR: [
-    "dashboard",
-    "leads",
-    "jobs",
-    "staff",
-    "vehicles",
-    "attendance",
-    "amc",
-    "payments",
-    "expenses",
-    "service-housekeeping",
-    "service-pest-control",
-    "service-interior-painting",
-    "customers",
-    "reports",
-    "assistant",
-    "admin",
-    "trash",
-    "profile",
-  ],
+  // Field Coordinator role — SUPERSEDED 2026-09-21 (owner's final Francis
+  // policy, explicitly overriding the "identical to Operations" version
+  // that stood earlier the same day — see the "IMPORTANT POLICY OVERRIDE"
+  // note under requirement #2 in SAHARA_OS_MASTER_REQUIREMENTS.md for the
+  // full history). Francis's access is now deliberately narrower than
+  // Shoyab's (OPERATIONS, unchanged) — exactly these 7 sections plus his
+  // own profile: Dashboard, Leads/CRM, Jobs (incl. Team Dispatch — shares
+  // the "jobs" section), Staff, Vehicles, Attendance. No AMC, Payments,
+  // Expenses, Housekeeping/Pest Control/Interior Painting service views,
+  // Customers (the standalone database), Reports, AI Assistant, Gallery,
+  // or Trash. Within Jobs/Leads, edit access is further time-scoped to
+  // today/tomorrow (see canAccessJob in server/jobs.ts and the equivalent
+  // Lead scoping in server/leads.ts) and Staff/Attendance further hide
+  // salary/wage/bank/private-document data (see canViewSalary and the
+  // staff detail page) — this list only controls which top-level sections
+  // exist at all, not what's visible/editable within them.
+  SUPERVISOR: ["dashboard", "leads", "jobs", "staff", "vehicles", "attendance", "profile"],
   // Field Staff (Worker): mobile-only — mark attendance, see assigned jobs,
   // upload before/after photos & videos, open Maps.
   STAFF: ["dashboard", "jobs", "profile", "attendance"],

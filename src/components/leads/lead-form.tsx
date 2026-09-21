@@ -134,12 +134,12 @@ export function LeadForm({
     const finalValues = { ...values, notes: mergedNotes };
     const res = leadId ? await updateLead(leadId, finalValues) : await createLead(finalValues);
     setSubmitting(false);
-    if (res.error) {
+    if ("error" in res && res.error) {
       toast.error(res.error);
       return;
     }
     toast.success(leadId ? "Lead updated" : "Lead created");
-    router.push(leadId ? `/leads/${leadId}` : `/leads/${res.leadId}`);
+    router.push(leadId ? `/leads/${leadId}` : `/leads/${"leadId" in res ? res.leadId : leadId}`);
     router.refresh();
   }
 

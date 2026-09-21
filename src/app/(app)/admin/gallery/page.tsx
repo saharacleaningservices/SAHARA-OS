@@ -8,7 +8,8 @@ import { ExternalLink } from "lucide-react";
 export const metadata = { title: "Gallery — Sahara OS" };
 
 export default async function GalleryAdminPage() {
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"]);
+  // SUPERVISOR (Francis) removed 2026-09-21 — Gallery isn't part of his narrowed module list.
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
   const items = await listGalleryItems();
 
   return (
