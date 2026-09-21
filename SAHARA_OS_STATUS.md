@@ -286,6 +286,28 @@ A large 10-phase prompt covering UI polish, a Calendar RBAC amendment, a full se
 
 **Verification, consistent with every entry since §3.9**: `tsc --noEmit` and `npm run build` clean after every commit in this batch. All pushed; Coolify's webhook auto-deploys on push to `coolify-deploy`. **CODE VERIFIED, not LIVE VERIFIED** — this pass's browser session had no active authenticated login, and re-authenticating with a real password to get one is categorically off-limits. The Calendar RBAC's three detail levels in particular need an actual Altaf/Shoyab/Francis session to click through before being called live-verified.
 
+## 3.17 IMPORTANT POLICY OVERRIDE — Francis narrowed to field-coordinator-only access (2026-09-21, commit `9f1de1d`)
+
+The owner issued an explicit override superseding the "Francis gets identical access to Shoyab" policy from earlier the same day (§3.12/§3.14/§3.16). This time the instruction was explicit that a flagged conflict was not the right response — implement directly, which this pass did, after first auditing every place SUPERVISOR inherited OPERATIONS-level access (see the full list in `SAHARA_OS_MASTER_REQUIREMENTS.md` #2, which now carries the complete current policy).
+
+**Nav**: `ROLE_NAV_ACCESS.SUPERVISOR` cut from 18 sections to 7 (dashboard, leads, jobs, staff, vehicles, attendance, profile).
+
+**Backend/API, not just nav-hiding** — per the explicit instruction that hiding sidebar items alone isn't sufficient:
+- `permissions.ts`: SUPERVISOR removed from `canRestoreRecords`, `canSearchGlobally`, `canExportCustomers`, `canManageAmc`.
+- Six pages' `requireRole` arrays (`customers`, `admin/gallery`, `admin/trash`, `amc`, `reports`, `staff/performance`) had SUPERVISOR removed to match the narrowed nav.
+- New time-scoping for Jobs/Leads: the existing `canAccessJob` (server/jobs.ts) now also guards `jobs/[id]/edit` directly (previously only the detail page checked it — a real direct-URL bypass). A new equivalent `canAccessLead` (server/leads.ts) was added — the Lead detail page had **no session check of any kind** before this pass, and `getAllLeadsForList` now applies the same today/tomorrow/active-enquiry scope for SUPERVISOR only (OPERATIONS/ADMIN/ACCOUNTS unaffected).
+- Server-action-level guards added to `updateJob`, `updateJobStatus`, `updateJobLocation`, `assignVehicle`, `updateLead`, `updateLeadStage`, `confirmBooking`, `scheduleVisit` — every one of these had zero session check before this pass, meaning a direct Server Action call could already bypass whatever the UI enforced, for any role. Team Dispatch (`jobs/dispatch` page + `sendTeamDispatch`) and the Job Card PDF route additionally enforce a stricter **today-only** window for SUPERVISOR (his general Jobs window is today+tomorrow).
+
+**Real, pre-existing gaps found and fixed while auditing this** (not new restrictions invented for Francis — a hole that existed for every role, closed in the same pass):
+- `src/server/actions/payments.ts` and `expenses.ts` had **no role check on any action at all** — `createPayment`, `markPaymentPaid`, `recordCollection`, `createExpense`, etc. were reachable by any authenticated session of any role, relying entirely on page-level nav gating (which a direct action call skips). Added `canAccessPayments`/`canAccessExpenses` (ADMIN/ACCOUNTS/OPERATIONS) to every exported action in both files.
+- `src/server/actions/amc.ts`: same gap, fixed with the existing `canManageAmc`.
+- `staff/[id]/page.tsx`: bank account/GPay number were shown to **any** role with staff-detail access, completely unconditionally — now gated by `canViewSalary` (same category as salary/wage, which was already correctly restricted). `StaffDocumentsCard` (private KYC-type documents) was rendered unconditionally too — now hidden specifically for SUPERVISOR.
+- `searchCustomersQuick` (the Customer Actions top bar's global picker) now explicitly excludes SUPERVISOR — full Lead/Job/Customer database search is exactly the "unrestricted Customers access" his policy forbids, and the picker would otherwise still be directly callable even with the top bar itself gone from his UI.
+
+**What Francis keeps, deliberately**: Job/Lead editing for today+tomorrow, Team Dispatch/Job Card for today, Vehicles (needed for dispatch), sending a customer a Booking Form/Review/Payment link and Call/WhatsApp from a Job/Lead's own detail page (`createBookingLink` has no role restriction by design — generating a shareable link isn't the same as Payments-module access), Attendance view + office clock (already correctly excluded salary/payroll before this pass).
+
+**Verification**: `tsc --noEmit` and `npm run build` clean throughout this batch. Pushed; Coolify's webhook auto-deploys. **CODE VERIFIED, not LIVE VERIFIED** — same disclosed reason as every entry since §3.9: no active authenticated session this pass, and entering a real password to get one is off-limits. The next session with Francis's actual login should specifically verify: he cannot open `/payments`, `/expenses`, `/reports`, `/customers`, `/amc` by typing the URL directly; he cannot open a job or lead outside today/tomorrow by ID; his Staff detail view shows no bank details or documents; his Calendar widget shows no phone numbers (already covered by §3.16, unaffected by this pass).
+
 ## 3. What "COMPLETE" does not mean here
 
 §1 now distinguishes **COMPLETE (live)** — actually clicked through / triggered against production this pass — from plain **COMPLETE (code)** — implements the requirement and type-checks, but not yet exercised live (usually because it needs Francis's or Shoaib's own login, which this environment doesn't have). Treat the latter as provisional until someone with that role actually uses it.
