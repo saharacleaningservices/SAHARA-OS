@@ -158,6 +158,11 @@ export type BackupEvent = Prisma.BackupEventModel
  */
 export type WhatsAppMessage = Prisma.WhatsAppMessageModel
 /**
+ * Model WhatsAppConsent
+ * 
+ */
+export type WhatsAppConsent = Prisma.WhatsAppConsentModel
+/**
  * Model AmcContract
  * 
  */
@@ -227,3 +232,8 @@ export type Notification = Prisma.NotificationModel
  * 
  */
 export type PushSubscription = Prisma.PushSubscriptionModel
+/**
+ * Model BusinessTarget
+ * 
+ */
+export type BusinessTarget = Prisma.BusinessTargetModel

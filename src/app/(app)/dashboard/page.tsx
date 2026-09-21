@@ -17,7 +17,6 @@ import {
   ArrowRight,
   Percent,
   CalendarCheck,
-  ClipboardCheck,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
 import { getLeadSourceStats } from "@/server/owner";
@@ -67,7 +66,8 @@ export default async function DashboardPage() {
   const firstName = session.name.split(" ")[0];
   const showRevenue = canViewRevenue(session.role);
   const showProfit = canViewFinancials(session.role);
-  const showBackOffice = session.role === "ACCOUNTS";
+  const showFleetCards = canAccess(session.role, "vehicles");
+  const showAmcCard = canAccess(session.role, "amc");
   // Field roles (Field Coordinator / Field Staff) get a today/tomorrow
   // operations-only dashboard — no CRM, staff or reports cards, since those
   // sections are hidden from them entirely.
@@ -186,17 +186,7 @@ export default async function DashboardPage() {
                 <StatCard href="/staff" label="Staff Available" value={stats.staffAvailableCount} icon={<UserCheck className="size-4" />} tone="teal" />
               </>
             )}
-            {showBackOffice && (
-              <StatCard
-                href="/attendance"
-                label="Staff Attendance Today"
-                value={`${stats.attendancePresent}/${stats.attendanceTotal}`}
-                trendLabel={`${stats.attendanceAbsent} absent · ${stats.attendanceHalfDay} half-day`}
-                icon={<ClipboardCheck className="size-4" />}
-                tone="teal"
-              />
-            )}
-            {showBackOffice && (
+            {showFleetCards && (
               <>
                 <StatCard href="/vehicles" label="Vehicle Available" value={stats.vehiclesActiveCount} icon={<Truck className="size-4" />} tone="indigo" />
                 <StatCard
@@ -207,8 +197,10 @@ export default async function DashboardPage() {
                   icon={<Truck className="size-4" />}
                   tone="gold"
                 />
-                <StatCard href="/amc" label="Upcoming AMC" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} tone="gold" />
               </>
+            )}
+            {showAmcCard && (
+              <StatCard href="/amc" label="Upcoming AMC" value={stats.upcomingAmcCount} icon={<ShieldCheck className="size-4" />} tone="gold" />
             )}
             {showProfit && (
               <StatCard href="/profit" label="Net Profit (month)" value={formatINR(stats.netProfit)} trend={stats.profitTrend} icon={<PiggyBank className="size-4" />} tone="green" />
