@@ -1152,6 +1152,29 @@ model SmsMessage {
   @@index([createdAt])
 }
 
+// Every email the app sends (currently: owner password/login-ID recovery
+// notifications — see src/lib/email.ts). Queued when no provider is
+// configured (EMAIL_* env vars); flushed automatically once they're set.
+// Mirrors SmsMessage/WhatsAppMessage's queue-first pattern exactly.
+model EmailMessage {
+  id          String    @id @default(cuid())
+  toEmail     String
+  toName      String?
+  subject     String
+  body        String
+  kind        String    @default("OTHER")
+  status      String    @default("QUEUED") // QUEUED | SENT | FAILED
+  attempts    Int       @default(0)
+  error       String?
+  relatedType String?
+  relatedId   String?
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // Security — OTP for password reset/change, always delivered to the Super
 // Admin (Altaf). Codes are hashed at rest.

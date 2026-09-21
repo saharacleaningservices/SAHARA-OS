@@ -982,6 +982,27 @@ db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_status_idx" ON "SmsMessage"("sta
 db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_createdAt_idx" ON "SmsMessage"("createdAt");`);
 console.log("v3.1 batch-10 (sms gateway) migration complete.");
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "EmailMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "toEmail" TEXT NOT NULL,
+    "toName" TEXT,
+    "subject" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'OTHER',
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "error" TEXT,
+    "relatedType" TEXT,
+    "relatedId" TEXT,
+    "sentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "EmailMessage_status_idx" ON "EmailMessage"("status");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "EmailMessage_createdAt_idx" ON "EmailMessage"("createdAt");`);
+console.log("Auth recovery (email queue) migration complete.");
+
 // ─────────────────────────────────────────────────────────────────────────
 // Master Prompt v3.3 — Batch 14: marketing gallery (before/after photos and
 // result videos), reused on the booking page, WhatsApp links and review

@@ -1,28 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ArrowLeft, KeyRound, Loader2, Lock, ShieldCheck, Smartphone } from "lucide-react";
+import { ArrowLeft, KeyRound, Loader2, Lock, RefreshCw, ShieldCheck, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/lib/validation";
 import { requestPasswordReset, confirmPasswordReset } from "@/server/actions/password-reset";
 
+const RESEND_COOLDOWN_SECONDS = 30;
+
 export function ForgotPasswordForm() {
   const [submitting, setSubmitting] = useState(false);
-  const [otp, setOtp] = useState<{ id: string; ttl: number } | null>(null);
+  const [resending, setResending] = useState(false);
+  const [otp, setOtp] = useState<{ id: string; ttl: number; expiresAt: number } | null>(null);
+  const [lastValues, setLastValues] = useState<ForgotPasswordFormValues | null>(null);
   const [code, setCode] = useState("");
   const [done, setDone] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ForgotPasswordFormValues>({ resolver: zodResolver(forgotPasswordSchema) });
+
+  // Live countdown to OTP expiry + a short resend cooldown, both ticking
+  // from the same 1s interval while the OTP step is showing.
+  useEffect(() => {
+    if (!otp) return;
+    const tick = () => setSecondsLeft(Math.max(0, Math.round((otp.expiresAt - Date.now()) / 1000)));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [otp]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
+
+  function startOtpStep(values: ForgotPasswordFormValues, ttlMinutes: number, otpId: string) {
+    setLastValues(values);
+    setOtp({ id: otpId, ttl: ttlMinutes, expiresAt: Date.now() + ttlMinutes * 60 * 1000 });
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    setCode("");
+  }
 
   async function onSubmit(values: ForgotPasswordFormValues) {
     setSubmitting(true);
@@ -33,15 +62,34 @@ export function ForgotPasswordForm() {
       return;
     }
     if ("otpRequired" in res && res.otpRequired) {
-      setOtp({ id: res.otpId, ttl: res.ttlMinutes });
+      startOtpStep(values, res.ttlMinutes, res.otpId);
       toast.message("Ask the Super Admin for the code", {
-        description: `If this mobile number has an account, Altaf was just notified with a one-time code (valid ${res.ttlMinutes} min). Call him to get it.`,
+        description: `If this mobile number has an account, the Super Admin was just notified with a one-time code (valid ${res.ttlMinutes} min). Call them to get it.`,
       });
+    }
+  }
+
+  async function resendOtp() {
+    if (!lastValues || resendCooldown > 0) return;
+    setResending(true);
+    const res = await requestPasswordReset(lastValues);
+    setResending(false);
+    if ("error" in res && res.error) {
+      toast.error(res.error);
+      return;
+    }
+    if ("otpRequired" in res && res.otpRequired) {
+      startOtpStep(lastValues, res.ttlMinutes, res.otpId);
+      toast.message("New code sent", { description: "The previous code no longer works." });
     }
   }
 
   async function submitOtp() {
     if (!otp) return;
+    if (secondsLeft <= 0) {
+      toast.error("This code has expired — resend a new one");
+      return;
+    }
     if (code.trim().length < 4) {
       toast.error("Enter the code from the Super Admin");
       return;
@@ -75,6 +123,8 @@ export function ForgotPasswordForm() {
   }
 
   if (otp) {
+    const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
+    const ss = String(secondsLeft % 60).padStart(2, "0");
     return (
       <div className="w-full max-w-sm space-y-4">
         <div className="space-y-1">
@@ -86,11 +136,25 @@ export function ForgotPasswordForm() {
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             placeholder="6-digit code"
+            disabled={secondsLeft <= 0}
           />
+          <p className={`text-xs ${secondsLeft <= 0 ? "text-destructive" : "text-muted-foreground"}`}>
+            {secondsLeft > 0 ? `Expires in ${mm}:${ss}` : "This code has expired — resend a new one"}
+          </p>
         </div>
-        <Button type="button" className="w-full" onClick={submitOtp} disabled={submitting}>
+        <Button type="button" className="w-full" onClick={submitOtp} disabled={submitting || secondsLeft <= 0}>
           {submitting ? <Loader2 className="animate-spin" /> : <ShieldCheck className="size-4" />}
           Confirm & reset password
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={resendOtp}
+          disabled={resending || resendCooldown > 0}
+        >
+          {resending ? <Loader2 className="animate-spin" /> : <RefreshCw className="size-4" />}
+          {resendCooldown > 0 ? `Resend OTP (${resendCooldown}s)` : "Resend OTP"}
         </Button>
         <button
           type="button"
