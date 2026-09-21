@@ -10,6 +10,7 @@ import {
   MATTRESS_SIZE_OPTIONS,
   MATTRESS_UNIT_PRICE,
   HOME_SERVICE_UNIT_PRICE,
+  CUSTOMIZER_FIXED_UNIT_PRICE,
   PAINT_TYPE_RATE_PER_SQFT,
   PUTTY_RATE_PER_SQFT,
   PEST_PROPERTY_SIZE_OPTIONS,
@@ -85,19 +86,25 @@ export function QtyStepper({
  * hand get the exact same quantity selection and live pricing the customer
  * gets — instead of the old single flat "Details" dropdown.
  *
- * Also carries two quantity-only, no-pricing panels added for the overnight
- * production batch:
- *  - Custom Packages (category CUSTOMIZER_PACKAGE): Premium / Platinum /
- *    Diamond Qty selectors. No price is computed for these — office staff
- *    price a custom package manually — they only capture how many of each
- *    tier the customer wants.
+ * Also carries two more panels added for the overnight production batch:
+ *  - Customizer Package (category CUSTOMIZER_PACKAGE): Service Type →
+ *    Quantity → Unit Price → Estimated Amount, per the selected variant
+ *    (the "Details" picker above). Sofa/Mattress reuse the exact size-based
+ *    rates Home Deep Cleaning already uses; Carpet/Window/Refrigerator reuse
+ *    HOME_SERVICE_UNIT_PRICE/CUSTOMIZER_FIXED_UNIT_PRICE; every other item
+ *    (Balcony/Kitchen/Chimney/Fan/Floor Cleaning) has no configured rate, so
+ *    staff enter the real quoted unit price by hand — never auto-invented.
  *  - Individual Cleaning (category INDIVIDUAL_CLEANING): a quantity field
  *    for every item (Kitchen, Bathroom, Sofa, Mattress, Window, Curtain,
- *    Fan, Fridge, Balcony), also qty-only with no price calculation.
+ *    Fan, Fridge, Balcony), qty-only with no price calculation — unchanged,
+ *    by explicit production instruction.
  * Both panels feed the same onNotesLines callback as everything else here,
- * so the selections are saved to the lead's Notes, show on the Lead Detail
- * page, and are picked up by quotation generation as priced-later line
- * items (see src/lib/ai/quotation.ts and quotation-dialog.tsx).
+ * so the selections are saved to the lead's Notes and show on the Lead
+ * Detail page. Individual Cleaning lines (and any Customizer Package item
+ * left unpriced) are picked up by quotation generation as $0 "price to be
+ * confirmed" line items (see src/lib/ai/quotation.ts and
+ * quotation-dialog.tsx); a priced Customizer Package line is already folded
+ * into the lead's Estimated Amount, so it isn't listed again as unpriced.
  *
  * Mount with `key={`${category}-${variant}`}` from the parent so switching
  * Service Type cleanly resets every sub-field instead of leaking a stale
@@ -129,10 +136,11 @@ export function ServiceQuantityFields({
   const [housekeepingStaffCount, setHousekeepingStaffCount] = useState("");
   const [housekeepingShiftHours, setHousekeepingShiftHours] = useState("");
 
-  // Custom Packages (CUSTOMIZER_PACKAGE) — Premium/Platinum/Diamond Qty only.
-  const [premiumQty, setPremiumQty] = useState("");
-  const [platinumQty, setPlatinumQty] = useState("");
-  const [diamondQty, setDiamondQty] = useState("");
+  // Customizer Package (CUSTOMIZER_PACKAGE) — generic Quantity/Unit Price
+  // pair used by every variant that isn't Sofa/Mattress (which reuse the
+  // size-based state above).
+  const [czQty, setCzQty] = useState("");
+  const [czUnitPrice, setCzUnitPrice] = useState("");
 
   // Individual Cleaning (INDIVIDUAL_CLEANING) — one qty field per item.
   const [icKitchenQty, setIcKitchenQty] = useState("");
@@ -181,8 +189,26 @@ export function ServiceQuantityFields({
       const staff = Number(housekeepingStaffCount) || 1;
       return Math.round(hours * staff * HOUSEKEEPING_HOURLY_RATE);
     }
-    // Custom Packages and Individual Cleaning are quantity-only by explicit
-    // production instruction — no automatic pricing, ever, for either.
+    if (category === "CUSTOMIZER_PACKAGE") {
+      if (variant === "Sofa Cleaning" && sofaSeater) return SOFA_SEATER_PRICES[sofaSeater] ?? 0;
+      if (variant === "Mattress Cleaning" && mattressSize) {
+        const qty = Number(mattressQty) || 1;
+        return (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
+      }
+      const fixedRate = variant ? CUSTOMIZER_FIXED_UNIT_PRICE[variant] : undefined;
+      if (fixedRate) {
+        const qty = Number(czQty) || 1;
+        return fixedRate * qty;
+      }
+      // No configured rate for this item (e.g. Balcony/Kitchen/Chimney/Fan/
+      // Floor Cleaning) — only use what staff typed in Unit Price, never a
+      // guessed number.
+      const qty = Number(czQty) || 0;
+      const rate = Number(czUnitPrice) || 0;
+      if (qty > 0 && rate > 0) return qty * rate;
+    }
+    // Individual Cleaning is quantity-only by explicit production
+    // instruction — no automatic pricing.
     return 0;
   }
 
@@ -216,13 +242,30 @@ export function ServiceQuantityFields({
       if (housekeepingStaffCount) lines.push(`Staff Count: ${housekeepingStaffCount}`);
       if (housekeepingShiftHours) lines.push(`Shift Hours: ${housekeepingShiftHours}`);
     }
-    // Custom Packages — recorded with a distinct "Custom Package —" prefix so
-    // quotation generation can recognise and surface these lines without a
-    // price attached (see src/lib/ai/quotation.ts / quotation-dialog.tsx).
-    if (category === "CUSTOMIZER_PACKAGE") {
-      if (premiumQty && Number(premiumQty) > 0) lines.push(`Custom Package — Premium Qty: ${premiumQty}`);
-      if (platinumQty && Number(platinumQty) > 0) lines.push(`Custom Package — Platinum Qty: ${platinumQty}`);
-      if (diamondQty && Number(diamondQty) > 0) lines.push(`Custom Package — Diamond Qty: ${diamondQty}`);
+    // Customizer Package — a priced line (rate known, folded into Estimated
+    // Amount above) is recorded plainly; an unpriced one (no configured rate
+    // and no unit price typed yet) gets the distinct "(price to be
+    // confirmed)" marker so quotation generation lists it as a $0 line
+    // instead of double-counting it (see src/lib/ai/quotation.ts /
+    // quotation-dialog.tsx).
+    if (category === "CUSTOMIZER_PACKAGE" && variant) {
+      if (variant === "Sofa Cleaning" && sofaSeater) {
+        const amt = SOFA_SEATER_PRICES[sofaSeater] ?? 0;
+        lines.push(`Customizer Package — Sofa Cleaning: ${sofaSeater} = ₹${amt}`);
+      } else if (variant === "Mattress Cleaning" && mattressSize) {
+        const qty = Number(mattressQty) || 1;
+        const amt = (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
+        lines.push(`Customizer Package — Mattress Cleaning: ${mattressSize} x ${qty} = ₹${amt}`);
+      } else if (variant !== "Sofa Cleaning" && variant !== "Mattress Cleaning" && czQty) {
+        const qty = Number(czQty) || 0;
+        const fixedRate = CUSTOMIZER_FIXED_UNIT_PRICE[variant];
+        const rate = fixedRate ?? (Number(czUnitPrice) || 0);
+        if (qty > 0 && rate > 0) {
+          lines.push(`Customizer Package — ${variant}: Qty ${qty} × ₹${rate} = ₹${qty * rate}`);
+        } else if (qty > 0) {
+          lines.push(`Customizer Package (price to be confirmed) — ${variant}: Qty ${qty}`);
+        }
+      }
     }
     // Individual Cleaning — same "Individual Cleaning —" prefix convention.
     if (category === "INDIVIDUAL_CLEANING") {
@@ -255,9 +298,8 @@ export function ServiceQuantityFields({
     pestPropertySize,
     housekeepingStaffCount,
     housekeepingShiftHours,
-    premiumQty,
-    platinumQty,
-    diamondQty,
+    czQty,
+    czUnitPrice,
     icKitchenQty,
     icBathroomQty,
     icSofaQty,
@@ -279,7 +321,7 @@ export function ServiceQuantityFields({
     category === "PAINTING" ||
     category === "PEST_CONTROL" ||
     category === "HOUSEKEEPING" ||
-    category === "CUSTOMIZER_PACKAGE" ||
+    (category === "CUSTOMIZER_PACKAGE" && Boolean(variant)) ||
     category === "INDIVIDUAL_CLEANING";
 
   if (!hasFields) return null;
@@ -390,16 +432,50 @@ export function ServiceQuantityFields({
         </div>
       )}
 
-      {category === "CUSTOMIZER_PACKAGE" && (
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">
-            Pick how many units of each package tier this custom booking includes. Pricing is decided manually — nothing here is auto-calculated.
-          </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <QtyStepper label="Premium Qty" value={premiumQty} onChange={setPremiumQty} min={0} />
-            <QtyStepper label="Platinum Qty" value={platinumQty} onChange={setPlatinumQty} min={0} />
-            <QtyStepper label="Diamond Qty" value={diamondQty} onChange={setDiamondQty} min={0} />
+      {category === "CUSTOMIZER_PACKAGE" && variant === "Sofa Cleaning" && (
+        <div className={fieldWrap}>
+          <Label>Sofa Size</Label>
+          <Select value={sofaSeater} onValueChange={setSofaSeater}>
+            <SelectTrigger><SelectValue placeholder="Select seater" /></SelectTrigger>
+            <SelectContent>
+              {SOFA_SEATER_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      {category === "CUSTOMIZER_PACKAGE" && variant === "Mattress Cleaning" && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className={fieldWrap}>
+            <Label>Mattress Size</Label>
+            <Select value={mattressSize} onValueChange={setMattressSize}>
+              <SelectTrigger><SelectValue placeholder="Single or Double" /></SelectTrigger>
+              <SelectContent>
+                {MATTRESS_SIZE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
+          <QtyStepper label="Number of Mattresses" value={mattressQty} onChange={setMattressQty} min={1} />
+        </div>
+      )}
+      {category === "CUSTOMIZER_PACKAGE" && variant && variant !== "Sofa Cleaning" && variant !== "Mattress Cleaning" && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <QtyStepper label="Quantity" value={czQty} onChange={setCzQty} min={1} />
+          {CUSTOMIZER_FIXED_UNIT_PRICE[variant] ? (
+            <div className={fieldWrap}>
+              <Label>Unit Price (₹)</Label>
+              <Input value={formatINR(CUSTOMIZER_FIXED_UNIT_PRICE[variant])} disabled readOnly />
+            </div>
+          ) : (
+            <div className={fieldWrap}>
+              <Label>Unit Price (₹)</Label>
+              <Input
+                inputMode="numeric"
+                value={czUnitPrice}
+                onChange={(e) => setCzUnitPrice(e.target.value.replace(/\D/g, ""))}
+                placeholder="No configured rate — enter the quoted price"
+              />
+            </div>
+          )}
         </div>
       )}
 

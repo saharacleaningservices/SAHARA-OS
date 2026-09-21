@@ -278,6 +278,21 @@ export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
   "Curtain Cleaning": 199, // per pair
 };
 
+// Customizer Package — per-item quantity-based unit rates, reusing the exact
+// rates already configured elsewhere for the same real service (Carpet/
+// Window match Home Deep Cleaning's per-unit price; Refrigerator matches the
+// existing ADDON_SERVICE_PRICES entry). Sofa Cleaning and Mattress Cleaning
+// are priced by size instead (SOFA_SEATER_PRICES / MATTRESS_UNIT_PRICE), same
+// as Home Deep Cleaning. Every other Customizer service in SERVICE_CATALOG
+// (Balcony/Kitchen/Chimney/Fan/Floor Cleaning) has no configured rate yet —
+// staff enters the real quoted unit price manually; never auto-filled or
+// invented (see ServiceQuantityFields).
+export const CUSTOMIZER_FIXED_UNIT_PRICE: Record<string, number> = {
+  "Carpet Cleaning": 299,
+  "Window Cleaning": 250,
+  "Refrigerator Cleaning": 499,
+};
+
 export const PAINT_TYPE_RATE_PER_SQFT: Record<string, number> = {
   "Oil Bound": 14,
   "Premium Emulsion": 18,

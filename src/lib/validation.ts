@@ -214,6 +214,15 @@ export const forgotPasswordSchema = z
 
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
+// Forgot Login ID — the only identifier we ask for is the account's full
+// name; the account lookup and any real mobile/email are never sent back to
+// the browser (see requestLoginIdRecovery), only relayed by the Super Admin.
+export const forgotLoginIdSchema = z.object({
+  name: z.string().trim().min(2, "Enter your full name as registered"),
+});
+
+export type ForgotLoginIdFormValues = z.infer<typeof forgotLoginIdSchema>;
+
 // ── Phase 1: Smart Enquiry Hub ─────────────────────────────────────────
 
 export const quickCaptureSchema = z.object({

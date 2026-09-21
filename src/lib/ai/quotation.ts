@@ -17,19 +17,28 @@ export type QuotationDraft = {
   message: string;
 };
 
-// Custom Package (CUSTOMIZER_PACKAGE) and Individual Cleaning quantity
-// selections have no per-item price — by explicit production instruction,
-// office staff price those manually. ServiceQuantityFields records each
-// selection as a plain Notes line prefixed "Custom Package —" / "Individual
-// Cleaning —" (see src/components/shared/service-quantity-fields.tsx). This
-// pulls those lines back out so quotation generation can list exactly what
+// Individual Cleaning quantity selections have no per-item price — by
+// explicit production instruction, office staff price those manually.
+// Customizer Package items are priced automatically where a rate is
+// configured (folded straight into the lead's Estimated Amount, so they're
+// NOT listed again here); an item with no configured rate and no unit price
+// typed yet is recorded with the distinct "(price to be confirmed)" marker.
+// ServiceQuantityFields records these as plain Notes lines (see
+// src/components/shared/service-quantity-fields.tsx). This pulls the
+// still-unpriced ones back out so quotation generation can list exactly what
 // was selected, as $0 "price to be confirmed" line items, without inventing
-// a number.
+// a number. "Custom Package —" is kept for backward compatibility with
+// leads saved before this fix.
 function selectionLinesFromNotes(notes?: string | null): string[] {
   return (notes ?? "")
     .split("\n")
     .map((l) => l.trim())
-    .filter((l) => l.startsWith("Custom Package —") || l.startsWith("Individual Cleaning —"));
+    .filter(
+      (l) =>
+        l.startsWith("Custom Package —") ||
+        l.startsWith("Individual Cleaning —") ||
+        l.startsWith("Customizer Package (price to be confirmed) —")
+    );
 }
 
 export function draftQuotation(lead: {
