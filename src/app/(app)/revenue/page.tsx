@@ -58,7 +58,7 @@ export default async function RevenueDashboardPage() {
         <StatCard label="Collection Rate" value={`${data.collectionRate}%`} icon={<Percent className="size-4" />} />
         <StatCard label="Average Ticket" value={formatINR(data.avgTicket)} icon={<Ticket className="size-4" />} />
         <StatCard label="Highest Job" value={formatINR(data.highestJobValue)} trendLabel={data.highestJobLabel} icon={<Trophy className="size-4" />} tone="primary" />
-        <StatCard label="AMC Revenue" value={formatINR(data.amcRevenue)} trendLabel={`${data.amcActiveCount} active`} icon={<ShieldCheck className="size-4" />} />
+        <StatCard href="/amc" label="AMC Revenue" value={formatINR(data.amcRevenue)} trendLabel={`${data.amcActiveCount} active — view contracts`} icon={<ShieldCheck className="size-4" />} />
         <StatCard label="Upsell Revenue (mo)" value={formatINR(data.upsellRevenue)} trendLabel={`${data.upsellAcceptedCount} accepted`} icon={<Sparkles className="size-4" />} />
         <StatCard label="Repeat Customers" value={`${data.repeatCustomerPercent}%`} trendLabel={`of ${data.totalCustomers}`} icon={<Users className="size-4" />} />
       </div>
