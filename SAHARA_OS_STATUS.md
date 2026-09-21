@@ -127,6 +127,26 @@ Everything else audited against this prompt's sections A–T (Owner/Shoaib/Franc
 
 **Verification**: `tsc --noEmit` and `npm run build` both clean. Commit `e153222` deployed (Coolify webhook triggered by push) — deployment status not yet re-checked in this pass; treat as pending confirmation until the next Coolify check.
 
+## 3.7 Consolidated pass (2026-09-21, "Final Auth / Forgot Password Requirement") — recovery flow hardening
+
+**FIXED (commit `5d75881`).** Re-audited the entire Forgot Password flow line-by-line against the full spec (login UI → recovery request → OTP generation → owner notification → verification → reset → audit) and fixed three real gaps, while confirming everything else was already compliant:
+
+1. **OTP generation was not cryptographically secure.** `sixDigit()` in `src/server/security.ts` used `Math.random()` — not a CSPRNG, unsuitable for a security code. Fixed to `crypto.randomInt(100000, 1000000)` (Node's `node:crypto`).
+2. **Recovery OTP now goes to the fixed owner-controlled contact, not an indirect DB lookup.** Previously the WhatsApp copy went to whichever user held the ADMIN role's own `phone` field (via `notify()`'s `whatsappToAdmin`); now it's sent explicitly to `COMPANY.phones[0]` ("7083347130") and — new — `COMPANY.email` ("contact@saharacleaningservices.com"), so it can never silently diverge from the documented recovery contact. In-app + push notifications to ADMIN users are unchanged.
+3. **Failed OTP verification attempts weren't audited** — only successful password changes were. `confirmPasswordOtp` now logs an audit entry for every failure path (wrong code, expired, already used, too-many-attempts lockout) with account/timestamp/reason, never the OTP value itself.
+
+**New: email provider abstraction** (`src/lib/email.ts`, `EmailMessage` Prisma model, additive migration in `db-setup.mjs`) — mirrors the existing SMS/WhatsApp "queue always, deliver only if configured" pattern exactly. **No email provider is configured in this production deployment** — every email is queued and visible on the Message Log page (now shows WhatsApp + SMS + Email together), never fabricated as delivered. Real delivery needs three env vars, documented in the file and surfaced in the Message Log's "not connected" banner: `EMAIL_API_KEY`, `EMAIL_ENDPOINT`, `EMAIL_FROM`. Wired into the existing daily cron's queue-flush alongside WhatsApp/SMS.
+
+**UI**: added a live expiry countdown and a "Resend OTP" button (30s cooldown) to `forgot-password-form.tsx`; the OTP input now disables once expired instead of allowing a doomed submit.
+
+**Already compliant, confirmed not changed**: password hashing (bcrypt, never plaintext), no existing-password reveal, no privilege escalation (reset only ever touches `passwordHash`), no account enumeration (identical response whether or not the mobile number matches a real account), OTP expiry (20 min) and single-use (`consumedAt`), request+verify rate limiting (`src/lib/rate-limit.ts`, IP + per-account).
+
+**Deliberately not implemented, both explicitly flagged rather than silently skipped**:
+- **Direct "OTP login"** (an alternate path authenticating without ever touching the password) — the spec marks this optional; skipped since it would meaningfully widen the auth attack surface for a benefit that isn't required.
+- **Session revocation on reset** (invalidating a user's other already-issued JWTs) — sessions are stateless-signed with no server-side revocation list, and `middleware.ts` deliberately runs zero DB calls per request (a real architectural constraint: `better-sqlite3` is a native addon and can't run in the Edge runtime middleware likely needs to keep using for performance). Building real revocation means restructuring how every request authenticates — a materially larger, riskier change than this fix's scope. This exact gap was already flagged once before (§3.1) and remains a known, deliberate limitation, not an oversight.
+
+**Verification**: `tsc --noEmit` and `npm run build` both clean. `node scripts/db-setup.mjs` applied the new `EmailMessage` table locally with no errors (same script runs automatically on every production container boot, so no separate migration step is needed in production either). Commit `5d75881` deployed via the existing Coolify webhook. Live UI verification: `/login` and `/forgot-password` both confirmed reachable and rendering correctly in production (unchanged from earlier passes this session). **Not verified live**: an actual end-to-end OTP request/delivery attempt was not run against a real account, since doing so would send a real notification to the owner under a real (or fabricated) staff identity; a request against a non-existent mobile number was used instead to confirm the enumeration-safe generic-response path without touching real accounts or paging the owner unnecessarily.
+
 ## 3. What "COMPLETE" does not mean here
 
 §1 now distinguishes **COMPLETE (live)** — actually clicked through / triggered against production this pass — from plain **COMPLETE (code)** — implements the requirement and type-checks, but not yet exercised live (usually because it needs Francis's or Shoaib's own login, which this environment doesn't have). Treat the latter as provisional until someone with that role actually uses it.
