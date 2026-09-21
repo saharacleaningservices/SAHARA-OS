@@ -7,8 +7,16 @@ import { canAccess } from "@/lib/constants";
 // src/app/api/backup/route.ts and src/app/api/cron/reminders/route.ts).
 // /book is the public Customer Booking Form; /j is the public job/booking
 // confirmation page shared with customers — neither needs auth.
+// /forgot-password and /forgot-login-id exist specifically for someone who
+// is locked out and can't sign in — they were missing from this list, which
+// meant middleware redirected a genuinely logged-out visitor straight to
+// /login before they could ever reach either recovery form (an authenticated
+// ADMIN session could still reach them, since canAccess() lets "*" through
+// any section, which is why this wasn't caught by an admin click-through).
 const PUBLIC_PATHS = [
   "/login",
+  "/forgot-password",
+  "/forgot-login-id",
   "/api/auth/login",
   "/api/auth/device-status",
   "/api/backup",
