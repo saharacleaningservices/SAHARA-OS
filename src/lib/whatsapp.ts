@@ -44,6 +44,7 @@ export type WhatsAppKind =
   | "AMC_RENEWAL"
   | "ATTENDANCE_SUMMARY"
   | "DEVICE_APPROVAL"
+  | "DAILY_SUMMARY"
   | "OTHER";
 
 /**
