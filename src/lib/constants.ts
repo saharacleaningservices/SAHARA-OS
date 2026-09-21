@@ -531,8 +531,11 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     // settings: Dashboard, Leads/CRM, Jobs (incl. Team Dispatch), Staff,
     // Vehicles, Attendance, AMC Contracts, Payments, Expenses, the filtered
     // Housekeeping/Pest Control/Interior Painting job views, Revenue
-    // Dashboard, Customers, Reports, AI Assistant, Gallery, Trash (restore).
-    // Owner-only sections (Profit, User Management, Audit Log, WhatsApp Log,
+    // Dashboard, Customers, Reports, AI Assistant, Gallery, Trash (restore),
+    // WhatsApp Log (Message Log — kept visible to Accounts per the owner's
+    // explicit decision on requirement #15; see permissions.ts
+    // canViewWhatsAppLog's page-level comment history).
+    // Owner-only sections (Profit, User Management, Audit Log,
     // Device/Security Approvals) remain hidden.
     ACCOUNTS: [
           "dashboard",
@@ -552,6 +555,7 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "reports",
           "assistant",
           "admin",
+          "whatsapp-log",
           "trash",
           "profile",
         ],
