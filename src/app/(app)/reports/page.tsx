@@ -10,7 +10,7 @@ export default async function ReportsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Reports" description="Job history, photos, invoices, payments and certificates" />
-      <ReportsExplorer jobs={data.jobs} photos={data.photos} payments={data.payments} certificates={data.certificates} />
+      <ReportsExplorer jobs={data.jobs} photos={data.photos} payments={data.payments} certificates={data.certificates} reviews={data.reviews} />
     </div>
   );
 }

@@ -843,14 +843,22 @@ model MaterialIssue {
 }
 
 model Review {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   customerMobile String
   customerName   String?
   rating         Int
   comment        String?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
+
+  // Review response workflow — a Google review has no reply-tracking API
+  // connected yet, so staff log it here and mark it once they've replied
+  // on Google directly.
+  replied        Boolean   @default(false)
+  repliedAt      DateTime?
+  replyNote      String?
 
   @@index([customerMobile])
+  @@index([replied])
 }
 
 model BackupEvent {

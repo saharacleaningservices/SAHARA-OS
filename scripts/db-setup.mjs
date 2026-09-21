@@ -1032,6 +1032,17 @@ db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "WhatsAppConsent_phoneNumber_key" ON 
 db.exec(`CREATE INDEX IF NOT EXISTS "WhatsAppConsent_optedOut_idx" ON "WhatsAppConsent"("optedOut");`);
 console.log("Phase D (WhatsApp consent tracking) migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Google Reviews response workflow (idempotent, additive only). No ingestion
+// API is connected, so staff log a review when they see it and mark it once
+// replied — see src/server/actions/reviews.ts.
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("Review", "replied", `"replied" BOOLEAN NOT NULL DEFAULT false`);
+addColumnIfMissing("Review", "repliedAt", `"repliedAt" DATETIME`);
+addColumnIfMissing("Review", "replyNote", `"replyNote" TEXT`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Review_replied_idx" ON "Review"("replied");`);
+console.log("Review response workflow migration complete.");
+
 db.close();
 // ─────────────────────────────────────────────────────────────────────────
 // Owner Command Center — monthly business revenue target (ADMIN-editable).

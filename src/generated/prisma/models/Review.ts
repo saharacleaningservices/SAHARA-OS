@@ -41,6 +41,9 @@ export type ReviewMinAggregateOutputType = {
   rating: number | null
   comment: string | null
   createdAt: Date | null
+  replied: boolean | null
+  repliedAt: Date | null
+  replyNote: string | null
 }
 
 export type ReviewMaxAggregateOutputType = {
@@ -50,6 +53,9 @@ export type ReviewMaxAggregateOutputType = {
   rating: number | null
   comment: string | null
   createdAt: Date | null
+  replied: boolean | null
+  repliedAt: Date | null
+  replyNote: string | null
 }
 
 export type ReviewCountAggregateOutputType = {
@@ -59,6 +65,9 @@ export type ReviewCountAggregateOutputType = {
   rating: number
   comment: number
   createdAt: number
+  replied: number
+  repliedAt: number
+  replyNote: number
   _all: number
 }
 
@@ -78,6 +87,9 @@ export type ReviewMinAggregateInputType = {
   rating?: true
   comment?: true
   createdAt?: true
+  replied?: true
+  repliedAt?: true
+  replyNote?: true
 }
 
 export type ReviewMaxAggregateInputType = {
@@ -87,6 +99,9 @@ export type ReviewMaxAggregateInputType = {
   rating?: true
   comment?: true
   createdAt?: true
+  replied?: true
+  repliedAt?: true
+  replyNote?: true
 }
 
 export type ReviewCountAggregateInputType = {
@@ -96,6 +111,9 @@ export type ReviewCountAggregateInputType = {
   rating?: true
   comment?: true
   createdAt?: true
+  replied?: true
+  repliedAt?: true
+  replyNote?: true
   _all?: true
 }
 
@@ -192,6 +210,9 @@ export type ReviewGroupByOutputType = {
   rating: number
   comment: string | null
   createdAt: Date
+  replied: boolean
+  repliedAt: Date | null
+  replyNote: string | null
   _count: ReviewCountAggregateOutputType | null
   _avg: ReviewAvgAggregateOutputType | null
   _sum: ReviewSumAggregateOutputType | null
@@ -224,6 +245,9 @@ export type ReviewWhereInput = {
   rating?: Prisma.IntFilter<"Review"> | number
   comment?: Prisma.StringNullableFilter<"Review"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Review"> | Date | string
+  replied?: Prisma.BoolFilter<"Review"> | boolean
+  repliedAt?: Prisma.DateTimeNullableFilter<"Review"> | Date | string | null
+  replyNote?: Prisma.StringNullableFilter<"Review"> | string | null
 }
 
 export type ReviewOrderByWithRelationInput = {
@@ -233,6 +257,9 @@ export type ReviewOrderByWithRelationInput = {
   rating?: Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  replied?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  replyNote?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type ReviewWhereUniqueInput = Prisma.AtLeast<{
@@ -245,6 +272,9 @@ export type ReviewWhereUniqueInput = Prisma.AtLeast<{
   rating?: Prisma.IntFilter<"Review"> | number
   comment?: Prisma.StringNullableFilter<"Review"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Review"> | Date | string
+  replied?: Prisma.BoolFilter<"Review"> | boolean
+  repliedAt?: Prisma.DateTimeNullableFilter<"Review"> | Date | string | null
+  replyNote?: Prisma.StringNullableFilter<"Review"> | string | null
 }, "id">
 
 export type ReviewOrderByWithAggregationInput = {
@@ -254,6 +284,9 @@ export type ReviewOrderByWithAggregationInput = {
   rating?: Prisma.SortOrder
   comment?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  replied?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  replyNote?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReviewCountOrderByAggregateInput
   _avg?: Prisma.ReviewAvgOrderByAggregateInput
   _max?: Prisma.ReviewMaxOrderByAggregateInput
@@ -271,6 +304,9 @@ export type ReviewScalarWhereWithAggregatesInput = {
   rating?: Prisma.IntWithAggregatesFilter<"Review"> | number
   comment?: Prisma.StringNullableWithAggregatesFilter<"Review"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Review"> | Date | string
+  replied?: Prisma.BoolWithAggregatesFilter<"Review"> | boolean
+  repliedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Review"> | Date | string | null
+  replyNote?: Prisma.StringNullableWithAggregatesFilter<"Review"> | string | null
 }
 
 export type ReviewCreateInput = {
@@ -280,6 +316,9 @@ export type ReviewCreateInput = {
   rating: number
   comment?: string | null
   createdAt?: Date | string
+  replied?: boolean
+  repliedAt?: Date | string | null
+  replyNote?: string | null
 }
 
 export type ReviewUncheckedCreateInput = {
@@ -289,6 +328,9 @@ export type ReviewUncheckedCreateInput = {
   rating: number
   comment?: string | null
   createdAt?: Date | string
+  replied?: boolean
+  repliedAt?: Date | string | null
+  replyNote?: string | null
 }
 
 export type ReviewUpdateInput = {
@@ -298,6 +340,9 @@ export type ReviewUpdateInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReviewUncheckedUpdateInput = {
@@ -307,6 +352,9 @@ export type ReviewUncheckedUpdateInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReviewCreateManyInput = {
@@ -316,6 +364,9 @@ export type ReviewCreateManyInput = {
   rating: number
   comment?: string | null
   createdAt?: Date | string
+  replied?: boolean
+  repliedAt?: Date | string | null
+  replyNote?: string | null
 }
 
 export type ReviewUpdateManyMutationInput = {
@@ -325,6 +376,9 @@ export type ReviewUpdateManyMutationInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReviewUncheckedUpdateManyInput = {
@@ -334,6 +388,9 @@ export type ReviewUncheckedUpdateManyInput = {
   rating?: Prisma.IntFieldUpdateOperationsInput | number
   comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  repliedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  replyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReviewCountOrderByAggregateInput = {
@@ -343,6 +400,9 @@ export type ReviewCountOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  replied?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrder
+  replyNote?: Prisma.SortOrder
 }
 
 export type ReviewAvgOrderByAggregateInput = {
@@ -356,6 +416,9 @@ export type ReviewMaxOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  replied?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrder
+  replyNote?: Prisma.SortOrder
 }
 
 export type ReviewMinOrderByAggregateInput = {
@@ -365,6 +428,9 @@ export type ReviewMinOrderByAggregateInput = {
   rating?: Prisma.SortOrder
   comment?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  replied?: Prisma.SortOrder
+  repliedAt?: Prisma.SortOrder
+  replyNote?: Prisma.SortOrder
 }
 
 export type ReviewSumOrderByAggregateInput = {
@@ -380,6 +446,9 @@ export type ReviewSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   rating?: boolean
   comment?: boolean
   createdAt?: boolean
+  replied?: boolean
+  repliedAt?: boolean
+  replyNote?: boolean
 }, ExtArgs["result"]["review"]>
 
 export type ReviewSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -389,6 +458,9 @@ export type ReviewSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   rating?: boolean
   comment?: boolean
   createdAt?: boolean
+  replied?: boolean
+  repliedAt?: boolean
+  replyNote?: boolean
 }, ExtArgs["result"]["review"]>
 
 export type ReviewSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -398,6 +470,9 @@ export type ReviewSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   rating?: boolean
   comment?: boolean
   createdAt?: boolean
+  replied?: boolean
+  repliedAt?: boolean
+  replyNote?: boolean
 }, ExtArgs["result"]["review"]>
 
 export type ReviewSelectScalar = {
@@ -407,9 +482,12 @@ export type ReviewSelectScalar = {
   rating?: boolean
   comment?: boolean
   createdAt?: boolean
+  replied?: boolean
+  repliedAt?: boolean
+  replyNote?: boolean
 }
 
-export type ReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerMobile" | "customerName" | "rating" | "comment" | "createdAt", ExtArgs["result"]["review"]>
+export type ReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerMobile" | "customerName" | "rating" | "comment" | "createdAt" | "replied" | "repliedAt" | "replyNote", ExtArgs["result"]["review"]>
 
 export type $ReviewPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Review"
@@ -421,6 +499,9 @@ export type $ReviewPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     rating: number
     comment: string | null
     createdAt: Date
+    replied: boolean
+    repliedAt: Date | null
+    replyNote: string | null
   }, ExtArgs["result"]["review"]>
   composites: {}
 }
@@ -850,6 +931,9 @@ export interface ReviewFieldRefs {
   readonly rating: Prisma.FieldRef<"Review", 'Int'>
   readonly comment: Prisma.FieldRef<"Review", 'String'>
   readonly createdAt: Prisma.FieldRef<"Review", 'DateTime'>
+  readonly replied: Prisma.FieldRef<"Review", 'Boolean'>
+  readonly repliedAt: Prisma.FieldRef<"Review", 'DateTime'>
+  readonly replyNote: Prisma.FieldRef<"Review", 'String'>
 }
     
 
