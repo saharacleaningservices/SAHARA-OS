@@ -33,7 +33,12 @@ export const SERVICE_CATEGORY_LABELS: Record<string, string> = {
   HOUSEKEEPING: "Housekeeping",
   COMMERCIAL_CLEANING: "Commercial Cleaning",
   AMC: "AMC / Annual Contract",
-  CUSTOMIZER_PACKAGE: "Customizer Package",
+  // Owner-mandated display name (2026-09-21): "Customized Service" — never
+  // "Customizer Package" / "Customizer Service" in anything user-facing.
+  // The internal key CUSTOMIZER_PACKAGE is unchanged (it's the value already
+  // stored on real leads/jobs; renaming the key would need a data migration
+  // that isn't required just to change what's displayed).
+  CUSTOMIZER_PACKAGE: "Customized Service",
   COMBO_PACKAGE: "Combo Package",
 };
 
@@ -63,7 +68,7 @@ export const CATEGORIES: { value: string; label: string }[] = [
   { value: "COMMERCIAL_CLEANING", label: "Commercial Cleaning" },
   { value: "PAINTING", label: "Interior Painting" },
   { value: "PEST_CONTROL", label: "Pest Control" },
-  { value: "CUSTOMIZER_PACKAGE", label: "Customizer Package" },
+  { value: "CUSTOMIZER_PACKAGE", label: "Customized Service" },
   { value: "COMBO_PACKAGE", label: "Combo Package" },
 ];
 
@@ -278,40 +283,46 @@ export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
   "Curtain Cleaning": 199, // per pair
 };
 
-// Customizer Package — per-item quantity-based unit rates. Every service
-// here reuses a rate that's already configured elsewhere for the same real
-// service, never an invented number:
+// Customized Service (manual CRM lead entry, internal key CUSTOMIZER_PACKAGE
+// unchanged — see SERVICE_CATEGORY_LABELS) — per-item quantity-based unit
+// rates. Every service here reuses a rate that's already configured
+// elsewhere for the same real service, never an invented number:
 //  - Carpet/Window match Home Deep Cleaning's existing per-unit price
 //    (HOME_SERVICE_UNIT_PRICE).
 //  - Refrigerator matches the existing ADDON_SERVICE_PRICES entry.
-//  - Sofa Cleaning has no per-seat rate configured under that exact name —
-//    the only existing linear (quantity x rate) sofa figure anywhere in the
-//    app is the "Sofa Shampooing" add-on's ₹499/seat (ADDON_SERVICE_PRICES).
-//    SOFA_SEATER_PRICES (used by Home Deep Cleaning) is a flat price PER
-//    SEATER TIER (e.g. "5 Seater" = a bundle price, not linear per seat), so
-//    it can't answer "unit price x quantity" the way this flow needs. Reused
-//    the ₹499/seat figure here as the closest genuinely-configured match.
+// Sofa Cleaning is NOT here — the owner explicitly defined a separate
+// selectable-rate structure for it instead (CUSTOMIZED_SOFA_RATE_OPTIONS
+// below), distinct from both this fixed-auto-rate list and the customer-
+// facing ₹499/seat "Sofa Shampooing" upsell (ADDON_SERVICE_PRICES), which
+// stays untouched on the public Booking Form.
 // Mattress Cleaning is priced by size instead (MATTRESS_UNIT_PRICE — Single
 // vs Double genuinely have different real rates, so a size picker stays).
-// Every other Customizer service in SERVICE_CATALOG (Balcony/Kitchen/
+// Every other Customized Service item in SERVICE_CATALOG (Balcony/Kitchen/
 // Chimney/Fan/Floor Cleaning) has no configured rate yet — staff enter the
 // real quoted unit price manually; never auto-filled or invented (see
 // ServiceQuantityFields).
 export const CUSTOMIZER_FIXED_UNIT_PRICE: Record<string, number> = {
-  "Sofa Cleaning": 499,
   "Carpet Cleaning": 299,
   "Window Cleaning": 250,
   "Refrigerator Cleaning": 499,
 };
 
-// Display-only unit noun for each Customizer Package rate above, so the
-// Unit Price field can show e.g. "₹299 / carpet" instead of a bare number.
+// Display-only unit noun for each Customized Service rate above (and for
+// Sofa Cleaning's own rate picker below), so the Unit Price field can show
+// e.g. "₹299 / carpet" instead of a bare number.
 export const CUSTOMIZER_UNIT_LABEL: Record<string, string> = {
   "Sofa Cleaning": "seat",
   "Carpet Cleaning": "carpet",
   "Window Cleaning": "window",
   "Refrigerator Cleaning": "fridge",
 };
+
+// Manual CRM Sofa Cleaning rate tiers for Customized Service — owner-defined
+// (2026-09-21), deliberately separate from the customer-facing ₹499/seat
+// "Sofa Shampooing" Booking Form upsell (ADDON_SERVICE_PRICES), which must
+// stay exactly as configured. Staff pick one of these three per-seat rates,
+// or type a custom one — see ServiceQuantityFields.
+export const CUSTOMIZED_SOFA_RATE_OPTIONS = [200, 250, 300] as const;
 
 export const PAINT_TYPE_RATE_PER_SQFT: Record<string, number> = {
   "Oil Bound": 14,

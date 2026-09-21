@@ -22,17 +22,20 @@ import { SERVICE_LABELS } from "@/lib/constants";
 
 type LineItem = { name: string; description: string; amount: number };
 
-// Individual Cleaning quantity selections carry no price. Customizer Package
-// items are priced automatically where a rate is configured (already folded
-// into the lead's Estimated Amount, so not repeated here); an item with no
-// configured rate and no unit price typed yet is recorded with the distinct
-// "(price to be confirmed)" marker. ServiceQuantityFields records these as
-// plain Notes lines (see src/components/shared/service-quantity-fields.tsx).
-// Pull the still-unpriced ones back out so a freshly opened Generate
-// Quotation dialog already lists exactly what the customer selected, as $0
-// "price to be confirmed" line items, so staff aren't the ones who have to
-// remember to retype them. "Custom Package —" is kept for backward
-// compatibility with leads saved before this fix.
+// Individual Cleaning quantity selections carry no price. Customized
+// Service items are priced automatically where a rate is configured
+// (already folded into the lead's Estimated Amount, so not repeated here);
+// an item with no configured rate and no unit price typed yet is recorded
+// with the distinct "(price to be confirmed)" marker. ServiceQuantityFields
+// records these as plain Notes lines (see
+// src/components/shared/service-quantity-fields.tsx). Pull the still-
+// unpriced ones back out so a freshly opened Generate Quotation dialog
+// already lists exactly what the customer selected, as $0 "price to be
+// confirmed" line items, so staff aren't the ones who have to remember to
+// retype them. "Custom Package —" / "Customizer Package (price to be
+// confirmed) —" are kept for backward compatibility with leads saved
+// before the display name changed from "Customizer Package" to
+// "Customized Service" (2026-09-21).
 function selectionLinesFromNotes(notes?: string | null): string[] {
   return (notes ?? "")
     .split("\n")
@@ -41,7 +44,8 @@ function selectionLinesFromNotes(notes?: string | null): string[] {
       (l) =>
         l.startsWith("Custom Package —") ||
         l.startsWith("Individual Cleaning —") ||
-        l.startsWith("Customizer Package (price to be confirmed) —")
+        l.startsWith("Customizer Package (price to be confirmed) —") ||
+        l.startsWith("Customized Service (price to be confirmed) —")
     );
 }
 

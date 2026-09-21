@@ -19,7 +19,7 @@ export type QuotationDraft = {
 
 // Individual Cleaning quantity selections have no per-item price — by
 // explicit production instruction, office staff price those manually.
-// Customizer Package items are priced automatically where a rate is
+// Customized Service items are priced automatically where a rate is
 // configured (folded straight into the lead's Estimated Amount, so they're
 // NOT listed again here); an item with no configured rate and no unit price
 // typed yet is recorded with the distinct "(price to be confirmed)" marker.
@@ -27,8 +27,10 @@ export type QuotationDraft = {
 // src/components/shared/service-quantity-fields.tsx). This pulls the
 // still-unpriced ones back out so quotation generation can list exactly what
 // was selected, as $0 "price to be confirmed" line items, without inventing
-// a number. "Custom Package —" is kept for backward compatibility with
-// leads saved before this fix.
+// a number. "Custom Package —" / "Customizer Package (price to be
+// confirmed) —" are kept for backward compatibility with leads saved before
+// the display name changed from "Customizer Package" to "Customized
+// Service" (2026-09-21).
 function selectionLinesFromNotes(notes?: string | null): string[] {
   return (notes ?? "")
     .split("\n")
@@ -37,7 +39,8 @@ function selectionLinesFromNotes(notes?: string | null): string[] {
       (l) =>
         l.startsWith("Custom Package —") ||
         l.startsWith("Individual Cleaning —") ||
-        l.startsWith("Customizer Package (price to be confirmed) —")
+        l.startsWith("Customizer Package (price to be confirmed) —") ||
+        l.startsWith("Customized Service (price to be confirmed) —")
     );
 }
 
