@@ -8,9 +8,33 @@ import { LeadStageBadge } from "@/components/shared/status-badge";
 import { fetchLeadMonthCalendar } from "@/server/actions/owner-dashboard";
 import { toTelLink, cn } from "@/lib/utils";
 
-type CalendarLead = { id: string; name: string; mobile: string; stage: string };
+type CalendarDetailLevel = "full" | "supervisor" | "counts";
+type CalendarLead = {
+  id: string;
+  name: string;
+  stage: string;
+  statusLabel?: string;
+  leadNumber?: string;
+  service?: string;
+  teamNumber?: number | null;
+  mobile?: string;
+  area?: string;
+  address?: string | null;
+  quoteAmount?: number | null;
+  advanceAmount?: number | null;
+  paymentStatus?: string | null;
+};
 type DayColor = "green" | "blue" | "orange" | "red" | "white";
-type CalendarDay = { day: number; iso: string; weekday: number; count: number; color: DayColor };
+type DayStatusCounts = { pending: number; confirmed: number; postponed: number; cancelled: number; siteVisits: number; total: number };
+type CalendarDay = { day: number; iso: string; weekday: number; count: number; color: DayColor; statusCounts: DayStatusCounts };
+
+const STATUS_ROWS: { key: keyof DayStatusCounts; label: string }[] = [
+  { key: "pending", label: "Pending" },
+  { key: "confirmed", label: "Confirmed" },
+  { key: "postponed", label: "Postponed" },
+  { key: "cancelled", label: "Cancelled" },
+  { key: "siteVisits", label: "Site Visits" },
+];
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -39,11 +63,21 @@ export function LeadMonthCalendar({
   initialMonth,
   initialDays,
   initialLeadsByDay,
+  detailLevel = "full",
 }: {
   initialYear: number;
   initialMonth: number;
   initialDays: CalendarDay[];
   initialLeadsByDay: Record<string, CalendarLead[]>;
+  /** Owner instruction 2026-09-21: the calendar is now shown to every role,
+   * but Operations (Shoyab) and Supervisor (Francis) must never see phone
+   * numbers, full address or payment info. "full" (ADMIN/ACCOUNTS) gets the
+   * existing rich dialog; "supervisor" (Francis) gets a per-lead list with
+   * Job ID/name/service/area/team/status but no phone; "counts" (Shoyab)
+   * gets only the day's status-count breakdown, no per-lead list at all.
+   * The server already enforces this by never sending the omitted fields —
+   * this prop only decides how to render what actually arrived. */
+  detailLevel?: CalendarDetailLevel;
 }) {
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
@@ -66,6 +100,7 @@ export function LeadMonthCalendar({
 
   const leading = days.length ? days[0].weekday : 0;
   const selectedLeads = selectedDay ? leadsByDay[selectedDay] ?? [] : [];
+  const selectedDayInfo = selectedDay ? days.find((d) => d.iso === selectedDay) : undefined;
 
   return (
     <div className="space-y-3">
@@ -145,30 +180,71 @@ export function LeadMonthCalendar({
                 : ""}
             </DialogTitle>
           </DialogHeader>
-          <div className="max-h-80 space-y-1.5 overflow-y-auto">
-            {selectedLeads.length === 0 && (
-              <p className="text-sm text-muted-foreground">No leads this day.</p>
-            )}
-            {selectedLeads.map((l) => (
-              <div
-                key={l.id}
-                className="flex items-center justify-between gap-2 rounded-lg border border-border px-2.5 py-2"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">{l.name}</p>
-                  <p className="text-xs text-muted-foreground">{l.mobile}</p>
+          {detailLevel === "counts" ? (
+            <div className="grid grid-cols-2 gap-2">
+              {STATUS_ROWS.map((r) => (
+                <div key={r.key} className="rounded-lg border border-border px-3 py-2">
+                  <p className="text-xs text-muted-foreground">{r.label}</p>
+                  <p className="text-lg font-semibold text-foreground">{selectedDayInfo?.statusCounts[r.key] ?? 0}</p>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  <LeadStageBadge stage={l.stage} />
-                  <Button asChild variant="outline" size="icon" className="size-7">
-                    <a href={toTelLink(l.mobile)} title="Call">
-                      <Phone className="size-3.5" />
-                    </a>
-                  </Button>
-                </div>
+              ))}
+              <div className="col-span-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+                <p className="text-xs text-muted-foreground">Job Count</p>
+                <p className="text-lg font-semibold text-foreground">{selectedDayInfo?.statusCounts.total ?? 0}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="max-h-80 space-y-1.5 overflow-y-auto">
+              {selectedLeads.length === 0 && (
+                <p className="text-sm text-muted-foreground">No leads this day.</p>
+              )}
+              {selectedLeads.map((l) =>
+                detailLevel === "supervisor" ? (
+                  <div key={l.id} className="rounded-lg border border-border px-2.5 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-medium text-foreground">{l.name}</p>
+                      <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                        {l.statusLabel}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {[l.leadNumber, l.service, l.area, l.teamNumber ? `Team ${l.teamNumber}` : null].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                ) : (
+                  <div
+                    key={l.id}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-border px-2.5 py-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-foreground">{l.name}</p>
+                      <p className="text-xs text-muted-foreground">{l.mobile}</p>
+                      {(l.area || l.address) && (
+                        <p className="truncate text-xs text-muted-foreground">{[l.area, l.address].filter(Boolean).join(" · ")}</p>
+                      )}
+                      {(l.quoteAmount || l.advanceAmount) && (
+                        <p className="text-xs text-muted-foreground">
+                          {l.quoteAmount ? `Quote ₹${l.quoteAmount}` : null}
+                          {l.advanceAmount ? ` · Advance ₹${l.advanceAmount}` : ""}
+                          {l.paymentStatus ? ` · ${l.paymentStatus}` : ""}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <LeadStageBadge stage={l.stage} />
+                      {l.mobile && (
+                        <Button asChild variant="outline" size="icon" className="size-7">
+                          <a href={toTelLink(l.mobile)} title="Call">
+                            <Phone className="size-3.5" />
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

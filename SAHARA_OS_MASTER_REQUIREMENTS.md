@@ -48,6 +48,8 @@ Operational edit capabilities required: add/edit/update/remove staff; attendance
 > Must **still not** receive: Profit Dashboard, User Management, Audit Log, Security/Device Approvals, Revenue Dashboard, staff salary/wage figures, WhatsApp Log, system Settings, or any other owner-only financial/security function. Permanent/bulk delete (`canManageDataSafety`) stays Admin-only; restoring an individual record from Trash is a separate, less sensitive capability (`canRestoreRecords`) both roles now have.
 >
 > The SUPERVISOR role's job-list scope itself (today/tomorrow only, see `jobScopeFor`) is unchanged by this — this requirement widened *which modules/features* both roles can use, not *how many jobs* they see.
+>
+> **Re-confirmed 2026-09-21 (Phase 1-10 production polish prompt)**: that prompt's own Phase 2 text proposed reversing two parts of this policy — removing Expenses from both roles, and narrowing SUPERVISOR's module list below OPERATIONS's (dropping AMC, Customers, Reports, AI Assistant, Gallery, Trash Restore). Both were flagged as conflicts against this settled policy before touching any code; the owner confirmed **keep this policy exactly as written above, no change** on both points. No code changes were made for Phase 2 as a result — it was already compliant.
 
 ### 3. Leads / CRM
 Complete the enquiry-to-conversion workflow: Inquiry → Call → Quotation → Follow-up → Conversion → Job → Payment → Review.

@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
 import { getLeadSourceStats } from "@/server/owner";
+import { getLeadMonthCalendar, type CalendarDetailLevel } from "@/server/owner-command-center";
+import { LeadMonthCalendar } from "@/components/dashboard/owner/lead-calendar";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -48,6 +50,13 @@ export default async function DashboardPage() {
     />
   );
   }
+  // Calendar widget, now shown to every role (owner instruction
+  // 2026-09-21). Detail level is decided from the session's real role here,
+  // server-side — Operations (Shoyab) gets day status-counts only,
+  // Supervisor (Francis) gets a per-lead list without phone numbers.
+  const now = new Date();
+  const calendarDetailLevel: CalendarDetailLevel = session.role === "SUPERVISOR" ? "supervisor" : "counts";
+
   const [
     {
       stats,
@@ -61,7 +70,12 @@ export default async function DashboardPage() {
       recentReviews,
     },
     sourceStats,
-  ] = await Promise.all([getDashboardData(), getLeadSourceStats(3)]);
+    calendar,
+  ] = await Promise.all([
+    getDashboardData(),
+    getLeadSourceStats(3),
+    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, calendarDetailLevel),
+  ]);
 
   const firstName = session.name.split(" ")[0];
   const showRevenue = canViewRevenue(session.role);
@@ -242,6 +256,21 @@ export default async function DashboardPage() {
                   <p className="text-xl font-semibold text-foreground">Route</p>
                 </Link>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Calendar</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LeadMonthCalendar
+                initialYear={calendar.year}
+                initialMonth={calendar.month}
+                initialDays={calendar.days}
+                initialLeadsByDay={calendar.leadsByDay}
+                detailLevel={calendarDetailLevel}
+              />
             </CardContent>
           </Card>
 
