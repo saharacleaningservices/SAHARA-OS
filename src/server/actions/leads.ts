@@ -239,7 +239,7 @@ export async function updateLead(id: string, values: unknown) {
 
 export async function deleteLead(id: string) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || (session.role !== "ADMIN" && session.role !== "ACCOUNTS")) return { error: "Not authorized" };
 
   await softDeleteMany("Lead", [id], session);
 
@@ -250,7 +250,7 @@ export async function deleteLead(id: string) {
 
 export async function bulkDeleteLeads(ids: string[]) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || (session.role !== "ADMIN" && session.role !== "ACCOUNTS")) return { error: "Not authorized" };
   const count = await softDeleteMany("Lead", ids, session);
   revalidatePath("/leads");
   revalidatePath("/dashboard");
