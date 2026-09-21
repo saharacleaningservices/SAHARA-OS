@@ -4,7 +4,10 @@ import { getReportsData } from "@/server/reports";
 import { requireRole } from "@/lib/current-user";
 
 export default async function ReportsPage() {
-  await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
+  // OPERATIONS (Francis) is intentionally excluded — ROLE_NAV_ACCESS never
+  // includes "reports" for him, and this must match it exactly (defense in
+  // depth: no gap for a future nav-matrix change to fall into).
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const data = await getReportsData();
 
   return (
