@@ -123,7 +123,7 @@ type SendConfig = {
   apiVersion: string;
 };
 
-async function deliver(toNumber: string, body: string, cfg: SendConfig) {
+async function deliverPayload(toNumber: string, body: Record<string, unknown>, cfg: SendConfig) {
   const res = await fetch(
     `https://graph.facebook.com/${cfg.apiVersion}/${cfg.phoneNumberId}/messages`,
     {
@@ -132,12 +132,7 @@ async function deliver(toNumber: string, body: string, cfg: SendConfig) {
         Authorization: `Bearer ${cfg.accessToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: toNumber,
-        type: "text",
-        text: { body, preview_url: false },
-      }),
+      body: JSON.stringify({ messaging_product: "whatsapp", to: toNumber, ...body }),
     }
   );
   const payload = await res.json().catch(() => ({}) as Record<string, unknown>);
@@ -148,6 +143,43 @@ async function deliver(toNumber: string, body: string, cfg: SendConfig) {
   }
   const providerMessageId = (payload as { messages?: { id?: string }[] })?.messages?.[0]?.id;
   return { ok: true as const, providerMessageId };
+}
+
+async function deliver(toNumber: string, body: string, cfg: SendConfig) {
+  return deliverPayload(toNumber, { type: "text", text: { body, preview_url: false } }, cfg);
+}
+
+export type InteractiveListRow = { id: string; title: string; description?: string };
+
+/**
+ * Sends a Cloud API "interactive list" message — up to 10 tappable rows in
+ * one message, the right primitive for the "More Options" fan-out (Phase 5
+ * readiness, 2026-09-21: Reschedule / Pay After Service / Add to Calendar /
+ * Google Review / Before-After Photos / Call Support / WhatsApp Support —
+ * 7 options, well within Meta's cap, too many for a 3-button message).
+ * Inert until WhatsApp Cloud API credentials are configured, exactly like
+ * deliver() above.
+ */
+async function deliverInteractiveList(
+  toNumber: string,
+  input: { bodyText: string; buttonLabel: string; rows: InteractiveListRow[] },
+  cfg: SendConfig,
+) {
+  return deliverPayload(
+    toNumber,
+    {
+      type: "interactive",
+      interactive: {
+        type: "list",
+        body: { text: input.bodyText },
+        action: {
+          button: input.buttonLabel,
+          sections: [{ title: "Options", rows: input.rows.map((r) => ({ id: r.id, title: r.title, description: r.description })) }],
+        },
+      },
+    },
+    cfg,
+  );
 }
 
 /**
@@ -215,6 +247,72 @@ export async function sendWhatsApp(input: {
       where: { id: message.id },
       data: { status: "FAILED", errorMessage: (err as Error).message },
     });
+    return { queued: false as const, sent: false as const, id: message.id, error: (err as Error).message };
+  }
+}
+
+/**
+ * Queues (and, if configured, sends) one WhatsApp interactive list message
+ * — the "More Options" fan-out from a booking confirmation (Reschedule /
+ * Pay After Service / Add to Calendar / Google Review / Before-After
+ * Photos / Call Support / WhatsApp Support). Mirrors sendWhatsApp()'s
+ * queue/opt-out/log behavior exactly; the WhatsAppMessage row's `body`
+ * stores a plain-text summary of the rows (for the Message Log), while the
+ * real structured interactive payload is what's actually sent to Meta.
+ */
+export async function sendWhatsAppInteractiveList(input: {
+  kind: WhatsAppKind;
+  toNumber: string;
+  toName?: string | null;
+  bodyText: string;
+  buttonLabel: string;
+  rows: InteractiveListRow[];
+  relatedType?: string;
+  relatedId?: string;
+}) {
+  const toNumber = normalizeNumber(input.toNumber);
+  const optedOut = await isOptedOut(toNumber);
+  const summary = `${input.bodyText}\n${input.rows.map((r) => `• ${r.title}`).join("\n")}`;
+
+  const message = await db.whatsAppMessage.create({
+    data: {
+      kind: input.kind,
+      toNumber,
+      toName: input.toName ?? null,
+      body: summary,
+      relatedType: input.relatedType ?? null,
+      relatedId: input.relatedId ?? null,
+      status: optedOut ? "FAILED" : "QUEUED",
+      errorMessage: optedOut ? WHATSAPP_OPT_OUT_ERROR : null,
+    },
+  });
+
+  if (optedOut) {
+    return { queued: false as const, sent: false as const, id: message.id, error: WHATSAPP_OPT_OUT_ERROR };
+  }
+
+  const { whatsapp } = await getResolvedIntegrations();
+  if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
+    return { queued: true as const, sent: false as const, id: message.id };
+  }
+
+  try {
+    const result = await deliverInteractiveList(
+      toNumber,
+      { bodyText: input.bodyText, buttonLabel: input.buttonLabel, rows: input.rows },
+      { accessToken: whatsapp.accessToken, phoneNumberId: whatsapp.phoneNumberId, apiVersion: whatsapp.apiVersion },
+    );
+    if (!result.ok) {
+      await db.whatsAppMessage.update({ where: { id: message.id }, data: { status: "FAILED", errorMessage: result.error } });
+      return { queued: false as const, sent: false as const, id: message.id, error: result.error };
+    }
+    await db.whatsAppMessage.update({
+      where: { id: message.id },
+      data: { status: "SENT", providerMessageId: result.providerMessageId, sentAt: new Date() },
+    });
+    return { queued: false as const, sent: true as const, id: message.id };
+  } catch (err) {
+    await db.whatsAppMessage.update({ where: { id: message.id }, data: { status: "FAILED", errorMessage: (err as Error).message } });
     return { queued: false as const, sent: false as const, id: message.id, error: (err as Error).message };
   }
 }

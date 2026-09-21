@@ -1,9 +1,11 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendWhatsApp, setWhatsAppOptOut, setWhatsAppOptIn } from "@/lib/whatsapp";
+import { sendWhatsApp, sendWhatsAppInteractiveList, setWhatsAppOptOut, setWhatsAppOptIn } from "@/lib/whatsapp";
 import { getCompanySettings } from "@/server/settings";
 import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
+import { moreOptionsListMessage } from "@/lib/whatsapp-templates";
+import { COMPANY } from "@/lib/constants";
 
 /**
  * Verifies Meta's X-Hub-Signature-256 header (HMAC-SHA256 of the raw body,
@@ -76,6 +78,7 @@ type MetaInboundMessage = {
   type?: string;
   button?: { text?: string; payload?: string };
   text?: { body?: string };
+  interactive?: { type?: string; list_reply?: { id?: string; title?: string }; button_reply?: { id?: string; title?: string } };
 };
 type MetaChangeValue = { messages?: MetaInboundMessage[]; statuses?: MetaStatus[] };
 type MetaChange = { value?: MetaChangeValue };
@@ -88,21 +91,48 @@ type MetaWebhookPayload = { entry?: MetaEntry[] };
 // sentence that happens to contain it — is what triggers this.
 const OPT_OUT_KEYWORDS = /^(stop|unsubscribe|opt\s*out|cancel)$/i;
 const OPT_IN_KEYWORDS = /^(start|subscribe|opt\s*in)$/i;
+const MORE_OPTIONS_KEYWORDS = /^more$/i;
+
+async function sendMoreOptionsList(toNumber: string, messageId?: string) {
+  const list = moreOptionsListMessage();
+  await sendWhatsAppInteractiveList({
+    kind: "OTHER",
+    toNumber,
+    bodyText: list.bodyText,
+    buttonLabel: list.buttonLabel,
+    rows: list.rows,
+    relatedType: "WhatsAppWebhook",
+    relatedId: messageId,
+  });
+}
 
 /**
- * POST — three things land here:
+ * POST — several things land here:
  *
  * 1. Plain-text STOP/UNSUBSCRIBE (and START/SUBSCRIBE to reverse it) —
  *    flips WhatsAppConsent (see src/lib/whatsapp.ts) and sends exactly one
  *    confirmation reply, bypassing the opt-out gate for that one reply only
  *    (skipConsentCheck) so the confirmation itself isn't blocked by the
  *    opt-out it's confirming.
- * 2. Quick Reply button taps on the booking-confirmation template ("Before /
- *    After Photos" and "Give Google Review" — see
- *    BOOKING_CONFIRMATION_META_TEMPLATE in whatsapp-templates.ts) arrive as
- *    inbound type:"button" messages. A Quick Reply button carries no URL of
- *    its own, so we auto-reply with the real link the button promised.
- * 3. Delivery-status callbacks (sent/delivered/read/failed) are matched to
+ * 2. Plain-text MORE — the degraded, pre-Cloud-API path for "More Options"
+ *    (see premiumBookingConfirmationMessage in whatsapp-templates.ts, which
+ *    tells the customer to reply MORE instead of showing a phone number).
+ *    Answered with the same interactive list a real "More Options" button
+ *    tap sends (see #3) — sendWhatsAppInteractiveList degrades to a queued,
+ *    unsent row if the Cloud API isn't connected yet, same as every other
+ *    send in this app.
+ * 3. Quick Reply / button taps on the booking-confirmation template:
+ *    "More Options" (current) sends the interactive list of 7 options;
+ *    "Before / After Photos" and "Give Google Review" (the older 4-button
+ *    template still valid for messages already sent under it) keep working
+ *    exactly as before — nothing that already worked regresses.
+ * 4. Interactive LIST replies — a customer tapping one of the 7 More
+ *    Options rows (Reschedule / Pay After Service / Add to Calendar /
+ *    Google Review / Before-After Photos / Call Support / WhatsApp
+ *    Support). Call Support / WhatsApp Support are the only two places the
+ *    company phone number is ever sent — by design, it's never in the
+ *    initial confirmation message (Phase 5 readiness instruction).
+ * 5. Delivery-status callbacks (sent/delivered/read/failed) are matched to
  *    the WhatsAppMessage row by providerMessageId. Only "failed" is
  *    persisted — WhatsAppStatus only models QUEUED/SENT/FAILED today, so a
  *    "delivered"/"read" callback is acknowledged (200) without a schema
@@ -181,7 +211,14 @@ async function handleInboundMessages(value: MetaChangeValue) {
           relatedId: m.id,
           skipConsentCheck: true,
         });
+      } else if (MORE_OPTIONS_KEYWORDS.test(body)) {
+        await sendMoreOptionsList(m.from, m.id);
       }
+      continue;
+    }
+
+    if (m.type === "interactive" && m.interactive?.list_reply?.id) {
+      await handleMoreOptionsSelection(m.interactive.list_reply.id, m.from, m.id, reviewUrl);
       continue;
     }
 
@@ -189,6 +226,13 @@ async function handleInboundMessages(value: MetaChangeValue) {
     const from = m.from;
     const label = m.button.text;
 
+    if (/more\s*options/i.test(label)) {
+      await sendMoreOptionsList(from, m.id);
+      continue;
+    }
+
+    // Older 4-button template's Quick Replies — kept working for any
+    // message already sent/in-flight under booking_confirmation_v1.
     if (/before.*after|gallery|photo/i.test(label)) {
       await sendWhatsApp({
         kind: "OTHER",
@@ -212,5 +256,51 @@ async function handleInboundMessages(value: MetaChangeValue) {
         relatedId: m.id,
       });
     }
+  }
+}
+
+/**
+ * Routes one of the 7 More Options list-row taps to its response. Call
+ * Support / WhatsApp Support are the only two places the company phone
+ * number is ever sent to a customer in this whole flow — deliberately not
+ * in the initial confirmation message (Phase 5 readiness instruction).
+ * Reschedule / Pay After Service are acknowledged and left for a real staff
+ * follow-up (this build automates the message, not the scheduling change
+ * itself — see SAHARA_OS_STATUS.md's WhatsApp readiness entry).
+ */
+async function handleMoreOptionsSelection(rowId: string, from: string, messageId: string | undefined, reviewUrl: string) {
+  const send = (body: string, kind: Parameters<typeof sendWhatsApp>[0]["kind"] = "OTHER") =>
+    sendWhatsApp({ kind, toNumber: from, body, relatedType: "WhatsAppWebhook", relatedId: messageId });
+
+  switch (rowId) {
+    case "reschedule":
+      await send("No problem! Please reply with your preferred new date and time, and our team will confirm shortly.");
+      break;
+    case "pay_after_service":
+      await send("Sure — you can pay once the service is completed. Our team will share the payment link/QR after the job is done.");
+      break;
+    case "add_to_calendar":
+      await send(
+        "Add this to your calendar: https://calendar.google.com/calendar/render?action=TEMPLATE&text=" +
+          encodeURIComponent(`${COMPANY.name} — Cleaning Service`),
+      );
+      break;
+    case "google_review":
+      await send(
+        reviewUrl
+          ? `Thank you! We'd really appreciate a quick Google review: ${reviewUrl}`
+          : "Thank you! Our team will share the review link shortly.",
+        "REVIEW_REQUEST",
+      );
+      break;
+    case "before_after_photos":
+      await send(`Here are our Before/After photos: ${GALLERY_PUBLIC_URL}`);
+      break;
+    case "call_support":
+      await send(`You can reach us at ${COMPANY.phones[0]} — happy to help!`);
+      break;
+    case "whatsapp_support":
+      await send(`You're already chatting with us here! You can also WhatsApp us directly at ${COMPANY.phones[0]}.`);
+      break;
   }
 }
