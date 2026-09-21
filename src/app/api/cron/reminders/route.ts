@@ -38,9 +38,13 @@ export async function GET(request: NextRequest) {
   // Monthly report fires automatically on the 1st (summarizing the month
   // that just closed); ?monthly=1 forces it on demand for a manual admin
   // "Run Now" or a one-off test, same idea as the CRON_TOKEN/session dual
-  // auth above.
+  // auth above. ?month=YYYY-MM re-pulls a specific past month instead of
+  // defaulting to "last month".
   const forceMonthly = request.nextUrl.searchParams.get("monthly") === "1";
-  const monthlySummary = new Date().getDate() === 1 || forceMonthly ? await sendMonthlyBusinessSummary() : null;
+  const monthParam = request.nextUrl.searchParams.get("month");
+  const targetMonth = monthParam ? new Date(`${monthParam}-01T00:00:00`) : undefined;
+  const monthlySummary =
+    new Date().getDate() === 1 || forceMonthly ? await sendMonthlyBusinessSummary(targetMonth) : null;
 
   const [whatsappFlush, smsFlush] = await Promise.all([
     flushWhatsAppQueue({ includeFailed: true }).catch(() => null),
