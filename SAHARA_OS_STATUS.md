@@ -119,6 +119,14 @@ Re-audited the prioritized list against current code (not memory) before touchin
 
 Everything else audited against this prompt's sections A–T (Owner/Shoaib/Francis dashboards, Revenue/Profit/Reports drill-downs, AMC, Reviews, WhatsApp, Daily/Monthly reporting, Jobs/Dispatch, Mobile, Security/Permissions) was already covered by earlier passes this session with no new gap found — not re-verified line-by-line again here per the "don't repeatedly re-test already-verified COMPLETE items" instruction.
 
+## 3.6 Consolidated pass (2026-09-21, "Continue autonomously") — unit labels for every Customized Service item, final re-audit
+
+**FIXED (commit `e153222`).** Extended `CUSTOMIZER_UNIT_LABEL` to cover every item in `SERVICE_CATALOG.CUSTOMIZER_PACKAGE` (Balcony/Kitchen/Chimney/Fan/Floor Cleaning, not just the ones with a configured rate), so the manual-entry Unit Price field for a still-unpriced item now reads "Unit Price (₹ / balcony)" etc. instead of a bare "(₹)" — every service shows its correct unit regardless of whether a rate happens to be configured yet. Display label only; no rate is auto-filled for these.
+
+**Re-audited, no new gap found**: Shoaib/Francis nav matrices cross-checked again against every `nav-config.tsx` section key (unchanged since the WhatsApp Log fix — both still match requirements #1/#2 exactly); Customers pagination, Staff attendance calendar, and the Lead Detail page's plain-text Notes rendering all confirmed still correct and untouched. No code change needed for any of these.
+
+**Verification**: `tsc --noEmit` and `npm run build` both clean. Commit `e153222` deployed (Coolify webhook triggered by push) — deployment status not yet re-checked in this pass; treat as pending confirmation until the next Coolify check.
+
 ## 3. What "COMPLETE" does not mean here
 
 §1 now distinguishes **COMPLETE (live)** — actually clicked through / triggered against production this pass — from plain **COMPLETE (code)** — implements the requirement and type-checks, but not yet exercised live (usually because it needs Francis's or Shoaib's own login, which this environment doesn't have). Treat the latter as provisional until someone with that role actually uses it.
