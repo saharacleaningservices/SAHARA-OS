@@ -13,10 +13,17 @@ import { canAccess } from "@/lib/constants";
 // /login before they could ever reach either recovery form (an authenticated
 // ADMIN session could still reach them, since canAccess() lets "*" through
 // any section, which is why this wasn't caught by an admin click-through).
+// /privacy-policy and /terms are the same class of bug as forgot-password/
+// forgot-login-id above: static legal pages with no internal auth check,
+// linked directly from the public Booking Form (src/app/book/page.tsx) for
+// anonymous customers — also missing from this list, also confirmed live as
+// blocked for a logged-out visitor before being added here.
 const PUBLIC_PATHS = [
   "/login",
   "/forgot-password",
   "/forgot-login-id",
+  "/privacy-policy",
+  "/terms",
   "/api/auth/login",
   "/api/auth/device-status",
   "/api/backup",
