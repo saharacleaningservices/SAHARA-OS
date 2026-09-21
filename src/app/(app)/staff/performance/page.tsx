@@ -30,7 +30,7 @@ export default async function StaffPerformancePage({
 }) {
   // Jobs, revenue, attendance, rewards, fines and pay in one place — same
   // ADMIN/ACCOUNTS gate as the Message Log and salary slips.
-  await requireRole(["ADMIN", "ACCOUNTS"]);
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"]);
 
   const params = await searchParams;
   const now = new Date();

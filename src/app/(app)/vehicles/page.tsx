@@ -5,7 +5,7 @@ import { requireRole } from "@/lib/current-user";
 
 export default async function VehiclesPage() {
   // Vehicles: Super Admin + Accounts have full access; Operations is dispatch-only and excluded.
-  await requireRole(["ADMIN", "ACCOUNTS"]);
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"]);
   const vehicles = await getAllVehicles();
 
   return (

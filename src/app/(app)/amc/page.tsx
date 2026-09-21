@@ -5,7 +5,7 @@ import { requireRole } from "@/lib/current-user";
 import { canManageAmc } from "@/lib/permissions";
 
 export default async function AmcPage() {
-  const session = await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
+  const session = await requireRole(["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR"]);
   const contracts = await getAmcList();
   const canManage = canManageAmc(session.role);
 

@@ -10,7 +10,7 @@ export default async function CustomersPage() {
   // ROLE_NAV_ACCESS and src/lib/permissions.ts canExportCustomers) — OPERATIONS
   // was previously allowed onto this page directly by URL even though the nav
   // matrix never grants it the "customers" section.
-  const session = await requireRole(["ADMIN", "ACCOUNTS"]);
+  const session = await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"]);
   const customers = await getCustomersList();
   const canManage = session.role === "ADMIN" || session.role === "ACCOUNTS";
   const outstanding = customers.reduce((s, c) => s + (c.outstanding ?? 0), 0);
