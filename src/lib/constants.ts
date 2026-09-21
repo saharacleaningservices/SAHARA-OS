@@ -167,6 +167,7 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
     "Carpet Cleaning",
     "Window Cleaning",
     "Mattress Cleaning",
+    "Bathroom Cleaning",
     "Balcony Cleaning",
     "Kitchen Cleaning",
     "Chimney Cleaning",
@@ -287,8 +288,8 @@ export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
 // unchanged — see SERVICE_CATEGORY_LABELS) — per-item quantity-based unit
 // rates. Every service here reuses a rate that's already configured
 // elsewhere for the same real service, never an invented number:
-//  - Carpet/Window match Home Deep Cleaning's existing per-unit price
-//    (HOME_SERVICE_UNIT_PRICE).
+//  - Carpet/Window/Bathroom match Home Deep Cleaning's existing per-unit
+//    price (HOME_SERVICE_UNIT_PRICE).
 //  - Refrigerator matches the existing ADDON_SERVICE_PRICES entry.
 // Sofa Cleaning is NOT here — the owner explicitly defined a separate
 // selectable-rate structure for it instead (CUSTOMIZED_SOFA_RATE_OPTIONS
@@ -304,6 +305,7 @@ export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
 export const CUSTOMIZER_FIXED_UNIT_PRICE: Record<string, number> = {
   "Carpet Cleaning": 299,
   "Window Cleaning": 250,
+  "Bathroom Cleaning": 500,
   "Refrigerator Cleaning": 499,
 };
 
@@ -319,6 +321,7 @@ export const CUSTOMIZER_UNIT_LABEL: Record<string, string> = {
   "Sofa Cleaning": "seat",
   "Carpet Cleaning": "carpet",
   "Window Cleaning": "window",
+  "Bathroom Cleaning": "bathroom",
   "Balcony Cleaning": "balcony",
   "Kitchen Cleaning": "kitchen",
   "Chimney Cleaning": "chimney",
