@@ -77,6 +77,7 @@ export const ModelName = {
   Review: 'Review',
   BackupEvent: 'BackupEvent',
   WhatsAppMessage: 'WhatsAppMessage',
+  WhatsAppConsent: 'WhatsAppConsent',
   AmcContract: 'AmcContract',
   AmcVisit: 'AmcVisit',
   UpsellRule: 'UpsellRule',
@@ -90,7 +91,8 @@ export const ModelName = {
   SmsMessage: 'SmsMessage',
   SecurityOtp: 'SecurityOtp',
   Notification: 'Notification',
-  PushSubscription: 'PushSubscription'
+  PushSubscription: 'PushSubscription',
+  BusinessTarget: 'BusinessTarget'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -636,6 +638,21 @@ export const WhatsAppMessageScalarFieldEnum = {
 export type WhatsAppMessageScalarFieldEnum = (typeof WhatsAppMessageScalarFieldEnum)[keyof typeof WhatsAppMessageScalarFieldEnum]
 
 
+export const WhatsAppConsentScalarFieldEnum = {
+  id: 'id',
+  phoneNumber: 'phoneNumber',
+  optedOut: 'optedOut',
+  optedOutAt: 'optedOutAt',
+  optedOutVia: 'optedOutVia',
+  reinstatedAt: 'reinstatedAt',
+  notes: 'notes',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WhatsAppConsentScalarFieldEnum = (typeof WhatsAppConsentScalarFieldEnum)[keyof typeof WhatsAppConsentScalarFieldEnum]
+
+
 export const AmcContractScalarFieldEnum = {
   id: 'id',
   contractNumber: 'contractNumber',
@@ -874,6 +891,19 @@ export const PushSubscriptionScalarFieldEnum = {
 } as const
 
 export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
+
+
+export const BusinessTargetScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  month: 'month',
+  targetAmount: 'targetAmount',
+  setByName: 'setByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessTargetScalarFieldEnum = (typeof BusinessTargetScalarFieldEnum)[keyof typeof BusinessTargetScalarFieldEnum]
 
 
 export const SortOrder = {

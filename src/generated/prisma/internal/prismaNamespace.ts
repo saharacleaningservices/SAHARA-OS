@@ -418,6 +418,7 @@ export const ModelName = {
   Review: 'Review',
   BackupEvent: 'BackupEvent',
   WhatsAppMessage: 'WhatsAppMessage',
+  WhatsAppConsent: 'WhatsAppConsent',
   AmcContract: 'AmcContract',
   AmcVisit: 'AmcVisit',
   UpsellRule: 'UpsellRule',
@@ -431,7 +432,8 @@ export const ModelName = {
   SmsMessage: 'SmsMessage',
   SecurityOtp: 'SecurityOtp',
   Notification: 'Notification',
-  PushSubscription: 'PushSubscription'
+  PushSubscription: 'PushSubscription',
+  BusinessTarget: 'BusinessTarget'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -447,7 +449,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "securityOtp" | "notification" | "pushSubscription"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2523,6 +2525,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WhatsAppConsent: {
+      payload: Prisma.$WhatsAppConsentPayload<ExtArgs>
+      fields: Prisma.WhatsAppConsentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WhatsAppConsentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WhatsAppConsentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>
+        }
+        findFirst: {
+          args: Prisma.WhatsAppConsentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WhatsAppConsentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>
+        }
+        findMany: {
+          args: Prisma.WhatsAppConsentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>[]
+        }
+        create: {
+          args: Prisma.WhatsAppConsentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>
+        }
+        createMany: {
+          args: Prisma.WhatsAppConsentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WhatsAppConsentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>[]
+        }
+        delete: {
+          args: Prisma.WhatsAppConsentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>
+        }
+        update: {
+          args: Prisma.WhatsAppConsentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>
+        }
+        deleteMany: {
+          args: Prisma.WhatsAppConsentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WhatsAppConsentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WhatsAppConsentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>[]
+        }
+        upsert: {
+          args: Prisma.WhatsAppConsentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConsentPayload>
+        }
+        aggregate: {
+          args: Prisma.WhatsAppConsentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWhatsAppConsent>
+        }
+        groupBy: {
+          args: Prisma.WhatsAppConsentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WhatsAppConsentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WhatsAppConsentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WhatsAppConsentCountAggregateOutputType> | number
+        }
+      }
+    }
     AmcContract: {
       payload: Prisma.$AmcContractPayload<ExtArgs>
       fields: Prisma.AmcContractFieldRefs
@@ -3559,6 +3635,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BusinessTarget: {
+      payload: Prisma.$BusinessTargetPayload<ExtArgs>
+      fields: Prisma.BusinessTargetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BusinessTargetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BusinessTargetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>
+        }
+        findFirst: {
+          args: Prisma.BusinessTargetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BusinessTargetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>
+        }
+        findMany: {
+          args: Prisma.BusinessTargetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>[]
+        }
+        create: {
+          args: Prisma.BusinessTargetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>
+        }
+        createMany: {
+          args: Prisma.BusinessTargetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BusinessTargetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>[]
+        }
+        delete: {
+          args: Prisma.BusinessTargetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>
+        }
+        update: {
+          args: Prisma.BusinessTargetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>
+        }
+        deleteMany: {
+          args: Prisma.BusinessTargetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BusinessTargetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BusinessTargetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>[]
+        }
+        upsert: {
+          args: Prisma.BusinessTargetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessTargetPayload>
+        }
+        aggregate: {
+          args: Prisma.BusinessTargetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBusinessTarget>
+        }
+        groupBy: {
+          args: Prisma.BusinessTargetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessTargetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BusinessTargetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessTargetCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4125,6 +4275,21 @@ export const WhatsAppMessageScalarFieldEnum = {
 export type WhatsAppMessageScalarFieldEnum = (typeof WhatsAppMessageScalarFieldEnum)[keyof typeof WhatsAppMessageScalarFieldEnum]
 
 
+export const WhatsAppConsentScalarFieldEnum = {
+  id: 'id',
+  phoneNumber: 'phoneNumber',
+  optedOut: 'optedOut',
+  optedOutAt: 'optedOutAt',
+  optedOutVia: 'optedOutVia',
+  reinstatedAt: 'reinstatedAt',
+  notes: 'notes',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WhatsAppConsentScalarFieldEnum = (typeof WhatsAppConsentScalarFieldEnum)[keyof typeof WhatsAppConsentScalarFieldEnum]
+
+
 export const AmcContractScalarFieldEnum = {
   id: 'id',
   contractNumber: 'contractNumber',
@@ -4363,6 +4528,19 @@ export const PushSubscriptionScalarFieldEnum = {
 } as const
 
 export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
+
+
+export const BusinessTargetScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  month: 'month',
+  targetAmount: 'targetAmount',
+  setByName: 'setByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessTargetScalarFieldEnum = (typeof BusinessTargetScalarFieldEnum)[keyof typeof BusinessTargetScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -4690,6 +4868,7 @@ export type GlobalOmitConfig = {
   review?: Prisma.ReviewOmit
   backupEvent?: Prisma.BackupEventOmit
   whatsAppMessage?: Prisma.WhatsAppMessageOmit
+  whatsAppConsent?: Prisma.WhatsAppConsentOmit
   amcContract?: Prisma.AmcContractOmit
   amcVisit?: Prisma.AmcVisitOmit
   upsellRule?: Prisma.UpsellRuleOmit
@@ -4704,6 +4883,7 @@ export type GlobalOmitConfig = {
   securityOtp?: Prisma.SecurityOtpOmit
   notification?: Prisma.NotificationOmit
   pushSubscription?: Prisma.PushSubscriptionOmit
+  businessTarget?: Prisma.BusinessTargetOmit
 }
 
 /* Types for Logging */
