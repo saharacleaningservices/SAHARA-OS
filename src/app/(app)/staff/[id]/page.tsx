@@ -153,7 +153,14 @@ export default async function StaffDetailPage({
                   <p className="font-medium text-foreground">{formatINR(totalWages)}</p>
                 </div>
               )}
-              {(staff.bankAccount || staff.gpayNumber) && (
+              {/* Bank/GPay account details are financial-sensitive, same
+                  category as salary/wage — previously shown to ANY role with
+                  staff-detail access (a real gap found in the 2026-09-21
+                  Francis policy audit: OPERATIONS's own settled policy
+                  already excludes "staff salary/wage figures", and bank
+                  account data is squarely in that category, so this fix
+                  corrects an existing leak, not a new restriction). */}
+              {showSalary && (staff.bankAccount || staff.gpayNumber) && (
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-muted-foreground">Payment Details</p>
                   <p className="font-medium text-foreground">
@@ -226,11 +233,16 @@ export default async function StaffDetailPage({
         </div>
 
         <div className="space-y-4">
-          <StaffDocumentsCard
-            staffId={staff.id}
-            documents={documents}
-            canEdit={session.role === "ADMIN" || session.role === "ACCOUNTS"}
-          />
+          {/* Owner instruction 2026-09-21 (Francis final policy): "HIDE
+              COMPLETELY: Private staff documents" for SUPERVISOR/Francis —
+              was previously shown to any role with staff-detail access. */}
+          {session.role !== "SUPERVISOR" && (
+            <StaffDocumentsCard
+              staffId={staff.id}
+              documents={documents}
+              canEdit={session.role === "ADMIN" || session.role === "ACCOUNTS"}
+            />
+          )}
           {ledger && (
             <PayrollLedgerCard
               staffId={staff.id}

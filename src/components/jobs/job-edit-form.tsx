@@ -49,7 +49,7 @@ export function JobEditForm({
     setSubmitting(true);
     const res = await updateJob(jobId, { ...values, staffIds: selectedStaff });
     setSubmitting(false);
-    if (res.error) {
+    if ("error" in res && res.error) {
       toast.error(res.error);
       return;
     }

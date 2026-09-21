@@ -60,7 +60,7 @@ export function QuickDispatch({
     }
     startTransition(async () => {
       const res = await updateJob(jobId, { staffIds });
-      if (res?.error) {
+      if ("error" in res && res.error) {
         toast.error(res.error);
         return;
       }

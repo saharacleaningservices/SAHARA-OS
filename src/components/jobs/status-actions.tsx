@@ -26,7 +26,7 @@ export function StatusActions({ jobId, status }: { jobId: string; status: string
     if (!step) return;
     startTransition(async () => {
       const res = await updateJobStatus(jobId, step.next);
-      if (res.error) {
+      if ("error" in res && res.error) {
         toast.error(res.error);
         return;
       }
@@ -50,7 +50,7 @@ export function StatusActions({ jobId, status }: { jobId: string; status: string
   function setStatus(next: "REACTIVATED" | "POSTPONED" | "CANCELLED") {
     startTransition(async () => {
       const res = await updateJobStatus(jobId, next);
-      if (res.error) {
+      if ("error" in res && res.error) {
         toast.error(res.error);
         return;
       }

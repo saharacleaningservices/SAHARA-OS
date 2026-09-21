@@ -10,6 +10,7 @@ import { requireUser } from "@/lib/current-user";
 import { getTodayDispatch } from "@/server/jobs";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
+import { startOfDay } from "date-fns";
 import { buildRouteLink, buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,13 @@ export default async function DispatchPage({
   if (session.role !== "ADMIN" && session.role !== "OPERATIONS" && session.role !== "SUPERVISOR" && session.role !== "ACCOUNTS") {
     redirect("/jobs");
   }
-  const { date } = await searchParams;
+  let { date } = await searchParams;
+  // Francis (SUPERVISOR) final policy, 2026-09-21: Team Dispatch is a
+  // TODAY-ONLY operational action for him — ignore any ?date= other than
+  // today rather than letting a direct URL peek at another day's dispatch.
+  if (session.role === "SUPERVISOR" && date && startOfDay(new Date(date)).getTime() !== startOfDay(new Date()).getTime()) {
+    date = undefined;
+  }
   const { date: day, total, groups } = await getTodayDispatch(date);
   const allRoute = buildRouteLink(groups.flatMap((g) => g.jobs));
 

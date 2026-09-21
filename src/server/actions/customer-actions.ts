@@ -7,10 +7,20 @@ import { sendSMS } from "@/lib/sms";
 import { sendWhatsAppMany } from "@/lib/whatsapp";
 import { addTimelineEntry } from "@/server/timeline";
 
-/** Quick customer search for the floating Customer Actions button. */
+/**
+ * Quick customer search for the Customer Actions top bar. Unrestricted
+ * across the whole Lead/Job/Customer database by design — for every role
+ * that has it. Francis (SUPERVISOR) is explicitly excluded: his 2026-09-21
+ * final policy says he "must NOT have unrestricted access to the Customers
+ * database," and the top bar itself already disappears for him (it's only
+ * mounted when canAccess(role, "customers") is true, which his narrowed
+ * nav no longer grants) — this direct-call block is defense in depth for
+ * the same reason every other Server Action check in this codebase exists:
+ * a UI gate alone doesn't stop a direct call.
+ */
 export async function searchCustomersQuick(q: string) {
   const session = await getSession();
-  if (!session) return [];
+  if (!session || session.role === "SUPERVISOR") return [];
   const term = q.trim();
   const digits = term.replace(/\D/g, "");
 
@@ -81,10 +91,15 @@ export async function sendCustomerSMS(mobile: string, name: string, body: string
 const MAX_CAMPAIGN_RECIPIENTS = 300; // matches flushWhatsAppQueue's per-run cap in src/lib/whatsapp.ts
 
 function canManageCustomers(role: string | undefined): boolean {
-  // Customers module (search, edit, WhatsApp offer/campaign) is full
-  // operational access for OPERATIONS/SUPERVISOR too, per the owner's
-  // 2026-09-21 final role policy — see SAHARA_OS_MASTER_REQUIREMENTS.md #2.
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
+  // Customers module (bulk WhatsApp campaign, customer-profile edit) is
+  // full operational access for OPERATIONS too, per the owner's 2026-09-21
+  // role policy — see SAHARA_OS_MASTER_REQUIREMENTS.md #2. SUPERVISOR
+  // removed the same day by an explicit policy override: Francis must not
+  // have unrestricted Customers database access. He can still send a
+  // Booking Form/Review/Payment link and Call/WhatsApp a customer from a
+  // Job/Lead's own detail page — that's a different, already-scoped code
+  // path (createBookingLink in booking-links.ts) not gated by this check.
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
 }
 
 /**
