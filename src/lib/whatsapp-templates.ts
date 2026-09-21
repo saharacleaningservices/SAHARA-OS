@@ -100,7 +100,7 @@ export function premiumBookingConfirmationMessage(input: {
   const location = input.address?.trim() || input.area;
   const hasBalance = !!input.balanceDue && input.balanceDue > 0;
   const paymentLine = hasBalance
-    ? `💳 Pay Now / Payment Link — ${formatINR(input.balanceDue!)} due: ${trackingUrl}#payment`
+    ? `💳 Pay Advance — ${formatINR(input.balanceDue!)} due: ${trackingUrl}#payment`
     : `💳 Payment — fully settled, thank you!`;
 
   return [
@@ -120,15 +120,17 @@ export function premiumBookingConfirmationMessage(input: {
     `Keep your space ready, we'll take care of the rest! 🙏`,
     ``,
     `— — — — — — — — — —`,
-    `📄 View Booking Details: ${trackingUrl}`,
+    `📄 View Booking: ${trackingUrl}`,
     paymentLine,
-    `🖼️ Before/After Photos: ${GALLERY_PUBLIC_URL}`,
-    input.googleReviewUrl ? `⭐ Give Google Review: ${input.googleReviewUrl}` : null,
+    // Owner instruction 2026-09-21 (Phase 5 WhatsApp readiness): the
+    // confirmation message itself must carry no visible phone number.
+    // Reschedule/pay-after-service/calendar/review/photos/call/WhatsApp
+    // support are all reached by replying MORE, matching the real
+    // Cloud-API "More Options" interactive-list button once the template
+    // below is approved and connected — see moreOptionsListMessage().
+    `ℹ️ More Options: reply *MORE* for reschedule, pay-after-service, calendar, review, photos & support`,
     `— — — — — — — — — —`,
     ``,
-    `Need help? We're just a message away!`,
-    `📞 Operational Support: ${COMPANY.phones[1]}`,
-    `📱 Booking & Feedback: ${COMPANY.phones[0]}`,
     `🌐 ${COMPANY.website ?? "www.saharacleaningservices.com"}`,
     `✉️ ${COMPANY.email}`,
   ]
@@ -137,28 +139,64 @@ export function premiumBookingConfirmationMessage(input: {
 }
 
 /**
+ * The 7 "More Options" rows offered when a customer taps the Cloud-API
+ * template's More Options button, or (today, pre-Cloud-API) replies MORE to
+ * the plain-text confirmation above — see the webhook's handling of both.
+ * Google Review / Before-After Photos already existed as their own
+ * top-level Quick Replies on the old 4-button template; folded in here
+ * rather than dropped, so nothing that already worked regresses.
+ */
+export const MORE_OPTIONS_ROWS: { id: string; title: string; description: string }[] = [
+  { id: "reschedule", title: "Reschedule", description: "Request a different date/time" },
+  { id: "pay_after_service", title: "Pay After Service", description: "Settle the balance once the job is done" },
+  { id: "add_to_calendar", title: "Add to Calendar", description: "Save the appointment to your calendar" },
+  { id: "google_review", title: "Google Review", description: "Share your experience" },
+  { id: "before_after_photos", title: "Before / After Photos", description: "See the results" },
+  { id: "call_support", title: "Call Support", description: "Get our support number" },
+  { id: "whatsapp_support", title: "WhatsApp Support", description: "Chat with our support team" },
+];
+
+/** Builds the interactive-list send payload for sendWhatsAppInteractiveList(). */
+export function moreOptionsListMessage() {
+  return { bodyText: `${COMPANY.name} — how can we help?`, buttonLabel: "View Options", rows: MORE_OPTIONS_ROWS };
+}
+
+/**
  * The exact Meta WhatsApp message Template to create in Business Manager
  * once WhatsApp Cloud API is connected (Settings → Integrations). Mirrors
  * premiumBookingConfirmationMessage above 1:1, translated into Meta's real
- * template constraints (verified against Meta's current template rules —
- * a template may mix button groups but not interleave them, with a hard
- * cap of 2 URL buttons and 1 phone-number button per template):
+ * template constraints (a template may mix button groups but not
+ * interleave them; Meta caps a template at 3 buttons total).
+ *
+ * Redesigned 2026-09-21 (Phase 5 WhatsApp readiness — owner instruction:
+ * "single branded message ... no visible phone number ... View Booking,
+ * Pay Advance, More Options"), replacing the earlier 4-button version
+ * (View Booking Details / Pay Now / Before-After Photos / Google Review):
  *
  *   HEADER  — IMAGE, the official Sahara logo (/brand/sahara-logo.png)
  *   BODY    — 5 variables: {{1}} name, {{2}} booking ID, {{3}} date,
  *             {{4}} time, {{5}} service, {{6}} address — plus the fixed
- *             friendly note and the fixed contact block (footer can't hold
- *             two numbers + a website + an email, so they live in the body).
- *   BUTTONS — URL "View Booking Details" (dynamic /j/{{1}} suffix),
- *             URL "Pay Now / Payment Link" (dynamic /j/{{1}}#payment),
- *             QUICK_REPLY "Before / After Photos",
- *             QUICK_REPLY "Give Google Review".
- *             The two QUICK_REPLY buttons don't open a link directly —
- *             Meta templates cap URL buttons at 2 — so the webhook
- *             (src/app/api/webhooks/whatsapp/route.ts, once built) replies
- *             instantly with the gallery / review link when tapped. This
- *             keeps all four actions on the confirmation message, exactly
- *             like the approved mockup, while staying inside Meta's rules.
+ *             friendly note. No phone number anywhere in the body — Call
+ *             Support / WhatsApp Support are two of the 7 rows behind the
+ *             More Options button below, so the number is only revealed
+ *             to a customer who actually asks for it.
+ *   BUTTONS — URL "View Booking" (/j/{{1}}),
+ *             URL "Pay Advance" (/j/{{1}}#payment),
+ *             QUICK_REPLY "More Options".
+ *             "More Options" doesn't open a link — the webhook
+ *             (src/app/api/webhooks/whatsapp/route.ts) replies with a real
+ *             Cloud API interactive LIST message (see
+ *             moreOptionsListMessage() / sendWhatsAppInteractiveList() in
+ *             src/lib/whatsapp.ts) offering Reschedule / Pay After Service /
+ *             Add to Calendar / Google Review / Before-After Photos / Call
+ *             Support / WhatsApp Support — 7 rows, within a list's 10-row
+ *             cap but too many for a second layer of template buttons
+ *             (capped at 3). Before the Cloud API is connected, the same
+ *             flow degrades to plain text: premiumBookingConfirmationMessage
+ *             tells the customer to reply MORE, and the webhook's text
+ *             handler answers with the identical option list as a numbered
+ *             plain-text reply — same options, same destinations, no
+ *             interactive UI needed yet.
  *
  * Category UTILITY (transactional, sent outside the 24-hour session window
  * without needing a prior customer message). Submit this exact JSON via
@@ -166,7 +204,7 @@ export function premiumBookingConfirmationMessage(input: {
  * Cloud API POST /{waba-id}/message_templates endpoint.
  */
 export const BOOKING_CONFIRMATION_META_TEMPLATE = {
-  name: "booking_confirmation_v1",
+  name: "booking_confirmation_v2",
   language: "en",
   category: "UTILITY",
   components: [
@@ -180,8 +218,7 @@ export const BOOKING_CONFIRMATION_META_TEMPLATE = {
       text:
         "Hi {{1}},\n*Your booking has been confirmed!* ✅\nThank you for choosing Sahara Cleaning Services. We're excited to serve you!\n\n" +
         "🆔 Booking ID: {{2}}\n🗓️ Service Date: {{3}}\n⏰ Time: {{4}}\n🧹 Service: {{5}}\n📍 Address: {{6}}\n\n" +
-        "👥 Our team will arrive on time. You'll get a WhatsApp message before they start.\nKeep your space ready, we'll take care of the rest! 🙏\n\n" +
-        "Need help? We're just a message away!\n📞 Operational Support: 8956567130\n📱 Booking & Feedback: 7083347130\n🌐 www.saharacleaningservices.com\n✉️ contact@saharacleaningservices.com",
+        "👥 Our team will arrive on time. You'll get a WhatsApp message before they start.\nKeep your space ready, we'll take care of the rest! 🙏",
       example: {
         body_text: [
           [
@@ -200,18 +237,17 @@ export const BOOKING_CONFIRMATION_META_TEMPLATE = {
       buttons: [
         {
           type: "URL",
-          text: "View Booking Details",
+          text: "View Booking",
           url: "https://app.saharacleaningservices.com/j/{{1}}",
           example: ["https://app.saharacleaningservices.com/j/SHR-240916-001"],
         },
         {
           type: "URL",
-          text: "Pay Now / Payment Link",
+          text: "Pay Advance",
           url: "https://app.saharacleaningservices.com/j/{{1}}#payment",
           example: ["https://app.saharacleaningservices.com/j/SHR-240916-001#payment"],
         },
-        { type: "QUICK_REPLY", text: "Before / After Photos" },
-        { type: "QUICK_REPLY", text: "Give Google Review" },
+        { type: "QUICK_REPLY", text: "More Options" },
       ],
     },
   ],
