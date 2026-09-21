@@ -89,6 +89,15 @@ export default async function DashboardPage() {
   const showStaffCards = canAccess(session.role, "staff");
   const showReportsCards = canAccess(session.role, "reports");
   const upcomingFollowUpsCount = followUpsToday.length + followUpsTomorrow.length;
+  // Francis (SUPERVISOR) final policy, 2026-09-21: even within showCrm's
+  // "leads" section access, the dashboard must not surface global/
+  // historical business metrics (Total Leads, Monthly Leads, Monthly
+  // Jobs, Conversion Rate, Repeat Customers, Overdue Follow-ups) — these
+  // are broad owner/operational-manager KPIs, not "today + tomorrow
+  // actionable" information. OPERATIONS (Shoyab) keeps every one of these
+  // unchanged; this flag narrows only SUPERVISOR's dashboard.
+  const isSupervisor = session.role === "SUPERVISOR";
+  const showCrmGlobalStats = showCrm && !isSupervisor;
 
   return (
     <div className="space-y-6">
@@ -145,23 +154,27 @@ export default async function DashboardPage() {
           <DashboardQuickActions />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            {showCrmGlobalStats && (
+              <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="blue" />
+            )}
             {showCrm && (
-              <>
-                <StatCard href="/leads" label="Total Leads" value={stats.totalLeadsCount} icon={<Users className="size-4" />} tone="blue" />
-                <StatCard href="/leads?due=today" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} tone="blue" />
-                <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
-              </>
+              <StatCard href="/leads?due=today" label="Today's Leads" value={stats.todaysLeadsCount} icon={<Users className="size-4" />} tone="blue" />
+            )}
+            {showCrmGlobalStats && (
+              <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
             )}
             <StatCard href="/jobs?when=today" label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone="blue" glow={stats.todaysJobsCount > 0} />
             <StatCard href="/jobs?when=tomorrow" label="Tomorrow's Jobs" value={stats.tomorrowsJobsCount} icon={<CalendarClock className="size-4" />} tone="blue" />
-            <StatCard href="/jobs" label="Monthly Jobs" value={stats.monthlyBookingsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
+            {!isSupervisor && (
+              <StatCard href="/jobs" label="Monthly Jobs" value={stats.monthlyBookingsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
+            )}
             {showCrm && (
               <StatCard href="/leads?stage=SITE_VISIT" label="Site Visits Today" value={stats.siteVisitsToday} icon={<MapPin className="size-4" />} tone="indigo" glow={stats.siteVisitsToday > 0} />
             )}
-            {showCrm && (
+            {showCrmGlobalStats && (
               <StatCard href="/customers" label="Repeat Customers" value={stats.repeatCustomerCount} icon={<Users className="size-4" />} tone="purple" />
             )}
-            {showCrm && (
+            {showCrmGlobalStats && (
               <StatCard
                 href="/leads"
                 label="Conversion Rate"
@@ -191,7 +204,10 @@ export default async function DashboardPage() {
             {showReportsCards && (
               <StatCard href="/reports" label="Review Pending" value={stats.reviewsPendingCount} icon={<Star className="size-4" />} tone="orange" />
             )}
-            {showCrm && (
+            {/* Overdue = historical by definition (dueDate before today) —
+                hidden for SUPERVISOR; the query itself also returns empty
+                for him (server/dashboard.ts), this is belt-and-suspenders. */}
+            {showCrm && !isSupervisor && (
               <StatCard href="/leads?due=overdue" label="Overdue Follow-ups" value={followUpsOverdue.length} icon={<BellRing className="size-4" />} tone="red" glow={followUpsOverdue.length > 0} />
             )}
             {showStaffCards && (

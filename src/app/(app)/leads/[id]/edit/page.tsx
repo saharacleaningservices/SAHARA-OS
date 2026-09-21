@@ -1,13 +1,15 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { LeadForm } from "@/components/leads/lead-form";
-import { getLeadDetail } from "@/server/leads";
+import { getLeadDetail, canAccessLead } from "@/server/leads";
 import { getStaffForAssignment } from "@/server/staff";
 import { getUsersForAssignment } from "@/server/users";
 import { getResolvedIntegrations } from "@/server/integrations";
+import { requireUser } from "@/lib/current-user";
 
 export default async function EditLeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const session = await requireUser();
   const [lead, staffOptions, userOptions, { googleMaps }] = await Promise.all([
     getLeadDetail(id),
     getStaffForAssignment(),
@@ -15,6 +17,11 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
     getResolvedIntegrations(),
   ]);
   if (!lead) notFound();
+  // Francis (SUPERVISOR) final policy, 2026-09-21: this page had NO session
+  // check at all before — a direct URL to /leads/<any-id>/edit fully
+  // bypassed the scope check the main detail page already enforced,
+  // exposing every field of any lead in the system regardless of date.
+  if (!canAccessLead(session, lead)) redirect("/leads");
 
   return (
     <div className="max-w-3xl space-y-6">

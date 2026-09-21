@@ -135,12 +135,18 @@ export async function getDashboardData(role?: string) {
       orderBy: { dueDate: "asc" },
       take: 8,
     }),
-    db.followUp.findMany({
-      where: { isDone: false, dueDate: { lt: todayStart }, lead: { deletedAt: null } },
-      include: { lead: true },
-      orderBy: { dueDate: "asc" },
-      take: 12,
-    }),
+    // Overdue follow-ups are, by definition, historical (dueDate before
+    // today) — exactly the "no unrestricted browsing of historical leads"
+    // category Francis's policy forbids. Returns nothing for SUPERVISOR
+    // rather than relying solely on the page hiding the card/list.
+    isSupervisor
+      ? Promise.resolve([])
+      : db.followUp.findMany({
+          where: { isDone: false, dueDate: { lt: todayStart }, lead: { deletedAt: null } },
+          include: { lead: true },
+          orderBy: { dueDate: "asc" },
+          take: 12,
+        }),
     db.payment.aggregate({
       where: { deletedAt: null, status: "PAID", paidDate: { gte: monthStart, lte: monthEnd } },
       _sum: { paidAmount: true },
