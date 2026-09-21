@@ -278,19 +278,39 @@ export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
   "Curtain Cleaning": 199, // per pair
 };
 
-// Customizer Package — per-item quantity-based unit rates, reusing the exact
-// rates already configured elsewhere for the same real service (Carpet/
-// Window match Home Deep Cleaning's per-unit price; Refrigerator matches the
-// existing ADDON_SERVICE_PRICES entry). Sofa Cleaning and Mattress Cleaning
-// are priced by size instead (SOFA_SEATER_PRICES / MATTRESS_UNIT_PRICE), same
-// as Home Deep Cleaning. Every other Customizer service in SERVICE_CATALOG
-// (Balcony/Kitchen/Chimney/Fan/Floor Cleaning) has no configured rate yet —
-// staff enters the real quoted unit price manually; never auto-filled or
-// invented (see ServiceQuantityFields).
+// Customizer Package — per-item quantity-based unit rates. Every service
+// here reuses a rate that's already configured elsewhere for the same real
+// service, never an invented number:
+//  - Carpet/Window match Home Deep Cleaning's existing per-unit price
+//    (HOME_SERVICE_UNIT_PRICE).
+//  - Refrigerator matches the existing ADDON_SERVICE_PRICES entry.
+//  - Sofa Cleaning has no per-seat rate configured under that exact name —
+//    the only existing linear (quantity x rate) sofa figure anywhere in the
+//    app is the "Sofa Shampooing" add-on's ₹499/seat (ADDON_SERVICE_PRICES).
+//    SOFA_SEATER_PRICES (used by Home Deep Cleaning) is a flat price PER
+//    SEATER TIER (e.g. "5 Seater" = a bundle price, not linear per seat), so
+//    it can't answer "unit price x quantity" the way this flow needs. Reused
+//    the ₹499/seat figure here as the closest genuinely-configured match.
+// Mattress Cleaning is priced by size instead (MATTRESS_UNIT_PRICE — Single
+// vs Double genuinely have different real rates, so a size picker stays).
+// Every other Customizer service in SERVICE_CATALOG (Balcony/Kitchen/
+// Chimney/Fan/Floor Cleaning) has no configured rate yet — staff enter the
+// real quoted unit price manually; never auto-filled or invented (see
+// ServiceQuantityFields).
 export const CUSTOMIZER_FIXED_UNIT_PRICE: Record<string, number> = {
+  "Sofa Cleaning": 499,
   "Carpet Cleaning": 299,
   "Window Cleaning": 250,
   "Refrigerator Cleaning": 499,
+};
+
+// Display-only unit noun for each Customizer Package rate above, so the
+// Unit Price field can show e.g. "₹299 / carpet" instead of a bare number.
+export const CUSTOMIZER_UNIT_LABEL: Record<string, string> = {
+  "Sofa Cleaning": "seat",
+  "Carpet Cleaning": "carpet",
+  "Window Cleaning": "window",
+  "Refrigerator Cleaning": "fridge",
 };
 
 export const PAINT_TYPE_RATE_PER_SQFT: Record<string, number> = {
