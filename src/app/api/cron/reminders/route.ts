@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { runAllReminderSweeps } from "@/server/reminders";
 import { sendDailyAttendanceSummary } from "@/server/attendance";
 import { sendDailyBusinessSummary } from "@/server/daily-summary";
+import { sendMonthlyBusinessSummary } from "@/server/monthly-summary";
 import { flushWhatsAppQueue } from "@/lib/whatsapp";
 import { flushSmsQueue } from "@/lib/sms";
 
@@ -33,10 +34,18 @@ export async function GET(request: NextRequest) {
   const reminders = await runAllReminderSweeps();
   const attendance = await sendDailyAttendanceSummary();
   const dailySummary = await sendDailyBusinessSummary();
+
+  // Monthly report fires automatically on the 1st (summarizing the month
+  // that just closed); ?monthly=1 forces it on demand for a manual admin
+  // "Run Now" or a one-off test, same idea as the CRON_TOKEN/session dual
+  // auth above.
+  const forceMonthly = request.nextUrl.searchParams.get("monthly") === "1";
+  const monthlySummary = new Date().getDate() === 1 || forceMonthly ? await sendMonthlyBusinessSummary() : null;
+
   const [whatsappFlush, smsFlush] = await Promise.all([
     flushWhatsAppQueue({ includeFailed: true }).catch(() => null),
     flushSmsQueue({ includeFailed: true }).catch(() => null),
   ]);
 
-  return NextResponse.json({ reminders, attendance, dailySummary, whatsappFlush, smsFlush });
+  return NextResponse.json({ reminders, attendance, dailySummary, monthlySummary, whatsappFlush, smsFlush });
 }

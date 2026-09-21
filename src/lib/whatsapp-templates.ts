@@ -547,6 +547,33 @@ export function dailyAttendanceSummaryMessage(input: { date: Date; present: numb
   ].join("\n");
 }
 
+/** Last month's management report — sent on the 1st of each month. */
+export function monthlyBusinessSummaryMessage(input: {
+  monthLabel: string;
+  totalSales: number;
+  employeeSalaries: number;
+  vendorPayments: number;
+  otherExpenses: number;
+  totalExpenses: number;
+  difference: number;
+}) {
+  return [
+    `📊 Monthly Report — ${input.monthLabel}`,
+    ``,
+    `Total Sales: ${formatINR(input.totalSales)}`,
+    ``,
+    `Expenses:`,
+    `  Employee Salaries: ${formatINR(input.employeeSalaries)}`,
+    `  Vendor Payments: ${formatINR(input.vendorPayments)}`,
+    `  Misc / Other Expenses: ${formatINR(input.otherExpenses)}`,
+    `Total Expenses: ${formatINR(input.totalExpenses)}`,
+    ``,
+    `${input.difference >= 0 ? "Net Profit" : "Net Loss"}: ${formatINR(Math.abs(input.difference))}`,
+    ``,
+    `— ${COMPANY.name}`,
+  ].join("\n");
+}
+
 /** Yesterday's business snapshot — sent each morning alongside the attendance summary. */
 export function dailyBusinessSummaryMessage(input: {
   date: Date;
