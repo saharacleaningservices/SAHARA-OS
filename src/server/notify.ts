@@ -6,11 +6,12 @@
 //
 // Role routing (final production mapping):
 //   ADMIN (Altaf)       — every notification; the critical ones use a distinct alert sound
-//   OPERATIONS (Shoyab) — Operations Manager: the full stream — CRM (leads,
-//                         inquiries, follow-ups, payments) and operations
-//                         (crew updates, site visits, bookings)
-//   SUPERVISOR (Francis)— Field Coordinator: crew updates, site visits, bookings
-//   ACCOUNTS            — CRM: leads, inquiries, follow-ups, payments, bookings
+//   ACCOUNTS (Shoyab)   — Accounts & Operations Editor: the full CRM stream —
+//                         leads, inquiries, follow-ups, payments, bookings
+//   OPERATIONS (Francis)— Operations Manager: CRM (leads, inquiries,
+//                         follow-ups) and operations (crew updates, site
+//                         visits, bookings) — no payments
+//   SUPERVISOR          — Field Coordinator: crew updates, site visits, bookings
 
 import { db } from "@/lib/db";
 import { pushToUsers } from "@/lib/webpush";
@@ -21,6 +22,7 @@ export type NotifKind =
   | "NEW_INQUIRY"
   | "PAYMENT_RECEIVED"
   | "FOLLOWUP_DUE"
+  | "STALE_LEAD"
   | "SITE_VISIT"
   | "CREW_UPDATE"
   | "DEVICE_LOGIN"
@@ -35,6 +37,7 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   NEW_INQUIRY: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
   PAYMENT_RECEIVED: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
   FOLLOWUP_DUE: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
+  STALE_LEAD: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
   SITE_VISIT: ["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR"],
   CREW_UPDATE: ["ADMIN", "OPERATIONS", "SUPERVISOR"],
   DEVICE_LOGIN: ["ADMIN"],

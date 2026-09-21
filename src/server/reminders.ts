@@ -183,6 +183,47 @@ export async function sweepDueFollowUpNotifications() {
 }
 
 /**
+ * Stale-lead alert — an open-pipeline lead (not yet CONFIRMED/JOB_SCHEDULED/
+ * CANCELLED/COMPLETED) with no update in 5+ days. Reuses the exact criteria
+ * already computed for the Owner Command Center's alert list
+ * (src/server/owner-command-center.ts getOwnerAlerts), just also pushed as a
+ * Notification/web-push so Shoaib/Francis see it without opening the
+ * dashboard, not only Admin.
+ */
+export async function sweepStaleLeadNotifications() {
+  const { notify } = await import("@/server/notify");
+  const staleThreshold = addDays(new Date(), -5);
+  const staleLeads = await db.lead.findMany({
+    where: {
+      deletedAt: null,
+      stage: { in: ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] },
+      updatedAt: { lt: staleThreshold },
+    },
+    orderBy: { updatedAt: "asc" },
+    take: 20,
+    select: { id: true, name: true, mobile: true, updatedAt: true },
+  });
+
+  const since = new Date(Date.now() - 20 * 3600 * 1000);
+  let sent = 0;
+  for (const lead of staleLeads) {
+    const already = await db.notification.count({
+      where: { kind: "STALE_LEAD", createdAt: { gte: since }, meta: { contains: lead.id } },
+    });
+    if (already) continue;
+    await notify({
+      kind: "STALE_LEAD",
+      title: `Stale lead — ${lead.name}`,
+      body: `No update in 5+ days${lead.mobile ? ` · ☎ ${lead.mobile}` : ""}`,
+      href: `/leads/${lead.id}`,
+      meta: { leadId: lead.id },
+    });
+    sent += 1;
+  }
+  return { sent, checked: staleLeads.length };
+}
+
+/**
  * Review campaign: Day 1 "Google review please" and Day 3 gentle reminder
  * after a job is completed. The sequence STOPS the moment a Review row exists
  * for that customer (dated after the job completed) — never nags a customer
@@ -302,13 +343,14 @@ export async function sweepPostPaymentReview() {
 }
 
 export async function runAllReminderSweeps() {
-  const [customer, payment, amc, followUps, reviewCampaign, postPaymentReview] = await Promise.all([
+  const [customer, payment, amc, followUps, staleLeads, reviewCampaign, postPaymentReview] = await Promise.all([
     sweepCustomerReminders(),
     sweepPaymentReminders(),
     sweepAmcRenewalReminders(),
     sweepDueFollowUpNotifications(),
+    sweepStaleLeadNotifications(),
     sweepReviewCampaign(),
     sweepPostPaymentReview(),
   ]);
-  return { customer, payment, amc, followUps, reviewCampaign, postPaymentReview };
+  return { customer, payment, amc, followUps, staleLeads, reviewCampaign, postPaymentReview };
 }
