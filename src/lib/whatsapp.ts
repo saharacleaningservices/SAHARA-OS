@@ -45,6 +45,7 @@ export type WhatsAppKind =
   | "ATTENDANCE_SUMMARY"
   | "DEVICE_APPROVAL"
   | "DAILY_SUMMARY"
+  | "MONTHLY_SUMMARY"
   | "OTHER";
 
 /**
