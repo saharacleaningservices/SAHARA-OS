@@ -120,7 +120,13 @@ export function canManageAttendance(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
 }
 
-/** WhatsApp send log resend controls (viewing the log page itself is gated separately by role on the page). Super Admin only — owner-only per access spec. */
+/**
+ * Reserved for a future per-message "resend" action on the Message Log page
+ * — currently unused (no caller; the page has no resend button yet). Do NOT
+ * use this to gate viewing the log page itself: that's `requireRole(["ADMIN",
+ * "ACCOUNTS"])` on the page plus `"whatsapp-log"` in `ROLE_NAV_ACCESS` (both
+ * ADMIN + ACCOUNTS, per the owner's explicit decision on requirement #15).
+ */
 export function canViewWhatsAppLog(role: string): boolean {
   return role === "ADMIN";
 }
