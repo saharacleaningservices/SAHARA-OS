@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { MapPin } from "lucide-react";
+import { MapPin, ChevronDown } from "lucide-react";
 import { SearchInput } from "@/components/shared/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -18,7 +18,7 @@ import { deleteJob, bulkDeleteJobs } from "@/server/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
-import { formatDateShort, formatINR, dayBucket } from "@/lib/utils";
+import { formatDateShort, formatINR, dayBucket, cn } from "@/lib/utils";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
 type Job = {
@@ -62,6 +62,16 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
   const [statusFilter, setStatusFilter] = useState(statusParam || "ALL");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  function toggleExpanded(id: string) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -121,7 +131,12 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
         <EmptyState title="No jobs found" description="Try adjusting your search or filters." />
       ) : (
         <>
-          <Table>
+          {/* Desktop/tablet: compact table, no unnecessary horizontal scroll.
+              Payment folded into the Status column (one fewer column) so
+              every important field fits without scrolling on a 1366px-wide
+              screen. */}
+          <div className="hidden sm:block">
+            <Table>
               <TableHeader>
                 <TableRow>
                   {canManage && (
@@ -141,8 +156,7 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                   <TableHead>Job</TableHead>
                   <TableHead>Service</TableHead>
                   <TableHead>Schedule</TableHead>
-                  <TableHead>Team / Crew</TableHead>
-                  <TableHead>Payment</TableHead>
+                  <TableHead>Team</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -152,6 +166,9 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                   const isToday = dayBucket(job.scheduledDate) === "TODAY" && job.status !== "COMPLETED" && job.status !== "CANCELLED";
                   const pay = jobPaymentStatus(job);
                   const href = mapHref(job);
+                  const adv = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+                  const total = job.payments.reduce((s, p) => s + (p.amount ?? 0), 0) || job.jobValue;
+                  const bal = Math.max(total - adv, 0);
                   return (
                     <TableRow key={job.id} className={isToday ? "bg-success/10 ring-1 ring-inset ring-success/30" : undefined}>
                       {canManage && (
@@ -192,22 +209,13 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                         )}
                       </TableCell>
                       <TableCell className="text-sm">
-                        {(() => {
-                          const adv = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
-                          const total = job.payments.reduce((s, p) => s + (p.amount ?? 0), 0) || job.jobValue;
-                          const bal = Math.max(total - adv, 0);
-                          return (
-                            <>
-                              {pay ? <PaymentStatusBadge status={pay} /> : <span className="text-muted-foreground">Not raised</span>}
-                              <p className="text-xs text-muted-foreground">
-                                Adv {formatINR(adv)} · Bal {formatINR(bal)}
-                              </p>
-                            </>
-                          );
-                        })()}
-                      </TableCell>
-                      <TableCell>
-                        <JobStatusBadge status={job.status} />
+                        <div className="flex flex-wrap items-center gap-1">
+                          <JobStatusBadge status={job.status} />
+                          {pay && <PaymentStatusBadge status={pay} />}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Adv {formatINR(adv)} · Bal {formatINR(bal)}
+                        </p>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1.5">
@@ -237,6 +245,103 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                 })}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile: card layout, collapsed by default — tap "Details" to
+              expand payment/team/service info instead of a wide table. */}
+          <div className="space-y-2 sm:hidden">
+            {pageItems.map((job) => {
+              const isToday = dayBucket(job.scheduledDate) === "TODAY" && job.status !== "COMPLETED" && job.status !== "CANCELLED";
+              const pay = jobPaymentStatus(job);
+              const href = mapHref(job);
+              const isOpen = expanded.has(job.id);
+              const adv = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+              const total = job.payments.reduce((s, p) => s + (p.amount ?? 0), 0) || job.jobValue;
+              const bal = Math.max(total - adv, 0);
+              return (
+                <div
+                  key={job.id}
+                  className={cn(
+                    "rounded-lg border border-border bg-card p-3",
+                    isToday && "border-success/30 bg-success/5 ring-1 ring-inset ring-success/20",
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      {canManage && (
+                        <Checkbox
+                          className="mb-1.5"
+                          checked={selected.includes(job.id)}
+                          onCheckedChange={(checked) =>
+                            setSelected((prev) => (checked ? [...prev, job.id] : prev.filter((id) => id !== job.id)))
+                          }
+                        />
+                      )}
+                      <Link href={`/jobs/${job.id}`} className="block truncate font-medium text-foreground hover:underline">
+                        {job.customerName}
+                      </Link>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {job.jobNumber} · {job.area}
+                      </p>
+                      <p className="mt-1 text-xs text-foreground">
+                        {isToday ? <span className="font-semibold text-success">Today</span> : formatDateShort(job.scheduledDate)} ·{" "}
+                        {job.scheduledTime}
+                        {job.teamNumber ? ` · T${job.teamNumber}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <JobStatusBadge status={job.status} />
+                      {pay && <PaymentStatusBadge status={pay} />}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(job.id)}
+                    className="mt-2 flex w-full items-center justify-center gap-1 border-t border-border pt-2 text-xs font-medium text-muted-foreground"
+                  >
+                    {isOpen ? "Hide details" : "Details"}
+                    <ChevronDown className={cn("size-3.5 transition-transform", isOpen && "rotate-180")} />
+                  </button>
+
+                  {isOpen && (
+                    <div className="mt-2 space-y-2 text-xs text-muted-foreground">
+                      <p>
+                        {SERVICE_LABELS[job.service]}
+                        {(job.serviceVariant || job.packageName) && ` · ${[job.serviceVariant, job.packageName].filter(Boolean).join(" · ")}`}
+                      </p>
+                      {job.assignments.length > 0 && <p>Crew: {job.assignments.map((a) => a.staff.name).join(", ")}</p>}
+                      <p>
+                        Adv {formatINR(adv)} · Bal {formatINR(bal)}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        <CallButton mobile={job.customerMobile} />
+                        <WhatsAppButton mobile={job.customerMobile} />
+                        {href && (
+                          <Button asChild variant="outline" size="icon" className="size-8" title="Open in Maps">
+                            <a href={href} target="_blank" rel="noreferrer">
+                              <MapPin className="size-3.5" />
+                            </a>
+                          </Button>
+                        )}
+                        {canManage && (
+                          <>
+                            <Button variant="outline" size="icon" className="size-8" aria-label="Edit job" asChild>
+                              <Link href={`/jobs/${job.id}/edit`}>
+                                <Pencil className="size-3.5" />
+                              </Link>
+                            </Button>
+                            <ConfirmDeleteButton action={deleteJob} id={job.id} entityLabel="job" />
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
         </>
       )}
