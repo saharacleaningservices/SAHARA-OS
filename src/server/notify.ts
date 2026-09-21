@@ -28,7 +28,8 @@ export type NotifKind =
   | "DEVICE_LOGIN"
   | "PASSWORD_OTP"
   | "APPROVAL_REQUEST"
-  | "LOGIN_ATTEMPT";
+  | "LOGIN_ATTEMPT"
+  | "LOGIN_ID_RECOVERY";
 
 type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
@@ -44,9 +45,10 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   PASSWORD_OTP: ["ADMIN"],
   APPROVAL_REQUEST: ["ADMIN"],
   LOGIN_ATTEMPT: ["ADMIN"],
+  LOGIN_ID_RECOVERY: ["ADMIN"],
 };
 
-const CRITICAL_KINDS = new Set<NotifKind>(["DEVICE_LOGIN", "PASSWORD_OTP", "APPROVAL_REQUEST", "LOGIN_ATTEMPT"]);
+const CRITICAL_KINDS = new Set<NotifKind>(["DEVICE_LOGIN", "PASSWORD_OTP", "APPROVAL_REQUEST", "LOGIN_ATTEMPT", "LOGIN_ID_RECOVERY"]);
 
 export type NotifyInput = {
   kind: NotifKind;

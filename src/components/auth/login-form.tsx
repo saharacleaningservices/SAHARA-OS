@@ -146,7 +146,10 @@ export function LoginForm({ next }: { next?: string }) {
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between">
+          <Link href="/forgot-login-id" className="text-xs font-medium text-primary hover:underline">
+            Forgot Login ID?
+          </Link>
           <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
             Forgot password?
           </Link>

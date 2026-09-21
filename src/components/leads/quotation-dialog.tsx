@@ -22,18 +22,27 @@ import { SERVICE_LABELS } from "@/lib/constants";
 
 type LineItem = { name: string; description: string; amount: number };
 
-// Custom Package (CUSTOMIZER_PACKAGE) / Individual Cleaning quantity
-// selections carry no price — ServiceQuantityFields records each one as a
-// plain Notes line prefixed "Custom Package —" / "Individual Cleaning —"
-// (see src/components/shared/service-quantity-fields.tsx). Pull those back
-// out so a freshly opened Generate Quotation dialog already lists exactly
-// what the customer selected, as $0 "price to be confirmed" line items, so
-// staff aren't the ones who have to remember to retype them.
+// Individual Cleaning quantity selections carry no price. Customizer Package
+// items are priced automatically where a rate is configured (already folded
+// into the lead's Estimated Amount, so not repeated here); an item with no
+// configured rate and no unit price typed yet is recorded with the distinct
+// "(price to be confirmed)" marker. ServiceQuantityFields records these as
+// plain Notes lines (see src/components/shared/service-quantity-fields.tsx).
+// Pull the still-unpriced ones back out so a freshly opened Generate
+// Quotation dialog already lists exactly what the customer selected, as $0
+// "price to be confirmed" line items, so staff aren't the ones who have to
+// remember to retype them. "Custom Package —" is kept for backward
+// compatibility with leads saved before this fix.
 function selectionLinesFromNotes(notes?: string | null): string[] {
   return (notes ?? "")
     .split("\n")
     .map((l) => l.trim())
-    .filter((l) => l.startsWith("Custom Package —") || l.startsWith("Individual Cleaning —"));
+    .filter(
+      (l) =>
+        l.startsWith("Custom Package —") ||
+        l.startsWith("Individual Cleaning —") ||
+        l.startsWith("Customizer Package (price to be confirmed) —")
+    );
 }
 
 export function QuotationDialog({

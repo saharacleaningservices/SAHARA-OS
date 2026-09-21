@@ -38,6 +38,7 @@ import {
   MATTRESS_SIZE_OPTIONS,
   MATTRESS_UNIT_PRICE,
   HOME_SERVICE_UNIT_PRICE,
+  CUSTOMIZER_FIXED_UNIT_PRICE,
   PAINT_TYPE_RATE_PER_SQFT,
   PUTTY_RATE_PER_SQFT,
   PEST_PROPERTY_SIZE_OPTIONS,
@@ -182,6 +183,12 @@ export function PublicBookingForm({
   const [housekeepingStaffCount, setHousekeepingStaffCount] = useState("");
   const [housekeepingShiftHours, setHousekeepingShiftHours] = useState("");
 
+  // Customizer Package — Quantity + Unit Price, mirroring the CRM Lead form
+  // (see src/components/shared/service-quantity-fields.tsx). Sofa/Mattress
+  // reuse sofaSeater/mattressSize/mattressQty above instead.
+  const [czQty, setCzQty] = useState("");
+  const [czUnitPrice, setCzUnitPrice] = useState("");
+
   // Smart Calendar — real (never fabricated) slot-availability estimate for
   // the selected date. "Not a final confirmation" — the office team always
   // verifies before a slot is locked in.
@@ -208,6 +215,27 @@ export function PublicBookingForm({
   const balance = Math.max(estNum - advNum, 0);
   const serviceOptions = category ? SERVICE_CATALOG[category] ?? [] : [];
   const serviceRule = variant ? SERVICE_RULES[variant] : "";
+  // Customizer Package and Combo Package are picked by item/bundle, not by
+  // BHK/property size — Property Type doesn't apply to them. Full Home
+  // Cleaning and Commercial Cleaning are untouched: they keep Property Type
+  // where it's shown today.
+  const usesServiceTypeAsSecondary = category === "CUSTOMIZER_PACKAGE" || category === "COMBO_PACKAGE";
+
+  function handleVariantChange(v: string) {
+    setVariant(v);
+    // Reset sub-fields that belong to a different service so stale
+    // selections never linger (and never leak into notes/pricing).
+    setSofaSeater("");
+    setBathroomQty("");
+    setKitchenQty("");
+    setCarpetQty("");
+    setWindowQty("");
+    setMattressSize("");
+    setMattressQty("");
+    setCurtainQty("");
+    setCzQty("");
+    setCzUnitPrice("");
+  }
 
   // Live indicative price from the dynamic sub-field selections — recomputed
   // on every render so it updates instantly as the customer picks options.
@@ -246,6 +274,23 @@ export function PublicBookingForm({
       const hours = parseInt(housekeepingShiftHours, 10) || 0;
       const staff = Number(housekeepingStaffCount) || 1;
       return Math.round(hours * staff * HOUSEKEEPING_HOURLY_RATE);
+    }
+    if (category === "CUSTOMIZER_PACKAGE") {
+      if (variant === "Sofa Cleaning" && sofaSeater) return SOFA_SEATER_PRICES[sofaSeater] ?? 0;
+      if (variant === "Mattress Cleaning" && mattressSize) {
+        const qty = Number(mattressQty) || 1;
+        return (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
+      }
+      const fixedRate = variant ? CUSTOMIZER_FIXED_UNIT_PRICE[variant] : undefined;
+      if (fixedRate) {
+        const qty = Number(czQty) || 1;
+        return fixedRate * qty;
+      }
+      // No configured rate for this item — only use what the customer typed
+      // in Unit Price, never a guessed number.
+      const qty = Number(czQty) || 0;
+      const rate = Number(czUnitPrice) || 0;
+      if (qty > 0 && rate > 0) return qty * rate;
     }
     return 0;
   }
@@ -291,6 +336,24 @@ export function PublicBookingForm({
     if (category === "HOUSEKEEPING") {
       if (housekeepingStaffCount) lines.push(`Staff Count: ${housekeepingStaffCount}`);
       if (housekeepingShiftHours) lines.push(`Shift Hours: ${housekeepingShiftHours}`);
+    }
+    if (category === "CUSTOMIZER_PACKAGE" && variant) {
+      if (variant === "Sofa Cleaning" && sofaSeater) {
+        lines.push(`Customizer Package — Sofa Cleaning: ${sofaSeater} = ${formatINR(SOFA_SEATER_PRICES[sofaSeater] ?? 0)}`);
+      } else if (variant === "Mattress Cleaning" && mattressSize) {
+        const qty = Number(mattressQty) || 1;
+        const amt = (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
+        lines.push(`Customizer Package — Mattress Cleaning: ${mattressSize} x ${qty} = ${formatINR(amt)}`);
+      } else if (czQty) {
+        const qty = Number(czQty) || 0;
+        const fixedRate = CUSTOMIZER_FIXED_UNIT_PRICE[variant];
+        const rate = fixedRate ?? (Number(czUnitPrice) || 0);
+        if (qty > 0 && rate > 0) {
+          lines.push(`Customizer Package — ${variant}: Qty ${qty} × ${formatINR(rate)} = ${formatINR(qty * rate)}`);
+        } else if (qty > 0) {
+          lines.push(`Customizer Package (price to be confirmed) — ${variant}: Qty ${qty}`);
+        }
+      }
     }
     if (hearAboutUs) lines.push(`Heard about Sahara via: ${hearAboutUs}`);
     return lines.join("\n");
@@ -451,13 +514,29 @@ export function PublicBookingForm({
           </Select>
         </div>
         <div className={fieldWrap}>
-          <Label>Property Type <span className="text-destructive">*</span></Label>
-          <Select value={propertyType} onValueChange={setPropertyType}>
-            <SelectTrigger><SelectValue placeholder="Select Property Type" /></SelectTrigger>
-            <SelectContent>
-              {propertyTypesFor(category).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          {usesServiceTypeAsSecondary ? (
+            <>
+              <Label>Service Type <span className="text-destructive">*</span></Label>
+              <Select value={variant} onValueChange={handleVariantChange} disabled={!category}>
+                <SelectTrigger><SelectValue placeholder={category ? "Select Service Type" : "Pick a category first"} /></SelectTrigger>
+                <SelectContent>
+                  {serviceOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {SERVICE_TYPE_HINT[category] && <p className="text-xs text-muted-foreground">{SERVICE_TYPE_HINT[category]}</p>}
+              {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
+            </>
+          ) : (
+            <>
+              <Label>Property Type <span className="text-destructive">*</span></Label>
+              <Select value={propertyType} onValueChange={setPropertyType}>
+                <SelectTrigger><SelectValue placeholder="Select Property Type" /></SelectTrigger>
+                <SelectContent>
+                  {propertyTypesFor(category).map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </>
+          )}
         </div>
       </div>
 
@@ -485,33 +564,19 @@ export function PublicBookingForm({
         </div>
       </div>
 
-      <div className={fieldWrap}>
-        <Label>Service Type <span className="text-destructive">*</span></Label>
-        <Select
-          value={variant}
-          onValueChange={(v) => {
-            setVariant(v);
-            // Reset sub-fields that belong to a different service so stale
-            // selections never linger (and never leak into notes/pricing).
-            setSofaSeater("");
-            setBathroomQty("");
-            setKitchenQty("");
-            setCarpetQty("");
-            setWindowQty("");
-            setMattressSize("");
-            setMattressQty("");
-            setCurtainQty("");
-          }}
-          disabled={!category}
-        >
-          <SelectTrigger><SelectValue placeholder={category ? "Select Service Type" : "Pick a category first"} /></SelectTrigger>
-          <SelectContent>
-            {serviceOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        {SERVICE_TYPE_HINT[category] && <p className="text-xs text-muted-foreground">{SERVICE_TYPE_HINT[category]}</p>}
-        {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
-      </div>
+      {!usesServiceTypeAsSecondary && (
+        <div className={fieldWrap}>
+          <Label>Service Type <span className="text-destructive">*</span></Label>
+          <Select value={variant} onValueChange={handleVariantChange} disabled={!category}>
+            <SelectTrigger><SelectValue placeholder={category ? "Select Service Type" : "Pick a category first"} /></SelectTrigger>
+            <SelectContent>
+              {serviceOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {SERVICE_TYPE_HINT[category] && <p className="text-xs text-muted-foreground">{SERVICE_TYPE_HINT[category]}</p>}
+          {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
+        </div>
+      )}
 
       {/* ── Dynamic service sub-fields (Booking Form V2) ─────────────── */}
       {category === "HOME_DEEP_CLEANING" && variant === "Sofa Cleaning" && (
@@ -610,6 +675,53 @@ export function PublicBookingForm({
               </SelectContent>
             </Select>
           </div>
+        </div>
+      )}
+
+      {category === "CUSTOMIZER_PACKAGE" && variant === "Sofa Cleaning" && (
+        <div className={fieldWrap}>
+          <Label>Sofa Size <span className="text-destructive">*</span></Label>
+          <Select value={sofaSeater} onValueChange={setSofaSeater}>
+            <SelectTrigger><SelectValue placeholder="Select seater" /></SelectTrigger>
+            <SelectContent>
+              {SOFA_SEATER_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      {category === "CUSTOMIZER_PACKAGE" && variant === "Mattress Cleaning" && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className={fieldWrap}>
+            <Label>Mattress Size <span className="text-destructive">*</span></Label>
+            <Select value={mattressSize} onValueChange={setMattressSize}>
+              <SelectTrigger><SelectValue placeholder="Single or Double" /></SelectTrigger>
+              <SelectContent>
+                {MATTRESS_SIZE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <QtyStepper label="Number of Mattresses" value={mattressQty} onChange={setMattressQty} min={1} />
+        </div>
+      )}
+      {category === "CUSTOMIZER_PACKAGE" && variant && variant !== "Sofa Cleaning" && variant !== "Mattress Cleaning" && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <QtyStepper label="Quantity" value={czQty} onChange={setCzQty} min={1} />
+          {CUSTOMIZER_FIXED_UNIT_PRICE[variant] ? (
+            <div className={fieldWrap}>
+              <Label>Unit Price (₹)</Label>
+              <Input value={formatINR(CUSTOMIZER_FIXED_UNIT_PRICE[variant])} disabled readOnly />
+            </div>
+          ) : (
+            <div className={fieldWrap}>
+              <Label>Unit Price (₹)</Label>
+              <Input
+                inputMode="numeric"
+                value={czUnitPrice}
+                onChange={(e) => setCzUnitPrice(e.target.value.replace(/\D/g, ""))}
+                placeholder="Office will confirm the exact rate"
+              />
+            </div>
+          )}
         </div>
       )}
 
