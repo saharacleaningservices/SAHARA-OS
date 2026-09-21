@@ -26,7 +26,7 @@ export type CustomerRow = {
   imported?: boolean;
 };
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 50;
 
 function toCsvRows(rows: CustomerRow[]) {
   return rows.map((c) => ({
