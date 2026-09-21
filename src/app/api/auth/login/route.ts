@@ -44,7 +44,11 @@ export async function POST(request: NextRequest) {
   }
 
   const { loginId, password } = parsed.data;
-  const id = loginId.toLowerCase();
+  // Trim the identifier only — a login ID never has meaningful leading/
+  // trailing whitespace, but autofill/copy-paste can add it, which would
+  // otherwise make a correct email fail its exact-match lookup below. The
+  // password itself is never trimmed: it's compared exactly as typed.
+  const id = loginId.trim().toLowerCase();
   const digits = loginId.replace(/\D/g, "");
 
   const accountLimit = rateLimit(`login:acct:${id}`, 5, 600);
