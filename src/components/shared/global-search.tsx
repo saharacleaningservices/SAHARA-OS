@@ -31,16 +31,28 @@ export function GlobalSearch() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   function onChange(value: string) {
     setQuery(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     if (value.trim().length < 2) {
       setResults([]);
       return;
     }
-    startTransition(async () => {
-      const res = await runGlobalSearch(value);
-      setResults("results" in res ? res.results : []);
-    });
+    // Performance audit (Phase 9, 2026-09-21): this previously fired a
+    // server round-trip on every single keystroke with no debounce —
+    // typing a full name/mobile number meant a dozen-plus overlapping
+    // queries, each racing the others for which response landed last.
+    // 250ms keeps the perceived result well under the "search under
+    // 500ms" target while cutting server load roughly in proportion to
+    // typing speed.
+    debounceRef.current = setTimeout(() => {
+      startTransition(async () => {
+        const res = await runGlobalSearch(value);
+        setResults("results" in res ? res.results : []);
+      });
+    }, 250);
   }
 
   return (

@@ -89,6 +89,16 @@ db.exec(`
 db.exec(`CREATE INDEX IF NOT EXISTS "TimelineEntry_leadId_idx" ON "TimelineEntry"("leadId");`);
 db.exec(`CREATE INDEX IF NOT EXISTS "TimelineEntry_createdAt_idx" ON "TimelineEntry"("createdAt");`);
 
+// Performance audit (Phase 9, 2026-09-21): Lead.mobile and Job.customerMobile
+// are queried by findFirst/findMany (never findUnique, so no automatic
+// unique-constraint index) in many hot paths — missed-call and WhatsApp-
+// inquiry auto-lead lookups, searchCustomersQuick, getRepeatCustomerSummary,
+// getCustomersList, login-ID recovery — and neither had an index at all,
+// meaning every one of those was a full table scan on SQLite. Both leads
+// and jobs are in the thousands already and only grow.
+db.exec(`CREATE INDEX IF NOT EXISTS "Lead_mobile_idx" ON "Lead"("mobile");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Job_customerMobile_idx" ON "Job"("customerMobile");`);
+
 // FollowUp.priority column.
 const followUpCols = db.prepare(`PRAGMA table_info("FollowUp")`).all().map((c) => c.name);
 if (!followUpCols.includes("priority")) {

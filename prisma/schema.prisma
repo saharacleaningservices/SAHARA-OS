@@ -497,6 +497,7 @@ model Lead {
   @@index([source])
   @@index([area])
   @@index([createdAt])
+  @@index([mobile])
 }
 
 model Quotation {
@@ -618,6 +619,7 @@ model Job {
   @@index([status])
   @@index([scheduledDate])
   @@index([area])
+  @@index([customerMobile])
 }
 
 model JobAssignment {
