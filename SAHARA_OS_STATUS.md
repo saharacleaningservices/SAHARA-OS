@@ -198,6 +198,14 @@ This went undetected through every earlier "live verification" claim in §3.2/§
 
 **Still correctly not done**: completing the flow all the way to a real reveal/reset against the real Owner/Shoaib/Francis accounts. That still requires reading a real OTP off `/admin/security-approvals`, which requires being logged in as ADMIN — an action this session will not take on the owner's behalf regardless of how the request is framed.
 
+## 3.11 Follow-up to 3.10 — same bug also affected Privacy Policy and Terms (fixed, live-verified)
+
+Systematically checked every route outside the protected `(app)` group and every link on the public Booking Form for the same "missing from `PUBLIC_PATHS`" gap that broke Forgot Password/Login ID. Found it again: `/privacy-policy` and `/terms` are static legal pages with no internal auth check, linked directly from the Booking Form's footer for anonymous customers — also missing from the list, also confirmed live-broken (`redirect:'manual'` fetch came back as an opaque redirect) before the fix.
+
+**FIXED (commit `e6e62c7`)**, same treatment as before — added both to `PUBLIC_PATHS`. **LIVE VERIFIED** after deploy: `/privacy-policy`, `/terms`, `/forgot-password`, and `/forgot-login-id` all confirmed returning `200` for a genuinely logged-out session in the same test pass; `/dashboard` confirmed still correctly redirecting (proving the fix is scoped correctly, not over-broadened). One transient `opaqueredirect` on the very first `/privacy-policy` check turned out to be a container-swap timing blip, not a real failure — resolved on immediate retry, confirmed not fabricated by re-testing rather than assuming.
+
+No other page outside `(app)` or link from the public booking page was found with this gap — `/book`, `/j/`, `/gallery`, `/login` were already correctly public; `/set-password` is correctly still protected (it requires an active session by design).
+
 ## 3. What "COMPLETE" does not mean here
 
 §1 now distinguishes **COMPLETE (live)** — actually clicked through / triggered against production this pass — from plain **COMPLETE (code)** — implements the requirement and type-checks, but not yet exercised live (usually because it needs Francis's or Shoaib's own login, which this environment doesn't have). Treat the latter as provisional until someone with that role actually uses it.
