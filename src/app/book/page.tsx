@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import {
   Phone,
   Star,
@@ -27,9 +28,39 @@ import { getCompanySettings } from "@/server/settings";
 import { getFeaturedGallery } from "@/server/actions/gallery";
 import { toWhatsAppLink } from "@/lib/utils";
 
+// Meta Business readiness (Phase 6, 2026-09-21 — "prepare for migration,
+// do not integrate yet"): domain verification and Open Graph tags cost
+// nothing to have in place now and are required before running any Meta
+// ad pointing at this page or claiming this domain in Business Manager.
+// META_DOMAIN_VERIFICATION is the literal <meta name="facebook-domain-
+// verification"> content string Meta's Business Manager → Brand Safety →
+// Domains flow gives you when you add this domain — paste it into the
+// Coolify env vars once that step is actually done; renders nothing until
+// then. See SAHARA_OS_META_READINESS.md for the full account-side
+// migration checklist (Page ownership, Ad Account, Pixel, WABA, etc.) —
+// none of that can be done from code, it needs the owner's own Meta
+// Business Manager access.
 export const metadata = {
   title: "Book a Service — Sahara Cleaning Services, Pune",
   description: "Pune's trusted cleaning experts — Home, Commercial, Interior Painting & Pest Control.",
+  openGraph: {
+    title: "Book a Service — Sahara Cleaning Services, Pune",
+    description: "Pune's trusted cleaning experts — Home, Commercial, Interior Painting & Pest Control.",
+    url: "https://app.saharacleaningservices.com/book",
+    siteName: "Sahara Cleaning Services",
+    images: ["/brand/sahara-logo.png"],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Book a Service — Sahara Cleaning Services, Pune",
+    description: "Pune's trusted cleaning experts — Home, Commercial, Interior Painting & Pest Control.",
+    images: ["/brand/sahara-logo.png"],
+  },
+  ...(process.env.META_DOMAIN_VERIFICATION
+    ? { other: { "facebook-domain-verification": process.env.META_DOMAIN_VERIFICATION } }
+    : {}),
 };
 
 const CALL_NUMBER = COMPANY.phones[0];
@@ -94,6 +125,20 @@ export default async function PublicBookingPage({
 
   return (
     <div id="top" className="min-h-screen bg-[#eef4fb] pb-20 lg:pb-0">
+      {/* Meta Pixel (Phase 6 readiness) — loads only when NEXT_PUBLIC_META_PIXEL_ID
+          is set; renders nothing until a real Pixel exists in Meta Events
+          Manager. See SAHARA_OS_META_READINESS.md. */}
+      {process.env.NEXT_PUBLIC_META_PIXEL_ID && (
+        <Script id="meta-pixel" strategy="afterInteractive">
+          {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+          n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+          document,'script','https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '${process.env.NEXT_PUBLIC_META_PIXEL_ID}');
+          fbq('track', 'PageView');`}
+        </Script>
+      )}
       {/* ── Header ────────────────────────────────────────────── */}
       <header id="contact" className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">

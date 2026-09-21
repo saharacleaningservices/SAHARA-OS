@@ -426,6 +426,19 @@ export function PublicBookingForm({
       setError(res.error ?? "Something went wrong");
       return;
     }
+    // Meta Pixel readiness (Phase 6, 2026-09-21): fires only if the Pixel
+    // script actually loaded (see app/book/page.tsx — gated on
+    // NEXT_PUBLIC_META_PIXEL_ID), a no-op otherwise. This is the
+    // client-side half of ad-conversion tracking; the server-side
+    // Conversion API half needs a Pixel access token the owner adds once
+    // Meta Business Manager access is set up — see
+    // SAHARA_OS_META_READINESS.md.
+    if (typeof window !== "undefined" && typeof (window as { fbq?: (...args: unknown[]) => void }).fbq === "function") {
+      (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "Lead", {
+        content_name: variant,
+        content_category: category,
+      });
+    }
     setDone({ leadNumber: res.leadNumber, advancePaid });
   }
 
