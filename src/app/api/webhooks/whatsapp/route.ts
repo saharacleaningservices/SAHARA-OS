@@ -6,6 +6,9 @@ import { getCompanySettings } from "@/server/settings";
 import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
 import { moreOptionsListMessage } from "@/lib/whatsapp-templates";
 import { COMPANY } from "@/lib/constants";
+import { generateLeadNumber } from "@/lib/id-generators";
+import { addTimelineEntry } from "@/server/timeline";
+import { notify } from "@/server/notify";
 
 /**
  * Verifies Meta's X-Hub-Signature-256 header (HMAC-SHA256 of the raw body,
@@ -213,6 +216,14 @@ async function handleInboundMessages(value: MetaChangeValue) {
         });
       } else if (MORE_OPTIONS_KEYWORDS.test(body)) {
         await sendMoreOptionsList(m.from, m.id);
+      } else if (body) {
+        // Any other free-text inbound message is a genuine new inquiry
+        // (Phase 7 CRM automation trigger, 2026-09-21: "WhatsApp inquiry").
+        // Mirrors the missed-call auto-lead pattern (src/app/api/webhook/
+        // missed-call/route.ts) — same dedup logic, same auto-lead shape —
+        // so a customer already mid-conversation about an open enquiry or
+        // job doesn't get a duplicate Lead created for every message.
+        await handleWhatsAppInquiry(m.from, body);
       }
       continue;
     }
@@ -257,6 +268,68 @@ async function handleInboundMessages(value: MetaChangeValue) {
       });
     }
   }
+}
+
+/**
+ * Auto-creates a Lead from a genuine new WhatsApp inquiry, deduped exactly
+ * like the missed-call webhook: if the customer already has an open-stage
+ * lead or one created in the last 24 hours, this just logs a timeline
+ * entry on it instead of creating a duplicate. Source is WHATSAPP (see the
+ * LeadSource enum) so this is reportable the same way CALL/WEBSITE/GMB
+ * sources already are.
+ */
+async function handleWhatsAppInquiry(from: string, body: string) {
+  const mobile = from.replace(/\D/g, "").slice(-10);
+  if (mobile.length !== 10) return;
+
+  const recent = await db.lead.findFirst({
+    where: {
+      mobile,
+      deletedAt: null,
+      OR: [{ stage: { notIn: ["COMPLETED", "CANCELLED"] } }, { createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }],
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  if (recent) {
+    await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: `Inbound WhatsApp: "${body.slice(0, 300)}"` }).catch(() => {});
+    return;
+  }
+
+  const existingCustomer = await db.customer.findUnique({ where: { mobile } }).catch(() => null);
+  const leadNumber = await generateLeadNumber();
+  const lead = await db.lead.create({
+    data: {
+      leadNumber,
+      name: existingCustomer?.name || `WhatsApp inquiry ${mobile}`,
+      mobile,
+      whatsapp: mobile,
+      area: existingCustomer?.area || "—",
+      address: existingCustomer?.address || null,
+      service: "HOME_DEEP_CLEANING" as never,
+      source: "WHATSAPP" as never,
+      stage: "NEW",
+      notes: `Auto-created from an inbound WhatsApp message: "${body.slice(0, 300)}"`,
+    },
+  });
+
+  await db.followUp
+    .create({ data: { leadId: lead.id, dueDate: new Date(Date.now() + 15 * 60 * 1000), type: "WHATSAPP", priority: "HIGH", notes: "New WhatsApp inquiry — reply and qualify" } })
+    .catch(() => {});
+  await addTimelineEntry({ leadId: lead.id, type: "NOTE", body: `Inbound WhatsApp — lead auto-created: "${body.slice(0, 300)}"` }).catch(() => {});
+  await notify({
+    kind: "NEW_INQUIRY",
+    title: `💬 WhatsApp inquiry — ${existingCustomer?.name || mobile}`,
+    body: `Auto-lead ${leadNumber} · "${body.slice(0, 100)}"`,
+    href: `/leads/${lead.id}`,
+  }).catch(() => {});
+
+  await sendWhatsApp({
+    kind: "OTHER",
+    toNumber: from,
+    body: `Thanks for reaching out to ${COMPANY.name}! Our team will get back to you shortly. Meanwhile, you can book directly here: https://app.saharacleaningservices.com/book`,
+    relatedType: "Lead",
+    relatedId: lead.id,
+  });
 }
 
 /**
