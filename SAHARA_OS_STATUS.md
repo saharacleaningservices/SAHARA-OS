@@ -147,6 +147,22 @@ Everything else audited against this prompt's sections A–T (Owner/Shoaib/Franc
 
 **Verification**: `tsc --noEmit` and `npm run build` both clean. `node scripts/db-setup.mjs` applied the new `EmailMessage` table locally with no errors (same script runs automatically on every production container boot, so no separate migration step is needed in production either). Commit `5d75881` deployed via the existing Coolify webhook. Live UI verification: `/login` and `/forgot-password` both confirmed reachable and rendering correctly in production (unchanged from earlier passes this session). **Not verified live**: an actual end-to-end OTP request/delivery attempt was not run against a real account, since doing so would send a real notification to the owner under a real (or fabricated) staff identity; a request against a non-existent mobile number was used instead to confirm the enumeration-safe generic-response path without touching real accounts or paging the owner unnecessarily.
 
+## 3.8 Consolidated pass (2026-09-21, "Final Master Implementation Prompt") — hide internal pricing from the public Customized Service flow
+
+**FIXED (commit `4441df9`) — this was a real, concrete gap, not a re-audit.** The public Booking Form's Customized Service section was directly showing customers an "Unit Price (₹)" field (auto-filled for Carpet/Window/Refrigerator Cleaning, manually typed for the rest) and an "Estimated from your selections: ₹X" banner computed from those same internal rates — i.e. internal CRM pricing was leaking straight into the customer-facing page. This directly contradicts the explicit rule (now stated again, more forcefully, in this prompt) that pricing logic belongs only in the internal CRM Lead form.
+
+- Removed the Unit Price field entirely from the public form's Customized Service flow; `computeSuggestedEstimate()` no longer computes anything for this category there, so the "Estimated ₹" banner never appears for it either.
+- Sofa Cleaning changed from a seater-*tier* dropdown (which is itself a pricing structure) to a plain Quantity stepper (customer picks a seat count) — matching every other Customized Service item and this prompt's explicit example.
+- Notes sent to the CRM for this category now record quantity/size only, never a price.
+- Replaced the plain "Service Type" dropdown for Customized Service with a visual icon-card grid (one card per service, reusing the existing add-on-card visual style already on the same page — no new image assets needed, keeps the page fast).
+- Added "Bathroom Cleaning" to the Customized Service catalog (it was missing despite being explicitly requested and having an existing configured rate — Home Deep Cleaning's ₹500/bathroom — to reuse). The internal CRM form picked this up automatically with no CRM-side code change, confirming the "reusable, data-driven" architecture actually works as intended.
+- The internal CRM Lead form's own Quantity → Unit Price → Estimated Amount engine (§3.4) is completely unchanged — pricing still happens there, exactly as required.
+- Untouched, confirmed out of scope: Home Cleaning/Commercial/Painting/Pest Control's existing booking flows and pricing display, Combo Package, and the contact-info footer (`src/app/book/page.tsx` already shows Call/WhatsApp/Email/Website/Address from the single `COMPANY` constant — already satisfied this prompt's requirement with no change needed).
+
+**Re-audited, no new gap found (not re-verified line-by-line again — see §3.3/§3.5/§3.6 for those passes)**: Owner/Shoaib/Francis nav matrices, Customers pagination, Staff attendance architecture, Revenue/Profit/Reports drill-downs, AMC reporting, financial access control, Forgot Password/Forgot Login ID. All confirmed already complete in prior passes this session with no code touching them since.
+
+**Verification**: `tsc --noEmit` and `npm run build` both clean (only the same pre-existing, unrelated lint warnings from before). Commit `4441df9` pushed; deployment in progress at time of writing.
+
 ## 3. What "COMPLETE" does not mean here
 
 §1 now distinguishes **COMPLETE (live)** — actually clicked through / triggered against production this pass — from plain **COMPLETE (code)** — implements the requirement and type-checks, but not yet exercised live (usually because it needs Francis's or Shoaib's own login, which this environment doesn't have). Treat the latter as provisional until someone with that role actually uses it.
