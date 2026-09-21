@@ -1,19 +1,28 @@
 // Fine-grained permission rules layered on top of the section-level
-// ROLE_NAV_ACCESS matrix in constants.ts.
+// ROLE_NAV_ACCESS matrix in constants.ts. This comment describes roles, not
+// specific people — the display name attached to a role in production isn't
+// necessarily the name used in requirement docs/commit history, so don't
+// treat names here as verified identity, only the role behavior is.
 //
-// Current access mapping:
-// ADMIN — Altaf Shaikh (admin@) — Super Admin, full access
-// OPERATIONS — Francis Monteiro (operations@) — dispatch-only: today's &
-//   tomorrow's jobs, view + edit. Nothing else.
-// ACCOUNTS — Shoyab "Shoaib" Shaikh (accounts@) — full operational parity
-//   with Super Admin (leads, jobs, dispatch, staff incl. salary/financials/
-//   documents, vehicles, attendance, AMC, payments, expenses, customers,
-//   reports, gallery, trash, revenue dashboard, Owner Command Center home).
-//   NO security, NO device/security approvals, NO audit log, NO profit
-//   dashboard, NO WhatsApp log, NO system settings — owner-only.
-// SUPERVISOR — Suresh Pawar (supervisor@) — Field Coordinator
-// STAFF — Vikas Shinde (staff@) — Field Staff (mobile only)
-// Login emails & passwords are unchanged; only role permissions changed.
+// Current access mapping (see ROLE_NAV_ACCESS in constants.ts for the exact
+// section list per role — this is a summary, that's the source of truth):
+// ADMIN — Super Admin, full access ("*").
+// OPERATIONS — Operations Manager: Dashboard, Leads/CRM, Jobs (incl. Team
+//   Dispatch), Staff, Vehicles, Attendance (view + operate the office
+//   clock only — no calendar edit/backfill/bulk/month-close, per the
+//   owner's 2026-09-21 decision), AMC, the filtered Housekeeping/Pest
+//   Control/Interior Painting job views. NO payments/expenses/revenue/
+//   profit/customers/reports/admin/settings.
+// ACCOUNTS — Accounts & Operations Editor: full operational parity with
+//   Super Admin (leads, jobs, dispatch, staff incl. salary/financials/
+//   documents, vehicles, attendance incl. calendar edit, AMC, payments,
+//   expenses, customers, reports, gallery, trash, revenue dashboard,
+//   WhatsApp Log — kept for Accounts per the owner's explicit decision,
+//   Owner Command Center home). NO security, NO device/security approvals,
+//   NO audit log, NO profit dashboard, NO system settings — owner-only.
+// SUPERVISOR — Field Coordinator: today's & tomorrow's own jobs, own
+//   attendance, mobile-first.
+// STAFF — Field Staff: own jobs/attendance only, mobile-first.
 
 export type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
