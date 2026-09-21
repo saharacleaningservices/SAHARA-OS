@@ -15,6 +15,14 @@ import {
   BedDouble,
   Refrigerator,
   Bug,
+  Layers,
+  AppWindow,
+  Bath,
+  DoorOpen,
+  CookingPot,
+  Flame,
+  Fan,
+  LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +46,6 @@ import {
   MATTRESS_SIZE_OPTIONS,
   MATTRESS_UNIT_PRICE,
   HOME_SERVICE_UNIT_PRICE,
-  CUSTOMIZER_FIXED_UNIT_PRICE,
   PAINT_TYPE_RATE_PER_SQFT,
   PUTTY_RATE_PER_SQFT,
   PEST_PROPERTY_SIZE_OPTIONS,
@@ -71,6 +78,39 @@ const ADDON_ICONS: Record<string, typeof Sofa> = {
   "Mattress Cleaning": BedDouble,
   "Refrigerator Cleaning": Refrigerator,
   "Pest Control": Bug,
+};
+
+// Customized Service — one icon per selectable service card (no photos
+// needed; icons keep the page fast and consistent with the add-on cards
+// above). Falls back to Sparkles for any future service added to
+// SERVICE_CATALOG.CUSTOMIZER_PACKAGE that isn't listed here yet.
+const CUSTOMIZED_SERVICE_ICONS: Record<string, typeof Sofa> = {
+  "Sofa Cleaning": Sofa,
+  "Carpet Cleaning": Layers,
+  "Window Cleaning": AppWindow,
+  "Mattress Cleaning": BedDouble,
+  "Bathroom Cleaning": Bath,
+  "Balcony Cleaning": DoorOpen,
+  "Kitchen Cleaning": CookingPot,
+  "Chimney Cleaning": Flame,
+  "Refrigerator Cleaning": Refrigerator,
+  "Fan Cleaning": Fan,
+  "Floor Cleaning": LayoutGrid,
+};
+
+// Plural unit noun for the quantity stepper's label (Mattress Cleaning has
+// its own Size + Quantity fields, so it isn't listed here).
+const CUSTOMIZED_SERVICE_QTY_UNIT: Record<string, string> = {
+  "Sofa Cleaning": "Seats",
+  "Carpet Cleaning": "Carpets",
+  "Window Cleaning": "Windows",
+  "Bathroom Cleaning": "Bathrooms",
+  "Balcony Cleaning": "Balconies",
+  "Kitchen Cleaning": "Kitchens",
+  "Chimney Cleaning": "Chimneys",
+  "Refrigerator Cleaning": "Fridges",
+  "Fan Cleaning": "Fans",
+  "Floor Cleaning": "Sq Ft (approx.)",
 };
 
 // Simple +/- quantity field shared by the Booking Form V2 dynamic
@@ -183,11 +223,14 @@ export function PublicBookingForm({
   const [housekeepingStaffCount, setHousekeepingStaffCount] = useState("");
   const [housekeepingShiftHours, setHousekeepingShiftHours] = useState("");
 
-  // Customizer Package — Quantity + Unit Price, mirroring the CRM Lead form
-  // (see src/components/shared/service-quantity-fields.tsx). Sofa/Mattress
-  // reuse sofaSeater/mattressSize/mattressQty above instead.
+  // Customized Service — quantity only. No unit price or rate is ever shown
+  // or collected here: pricing is an internal CRM concept (see
+  // src/components/shared/service-quantity-fields.tsx for the staff-facing
+  // Quantity/Unit Price/Estimated Amount engine); the public form only
+  // captures what the customer actually needs to choose. Mattress Cleaning
+  // reuses mattressSize/mattressQty above instead (its size genuinely
+  // changes the job, not just the price).
   const [czQty, setCzQty] = useState("");
-  const [czUnitPrice, setCzUnitPrice] = useState("");
 
   // Smart Calendar — real (never fabricated) slot-availability estimate for
   // the selected date. "Not a final confirmation" — the office team always
@@ -220,6 +263,9 @@ export function PublicBookingForm({
   // Cleaning and Commercial Cleaning are untouched: they keep Property Type
   // where it's shown today.
   const usesServiceTypeAsSecondary = category === "CUSTOMIZER_PACKAGE" || category === "COMBO_PACKAGE";
+  // Customized Service picks its Service Type from the visual card grid
+  // below instead of a dropdown — see CUSTOMIZED_SERVICE_ICONS.
+  const isCustomizedService = category === "CUSTOMIZER_PACKAGE";
 
   function handleVariantChange(v: string) {
     setVariant(v);
@@ -234,7 +280,6 @@ export function PublicBookingForm({
     setMattressQty("");
     setCurtainQty("");
     setCzQty("");
-    setCzUnitPrice("");
   }
 
   // Live indicative price from the dynamic sub-field selections — recomputed
@@ -275,23 +320,11 @@ export function PublicBookingForm({
       const staff = Number(housekeepingStaffCount) || 1;
       return Math.round(hours * staff * HOUSEKEEPING_HOURLY_RATE);
     }
-    if (category === "CUSTOMIZER_PACKAGE") {
-      if (variant === "Sofa Cleaning" && sofaSeater) return SOFA_SEATER_PRICES[sofaSeater] ?? 0;
-      if (variant === "Mattress Cleaning" && mattressSize) {
-        const qty = Number(mattressQty) || 1;
-        return (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
-      }
-      const fixedRate = variant ? CUSTOMIZER_FIXED_UNIT_PRICE[variant] : undefined;
-      if (fixedRate) {
-        const qty = Number(czQty) || 1;
-        return fixedRate * qty;
-      }
-      // No configured rate for this item — only use what the customer typed
-      // in Unit Price, never a guessed number.
-      const qty = Number(czQty) || 0;
-      const rate = Number(czUnitPrice) || 0;
-      if (qty > 0 && rate > 0) return qty * rate;
-    }
+    // Customized Service deliberately never computes or reveals a
+    // suggested amount to the customer — pricing for these items is an
+    // internal, staff-only concept (Quantity x Unit Price in the CRM Lead
+    // form). The customer only picks the service and quantity here; the
+    // office confirms the real price by quotation/call.
     return 0;
   }
 
@@ -337,22 +370,14 @@ export function PublicBookingForm({
       if (housekeepingStaffCount) lines.push(`Staff Count: ${housekeepingStaffCount}`);
       if (housekeepingShiftHours) lines.push(`Shift Hours: ${housekeepingShiftHours}`);
     }
+    // Customized Service — quantity/size only, never a price: the office
+    // prices these manually in the CRM Lead form once the enquiry comes in.
     if (category === "CUSTOMIZER_PACKAGE" && variant) {
-      if (variant === "Sofa Cleaning" && sofaSeater) {
-        lines.push(`Customizer Package — Sofa Cleaning: ${sofaSeater} = ${formatINR(SOFA_SEATER_PRICES[sofaSeater] ?? 0)}`);
-      } else if (variant === "Mattress Cleaning" && mattressSize) {
-        const qty = Number(mattressQty) || 1;
-        const amt = (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
-        lines.push(`Customizer Package — Mattress Cleaning: ${mattressSize} x ${qty} = ${formatINR(amt)}`);
-      } else if (czQty) {
-        const qty = Number(czQty) || 0;
-        const fixedRate = CUSTOMIZER_FIXED_UNIT_PRICE[variant];
-        const rate = fixedRate ?? (Number(czUnitPrice) || 0);
-        if (qty > 0 && rate > 0) {
-          lines.push(`Customizer Package — ${variant}: Qty ${qty} × ${formatINR(rate)} = ${formatINR(qty * rate)}`);
-        } else if (qty > 0) {
-          lines.push(`Customizer Package (price to be confirmed) — ${variant}: Qty ${qty}`);
-        }
+      if (variant === "Mattress Cleaning" && mattressSize) {
+        const qty = Number(mattressQty) || 0;
+        if (qty > 0) lines.push(`Customized Service — Mattress Cleaning: ${mattressSize} x ${qty}`);
+      } else if (czQty && Number(czQty) > 0) {
+        lines.push(`Customized Service — ${variant}: Qty ${czQty}`);
       }
     }
     if (hearAboutUs) lines.push(`Heard about Sahara via: ${hearAboutUs}`);
@@ -514,7 +539,14 @@ export function PublicBookingForm({
           </Select>
         </div>
         <div className={fieldWrap}>
-          {usesServiceTypeAsSecondary ? (
+          {isCustomizedService ? (
+            <>
+              <Label>Service</Label>
+              <p className="flex h-9 items-center text-sm text-muted-foreground">
+                {variant || "Pick a service card below ↓"}
+              </p>
+            </>
+          ) : usesServiceTypeAsSecondary ? (
             <>
               <Label>Service Type <span className="text-destructive">*</span></Label>
               <Select value={variant} onValueChange={handleVariantChange} disabled={!category}>
@@ -539,6 +571,32 @@ export function PublicBookingForm({
           )}
         </div>
       </div>
+
+      {isCustomizedService && (
+        <div className={fieldWrap}>
+          <Label>Choose a Service <span className="text-destructive">*</span></Label>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {serviceOptions.map((o) => {
+              const Icon = CUSTOMIZED_SERVICE_ICONS[o] ?? Sparkles;
+              const selected = variant === o;
+              return (
+                <button
+                  type="button"
+                  key={o}
+                  onClick={() => handleVariantChange(o)}
+                  className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition ${
+                    selected ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"
+                  }`}
+                >
+                  <Icon className={`size-6 ${selected ? "text-primary" : "text-muted-foreground"}`} />
+                  <span className="text-xs font-medium text-foreground">{o}</span>
+                </button>
+              );
+            })}
+          </div>
+          {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className={fieldWrap}>
@@ -678,17 +736,6 @@ export function PublicBookingForm({
         </div>
       )}
 
-      {category === "CUSTOMIZER_PACKAGE" && variant === "Sofa Cleaning" && (
-        <div className={fieldWrap}>
-          <Label>Sofa Size <span className="text-destructive">*</span></Label>
-          <Select value={sofaSeater} onValueChange={setSofaSeater}>
-            <SelectTrigger><SelectValue placeholder="Select seater" /></SelectTrigger>
-            <SelectContent>
-              {SOFA_SEATER_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
       {category === "CUSTOMIZER_PACKAGE" && variant === "Mattress Cleaning" && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className={fieldWrap}>
@@ -703,26 +750,13 @@ export function PublicBookingForm({
           <QtyStepper label="Number of Mattresses" value={mattressQty} onChange={setMattressQty} min={1} />
         </div>
       )}
-      {category === "CUSTOMIZER_PACKAGE" && variant && variant !== "Sofa Cleaning" && variant !== "Mattress Cleaning" && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <QtyStepper label="Quantity" value={czQty} onChange={setCzQty} min={1} />
-          {CUSTOMIZER_FIXED_UNIT_PRICE[variant] ? (
-            <div className={fieldWrap}>
-              <Label>Unit Price (₹)</Label>
-              <Input value={formatINR(CUSTOMIZER_FIXED_UNIT_PRICE[variant])} disabled readOnly />
-            </div>
-          ) : (
-            <div className={fieldWrap}>
-              <Label>Unit Price (₹)</Label>
-              <Input
-                inputMode="numeric"
-                value={czUnitPrice}
-                onChange={(e) => setCzUnitPrice(e.target.value.replace(/\D/g, ""))}
-                placeholder="Office will confirm the exact rate"
-              />
-            </div>
-          )}
-        </div>
+      {category === "CUSTOMIZER_PACKAGE" && variant && variant !== "Mattress Cleaning" && (
+        <QtyStepper
+          label={`Number of ${CUSTOMIZED_SERVICE_QTY_UNIT[variant] ?? "Units"}`}
+          value={czQty}
+          onChange={setCzQty}
+          min={variant === "Sofa Cleaning" ? 5 : 1}
+        />
       )}
 
       {suggestedEstimate > 0 && (
