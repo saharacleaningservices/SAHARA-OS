@@ -81,7 +81,10 @@ export async function sendCustomerSMS(mobile: string, name: string, body: string
 const MAX_CAMPAIGN_RECIPIENTS = 300; // matches flushWhatsAppQueue's per-run cap in src/lib/whatsapp.ts
 
 function canManageCustomers(role: string | undefined): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS";
+  // Customers module (search, edit, WhatsApp offer/campaign) is full
+  // operational access for OPERATIONS/SUPERVISOR too, per the owner's
+  // 2026-09-21 final role policy — see SAHARA_OS_MASTER_REQUIREMENTS.md #2.
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
 }
 
 /**

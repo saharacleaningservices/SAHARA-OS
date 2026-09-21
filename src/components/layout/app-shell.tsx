@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { SidebarNav } from "./sidebar-nav";
 import { Topbar } from "./topbar";
-import { CustomerActionsFab } from "./customer-actions-fab";
+import { CustomerActionsBar } from "./customer-actions-bar";
 import { Toaster } from "@/components/ui/sonner";
 import { canAccess } from "@/lib/constants";
 
@@ -23,11 +23,11 @@ export function AppShell({
       </div>
       <div className="flex min-h-screen flex-col lg:pl-64">
         <Topbar name={name} role={role} logoUrl={logoUrl} />
+        {canAccess(role, "customers") && <CustomerActionsBar />}
         <main className="flex-1 px-4 py-6 pb-24 sm:px-6 lg:py-8">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>
-      {canAccess(role, "customers") && <CustomerActionsFab />}
       <Toaster position="top-right" richColors />
     </div>
   );
