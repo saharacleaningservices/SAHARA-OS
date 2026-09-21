@@ -12,14 +12,16 @@ The branch actually holding the approved-requirements work is **not** the one th
 - This session's local branch that had 2 unpushed commits (`coolify-deploy`, tip `66b64a2`) is preserved untouched under `coolify-deploy-local-backup-20260921` — those commits duplicate work already done differently upstream (see `155c174 CRM go-live: optional Lead email, customer service date, Team 1-4 into Jobs` on `coolify-deploy`), so they were **not** pushed or merged.
 - No Coolify/Hostinger URL or credentials were found in this repo, Drive, or Notion, so "live verify" for anything on `coolify-deploy` is currently not possible from this environment.
 
-## 0.1 Build health — BLOCKED
+## 0.1 Build health — FIXED (commit `a892868`)
 
-**`npx tsc --noEmit` fails with 65 errors, all in the committed source of two files, confirmed via `git diff` to be identical to `HEAD` (this is not a local artifact):**
+`npx tsc --noEmit` previously failed with 65 errors, all traced to two files, confirmed via `git diff` to be identical to `HEAD` at audit time (not a local artifact):
 
-- [`src/app/(app)/dashboard/page.tsx`](<src/app/(app)/dashboard/page.tsx>) — entire file content (imports + component) is duplicated inside itself.
-- [`src/app/(app)/revenue/page.tsx`](<src/app/(app)/revenue/page.tsx>) — same defect, imports/function duplicated (lines 1–11 repeated at 162–172, etc.).
+- `dashboard/page.tsx` — entire file content was duplicated inside itself (bad merge artifact).
+- `revenue/page.tsx` — same defect; the two copies also disagreed on access (`["ADMIN","ACCOUNTS"]` vs `["ADMIN"]`). Kept the ACCOUNTS-inclusive version — matches `ROLE_NAV_ACCESS` and requirement #1 (Shoaib needs Revenue Dashboard).
+- Fixing these surfaced a second, unrelated pre-existing defect: `dashboard/page.tsx`'s `showBackOffice = session.role === "ACCOUNTS"` was dead code (ACCOUNTS/ADMIN already return early via `OwnerCommandCenter`), which was silently hiding the Vehicle/AMC dashboard cards from Francis (OPERATIONS), who per requirement #2 should see them. Split into `showFleetCards`/`showAmcCard` gated by `canAccess()`, matching the existing `showCrm`/`showStaffCards` pattern. The orphaned "Staff Attendance Today" card (no valid audience once ACCOUNTS/ADMIN bypass this branch, and Francis must not see attendance) was removed rather than reassigned.
+- Fixing those two files also unmasked a **third** pre-existing issue: the committed generated Prisma client (`src/generated/prisma`) was stale relative to `schema.prisma` — missing the `WhatsAppConsent`/`BusinessTarget` models and the `CANCELLED` lead stage that app code already used. Regenerated via `npx prisma generate` (confirmed this environment reaches the network fine, unlike the sandbox earlier sessions used).
 
-`next.config.ts` has no `typescript.ignoreBuildErrors` override, so **`npm run build` cannot currently produce a production build from this commit**, which blocks any deploy/live-verify step for every requirement below. This looks like a bad merge (git log shows `2f1a97b Merge pull request #1 from saharacleaningservices/full-rebuild-staging` shortly before several "production hotfix" commits) that never got a follow-up fix for these two specific files. This is a pure duplication bug, not a design question — the fix is mechanical (delete the duplicated second half of each file) but is a code change, so it wasn't made during this audit.
+**Verified**: `tsc --noEmit` clean (0 errors), `npm run build` succeeds end-to-end. Not yet deployed anywhere or live-verified — see §0.
 
 ## 1. Requirement-by-requirement status
 
@@ -48,7 +50,7 @@ Status reflects **code state only** (per §0, nothing here is live-verified yet 
 1. Two files (`dashboard/page.tsx`, `revenue/page.tsx`) currently fail to type-check — see §0.1. This blocks building/deploying/live-verifying literally everything else.
 2. Stale person↔role comments in `src/lib/permissions.ts` and `src/server/notify.ts` disagree with the ground-truth mapping in `constants.ts` (Francis=OPERATIONS, Shoaib=ACCOUNTS). Comment-only risk today, but a real source of future mistakes.
 3. Several server actions (`createJob`, `updateJob`, `createStaff`, `updateStaff`, `deleteLead`) have no in-action role check and rely entirely on the middleware's per-section gate — works today, but any future nav-matrix change silently grants full write access with no second check.
-4. The checked-in generated Prisma client (`src/generated/prisma`) is stale relative to `prisma/schema.prisma` — regenerating it via `npx prisma generate` (which works fine in this environment, unlike the network-restricted sandbox earlier sessions used) produces real diffs, including two model files (`BusinessTarget`, `WhatsAppConsent`) that don't exist in the committed client at all. This was verified and then reverted for this audit (no functionality changes made) but is worth a deliberate regeneration pass later.
+4. ~~The checked-in generated Prisma client was stale relative to `prisma/schema.prisma`~~ — **fixed in commit `a892868`** (see §0.1).
 
 ## 3. What "COMPLETE" does not mean here
 
