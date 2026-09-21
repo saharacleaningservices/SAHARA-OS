@@ -24,6 +24,19 @@ export function formatDate(date: Date | string | null | undefined): string {
   }).format(d);
 }
 
+/** Compact "22 Sep" — no year — for dense table cells (Jobs/Leads Schedule
+ * column) where the year is implied and every character of row height/width
+ * counts. Use formatDate() instead wherever the year matters (invoices,
+ * detail pages, anything printed). */
+export function formatDateShort(date: Date | string | null | undefined): string {
+  if (!date) return "-";
+  const d = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+  }).format(d);
+}
+
 export function formatDateTime(date: Date | string | null | undefined): string {
   if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;

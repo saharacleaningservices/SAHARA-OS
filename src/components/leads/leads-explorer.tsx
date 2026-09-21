@@ -28,7 +28,7 @@ import {
   LEAD_SOURCE_OPTIONS,
   LEAD_SOURCE_LABELS,
 } from "@/lib/constants";
-import { formatINR, formatDate, dayBucket, DAY_BUCKET_META } from "@/lib/utils";
+import { formatINR, formatDateShort, dayBucket, DAY_BUCKET_META } from "@/lib/utils";
 
 type Lead = {
   id: string;
@@ -69,7 +69,7 @@ function DateCell({ lead }: { lead: Lead }) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-sm">
-        {kind} · {formatDate(date)}
+        {kind} · {formatDateShort(date)}
       </span>
       {isTodayJob ? (
         <Badge variant="success" className="w-fit text-[10px]">🟢 TODAY JOB</Badge>
@@ -87,7 +87,7 @@ function TeamCell({ lead }: { lead: Lead }) {
   const crew = lead.assignedStaffNames?.length ? lead.assignedStaffNames : lead.assignedTo?.name ? [] : [];
   return (
     <div className="text-sm">
-      {lead.teamNumber ? <span className="font-medium">Team {lead.teamNumber}</span> : <span className="text-muted-foreground">—</span>}
+      {lead.teamNumber ? <span className="font-medium">T{lead.teamNumber}</span> : <span className="text-muted-foreground">—</span>}
       {crew.length > 0 && <p className="text-xs text-muted-foreground">{crew.join(", ")}</p>}
     </div>
   );
@@ -232,8 +232,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
           <EmptyState title="No leads match your filters" description="Try adjusting search or filters." />
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <Table>
+            <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-8">
@@ -301,7 +300,6 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                   ))}
                 </TableBody>
               </Table>
-            </div>
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
           </>
         )}

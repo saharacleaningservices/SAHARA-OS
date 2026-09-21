@@ -1,10 +1,64 @@
+"use client";
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+/**
+ * Wraps every table in the app with a synchronized top+bottom horizontal
+ * scrollbar (owner instruction 2026-09-21: wide tables — Leads/Jobs/Staff/
+ * Payments/Customers — only had a scrollbar at the very bottom, easy to
+ * miss, especially once the table itself is tall). The top strip is a
+ * thin, empty scroll track sized to match the table's real scrollWidth;
+ * scrolling either one moves the other via scrollLeft, guarded by a ref so
+ * the two onScroll handlers don't ping-pong each other.
+ */
+function Table({ className, children, ...props }: React.ComponentProps<"table">) {
+  const topRef = React.useRef<HTMLDivElement>(null);
+  const bottomRef = React.useRef<HTMLDivElement>(null);
+  const tableRef = React.useRef<HTMLTableElement>(null);
+  const [scrollWidth, setScrollWidth] = React.useState(0);
+  const syncingFrom = React.useRef<"top" | "bottom" | null>(null);
+
+  React.useEffect(() => {
+    const el = tableRef.current;
+    if (!el) return;
+    const update = () => setScrollWidth(el.scrollWidth);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [children]);
+
+  function onTopScroll() {
+    if (syncingFrom.current === "bottom") {
+      syncingFrom.current = null;
+      return;
+    }
+    syncingFrom.current = "top";
+    if (bottomRef.current && topRef.current) bottomRef.current.scrollLeft = topRef.current.scrollLeft;
+  }
+
+  function onBottomScroll() {
+    if (syncingFrom.current === "top") {
+      syncingFrom.current = null;
+      return;
+    }
+    syncingFrom.current = "bottom";
+    if (bottomRef.current && topRef.current) topRef.current.scrollLeft = bottomRef.current.scrollLeft;
+  }
+
   return (
-    <div className="relative w-full overflow-x-auto rounded-lg border border-border">
-      <table className={cn("w-full caption-bottom text-sm", className)} {...props} />
+    <div className="w-full overflow-hidden rounded-lg border border-border">
+      {scrollWidth > 0 && (
+        <div ref={topRef} onScroll={onTopScroll} className="hidden overflow-x-auto overflow-y-hidden sm:block" style={{ height: 10 }}>
+          <div style={{ width: scrollWidth, height: 1 }} />
+        </div>
+      )}
+      <div ref={bottomRef} onScroll={onBottomScroll} className="relative w-full overflow-x-auto">
+        <table ref={tableRef} className={cn("w-full caption-bottom text-[13px]", className)} {...props}>
+          {children}
+        </table>
+      </div>
     </div>
   );
 }
@@ -34,7 +88,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "h-10 px-3 text-left align-middle text-xs font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap",
+        "h-9 px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap",
         className
       )}
       {...props}
@@ -43,7 +97,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 }
 
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
-  return <td className={cn("p-3 align-middle whitespace-nowrap", className)} {...props} />;
+  return <td className={cn("px-3 py-2 align-middle whitespace-nowrap", className)} {...props} />;
 }
 
 function TableCaption({ className, ...props }: React.ComponentProps<"caption">) {

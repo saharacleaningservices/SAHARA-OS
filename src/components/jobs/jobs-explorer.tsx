@@ -18,7 +18,7 @@ import { deleteJob, bulkDeleteJobs } from "@/server/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
-import { formatDate, formatINR, dayBucket } from "@/lib/utils";
+import { formatDateShort, formatINR, dayBucket } from "@/lib/utils";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
 type Job = {
@@ -121,8 +121,7 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
         <EmptyState title="No jobs found" description="Try adjusting your search or filters." />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <Table>
+          <Table>
               <TableHeader>
                 <TableRow>
                   {canManage && (
@@ -182,10 +181,10 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                         )}
                       </TableCell>
                       <TableCell className="text-sm">
-                        {isToday ? <span className="font-semibold text-success">Today</span> : formatDate(job.scheduledDate)} · {job.scheduledTime}
+                        {isToday ? <span className="font-semibold text-success">Today</span> : formatDateShort(job.scheduledDate)} · {job.scheduledTime}
                       </TableCell>
                       <TableCell className="text-sm">
-                        {job.teamNumber ? `Team ${job.teamNumber}` : "—"}
+                        {job.teamNumber ? `T${job.teamNumber}` : "—"}
                         {job.assignments.length > 0 && (
                           <p className="text-xs text-muted-foreground">
                             {job.assignments.map((a) => a.staff.name).join(", ")}
@@ -238,7 +237,6 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                 })}
               </TableBody>
             </Table>
-          </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
         </>
       )}
