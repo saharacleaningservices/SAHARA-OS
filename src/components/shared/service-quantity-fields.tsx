@@ -98,10 +98,17 @@ function parseCustomizerSelection(notes: string | undefined, variant: string): {
   const prefix = "(?:Customized Service|Customizer Package)";
 
   if (variant === "Mattress Cleaning") {
-    const re = new RegExp(`^${prefix} — Mattress Cleaning: (Single|Double) x (\\d+) = ₹`);
+    // Current format carries both the size and the (now editable) rate;
+    // older leads saved before Unit Price became editable only have size —
+    // matched by the second, priceless pattern so they still restore the
+    // size (the rate then simply falls back to MATTRESS_UNIT_PRICE default).
+    const withRate = new RegExp(`^${prefix} — Mattress Cleaning: (Single|Double) x (\\d+) × ₹(\\d+(?:\\.\\d+)?)(?:/\\S+)? = ₹`);
+    const legacy = new RegExp(`^${prefix} — Mattress Cleaning: (Single|Double) x (\\d+) = ₹`);
     for (let i = lines.length - 1; i >= 0; i--) {
-      const m = lines[i].match(re);
-      if (m) return { qty: m[2], unitPrice: "", mattressSize: m[1] };
+      const m = lines[i].match(withRate);
+      if (m) return { qty: m[2], unitPrice: m[3], mattressSize: m[1] };
+      const legacyMatch = lines[i].match(legacy);
+      if (legacyMatch) return { qty: legacyMatch[2], unitPrice: "", mattressSize: legacyMatch[1] };
     }
     return empty;
   }
@@ -131,20 +138,24 @@ function parseCustomizerSelection(notes: string | undefined, variant: string): {
  *    "Customized Service" — the internal key is unchanged, see
  *    SERVICE_CATEGORY_LABELS): Service Type → Quantity → Unit Price →
  *    Estimated Amount, per the selected variant (the "Details" picker
- *    above). Unit Price is auto-filled read-only wherever
- *    CUSTOMIZER_FIXED_UNIT_PRICE has a rate (Carpet/Window/Refrigerator
- *    Cleaning — see that constant's comment for exactly which existing rate
- *    each one reuses); Estimated Amount is always its own read-only field.
- *    Sofa Cleaning gets its own owner-defined rate picker instead
- *    (CUSTOMIZED_SOFA_RATE_OPTIONS — ₹200/250/300 per seat, or a custom
- *    rate), deliberately separate from the customer-facing ₹499/seat
+ *    above). Unit Price is ALWAYS an editable field for every item (owner
+ *    mandate 2026-09-21: "Remove fixed Unit Price. Make Unit Price
+ *    editable.") — pre-filled from CUSTOMIZER_FIXED_UNIT_PRICE as a
+ *    convenience default wherever one is configured (Carpet/Window/
+ *    Bathroom/Refrigerator/Sofa Cleaning — see that constant's comment for
+ *    exactly which existing rate each one reuses), but staff can always
+ *    overwrite it; Estimated Amount is always Qty × Unit Price and stays
+ *    read-only. Sofa Cleaning additionally shows one-click quick-fill chips
+ *    (CUSTOMIZED_SOFA_RATE_OPTIONS — ₹200/250/300 per seat) next to the
+ *    input, deliberately separate from the customer-facing ₹499/seat
  *    Booking Form upsell. Mattress Cleaning keeps a Size picker first
- *    (Single/Double genuinely have different real rates), then the same
- *    Quantity x Unit Price. Every other item (Balcony/Kitchen/Chimney/Fan/
- *    Floor Cleaning) has no configured rate, so staff enter the real quoted
- *    unit price by hand — never auto-invented. `initialSelectionNotes`
- *    (the lead's existing Notes, passed only in edit mode) restores a
- *    previously-saved selection via `parseCustomizerSelection` above.
+ *    (Single/Double genuinely have different real rates) which re-fills the
+ *    same editable Unit Price with that size's default whenever it changes.
+ *    Every other item (Balcony/Kitchen/Chimney/Fan/Floor Cleaning) has no
+ *    default rate, so the field simply starts blank for staff to enter the
+ *    real quoted price. `initialSelectionNotes` (the lead's existing Notes,
+ *    passed only in edit mode) restores a previously-saved selection via
+ *    `parseCustomizerSelection` above.
  *  - Individual Cleaning (category INDIVIDUAL_CLEANING): a quantity field
  *    for every item (Kitchen, Bathroom, Sofa, Mattress, Window, Curtain,
  *    Fan, Fridge, Balcony), qty-only with no price calculation — unchanged,
@@ -186,8 +197,16 @@ export function ServiceQuantityFields({
   const [kitchenQty, setKitchenQty] = useState("");
   const [carpetQty, setCarpetQty] = useState("");
   const [windowQty, setWindowQty] = useState("");
+  // mattressSize/mattressQty are shared by two different flows: the
+  // Home Deep Cleaning mirror of the public Booking Form (untouched by this
+  // change, still Size + its own Quantity), and Customized Service's own
+  // Mattress Cleaning variant, where the Size picker stays but Quantity and
+  // Unit Price now come from the same generic czQty/czUnitPrice state as
+  // every other item — picking a size just re-fills czUnitPrice with that
+  // size's default (see the Select's onValueChange below); the field stays
+  // freely editable afterward.
   const [mattressSize, setMattressSize] = useState(() => restored.mattressSize);
-  const [mattressQty, setMattressQty] = useState(() => (isCustomizer && restored.mattressSize ? restored.qty : ""));
+  const [mattressQty, setMattressQty] = useState("");
   const [curtainQty, setCurtainQty] = useState("");
   const [paintRooms, setPaintRooms] = useState("");
   const [paintSqft, setPaintSqft] = useState("");
@@ -196,22 +215,18 @@ export function ServiceQuantityFields({
   const [housekeepingStaffCount, setHousekeepingStaffCount] = useState("");
   const [housekeepingShiftHours, setHousekeepingShiftHours] = useState("");
 
-  // Customized Service (CUSTOMIZER_PACKAGE) — generic Quantity/Unit Price
-  // pair used by every variant except Mattress (size-based state above) and
-  // Sofa (its own owner-defined rate picker below).
-  const [czQty, setCzQty] = useState(() => (restored.mattressSize ? "" : restored.qty));
-  const [czUnitPrice, setCzUnitPrice] = useState(() => restored.unitPrice);
-
-  // Sofa Cleaning under Customized Service — owner-defined rate tiers
-  // (₹200/250/300 per seat) plus a custom rate, deliberately separate from
-  // the customer-facing ₹499/seat Booking Form upsell.
-  const isRestoredSofa = isCustomizer && variant === "Sofa Cleaning";
-  const restoredSofaIsTierRate = isRestoredSofa && (CUSTOMIZED_SOFA_RATE_OPTIONS as readonly number[]).includes(Number(restored.unitPrice));
-  const [sofaRateChoice, setSofaRateChoice] = useState<string>(() => {
-    if (!isRestoredSofa || !restored.unitPrice) return "";
-    return restoredSofaIsTierRate ? restored.unitPrice : "CUSTOM";
+  // Customized Service (CUSTOMIZER_PACKAGE) — the single Quantity/Unit Price
+  // pair used by every variant, including Mattress and Sofa. Unit Price is
+  // always editable; it's only ever pre-filled with a default, never locked
+  // (owner mandate 2026-09-21).
+  const [czQty, setCzQty] = useState(() => restored.qty);
+  const [czUnitPrice, setCzUnitPrice] = useState(() => {
+    if (restored.unitPrice) return restored.unitPrice;
+    if (variant === "Mattress Cleaning") {
+      return restored.mattressSize ? String(MATTRESS_UNIT_PRICE[restored.mattressSize] ?? "") : "";
+    }
+    return variant && CUSTOMIZER_FIXED_UNIT_PRICE[variant] ? String(CUSTOMIZER_FIXED_UNIT_PRICE[variant]) : "";
   });
-  const [sofaCustomRate, setSofaCustomRate] = useState<string>(() => (isRestoredSofa && !restoredSofaIsTierRate ? restored.unitPrice : ""));
 
   // Individual Cleaning (INDIVIDUAL_CLEANING) — one qty field per item.
   const [icKitchenQty, setIcKitchenQty] = useState("");
@@ -261,25 +276,13 @@ export function ServiceQuantityFields({
       return Math.round(hours * staff * HOUSEKEEPING_HOURLY_RATE);
     }
     if (category === "CUSTOMIZER_PACKAGE") {
-      if (variant === "Mattress Cleaning" && mattressSize) {
-        const qty = Number(mattressQty) || 0;
-        if (qty > 0) return (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
-        return 0;
-      }
-      if (variant === "Sofa Cleaning") {
-        const qty = Number(czQty) || 0;
-        const rate = sofaRateChoice === "CUSTOM" ? Number(sofaCustomRate) || 0 : Number(sofaRateChoice) || 0;
-        if (qty > 0 && rate > 0) return qty * rate;
-        return 0;
-      }
-      // Every other item (Carpet/Window/Refrigerator Cleaning): plain
-      // Quantity x Unit Price. Unit Price is auto-filled read-only from
-      // CUSTOMIZER_FIXED_UNIT_PRICE where a rate is configured, or typed in
-      // by staff where it isn't (Balcony/Kitchen/Chimney/Fan/Floor Cleaning)
-      // — never a guessed number either way.
-      const fixedRate = variant ? CUSTOMIZER_FIXED_UNIT_PRICE[variant] : undefined;
+      // Every item — Mattress and Sofa included — is now a plain
+      // Quantity x (editable) Unit Price. Unit Price is pre-filled with a
+      // default where one is configured, but the calculation always reads
+      // the current field value, never a locked constant, so an edited
+      // price is reflected immediately.
       const qty = Number(czQty) || 0;
-      const rate = fixedRate ?? (Number(czUnitPrice) || 0);
+      const rate = Number(czUnitPrice) || 0;
       if (qty > 0 && rate > 0) return qty * rate;
     }
     // Individual Cleaning is quantity-only by explicit production
@@ -323,26 +326,17 @@ export function ServiceQuantityFields({
     // confirmed)" marker so quotation generation lists it as a $0 line
     // instead of double-counting it (see src/lib/ai/quotation.ts /
     // quotation-dialog.tsx).
-    if (category === "CUSTOMIZER_PACKAGE" && variant) {
+    if (category === "CUSTOMIZER_PACKAGE" && variant && czQty) {
+      const qty = Number(czQty) || 0;
+      const rate = Number(czUnitPrice) || 0;
+      const unit = CUSTOMIZER_UNIT_LABEL[variant];
       if (variant === "Mattress Cleaning" && mattressSize) {
-        const qty = Number(mattressQty) || 0;
-        if (qty > 0) {
-          const amt = (MATTRESS_UNIT_PRICE[mattressSize] ?? 0) * qty;
-          lines.push(`Customized Service — Mattress Cleaning: ${mattressSize} x ${qty} = ₹${amt}`);
-        }
-      } else if (variant === "Sofa Cleaning" && czQty) {
-        const qty = Number(czQty) || 0;
-        const rate = sofaRateChoice === "CUSTOM" ? Number(sofaCustomRate) || 0 : Number(sofaRateChoice) || 0;
         if (qty > 0 && rate > 0) {
-          lines.push(`Customized Service — Sofa Cleaning: Qty ${qty} × ₹${rate}/seat = ₹${qty * rate}`);
+          lines.push(`Customized Service — Mattress Cleaning: ${mattressSize} x ${qty} × ₹${rate}/mattress = ₹${qty * rate}`);
         } else if (qty > 0) {
-          lines.push(`Customized Service (price to be confirmed) — Sofa Cleaning: Qty ${qty}`);
+          lines.push(`Customized Service (price to be confirmed) — Mattress Cleaning: Qty ${qty}`);
         }
-      } else if (variant !== "Mattress Cleaning" && variant !== "Sofa Cleaning" && czQty) {
-        const qty = Number(czQty) || 0;
-        const fixedRate = CUSTOMIZER_FIXED_UNIT_PRICE[variant];
-        const rate = fixedRate ?? (Number(czUnitPrice) || 0);
-        const unit = CUSTOMIZER_UNIT_LABEL[variant];
+      } else if (variant !== "Mattress Cleaning") {
         if (qty > 0 && rate > 0) {
           lines.push(`Customized Service — ${variant}: Qty ${qty} × ₹${rate}${unit ? `/${unit}` : ""} = ₹${qty * rate}`);
         } else if (qty > 0) {
@@ -383,8 +377,6 @@ export function ServiceQuantityFields({
     housekeepingShiftHours,
     czQty,
     czUnitPrice,
-    sofaRateChoice,
-    sofaCustomRate,
     icKitchenQty,
     icBathroomQty,
     icSofaQty,
@@ -518,76 +510,53 @@ export function ServiceQuantityFields({
       )}
 
       {category === "CUSTOMIZER_PACKAGE" && variant === "Mattress Cleaning" && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className={fieldWrap}>
-            <Label>Mattress Size</Label>
-            <Select value={mattressSize} onValueChange={setMattressSize}>
-              <SelectTrigger><SelectValue placeholder="Single or Double" /></SelectTrigger>
-              <SelectContent>
-                {MATTRESS_SIZE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <QtyStepper label="Quantity" value={mattressQty} onChange={setMattressQty} min={1} />
-          <div className={fieldWrap}>
-            <Label>Unit Price</Label>
-            <Input value={mattressSize ? `${formatINR(MATTRESS_UNIT_PRICE[mattressSize])} / mattress` : "Pick a size first"} disabled readOnly />
-          </div>
+        <div className={fieldWrap}>
+          <Label>Mattress Size</Label>
+          <Select
+            value={mattressSize}
+            onValueChange={(v) => {
+              setMattressSize(v);
+              setCzUnitPrice(String(MATTRESS_UNIT_PRICE[v] ?? ""));
+            }}
+          >
+            <SelectTrigger><SelectValue placeholder="Single or Double" /></SelectTrigger>
+            <SelectContent>
+              {MATTRESS_SIZE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
       )}
-      {category === "CUSTOMIZER_PACKAGE" && variant === "Sofa Cleaning" && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {category === "CUSTOMIZER_PACKAGE" && variant && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <QtyStepper label="Quantity" value={czQty} onChange={setCzQty} min={1} />
           <div className={fieldWrap}>
-            <Label>Rate per Seat</Label>
-            <Select value={sofaRateChoice} onValueChange={setSofaRateChoice}>
-              <SelectTrigger><SelectValue placeholder="Select rate" /></SelectTrigger>
-              <SelectContent>
+            <Label>Unit Price (₹{CUSTOMIZER_UNIT_LABEL[variant] ? ` / ${CUSTOMIZER_UNIT_LABEL[variant]}` : ""})</Label>
+            <Input
+              inputMode="numeric"
+              value={czUnitPrice}
+              onChange={(e) => setCzUnitPrice(e.target.value.replace(/\D/g, ""))}
+              placeholder={CUSTOMIZER_FIXED_UNIT_PRICE[variant] ? undefined : "No default rate — enter the quoted price"}
+            />
+            {variant === "Sofa Cleaning" && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
                 {CUSTOMIZED_SOFA_RATE_OPTIONS.map((r) => (
-                  <SelectItem key={r} value={String(r)}>{formatINR(r)} / seat</SelectItem>
+                  <button
+                    type="button"
+                    key={r}
+                    onClick={() => setCzUnitPrice(String(r))}
+                    className={`rounded-md border px-2.5 py-1 text-xs font-medium ${
+                      czUnitPrice === String(r) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"
+                    }`}
+                  >
+                    {formatINR(r)}/seat
+                  </button>
                 ))}
-                <SelectItem value="CUSTOM">Custom rate…</SelectItem>
-              </SelectContent>
-            </Select>
+              </div>
+            )}
+            {!CUSTOMIZER_FIXED_UNIT_PRICE[variant] && variant !== "Mattress Cleaning" && (
+              <p className="text-xs text-muted-foreground">No default rate for this service — enter the real quoted price.</p>
+            )}
           </div>
-          {sofaRateChoice === "CUSTOM" ? (
-            <div className={fieldWrap}>
-              <Label>Custom Rate (₹ / seat)</Label>
-              <Input
-                inputMode="numeric"
-                value={sofaCustomRate}
-                onChange={(e) => setSofaCustomRate(e.target.value.replace(/\D/g, ""))}
-                placeholder="Enter rate per seat"
-              />
-            </div>
-          ) : (
-            <div className={fieldWrap}>
-              <Label>Unit Price</Label>
-              <Input value={sofaRateChoice ? `${formatINR(Number(sofaRateChoice))} / seat` : "Select a rate first"} disabled readOnly />
-            </div>
-          )}
-        </div>
-      )}
-      {category === "CUSTOMIZER_PACKAGE" && variant && variant !== "Mattress Cleaning" && variant !== "Sofa Cleaning" && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <QtyStepper label="Quantity" value={czQty} onChange={setCzQty} min={1} />
-          {CUSTOMIZER_FIXED_UNIT_PRICE[variant] ? (
-            <div className={fieldWrap}>
-              <Label>Unit Price</Label>
-              <Input value={`${formatINR(CUSTOMIZER_FIXED_UNIT_PRICE[variant])} / ${CUSTOMIZER_UNIT_LABEL[variant] ?? "unit"}`} disabled readOnly />
-            </div>
-          ) : (
-            <div className={fieldWrap}>
-              <Label>Unit Price (₹{CUSTOMIZER_UNIT_LABEL[variant] ? ` / ${CUSTOMIZER_UNIT_LABEL[variant]}` : ""})</Label>
-              <Input
-                inputMode="numeric"
-                value={czUnitPrice}
-                onChange={(e) => setCzUnitPrice(e.target.value.replace(/\D/g, ""))}
-                placeholder="No configured rate — enter the quoted price"
-              />
-              <p className="text-xs text-muted-foreground">No rate configured for this service yet — enter the real quoted price.</p>
-            </div>
-          )}
         </div>
       )}
       {category === "CUSTOMIZER_PACKAGE" && variant && (
