@@ -547,6 +547,37 @@ export function dailyAttendanceSummaryMessage(input: { date: Date; present: numb
   ].join("\n");
 }
 
+/** Yesterday's business snapshot — sent each morning alongside the attendance summary. */
+export function dailyBusinessSummaryMessage(input: {
+  date: Date;
+  jobsScheduled: number;
+  jobsCompleted: number;
+  newEnquiries: number;
+  convertedLeads: number;
+  followUpsPending: number;
+  paymentsReceived: number;
+  pendingPaymentsTotal: number;
+  reviewsReceived: number;
+  quotationsPending: number;
+}) {
+  return [
+    `📈 Daily Business Summary — ${formatDate(input.date)}`,
+    ``,
+    `Jobs Scheduled: ${input.jobsScheduled}`,
+    `Jobs Completed: ${input.jobsCompleted}`,
+    `New Enquiries: ${input.newEnquiries}`,
+    `Converted Leads: ${input.convertedLeads}`,
+    `Follow-ups Pending Today: ${input.followUpsPending}`,
+    ``,
+    `Payments Received: ${formatINR(input.paymentsReceived)}`,
+    `Pending Collection: ${formatINR(input.pendingPaymentsTotal)}`,
+    `Quotations Awaiting Follow-up: ${input.quotationsPending}`,
+    `Reviews Received: ${input.reviewsReceived}`,
+    ``,
+    `— ${COMPANY.name}`,
+  ].join("\n");
+}
+
 // ── Staff self-notifications (Phase 6) — queued until the WhatsApp API is live.
 
 const STATUS_WORD: Record<string, string> = {
