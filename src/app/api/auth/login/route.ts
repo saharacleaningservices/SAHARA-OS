@@ -68,11 +68,39 @@ export async function POST(request: NextRequest) {
       : null;
 
   if (!user || !user.isActive) {
+    // No persistent login-history trail existed for this path before the
+    // 2026-09-21 security audit — a wrong/unknown loginId left zero trace
+    // anywhere, unlike a wrong password for a real account (which already
+    // triggered notify() below, just not an AuditLog row either). Logged
+    // without the submitted loginId's raw value beyond what's already
+    // partially visible in `entityId`, and never the password.
+    await db.auditLog
+      .create({
+        data: {
+          entityType: "Login",
+          entityId: id,
+          action: "LOGIN_FAILED",
+          summary: `Login failed — no active account for "${id}" from ${labelFromUserAgent(request.headers.get("user-agent"))} · ${ip}`,
+        },
+      })
+      .catch(() => {});
     return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
   }
 
   const valid = await verifyPassword(password, user.passwordHash);
   if (!valid) {
+    await db.auditLog
+      .create({
+        data: {
+          entityType: "Login",
+          entityId: user.id,
+          action: "LOGIN_FAILED",
+          summary: `Wrong password for ${user.name} (${user.phone ?? user.email}) from ${labelFromUserAgent(request.headers.get("user-agent"))} · ${ip}`,
+          actorName: user.name,
+          actorEmail: user.email,
+        },
+      })
+      .catch(() => {});
     // Security alert to the Super Admin on a failed login for a real account.
     await notify({
       kind: "LOGIN_ATTEMPT",
@@ -164,6 +192,23 @@ export async function POST(request: NextRequest) {
   });
 
   await setSessionCookie(token);
+
+  // Persistent login-history trail (2026-09-21 security audit finding — no
+  // successful login of any role, including ADMIN's own, was ever recorded
+  // anywhere before this; only device-approval requests were). Every
+  // successful login now shows up on /admin/audit-log.
+  await db.auditLog
+    .create({
+      data: {
+        entityType: "Login",
+        entityId: user.id,
+        action: "LOGIN_SUCCESS",
+        summary: `${user.name} (${user.role}) signed in from ${labelFromUserAgent(request.headers.get("user-agent"))} · ${ip}`,
+        actorName: user.name,
+        actorEmail: user.email,
+      },
+    })
+    .catch(() => {});
 
   // Instant sign-in alert to the Super Admin for the two gated office accounts.
   if (DEVICE_GATED_ROLES.has(user.role)) {
