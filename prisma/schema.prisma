@@ -1184,7 +1184,7 @@ model Notification {
   id        String    @id @default(cuid())
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kind      String // NEW_BOOKING | NEW_INQUIRY | PAYMENT_RECEIVED | FOLLOWUP_DUE | SITE_VISIT | CREW_UPDATE | DEVICE_LOGIN | PASSWORD_OTP | APPROVAL_REQUEST | LOGIN_ATTEMPT
+  kind      String // NEW_BOOKING | NEW_INQUIRY | PAYMENT_RECEIVED | FOLLOWUP_DUE | STALE_LEAD | SITE_VISIT | CREW_UPDATE | DEVICE_LOGIN | PASSWORD_OTP | APPROVAL_REQUEST | LOGIN_ATTEMPT
   title     String
   body      String?
   href      String?
