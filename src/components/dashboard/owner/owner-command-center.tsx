@@ -11,6 +11,8 @@ import {
   BarChart3,
   PiggyBank,
   Star,
+  XCircle,
+  PauseCircle,
 } from "lucide-react";
 import { getOwnerCommandCenterHome } from "@/server/owner-command-center";
 import { getOwnerSnapshot } from "@/server/owner";
@@ -255,6 +257,42 @@ export async function OwnerCommandCenter({
                     >
                       <span className="truncate text-foreground">{j.customerName}</span>
                       <span className="shrink-0 text-xs text-muted-foreground">{j.scheduledTime}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {alerts.cancelledJobs.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <XCircle className="size-3.5 text-destructive" /> Cancelled Jobs — last 3 days (
+                    {alerts.cancelledJobs.length})
+                  </p>
+                  {alerts.cancelledJobs.map((j) => (
+                    <Link
+                      key={j.id}
+                      href={`/jobs/${j.id}`}
+                      className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-primary/40"
+                    >
+                      <span className="truncate text-foreground">{j.customerName}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{formatDate(j.scheduledDate)}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {alerts.postponedJobs.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <PauseCircle className="size-3.5 text-warning" /> Postponed Jobs — last 3 days (
+                    {alerts.postponedJobs.length})
+                  </p>
+                  {alerts.postponedJobs.map((j) => (
+                    <Link
+                      key={j.id}
+                      href={`/jobs/${j.id}`}
+                      className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-primary/40"
+                    >
+                      <span className="truncate text-foreground">{j.customerName}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{formatDate(j.scheduledDate)}</span>
                     </Link>
                   ))}
                 </div>

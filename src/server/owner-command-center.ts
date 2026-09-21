@@ -61,8 +61,14 @@ export async function getOwnerAlerts() {
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
   const staleThreshold = subDays(now, 5);
+  // Owner Intelligence improvement (Phase 8, 2026-09-21): cancelled/postponed
+  // jobs weren't surfaced as their own alert category at all before — only
+  // discoverable by browsing the full Jobs list with a status filter. Scoped
+  // to the last 3 days (not all-time) so this stays an actionable "what
+  // needs a look" list, not a growing historical log.
+  const recentThreshold = subDays(now, 3);
 
-  const [overduePayments, staleLeads, unassignedJobsToday] = await Promise.all([
+  const [overduePayments, staleLeads, unassignedJobsToday, cancelledJobs, postponedJobs] = await Promise.all([
     db.payment.findMany({
       where: { deletedAt: null, status: "OVERDUE" },
       orderBy: { dueDate: "asc" },
@@ -91,6 +97,18 @@ export async function getOwnerAlerts() {
       take: 8,
       select: { id: true, customerName: true, scheduledTime: true, jobNumber: true },
     }),
+    db.job.findMany({
+      where: { deletedAt: null, status: "CANCELLED", updatedAt: { gte: recentThreshold } },
+      orderBy: { updatedAt: "desc" },
+      take: 8,
+      select: { id: true, customerName: true, jobNumber: true, scheduledDate: true, updatedAt: true },
+    }),
+    db.job.findMany({
+      where: { deletedAt: null, status: "POSTPONED", updatedAt: { gte: recentThreshold } },
+      orderBy: { updatedAt: "desc" },
+      take: 8,
+      select: { id: true, customerName: true, jobNumber: true, scheduledDate: true, updatedAt: true },
+    }),
   ]);
 
   const overdue = overduePayments.map((p) => ({ ...p, outstanding: p.amount - p.paidAmount }));
@@ -99,7 +117,9 @@ export async function getOwnerAlerts() {
     overduePayments: overdue,
     staleLeads,
     unassignedJobsToday,
-    totalCount: overdue.length + staleLeads.length + unassignedJobsToday.length,
+    cancelledJobs,
+    postponedJobs,
+    totalCount: overdue.length + staleLeads.length + unassignedJobsToday.length + cancelledJobs.length + postponedJobs.length,
   };
 }
 
