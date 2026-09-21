@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { isWhatsAppReady, listOptedOutNumbers } from "@/lib/whatsapp";
 import { isSmsReady } from "@/lib/sms";
+import { isEmailReady } from "@/lib/email";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -12,11 +13,13 @@ import { Info } from "lucide-react";
 
 export default async function MessageLogPage() {
   await requireRole(["ADMIN", "ACCOUNTS"]);
-  const [waReady, smsReady, waMsgs, smsMsgs, optedOut] = await Promise.all([
+  const [waReady, smsReady, emailReady, waMsgs, smsMsgs, emailMsgs, optedOut] = await Promise.all([
     isWhatsAppReady(),
     isSmsReady(),
+    isEmailReady(),
     db.whatsAppMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }),
     db.smsMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }).catch(() => []),
+    db.emailMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }).catch(() => []),
     listOptedOutNumbers(),
   ]);
 
@@ -41,21 +44,34 @@ export default async function MessageLogPage() {
       status: m.status,
       error: m.error ?? null,
     })),
+    ...emailMsgs.map((m) => ({
+      id: m.id,
+      channel: "Email",
+      createdAt: m.createdAt,
+      kind: m.kind,
+      to: `${m.toName ? `${m.toName} · ` : ""}${m.toEmail}`,
+      body: `${m.subject}: ${m.body}`,
+      status: m.status,
+      error: m.error ?? null,
+    })),
   ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Message Log" description="Every automated WhatsApp & SMS message the CRM has sent or queued" />
+      <PageHeader title="Message Log" description="Every automated WhatsApp, SMS & email message the CRM has sent or queued" />
 
-      {(!waReady || !smsReady) && (
+      {(!waReady || !smsReady || !emailReady) && (
         <div className="flex gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
           <Info className="mt-0.5 size-4 shrink-0" />
           <p>
             {!waReady && <>WhatsApp Cloud API not connected. </>}
             {!smsReady && <>SMS gateway not connected. </>}
-            Queued messages flush automatically the moment credentials are saved in{" "}
-            <a href="/settings" className="font-medium text-primary hover:underline">Settings → Integrations</a> —
-            no code change needed. Failed sends are retried by the daily cron.
+            {!emailReady && (
+              <>Email provider not connected (set EMAIL_API_KEY, EMAIL_ENDPOINT and EMAIL_FROM to enable it — used today only for password/login-ID recovery notifications to the owner). </>
+            )}
+            Queued messages flush automatically the moment credentials are saved — no code change needed. Failed
+            sends are retried by the daily cron. WhatsApp/SMS credentials are saved in{" "}
+            <a href="/settings" className="font-medium text-primary hover:underline">Settings → Integrations</a>.
           </p>
         </div>
       )}

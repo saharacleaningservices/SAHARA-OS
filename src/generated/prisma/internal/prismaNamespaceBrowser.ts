@@ -89,6 +89,7 @@ export const ModelName = {
   JobVideo: 'JobVideo',
   IntegrationSettings: 'IntegrationSettings',
   SmsMessage: 'SmsMessage',
+  EmailMessage: 'EmailMessage',
   SecurityOtp: 'SecurityOtp',
   Notification: 'Notification',
   PushSubscription: 'PushSubscription',
@@ -845,6 +846,25 @@ export const SmsMessageScalarFieldEnum = {
 } as const
 
 export type SmsMessageScalarFieldEnum = (typeof SmsMessageScalarFieldEnum)[keyof typeof SmsMessageScalarFieldEnum]
+
+
+export const EmailMessageScalarFieldEnum = {
+  id: 'id',
+  toEmail: 'toEmail',
+  toName: 'toName',
+  subject: 'subject',
+  body: 'body',
+  kind: 'kind',
+  status: 'status',
+  attempts: 'attempts',
+  error: 'error',
+  relatedType: 'relatedType',
+  relatedId: 'relatedId',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailMessageScalarFieldEnum = (typeof EmailMessageScalarFieldEnum)[keyof typeof EmailMessageScalarFieldEnum]
 
 
 export const SecurityOtpScalarFieldEnum = {

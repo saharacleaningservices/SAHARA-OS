@@ -218,6 +218,11 @@ export type IntegrationSettings = Prisma.IntegrationSettingsModel
  */
 export type SmsMessage = Prisma.SmsMessageModel
 /**
+ * Model EmailMessage
+ * 
+ */
+export type EmailMessage = Prisma.EmailMessageModel
+/**
  * Model SecurityOtp
  * 
  */

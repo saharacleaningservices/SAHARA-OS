@@ -6,6 +6,7 @@ import { sendDailyBusinessSummary } from "@/server/daily-summary";
 import { sendMonthlyBusinessSummary } from "@/server/monthly-summary";
 import { flushWhatsAppQueue } from "@/lib/whatsapp";
 import { flushSmsQueue } from "@/lib/sms";
+import { flushEmailQueue } from "@/lib/email";
 
 // Runs the WhatsApp reminder sweeps: customer job reminders (tomorrow's
 // jobs), payment reminders (due-soon/overdue balances), AMC renewal
@@ -46,10 +47,11 @@ export async function GET(request: NextRequest) {
   const monthlySummary =
     new Date().getDate() === 1 || forceMonthly ? await sendMonthlyBusinessSummary(targetMonth) : null;
 
-  const [whatsappFlush, smsFlush] = await Promise.all([
+  const [whatsappFlush, smsFlush, emailFlush] = await Promise.all([
     flushWhatsAppQueue({ includeFailed: true }).catch(() => null),
     flushSmsQueue({ includeFailed: true }).catch(() => null),
+    flushEmailQueue({ includeFailed: true }).catch(() => null),
   ]);
 
-  return NextResponse.json({ reminders, attendance, dailySummary, monthlySummary, whatsappFlush, smsFlush });
+  return NextResponse.json({ reminders, attendance, dailySummary, monthlySummary, whatsappFlush, smsFlush, emailFlush });
 }
