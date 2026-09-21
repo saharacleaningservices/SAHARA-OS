@@ -232,7 +232,11 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
           <EmptyState title="No leads match your filters" description="Try adjusting search or filters." />
         ) : (
           <>
-            <Table>
+            {/* Desktop/tablet: compact table, no unnecessary horizontal
+                scroll. Service+Source folded into one column (one fewer
+                column) so every important field fits on a 1366px screen. */}
+            <div className="hidden sm:block">
+              <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-8">
@@ -248,8 +252,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                       />
                     </TableHead>
                     <TableHead>Lead</TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Source</TableHead>
+                    <TableHead>Service / Source</TableHead>
                     <TableHead>Stage</TableHead>
                     <TableHead>Quote</TableHead>
                     <TableHead>Date</TableHead>
@@ -276,8 +279,10 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                           {lead.leadNumber} · {lead.area}
                         </p>
                       </TableCell>
-                      <TableCell className="text-sm">{SERVICE_LABELS[lead.service]}</TableCell>
-                      <TableCell className="text-sm">{LEAD_SOURCE_LABELS[lead.source]}</TableCell>
+                      <TableCell className="text-sm">
+                        {SERVICE_LABELS[lead.service]}
+                        <p className="text-xs text-muted-foreground">{LEAD_SOURCE_LABELS[lead.source]}</p>
+                      </TableCell>
                       <TableCell>
                         <LeadStageBadge stage={lead.stage} />
                       </TableCell>
@@ -300,6 +305,16 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Mobile: reuse the same LeadCard used by the Pipeline view
+                instead of a wide table — one card component either way. */}
+            <div className="space-y-2.5 sm:hidden">
+              {pageItems.map((lead) => (
+                <LeadCard key={lead.id} lead={lead} />
+              ))}
+            </div>
+
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
           </>
         )}
