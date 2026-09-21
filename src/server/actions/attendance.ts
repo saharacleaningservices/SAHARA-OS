@@ -26,13 +26,24 @@ async function ownStaffId(userId: string) {
   return staff?.id ?? null;
 }
 
-/** Altaf / Shoaib / Francis — the only roles that operate the attendance clock. */
+/**
+ * Altaf (ADMIN) / Shoaib (ACCOUNTS) operate attendance from the office;
+ * Francis (OPERATIONS) is included for parity with canEditCalendar below
+ * but never reaches this page — ROLE_NAV_ACCESS keeps "attendance" out of
+ * his nav entirely; SUPERVISOR (Field Coordinator) needs it for their own
+ * self check-in, which is the one case that page is in their nav for.
+ */
 function canOperateAttendance(role?: string) {
-  return role === "ADMIN" || role === "OPERATIONS" || role === "SUPERVISOR";
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
 }
-/** Editing the calendar / backfill / bulk / month-close — office managers only. */
+/**
+ * Editing the calendar / backfill / bulk / month-close — Admin + Accounts
+ * (the office managers who actually see this UI, per canManageAttendance in
+ * src/lib/permissions.ts). OPERATIONS is kept for parity but unreachable
+ * today since Francis's nav never includes "attendance".
+ */
 function canEditCalendar(role?: string) {
-  return role === "ADMIN" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
 }
 
 /**
