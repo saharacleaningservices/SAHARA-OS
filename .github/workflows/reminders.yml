@@ -38,4 +38,5 @@ jobs:
 
       - name: Skipped — CRON_URL/CRON_TOKEN not configured yet
         if: ${{ env.HAS_CRON != 'true' }}
-        run: echo "::notice::Reminder sweep skipped: CRON_URL/CRON_TOKEN are not set as repo secrets yet. This is expected until the cron endpoint is wired up — no message was sent. Automation will resume automatically once both secrets exist."
+        run: |
+          echo "::notice::Reminder sweep skipped: CRON_URL/CRON_TOKEN are not set as repo secrets yet. This is expected until the cron endpoint is wired up - no message was sent. Automation will resume automatically once both secrets exist."
