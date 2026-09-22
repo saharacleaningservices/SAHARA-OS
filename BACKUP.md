@@ -1,5 +1,15 @@
 # Automated off-site backups
 
+**Status as of 2026-09-22**: the workflow itself is fixed and confirmed
+working (run #41 succeeded end-to-end against the live app — see
+`SAHARA_OS_STATUS.md` §3.21 for the "never worked until now" history). The
+`BACKUP_TOKEN` GitHub secret is set. **No S3 bucket or Google Drive
+credentials are configured yet** — every scheduled/manual run downloads and
+verifies a real snapshot but has nowhere off-site to send it until one of
+Section 2 or Section 3 below is actually completed. Until then, the only
+copies of this data are the VPS itself and whatever an admin manually
+downloads from Settings → System Recovery Backup.
+
 A GitHub Actions workflow (`.github/workflows/backup.yml`) runs every day at
 **02:00 IST** and:
 
