@@ -15,6 +15,7 @@ import { leadSchema, staffSchema } from "@/lib/validation";
 import type { CustomerImportRow } from "@/lib/csv-import";
 import { deriveArea } from "@/lib/utils";
 import { generateLeadNumber, generateEmployeeCode } from "@/lib/id-generators";
+import { canExportCustomers } from "@/lib/permissions";
 
 export type ImportRowResult = { row: number; status: "created" | "merged" | "skipped" | "invalid"; message: string };
 export type ImportSummary = { results: ImportRowResult[]; created: number; merged?: number };
@@ -149,7 +150,12 @@ export async function importStaff(rows: unknown[]): Promise<ImportSummary> {
 
 export async function importCustomers(rows: CustomerImportRow[]): Promise<ImportSummary> {
   const session = await getSession();
-  if (!session) return { results: [{ row: 0, status: "invalid", message: "Not authorized" }], created: 0 };
+  // Francis (SUPERVISOR) must not touch the Customers database at all —
+  // canExportCustomers is the shared "full Customers module capability"
+  // check (ADMIN/ACCOUNTS/OPERATIONS), already excludes him.
+  if (!session || !canExportCustomers(session.role)) {
+    return { results: [{ row: 0, status: "invalid", message: "Not authorized" }], created: 0 };
+  }
 
   const batchId = randomBytes(6).toString("hex");
   const results: ImportRowResult[] = [];

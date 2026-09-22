@@ -222,6 +222,10 @@ export async function getRepeatCustomerSummary(mobile: string) {
         jobCount: jobs.length,
         leadCount: leads.length,
         lastServiceDate,
-        totalRevenue,
+        // Revenue is a financial figure — Francis (SUPERVISOR) only gets
+        // the operational repeat-customer context (job/lead count, last
+        // service date) needed to recognize a returning customer while
+        // creating/editing a lead, never their lifetime revenue.
+        totalRevenue: session.role === "SUPERVISOR" ? null : totalRevenue,
   };
 }

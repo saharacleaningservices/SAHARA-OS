@@ -1,8 +1,16 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { AssistantExplorer } from "@/components/assistant/assistant-explorer";
 import { getAssistantOverview } from "@/server/assistant";
+import { requireRole } from "@/lib/current-user";
 
 export default async function AssistantPage() {
+  // This page had NO session/role check at all before — it surfaces
+  // profitInputs and duePayments (financial data), and relied entirely on
+  // middleware's nav-based gate. Francis (SUPERVISOR) is not in
+  // ROLE_NAV_ACCESS for "assistant"; this page-level guard now matches
+  // that explicitly, per the 2026-09-22 "enforce on route/page, not just
+  // middleware" requirement.
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
   const data = await getAssistantOverview();
 
   return (

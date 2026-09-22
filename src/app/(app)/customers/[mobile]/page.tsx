@@ -10,14 +10,19 @@ import { SendBookingFormButton } from "@/components/shared/send-booking-form-but
 import { RepeatBookingButton } from "@/components/customers/repeat-booking-button";
 import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog";
 import { getCustomerHistory } from "@/server/customers";
-import { requireUser } from "@/lib/current-user";
+import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ mobile: string }> }) {
   const { mobile } = await params;
-  const session = await requireUser();
+  // This page had no page-level role check at all before — middleware's
+  // path-prefix section check ("customers") already blocks SUPERVISOR
+  // from reaching it, but per the 2026-09-22 policy every restricted
+  // module gets its own explicit page-level guard too, not just reliance
+  // on middleware, exactly like customers/page.tsx already has.
+  const session = await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
   const canEdit = session.role === "ADMIN" || session.role === "ACCOUNTS";
   const { leads, jobs, payments, reviews, master } = await getCustomerHistory(mobile);
   if (leads.length === 0 && jobs.length === 0 && payments.length === 0 && !master) notFound();
