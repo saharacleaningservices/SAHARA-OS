@@ -1118,9 +1118,17 @@ db.close();
     if (cols.includes(column)) qiDb.exec(`ALTER TABLE "${table}" DROP COLUMN "${column}"`);
   }
 
+  // SQLite's ALTER TABLE ADD COLUMN requires the default to be a real constant —
+  // CURRENT_TIMESTAMP is rejected ("Cannot add a column with non-constant
+  // default") even though it's allowed in CREATE TABLE. Use a literal
+  // timestamp string instead; existing rows get backfilled with "now" once,
+  // at the moment this column is introduced, same as any other new
+  // NOT NULL column would need a backfill value.
+  const nowLiteral = new Date().toISOString().replace("T", " ").replace(/\.\d+Z$/, "");
+
   addCol("Quotation", "discount", `"discount" REAL NOT NULL DEFAULT 0`);
   addCol("Quotation", "status", `"status" TEXT NOT NULL DEFAULT 'SENT'`);
-  addCol("Quotation", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP`);
+  addCol("Quotation", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT '${nowLiteral}'`);
   qiDb.exec(`CREATE INDEX IF NOT EXISTS "Quotation_status_idx" ON "Quotation"("status");`);
 
   addCol("Invoice", "quotationId", `"quotationId" TEXT`);
@@ -1128,7 +1136,7 @@ db.close();
   addCol("Invoice", "notes", `"notes" TEXT`);
   addCol("Invoice", "terms", `"terms" TEXT`);
   addCol("Invoice", "status", `"status" TEXT NOT NULL DEFAULT 'ISSUED'`);
-  addCol("Invoice", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP`);
+  addCol("Invoice", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT '${nowLiteral}'`);
   qiDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_quotationId_key" ON "Invoice"("quotationId");`);
   qiDb.exec(`CREATE INDEX IF NOT EXISTS "Invoice_status_idx" ON "Invoice"("status");`);
 
