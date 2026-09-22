@@ -15,6 +15,18 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # GitHub Actions does not expose the `secrets` context inside step-level
+    # `if:` conditions (only in `env:` blocks) — every `if: ${{ secrets.X !=
+    # '' }}` step below previously failed the workflow's own YAML validation
+    # ("Unrecognized named-value: 'secrets'"), which fails validation for the
+    # ENTIRE file, meaning this workflow has never actually run a single job
+    # (found 2026-09-22: all 40 prior runs show "Failure" with zero jobs).
+    # Fix: capture each secret's presence in a job-level env var (env: DOES
+    # have secrets access) and branch on that instead.
+    env:
+      HAS_S3: ${{ secrets.S3_BUCKET != '' }}
+      HAS_GDRIVE: ${{ secrets.GDRIVE_CREDENTIALS != '' }}
+      HAS_ENCRYPTION: ${{ secrets.BACKUP_ENCRYPTION_KEY != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,7 +70,7 @@ jobs:
       # project's "queue always, deliver only if configured" pattern used
       # everywhere else (WhatsApp/SMS/Email).
       - name: Upload to S3-compatible storage (primary)
-        if: ${{ secrets.S3_BUCKET != '' }}
+        if: ${{ env.HAS_S3 == 'true' }}
         env:
           S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
@@ -78,7 +90,7 @@ jobs:
       # the daily tier's retention above. Skips gracefully if either the S3
       # bucket or the encryption passphrase isn't configured yet.
       - name: Weekly full encrypted backup
-        if: ${{ env.IS_WEEKLY == '1' && secrets.S3_BUCKET != '' && secrets.BACKUP_ENCRYPTION_KEY != '' }}
+        if: ${{ env.IS_WEEKLY == '1' && env.HAS_S3 == 'true' && env.HAS_ENCRYPTION == 'true' }}
         env:
           BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
           S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
@@ -101,11 +113,11 @@ jobs:
       # No longer the primary destination — kept only for accounts that
       # already relied on it. Skips entirely if GDRIVE secrets aren't set.
       - name: Install Google API client
-        if: ${{ secrets.GDRIVE_CREDENTIALS != '' }}
+        if: ${{ env.HAS_GDRIVE == 'true' }}
         run: pip install --quiet google-api-python-client google-auth
 
       - name: Upload to Google Drive (secondary, optional) and apply retention
-        if: ${{ secrets.GDRIVE_CREDENTIALS != '' }}
+        if: ${{ env.HAS_GDRIVE == 'true' }}
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
