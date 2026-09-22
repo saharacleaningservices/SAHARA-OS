@@ -75,17 +75,25 @@ a broken migration.
 
 - Live today: `app.saharacleaningservices.com` (single domain, both public
   booking and internal CRM).
-- In progress: splitting into `booking.saharacleaningservices.com` (public)
-  and `crm.saharacleaningservices.com` (internal). Code side is done and
-  fully backward-compatible (inactive until env vars are set — see below).
-  What's still needed, owner-only: add DNS records for both new subdomains
-  pointing at the same target as `app.*`, add both domains to the Coolify
-  app, verify both load correctly, **then** set `BOOKING_URL`/`CRM_URL`,
-  redeploy, verify again, and only then optionally set
-  `LEGACY_APP_REDIRECT_ENABLED=true`. DNS for `saharacleaningservices.com`
-  is **not** in the Hostinger account this project has had access to — it's
-  managed elsewhere (most likely proxied through Cloudflare); whoever holds
-  that access needs to add the two records.
+- Deferred (owner decision, 2026-09-22): splitting into
+  `booking.saharacleaningservices.com` (public) and
+  `crm.saharacleaningservices.com` (internal). Code side is done and fully
+  backward-compatible (inactive until env vars are set — see below).
+  `saharacleaningservices.com`'s DNS is authoritative in a cPanel account
+  (Ad Agency-managed, now kept strictly read-only) — nameservers are Custom
+  DNS pointing there, not Namecheap's own DNS. Namecheap's Advanced DNS
+  editor is locked while Custom DNS is selected, so the only way to make
+  Namecheap/Hostinger/Coolify authoritative for the two new subdomains is a
+  **full nameserver cutover** (recreate all ~33 existing records — root
+  `@`, `www`, 5×MX, SPF, DKIM, every cPanel service record — in Namecheap
+  first, then switch nameservers), which risks live Google Workspace email
+  and the separate Ad Agency website during propagation if done wrong. The
+  owner was presented this and chose to defer it — see `SAHARA_OS_STATUS.md`
+  §3.24. Once ready: add DNS records for both new subdomains pointing at
+  the Hostinger VPS IP (wherever that ends up being authoritative), add
+  both domains to the Coolify app, verify both load correctly, **then** set
+  `BOOKING_URL`/`CRM_URL`, redeploy, verify again, and only then optionally
+  set `LEGACY_APP_REDIRECT_ENABLED=true`.
 
 ## Environment variables (names/purpose only — see `.env.example` for the full list, never commit real values)
 
@@ -128,13 +136,17 @@ table for the exact method to test safely.
 ## Business Data Export
 
 Settings → Business Data Export (ADMIN-only): generates a ZIP containing
-CSVs (Customers, Leads, Jobs, Payments, Staff, Bookings, Service History)
-plus an XLSX workbook. Includes name/mobile/alternate mobile/email/address/
-service history/booking/payment data as the schema supports (`Customer` has
-no email field — a real schema limitation). **Never includes credentials,
-passwords, OTPs, API keys, or tokens** — only Customer/Lead/Job/Payment/
-Staff/Attendance/AmcContract tables are queried, never `User` or
-`IntegrationSettings`. Code: `src/server/business-export.ts`.
+CSVs (Customers, Leads, Jobs, Quotations, Invoices, Payments, Staff,
+Bookings, Service History, Attendance, AMC) plus an XLSX workbook and a
+JSON copy. Includes name/mobile/alternate mobile/email/address/service
+history/booking/quotation/invoice/payment data as the schema supports
+(`Customer` has no email field — a real schema limitation). **Never
+includes credentials, passwords, OTPs, API keys, or tokens** — only
+Customer/Lead/Job/Quotation/Invoice/Payment/Staff/Attendance/AmcContract
+tables are queried, never `User` or `IntegrationSettings`. Code:
+`src/server/business-export.ts`. Live-verified against production
+2026-09-22 (real downloaded ZIP inspected, all tables present with real
+row counts, no secrets found).
 
 ## GitHub / Coolify
 
