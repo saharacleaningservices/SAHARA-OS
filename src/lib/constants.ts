@@ -4,7 +4,7 @@ export const COMPANY = {
   phones: ["7083347130", "8956567130"],
   address: "Opp. South Gate, Magarpatta City, Hadapsar, Pune.",
   email: "contact@saharacleaningservices.com",
-  gstin: "27AASFS1234A1Z5", // placeholder-format GSTIN — replace with the real registered number
+  gstin: "27DMTPS3584R2ZJ", // real registered GSTIN, 2026-09-22 booking-form master prompt
   minimumJobValue: 3999,
   teamSize: 20,
 };
@@ -184,6 +184,44 @@ export const SERVICE_CATALOG: Record<string, string[]> = {
     "Move-in / Move-out Combo",
   ],
 };
+
+// ─────────────────────────────────────────────────────────────────────────
+// Public booking form ONLY (2026-09-22 booking-form master prompt) — kept
+// deliberately separate from SERVICE_CATALOG above, which the internal CRM's
+// ServiceCategoryPicker (New/Edit Lead form) also reads for Home Cleaning/
+// Painting. Changing SERVICE_CATALOG itself would have altered the internal
+// CRM's dropdowns too, which this prompt explicitly must not touch — these
+// two constants let the public page show a different, customer-facing
+// service-type list without moving the CRM's own list at all.
+// ─────────────────────────────────────────────────────────────────────────
+export const PUBLIC_HOME_CLEANING_SERVICE_TYPES = [
+  "Full Home Cleaning",
+  "Move-In / Move-Out Cleaning",
+  "Post-Interior Deep Cleaning",
+  "Post-Construction Deep Cleaning",
+] as const;
+
+// Package tier shown only when the customer picks "Full Home Cleaning"
+// above — kept separate from SERVICE_PACKAGES (CRM-only, Premium/Platinum/
+// Diamond) since the owner's approved public tier names/count differ
+// (Essential/Premium/Platinum). No pricing is attached or displayed
+// publicly (see PUBLIC_PRICING_VISIBILITY note near the payment section).
+export const HOME_CLEANING_PACKAGES = ["Essential", "Premium", "Platinum"] as const;
+
+// Public-facing paint type names — kept separate from SERVICE_CATALOG.PAINTING
+// (CRM-only) for the same reason as above; the CRM's own paint-type list and
+// PAINT_TYPE_RATE_PER_SQFT rate keys are untouched.
+export const PUBLIC_PAINT_TYPES = [
+  "Oil Bound Distemper",
+  "Tractor Emulsion",
+  "Premium Emulsion",
+  "Royal Luster",
+  "Royal Oil Luster",
+  "Royal Mat Finish",
+  "Royal Aspira",
+] as const;
+
+export const PAINTING_REQUIREMENT_OPTIONS = ["New Painting", "Repainting"] as const;
 
 // Helper text shown under the "Select Service" dropdown for services that
 // carry a minimum quantity or an indicative starting price.

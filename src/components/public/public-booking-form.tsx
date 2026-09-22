@@ -31,12 +31,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapsLocationInput, type MapsLocationValue } from "@/components/shared/maps-location-input";
-import { PaymentDetailsBox, type CompanyPaymentDetails } from "@/components/shared/payment-details-box";
+import { type CompanyPaymentDetails } from "@/components/shared/payment-details-box";
 import {
   TIME_SLOTS,
   ADDON_SERVICE_PRICES,
-  PAYMENT_MODES,
-  PAYMENT_MODE_LABELS,
   propertyTypesFor,
   SERVICE_CATALOG,
   SERVICE_RULES,
@@ -47,14 +45,16 @@ import {
   MATTRESS_UNIT_PRICE,
   HOME_SERVICE_UNIT_PRICE,
   PAINT_TYPE_RATE_PER_SQFT,
-  PUTTY_RATE_PER_SQFT,
   PEST_PROPERTY_SIZE_OPTIONS,
   PEST_PROPERTY_SIZE_PRICES,
   HOUSEKEEPING_SHIFT_HOURS,
   HOUSEKEEPING_HOURLY_RATE,
   HEAR_ABOUT_US_OPTIONS,
+  PUBLIC_HOME_CLEANING_SERVICE_TYPES,
+  HOME_CLEANING_PACKAGES,
+  PUBLIC_PAINT_TYPES,
+  PAINTING_REQUIREMENT_OPTIONS,
 } from "@/lib/constants";
-import { formatINR } from "@/lib/utils";
 import { publicBookLead } from "@/server/actions/public-booking";
 import { getSlotAvailability } from "@/server/actions/slot-availability";
 
@@ -96,21 +96,6 @@ const CUSTOMIZED_SERVICE_ICONS: Record<string, typeof Sofa> = {
   "Refrigerator Cleaning": Refrigerator,
   "Fan Cleaning": Fan,
   "Floor Cleaning": LayoutGrid,
-};
-
-// Plural unit noun for the quantity stepper's label (Mattress Cleaning has
-// its own Size + Quantity fields, so it isn't listed here).
-const CUSTOMIZED_SERVICE_QTY_UNIT: Record<string, string> = {
-  "Sofa Cleaning": "Seats",
-  "Carpet Cleaning": "Carpets",
-  "Window Cleaning": "Windows",
-  "Bathroom Cleaning": "Bathrooms",
-  "Balcony Cleaning": "Balconies",
-  "Kitchen Cleaning": "Kitchens",
-  "Chimney Cleaning": "Chimneys",
-  "Refrigerator Cleaning": "Fridges",
-  "Fan Cleaning": "Fans",
-  "Floor Cleaning": "Sq Ft (approx.)",
 };
 
 // Simple +/- quantity field shared by the Booking Form V2 dynamic
@@ -186,6 +171,7 @@ export function PublicBookingForm({
 }) {
   const [name, setName] = useState(prefillName);
   const [mobile, setMobile] = useState(prefillMobile);
+  const [alternateMobile, setAlternateMobile] = useState("");
   const [address, setAddress] = useState("");
   const [serviceDate, setServiceDate] = useState("");
   const [timeSlot, setTimeSlot] = useState("");
@@ -195,11 +181,17 @@ export function PublicBookingForm({
   const [addOns, setAddOns] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [loc, setLoc] = useState<MapsLocationValue>({ mapLink: "", lat: null, lng: null });
-  const [payChoice, setPayChoice] = useState<"ADVANCE" | "LATER">("ADVANCE");
+  // Default is "Pay After Service" (LATER) per the 2026-09-22 booking-form
+  // master prompt — was ADVANCE before. Amounts are never shown/collected
+  // publicly any more (see the Payment Option section below); this choice
+  // is now purely a stated preference the office follows up on.
+  const [payChoice, setPayChoice] = useState<"ADVANCE" | "LATER">("LATER");
+  // Kept internal-only (never rendered) so the existing suggested-estimate
+  // calculation below can still silently reach the CRM as estimatedAmount —
+  // "backend calculations can remain intact... don't delete logic merely
+  // because the frontend no longer displays it."
   const [estimated, setEstimated] = useState("");
-  const [estimatedTouched, setEstimatedTouched] = useState(false);
-  const [advance, setAdvance] = useState("");
-  const [payMode, setPayMode] = useState("UPI");
+  const [estimatedTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ leadNumber: string; advancePaid: boolean } | null>(null);
@@ -218,19 +210,40 @@ export function PublicBookingForm({
   const [curtainQty, setCurtainQty] = useState("");
   const [paintRooms, setPaintRooms] = useState("");
   const [paintSqft, setPaintSqft] = useState("");
-  const [puttyRequired, setPuttyRequired] = useState<"" | "YES" | "NO">("");
   const [pestPropertySize, setPestPropertySize] = useState("");
   const [housekeepingStaffCount, setHousekeepingStaffCount] = useState("");
   const [housekeepingShiftHours, setHousekeepingShiftHours] = useState("");
 
-  // Customized Service — quantity only. No unit price or rate is ever shown
-  // or collected here: pricing is an internal CRM concept (see
-  // src/components/shared/service-quantity-fields.tsx for the staff-facing
-  // Quantity/Unit Price/Estimated Amount engine); the public form only
-  // captures what the customer actually needs to choose. Mattress Cleaning
-  // reuses mattressSize/mattressQty above instead (its size genuinely
-  // changes the job, not just the price).
-  const [czQty, setCzQty] = useState("");
+  // Home Cleaning — Package tier, shown only for "Full Home Cleaning"
+  // (2026-09-22 master prompt). Kept separate from Service Type itself.
+  const [packageName, setPackageName] = useState("");
+
+  // Interior Painting — replaces the removed "Putty Required?" field.
+  const [paintingRequirement, setPaintingRequirement] = useState("");
+
+  // Customized Service — TRUE multi-select (2026-09-22 master prompt):
+  // every selected service keeps its own independent quantity in one map,
+  // keyed by service name. Selecting/changing one entry never touches any
+  // other — no unit price or rate is ever shown or collected here, pricing
+  // stays an internal CRM concept (see service-quantity-fields.tsx for the
+  // staff-facing Quantity/Unit Price/Estimated Amount engine).
+  const [customizedServices, setCustomizedServices] = useState<Record<string, number>>({});
+
+  function toggleCustomizedService(serviceName: string) {
+    setCustomizedServices((prev) => {
+      if (serviceName in prev) {
+        const next = { ...prev };
+        delete next[serviceName];
+        return next;
+      }
+      return { ...prev, [serviceName]: serviceName === "Sofa Cleaning" ? 5 : 1 };
+    });
+  }
+
+  function setCustomizedQty(serviceName: string, qty: string) {
+    const n = Math.max(1, Number(qty) || 1);
+    setCustomizedServices((prev) => (serviceName in prev ? { ...prev, [serviceName]: n } : prev));
+  }
 
   // Smart Calendar — real (never fabricated) slot-availability estimate for
   // the selected date. "Not a final confirmation" — the office team always
@@ -254,9 +267,17 @@ export function PublicBookingForm({
   }, [serviceDate]);
 
   const estNum = Number(estimated) || 0;
-  const advNum = Math.min(Number(advance) || 0, estNum || Infinity);
-  const balance = Math.max(estNum - advNum, 0);
-  const serviceOptions = category ? SERVICE_CATALOG[category] ?? [] : [];
+  // Home Cleaning and Painting show a public-only Service Type list here
+  // (2026-09-22 master prompt) — SERVICE_CATALOG itself is untouched and
+  // still serves the internal CRM's own dropdown for these two categories.
+  const serviceOptions: readonly string[] =
+    category === "HOME_DEEP_CLEANING"
+      ? PUBLIC_HOME_CLEANING_SERVICE_TYPES
+      : category === "PAINTING"
+        ? PUBLIC_PAINT_TYPES
+        : category
+          ? SERVICE_CATALOG[category] ?? []
+          : [];
   const serviceRule = variant ? SERVICE_RULES[variant] : "";
   // Customizer Package and Combo Package are picked by item/bundle, not by
   // BHK/property size — Property Type doesn't apply to them. Full Home
@@ -279,7 +300,7 @@ export function PublicBookingForm({
     setMattressSize("");
     setMattressQty("");
     setCurtainQty("");
-    setCzQty("");
+    setPackageName("");
   }
 
   // Live indicative price from the dynamic sub-field selections — recomputed
@@ -304,13 +325,14 @@ export function PublicBookingForm({
       }
     }
     if (category === "PAINTING") {
+      // Kept internal-only. "Putty Required?" was removed from the public
+      // form (2026-09-22 master prompt) along with its rate addition; paint
+      // type names shown publicly (PUBLIC_PAINT_TYPES) also no longer match
+      // PAINT_TYPE_RATE_PER_SQFT's CRM-only keys, so this silently
+      // evaluates to 0 for painting now — never shown either way.
       const sqft = Number(paintSqft) || 0;
       const rate = variant ? PAINT_TYPE_RATE_PER_SQFT[variant] ?? 0 : 0;
-      if (sqft > 0 && rate > 0) {
-        let total = sqft * rate;
-        if (puttyRequired === "YES") total += sqft * PUTTY_RATE_PER_SQFT;
-        return Math.round(total);
-      }
+      if (sqft > 0 && rate > 0) return Math.round(sqft * rate);
     }
     if (category === "PEST_CONTROL" && pestPropertySize) {
       return PEST_PROPERTY_SIZE_PRICES[pestPropertySize] ?? 0;
@@ -360,24 +382,26 @@ export function PublicBookingForm({
       }
       if (variant === "Curtain Cleaning" && curtainQty) lines.push(`Curtain Pairs: ${curtainQty}`);
     }
+    if (category === "HOME_DEEP_CLEANING" && variant === "Full Home Cleaning" && packageName) {
+      lines.push(`Package: ${packageName}`);
+    }
     if (category === "PAINTING") {
+      if (paintingRequirement) lines.push(`Painting Requirement: ${paintingRequirement}`);
       if (paintRooms) lines.push(`Rooms: ${paintRooms}`);
       if (paintSqft) lines.push(`Area: ${paintSqft} sq ft`);
-      if (puttyRequired) lines.push(`Putty Required: ${puttyRequired === "YES" ? "Yes" : "No"}`);
     }
     if (category === "PEST_CONTROL" && pestPropertySize) lines.push(`Property Size: ${pestPropertySize}`);
     if (category === "HOUSEKEEPING") {
       if (housekeepingStaffCount) lines.push(`Staff Count: ${housekeepingStaffCount}`);
       if (housekeepingShiftHours) lines.push(`Shift Hours: ${housekeepingShiftHours}`);
     }
-    // Customized Service — quantity/size only, never a price: the office
+    // Customized Service — TRUE multi-select: every selected service keeps
+    // its own independent quantity, and all of them (not just one) must
+    // reach the CRM Lead. Quantity/size only, never a price: the office
     // prices these manually in the CRM Lead form once the enquiry comes in.
-    if (category === "CUSTOMIZER_PACKAGE" && variant) {
-      if (variant === "Mattress Cleaning" && mattressSize) {
-        const qty = Number(mattressQty) || 0;
-        if (qty > 0) lines.push(`Customized Service — Mattress Cleaning: ${mattressSize} x ${qty}`);
-      } else if (czQty && Number(czQty) > 0) {
-        lines.push(`Customized Service — ${variant}: Qty ${czQty}`);
+    if (category === "CUSTOMIZER_PACKAGE") {
+      for (const [serviceName, qty] of Object.entries(customizedServices)) {
+        lines.push(`Customized Service — ${serviceName}: Qty ${qty}`);
       }
     }
     if (hearAboutUs) lines.push(`Heard about Sahara via: ${hearAboutUs}`);
@@ -387,25 +411,30 @@ export function PublicBookingForm({
   async function submitBooking(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!category || !variant) {
-      setError("Please choose a service category and a service.");
+    // Quick-booking philosophy (2026-09-22 master prompt): only Name, Mobile,
+    // Address, Date and Time are truly required. Service Category still
+    // needs a value since the form is always reached from a category context
+    // and the server schema requires it, but a specific Service Type is no
+    // longer required to submit.
+    if (!category) {
+      setError("Please choose a service category.");
       return;
     }
-    const advancePaid = payChoice === "ADVANCE" && advNum > 0;
+    const advancePaid = payChoice === "ADVANCE";
     const selectionNotes = buildSelectionNotes();
     const combinedNotes = [notes.trim(), selectionNotes].filter(Boolean).join("\n\n");
     setSubmitting(true);
     const res = await publicBookLead({
       name,
       mobile,
-      alternateMobile: "",
+      alternateMobile,
       email: "",
       address,
       pinCode: "",
       serviceCategory: category,
       serviceVariant: variant,
       propertyType,
-      packageName: "",
+      packageName,
       comboServices: [],
       addOnServices: addOns,
       serviceDate,
@@ -417,8 +446,6 @@ export function PublicBookingForm({
       referralCode: referralCode || "",
       bookingLinkToken: bookingLinkToken || "",
       estimatedAmount: estNum || undefined,
-      advanceAmount: advancePaid ? advNum : undefined,
-      paymentMode: payMode,
       advancePaid,
     });
     setSubmitting(false);
@@ -466,10 +493,7 @@ export function PublicBookingForm({
           {serviceDate ? row("Preferred date", serviceDate) : null}
           {timeSlot ? row("Preferred time", timeSlot) : null}
           {addOns.length ? row("Add-ons", addOns.join(", ")) : null}
-          {estNum ? row("Estimated", formatINR(estNum)) : null}
-          {estNum ? row("Advance", formatINR(done.advancePaid ? advNum : 0)) : null}
-          {estNum ? row("Balance", formatINR(done.advancePaid ? balance : estNum)) : null}
-          {row("Payment Status", done.advancePaid ? "Advance Paid" : "Pay Later")}
+          {row("Payment Option", done.advancePaid ? "Pay Advance" : "Pay After Service")}
         </dl>
         <div className="flex w-full flex-col gap-2">
           <a
@@ -521,6 +545,21 @@ export function PublicBookingForm({
             <Phone className={`${iconEl} size-4`} />
             <Input id="pb-mobile" className="pl-9" inputMode="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="Enter mobile number" required />
           </div>
+        </div>
+      </div>
+
+      <div className={fieldWrap}>
+        <Label htmlFor="pb-alt-mobile">Alternative Mobile Number <span className="font-normal text-muted-foreground">(Optional)</span></Label>
+        <div className={iconInput}>
+          <Phone className={`${iconEl} size-4`} />
+          <Input
+            id="pb-alt-mobile"
+            className="pl-9"
+            inputMode="tel"
+            value={alternateMobile}
+            onChange={(e) => setAlternateMobile(e.target.value)}
+            placeholder="Enter alternative number"
+          />
         </div>
       </div>
 
@@ -587,27 +626,99 @@ export function PublicBookingForm({
 
       {isCustomizedService && (
         <div className={fieldWrap}>
-          <Label>Choose a Service <span className="text-destructive">*</span></Label>
+          <Label>Choose Services <span className="text-destructive">*</span></Label>
+          <p className="text-xs text-muted-foreground">Select multiple services as per your requirement.</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {serviceOptions.map((o) => {
               const Icon = CUSTOMIZED_SERVICE_ICONS[o] ?? Sparkles;
-              const selected = variant === o;
+              const selected = o in customizedServices;
               return (
-                <button
-                  type="button"
+                <div
                   key={o}
-                  onClick={() => handleVariantChange(o)}
                   className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition ${
                     selected ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"
                   }`}
                 >
-                  <Icon className={`size-6 ${selected ? "text-primary" : "text-muted-foreground"}`} />
-                  <span className="text-xs font-medium text-foreground">{o}</span>
-                </button>
+                  <button type="button" onClick={() => toggleCustomizedService(o)} className="flex flex-col items-center gap-2">
+                    <Icon className={`size-6 ${selected ? "text-primary" : "text-muted-foreground"}`} />
+                    <span className="text-xs font-medium text-foreground">{o}</span>
+                  </button>
+                  {selected && (
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      <button
+                        type="button"
+                        aria-label={`Decrease ${o} quantity`}
+                        onClick={() => setCustomizedQty(o, String(customizedServices[o] - 1))}
+                        className="flex size-6 shrink-0 items-center justify-center rounded-md border border-border text-sm font-semibold text-foreground active:scale-95"
+                      >
+                        −
+                      </button>
+                      <Input
+                        inputMode="numeric"
+                        className="h-6 w-10 px-1 text-center text-xs"
+                        value={String(customizedServices[o])}
+                        onChange={(e) => setCustomizedQty(o, e.target.value.replace(/\D/g, ""))}
+                      />
+                      <button
+                        type="button"
+                        aria-label={`Increase ${o} quantity`}
+                        onClick={() => setCustomizedQty(o, String(customizedServices[o] + 1))}
+                        className="flex size-6 shrink-0 items-center justify-center rounded-md border border-border text-sm font-semibold text-foreground active:scale-95"
+                      >
+                        +
+                      </button>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
+        </div>
+      )}
+
+      {!usesServiceTypeAsSecondary && (
+        <div className={fieldWrap}>
+          <Label>Service Type <span className="text-destructive">*</span></Label>
+          <Select value={variant} onValueChange={handleVariantChange} disabled={!category}>
+            <SelectTrigger><SelectValue placeholder={category ? "Select Service Type" : "Pick a category first"} /></SelectTrigger>
+            <SelectContent>
+              {serviceOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          {SERVICE_TYPE_HINT[category] && <p className="text-xs text-muted-foreground">{SERVICE_TYPE_HINT[category]}</p>}
           {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
+        </div>
+      )}
+
+      {category === "HOME_DEEP_CLEANING" && variant === "Full Home Cleaning" && (
+        <div className={fieldWrap}>
+          <Label>Package</Label>
+          <Select value={packageName} onValueChange={setPackageName}>
+            <SelectTrigger><SelectValue placeholder="Select a package (optional)" /></SelectTrigger>
+            <SelectContent>
+              {HOME_CLEANING_PACKAGES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {category === "PAINTING" && (
+        <div className={fieldWrap}>
+          <Label>Painting Requirement</Label>
+          <div className="flex gap-2">
+            {PAINTING_REQUIREMENT_OPTIONS.map((opt) => (
+              <button
+                type="button"
+                key={opt}
+                onClick={() => setPaintingRequirement(opt)}
+                className={`rounded-lg border px-4 py-2 text-xs font-semibold ${
+                  paintingRequirement === opt ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -634,20 +745,6 @@ export function PublicBookingForm({
           </Select>
         </div>
       </div>
-
-      {!usesServiceTypeAsSecondary && (
-        <div className={fieldWrap}>
-          <Label>Service Type <span className="text-destructive">*</span></Label>
-          <Select value={variant} onValueChange={handleVariantChange} disabled={!category}>
-            <SelectTrigger><SelectValue placeholder={category ? "Select Service Type" : "Pick a category first"} /></SelectTrigger>
-            <SelectContent>
-              {serviceOptions.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          {SERVICE_TYPE_HINT[category] && <p className="text-xs text-muted-foreground">{SERVICE_TYPE_HINT[category]}</p>}
-          {serviceRule && <p className="text-xs font-medium text-primary">{serviceRule}</p>}
-        </div>
-      )}
 
       {/* ── Dynamic service sub-fields (Booking Form V2) ─────────────── */}
       {category === "HOME_DEEP_CLEANING" && variant === "Sofa Cleaning" && (
@@ -691,33 +788,19 @@ export function PublicBookingForm({
         <QtyStepper label="Number of Pairs" value={curtainQty} onChange={setCurtainQty} min={2} />
       )}
 
+      {/* "Putty Required?" removed completely from the public form
+          (2026-09-22 master prompt) — Painting Requirement (New/Repainting)
+          is asked separately above, before Date/Time. These two detail
+          fields stay optional and never block a quick booking. */}
       {category === "PAINTING" && (
         <div className="space-y-4 rounded-xl border border-border p-3.5">
-          <p className="text-sm font-semibold text-foreground">Painting Details</p>
+          <p className="text-sm font-semibold text-foreground">Painting Details <span className="font-normal text-muted-foreground">(Optional)</span></p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <QtyStepper label="Number of Rooms" value={paintRooms} onChange={setPaintRooms} min={1} />
             <div className={fieldWrap}>
               <Label>Square Feet (approx.)</Label>
               <Input inputMode="numeric" value={paintSqft} onChange={(e) => setPaintSqft(e.target.value.replace(/\D/g, ""))} placeholder="e.g. 1200" />
             </div>
-          </div>
-          <div className={fieldWrap}>
-            <Label>Putty Required?</Label>
-            <div className="flex gap-2">
-              {(["YES", "NO"] as const).map((opt) => (
-                <button
-                  type="button"
-                  key={opt}
-                  onClick={() => setPuttyRequired(opt)}
-                  className={`rounded-lg border px-4 py-2 text-xs font-semibold ${
-                    puttyRequired === opt ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground"
-                  }`}
-                >
-                  {opt === "YES" ? "Yes" : "No"}
-                </button>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">Paint Type is picked above in Service Type.</p>
           </div>
         </div>
       )}
@@ -749,34 +832,15 @@ export function PublicBookingForm({
         </div>
       )}
 
-      {category === "CUSTOMIZER_PACKAGE" && variant === "Mattress Cleaning" && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className={fieldWrap}>
-            <Label>Mattress Size <span className="text-destructive">*</span></Label>
-            <Select value={mattressSize} onValueChange={setMattressSize}>
-              <SelectTrigger><SelectValue placeholder="Single or Double" /></SelectTrigger>
-              <SelectContent>
-                {MATTRESS_SIZE_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <QtyStepper label="Number of Mattresses" value={mattressQty} onChange={setMattressQty} min={1} />
-        </div>
-      )}
-      {category === "CUSTOMIZER_PACKAGE" && variant && variant !== "Mattress Cleaning" && (
-        <QtyStepper
-          label={`Number of ${CUSTOMIZED_SERVICE_QTY_UNIT[variant] ?? "Units"}`}
-          value={czQty}
-          onChange={setCzQty}
-          min={variant === "Sofa Cleaning" ? 5 : 1}
-        />
-      )}
+      {/* Customized Service quantities are now entered directly on each
+          service card above (true multi-select — see the "Choose Services"
+          block near the top of the form), so there's no separate
+          single-variant quantity field here any more. */}
 
-      {suggestedEstimate > 0 && (
-        <p className="rounded-lg bg-accent px-3 py-2 text-xs font-medium text-accent-foreground">
-          Estimated from your selections: <span className="font-bold">{formatINR(suggestedEstimate)}</span> — filled into Estimated ₹ below, you can edit it.
-        </p>
-      )}
+      {/* Section 12 (2026-09-22 master prompt): the booking form must never
+          show a computed/estimated amount to the customer. suggestedEstimate
+          is still computed above and silently submitted as estimatedAmount
+          for staff/CRM use — it's just never rendered here any more. */}
 
       {/* Add-on services */}
       <div className="space-y-2.5">
@@ -816,56 +880,20 @@ export function PublicBookingForm({
         </div>
         <div className="divide-y divide-border rounded-xl border border-border">
           <label className="flex cursor-pointer items-start gap-3 p-3.5">
-            <input type="radio" name="pay" className="mt-1 accent-primary" checked={payChoice === "ADVANCE"} onChange={() => setPayChoice("ADVANCE")} />
-            <span>
-              <span className="block text-sm font-semibold text-foreground">Pay Advance <span className="font-normal text-muted-foreground">(Secure &amp; Confirm Booking)</span></span>
-              <span className="block text-xs text-muted-foreground">Pay a small advance to confirm your booking.</span>
-            </span>
-          </label>
-          <label className="flex cursor-pointer items-start gap-3 p-3.5">
             <input type="radio" name="pay" className="mt-1 accent-primary" checked={payChoice === "LATER"} onChange={() => setPayChoice("LATER")} />
             <span>
-              <span className="block text-sm font-semibold text-foreground">Pay Later</span>
+              <span className="block text-sm font-semibold text-foreground">Pay After Service</span>
               <span className="block text-xs text-muted-foreground">Book now and pay after the service is completed.</span>
             </span>
           </label>
+          <label className="flex cursor-pointer items-start gap-3 p-3.5">
+            <input type="radio" name="pay" className="mt-1 accent-primary" checked={payChoice === "ADVANCE"} onChange={() => setPayChoice("ADVANCE")} />
+            <span>
+              <span className="block text-sm font-semibold text-foreground">Pay Advance <span className="font-normal text-muted-foreground">(Secure &amp; Confirm Booking)</span></span>
+              <span className="block text-xs text-muted-foreground">Our team will share payment details on WhatsApp to confirm your booking.</span>
+            </span>
+          </label>
         </div>
-
-        {payChoice === "ADVANCE" && (
-          <div className="space-y-3 rounded-xl border border-primary/20 bg-primary/[0.03] p-3.5">
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">Estimated ₹</Label>
-                <Input
-                  inputMode="numeric"
-                  value={estimated}
-                  onChange={(e) => {
-                    setEstimated(e.target.value.replace(/\D/g, ""));
-                    setEstimatedTouched(true);
-                  }}
-                  placeholder="0"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Advance ₹</Label>
-                <Input inputMode="numeric" value={advance} onChange={(e) => setAdvance(e.target.value.replace(/\D/g, ""))} placeholder="0" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Balance</Label>
-                <div className="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm font-medium">{formatINR(balance)}</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {PAYMENT_MODES.map((m) => (
-                <button type="button" key={m} onClick={() => setPayMode(m)}
-                  className={`rounded-lg border px-2 py-2 text-xs font-medium ${payMode === m ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
-                  {PAYMENT_MODE_LABELS[m]}
-                </button>
-              ))}
-            </div>
-            <PaymentDetailsBox mode={payMode} details={paymentDetails} />
-          </div>
-        )}
       </div>
 
       <div className={fieldWrap}>
