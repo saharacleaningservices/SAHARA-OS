@@ -26,6 +26,17 @@ export async function generateInvoiceNumber() {
   return nextNumber("INV", count);
 }
 
+/**
+ * For an Invoice created directly (not auto-generated alongside a Payment at
+ * job completion, e.g. a manual invoice or one converted from a Quotation) —
+ * takes the higher of the Payment/Invoice counts so its sequence can never
+ * collide with generateInvoiceNumber()'s Payment-count-based numbering.
+ */
+export async function generateStandaloneInvoiceNumber() {
+  const [paymentCount, invoiceCount] = await Promise.all([db.payment.count(), db.invoice.count()]);
+  return nextNumber("INV", Math.max(paymentCount, invoiceCount));
+}
+
 export async function generateCertificateNumber() {
   const count = await db.certificate.count();
   return nextNumber("CERT", count);

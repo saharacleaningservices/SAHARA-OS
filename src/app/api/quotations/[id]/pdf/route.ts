@@ -5,16 +5,33 @@ import { db } from "@/lib/db";
 import { QuotationDocument } from "@/lib/pdf/quotation-document";
 import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { getCompanySettings } from "@/server/settings";
+import { getSession } from "@/lib/session";
+import { canAccessLead } from "@/server/leads";
 import { formatDate } from "@/lib/utils";
 import { COMPANY } from "@/lib/constants";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  // Previously had NO auth check at all — anyone with the (hard-to-guess but
+  // unauthenticated) URL could view a customer's name/mobile/address/quoted
+  // amount. Requires any signed-in ADMIN/ACCOUNTS/OPERATIONS session, or a
+  // SUPERVISOR (Francis) whose own today/tomorrow lead scope covers this
+  // quotation — mirroring the same allow-this-specific-record pattern
+  // already used by the Job Card PDF route, so generating/viewing a
+  // quotation for his own in-scope lead keeps working exactly as before.
   const { id } = await params;
+  const session = await getSession();
+  if (!session) return new NextResponse("Unauthorized", { status: 401 });
+
   const quotation = await db.quotation.findUnique({ where: { id }, include: { lead: true } });
 
   if (!quotation) {
     return NextResponse.json({ error: "Quotation not found" }, { status: 404 });
   }
+
+  const allowed =
+    ["ADMIN", "ACCOUNTS", "OPERATIONS"].includes(session.role) ||
+    (session.role === "SUPERVISOR" && canAccessLead(session, quotation.lead));
+  if (!allowed) return new NextResponse("Forbidden", { status: 403 });
 
   const services = JSON.parse(quotation.services) as { name: string; description: string; amount: number }[];
 

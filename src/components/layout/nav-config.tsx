@@ -24,6 +24,8 @@ import {
     Home,
     Bug,
     PaintRoller,
+    FileSignature,
+    FileStack,
     type LucideIcon,
 } from "lucide-react";
 
@@ -45,6 +47,8 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "AMC Contracts", href: "/amc", section: "amc", icon: ShieldCheck },
   { label: "Payments", href: "/payments", section: "payments", icon: IndianRupee },
   { label: "Expenses", href: "/expenses", section: "expenses", icon: Receipt },
+  { label: "Quotations", href: "/quotations", section: "quotations", icon: FileSignature },
+  { label: "Invoices", href: "/invoices", section: "invoices", icon: FileStack },
   { label: "Housekeeping", href: "/jobs?service=HOUSEKEEPING", section: "service-housekeeping", icon: Home },
   { label: "Pest Control", href: "/jobs?service=PEST_CONTROL", section: "service-pest-control", icon: Bug },
   { label: "Interior Painting", href: "/jobs?service=INTERIOR_PAINTING", section: "service-interior-painting", icon: PaintRoller },

@@ -21,6 +21,22 @@ import { getResolvedIntegrations, markBackupVerified } from "@/server/integratio
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// Retention (2026-09-22) — BackupEvent rows previously accumulated forever.
+// Keeps the most recent 500 rows (daily backups ≈ 16 months of history),
+// always preferring to keep newer rows over older ones. Best-effort: never
+// allowed to fail or delay the actual backup response.
+async function trimBackupEventHistory() {
+  const KEEP = 500;
+  const cutoff = await db.backupEvent.findMany({
+    orderBy: { createdAt: "desc" },
+    skip: KEEP,
+    take: 1,
+    select: { createdAt: true },
+  });
+  if (cutoff.length === 0) return;
+  await db.backupEvent.deleteMany({ where: { createdAt: { lt: cutoff[0].createdAt } } });
+}
+
 export async function GET(request: NextRequest) {
   // Token comes from /settings → Integrations first, then the BACKUP_TOKEN
   // env var (see src/server/integrations.ts).
@@ -113,6 +129,7 @@ export async function GET(request: NextRequest) {
       .catch(() => {});
     // Records "backup pipeline confirmed working" for the Integrations page.
     markBackupVerified().catch(() => {});
+    trimBackupEventHistory().catch(() => {});
 
     const nodeStream = fs.createReadStream(archive);
     nodeStream.on("close", () => fs.rmSync(workdir, { recursive: true, force: true }));
