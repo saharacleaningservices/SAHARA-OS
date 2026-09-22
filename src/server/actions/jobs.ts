@@ -12,7 +12,6 @@ import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
-import { syncInvoiceToMyBillBook } from "@/lib/mybillbook";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 
@@ -353,13 +352,13 @@ export async function completeJobWithCertificate(jobId: string) {
     }
   }
 
-  // MyBillBook: generate + save a CRM-native invoice document (line items +
-  // PDF at /api/invoices/[id]/pdf), then attempt the MyBillBook push. The
-  // push is a no-op (marked NOT_CONFIGURED) until MYBILLBOOK_API_KEY exists.
+  // Generate + save a CRM-native invoice document (line items + PDF at
+  // /api/invoices/[id]/pdf) the moment a job completes and its payment
+  // record exists.
   const existingInvoice = await db.invoice.findUnique({ where: { jobId } });
   if (!existingInvoice) {
     const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
-    const invoice = await db.invoice.create({
+    await db.invoice.create({
       data: {
         invoiceNumber: payment.invoiceNumber,
         jobId,
@@ -374,9 +373,9 @@ export async function completeJobWithCertificate(jobId: string) {
         gstPercent: 0,
         gstAmount: 0,
         totalAmount: job.jobValue,
+        status: "ISSUED",
       },
     });
-    await syncInvoiceToMyBillBook(invoice.id).catch(() => {});
   }
 
   // Review request — sent once, right after completion (shared helper also

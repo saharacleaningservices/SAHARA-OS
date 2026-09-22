@@ -501,21 +501,35 @@ model Lead {
 }
 
 model Quotation {
-  id          String    @id @default(cuid())
-  quoteNumber String    @unique
+  id          String          @id @default(cuid())
+  quoteNumber String          @unique
   leadId      String
-  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  lead        Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
   services    String // JSON-encoded line items [{name, description, amount}]
   subTotal    Float
-  gstPercent  Float     @default(0)
-  gstAmount   Float     @default(0)
+  discount    Float           @default(0)
+  gstPercent  Float           @default(0)
+  gstAmount   Float           @default(0)
   totalAmount Float
   terms       String
   validTill   DateTime?
   pdfUrl      String?
-  createdAt   DateTime  @default(now())
+  status      QuotationStatus @default(SENT)
+  invoice     Invoice?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([leadId])
+  @@index([status])
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
 }
 
 model FollowUp {
@@ -683,8 +697,8 @@ model Payment {
   status       PaymentStatus  @default(PENDING)
 
   mode                  String? // UPI | QR | BANK | CASH — how the advance / collection was made
-  mybillbookInvoiceNo   String?
-  invoiceAttachmentUrl  String? // uploaded MyBillBook / manual invoice PDF or image
+  mybillbookInvoiceNo   String? // free-text external/reference invoice number, no API tie
+  invoiceAttachmentUrl  String? // uploaded invoice PDF or image
   lastReminderAt        DateTime?
   lastReminderChannel   ReminderChannel?
 
@@ -1040,30 +1054,44 @@ model RewardRecord {
   @@index([staffId])
 }
 
-// CRM-native quotation/invoice document. mybillbookSyncStatus reflects the
-// MyBillBook push: NOT_CONFIGURED until an API key is supplied (see
-// src/lib/mybillbook.ts), then QUEUED/SYNCED/FAILED.
+// CRM-native invoice document — Sahara OS's own billing record, generated
+// automatically at job completion or created directly (e.g. from an
+// accepted Quotation). No third-party billing API involved.
 model Invoice {
-  id                   String   @id @default(cuid())
-  invoiceNumber        String   @unique
-  jobId                String?  @unique
-  job                  Job?     @relation(fields: [jobId], references: [id])
-  paymentId            String?  @unique
-  payment              Payment? @relation(fields: [paymentId], references: [id])
-  customerName         String
-  customerMobile       String?
-  customerAddress      String?
-  lineItems            String // JSON [{name, description, amount}]
-  subTotal             Float
-  gstPercent           Float    @default(0)
-  gstAmount            Float    @default(0)
-  totalAmount          Float
-  pdfUrl               String?
-  mybillbookInvoiceId  String?
-  mybillbookSyncStatus String   @default("NOT_CONFIGURED")
-  createdAt            DateTime @default(now())
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique
+  jobId           String?       @unique
+  job             Job?          @relation(fields: [jobId], references: [id])
+  paymentId       String?       @unique
+  payment         Payment?      @relation(fields: [paymentId], references: [id])
+  quotationId     String?       @unique
+  quotation       Quotation?    @relation(fields: [quotationId], references: [id])
+  customerName    String
+  customerMobile  String?
+  customerAddress String?
+  lineItems       String // JSON [{name, description, amount}]
+  subTotal        Float
+  discount        Float         @default(0)
+  gstPercent      Float         @default(0)
+  gstAmount       Float         @default(0)
+  totalAmount     Float
+  notes           String?
+  terms           String?
+  pdfUrl          String?
+  status          InvoiceStatus @default(ISSUED)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([jobId])
+  @@index([status])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
 }
 
 model JobVideo {
@@ -1102,10 +1130,6 @@ model IntegrationSettings {
   // the browser by design — restrict it by HTTP referrer in Google Cloud.
   googleMapsApiKey     String?
   googleMapsVerifiedAt DateTime?
-
-  // MyBillBook — invoice sync. API key encrypted at rest like whatsappAccessToken.
-  mybillbookApiKey     String?
-  mybillbookVerifiedAt DateTime?
 
   // Web Push (VAPID). Public key is safe to ship to the browser; private key
   // encrypted at rest. Generated once from /settings if not provided by env.

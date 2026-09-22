@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { SESSION_COOKIE } from "@/lib/session";
 import { canAccess } from "@/lib/constants";
+import {
+  PUBLIC_BOOKING_HOST,
+  INTERNAL_CRM_HOST,
+  LEGACY_APP_HOST,
+  LEGACY_REDIRECT_ENABLED,
+} from "@/lib/site-urls";
+
+// Paths that are safe (and meant) to serve on the public booking.* domain —
+// a subset of PUBLIC_PATHS below plus the static/branding routes this
+// middleware already always lets through. Everything else must never be
+// reachable from booking.* (2026-09-22 domain-split master prompt: "Do not
+// expose internal CRM routes through the public booking domain").
+const BOOKING_HOST_ALLOWED_PREFIXES = ["/book", "/j/", "/gallery", "/privacy-policy", "/terms", "/api/booking-link", "/api/webhook"];
 
 // /api/backup and /api/cron do their own bearer-token auth (see
 // src/app/api/backup/route.ts and src/app/api/cron/reminders/route.ts).
@@ -51,11 +64,8 @@ async function verify(token: string) {
   }
 }
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (
-    PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
+function isStaticAssetPath(pathname: string): boolean {
+  return (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/uploads") ||
     pathname.startsWith("/brand") ||
@@ -67,7 +77,63 @@ export async function middleware(request: NextRequest) {
     pathname === "/icon.svg" ||
     pathname === "/apple-icon" ||
     pathname === "/manifest.webmanifest"
+  );
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const host = request.headers.get("host")?.split(":")[0] ?? "";
+
+  // ── Domain split (2026-09-22 master prompt) — both branches below are
+  // fully inert until the owner sets BOOKING_URL/CRM_URL in Coolify and DNS
+  // actually points at these hostnames, so production behaves exactly as
+  // before while neither env var is configured. ──────────────────────────
+
+  // booking.saharacleaningservices.com must serve ONLY the public booking
+  // surface — never CRM pages, not even behind a login redirect. Guarded on
+  // PUBLIC_BOOKING_HOST !== INTERNAL_CRM_HOST so that today, with neither
+  // BOOKING_URL nor CRM_URL set, both constants fall back to the SAME legacy
+  // host and this restriction never activates — only a genuine two-domain
+  // setup turns it on.
+  if (
+    PUBLIC_BOOKING_HOST &&
+    PUBLIC_BOOKING_HOST !== INTERNAL_CRM_HOST &&
+    host === PUBLIC_BOOKING_HOST &&
+    !isStaticAssetPath(pathname)
   ) {
+    const allowed = pathname === "/" || BOOKING_HOST_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p));
+    if (!allowed || pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/book";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  // Legacy app.saharacleaningservices.com → crm.saharacleaningservices.com,
+  // once the owner has verified the new domains and flips
+  // LEGACY_APP_REDIRECT_ENABLED=true. Booking/job/gallery/legal paths are
+  // deliberately left alone so previously-shared customer links keep working
+  // on the old domain indefinitely.
+  if (
+    LEGACY_REDIRECT_ENABLED &&
+    INTERNAL_CRM_HOST &&
+    LEGACY_APP_HOST &&
+    INTERNAL_CRM_HOST !== LEGACY_APP_HOST && // guards against a self-redirect loop if CRM_URL was left unset
+    host === LEGACY_APP_HOST &&
+    !isStaticAssetPath(pathname) &&
+    !BOOKING_HOST_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p))
+  ) {
+    const url = request.nextUrl.clone();
+    url.protocol = "https:";
+    url.host = INTERNAL_CRM_HOST;
+    url.port = "";
+    if (pathname === "/") url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p)) || isStaticAssetPath(pathname)) {
     return NextResponse.next();
   }
 

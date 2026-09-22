@@ -9,7 +9,7 @@ const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo", 
 const AUDIO_FOLDERS = ["voice"];
 const VIDEO_FOLDERS = ["videos"];
 // Document folders accept images OR PDFs — staff KYC docs, company profile
-// documents, uploaded MyBillBook / manual invoices.
+// documents, uploaded invoice attachments.
 const DOC_FOLDERS = ["staff-docs", "company-docs", "invoices"];
 const ALLOWED_FOLDERS = [...IMAGE_FOLDERS, ...AUDIO_FOLDERS, ...VIDEO_FOLDERS, ...DOC_FOLDERS];
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB

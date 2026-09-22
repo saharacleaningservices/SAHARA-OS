@@ -1099,3 +1099,47 @@ db.close();
   console.log("Owner Command Center (business target) migration complete.");
   ownerDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Quotation/Invoice status workflow + MyBillBook API removal (2026-09-22,
+// idempotent, additive-and-one-safe-drop). Own connection since `db` above
+// is already closed by this point in the script.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const qiDb = new Database(dbPath);
+  qiDb.pragma("foreign_keys = ON");
+
+  function addCol(table, column, ddl) {
+    const cols = qiDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) qiDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  }
+  function dropCol(table, column) {
+    const cols = qiDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (cols.includes(column)) qiDb.exec(`ALTER TABLE "${table}" DROP COLUMN "${column}"`);
+  }
+
+  addCol("Quotation", "discount", `"discount" REAL NOT NULL DEFAULT 0`);
+  addCol("Quotation", "status", `"status" TEXT NOT NULL DEFAULT 'SENT'`);
+  addCol("Quotation", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP`);
+  qiDb.exec(`CREATE INDEX IF NOT EXISTS "Quotation_status_idx" ON "Quotation"("status");`);
+
+  addCol("Invoice", "quotationId", `"quotationId" TEXT`);
+  addCol("Invoice", "discount", `"discount" REAL NOT NULL DEFAULT 0`);
+  addCol("Invoice", "notes", `"notes" TEXT`);
+  addCol("Invoice", "terms", `"terms" TEXT`);
+  addCol("Invoice", "status", `"status" TEXT NOT NULL DEFAULT 'ISSUED'`);
+  addCol("Invoice", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP`);
+  qiDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_quotationId_key" ON "Invoice"("quotationId");`);
+  qiDb.exec(`CREATE INDEX IF NOT EXISTS "Invoice_status_idx" ON "Invoice"("status");`);
+
+  // MyBillBook API integration removed (2026-09-22) — API was never
+  // configured in production (no key ever issued); these columns only ever
+  // held NULL/"NOT_CONFIGURED". Safe to drop outright.
+  dropCol("Invoice", "mybillbookInvoiceId");
+  dropCol("Invoice", "mybillbookSyncStatus");
+  dropCol("IntegrationSettings", "mybillbookApiKey");
+  dropCol("IntegrationSettings", "mybillbookVerifiedAt");
+
+  console.log("Quotation/Invoice status workflow + MyBillBook removal migration complete.");
+  qiDb.close();
+}

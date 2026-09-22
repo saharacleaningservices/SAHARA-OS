@@ -16,8 +16,9 @@ import {
 import { getCompanySettings } from "@/server/settings";
 import { addTimelineEntry } from "@/server/timeline";
 import { toWhatsAppLink } from "@/lib/utils";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
-const BASE = "https://app.saharacleaningservices.com";
+const BASE = PUBLIC_BOOKING_URL;
 
 type Kind = "BOOKING_FORM" | "FOLLOWUP" | "REVIEW" | "PAYMENT" | "GALLERY";
 

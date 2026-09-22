@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 
 /**
  * Upload a single PDF / image to a document folder and report back its URL.
- * Used for MyBillBook invoice attachments and other doc uploads inside forms.
+ * Used for invoice attachments and other doc uploads inside forms.
  */
 export function AttachmentInput({
   value,

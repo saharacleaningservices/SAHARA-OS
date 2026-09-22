@@ -28,8 +28,6 @@ export type IntegrationSettingsRow = {
   whatsappLastError: string | null;
   googleMapsApiKey: string | null;
   googleMapsVerifiedAt: Date | null;
-  mybillbookApiKey: string | null;
-  mybillbookVerifiedAt: Date | null;
   backupToken: string | null;
   gdriveFolderId: string | null;
   backupVerifiedAt: Date | null;
@@ -67,12 +65,6 @@ export type ResolvedIntegrations = {
     lastError: string | null;
   };
   googleMaps: {
-    configured: boolean;
-    source: Source;
-    apiKey: string | null;
-    verifiedAt: Date | null;
-  };
-  mybillbook: {
     configured: boolean;
     source: Source;
     apiKey: string | null;
@@ -117,11 +109,6 @@ export async function getResolvedIntegrations(): Promise<ResolvedIntegrations> {
     null;
   const mapsSource: Source = !mapsKey ? null : row.googleMapsApiKey ? "db" : "env";
 
-  const mbbKeyDb = decryptSecret(row.mybillbookApiKey);
-  const mbbKeyEnv = process.env.MYBILLBOOK_API_KEY || null;
-  const mbbKey = mbbKeyDb || mbbKeyEnv;
-  const mbbSource: Source = !mbbKey ? null : mbbKeyDb ? "db" : "env";
-
   const backupTokenDb = decryptSecret(row.backupToken);
   const backupTokenEnv = process.env.BACKUP_TOKEN || null;
   const backupToken = backupTokenDb || backupTokenEnv;
@@ -150,12 +137,6 @@ export async function getResolvedIntegrations(): Promise<ResolvedIntegrations> {
       source: mapsSource,
       apiKey: mapsKey,
       verifiedAt: row.googleMapsVerifiedAt,
-    },
-    mybillbook: {
-      configured: Boolean(mbbKey),
-      source: mbbSource,
-      apiKey: mbbKey,
-      verifiedAt: row.mybillbookVerifiedAt,
     },
     backup: {
       configured: Boolean(backupToken),
@@ -320,23 +301,6 @@ export async function updateMapsSettings(
     },
   });
   await audit(session, "Google Maps API key updated");
-  return updated as IntegrationSettingsRow;
-}
-
-export async function updateMyBillBookSettings(
-  patch: { apiKey?: FieldUpdate },
-  session: SessionPayload | null,
-): Promise<IntegrationSettingsRow> {
-  const row = await getIntegrationSettingsRow();
-  const updated = await db.integrationSettings.update({
-    where: { id: ID },
-    data: {
-      mybillbookApiKey: applySecret(row.mybillbookApiKey, patch.apiKey),
-      mybillbookVerifiedAt: patch.apiKey === undefined ? row.mybillbookVerifiedAt : new Date(),
-      updatedBy: session?.email ?? null,
-    },
-  });
-  await audit(session, "MyBillBook API key updated");
   return updated as IntegrationSettingsRow;
 }
 

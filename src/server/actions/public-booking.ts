@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { COMPANY, SERVICE_CATEGORY_TO_LEGACY, SERVICE_LABELS } from "@/lib/constants";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { recordUpsellEvent } from "@/server/upsell";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { notify } from "@/server/notify";
@@ -164,7 +165,7 @@ export async function publicBookLead(values: unknown) {
     leadId: lead.id,
     type: "SYSTEM",
     body: [
-      `Booked online (${source.toLowerCase()}) via app.saharacleaningservices.com/book (unverified — no OTP yet)`,
+      `Booked online (${source.toLowerCase()}) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}/book (unverified — no OTP yet)`,
       isRepeatCustomer ? `⭐ Existing customer — ${priorLeads} prior enquir${priorLeads === 1 ? "y" : "ies"}, ${priorJobs} job(s) on this number` : null,
       data.propertyType ? `Property type: ${data.propertyType}` : null,
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,

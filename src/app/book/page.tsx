@@ -27,6 +27,7 @@ import { getResolvedIntegrations } from "@/server/integrations";
 import { getCompanySettings } from "@/server/settings";
 import { getFeaturedGallery } from "@/server/actions/gallery";
 import { toWhatsAppLink } from "@/lib/utils";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
 // Meta Business readiness (Phase 6, 2026-09-21 — "prepare for migration,
 // do not integrate yet"): domain verification and Open Graph tags cost
@@ -46,7 +47,7 @@ export const metadata = {
   openGraph: {
     title: "Book a Service — Sahara Cleaning Services, Pune",
     description: "Pune's trusted cleaning experts — Home, Commercial, Interior Painting & Pest Control.",
-    url: "https://app.saharacleaningservices.com/book",
+    url: `${PUBLIC_BOOKING_URL}/book`,
     siteName: "Sahara Cleaning Services",
     images: ["/brand/sahara-logo.png"],
     locale: "en_IN",
