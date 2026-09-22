@@ -308,6 +308,35 @@ The owner issued an explicit override superseding the "Francis gets identical ac
 
 **Verification**: `tsc --noEmit` and `npm run build` clean throughout this batch. Pushed; Coolify's webhook auto-deploys. **CODE VERIFIED, not LIVE VERIFIED** — same disclosed reason as every entry since §3.9: no active authenticated session this pass, and entering a real password to get one is off-limits. The next session with Francis's actual login should specifically verify: he cannot open `/payments`, `/expenses`, `/reports`, `/customers`, `/amc` by typing the URL directly; he cannot open a job or lead outside today/tomorrow by ID; his Staff detail view shows no bank details or documents; his Calendar widget shows no phone numbers (already covered by §3.16, unaffected by this pass).
 
+## 3.18 Francis policy — fourth audit pass (2026-09-22, commits `1ec9c2b` and predecessors `ea49c30`, `bb2a57e`)
+
+The owner manually tested the live Francis account twice more and reported continued leaks after §3.17's fixes (full ~42-lead dataset, broad dashboard metrics). Each report led to a genuinely new, independently-confirmed bug — not a repeat of an already-fixed one — found by re-reading the actual current source rather than trusting the previous pass's claims, per explicit instruction. Status below is reported honestly per requirement: **CODE VERIFIED** throughout (build/typecheck clean on every commit), **PENDING** on live verification (this environment has no Francis or Owner login and will not attempt to obtain one).
+
+**Pass 3 (commit `ea49c30`) real bugs found and fixed**, independent of any deployment-timing question:
+- `staff/[id]/page.tsx`'s "Edit" button rendered unconditionally with wage/bank/GPay fields as form defaultValues regardless of role.
+- `getDashboardData()` had zero role awareness: "Upcoming Jobs" pulled a full week ahead, "Recent Leads" pulled 6 globally-recent leads, with no date/scope restriction.
+- `createStaff`/`updateStaff` had no role check at all (direct-action-call gap).
+
+**Pass 4 (commit `bb2a57e`) — the likely actual root cause of "full 42-lead dataset"**:
+- `leads/[id]/edit/page.tsx` had **no session check of any kind** — not `requireUser()`, not the scope check present on the sibling detail page. A direct URL to `/leads/<any-id>/edit` fully bypassed every list/detail-level restriction, exposing and allowing edits to any lead in the system regardless of date. This is very likely what the owner was actually seeing, independent of whether the list-page scoping itself had deployed.
+- Dashboard KPI grid showed Total Leads, Monthly Leads, Monthly Jobs, Conversion Rate, Repeat Customers, and Overdue Follow-ups to SUPERVISOR — all global/historical business metrics gated only by the generic "has leads access" flag, never further restricted. Added `showCrmGlobalStats`/`isSupervisor` flags; every other role's dashboard is byte-for-byte unchanged.
+- Bulk Lead Import: hidden (UI) and blocked (`importLeads` action) for SUPERVISOR.
+
+**Pass 5 (commit `1ec9c2b`) — systematic sweep of every page under `src/app/(app)` for a missing auth check**, rather than only re-checking previously-flagged files:
+- `assistant/page.tsx` (surfaces `profitInputs`/`duePayments`), `expenses/page.tsx`, `payments/page.tsx`, `customers/[mobile]/page.tsx` all had **zero page-level session/role check**, relying entirely on middleware's path-prefix section gate. Added explicit `requireRole` to all four — defense in depth per the explicit "enforce on route/page, not just middleware" requirement, even where middleware already correctly blocked them.
+- `getRepeatCustomerSummary` (New Lead form's "repeat customer" lookup) returned `totalRevenue` — a financial figure — to every role including SUPERVISOR. Now `null` for him; UI omits the line entirely rather than showing a misleading ₹0.
+- Job detail page's "Job Expenses" card (cost amounts) was unconditional — now hidden for SUPERVISOR.
+- Attendance's "My Attendance & Salary" card (the logged-in user's own wage/balance) was shown regardless of role — now hidden specifically for SUPERVISOR only (unchanged for Staff/OPERATIONS/ADMIN/ACCOUNTS).
+- Dashboard's "Record Payment" quick-action tile (dead-end link to a page he can't open) — hidden for SUPERVISOR.
+- `importCustomers` had no role check — added `canExportCustomers`.
+
+**Owner/Shoyab permissions**: untouched in all three passes — every new guard is scoped specifically to `role === "SUPERVISOR"`, or adds a page-level guard that matches a `ROLE_NAV_ACCESS`/action-level check OPERATIONS/ADMIN/ACCOUNTS already satisfied (never a new restriction on them).
+
+**Status per the owner's requested categories**:
+- Navigation, page-level, and server-action enforcement for all 7 allowed + all "must-block" modules: **CODE COMPLETE**.
+- Financial/salary/bank/GPay/document field stripping: **CODE COMPLETE** everywhere found; cannot claim exhaustive (a fifth report of a new leak is possible, as the pattern of this session shows).
+- **LIVE VERIFICATION: PENDING** — blocked on an actual Francis or Owner login existing in a session that can drive the browser. This environment has neither and will not create one. The fastest, lowest-effort way to close this loop: the owner (or Francis himself) clicks through the checklist in `SAHARA_OS_PRODUCTION_CHECKLIST.md`'s allowed/blocked list directly against production and reports back exactly what's still wrong, the same way the last two reports did — that feedback loop is what has actually found every real bug in this batch, not static code review alone.
+
 ## 3. What "COMPLETE" does not mean here
 
 §1 now distinguishes **COMPLETE (live)** — actually clicked through / triggered against production this pass — from plain **COMPLETE (code)** — implements the requirement and type-checks, but not yet exercised live (usually because it needs Francis's or Shoaib's own login, which this environment doesn't have). Treat the latter as provisional until someone with that role actually uses it.
