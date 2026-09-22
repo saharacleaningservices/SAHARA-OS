@@ -9,6 +9,18 @@ bucket is configured (deliberately — "do not provision a new paid storage
 service"); the S3 step is kept inert in the workflow in case a no-added-cost
 bucket becomes available later.
 
+**Important — GitHub Actions `schedule:` triggers run from the repo's
+default branch (`main`), not the deploy branch (`coolify-deploy`).** A
+failure email the same day traced back to exactly this: the 02:00 IST
+scheduled run on `main` failed with a 401 because it executed *before*
+`BACKUP_TOKEN` was added as a repo secret earlier that day — not a bug,
+just stale timing (secrets are repo-wide, not branch-specific). Re-verified
+by manually triggering `main`'s copy of the workflow (run #45): succeeded,
+uploaded a real archive to the same Drive folder, retention correctly
+tracked "2 daily + 0 monthly backup(s) retained". Both branches' backup
+pipelines are independently confirmed working — see `SAHARA_OS_STATUS.md`
+§3.23 for the full triage.
+
 **Important technical note**: Google service accounts have **zero Drive
 storage quota** of their own. An earlier attempt this session used a
 dedicated service account (`sahara-os-backup-uploader@...`) with the Drive
