@@ -39,7 +39,8 @@ Environment Variables tab for the app (or `.env` locally, copied from
 | Variable | Purpose |
 |---|---|
 | `BACKUP_TOKEN` | Bearer token that authorizes `GET /api/backup` for the GitHub Actions workflow. Can also be generated/rotated from Settings → Integrations → Backup. |
-| `CRON_TOKEN` | Authorizes the internal reminders cron route (`/api/cron/reminders`). |
+| `CRON_TOKEN` | Authorizes the internal reminders cron route (`/api/cron/reminders`). Also needed as a **GitHub Actions repo secret** of the same name for `.github/workflows/reminders.yml` to call that route — not set as of 2026-09-22, so the daily reminder sweep currently skips itself cleanly (see `SAHARA_OS_STATUS.md` §3.23) rather than failing. |
+| `CRON_URL` | **GitHub Actions repo secret only** (not an app env var) — the full URL to `/api/cron/reminders` on the live app, e.g. `https://app.saharacleaningservices.com/api/cron/reminders`. Also not set as of 2026-09-22. |
 | `MISSED_CALL_TOKEN` | Authorizes the missed-call webhook route. |
 | `GDRIVE_FOLDER_ID` | Only relevant to the GitHub Actions backup workflow (not read by the app directly except to display it) — see `BACKUP.md`. |
 
