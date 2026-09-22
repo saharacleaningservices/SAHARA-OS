@@ -59,17 +59,56 @@ jobs:
       - name: Verify backup integrity (stdlib sqlite3 — must pass before upload)
         run: python .github/scripts/verify_backup.py "$ARCHIVE"
 
-      # ── Primary off-site destination: S3-compatible object storage ──────
-      # Owner instruction 2026-09-21: "Do not use Google Drive as primary
-      # backup" — this is now the primary destination every daily run
-      # writes to. Works with any S3-compatible provider (Hostinger Object
-      # Storage, AWS S3, Backblaze B2, Wasabi, Cloudflare R2, MinIO) since
-      # they all speak the same API — set S3_ENDPOINT_URL for anything that
-      # isn't AWS's own global endpoint. Skips gracefully (not a failure) if
-      # the bucket secrets haven't been configured yet, matching this
-      # project's "queue always, deliver only if configured" pattern used
-      # everywhere else (WhatsApp/SMS/Email).
-      - name: Upload to S3-compatible storage (primary)
+      # ── Primary off-site destination: Google Drive ───────────────────────
+      # Owner decision 2026-09-22: Google Drive (the existing Workspace
+      # account, no new paid storage) is the primary off-site destination —
+      # supersedes the 2026-09-21 "S3 primary" decision, since no S3-
+      # compatible bucket was ever actually provisioned. Uploads via a
+      # dedicated service account (sahara-os-backup-uploader@sahara-os-
+      # backup.iam.gserviceaccount.com) that has Editor access on the
+      # "Sahara OS Backups" Drive folder only — not the owner's whole Drive.
+      # Skips gracefully (not a failure) if GDRIVE_CREDENTIALS isn't set.
+      - name: Install Google API client
+        if: ${{ env.HAS_GDRIVE == 'true' }}
+        run: pip install --quiet google-api-python-client google-auth
+
+      - name: Upload to Google Drive (primary) and apply retention
+        if: ${{ env.HAS_GDRIVE == 'true' }}
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          KEEP_DAILY: "30"
+          KEEP_MONTHLY: "12"
+        run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
+
+      # ── Weekly full encrypted backup (Sundays) ──────────────────────────
+      # Owner instruction: "Weekly: Full encrypted backup." Same verified
+      # archive, additionally AES-256 encrypted with a passphrase before a
+      # second upload to the same Drive folder — the .enc suffix keeps it
+      # distinct from the daily plaintext archives. Skips gracefully if
+      # Drive or the encryption passphrase isn't configured yet.
+      - name: Weekly full encrypted backup
+        if: ${{ env.IS_WEEKLY == '1' && env.HAS_GDRIVE == 'true' && env.HAS_ENCRYPTION == 'true' }}
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          KEEP_DAILY: "12"
+          KEEP_MONTHLY: "0"
+        run: |
+          set -euo pipefail
+          encrypted="${ARCHIVE}.enc"
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in "$ARCHIVE" -out "$encrypted" -pass env:BACKUP_ENCRYPTION_KEY
+          ls -lh "$encrypted"
+          python .github/scripts/gdrive_backup.py "$encrypted"
+          rm -f "$encrypted"
+
+      # ── Secondary/optional destination: S3-compatible object storage ────
+      # Not configured — no bucket credentials exist for this project
+      # (deliberately: "do not provision a new paid storage service").
+      # Kept here, inert, in case the owner adds a bucket later (e.g. an
+      # existing allowance with no added cost); skips entirely otherwise.
+      - name: Upload to S3-compatible storage (secondary, optional)
         if: ${{ env.HAS_S3 == 'true' }}
         env:
           S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
@@ -82,45 +121,3 @@ jobs:
         run: |
           pip install --quiet boto3
           python .github/scripts/s3_backup.py "$ARCHIVE"
-
-      # ── Weekly full encrypted backup (Sundays) ──────────────────────────
-      # Owner instruction: "Weekly: Full encrypted backup." Same verified
-      # archive, additionally AES-256 encrypted with a passphrase before a
-      # second upload to a separate weekly-encrypted prefix — untouched by
-      # the daily tier's retention above. Skips gracefully if either the S3
-      # bucket or the encryption passphrase isn't configured yet.
-      - name: Weekly full encrypted backup
-        if: ${{ env.IS_WEEKLY == '1' && env.HAS_S3 == 'true' && env.HAS_ENCRYPTION == 'true' }}
-        env:
-          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
-          S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
-          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-          S3_REGION: ${{ secrets.S3_REGION }}
-          S3_PREFIX: "sahara-os-backups/weekly-encrypted/"
-          KEEP_DAILY: "12"
-          KEEP_MONTHLY: "0"
-        run: |
-          set -euo pipefail
-          encrypted="${ARCHIVE}.enc"
-          openssl enc -aes-256-cbc -pbkdf2 -salt -in "$ARCHIVE" -out "$encrypted" -pass env:BACKUP_ENCRYPTION_KEY
-          ls -lh "$encrypted"
-          python .github/scripts/s3_backup.py "$encrypted"
-          rm -f "$encrypted"
-
-      # ── Secondary/legacy destination: Google Drive (optional) ───────────
-      # No longer the primary destination — kept only for accounts that
-      # already relied on it. Skips entirely if GDRIVE secrets aren't set.
-      - name: Install Google API client
-        if: ${{ env.HAS_GDRIVE == 'true' }}
-        run: pip install --quiet google-api-python-client google-auth
-
-      - name: Upload to Google Drive (secondary, optional) and apply retention
-        if: ${{ env.HAS_GDRIVE == 'true' }}
-        env:
-          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
-          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
-          KEEP_DAILY: "30"
-          KEEP_MONTHLY: "12"
-        run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
