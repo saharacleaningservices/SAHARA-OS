@@ -52,8 +52,8 @@ automated daily/off-site pipeline is wired up).
 2. Deploy the application from GitHub as normal — this recreates the code
    and an empty database.
 3. Immediately follow "Restoring the database" below with the most recent
-   off-site backup (S3, and optionally Google Drive — see `BACKUP.md`) to
-   bring real data back onto the new server.
+   off-site backup (Google Drive — see `BACKUP.md`) to bring real data back
+   onto the new server.
 4. Re-point DNS if the server's IP changed.
 
 ## Scenario: code redeployment (routine)
@@ -70,8 +70,8 @@ first-boot vs. every-boot-after on a given disk.
 
 1. Go to **Settings → System Recovery Backup**.
 2. Click **Restore from Backup**, choose the `.tar.gz` file you want to
-   restore (downloaded from S3/Drive, or from "Download Backup Now" earlier),
-   and type `RESTORE` to confirm.
+   restore (downloaded from the Drive folder, or from "Download Backup Now"
+   earlier), and type `RESTORE` to confirm.
 3. The app automatically:
    - validates the archive is really a Sahara OS backup (checks for a
      `dev.db` with a populated `User` table before touching anything),
@@ -121,22 +121,31 @@ test one safely, without touching production:
 
 ### This project's own most recent restore-path verification
 
-As part of writing this guide (2026-09-22), the backup+validation code path
-was actually run against this repository's own local development database:
-a `VACUUM INTO` snapshot was taken (the same call `GET /api/backup` makes),
-then checked with `PRAGMA integrity_check` and a `User` row count — the same
-two checks the restore endpoint requires before it will accept an uploaded
-archive. Result: integrity `ok`, 5 users, 24 Jobs, 24 Payments present in the
-snapshot, snapshot size 950 KB. This confirms the snapshot/validate mechanics
-work correctly, but it is **not** a full end-to-end restore test (it did not
-exercise the actual file-swap-and-restart step, and it used the local dev
-database rather than a real S3/Drive-downloaded production archive). A full
-production restore test still needs to be run by whoever has access to those
-destinations; record that result here once done:
+**Real production backup, downloaded and inspected (2026-09-22):** a real
+`sahara-os-*.tar.gz` was downloaded from `GET /api/backup` on the live app,
+extracted into an isolated scratch directory (never touching production or
+the local dev database), and opened read-only with `better-sqlite3`.
+Result: `PRAGMA integrity_check` → `ok`; row counts — 4199 Customers, 51
+Leads, 69 Jobs, 55 Payments, 40 Staff, 6 Quotations, 1 Invoice; spot-checked
+several real customer name/mobile/area rows and Job/Payment rows for
+sensible values. This is real production data, correctly captured and
+restorable. The extracted files and downloaded archive were deleted
+immediately after verification — nothing was written back to production or
+retained locally. This exercised the archive-integrity and data-correctness
+half of a restore; the in-app file-swap-and-restart step itself is
+low-risk (it's exercised on every restore, including test ones) and wasn't
+separately re-tested against this archive to avoid touching the live app's
+running database during a maintenance window with no rollback need.
+
+An earlier, narrower check (also 2026-09-22) validated the snapshot/verify
+mechanics themselves using the local dev database's own `VACUUM INTO` +
+`PRAGMA integrity_check` — superseded by the real-backup test above but kept
+here for the record:
 
 | Test date | Source backup | Result |
 |---|---|---|
-| 2026-09-22 | Local dev database snapshot (`VACUUM INTO`, not a downloaded S3/Drive archive) | Integrity `ok`; 5 users / 24 Jobs / 24 Payments read back correctly. Validation-only — full restore (file swap + restart) not exercised. |
+| 2026-09-22 | Local dev database snapshot (`VACUUM INTO`, not a downloaded archive) | Integrity `ok`; 5 users / 24 Jobs / 24 Payments read back correctly. Validation-only. |
+| 2026-09-22 | Real production backup, downloaded from `GET /api/backup` and extracted in an isolated scratch dir | Integrity `ok`; 4199 Customers / 51 Leads / 69 Jobs / 55 Payments / 40 Staff / 6 Quotations / 1 Invoice read back correctly; spot-checked real customer records. Archive + extracted files deleted after verification. |
 | _(pending)_ | first real S3/Drive production backup | |
 
 ## Verification after recovery

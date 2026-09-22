@@ -1,14 +1,24 @@
 # Automated off-site backups
 
-**Status as of 2026-09-22**: the workflow itself is fixed and confirmed
-working (run #41 succeeded end-to-end against the live app — see
-`SAHARA_OS_STATUS.md` §3.21 for the "never worked until now" history). The
-`BACKUP_TOKEN` GitHub secret is set. **No S3 bucket or Google Drive
-credentials are configured yet** — every scheduled/manual run downloads and
-verifies a real snapshot but has nowhere off-site to send it until one of
-Section 2 or Section 3 below is actually completed. Until then, the only
-copies of this data are the VPS itself and whatever an admin manually
-downloads from Settings → System Recovery Backup.
+**Status as of 2026-09-22**: fully working end-to-end. `BACKUP_TOKEN` is
+set, and **Google Drive is the primary off-site destination** and is
+confirmed uploading for real (run #44: uploaded a real archive, verified
+present in the "Sahara OS Backups" Drive folder, owned by the account's own
+quota — see `SAHARA_OS_STATUS.md` for the full verification log). No S3
+bucket is configured (deliberately — "do not provision a new paid storage
+service"); the S3 step is kept inert in the workflow in case a no-added-cost
+bucket becomes available later.
+
+**Important technical note**: Google service accounts have **zero Drive
+storage quota** of their own. An earlier attempt this session used a
+dedicated service account (`sahara-os-backup-uploader@...`) with the Drive
+folder shared to it as Editor — this authenticates fine but Google rejects
+file *creation* with `storageQuotaExceeded`, because sharing a regular "My
+Drive" folder as Editor does not grant a service account any quota to own
+new files in. The fix: OAuth credentials authenticating as the owner's own
+Google account (`contact@saharacleaningservices.com`), so uploaded files
+count against the account's own storage and are visible as owned by "me" in
+Drive. See Section 3 below for how this was set up.
 
 A GitHub Actions workflow (`.github/workflows/backup.yml`) runs every day at
 **02:00 IST** and:
@@ -17,14 +27,14 @@ A GitHub Actions workflow (`.github/workflows/backup.yml`) runs every day at
 2. receives a `tar.gz` containing a consistent SQLite snapshot (`dev.db`, via
    `VACUUM INTO`) plus everything under `public/uploads/`,
 3. verifies the archive (`.github/scripts/verify_backup.py`) before it's ever uploaded,
-4. uploads it to **S3-compatible object storage** — the primary off-site
-   destination (owner decision, 2026-09-21: "Do not use Google Drive as
-   primary backup"). Works with any S3-compatible provider (Hostinger Object
-   Storage, AWS S3, Backblaze B2, Wasabi, Cloudflare R2, MinIO),
+4. uploads it to **Google Drive** — the primary off-site destination (owner
+   decision, 2026-09-22, superseding the 2026-09-21 "S3 primary" decision
+   since no S3 bucket was ever actually provisioned). Authenticates as the
+   owner's own Google account via OAuth, into the "Sahara OS Backups" folder,
 5. on Sundays, additionally uploads a second, AES-256-encrypted copy (full
-   weekly backup) to a separate prefix,
-6. optionally also uploads to **Google Drive** — a secondary/legacy copy,
-   only if Drive credentials are configured; skipped entirely otherwise,
+   weekly backup) to the same Drive folder (`.enc` suffix keeps it distinct),
+6. optionally also uploads to **S3-compatible object storage** — inert
+   unless a bucket is configured; skipped entirely otherwise,
 7. applies retention in each destination it writes to (see below).
 
 You can also run it on demand: repo → **Actions → Sahara OS Enterprise Backup
@@ -48,10 +58,47 @@ in production, treat it as compromised and regenerate it from Settings →
 Integrations → Backup → "Regenerate token" (this immediately invalidates the
 old one), then update the `BACKUP_TOKEN` GitHub secret below to match.
 
-### 2. S3-compatible storage (primary destination)
+### 2. Google Drive (primary destination) — **done, configured 2026-09-22**
 
-Create a bucket with any S3-compatible provider, then add these as GitHub
-repo secrets (step 4):
+Uses OAuth as the owner's own Google account — **not** a service account
+(service accounts have zero Drive storage quota and cannot create files
+even in a folder shared to them as Editor; confirmed by a failed run this
+session before switching to OAuth). Steps taken (for reference / re-setup):
+
+1. <https://console.cloud.google.com> → project **"Sahara OS backup"**
+   (`sahara-os-backup`) → **APIs & Services → Library** → enabled **Google
+   Drive API**.
+2. **Google Auth Platform → Audience** → User type **External**, publishing
+   status **Testing** → added `contact@saharacleaningservices.com` as a
+   **Test user** (avoids Google's app-verification review, which isn't
+   needed for a single-account internal tool).
+3. **Clients → Create client → Web application**. Redirect URI:
+   `https://developers.google.com/oauthplayground`. Downloaded the Client ID
+   and secret (only shown once at creation time).
+4. Minted a refresh token: <https://developers.google.com/oauthplayground> →
+   gear icon → tick *Use your own OAuth credentials* → paste the client
+   ID/secret → scope `https://www.googleapis.com/auth/drive` → **Authorize
+   APIs** → signed in as `contact@saharacleaningservices.com` → clicked
+   **Allow** (shows an "unverified app" warning since the app isn't
+   submitted for Google review — expected and safe for internal use; click
+   Advanced → Go to (unsafe) to proceed) → **Exchange authorization code for
+   tokens** → copied the **Refresh token**.
+5. Folder **Sahara OS Backups** already existed in the owner's own My
+   Drive: `https://drive.google.com/drive/folders/1Gw4_xzzxQHUVixWXhdBdi-jEeSzlVxPZ`.
+   Because the OAuth token authenticates as the folder's own owner, no
+   separate sharing step is needed (unlike the abandoned service-account
+   approach).
+
+**Verified working (run #44, 2026-09-22)**: uploaded a real
+`sahara-os-*.tar.gz`, confirmed present in the Drive folder, owned by "me"
+(the account's own 30GB quota, not a service account's zero quota).
+
+### 3. S3-compatible storage (optional, secondary — not configured)
+
+Not provisioned, deliberately (no new paid storage service). Kept inert in
+the workflow in case a no-added-cost bucket becomes available later. To
+enable: create a bucket with any S3-compatible provider, then add these as
+GitHub repo secrets (step 4):
 
 | Secret | Value |
 |---|---|
@@ -61,48 +108,32 @@ repo secrets (step 4):
 | `S3_REGION` | the bucket's region, if the provider requires one |
 | `BACKUP_ENCRYPTION_KEY` | (optional) a passphrase for the weekly encrypted copy — without it, the Sunday encrypted step is skipped |
 
-### 3. Google Drive (optional, secondary)
-
-Only needed if you also want a copy on Google Drive, in addition to S3.
-
-1. <https://console.cloud.google.com> → create a project (any name).
-2. **APIs & Services → Library →** enable **Google Drive API**.
-3. **APIs & Services → OAuth consent screen** → User type **External** →
-   fill the required fields → add your Google account as a **Test user**.
-4. **APIs & Services → Credentials → Create credentials → OAuth client ID →
-   Web application**. Under *Authorized redirect URIs* add
-   `https://developers.google.com/oauthplayground`. Save the **Client ID** and
-   **Client secret**.
-5. Mint a refresh token: open
-   <https://developers.google.com/oauthplayground> → gear icon → tick *Use your
-   own OAuth credentials* → paste the client ID/secret → in the left box enter
-   the scope `https://www.googleapis.com/auth/drive` → **Authorize APIs** →
-   sign in → **Exchange authorization code for tokens** → copy the **Refresh
-   token**.
-6. Create a folder named **Sahara OS Backups** in Drive and copy its id from
-   the URL: `https://drive.google.com/drive/folders/<THIS_IS_THE_ID>`.
-
 ### 4. GitHub repo secrets
 
-Repo → **Settings → Secrets and variables → Actions → New repository secret**:
+Repo → **Settings → Secrets and variables → Actions**:
 
-| Secret | Value |
-|---|---|
-| `BACKUP_URL` | `https://<your-production-domain>/api/backup` (e.g. `https://crm.saharacleaningservices.com/api/backup` once that domain is live, or the current `app.saharacleaningservices.com` one) |
-| `BACKUP_TOKEN` | the token from step 1 |
-| `S3_BUCKET`, `S3_ENDPOINT_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_REGION` | from step 2 |
-| `BACKUP_ENCRYPTION_KEY` | (optional) from step 2 |
-| `GDRIVE_FOLDER_ID`, `GDRIVE_CREDENTIALS` | (optional) from step 3, `GDRIVE_CREDENTIALS` = `{"client_id":"...","client_secret":"...","refresh_token":"..."}` on one line |
+| Secret | Value | Status |
+|---|---|---|
+| `BACKUP_URL` | `https://<production-domain>/api/backup` | ✅ set |
+| `BACKUP_TOKEN` | the token from step 1 | ✅ set |
+| `GDRIVE_FOLDER_ID` | `1Gw4_xzzxQHUVixWXhdBdi-jEeSzlVxPZ` | ✅ set |
+| `GDRIVE_CREDENTIALS` | `{"client_id":"...","client_secret":"...","refresh_token":"..."}` on one line, from step 2 | ✅ set (OAuth, verified working) |
+| `S3_BUCKET`, `S3_ENDPOINT_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_REGION` | from step 3 | not set (optional) |
+| `BACKUP_ENCRYPTION_KEY` | (optional) from step 3 | not set (weekly-encrypted step skips until this exists) |
 
-Then trigger **Run workflow** once to confirm the first backup lands where
-expected.
+Already confirmed working (run #44) — no further action needed unless
+credentials are rotated.
 
 ## Retention
 
-- **S3 (primary) and Google Drive (optional)**: each keeps the newest 30
-  daily archives, plus one archive per distinct calendar month for 12 months
-  beyond that (`KEEP_DAILY`/`KEEP_MONTHLY` env vars in the workflow).
-- **Weekly encrypted copies**: kept separately, newest 12.
+- **Google Drive (primary)**: keeps the newest 30 daily archives, plus one
+  archive per distinct calendar month for 12 months beyond that
+  (`KEEP_DAILY`/`KEEP_MONTHLY` env vars in the workflow). Verified this
+  session: after the first real upload, the script correctly reported
+  "1 daily + 0 monthly backup(s) retained (1 total), 0 removed."
+- **S3 (optional, if enabled later)**: same retention scheme.
+- **Weekly encrypted copies**: kept separately, newest 12, same Drive folder
+  (`.enc` suffix).
 - **`BackupEvent` rows** (shown in Settings → System Recovery Backup) and
   **pre-restore safety copies** (`dev.db.before-restore-*`, written by
   `POST /api/backup/restore` before every restore) are each pruned to the
