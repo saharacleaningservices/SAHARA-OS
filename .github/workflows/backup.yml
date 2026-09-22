@@ -63,10 +63,20 @@ jobs:
       # Owner decision 2026-09-22: Google Drive (the existing Workspace
       # account, no new paid storage) is the primary off-site destination —
       # supersedes the 2026-09-21 "S3 primary" decision, since no S3-
-      # compatible bucket was ever actually provisioned. Uploads via a
-      # dedicated service account (sahara-os-backup-uploader@sahara-os-
-      # backup.iam.gserviceaccount.com) that has Editor access on the
-      # "Sahara OS Backups" Drive folder only — not the owner's whole Drive.
+      # compatible bucket was ever actually provisioned.
+      #
+      # Uploads via OAuth as the owner's own account (contact@
+      # saharacleaningservices.com), not a service account: Google service
+      # accounts have zero Drive storage quota of their own, so they cannot
+      # create files in a regular "My Drive" folder even when shared as
+      # Editor (confirmed this session — run #43 failed with "Service
+      # Accounts do not have storage quota"). A true Shared Drive would also
+      # work but requires a Workspace plan tier not confirmed here. OAuth
+      # credentials (client_id/client_secret/refresh_token, minted once via
+      # the OAuth Playground, GDRIVE_CREDENTIALS secret) write into the
+      # owner's own quota, into the "Sahara OS Backups" folder only.
+      # Verified end-to-end: run #44 uploaded a real archive, visible in
+      # Drive under the owner's account, owner: "me".
       # Skips gracefully (not a failure) if GDRIVE_CREDENTIALS isn't set.
       - name: Install Google API client
         if: ${{ env.HAS_GDRIVE == 'true' }}
