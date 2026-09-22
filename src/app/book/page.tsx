@@ -145,28 +145,33 @@ export default async function PublicBookingPage({
           {/* The Sahara wordmark image already has a TM mark above the worker's
               head — showTm is intentionally omitted here so we don't render a
               second, duplicate ™ floating beside the logo (TM logo fix). */}
-          <CompanyLogo logoUrl={settings.logoUrl} className="-ml-1 h-[46px] w-auto max-w-[180px] sm:-ml-2" />
+          <CompanyLogo logoUrl={settings.logoUrl} className="-ml-1 h-9 w-auto max-w-[120px] shrink-0 sm:-ml-2 sm:h-[46px] sm:max-w-[180px]" />
           <nav className="hidden items-center gap-6 text-sm font-medium text-foreground lg:flex">
             {NAV.map((n) => (
               <a key={n.label} href={n.href} className="hover:text-primary">{n.label}</a>
             ))}
           </nav>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            {/* Icon-only pills below `sm` so both buttons stay fully visible
+                and never clip at 320–414px; full label + number from `sm` up
+                (2026-09-22 booking-form master prompt, mobile-header fix). */}
             <a
               href={`tel:+91${CALL_NUMBER}`}
-              className="sahara-pulse flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm sm:text-sm"
+              aria-label={`Call ${CALL_NUMBER}`}
+              className="sahara-pulse flex items-center gap-2 rounded-xl bg-primary p-2.5 text-xs font-semibold text-white shadow-sm sm:px-3 sm:py-2 sm:text-sm"
             >
-              <Phone className="size-4" />
-              <span className="leading-tight">Call<span className="block font-normal">{CALL_NUMBER}</span></span>
+              <Phone className="size-4 shrink-0" />
+              <span className="hidden leading-tight sm:inline">Call<span className="block font-normal">{CALL_NUMBER}</span></span>
             </a>
             <a
               href={toWhatsAppLink(WHATSAPP_NUMBER)}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-success px-3 py-2 text-xs font-semibold text-white shadow-sm sm:text-sm"
+              aria-label={`WhatsApp ${WHATSAPP_NUMBER}`}
+              className="flex items-center gap-2 rounded-xl bg-success p-2.5 text-xs font-semibold text-white shadow-sm sm:px-3 sm:py-2 sm:text-sm"
             >
-              <Phone className="size-4" />
-              <span className="leading-tight">WhatsApp<span className="block font-normal">{WHATSAPP_NUMBER}</span></span>
+              <Phone className="size-4 shrink-0" />
+              <span className="hidden leading-tight sm:inline">WhatsApp<span className="block font-normal">{WHATSAPP_NUMBER}</span></span>
             </a>
           </div>
         </div>
@@ -384,10 +389,10 @@ export default async function PublicBookingPage({
             <ul className="space-y-1.5 text-white/85">
               {COMPANY.phones.map((p) => (
                 <li key={p} className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                  <span className="text-white/70">{p}</span>
-                  <a href={`tel:+91${p}`} className="hover:text-white">Call</a>
+                  <span className="font-semibold text-white">{p}</span>
+                  <a href={`tel:+91${p}`} className="font-medium hover:text-white">Call</a>
                   <span className="text-white/40">·</span>
-                  <a href={toWhatsAppLink(p)} target="_blank" rel="noreferrer" className="hover:text-white">WhatsApp</a>
+                  <a href={toWhatsAppLink(p)} target="_blank" rel="noreferrer" className="font-medium hover:text-white">WhatsApp</a>
                 </li>
               ))}
               <li><a href={`mailto:${COMPANY.email}`} className="break-all hover:text-white">{COMPANY.email}</a></li>
@@ -399,6 +404,7 @@ export default async function PublicBookingPage({
 
         <div className="border-t border-white/15 py-3 text-center text-[11px] text-white/70">
           <p>{COMPANY.name}<sup className="ml-0.5 text-[0.7em]">™</sup></p>
+          <p className="mt-1">GST No: {COMPANY.gstin}</p>
           <p className="mt-1">Developed by Sahara Cleaning Services</p>
         </div>
       </footer>
