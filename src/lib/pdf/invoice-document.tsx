@@ -62,11 +62,13 @@ export type InvoicePdfProps = {
   customerAddress: string;
   services: { name: string; description: string; amount: number }[];
   subTotal: number;
+  discount?: number;
   gstPercent: number;
   gstAmount: number;
   totalAmount: number;
   paidAmount: number;
   terms: string;
+  notes?: string | null;
   qrDataUrl: string;
   logoDataUrl?: string | null;
 };
@@ -137,6 +139,12 @@ export function InvoiceDocument(props: InvoicePdfProps) {
             <Text style={styles.totalsLabel}>Subtotal</Text>
             <Text style={styles.totalsValue}>{inr(props.subTotal)}</Text>
           </View>
+          {!!props.discount && (
+            <View style={styles.totalsRow}>
+              <Text style={styles.totalsLabel}>Discount</Text>
+              <Text style={styles.totalsValue}>-{inr(props.discount)}</Text>
+            </View>
+          )}
           <View style={styles.totalsRow}>
             <Text style={styles.totalsLabel}>GST ({props.gstPercent}%)</Text>
             <Text style={styles.totalsValue}>{inr(props.gstAmount)}</Text>
@@ -159,6 +167,12 @@ export function InvoiceDocument(props: InvoicePdfProps) {
           <View style={styles.termsBlock}>
             <Text style={styles.termsTitle}>Terms &amp; Conditions</Text>
             <Text style={styles.termsText}>{props.terms}</Text>
+            {!!props.notes && (
+              <>
+                <Text style={[styles.termsTitle, { marginTop: 6 }]}>Notes</Text>
+                <Text style={styles.termsText}>{props.notes}</Text>
+              </>
+            )}
           </View>
           <View style={styles.qrBlock}>
             <Image src={props.qrDataUrl} style={styles.qrImage} />

@@ -88,7 +88,7 @@ export function BackupsCard({ events }: { events: BackupEventRow[] }) {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-lg border border-border p-3">
-            <p className="text-xs text-muted-foreground">Last automatic backup (daily, 2 AM IST → Google Drive)</p>
+            <p className="text-xs text-muted-foreground">Last automatic backup (daily, 2 AM IST → S3, weekly encrypted copy + optional Google Drive)</p>
             <p className="text-sm font-medium text-foreground">
               {lastAuto ? formatDateTime(lastAuto.createdAt) : "Not run yet"}
             </p>

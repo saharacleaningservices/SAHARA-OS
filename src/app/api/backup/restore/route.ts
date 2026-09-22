@@ -109,9 +109,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "The backup file failed validation — restore aborted" }, { status: 400 });
     }
 
-    // Safety copy of the current live database — never deleted automatically.
+    // Safety copy of the current live database, kept as a rolling window of
+    // the 5 most recent (2026-09-22 retention policy — previously these
+    // accumulated forever). The one just about to be created is always kept;
+    // this only prunes ones already on disk from earlier restores.
     const safetyStamp = new Date().toISOString().replace(/[:.]/g, "-");
     const safetyPath = path.join(root, `dev.db.before-restore-${safetyStamp}`);
+    const SAFETY_COPY_RETENTION = 5;
+    try {
+      const existingCopies = fs
+        .readdirSync(root)
+        .filter((f) => f.startsWith("dev.db.before-restore-"))
+        .sort();
+      const toDelete = existingCopies.slice(0, Math.max(0, existingCopies.length - (SAFETY_COPY_RETENTION - 1)));
+      for (const f of toDelete) fs.rmSync(path.join(root, f), { force: true });
+    } catch {
+      // Retention is best-effort — never block a restore over cleanup failing.
+    }
     fs.copyFileSync(dbPath, safetyPath);
 
     // Swap the database file.

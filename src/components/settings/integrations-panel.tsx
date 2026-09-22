@@ -326,7 +326,7 @@ function DriveBackupCard({ status }: { status: IntegrationStatusForUi["backup"] 
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle className="flex items-center gap-2 text-sm">
-          <DatabaseBackup className="size-4 text-primary" /> Google Drive Backup (off-site)
+          <DatabaseBackup className="size-4 text-primary" /> Google Drive Backup (secondary off-site copy)
         </CardTitle>
         <Badge variant={status.configured ? "success" : "muted"}>
           {status.configured ? "Token set" : "Not set up"}
@@ -334,9 +334,11 @@ function DriveBackupCard({ status }: { status: IntegrationStatusForUi["backup"] 
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <p className="text-xs text-muted-foreground">
-          Local volume backups already run daily on the VPS. This adds a nightly copy to Google Drive via the{" "}
-          <code>.github/workflows/backup.yml</code> GitHub Action. The Drive OAuth credentials live in GitHub
-          repo secrets (the upload runs inside GitHub Actions, not this server).
+          S3-compatible storage is the primary off-site backup destination (owner decision, 2026-09-21) — see{" "}
+          <code>.github/scripts/s3_backup.py</code>. This Google Drive copy is optional and secondary; it uploads
+          via the same <code>.github/workflows/backup.yml</code> GitHub Action, only when the Drive credentials
+          below are configured. The Drive OAuth credentials live in GitHub repo secrets (the upload runs inside
+          GitHub Actions, not this server).
         </p>
 
         <div className="rounded-lg border border-border p-3 text-xs">
