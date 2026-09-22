@@ -45,13 +45,7 @@ function fmt(iso: string | null) {
   return new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 }
 
-export function IntegrationsPanel({
-  status,
-  mybillbookConfigured,
-}: {
-  status: IntegrationStatusForUi;
-  mybillbookConfigured: boolean;
-}) {
+export function IntegrationsPanel({ status }: { status: IntegrationStatusForUi }) {
   return (
     <div className="space-y-6">
       <div>
@@ -64,19 +58,6 @@ export function IntegrationsPanel({
       <WhatsAppCard status={status.whatsapp} />
       <GoogleMapsCard status={status.googleMaps} />
       <DriveBackupCard status={status.backup} />
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-sm">MyBillBook</CardTitle>
-          <Badge variant={mybillbookConfigured ? "success" : "muted"}>
-            {mybillbookConfigured ? "Connected" : "Not connected"}
-          </Badge>
-        </CardHeader>
-        <CardContent className="text-xs text-muted-foreground">
-          Quotations and invoices are generated and stored in Sahara OS regardless. Pushing them to MyBillBook
-          needs an API key from MyBillBook support (plan-specific, not self-serve) — set{" "}
-          <code>MYBILLBOOK_API_KEY</code> + <code>MYBILLBOOK_API_BASE_URL</code> once issued.
-        </CardContent>
-      </Card>
     </div>
   );
 }
@@ -252,7 +233,9 @@ function GoogleMapsCard({ status }: { status: IntegrationStatusForUi["googleMaps
           <span className="font-medium">Pin on Map</span> in the booking &amp; lead forms, plus the map preview.
           Without a key, <span className="font-medium">Paste Maps Link</span> still works everywhere. In Google
           Cloud, enable <em>Maps JavaScript API</em>, <em>Maps Embed API</em> and <em>Geocoding API</em>, then
-          restrict the key by HTTP referrer to <code>app.saharacleaningservices.com/*</code>.
+          restrict the key by HTTP referrer to whichever domain(s) serve the booking form
+          (e.g. <code>app.saharacleaningservices.com/*</code>, or <code>booking.saharacleaningservices.com/*</code>
+          once that domain is live).
         </p>
         {fromEnv && (
           <p className="rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">
@@ -360,7 +343,9 @@ function DriveBackupCard({ status }: { status: IntegrationStatusForUi["backup"] 
           <p className="font-medium text-foreground">One-time setup — GitHub → repo → Settings → Secrets and variables → Actions:</p>
           <ol className="mt-1.5 list-decimal space-y-1 pl-4 text-muted-foreground">
             <li>
-              <code>BACKUP_URL</code> = <code>https://app.saharacleaningservices.com/api/backup</code>
+              <code>BACKUP_URL</code> = <code>https://app.saharacleaningservices.com/api/backup</code> (or the
+              <code>crm.saharacleaningservices.com</code> equivalent once that domain is live — either one reaches
+              the same deployment)
             </li>
             <li>
               <code>BACKUP_TOKEN</code> = the token below (reveal &amp; copy)

@@ -2,27 +2,26 @@ import { headers } from "next/headers";
 import { PageHeader } from "@/components/shared/page-header";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { BackupsCard } from "@/components/settings/backups-card";
+import { BusinessExportCard } from "@/components/settings/business-export-card";
 import { IntegrationsPanel } from "@/components/settings/integrations-panel";
 import { CompanyDocumentsPanel } from "@/components/settings/company-documents-panel";
-import { MyBillBookCard } from "@/components/settings/mybillbook-card";
 import { requireRole } from "@/lib/current-user";
 import { getCompanySettings } from "@/server/settings";
-import { getIntegrationStatusForUi, getResolvedIntegrations } from "@/server/integrations";
+import { getIntegrationStatusForUi } from "@/server/integrations";
 import { getCompanyDocuments } from "@/server/actions/company-documents";
-import { isMyBillBookConfigured } from "@/lib/mybillbook";
+import { INTERNAL_CRM_HOST } from "@/lib/site-urls";
 import { db } from "@/lib/db";
 
 export default async function SettingsPage() {
   await requireRole(["ADMIN"]);
-  const [settings, backupEvents, integrationStatus, resolved, companyDocs, hdrs] = await Promise.all([
+  const [settings, backupEvents, integrationStatus, companyDocs, hdrs] = await Promise.all([
     getCompanySettings(),
     db.backupEvent.findMany({ orderBy: { createdAt: "desc" }, take: 20 }),
     getIntegrationStatusForUi(),
-    getResolvedIntegrations(),
     getCompanyDocuments(),
     headers(),
   ]);
-  const host = hdrs.get("host") ?? "app.saharacleaningservices.com";
+  const host = hdrs.get("host") ?? INTERNAL_CRM_HOST;
   const proto = hdrs.get("x-forwarded-proto") ?? "https";
   const origin = `${proto}://${host}`;
 
@@ -50,9 +49,9 @@ export default async function SettingsPage() {
           bankIfsc: settings.bankIfsc ?? "",
         }}
       />
-      <IntegrationsPanel status={integrationStatus} mybillbookConfigured={isMyBillBookConfigured()} />
-      <MyBillBookCard configured={resolved.mybillbook.configured} source={resolved.mybillbook.source} />
+      <IntegrationsPanel status={integrationStatus} />
       <CompanyDocumentsPanel documents={companyDocs} origin={origin} companyName={settings.name} />
+      <BusinessExportCard />
       <BackupsCard events={backupEvents} />
     </div>
   );

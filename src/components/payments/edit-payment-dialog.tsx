@@ -106,11 +106,11 @@ return (
 {errors.dueDate && <p className="text-xs text-destructive">{errors.dueDate.message}</p>}
 </div>
 <div className="space-y-1">
-<Label>MyBillBook Invoice #</Label>
+<Label>External Invoice #</Label>
 <Input {...register("mybillbookInvoiceNo")} placeholder="Optional" />
 </div>
 </div>
-<AttachmentInput value={attachmentUrl} onChange={setAttachmentUrl} folder="invoices" label="MyBillBook / Invoice Attachment" />
+<AttachmentInput value={attachmentUrl} onChange={setAttachmentUrl} folder="invoices" label="Invoice Attachment" />
 <div className="space-y-1">
 <Label>Notes</Label>
 <Textarea rows={2} {...register("notes")} />

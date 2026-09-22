@@ -3,6 +3,7 @@ import { CheckCircle2, Star, Sparkles, Gift, Image as ImageIcon, Video as VideoI
 import { getPublicJobSummary } from "@/server/public-job";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate, formatINR } from "@/lib/utils";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
 export const metadata = { title: "Your Booking — Sahara Cleaning Services" };
 
@@ -14,7 +15,7 @@ export default async function PublicJobConfirmationPage({ params }: { params: Pr
   const { job, googleReviewUrl, offer, referralCode, balanceDue, payment } = data;
   const before = job.photos.filter((p) => p.type === "BEFORE");
   const after = job.photos.filter((p) => p.type === "AFTER");
-  const bookLink = `https://app.saharacleaningservices.com/book?ref=${referralCode}`;
+  const bookLink = `${PUBLIC_BOOKING_URL}/book?ref=${referralCode}`;
   const hasPaymentDetails = !!(payment.upiId || payment.upiQrUrl || payment.bankAccountNumber);
 
   return (

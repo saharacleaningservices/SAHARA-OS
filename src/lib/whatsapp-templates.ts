@@ -5,6 +5,7 @@
 import { COMPANY } from "@/lib/constants";
 import { GALLERY_PUBLIC_URL, CLEANING_TIPS_URL } from "@/lib/gallery";
 import { formatINR, formatDate } from "@/lib/utils";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
 type BookingConfirmationInput = {
   customerName: string;
@@ -35,7 +36,7 @@ export function bookingConfirmationMessage(input: BookingConfirmationInput) {
     teamLine,
     supLine,
     ``,
-    `Track your booking: https://app.saharacleaningservices.com/j/${input.jobNumber}`,
+    `Track your booking: ${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`,
     `Before/After gallery: ${GALLERY_PUBLIC_URL}`,
     `Cleaning & aftercare tips: ${CLEANING_TIPS_URL}`,
     ``,
@@ -50,7 +51,7 @@ export function bookingConfirmationSms(input: BookingConfirmationInput) {
   return [
     `${COMPANY.name}: Booking ${input.jobNumber} confirmed.`,
     `${formatDate(input.date)} ${input.timeSlot} - ${input.service}.`,
-    `Track: https://app.saharacleaningservices.com/j/${input.jobNumber}`,
+    `Track: ${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`,
     `Help: ${COMPANY.phones[0]}`,
   ].join(" ");
 }
@@ -96,7 +97,7 @@ export function premiumBookingConfirmationMessage(input: {
   balanceDue?: number | null;
   googleReviewUrl?: string | null;
 }) {
-  const trackingUrl = `https://app.saharacleaningservices.com/j/${input.jobNumber}`;
+  const trackingUrl = `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
   const location = input.address?.trim() || input.area;
   const hasBalance = !!input.balanceDue && input.balanceDue > 0;
   const paymentLine = hasBalance
@@ -211,7 +212,7 @@ export const BOOKING_CONFIRMATION_META_TEMPLATE = {
     {
       type: "HEADER",
       format: "IMAGE",
-      example: { header_url: ["https://app.saharacleaningservices.com/brand/sahara-logo.png"] },
+      example: { header_url: [`${PUBLIC_BOOKING_URL}/brand/sahara-logo.png`] },
     },
     {
       type: "BODY",
@@ -238,14 +239,14 @@ export const BOOKING_CONFIRMATION_META_TEMPLATE = {
         {
           type: "URL",
           text: "View Booking",
-          url: "https://app.saharacleaningservices.com/j/{{1}}",
-          example: ["https://app.saharacleaningservices.com/j/SHR-240916-001"],
+          url: `${PUBLIC_BOOKING_URL}/j/{{1}}`,
+          example: [`${PUBLIC_BOOKING_URL}/j/SHR-240916-001`],
         },
         {
           type: "URL",
           text: "Pay Advance",
-          url: "https://app.saharacleaningservices.com/j/{{1}}#payment",
-          example: ["https://app.saharacleaningservices.com/j/SHR-240916-001#payment"],
+          url: `${PUBLIC_BOOKING_URL}/j/{{1}}#payment`,
+          example: [`${PUBLIC_BOOKING_URL}/j/SHR-240916-001#payment`],
         },
         { type: "QUICK_REPLY", text: "More Options" },
       ],
@@ -267,7 +268,7 @@ export function premiumReviewRequestMessage(input: {
   service: string;
   googleReviewUrl?: string | null;
 }) {
-  const trackingUrl = `https://app.saharacleaningservices.com/j/${input.jobNumber}`;
+  const trackingUrl = `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
   return [
     `🎉 *Service Completed — ${COMPANY.name}*`,
     ``,
@@ -482,7 +483,7 @@ export function reviewRequestMessage(input: {
   const link = input.googleReviewUrl
     ? `\n\nPlease share a quick Google review — it really helps us: ${input.googleReviewUrl}`
     : "";
-  return `Hi ${input.customerName}, thank you for choosing ${COMPANY.name} for your ${input.service}! We hope you're happy with the work. See your before/after photos + refer & earn code here: https://app.saharacleaningservices.com/j/${input.jobNumber}${link}\n\nCall us on ${COMPANY.phones[0]} for anything you need.`;
+  return `Hi ${input.customerName}, thank you for choosing ${COMPANY.name} for your ${input.service}! We hope you're happy with the work. See your before/after photos + refer & earn code here: ${PUBLIC_BOOKING_URL}/j/${input.jobNumber}${link}\n\nCall us on ${COMPANY.phones[0]} for anything you need.`;
 }
 
 /** Day-3 gentle nudge in the review sequence (stops once a review is received). */

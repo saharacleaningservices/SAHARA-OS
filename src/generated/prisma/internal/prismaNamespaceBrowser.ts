@@ -333,13 +333,16 @@ export const QuotationScalarFieldEnum = {
   leadId: 'leadId',
   services: 'services',
   subTotal: 'subTotal',
+  discount: 'discount',
   gstPercent: 'gstPercent',
   gstAmount: 'gstAmount',
   totalAmount: 'totalAmount',
   terms: 'terms',
   validTill: 'validTill',
   pdfUrl: 'pdfUrl',
-  createdAt: 'createdAt'
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type QuotationScalarFieldEnum = (typeof QuotationScalarFieldEnum)[keyof typeof QuotationScalarFieldEnum]
@@ -772,18 +775,22 @@ export const InvoiceScalarFieldEnum = {
   invoiceNumber: 'invoiceNumber',
   jobId: 'jobId',
   paymentId: 'paymentId',
+  quotationId: 'quotationId',
   customerName: 'customerName',
   customerMobile: 'customerMobile',
   customerAddress: 'customerAddress',
   lineItems: 'lineItems',
   subTotal: 'subTotal',
+  discount: 'discount',
   gstPercent: 'gstPercent',
   gstAmount: 'gstAmount',
   totalAmount: 'totalAmount',
+  notes: 'notes',
+  terms: 'terms',
   pdfUrl: 'pdfUrl',
-  mybillbookInvoiceId: 'mybillbookInvoiceId',
-  mybillbookSyncStatus: 'mybillbookSyncStatus',
-  createdAt: 'createdAt'
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
@@ -810,8 +817,6 @@ export const IntegrationSettingsScalarFieldEnum = {
   whatsappLastError: 'whatsappLastError',
   googleMapsApiKey: 'googleMapsApiKey',
   googleMapsVerifiedAt: 'googleMapsVerifiedAt',
-  mybillbookApiKey: 'mybillbookApiKey',
-  mybillbookVerifiedAt: 'mybillbookVerifiedAt',
   webPushPublicKey: 'webPushPublicKey',
   webPushPrivateKey: 'webPushPrivateKey',
   webPushSubject: 'webPushSubject',

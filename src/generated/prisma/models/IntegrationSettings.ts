@@ -34,8 +34,6 @@ export type IntegrationSettingsMinAggregateOutputType = {
   whatsappLastError: string | null
   googleMapsApiKey: string | null
   googleMapsVerifiedAt: Date | null
-  mybillbookApiKey: string | null
-  mybillbookVerifiedAt: Date | null
   webPushPublicKey: string | null
   webPushPrivateKey: string | null
   webPushSubject: string | null
@@ -61,8 +59,6 @@ export type IntegrationSettingsMaxAggregateOutputType = {
   whatsappLastError: string | null
   googleMapsApiKey: string | null
   googleMapsVerifiedAt: Date | null
-  mybillbookApiKey: string | null
-  mybillbookVerifiedAt: Date | null
   webPushPublicKey: string | null
   webPushPrivateKey: string | null
   webPushSubject: string | null
@@ -88,8 +84,6 @@ export type IntegrationSettingsCountAggregateOutputType = {
   whatsappLastError: number
   googleMapsApiKey: number
   googleMapsVerifiedAt: number
-  mybillbookApiKey: number
-  mybillbookVerifiedAt: number
   webPushPublicKey: number
   webPushPrivateKey: number
   webPushSubject: number
@@ -117,8 +111,6 @@ export type IntegrationSettingsMinAggregateInputType = {
   whatsappLastError?: true
   googleMapsApiKey?: true
   googleMapsVerifiedAt?: true
-  mybillbookApiKey?: true
-  mybillbookVerifiedAt?: true
   webPushPublicKey?: true
   webPushPrivateKey?: true
   webPushSubject?: true
@@ -144,8 +136,6 @@ export type IntegrationSettingsMaxAggregateInputType = {
   whatsappLastError?: true
   googleMapsApiKey?: true
   googleMapsVerifiedAt?: true
-  mybillbookApiKey?: true
-  mybillbookVerifiedAt?: true
   webPushPublicKey?: true
   webPushPrivateKey?: true
   webPushSubject?: true
@@ -171,8 +161,6 @@ export type IntegrationSettingsCountAggregateInputType = {
   whatsappLastError?: true
   googleMapsApiKey?: true
   googleMapsVerifiedAt?: true
-  mybillbookApiKey?: true
-  mybillbookVerifiedAt?: true
   webPushPublicKey?: true
   webPushPrivateKey?: true
   webPushSubject?: true
@@ -271,8 +259,6 @@ export type IntegrationSettingsGroupByOutputType = {
   whatsappLastError: string | null
   googleMapsApiKey: string | null
   googleMapsVerifiedAt: Date | null
-  mybillbookApiKey: string | null
-  mybillbookVerifiedAt: Date | null
   webPushPublicKey: string | null
   webPushPrivateKey: string | null
   webPushSubject: string | null
@@ -319,8 +305,6 @@ export type IntegrationSettingsWhereInput = {
   whatsappLastError?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   googleMapsApiKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   googleMapsVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
-  mybillbookApiKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
-  mybillbookVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
   webPushPublicKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   webPushPrivateKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   webPushSubject?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
@@ -346,8 +330,6 @@ export type IntegrationSettingsOrderByWithRelationInput = {
   whatsappLastError?: Prisma.SortOrderInput | Prisma.SortOrder
   googleMapsApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   googleMapsVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   webPushPublicKey?: Prisma.SortOrderInput | Prisma.SortOrder
   webPushPrivateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   webPushSubject?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -376,8 +358,6 @@ export type IntegrationSettingsWhereUniqueInput = Prisma.AtLeast<{
   whatsappLastError?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   googleMapsApiKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   googleMapsVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
-  mybillbookApiKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
-  mybillbookVerifiedAt?: Prisma.DateTimeNullableFilter<"IntegrationSettings"> | Date | string | null
   webPushPublicKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   webPushPrivateKey?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
   webPushSubject?: Prisma.StringNullableFilter<"IntegrationSettings"> | string | null
@@ -403,8 +383,6 @@ export type IntegrationSettingsOrderByWithAggregationInput = {
   whatsappLastError?: Prisma.SortOrderInput | Prisma.SortOrder
   googleMapsApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   googleMapsVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   webPushPublicKey?: Prisma.SortOrderInput | Prisma.SortOrder
   webPushPrivateKey?: Prisma.SortOrderInput | Prisma.SortOrder
   webPushSubject?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -436,8 +414,6 @@ export type IntegrationSettingsScalarWhereWithAggregatesInput = {
   whatsappLastError?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
   googleMapsApiKey?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
   googleMapsVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"IntegrationSettings"> | Date | string | null
-  mybillbookApiKey?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
-  mybillbookVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"IntegrationSettings"> | Date | string | null
   webPushPublicKey?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
   webPushPrivateKey?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
   webPushSubject?: Prisma.StringNullableWithAggregatesFilter<"IntegrationSettings"> | string | null
@@ -463,8 +439,6 @@ export type IntegrationSettingsCreateInput = {
   whatsappLastError?: string | null
   googleMapsApiKey?: string | null
   googleMapsVerifiedAt?: Date | string | null
-  mybillbookApiKey?: string | null
-  mybillbookVerifiedAt?: Date | string | null
   webPushPublicKey?: string | null
   webPushPrivateKey?: string | null
   webPushSubject?: string | null
@@ -490,8 +464,6 @@ export type IntegrationSettingsUncheckedCreateInput = {
   whatsappLastError?: string | null
   googleMapsApiKey?: string | null
   googleMapsVerifiedAt?: Date | string | null
-  mybillbookApiKey?: string | null
-  mybillbookVerifiedAt?: Date | string | null
   webPushPublicKey?: string | null
   webPushPrivateKey?: string | null
   webPushSubject?: string | null
@@ -517,8 +489,6 @@ export type IntegrationSettingsUpdateInput = {
   whatsappLastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  mybillbookApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   webPushPublicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushSubject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -544,8 +514,6 @@ export type IntegrationSettingsUncheckedUpdateInput = {
   whatsappLastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  mybillbookApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   webPushPublicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushSubject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -571,8 +539,6 @@ export type IntegrationSettingsCreateManyInput = {
   whatsappLastError?: string | null
   googleMapsApiKey?: string | null
   googleMapsVerifiedAt?: Date | string | null
-  mybillbookApiKey?: string | null
-  mybillbookVerifiedAt?: Date | string | null
   webPushPublicKey?: string | null
   webPushPrivateKey?: string | null
   webPushSubject?: string | null
@@ -598,8 +564,6 @@ export type IntegrationSettingsUpdateManyMutationInput = {
   whatsappLastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  mybillbookApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   webPushPublicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushSubject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -625,8 +589,6 @@ export type IntegrationSettingsUncheckedUpdateManyInput = {
   whatsappLastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  mybillbookApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   webPushPublicKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushPrivateKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   webPushSubject?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -652,8 +614,6 @@ export type IntegrationSettingsCountOrderByAggregateInput = {
   whatsappLastError?: Prisma.SortOrder
   googleMapsApiKey?: Prisma.SortOrder
   googleMapsVerifiedAt?: Prisma.SortOrder
-  mybillbookApiKey?: Prisma.SortOrder
-  mybillbookVerifiedAt?: Prisma.SortOrder
   webPushPublicKey?: Prisma.SortOrder
   webPushPrivateKey?: Prisma.SortOrder
   webPushSubject?: Prisma.SortOrder
@@ -679,8 +639,6 @@ export type IntegrationSettingsMaxOrderByAggregateInput = {
   whatsappLastError?: Prisma.SortOrder
   googleMapsApiKey?: Prisma.SortOrder
   googleMapsVerifiedAt?: Prisma.SortOrder
-  mybillbookApiKey?: Prisma.SortOrder
-  mybillbookVerifiedAt?: Prisma.SortOrder
   webPushPublicKey?: Prisma.SortOrder
   webPushPrivateKey?: Prisma.SortOrder
   webPushSubject?: Prisma.SortOrder
@@ -706,8 +664,6 @@ export type IntegrationSettingsMinOrderByAggregateInput = {
   whatsappLastError?: Prisma.SortOrder
   googleMapsApiKey?: Prisma.SortOrder
   googleMapsVerifiedAt?: Prisma.SortOrder
-  mybillbookApiKey?: Prisma.SortOrder
-  mybillbookVerifiedAt?: Prisma.SortOrder
   webPushPublicKey?: Prisma.SortOrder
   webPushPrivateKey?: Prisma.SortOrder
   webPushSubject?: Prisma.SortOrder
@@ -735,8 +691,6 @@ export type IntegrationSettingsSelect<ExtArgs extends runtime.Types.Extensions.I
   whatsappLastError?: boolean
   googleMapsApiKey?: boolean
   googleMapsVerifiedAt?: boolean
-  mybillbookApiKey?: boolean
-  mybillbookVerifiedAt?: boolean
   webPushPublicKey?: boolean
   webPushPrivateKey?: boolean
   webPushSubject?: boolean
@@ -762,8 +716,6 @@ export type IntegrationSettingsSelectCreateManyAndReturn<ExtArgs extends runtime
   whatsappLastError?: boolean
   googleMapsApiKey?: boolean
   googleMapsVerifiedAt?: boolean
-  mybillbookApiKey?: boolean
-  mybillbookVerifiedAt?: boolean
   webPushPublicKey?: boolean
   webPushPrivateKey?: boolean
   webPushSubject?: boolean
@@ -789,8 +741,6 @@ export type IntegrationSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime
   whatsappLastError?: boolean
   googleMapsApiKey?: boolean
   googleMapsVerifiedAt?: boolean
-  mybillbookApiKey?: boolean
-  mybillbookVerifiedAt?: boolean
   webPushPublicKey?: boolean
   webPushPrivateKey?: boolean
   webPushSubject?: boolean
@@ -816,8 +766,6 @@ export type IntegrationSettingsSelectScalar = {
   whatsappLastError?: boolean
   googleMapsApiKey?: boolean
   googleMapsVerifiedAt?: boolean
-  mybillbookApiKey?: boolean
-  mybillbookVerifiedAt?: boolean
   webPushPublicKey?: boolean
   webPushPrivateKey?: boolean
   webPushSubject?: boolean
@@ -833,7 +781,7 @@ export type IntegrationSettingsSelectScalar = {
   updatedBy?: boolean
 }
 
-export type IntegrationSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsappAccessToken" | "whatsappPhoneNumberId" | "whatsappBusinessId" | "whatsappApiVersion" | "whatsappVerifiedAt" | "whatsappLastError" | "googleMapsApiKey" | "googleMapsVerifiedAt" | "mybillbookApiKey" | "mybillbookVerifiedAt" | "webPushPublicKey" | "webPushPrivateKey" | "webPushSubject" | "backupToken" | "gdriveFolderId" | "backupVerifiedAt" | "smsProvider" | "smsApiKey" | "smsSenderId" | "smsEndpoint" | "smsVerifiedAt" | "updatedAt" | "updatedBy", ExtArgs["result"]["integrationSettings"]>
+export type IntegrationSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsappAccessToken" | "whatsappPhoneNumberId" | "whatsappBusinessId" | "whatsappApiVersion" | "whatsappVerifiedAt" | "whatsappLastError" | "googleMapsApiKey" | "googleMapsVerifiedAt" | "webPushPublicKey" | "webPushPrivateKey" | "webPushSubject" | "backupToken" | "gdriveFolderId" | "backupVerifiedAt" | "smsProvider" | "smsApiKey" | "smsSenderId" | "smsEndpoint" | "smsVerifiedAt" | "updatedAt" | "updatedBy", ExtArgs["result"]["integrationSettings"]>
 
 export type $IntegrationSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "IntegrationSettings"
@@ -848,8 +796,6 @@ export type $IntegrationSettingsPayload<ExtArgs extends runtime.Types.Extensions
     whatsappLastError: string | null
     googleMapsApiKey: string | null
     googleMapsVerifiedAt: Date | null
-    mybillbookApiKey: string | null
-    mybillbookVerifiedAt: Date | null
     webPushPublicKey: string | null
     webPushPrivateKey: string | null
     webPushSubject: string | null
@@ -1295,8 +1241,6 @@ export interface IntegrationSettingsFieldRefs {
   readonly whatsappLastError: Prisma.FieldRef<"IntegrationSettings", 'String'>
   readonly googleMapsApiKey: Prisma.FieldRef<"IntegrationSettings", 'String'>
   readonly googleMapsVerifiedAt: Prisma.FieldRef<"IntegrationSettings", 'DateTime'>
-  readonly mybillbookApiKey: Prisma.FieldRef<"IntegrationSettings", 'String'>
-  readonly mybillbookVerifiedAt: Prisma.FieldRef<"IntegrationSettings", 'DateTime'>
   readonly webPushPublicKey: Prisma.FieldRef<"IntegrationSettings", 'String'>
   readonly webPushPrivateKey: Prisma.FieldRef<"IntegrationSettings", 'String'>
   readonly webPushSubject: Prisma.FieldRef<"IntegrationSettings", 'String'>

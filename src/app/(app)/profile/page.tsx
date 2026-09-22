@@ -6,16 +6,14 @@ import { CompanyLogo } from "@/components/shared/company-logo";
 import { ChangePasswordDialog } from "@/components/profile/change-password-dialog";
 import { requireUser } from "@/lib/current-user";
 import { getCompanySettings } from "@/server/settings";
-import { getResolvedIntegrations } from "@/server/integrations";
 import { db } from "@/lib/db";
 import { ROLE_LABELS, COMPANY } from "@/lib/constants";
 
 export default async function ProfilePage() {
   const session = await requireUser();
-  const [user, settings, integrations] = await Promise.all([
+  const [user, settings] = await Promise.all([
     db.user.findUnique({ where: { id: session.sub } }),
     getCompanySettings(),
-    getResolvedIntegrations().catch(() => null),
   ]);
 
   const name = user?.name ?? session.name;
@@ -23,7 +21,6 @@ export default async function ProfilePage() {
   const phone = user?.phone ?? "—";
   const website = settings.website || COMPANY.website;
   const isAdmin = session.role === "ADMIN";
-  const mybillbookReady = Boolean(integrations?.mybillbook?.apiKey);
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -76,15 +73,6 @@ export default async function ProfilePage() {
             <div>
               <p className="text-xs text-muted-foreground">Website</p>
               <p className="font-medium text-foreground">{website}</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">MyBillBook</p>
-              <p className="font-medium text-foreground">
-                {mybillbookReady ? "Connected" : "Not connected"}
-                {isAdmin && !mybillbookReady && (
-                  <Link href="/settings" className="ml-2 text-xs text-primary">Connect</Link>
-                )}
-              </p>
             </div>
           </div>
           <div className="border-t border-border pt-4">

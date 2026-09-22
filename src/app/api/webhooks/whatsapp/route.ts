@@ -6,6 +6,7 @@ import { getCompanySettings } from "@/server/settings";
 import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
 import { moreOptionsListMessage } from "@/lib/whatsapp-templates";
 import { COMPANY } from "@/lib/constants";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { notify } from "@/server/notify";
@@ -43,7 +44,10 @@ function isValidMetaSignature(rawBody: string, header: string | null): boolean {
 // as the 5000+ customer bulk broadcast. This route only needs to exist and
 // behave correctly so that step, whenever it happens, just works:
 //
-// Callback URL: https://app.saharacleaningservices.com/api/webhooks/whatsapp
+// Callback URL: https://crm.saharacleaningservices.com/api/webhooks/whatsapp
+// (this route is served identically from any domain pointed at this
+// deployment, so the legacy app.saharacleaningservices.com URL keeps
+// working too until the crm.* domain is confirmed live)
 // Verify token: whatever value is set as WHATSAPP_WEBHOOK_VERIFY_TOKEN
 //               in the Coolify environment (Settings → Environment
 //               Variables on the app) — pick any long random string and
@@ -326,7 +330,7 @@ async function handleWhatsAppInquiry(from: string, body: string) {
   await sendWhatsApp({
     kind: "OTHER",
     toNumber: from,
-    body: `Thanks for reaching out to ${COMPANY.name}! Our team will get back to you shortly. Meanwhile, you can book directly here: https://app.saharacleaningservices.com/book`,
+    body: `Thanks for reaching out to ${COMPANY.name}! Our team will get back to you shortly. Meanwhile, you can book directly here: ${PUBLIC_BOOKING_URL}/book`,
     relatedType: "Lead",
     relatedId: lead.id,
   });

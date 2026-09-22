@@ -28,6 +28,7 @@ export type AggregateInvoice = {
 
 export type InvoiceAvgAggregateOutputType = {
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
@@ -35,6 +36,7 @@ export type InvoiceAvgAggregateOutputType = {
 
 export type InvoiceSumAggregateOutputType = {
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
@@ -45,18 +47,22 @@ export type InvoiceMinAggregateOutputType = {
   invoiceNumber: string | null
   jobId: string | null
   paymentId: string | null
+  quotationId: string | null
   customerName: string | null
   customerMobile: string | null
   customerAddress: string | null
   lineItems: string | null
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
+  notes: string | null
+  terms: string | null
   pdfUrl: string | null
-  mybillbookInvoiceId: string | null
-  mybillbookSyncStatus: string | null
+  status: $Enums.InvoiceStatus | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InvoiceMaxAggregateOutputType = {
@@ -64,18 +70,22 @@ export type InvoiceMaxAggregateOutputType = {
   invoiceNumber: string | null
   jobId: string | null
   paymentId: string | null
+  quotationId: string | null
   customerName: string | null
   customerMobile: string | null
   customerAddress: string | null
   lineItems: string | null
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
+  notes: string | null
+  terms: string | null
   pdfUrl: string | null
-  mybillbookInvoiceId: string | null
-  mybillbookSyncStatus: string | null
+  status: $Enums.InvoiceStatus | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type InvoiceCountAggregateOutputType = {
@@ -83,24 +93,29 @@ export type InvoiceCountAggregateOutputType = {
   invoiceNumber: number
   jobId: number
   paymentId: number
+  quotationId: number
   customerName: number
   customerMobile: number
   customerAddress: number
   lineItems: number
   subTotal: number
+  discount: number
   gstPercent: number
   gstAmount: number
   totalAmount: number
+  notes: number
+  terms: number
   pdfUrl: number
-  mybillbookInvoiceId: number
-  mybillbookSyncStatus: number
+  status: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type InvoiceAvgAggregateInputType = {
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
@@ -108,6 +123,7 @@ export type InvoiceAvgAggregateInputType = {
 
 export type InvoiceSumAggregateInputType = {
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
@@ -118,18 +134,22 @@ export type InvoiceMinAggregateInputType = {
   invoiceNumber?: true
   jobId?: true
   paymentId?: true
+  quotationId?: true
   customerName?: true
   customerMobile?: true
   customerAddress?: true
   lineItems?: true
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
+  notes?: true
+  terms?: true
   pdfUrl?: true
-  mybillbookInvoiceId?: true
-  mybillbookSyncStatus?: true
+  status?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InvoiceMaxAggregateInputType = {
@@ -137,18 +157,22 @@ export type InvoiceMaxAggregateInputType = {
   invoiceNumber?: true
   jobId?: true
   paymentId?: true
+  quotationId?: true
   customerName?: true
   customerMobile?: true
   customerAddress?: true
   lineItems?: true
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
+  notes?: true
+  terms?: true
   pdfUrl?: true
-  mybillbookInvoiceId?: true
-  mybillbookSyncStatus?: true
+  status?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type InvoiceCountAggregateInputType = {
@@ -156,18 +180,22 @@ export type InvoiceCountAggregateInputType = {
   invoiceNumber?: true
   jobId?: true
   paymentId?: true
+  quotationId?: true
   customerName?: true
   customerMobile?: true
   customerAddress?: true
   lineItems?: true
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
+  notes?: true
+  terms?: true
   pdfUrl?: true
-  mybillbookInvoiceId?: true
-  mybillbookSyncStatus?: true
+  status?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -262,18 +290,22 @@ export type InvoiceGroupByOutputType = {
   invoiceNumber: string
   jobId: string | null
   paymentId: string | null
+  quotationId: string | null
   customerName: string
   customerMobile: string | null
   customerAddress: string | null
   lineItems: string
   subTotal: number
+  discount: number
   gstPercent: number
   gstAmount: number
   totalAmount: number
+  notes: string | null
+  terms: string | null
   pdfUrl: string | null
-  mybillbookInvoiceId: string | null
-  mybillbookSyncStatus: string
+  status: $Enums.InvoiceStatus
   createdAt: Date
+  updatedAt: Date
   _count: InvoiceCountAggregateOutputType | null
   _avg: InvoiceAvgAggregateOutputType | null
   _sum: InvoiceSumAggregateOutputType | null
@@ -304,20 +336,25 @@ export type InvoiceWhereInput = {
   invoiceNumber?: Prisma.StringFilter<"Invoice"> | string
   jobId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   paymentId?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  quotationId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   customerName?: Prisma.StringFilter<"Invoice"> | string
   customerMobile?: Prisma.StringNullableFilter<"Invoice"> | string | null
   customerAddress?: Prisma.StringNullableFilter<"Invoice"> | string | null
   lineItems?: Prisma.StringFilter<"Invoice"> | string
   subTotal?: Prisma.FloatFilter<"Invoice"> | number
+  discount?: Prisma.FloatFilter<"Invoice"> | number
   gstPercent?: Prisma.FloatFilter<"Invoice"> | number
   gstAmount?: Prisma.FloatFilter<"Invoice"> | number
   totalAmount?: Prisma.FloatFilter<"Invoice"> | number
+  notes?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  terms?: Prisma.StringNullableFilter<"Invoice"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
-  mybillbookInvoiceId?: Prisma.StringNullableFilter<"Invoice"> | string | null
-  mybillbookSyncStatus?: Prisma.StringFilter<"Invoice"> | string
+  status?: Prisma.EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
+  quotation?: Prisma.XOR<Prisma.QuotationNullableScalarRelationFilter, Prisma.QuotationWhereInput> | null
 }
 
 export type InvoiceOrderByWithRelationInput = {
@@ -325,20 +362,25 @@ export type InvoiceOrderByWithRelationInput = {
   invoiceNumber?: Prisma.SortOrder
   jobId?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotationId?: Prisma.SortOrderInput | Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   customerAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   lineItems?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  terms?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookSyncStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   job?: Prisma.JobOrderByWithRelationInput
   payment?: Prisma.PaymentOrderByWithRelationInput
+  quotation?: Prisma.QuotationOrderByWithRelationInput
 }
 
 export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
@@ -346,6 +388,7 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   invoiceNumber?: string
   jobId?: string
   paymentId?: string
+  quotationId?: string
   AND?: Prisma.InvoiceWhereInput | Prisma.InvoiceWhereInput[]
   OR?: Prisma.InvoiceWhereInput[]
   NOT?: Prisma.InvoiceWhereInput | Prisma.InvoiceWhereInput[]
@@ -354,34 +397,42 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   customerAddress?: Prisma.StringNullableFilter<"Invoice"> | string | null
   lineItems?: Prisma.StringFilter<"Invoice"> | string
   subTotal?: Prisma.FloatFilter<"Invoice"> | number
+  discount?: Prisma.FloatFilter<"Invoice"> | number
   gstPercent?: Prisma.FloatFilter<"Invoice"> | number
   gstAmount?: Prisma.FloatFilter<"Invoice"> | number
   totalAmount?: Prisma.FloatFilter<"Invoice"> | number
+  notes?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  terms?: Prisma.StringNullableFilter<"Invoice"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
-  mybillbookInvoiceId?: Prisma.StringNullableFilter<"Invoice"> | string | null
-  mybillbookSyncStatus?: Prisma.StringFilter<"Invoice"> | string
+  status?: Prisma.EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   job?: Prisma.XOR<Prisma.JobNullableScalarRelationFilter, Prisma.JobWhereInput> | null
   payment?: Prisma.XOR<Prisma.PaymentNullableScalarRelationFilter, Prisma.PaymentWhereInput> | null
-}, "id" | "invoiceNumber" | "jobId" | "paymentId">
+  quotation?: Prisma.XOR<Prisma.QuotationNullableScalarRelationFilter, Prisma.QuotationWhereInput> | null
+}, "id" | "invoiceNumber" | "jobId" | "paymentId" | "quotationId">
 
 export type InvoiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   invoiceNumber?: Prisma.SortOrder
   jobId?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotationId?: Prisma.SortOrderInput | Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   customerAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   lineItems?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  terms?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookInvoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
-  mybillbookSyncStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.InvoiceCountOrderByAggregateInput
   _avg?: Prisma.InvoiceAvgOrderByAggregateInput
   _max?: Prisma.InvoiceMaxOrderByAggregateInput
@@ -397,18 +448,22 @@ export type InvoiceScalarWhereWithAggregatesInput = {
   invoiceNumber?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
   jobId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   paymentId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
+  quotationId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   customerName?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
   customerMobile?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   customerAddress?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   lineItems?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
   subTotal?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
+  discount?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
   gstPercent?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
   gstAmount?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
   totalAmount?: Prisma.FloatWithAggregatesFilter<"Invoice"> | number
+  notes?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
+  terms?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
-  mybillbookInvoiceId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
-  mybillbookSyncStatus?: Prisma.StringWithAggregatesFilter<"Invoice"> | string
+  status?: Prisma.EnumInvoiceStatusWithAggregatesFilter<"Invoice"> | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
 }
 
 export type InvoiceCreateInput = {
@@ -419,15 +474,19 @@ export type InvoiceCreateInput = {
   customerAddress?: string | null
   lineItems: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
+  notes?: string | null
+  terms?: string | null
   pdfUrl?: string | null
-  mybillbookInvoiceId?: string | null
-  mybillbookSyncStatus?: string
+  status?: $Enums.InvoiceStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
   job?: Prisma.JobCreateNestedOneWithoutInvoiceInput
   payment?: Prisma.PaymentCreateNestedOneWithoutInvoiceInput
+  quotation?: Prisma.QuotationCreateNestedOneWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateInput = {
@@ -435,18 +494,22 @@ export type InvoiceUncheckedCreateInput = {
   invoiceNumber: string
   jobId?: string | null
   paymentId?: string | null
+  quotationId?: string | null
   customerName: string
   customerMobile?: string | null
   customerAddress?: string | null
   lineItems: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
+  notes?: string | null
+  terms?: string | null
   pdfUrl?: string | null
-  mybillbookInvoiceId?: string | null
-  mybillbookSyncStatus?: string
+  status?: $Enums.InvoiceStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceUpdateInput = {
@@ -457,15 +520,19 @@ export type InvoiceUpdateInput = {
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   job?: Prisma.JobUpdateOneWithoutInvoiceNestedInput
   payment?: Prisma.PaymentUpdateOneWithoutInvoiceNestedInput
+  quotation?: Prisma.QuotationUpdateOneWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateInput = {
@@ -473,18 +540,22 @@ export type InvoiceUncheckedUpdateInput = {
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceCreateManyInput = {
@@ -492,18 +563,22 @@ export type InvoiceCreateManyInput = {
   invoiceNumber: string
   jobId?: string | null
   paymentId?: string | null
+  quotationId?: string | null
   customerName: string
   customerMobile?: string | null
   customerAddress?: string | null
   lineItems: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
+  notes?: string | null
+  terms?: string | null
   pdfUrl?: string | null
-  mybillbookInvoiceId?: string | null
-  mybillbookSyncStatus?: string
+  status?: $Enums.InvoiceStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceUpdateManyMutationInput = {
@@ -514,13 +589,16 @@ export type InvoiceUpdateManyMutationInput = {
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceUncheckedUpdateManyInput = {
@@ -528,18 +606,22 @@ export type InvoiceUncheckedUpdateManyInput = {
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceNullableScalarRelationFilter = {
@@ -552,22 +634,27 @@ export type InvoiceCountOrderByAggregateInput = {
   invoiceNumber?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
   paymentId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   lineItems?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  terms?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
-  mybillbookInvoiceId?: Prisma.SortOrder
-  mybillbookSyncStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvoiceAvgOrderByAggregateInput = {
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
@@ -578,18 +665,22 @@ export type InvoiceMaxOrderByAggregateInput = {
   invoiceNumber?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
   paymentId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   lineItems?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  terms?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
-  mybillbookInvoiceId?: Prisma.SortOrder
-  mybillbookSyncStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvoiceMinOrderByAggregateInput = {
@@ -597,25 +688,62 @@ export type InvoiceMinOrderByAggregateInput = {
   invoiceNumber?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
   paymentId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
   customerAddress?: Prisma.SortOrder
   lineItems?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  terms?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
-  mybillbookInvoiceId?: Prisma.SortOrder
-  mybillbookSyncStatus?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type InvoiceSumOrderByAggregateInput = {
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+}
+
+export type InvoiceCreateNestedOneWithoutQuotationInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutQuotationInput, Prisma.InvoiceUncheckedCreateWithoutQuotationInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutQuotationInput
+  connect?: Prisma.InvoiceWhereUniqueInput
+}
+
+export type InvoiceUncheckedCreateNestedOneWithoutQuotationInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutQuotationInput, Prisma.InvoiceUncheckedCreateWithoutQuotationInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutQuotationInput
+  connect?: Prisma.InvoiceWhereUniqueInput
+}
+
+export type InvoiceUpdateOneWithoutQuotationNestedInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutQuotationInput, Prisma.InvoiceUncheckedCreateWithoutQuotationInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutQuotationInput
+  upsert?: Prisma.InvoiceUpsertWithoutQuotationInput
+  disconnect?: Prisma.InvoiceWhereInput | boolean
+  delete?: Prisma.InvoiceWhereInput | boolean
+  connect?: Prisma.InvoiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InvoiceUpdateToOneWithWhereWithoutQuotationInput, Prisma.InvoiceUpdateWithoutQuotationInput>, Prisma.InvoiceUncheckedUpdateWithoutQuotationInput>
+}
+
+export type InvoiceUncheckedUpdateOneWithoutQuotationNestedInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutQuotationInput, Prisma.InvoiceUncheckedCreateWithoutQuotationInput>
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutQuotationInput
+  upsert?: Prisma.InvoiceUpsertWithoutQuotationInput
+  disconnect?: Prisma.InvoiceWhereInput | boolean
+  delete?: Prisma.InvoiceWhereInput | boolean
+  connect?: Prisma.InvoiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InvoiceUpdateToOneWithWhereWithoutQuotationInput, Prisma.InvoiceUpdateWithoutQuotationInput>, Prisma.InvoiceUncheckedUpdateWithoutQuotationInput>
 }
 
 export type InvoiceCreateNestedOneWithoutJobInput = {
@@ -682,6 +810,114 @@ export type InvoiceUncheckedUpdateOneWithoutPaymentNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InvoiceUpdateToOneWithWhereWithoutPaymentInput, Prisma.InvoiceUpdateWithoutPaymentInput>, Prisma.InvoiceUncheckedUpdateWithoutPaymentInput>
 }
 
+export type EnumInvoiceStatusFieldUpdateOperationsInput = {
+  set?: $Enums.InvoiceStatus
+}
+
+export type InvoiceCreateWithoutQuotationInput = {
+  id?: string
+  invoiceNumber: string
+  customerName: string
+  customerMobile?: string | null
+  customerAddress?: string | null
+  lineItems: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  notes?: string | null
+  terms?: string | null
+  pdfUrl?: string | null
+  status?: $Enums.InvoiceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  job?: Prisma.JobCreateNestedOneWithoutInvoiceInput
+  payment?: Prisma.PaymentCreateNestedOneWithoutInvoiceInput
+}
+
+export type InvoiceUncheckedCreateWithoutQuotationInput = {
+  id?: string
+  invoiceNumber: string
+  jobId?: string | null
+  paymentId?: string | null
+  customerName: string
+  customerMobile?: string | null
+  customerAddress?: string | null
+  lineItems: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  notes?: string | null
+  terms?: string | null
+  pdfUrl?: string | null
+  status?: $Enums.InvoiceStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InvoiceCreateOrConnectWithoutQuotationInput = {
+  where: Prisma.InvoiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutQuotationInput, Prisma.InvoiceUncheckedCreateWithoutQuotationInput>
+}
+
+export type InvoiceUpsertWithoutQuotationInput = {
+  update: Prisma.XOR<Prisma.InvoiceUpdateWithoutQuotationInput, Prisma.InvoiceUncheckedUpdateWithoutQuotationInput>
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutQuotationInput, Prisma.InvoiceUncheckedCreateWithoutQuotationInput>
+  where?: Prisma.InvoiceWhereInput
+}
+
+export type InvoiceUpdateToOneWithWhereWithoutQuotationInput = {
+  where?: Prisma.InvoiceWhereInput
+  data: Prisma.XOR<Prisma.InvoiceUpdateWithoutQuotationInput, Prisma.InvoiceUncheckedUpdateWithoutQuotationInput>
+}
+
+export type InvoiceUpdateWithoutQuotationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lineItems?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  job?: Prisma.JobUpdateOneWithoutInvoiceNestedInput
+  payment?: Prisma.PaymentUpdateOneWithoutInvoiceNestedInput
+}
+
+export type InvoiceUncheckedUpdateWithoutQuotationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerName?: Prisma.StringFieldUpdateOperationsInput | string
+  customerMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lineItems?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type InvoiceCreateWithoutJobInput = {
   id?: string
   invoiceNumber: string
@@ -690,32 +926,40 @@ export type InvoiceCreateWithoutJobInput = {
   customerAddress?: string | null
   lineItems: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
+  notes?: string | null
+  terms?: string | null
   pdfUrl?: string | null
-  mybillbookInvoiceId?: string | null
-  mybillbookSyncStatus?: string
+  status?: $Enums.InvoiceStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
   payment?: Prisma.PaymentCreateNestedOneWithoutInvoiceInput
+  quotation?: Prisma.QuotationCreateNestedOneWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateWithoutJobInput = {
   id?: string
   invoiceNumber: string
   paymentId?: string | null
+  quotationId?: string | null
   customerName: string
   customerMobile?: string | null
   customerAddress?: string | null
   lineItems: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
+  notes?: string | null
+  terms?: string | null
   pdfUrl?: string | null
-  mybillbookInvoiceId?: string | null
-  mybillbookSyncStatus?: string
+  status?: $Enums.InvoiceStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceCreateOrConnectWithoutJobInput = {
@@ -742,32 +986,40 @@ export type InvoiceUpdateWithoutJobInput = {
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUpdateOneWithoutInvoiceNestedInput
+  quotation?: Prisma.QuotationUpdateOneWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutJobInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   paymentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type InvoiceCreateWithoutPaymentInput = {
@@ -778,32 +1030,40 @@ export type InvoiceCreateWithoutPaymentInput = {
   customerAddress?: string | null
   lineItems: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
+  notes?: string | null
+  terms?: string | null
   pdfUrl?: string | null
-  mybillbookInvoiceId?: string | null
-  mybillbookSyncStatus?: string
+  status?: $Enums.InvoiceStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
   job?: Prisma.JobCreateNestedOneWithoutInvoiceInput
+  quotation?: Prisma.QuotationCreateNestedOneWithoutInvoiceInput
 }
 
 export type InvoiceUncheckedCreateWithoutPaymentInput = {
   id?: string
   invoiceNumber: string
   jobId?: string | null
+  quotationId?: string | null
   customerName: string
   customerMobile?: string | null
   customerAddress?: string | null
   lineItems: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
+  notes?: string | null
+  terms?: string | null
   pdfUrl?: string | null
-  mybillbookInvoiceId?: string | null
-  mybillbookSyncStatus?: string
+  status?: $Enums.InvoiceStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type InvoiceCreateOrConnectWithoutPaymentInput = {
@@ -830,32 +1090,40 @@ export type InvoiceUpdateWithoutPaymentInput = {
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   job?: Prisma.JobUpdateOneWithoutInvoiceNestedInput
+  quotation?: Prisma.QuotationUpdateOneWithoutInvoiceNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutPaymentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lineItems?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookInvoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mybillbookSyncStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -865,20 +1133,25 @@ export type InvoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   invoiceNumber?: boolean
   jobId?: boolean
   paymentId?: boolean
+  quotationId?: boolean
   customerName?: boolean
   customerMobile?: boolean
   customerAddress?: boolean
   lineItems?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
+  notes?: boolean
+  terms?: boolean
   pdfUrl?: boolean
-  mybillbookInvoiceId?: boolean
-  mybillbookSyncStatus?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.Invoice$jobArgs<ExtArgs>
   payment?: boolean | Prisma.Invoice$paymentArgs<ExtArgs>
+  quotation?: boolean | Prisma.Invoice$quotationArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
 export type InvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -886,20 +1159,25 @@ export type InvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   invoiceNumber?: boolean
   jobId?: boolean
   paymentId?: boolean
+  quotationId?: boolean
   customerName?: boolean
   customerMobile?: boolean
   customerAddress?: boolean
   lineItems?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
+  notes?: boolean
+  terms?: boolean
   pdfUrl?: boolean
-  mybillbookInvoiceId?: boolean
-  mybillbookSyncStatus?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.Invoice$jobArgs<ExtArgs>
   payment?: boolean | Prisma.Invoice$paymentArgs<ExtArgs>
+  quotation?: boolean | Prisma.Invoice$quotationArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
 export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -907,20 +1185,25 @@ export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   invoiceNumber?: boolean
   jobId?: boolean
   paymentId?: boolean
+  quotationId?: boolean
   customerName?: boolean
   customerMobile?: boolean
   customerAddress?: boolean
   lineItems?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
+  notes?: boolean
+  terms?: boolean
   pdfUrl?: boolean
-  mybillbookInvoiceId?: boolean
-  mybillbookSyncStatus?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   job?: boolean | Prisma.Invoice$jobArgs<ExtArgs>
   payment?: boolean | Prisma.Invoice$paymentArgs<ExtArgs>
+  quotation?: boolean | Prisma.Invoice$quotationArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
 export type InvoiceSelectScalar = {
@@ -928,32 +1211,39 @@ export type InvoiceSelectScalar = {
   invoiceNumber?: boolean
   jobId?: boolean
   paymentId?: boolean
+  quotationId?: boolean
   customerName?: boolean
   customerMobile?: boolean
   customerAddress?: boolean
   lineItems?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
+  notes?: boolean
+  terms?: boolean
   pdfUrl?: boolean
-  mybillbookInvoiceId?: boolean
-  mybillbookSyncStatus?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "paymentId" | "customerName" | "customerMobile" | "customerAddress" | "lineItems" | "subTotal" | "gstPercent" | "gstAmount" | "totalAmount" | "pdfUrl" | "mybillbookInvoiceId" | "mybillbookSyncStatus" | "createdAt", ExtArgs["result"]["invoice"]>
+export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "paymentId" | "quotationId" | "customerName" | "customerMobile" | "customerAddress" | "lineItems" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "notes" | "terms" | "pdfUrl" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
 export type InvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Invoice$jobArgs<ExtArgs>
   payment?: boolean | Prisma.Invoice$paymentArgs<ExtArgs>
+  quotation?: boolean | Prisma.Invoice$quotationArgs<ExtArgs>
 }
 export type InvoiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Invoice$jobArgs<ExtArgs>
   payment?: boolean | Prisma.Invoice$paymentArgs<ExtArgs>
+  quotation?: boolean | Prisma.Invoice$quotationArgs<ExtArgs>
 }
 export type InvoiceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Invoice$jobArgs<ExtArgs>
   payment?: boolean | Prisma.Invoice$paymentArgs<ExtArgs>
+  quotation?: boolean | Prisma.Invoice$quotationArgs<ExtArgs>
 }
 
 export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -961,24 +1251,29 @@ export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     job: Prisma.$JobPayload<ExtArgs> | null
     payment: Prisma.$PaymentPayload<ExtArgs> | null
+    quotation: Prisma.$QuotationPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     invoiceNumber: string
     jobId: string | null
     paymentId: string | null
+    quotationId: string | null
     customerName: string
     customerMobile: string | null
     customerAddress: string | null
     lineItems: string
     subTotal: number
+    discount: number
     gstPercent: number
     gstAmount: number
     totalAmount: number
+    notes: string | null
+    terms: string | null
     pdfUrl: string | null
-    mybillbookInvoiceId: string | null
-    mybillbookSyncStatus: string
+    status: $Enums.InvoiceStatus
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["invoice"]>
   composites: {}
 }
@@ -1375,6 +1670,7 @@ export interface Prisma__InvoiceClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   job<T extends Prisma.Invoice$jobArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$jobArgs<ExtArgs>>): Prisma.Prisma__JobClient<runtime.Types.Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   payment<T extends Prisma.Invoice$paymentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$paymentArgs<ExtArgs>>): Prisma.Prisma__PaymentClient<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  quotation<T extends Prisma.Invoice$quotationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$quotationArgs<ExtArgs>>): Prisma.Prisma__QuotationClient<runtime.Types.Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1408,18 +1704,22 @@ export interface InvoiceFieldRefs {
   readonly invoiceNumber: Prisma.FieldRef<"Invoice", 'String'>
   readonly jobId: Prisma.FieldRef<"Invoice", 'String'>
   readonly paymentId: Prisma.FieldRef<"Invoice", 'String'>
+  readonly quotationId: Prisma.FieldRef<"Invoice", 'String'>
   readonly customerName: Prisma.FieldRef<"Invoice", 'String'>
   readonly customerMobile: Prisma.FieldRef<"Invoice", 'String'>
   readonly customerAddress: Prisma.FieldRef<"Invoice", 'String'>
   readonly lineItems: Prisma.FieldRef<"Invoice", 'String'>
   readonly subTotal: Prisma.FieldRef<"Invoice", 'Float'>
+  readonly discount: Prisma.FieldRef<"Invoice", 'Float'>
   readonly gstPercent: Prisma.FieldRef<"Invoice", 'Float'>
   readonly gstAmount: Prisma.FieldRef<"Invoice", 'Float'>
   readonly totalAmount: Prisma.FieldRef<"Invoice", 'Float'>
+  readonly notes: Prisma.FieldRef<"Invoice", 'String'>
+  readonly terms: Prisma.FieldRef<"Invoice", 'String'>
   readonly pdfUrl: Prisma.FieldRef<"Invoice", 'String'>
-  readonly mybillbookInvoiceId: Prisma.FieldRef<"Invoice", 'String'>
-  readonly mybillbookSyncStatus: Prisma.FieldRef<"Invoice", 'String'>
+  readonly status: Prisma.FieldRef<"Invoice", 'InvoiceStatus'>
   readonly createdAt: Prisma.FieldRef<"Invoice", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Invoice", 'DateTime'>
 }
     
 
@@ -1849,6 +2149,25 @@ export type Invoice$paymentArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.PaymentInclude<ExtArgs> | null
   where?: Prisma.PaymentWhereInput
+}
+
+/**
+ * Invoice.quotation
+ */
+export type Invoice$quotationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Quotation
+   */
+  select?: Prisma.QuotationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Quotation
+   */
+  omit?: Prisma.QuotationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuotationInclude<ExtArgs> | null
+  where?: Prisma.QuotationWhereInput
 }
 
 /**
