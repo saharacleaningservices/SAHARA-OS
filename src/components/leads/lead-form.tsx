@@ -177,7 +177,10 @@ export function LeadForm({
                             <p className="text-xs text-muted-foreground">
                               {repeatCustomer.jobCount} previous job{repeatCustomer.jobCount === 1 ? "" : "s"}
                               {repeatCustomer.lastServiceDate ? ` · Last service: ${formatDate(repeatCustomer.lastServiceDate)}` : ""}
-                              {" · "}Total revenue: {formatINR(repeatCustomer.totalRevenue)}
+                              {/* Revenue is a financial figure — omitted entirely (not just
+                                  zeroed) for roles that shouldn't see it; see
+                                  getRepeatCustomerSummary in customer-actions.ts. */}
+                              {repeatCustomer.totalRevenue !== null ? ` · Total revenue: ${formatINR(repeatCustomer.totalRevenue)}` : ""}
                             </p>
                 </div>
                   )}

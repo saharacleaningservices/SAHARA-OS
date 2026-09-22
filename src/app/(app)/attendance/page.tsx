@@ -64,7 +64,12 @@ export default async function AttendancePage({
       {/* Office clock — Altaf / Shoaib / Francis */}
       <OfficeAttendanceClock rows={all} staff={staffList} />
 
-      {myLedger && <MyAttendanceCard ledger={myLedger} />}
+      {/* "My Attendance & Salary" shows the logged-in user's own earned
+          wage/balance — Francis (SUPERVISOR) must not see any salary/wage/
+          payroll figure at all per his 2026-09-22 policy, even his own.
+          Left unchanged for every other role (a plain Staff worker's own
+          pay view is a legitimate, unrelated existing feature). */}
+      {myLedger && session.role !== "SUPERVISOR" && <MyAttendanceCard ledger={myLedger} />}
 
       {(canManage || canViewTeamAttendance) && (
         <div className="space-y-3">

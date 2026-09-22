@@ -334,7 +334,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </Card>
           )}
 
-          {job.expenses.length > 0 && (
+          {/* Job Expenses carries cost amounts — financial data. Francis
+              (SUPERVISOR) must not see Expenses in any form, including
+              tied to a specific job (2026-09-22 policy). */}
+          {job.expenses.length > 0 && session.role !== "SUPERVISOR" && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

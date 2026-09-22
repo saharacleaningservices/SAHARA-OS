@@ -7,6 +7,7 @@ import { getJobsForSelection } from "@/server/jobs";
 import { EXPENSE_CATEGORY_LABELS, EXPENSE_CATEGORIES } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { SprayCan, Fuel, Car, Wrench, Bike, HandCoins, Store, Receipt } from "lucide-react";
+import { requireRole } from "@/lib/current-user";
 
 const CATEGORY_ICON: Record<string, typeof Receipt> = {
   HOUSEKEEPING_MATERIAL: SprayCan,
@@ -20,6 +21,13 @@ const CATEGORY_ICON: Record<string, typeof Receipt> = {
 };
 
 export default async function ExpensesPage() {
+  // This page had NO session/role check at all before — it relied entirely
+  // on middleware's nav-based gate. Francis (SUPERVISOR) is not in
+  // ROLE_NAV_ACCESS for "expenses"; this page-level guard now matches that
+  // explicitly, per the 2026-09-22 "enforce on route/page, not just
+  // middleware" requirement. Matches canAccessExpenses in
+  // server/actions/expenses.ts.
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
   const [expenses, jobOptions] = await Promise.all([getAllExpensesForList(), getJobsForSelection()]);
   // Show a tile for every current category, plus any legacy category that
   // still has spend recorded against it.

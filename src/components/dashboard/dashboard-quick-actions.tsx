@@ -10,10 +10,15 @@ const ACTIONS = [
   { href: "/payments", label: "Record Payment", icon: Wallet },
 ] as const;
 
-export function DashboardQuickActions() {
+// showPayments=false (Francis/SUPERVISOR, 2026-09-22 policy) drops the
+// "Record Payment" tile — it linked straight to the now-blocked /payments
+// page, a dead-end/confusing tile for a role that can't open it, not just
+// a cosmetic issue.
+export function DashboardQuickActions({ showPayments = true }: { showPayments?: boolean }) {
+  const actions = ACTIONS.filter((a) => showPayments || a.href !== "/payments");
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      {ACTIONS.map(({ href, label, icon: Icon }) => (
+      {actions.map(({ href, label, icon: Icon }) => (
         <Link
           key={label}
           href={href}

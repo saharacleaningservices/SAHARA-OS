@@ -8,8 +8,16 @@ import { computePaymentStatus } from "@/lib/payment-status";
 import { formatINR } from "@/lib/utils";
 import { startOfDay, endOfDay } from "date-fns";
 import { PiggyBank, HandCoins, AlertTriangle, Wallet } from "lucide-react";
+import { requireRole } from "@/lib/current-user";
 
 export default async function PaymentsPage() {
+// This page had NO session/role check at all before — it relied entirely
+// on middleware's nav-based gate. Francis (SUPERVISOR) is not in
+// ROLE_NAV_ACCESS for "payments"; this page-level guard now matches that
+// explicitly, per the 2026-09-22 "enforce on route/page, not just
+// middleware" requirement. Matches canAccessPayments in
+// server/actions/payments.ts.
+await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
 const [payments, settings] = await Promise.all([getAllPaymentsForList(), getCompanySettings()]);
 const now = new Date();
 const t0 = startOfDay(now);
