@@ -28,7 +28,7 @@ function csvDateTime(d: Date | null | undefined): string {
 export type ExportDataset = { name: string; rows: Record<string, unknown>[] };
 
 export async function collectBusinessExportDatasets(): Promise<ExportDataset[]> {
-  const [customers, leads, jobs, payments, staff, attendance, amc] = await Promise.all([
+  const [customers, leads, jobs, payments, staff, attendance, amc, quotations, invoices] = await Promise.all([
     db.customer.findMany({ orderBy: { createdAt: "asc" } }),
     db.lead.findMany({ where: { isDemo: false }, orderBy: { createdAt: "asc" } }),
     db.job.findMany({ where: { isDemo: false }, orderBy: { createdAt: "asc" } }),
@@ -36,6 +36,8 @@ export async function collectBusinessExportDatasets(): Promise<ExportDataset[]> 
     db.staff.findMany({ where: { isDemo: false }, orderBy: { createdAt: "asc" } }),
     db.attendance.findMany({ orderBy: { date: "asc" }, include: { staff: { select: { name: true, employeeCode: true } } } }),
     db.amcContract.findMany({ where: { isDemo: false }, orderBy: { createdAt: "asc" }, include: { visits: true } }),
+    db.quotation.findMany({ orderBy: { createdAt: "asc" }, include: { lead: { select: { name: true, mobile: true } }, invoice: { select: { invoiceNumber: true } } } }),
+    db.invoice.findMany({ orderBy: { createdAt: "asc" }, include: { job: { select: { jobNumber: true } }, quotation: { select: { quoteNumber: true } } } }),
   ]);
 
   const customersRows = customers.map((c) => ({
@@ -194,11 +196,47 @@ export async function collectBusinessExportDatasets(): Promise<ExportDataset[]> 
     IsDeleted: a.deletedAt ? "Y" : "N",
   }));
 
+  const quotationsRows = quotations.map((q) => ({
+    "Quotation ID": q.id,
+    "Quote Number": q.quoteNumber,
+    "Lead ID": q.leadId,
+    Customer: q.lead.name,
+    Mobile: q.lead.mobile,
+    "Sub Total": q.subTotal,
+    Discount: q.discount,
+    "GST %": q.gstPercent,
+    "GST Amount": q.gstAmount,
+    "Total Amount": q.totalAmount,
+    Status: q.status,
+    "Valid Till": csvDate(q.validTill),
+    "Invoice Number": q.invoice?.invoiceNumber ?? "",
+    "Created At": csvDateTime(q.createdAt),
+  }));
+
+  const invoicesRows = invoices.map((i) => ({
+    "Invoice ID": i.id,
+    "Invoice Number": i.invoiceNumber,
+    "Job Number": i.job?.jobNumber ?? "",
+    "Quote Number": i.quotation?.quoteNumber ?? "",
+    Customer: i.customerName,
+    Mobile: i.customerMobile ?? "",
+    Address: i.customerAddress ?? "",
+    "Sub Total": i.subTotal,
+    Discount: i.discount,
+    "GST %": i.gstPercent,
+    "GST Amount": i.gstAmount,
+    "Total Amount": i.totalAmount,
+    Status: i.status,
+    "Created At": csvDateTime(i.createdAt),
+  }));
+
   return [
     { name: "Customers", rows: customersRows },
     { name: "Leads", rows: leadsRows },
     { name: "Bookings", rows: bookingsRows },
     { name: "Jobs", rows: jobsRows },
+    { name: "Quotations", rows: quotationsRows },
+    { name: "Invoices", rows: invoicesRows },
     { name: "Payments", rows: paymentsRows },
     { name: "Service_History", rows: serviceHistoryRows },
     { name: "Staff", rows: staffRows },
@@ -238,6 +276,8 @@ export function buildDataDictionary(datasets: ExportDataset[]): string {
     "- **Leads** — every enquiry ever entered, regardless of outcome. `Stage` shows where it ended up (NEW/INTERESTED/.../CONFIRMED/COMPLETED/CANCELLED).",
     "- **Bookings** — the subset of Leads whose stage reached CONFIRMED, JOB_SCHEDULED or COMPLETED, i.e. enquiries that became a real booking.",
     "- **Jobs** — the operational record for a scheduled/completed service (crew, schedule, status, value). One Lead can have zero or one Job.",
+    "- **Quotations** — pre-job estimates sent to a Lead (`Status`: Draft/Sent/Accepted/Rejected/Expired/Cancelled). `Invoice Number` is set once a Quotation is converted to an Invoice.",
+    "- **Invoices** — billing records, either generated from a completed Job or created directly. `Status`: Draft/Issued/Partially Paid/Paid/Cancelled. `Job Number`/`Quote Number` link back to the originating Job/Quotation when set.",
     "- **Payments** — every payment/advance/invoice record. `Job ID`/`Lead ID` link back to the originating Job or Lead when set.",
     "- **Service_History** — a simplified, human-readable view of completed Jobs only (customer, service, date, value) — meant for quick reading, not further joining.",
     "- **Staff** — the employee roster, including salary/bank fields (this export is Owner-only; treat the downloaded file with the same care as any payroll document).",
