@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-
-function canManageStaffFinancials(role?: string) {
-  return role === "ADMIN";
-}
+import { canManageStaffFinancials } from "@/lib/permissions";
 
 export async function addAdvance(staffId: string, amount: number, reason: string) {
   const session = await getSession();

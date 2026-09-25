@@ -13,7 +13,7 @@ import { formatINR } from "@/lib/utils";
 
 export default async function JobsPage() {
   const session = await requireUser();
-  const canManage = session.role === "ADMIN" || session.role === "OPERATIONS";
+  const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
   const [jobs, staffOptions, stats] = await Promise.all([
     getAllJobsForList(session),
     getStaffForAssignment(),

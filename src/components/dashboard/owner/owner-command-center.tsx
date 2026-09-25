@@ -65,19 +65,29 @@ function dayCardBody(data: DayData) {
   );
 }
 
+function getGreeting(date: Date = new Date()): string {
+  const hour = date.getHours();
+  if (hour < 12) return "Good Morning";
+  if (hour < 17) return "Good Afternoon";
+  return "Good Evening";
+}
+
 /**
     * Owner Command Center — the ADMIN + ACCOUNTS home dashboard. Everything
  * here reads from real data (getOwnerCommandCenterHome, getOwnerSnapshot,
  * getCompanySettings, getDashboardData); nothing is fabricated. showProfit
  * controls the Net Profit / Bank Balance tiles below — false for Accounts,
- * since Profit stays owner-only.
+ * since Profit stays owner-only. showBusinessTarget hides the Monthly
+ * Business Target tile for Accounts only — every other card is identical.
  */
 export async function OwnerCommandCenter({
   ownerName,
   showProfit,
+  showBusinessTarget = true,
 }: {
   ownerName: string;
   showProfit: boolean;
+  showBusinessTarget?: boolean;
 }) {
   const [home, snapshot, settings, dashboard] = await Promise.all([
     getOwnerCommandCenterHome(),
@@ -105,13 +115,9 @@ export async function OwnerCommandCenter({
 
   return (
     <div className="space-y-6">
-      {/* Header — literal "Good Morning" greeting per the build spec, not
-          time-of-day aware. A deliberate simplification; swap in a small
-          getGreeting() helper later if the owner wants it to adapt through
-          the day. */}
       <div className="sahara-gradient rounded-xl p-5 text-white">
         <p className="text-xs font-medium uppercase tracking-wide text-white/70">Owner Command Center</p>
-        <h1 className="mt-1 text-2xl font-semibold text-white">Good Morning, {ownerName}</h1>
+        <h1 className="mt-1 text-2xl font-semibold text-white">{getGreeting()}, {ownerName}</h1>
         <p className="mt-1 text-sm text-white/80">
           {today.totalJobs} job{today.totalJobs === 1 ? "" : "s"} today · {today.followUps} follow-up
           {today.followUps === 1 ? "" : "s"} · {today.siteVisits} site visit{today.siteVisits === 1 ? "" : "s"}
@@ -175,7 +181,7 @@ export async function OwnerCommandCenter({
           </div>
         </ExpandableCard>
 
-        <BusinessTargetCard businessTarget={businessTarget} />
+        {showBusinessTarget && <BusinessTargetCard businessTarget={businessTarget} />}
       </div>
 
       {/* Revenue Intelligence */}

@@ -47,6 +47,7 @@ export default async function DashboardPage() {
     <OwnerCommandCenter
       ownerName={session.name.split(" ")[0]}
       showProfit={session.role === "ADMIN"}
+      showBusinessTarget={session.role === "ADMIN"}
     />
   );
   }
