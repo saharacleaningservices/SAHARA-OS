@@ -7,7 +7,7 @@ import { requireRole } from "@/lib/current-user";
 export default async function InvoicesPage() {
   // ADMIN/ACCOUNTS/OPERATIONS only — same access list as Payments/Expenses;
   // Francis (SUPERVISOR) is deliberately excluded (2026-09-22 master prompt §25).
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const invoices = await getInvoiceList();
 
   return (

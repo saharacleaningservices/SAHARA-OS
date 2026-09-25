@@ -5,15 +5,13 @@ import { supervisorLeadWhere } from "@/server/leads";
 
 /**
  * `role` scopes the two "actionable booking visibility" lists — upcomingJobs
- * and recentLeads — for Francis (SUPERVISOR) only, per his 2026-09-21 final
- * policy ("Calendar/actionable booking visibility should be limited to
- * today + tomorrow" on the Dashboard specifically). This dashboard query
- * previously had zero role awareness at all: upcomingJobs pulled a full
- * week ahead and recentLeads pulled the 6 most recently created leads
- * globally, both rendered on the shared dashboard page regardless of role
- * — a real gap found in the second Francis policy audit. Every other role
- * (ADMIN/ACCOUNTS/OPERATIONS/STAFF) is completely unaffected — omit `role`
- * or pass a non-SUPERVISOR role for the original unscoped behavior.
+ * and recentLeads — to today + tomorrow for field-restricted roles. Originally
+ * built 2026-09-21 for Francis while he held SUPERVISOR; Francis moved to
+ * OPERATIONS on 2026-09-25 and the same restriction moves with him (he's the
+ * sole OPERATIONS user — see isFieldRestricted below). Every other role
+ * (ADMIN/ACCOUNTS/STAFF) is unaffected — omit `role` or pass a role that
+ * isn't SUPERVISOR/OPERATIONS for the original unscoped (full week ahead)
+ * behavior.
  */
 export async function getDashboardData(role?: string) {
   const now = new Date();
@@ -22,7 +20,7 @@ export async function getDashboardData(role?: string) {
   const tomorrowStart = startOfDay(addDays(now, 1));
   const tomorrowEnd = endOfDay(addDays(now, 1));
   const weekAheadEnd = endOfDay(addDays(now, 7));
-  const isSupervisor = role === "SUPERVISOR";
+  const isFieldRestricted = role === "SUPERVISOR" || role === "OPERATIONS";
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
@@ -98,7 +96,7 @@ export async function getDashboardData(role?: string) {
     db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: subMonths(now, 1) } } }),
     db.review.count({ where: { createdAt: { gte: subMonths(now, 1) } } }),
     db.lead.findMany({
-      where: isSupervisor ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
+      where: isFieldRestricted ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 6,
     }),
@@ -112,7 +110,7 @@ export async function getDashboardData(role?: string) {
       where: {
         deletedAt: null,
         status: { not: "COMPLETED" },
-        scheduledDate: { gte: todayStart, lte: isSupervisor ? tomorrowEnd : weekAheadEnd },
+        scheduledDate: { gte: todayStart, lte: isFieldRestricted ? tomorrowEnd : weekAheadEnd },
       },
       orderBy: [{ scheduledDate: "asc" }, { scheduledTime: "asc" }],
       include: { supervisor: true },
@@ -139,7 +137,7 @@ export async function getDashboardData(role?: string) {
     // today) — exactly the "no unrestricted browsing of historical leads"
     // category Francis's policy forbids. Returns nothing for SUPERVISOR
     // rather than relying solely on the page hiding the card/list.
-    isSupervisor
+    isFieldRestricted
       ? Promise.resolve([])
       : db.followUp.findMany({
           where: { isDone: false, dueDate: { lt: todayStart }, lead: { deletedAt: null } },
@@ -225,13 +223,13 @@ export async function getDashboardData(role?: string) {
   // category his policy forbids.
   const [recentLeadContacts, recentJobContacts] = await Promise.all([
     db.lead.findMany({
-      where: isSupervisor ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
+      where: isFieldRestricted ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
       orderBy: { updatedAt: "desc" },
       take: 15,
       select: { name: true, mobile: true },
     }),
     db.job.findMany({
-      where: isSupervisor
+      where: isFieldRestricted
         ? { deletedAt: null, scheduledDate: { gte: todayStart, lte: tomorrowEnd } }
         : { deletedAt: null },
       orderBy: { updatedAt: "desc" },

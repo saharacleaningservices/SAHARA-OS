@@ -27,7 +27,7 @@ export default async function ExpensesPage() {
   // explicitly, per the 2026-09-22 "enforce on route/page, not just
   // middleware" requirement. Matches canAccessExpenses in
   // server/actions/expenses.ts.
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const [expenses, jobOptions] = await Promise.all([getAllExpensesForList(), getJobsForSelection()]);
   // Show a tile for every current category, plus any legacy category that
   // still has spend recorded against it.

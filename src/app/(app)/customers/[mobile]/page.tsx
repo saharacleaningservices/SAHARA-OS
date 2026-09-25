@@ -22,7 +22,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   // from reaching it, but per the 2026-09-22 policy every restricted
   // module gets its own explicit page-level guard too, not just reliance
   // on middleware, exactly like customers/page.tsx already has.
-  const session = await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  const session = await requireRole(["ADMIN", "ACCOUNTS"]);
   const canEdit = session.role === "ADMIN" || session.role === "ACCOUNTS";
   const { leads, jobs, payments, reviews, master } = await getCustomerHistory(mobile);
   if (leads.length === 0 && jobs.length === 0 && payments.length === 0 && !master) notFound();

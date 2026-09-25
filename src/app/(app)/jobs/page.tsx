@@ -14,6 +14,9 @@ import { formatINR } from "@/lib/utils";
 export default async function JobsPage() {
   const session = await requireUser();
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
+  // Francis (OPERATIONS) must never see customer mobile numbers — 2026-09-25
+  // field-only policy. Call/WhatsApp buttons on the jobs table read this.
+  const canSeeCustomerContact = session.role !== "OPERATIONS";
   const [jobs, staffOptions, stats] = await Promise.all([
     getAllJobsForList(session),
     getStaffForAssignment(),
@@ -69,7 +72,7 @@ export default async function JobsPage() {
         </div>
       )}
 
-      <JobsExplorer jobs={jobs} canManage={canManage} />
+      <JobsExplorer jobs={jobs} canManage={canManage} canSeeCustomerContact={canSeeCustomerContact} />
     </div>
   );
 }

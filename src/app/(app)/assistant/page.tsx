@@ -10,7 +10,7 @@ export default async function AssistantPage() {
   // ROLE_NAV_ACCESS for "assistant"; this page-level guard now matches
   // that explicitly, per the 2026-09-22 "enforce on route/page, not just
   // middleware" requirement.
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const data = await getAssistantOverview();
 
   return (

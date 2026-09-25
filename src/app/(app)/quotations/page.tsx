@@ -7,7 +7,7 @@ export default async function QuotationsPage() {
   // ADMIN/ACCOUNTS/OPERATIONS only — matches ROLE_NAV_ACCESS's "quotations"
   // entry; Francis (SUPERVISOR) is deliberately excluded, same as Payments/
   // Expenses (2026-09-22 URL/architecture master prompt §23).
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const quotations = await getAllQuotations();
 
   return (

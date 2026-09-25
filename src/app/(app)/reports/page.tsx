@@ -7,7 +7,7 @@ export default async function ReportsPage() {
   // SUPERVISOR (Francis) removed 2026-09-21 — Reports isn't part of his
   // narrowed module list, and ROLE_NAV_ACCESS no longer grants him
   // "reports" either; this must match it exactly (defense in depth).
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  await requireRole(["ADMIN", "ACCOUNTS"]);
   const data = await getReportsData();
 
   return (
