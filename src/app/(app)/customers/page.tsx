@@ -17,7 +17,7 @@ export default async function CustomersPage() {
   // canExportCustomers is the one shared permission check for this
   // (src/lib/permissions.ts) — this page previously had its own separate,
   // narrower ADMIN/ACCOUNTS-only literal that silently disagreed with it.
-  const session = await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  const session = await requireRole(["ADMIN", "ACCOUNTS"]);
   const customers = await getCustomersList();
   const canManage = canExportCustomers(session.role);
   const outstanding = customers.reduce((s, c) => s + (c.outstanding ?? 0), 0);

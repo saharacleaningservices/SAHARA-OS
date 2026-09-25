@@ -589,38 +589,31 @@ export const ROLE_LABELS: Record<string, string> = {
 // layered on top of this section-level matrix.
 export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   ADMIN: ["*"],
-    // Operations Manager role — final role policy, owner decision 2026-09-21:
-    // full day-to-day operational access — Dashboard, Leads/CRM, Jobs (incl.
-    // Team Dispatch — shares the "jobs" section), Staff, Vehicles,
-    // Attendance (view + operate the office clock only — no calendar edit/
-    // backfill/bulk/month-close, see canManageAttendance), AMC, Payments
-    // (record/edit — no owner financial settings), Expenses (add/edit
-    // operational categories — no owner financial controls), the filtered
-    // Housekeeping/Pest Control/Interior Painting job views, Customers,
-    // Reports, AI Assistant, Gallery (via "admin"), Trash (restore only —
-    // see canRestoreRecords, never the bulk/destructive canManageDataSafety
-    // actions). Deliberately excluded: Revenue Dashboard, Profit, staff
-    // salary/wage figures (canViewSalary stays Admin+Accounts), User
-    // Management, Audit Log, Device/Security Approvals, WhatsApp Log,
-    // system settings.
+    // Operations role — field-only policy, owner decision 2026-09-25 (Francis
+    // is now the sole OPERATIONS user, reassigned from SUPERVISOR): Dashboard
+    // (today/tomorrow only, see isFieldRestricted in dashboard.ts/page.tsx),
+    // Jobs (incl. Team Dispatch — shares the "jobs" section, customer phone
+    // hidden — see canSeeCustomerContact), Staff, Vehicles, Attendance (view
+    // + operate the office clock only), AMC, the filtered Housekeeping/Pest
+    // Control/Interior Painting job views, Gallery (via "admin"), Trash
+    // (restore only). Deliberately excluded (previously granted when Shoyab
+    // held this role as Operations Manager, now removed as full customer/
+    // financial data exposure Francis must never have): Leads/CRM,
+    // Customers, Quotations, Invoices, Payments, Expenses, Reports, AI
+    // Assistant, global search/export (see canSearchGlobally/
+    // canExportCustomers), Revenue Dashboard, Profit, staff salary/wage
+    // figures, User Management, Audit Log, Device/Security Approvals,
+    // WhatsApp Log, system settings.
     OPERATIONS: [
           "dashboard",
-          "leads",
           "jobs",
           "staff",
           "vehicles",
           "attendance",
           "amc",
-          "payments",
-          "expenses",
-          "quotations",
-          "invoices",
           "service-housekeeping",
           "service-pest-control",
           "service-interior-painting",
-          "customers",
-          "reports",
-          "assistant",
           "admin",
           "trash",
           "profile",

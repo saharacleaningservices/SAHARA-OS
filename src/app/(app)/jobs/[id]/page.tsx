@@ -37,6 +37,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     redirect("/jobs");
   }
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
+  // Francis (OPERATIONS) must never see customer mobile numbers — 2026-09-25
+  // field-only policy. Deliberately separate from canManage, which still
+  // covers his other job actions (vehicle assignment, review/payment links).
+  const canSeeCustomerContact = session.role !== "OPERATIONS";
   const [vehicles, { googleMaps }, settings] = await Promise.all([
     canManage ? getVehiclesForAssignment() : Promise.resolve([]),
     getResolvedIntegrations(),
@@ -89,8 +93,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         description={`${job.jobNumber} · ${SERVICE_LABELS[job.service]} · ${job.area}`}
         actions={
           <>
-            <CallButton mobile={job.customerMobile} />
-            <WhatsAppButton mobile={job.customerMobile} />
+            {canSeeCustomerContact && (
+              <>
+                <CallButton mobile={job.customerMobile} />
+                <WhatsAppButton mobile={job.customerMobile} />
+              </>
+            )}
             {canManage && job.status === "COMPLETED" && (
               <SendBookingFormButton name={job.customerName} mobile={job.customerMobile} jobId={job.id} kind="REVIEW" />
             )}
@@ -152,9 +160,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <JobCardActions
                 jobId={job.id}
                 jobNumber={job.jobNumber}
-                officeShareText={officeCardText}
+                officeShareText={canSeeCustomerContact ? officeCardText : teamCardText}
                 teamShareText={teamCardText}
-                canSeeContact={canManage}
+                canSeeContact={canSeeCustomerContact}
               />
             </CardContent>
           </Card>
@@ -200,7 +208,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <p className="text-xs text-muted-foreground">Flat / Type</p>
                   <p className="font-medium text-foreground">{job.serviceVariant ?? "—"}</p>
                 </div>
-                {job.alternateMobile && (
+                {canSeeCustomerContact && job.alternateMobile && (
                   <div>
                     <p className="text-xs text-muted-foreground">Alternate Number</p>
                     <p className="font-medium text-foreground">{job.alternateMobile}</p>
@@ -392,16 +400,20 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {/* Mobile sticky action bar — Field Coordinator's core actions. */}
       <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-border bg-card/95 px-3 py-2.5 backdrop-blur lg:hidden">
-        <Button asChild className="flex-1" size="lg" variant="outline">
-          <a href={toTelLink(job.customerMobile)}>
-            <Phone className="size-4" /> Call
-          </a>
-        </Button>
-        <Button asChild className="flex-1 text-success" size="lg" variant="outline">
-          <a href={toWhatsAppLink(job.customerMobile)} target="_blank" rel="noreferrer">
-            <MessageCircle className="size-4" /> WhatsApp
-          </a>
-        </Button>
+        {canSeeCustomerContact && (
+          <>
+            <Button asChild className="flex-1" size="lg" variant="outline">
+              <a href={toTelLink(job.customerMobile)}>
+                <Phone className="size-4" /> Call
+              </a>
+            </Button>
+            <Button asChild className="flex-1 text-success" size="lg" variant="outline">
+              <a href={toWhatsAppLink(job.customerMobile)} target="_blank" rel="noreferrer">
+                <MessageCircle className="size-4" /> WhatsApp
+              </a>
+            </Button>
+          </>
+        )}
         {(() => {
           const c = job.mapLink ? parseMapLink(job.mapLink) : null;
           const href = c ? buildDirectionsLink(c) : job.mapLink;

@@ -52,7 +52,7 @@ function jobPaymentStatus(job: Job) {
   return "PENDING";
 }
 
-export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManage?: boolean }) {
+export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = true }: { jobs: Job[]; canManage?: boolean; canSeeCustomerContact?: boolean }) {
   const params = useSearchParams();
   const whenParam = params.get("when") ?? "";
   const statusParam = params.get("status") ?? "";
@@ -219,8 +219,12 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1.5">
-                          <CallButton mobile={job.customerMobile} />
-                          <WhatsAppButton mobile={job.customerMobile} />
+                          {canSeeCustomerContact && (
+                            <>
+                              <CallButton mobile={job.customerMobile} />
+                              <WhatsAppButton mobile={job.customerMobile} />
+                            </>
+                          )}
                           {href && (
                             <Button asChild variant="outline" size="icon" className="size-8" title="Open in Maps">
                               <a href={href} target="_blank" rel="noreferrer">
@@ -315,8 +319,12 @@ export function JobsExplorer({ jobs, canManage = true }: { jobs: Job[]; canManag
                         Adv {formatINR(adv)} · Bal {formatINR(bal)}
                       </p>
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        <CallButton mobile={job.customerMobile} />
-                        <WhatsAppButton mobile={job.customerMobile} />
+                        {canSeeCustomerContact && (
+                          <>
+                            <CallButton mobile={job.customerMobile} />
+                            <WhatsAppButton mobile={job.customerMobile} />
+                          </>
+                        )}
                         {href && (
                           <Button asChild variant="outline" size="icon" className="size-8" title="Open in Maps">
                             <a href={href} target="_blank" rel="noreferrer">

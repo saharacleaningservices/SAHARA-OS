@@ -90,15 +90,16 @@ export default async function DashboardPage() {
   const showStaffCards = canAccess(session.role, "staff");
   const showReportsCards = canAccess(session.role, "reports");
   const upcomingFollowUpsCount = followUpsToday.length + followUpsTomorrow.length;
-  // Francis (SUPERVISOR) final policy, 2026-09-21: even within showCrm's
-  // "leads" section access, the dashboard must not surface global/
-  // historical business metrics (Total Leads, Monthly Leads, Monthly
-  // Jobs, Conversion Rate, Repeat Customers, Overdue Follow-ups) — these
-  // are broad owner/operational-manager KPIs, not "today + tomorrow
-  // actionable" information. OPERATIONS (Shoyab) keeps every one of these
-  // unchanged; this flag narrows only SUPERVISOR's dashboard.
-  const isSupervisor = session.role === "SUPERVISOR";
-  const showCrmGlobalStats = showCrm && !isSupervisor;
+  // Field-restricted roles (SUPERVISOR and, since Francis moved to
+  // OPERATIONS on 2026-09-25, OPERATIONS too) must not see global/historical
+  // business metrics (Total Leads, Monthly Leads, Monthly Jobs, Conversion
+  // Rate, Repeat Customers, Overdue Follow-ups) — only "today + tomorrow
+  // actionable" information. OPERATIONS also has "leads" removed from
+  // ROLE_NAV_ACCESS entirely now (see constants.ts), so showCrm is already
+  // false for it; isFieldRestricted additionally narrows the few cards
+  // (e.g. Monthly Jobs) that aren't gated by showCrm at all.
+  const isFieldRestricted = session.role === "SUPERVISOR" || session.role === "OPERATIONS";
+  const showCrmGlobalStats = showCrm && !isFieldRestricted;
 
   return (
     <div className="space-y-6">
@@ -152,7 +153,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* ── Operational quick actions + KPIs ─────────────────── */}
         <div className="space-y-4 lg:col-span-2">
-          <DashboardQuickActions showPayments={!isSupervisor} />
+          <DashboardQuickActions showPayments={!isFieldRestricted} showNewLead={showCrm} />
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
             {showCrmGlobalStats && (
@@ -166,7 +167,7 @@ export default async function DashboardPage() {
             )}
             <StatCard href="/jobs?when=today" label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone="blue" glow={stats.todaysJobsCount > 0} />
             <StatCard href="/jobs?when=tomorrow" label="Tomorrow's Jobs" value={stats.tomorrowsJobsCount} icon={<CalendarClock className="size-4" />} tone="blue" />
-            {!isSupervisor && (
+            {!isFieldRestricted && (
               <StatCard href="/jobs" label="Monthly Jobs" value={stats.monthlyBookingsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
             )}
             {showCrm && (
@@ -208,7 +209,7 @@ export default async function DashboardPage() {
             {/* Overdue = historical by definition (dueDate before today) —
                 hidden for SUPERVISOR; the query itself also returns empty
                 for him (server/dashboard.ts), this is belt-and-suspenders. */}
-            {showCrm && !isSupervisor && (
+            {showCrm && !isFieldRestricted && (
               <StatCard href="/leads?due=overdue" label="Overdue Follow-ups" value={followUpsOverdue.length} icon={<BellRing className="size-4" />} tone="red" glow={followUpsOverdue.length > 0} />
             )}
             {showStaffCards && (

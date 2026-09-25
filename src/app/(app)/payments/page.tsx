@@ -17,7 +17,7 @@ export default async function PaymentsPage() {
 // explicitly, per the 2026-09-22 "enforce on route/page, not just
 // middleware" requirement. Matches canAccessPayments in
 // server/actions/payments.ts.
-await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+await requireRole(["ADMIN", "ACCOUNTS"]);
 const [payments, settings] = await Promise.all([getAllPaymentsForList(), getCompanySettings()]);
 const now = new Date();
 const t0 = startOfDay(now);

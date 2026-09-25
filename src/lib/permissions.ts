@@ -104,12 +104,14 @@ export function canRestoreRecords(role: string): boolean {
  * ("must NOT have unrestricted access to the Customers database").
  */
 export function canSearchGlobally(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
-/** SUPERVISOR removed 2026-09-21 — same reasoning as canSearchGlobally. */
+/** OPERATIONS removed 2026-09-25 (Francis's field-only policy) — global
+ *  search/export both surface customer name + mobile, which he must never
+ *  see. Same reasoning SUPERVISOR was removed 2026-09-21. */
 export function canExportCustomers(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Vehicle & material allocation. SUPERVISOR keeps this — Vehicles stays in Francis's narrowed 2026-09-21 module list, needed for Team Dispatch. */

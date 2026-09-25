@@ -10,12 +10,12 @@ const ACTIONS = [
   { href: "/payments", label: "Record Payment", icon: Wallet },
 ] as const;
 
-// showPayments=false (Francis/SUPERVISOR, 2026-09-22 policy) drops the
-// "Record Payment" tile — it linked straight to the now-blocked /payments
-// page, a dead-end/confusing tile for a role that can't open it, not just
-// a cosmetic issue.
-export function DashboardQuickActions({ showPayments = true }: { showPayments?: boolean }) {
-  const actions = ACTIONS.filter((a) => showPayments || a.href !== "/payments");
+// showPayments=false (SUPERVISOR/OPERATIONS field-restricted policy) drops
+// the "Record Payment" tile; showNewLead=false (OPERATIONS since 2026-09-25,
+// having lost "leads" nav access) drops "New Lead" — both would otherwise be
+// dead-end tiles linking to a now-blocked page for that role.
+export function DashboardQuickActions({ showPayments = true, showNewLead = true }: { showPayments?: boolean; showNewLead?: boolean }) {
+  const actions = ACTIONS.filter((a) => (showPayments || a.href !== "/payments") && (showNewLead || a.href !== "/leads/new"));
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {actions.map(({ href, label, icon: Icon }) => (
