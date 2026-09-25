@@ -575,19 +575,22 @@ console.log("Final go-live batch migration complete.");
 // Final production access mapping. Deterministic by email → idempotent and
 // safe to re-run. Login emails & passwords unchanged.
 // admin@       Altaf Shaikh      → ADMIN (Super Admin, full access)
-// operations@  Francis Monteiro  → SUPERVISOR (Field Coordinator — moved
-//                                   2026-09-09 from OPERATIONS to field-only
-//                                   today/tomorrow operations access)
-// accounts@    Shoyab Kazi       → OPERATIONS (Operations Manager — promoted
-//                                   2026-09-09 from ACCOUNTS / Office Assistant
-//                                   to full daily-operations access)
+// operations@  Francis Monteiro  → OPERATIONS (Operations Manager — owner
+//                                   correction 2026-09-25, reverting the
+//                                   2026-09-09 move to SUPERVISOR/field-only)
+// accounts@    Shoyab Kazi       → ACCOUNTS (Accounts & Enquiry — owner
+//                                   correction 2026-09-25, reverting the
+//                                   2026-09-09 promotion to OPERATIONS; this
+//                                   line was silently re-applying OPERATIONS
+//                                   on every boot even after manual role
+//                                   changes via Settings → Manage Users)
 // supervisor@  Suresh Pawar      → SUPERVISOR (Field Coordinator)
 // staff@       Vikas Shinde      → STAFF (Field Staff)
 // ─────────────────────────────────────────────────────────────────────────
 const finalRoleMap = db.transaction(() => {
   const rows = [
-    ["operations@saharacleaningservices.com", "SUPERVISOR", "Francis Monteiro"],
-    ["accounts@saharacleaningservices.com", "OPERATIONS", "Shoyab Kazi"],
+    ["operations@saharacleaningservices.com", "OPERATIONS", "Francis Monteiro"],
+    ["accounts@saharacleaningservices.com", "ACCOUNTS", "Shoyab Kazi"],
     ["admin@saharacleaningservices.com", "ADMIN", "Altaf Shaikh"],
     ["supervisor@saharacleaningservices.com", "SUPERVISOR", null],
     ["staff@saharacleaningservices.com", "STAFF", null],
