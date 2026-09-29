@@ -32,6 +32,7 @@ export default async function ProfitDashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Profit Dashboard" description="Revenue, expenses and profit at a glance." />
+      <a href="/profit/marketing" className="inline-block rounded-lg border px-3 py-1.5 text-sm font-semibold text-primary">Marketing ROI by source →</a>
 
       {owner && (
         <Card className="border-primary/30">

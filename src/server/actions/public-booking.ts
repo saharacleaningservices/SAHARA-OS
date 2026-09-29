@@ -10,6 +10,7 @@ import { recordUpsellEvent } from "@/server/upsell";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { notify } from "@/server/notify";
 import { z } from "zod";
+import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
 
 const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOGLE"] as const;
 
@@ -44,7 +45,14 @@ const publicBookingSchema = z.object({
   upsellAccepted: z.boolean().optional(),
   // Honeypot — real visitors never fill this hidden field.
   website: z.string().max(0).optional().or(z.literal("")),
+  // First/latest-touch marketing attribution captured in the browser
+  // (components/public/attribution-capture.tsx). Untrusted — sanitized below.
+  attribution: z.unknown().optional(),
 });
+
+// Stages where an enquiry is still open — a new form submission from the
+// same mobile updates that enquiry instead of creating a duplicate lead.
+const OPEN_STAGES = ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] as const;
 
 /**
  * Public, unauthenticated booking form submission (Customer Form Link).
@@ -60,11 +68,62 @@ export async function publicBookLead(values: unknown) {
   if (data.website) return { error: "Something went wrong. Please try again." }; // honeypot tripped
 
   const legacyService = SERVICE_CATEGORY_TO_LEGACY[data.serviceCategory] ?? "HOME_DEEP_CLEANING";
-  const leadNumber = await generateLeadNumber();
 
+  const attr = (data.attribution && typeof data.attribution === "object" ? data.attribution : {}) as Record<string, unknown>;
+  const firstTouch = sanitizeTouch(attr.first);
+  const latestTouch = sanitizeTouch(attr.latest) ?? firstTouch;
+  const touchChannel = classifyTouch(firstTouch);
+  // A friend's referral code is a real signal when nothing stronger exists.
+  const channel = data.referralCode && (touchChannel === "Unattributed" || touchChannel === "Website Direct") ? "Referral" : touchChannel;
+  const touchDate = (t: typeof firstTouch) => {
+    const d = t?.at ? new Date(t.at) : null;
+    return d && !Number.isNaN(d.getTime()) ? d : null;
+  };
+  const latestFields = {
+    latestTouchSource: latestTouch ? classifyTouch(latestTouch) : null,
+    latestTouchMedium: latestTouch?.medium ?? null,
+    latestTouchCampaign: campaignOf(latestTouch),
+    latestTouchAt: touchDate(latestTouch),
+  };
+  // Set only when a lead has no attribution yet — never overwrites.
+  const originalFields = {
+    acquisitionChannel: channel,
+    acquisitionCampaign: campaignOf(firstTouch),
+    utmSource: firstTouch?.source ?? null,
+    utmMedium: firstTouch?.medium ?? null,
+    utmCampaign: firstTouch?.campaign ?? null,
+    utmTerm: firstTouch?.term ?? null,
+    utmContent: firstTouch?.content ?? null,
+    gclid: firstTouch?.gclid ?? null,
+    fbclid: firstTouch?.fbclid ?? null,
+    landingPage: firstTouch?.landingPage ?? null,
+    landingPageUrl: firstTouch?.landingPageUrl ?? null,
+    firstTouchSource: firstTouch ? channel : null,
+    firstTouchMedium: firstTouch?.medium ?? null,
+    firstTouchCampaign: campaignOf(firstTouch),
+    firstTouchAt: touchDate(firstTouch),
+  };
+
+  // Duplicate protection: an open enquiry on the same mobile (e.g. customer
+  // called first, then staff sent them the form) is updated, not duplicated.
+  const last10 = data.mobile.replace(/\D/g, "").slice(-10);
+  const existingOpen = last10.length === 10
+    ? await db.lead.findFirst({
+        where: { deletedAt: null, stage: { in: [...OPEN_STAGES] as never }, OR: [{ mobile: { endsWith: last10 } }, { whatsapp: { endsWith: last10 } }] },
+        orderBy: { createdAt: "desc" },
+      })
+    : null;
+  const leadNumber = existingOpen?.leadNumber ?? (await generateLeadNumber());
+
+  // Legacy LeadSource: the customer's own "how did you hear" answer wins,
+  // otherwise it follows the detected acquisition channel.
+  const CHANNEL_TO_LEGACY: Record<string, string> = {
+    "Google Ads": "GOOGLE", "Google Organic/SEO": "GOOGLE", "Google Business Profile": "GMB", "Meta Ads": "META",
+    "Instagram Organic": "INSTAGRAM", "Facebook Organic": "FACEBOOK", "WhatsApp Marketing": "WHATSAPP", "WhatsApp Direct": "WHATSAPP",
+  };
   const source = (ONLINE_SOURCES as readonly string[]).includes((data.source || "").toUpperCase())
     ? (data.source as string).toUpperCase()
-    : "WEBSITE";
+    : CHANNEL_TO_LEGACY[channel] ?? "WEBSITE";
   // Area column stays NOT NULL — keep it populated from PIN / first address line.
   const area =
     (data.area && data.area.trim()) ||
@@ -89,8 +148,29 @@ export async function publicBookLead(values: unknown) {
       : "PARTIAL"
     : "PENDING_ADVANCE";
 
-  const lead = await db.lead.create({
+  const lead = existingOpen
+    ? await db.lead.update({
+        where: { id: existingOpen.id },
+        data: {
+          // Fill gaps only — never overwrite what staff already recorded.
+          email: existingOpen.email ?? (data.email || null),
+          address: existingOpen.address ?? (data.address || null),
+          pinCode: existingOpen.pinCode ?? (data.pinCode || null),
+          propertyType: existingOpen.propertyType ?? (data.propertyType || null),
+          serviceVariant: existingOpen.serviceVariant ?? (data.serviceVariant || null),
+          serviceDate: existingOpen.serviceDate ?? (data.serviceDate ? new Date(data.serviceDate) : null),
+          timeSlot: existingOpen.timeSlot ?? (data.timeSlot || null),
+          mapLink: existingOpen.mapLink ?? (data.mapLink || null),
+          formSubmittedAt: new Date(),
+          ...latestFields,
+          ...(existingOpen.acquisitionChannel ? {} : originalFields),
+        },
+      })
+    : await db.lead.create({
     data: {
+      ...originalFields,
+      ...latestFields,
+      formSubmittedAt: new Date(),
       leadNumber,
       name: data.name,
       mobile: data.mobile,
@@ -165,7 +245,10 @@ export async function publicBookLead(values: unknown) {
     leadId: lead.id,
     type: "SYSTEM",
     body: [
-      `Booked online (${source.toLowerCase()}) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}/book (unverified — no OTP yet)`,
+      existingOpen
+        ? `Online form submitted for this existing enquiry (no duplicate lead created) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}${latestTouch?.landingPage ?? "/book"}`
+        : `Booked online (${source.toLowerCase()}) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}${firstTouch?.landingPage ?? "/book"} (unverified — no OTP yet)`,
+      `Attribution: ${existingOpen?.acquisitionChannel ?? channel}${campaignOf(firstTouch) ? ` / ${campaignOf(firstTouch)}` : ""}${latestTouch && latestFields.latestTouchSource !== channel ? ` · latest touch: ${latestFields.latestTouchSource}` : ""}`,
       isRepeatCustomer ? `⭐ Existing customer — ${priorLeads} prior enquir${priorLeads === 1 ? "y" : "ies"}, ${priorJobs} job(s) on this number` : null,
       data.propertyType ? `Property type: ${data.propertyType}` : null,
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,

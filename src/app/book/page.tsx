@@ -18,6 +18,8 @@ import { FaFacebookF, FaInstagram, FaYoutube, FaGoogle } from "react-icons/fa6";
 import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { BookingStickyBar } from "@/components/public/booking-sticky-bar";
 import { BookingLinkPing } from "@/components/public/booking-link-ping";
+import { AttributionCapture } from "@/components/public/attribution-capture";
+import { MarketingTags } from "@/components/public/marketing-tags";
 import { HeroCarousel } from "@/components/public/hero-carousel";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
@@ -288,6 +290,8 @@ export default async function PublicBookingPage({
             </p>
           )}
           <BookingLinkPing token={sp.bl} />
+          <AttributionCapture />
+          <MarketingTags />
           <PublicBookingForm
             referralCode={sp.ref}
             mapsApiKey={googleMaps.apiKey}

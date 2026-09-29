@@ -70,6 +70,28 @@ export type LeadMinAggregateOutputType = {
   paymentStatus: string | null
   mapLink: string | null
   referralCode: string | null
+  acquisitionChannel: string | null
+  acquisitionCampaign: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  utmTerm: string | null
+  utmContent: string | null
+  gclid: string | null
+  fbclid: string | null
+  landingPage: string | null
+  landingPageUrl: string | null
+  firstTouchSource: string | null
+  firstTouchMedium: string | null
+  firstTouchCampaign: string | null
+  firstTouchAt: Date | null
+  latestTouchSource: string | null
+  latestTouchMedium: string | null
+  latestTouchCampaign: string | null
+  latestTouchAt: Date | null
+  formSubmittedAt: Date | null
+  marketingConsent: string | null
+  marketingConsentAt: Date | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -112,6 +134,28 @@ export type LeadMaxAggregateOutputType = {
   paymentStatus: string | null
   mapLink: string | null
   referralCode: string | null
+  acquisitionChannel: string | null
+  acquisitionCampaign: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  utmTerm: string | null
+  utmContent: string | null
+  gclid: string | null
+  fbclid: string | null
+  landingPage: string | null
+  landingPageUrl: string | null
+  firstTouchSource: string | null
+  firstTouchMedium: string | null
+  firstTouchCampaign: string | null
+  firstTouchAt: Date | null
+  latestTouchSource: string | null
+  latestTouchMedium: string | null
+  latestTouchCampaign: string | null
+  latestTouchAt: Date | null
+  formSubmittedAt: Date | null
+  marketingConsent: string | null
+  marketingConsentAt: Date | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -154,6 +198,28 @@ export type LeadCountAggregateOutputType = {
   paymentStatus: number
   mapLink: number
   referralCode: number
+  acquisitionChannel: number
+  acquisitionCampaign: number
+  utmSource: number
+  utmMedium: number
+  utmCampaign: number
+  utmTerm: number
+  utmContent: number
+  gclid: number
+  fbclid: number
+  landingPage: number
+  landingPageUrl: number
+  firstTouchSource: number
+  firstTouchMedium: number
+  firstTouchCampaign: number
+  firstTouchAt: number
+  latestTouchSource: number
+  latestTouchMedium: number
+  latestTouchCampaign: number
+  latestTouchAt: number
+  formSubmittedAt: number
+  marketingConsent: number
+  marketingConsentAt: number
   isDemo: number
   deletedAt: number
   deletedByName: number
@@ -210,6 +276,28 @@ export type LeadMinAggregateInputType = {
   paymentStatus?: true
   mapLink?: true
   referralCode?: true
+  acquisitionChannel?: true
+  acquisitionCampaign?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  utmTerm?: true
+  utmContent?: true
+  gclid?: true
+  fbclid?: true
+  landingPage?: true
+  landingPageUrl?: true
+  firstTouchSource?: true
+  firstTouchMedium?: true
+  firstTouchCampaign?: true
+  firstTouchAt?: true
+  latestTouchSource?: true
+  latestTouchMedium?: true
+  latestTouchCampaign?: true
+  latestTouchAt?: true
+  formSubmittedAt?: true
+  marketingConsent?: true
+  marketingConsentAt?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -252,6 +340,28 @@ export type LeadMaxAggregateInputType = {
   paymentStatus?: true
   mapLink?: true
   referralCode?: true
+  acquisitionChannel?: true
+  acquisitionCampaign?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  utmTerm?: true
+  utmContent?: true
+  gclid?: true
+  fbclid?: true
+  landingPage?: true
+  landingPageUrl?: true
+  firstTouchSource?: true
+  firstTouchMedium?: true
+  firstTouchCampaign?: true
+  firstTouchAt?: true
+  latestTouchSource?: true
+  latestTouchMedium?: true
+  latestTouchCampaign?: true
+  latestTouchAt?: true
+  formSubmittedAt?: true
+  marketingConsent?: true
+  marketingConsentAt?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -294,6 +404,28 @@ export type LeadCountAggregateInputType = {
   paymentStatus?: true
   mapLink?: true
   referralCode?: true
+  acquisitionChannel?: true
+  acquisitionCampaign?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  utmTerm?: true
+  utmContent?: true
+  gclid?: true
+  fbclid?: true
+  landingPage?: true
+  landingPageUrl?: true
+  firstTouchSource?: true
+  firstTouchMedium?: true
+  firstTouchCampaign?: true
+  firstTouchAt?: true
+  latestTouchSource?: true
+  latestTouchMedium?: true
+  latestTouchCampaign?: true
+  latestTouchAt?: true
+  formSubmittedAt?: true
+  marketingConsent?: true
+  marketingConsentAt?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -423,6 +555,28 @@ export type LeadGroupByOutputType = {
   paymentStatus: string | null
   mapLink: string | null
   referralCode: string | null
+  acquisitionChannel: string | null
+  acquisitionCampaign: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  utmTerm: string | null
+  utmContent: string | null
+  gclid: string | null
+  fbclid: string | null
+  landingPage: string | null
+  landingPageUrl: string | null
+  firstTouchSource: string | null
+  firstTouchMedium: string | null
+  firstTouchCampaign: string | null
+  firstTouchAt: Date | null
+  latestTouchSource: string | null
+  latestTouchMedium: string | null
+  latestTouchCampaign: string | null
+  latestTouchAt: Date | null
+  formSubmittedAt: Date | null
+  marketingConsent: string
+  marketingConsentAt: Date | null
   isDemo: boolean
   deletedAt: Date | null
   deletedByName: string | null
@@ -488,6 +642,28 @@ export type LeadWhereInput = {
   paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -540,6 +716,28 @@ export type LeadOrderByWithRelationInput = {
   paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmTerm?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmContent?: Prisma.SortOrderInput | Prisma.SortOrder
+  gclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  fbclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPage?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -595,6 +793,28 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -647,6 +867,28 @@ export type LeadOrderByWithAggregationInput = {
   paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmTerm?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmContent?: Prisma.SortOrderInput | Prisma.SortOrder
+  gclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  fbclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPage?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -697,6 +939,28 @@ export type LeadScalarWhereWithAggregatesInput = {
   paymentStatus?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  marketingConsentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -739,6 +1003,28 @@ export type LeadCreateInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -788,6 +1074,28 @@ export type LeadUncheckedCreateInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -837,6 +1145,28 @@ export type LeadUpdateInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -886,6 +1216,28 @@ export type LeadUncheckedUpdateInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -935,6 +1287,28 @@ export type LeadCreateManyInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -977,6 +1351,28 @@ export type LeadUpdateManyMutationInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1016,6 +1412,28 @@ export type LeadUncheckedUpdateManyInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1068,6 +1486,28 @@ export type LeadCountOrderByAggregateInput = {
   paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  utmTerm?: Prisma.SortOrder
+  utmContent?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
+  landingPage?: Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1116,6 +1556,28 @@ export type LeadMaxOrderByAggregateInput = {
   paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  utmTerm?: Prisma.SortOrder
+  utmContent?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
+  landingPage?: Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1158,6 +1620,28 @@ export type LeadMinOrderByAggregateInput = {
   paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  utmTerm?: Prisma.SortOrder
+  utmContent?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
+  landingPage?: Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1472,6 +1956,28 @@ export type LeadCreateWithoutCreatedByInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1520,6 +2026,28 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1577,6 +2105,28 @@ export type LeadCreateWithoutAssignedToInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1625,6 +2175,28 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1701,6 +2273,28 @@ export type LeadScalarWhereInput = {
   paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -1759,6 +2353,28 @@ export type LeadCreateWithoutAssignedStaffInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1807,6 +2423,28 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1880,6 +2518,28 @@ export type LeadCreateWithoutQuotationsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1928,6 +2588,28 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1992,6 +2674,28 @@ export type LeadUpdateWithoutQuotationsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2040,6 +2744,28 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2088,6 +2814,28 @@ export type LeadCreateWithoutFollowUpsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2136,6 +2884,28 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2200,6 +2970,28 @@ export type LeadUpdateWithoutFollowUpsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2248,6 +3040,28 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2296,6 +3110,28 @@ export type LeadCreateWithoutTimelineInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2344,6 +3180,28 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2408,6 +3266,28 @@ export type LeadUpdateWithoutTimelineInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2456,6 +3336,28 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2504,6 +3406,28 @@ export type LeadCreateWithoutJobsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2552,6 +3476,28 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2616,6 +3562,28 @@ export type LeadUpdateWithoutJobsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2664,6 +3632,28 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2712,6 +3702,28 @@ export type LeadCreateWithoutPaymentsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2760,6 +3772,28 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2824,6 +3858,28 @@ export type LeadUpdateWithoutPaymentsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2872,6 +3928,28 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2920,6 +3998,28 @@ export type LeadCreateWithoutActivityLogsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2968,6 +4068,28 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3032,6 +4154,28 @@ export type LeadUpdateWithoutActivityLogsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3080,6 +4224,28 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3128,6 +4294,28 @@ export type LeadCreateWithoutAmcContractsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3176,6 +4364,28 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3240,6 +4450,28 @@ export type LeadUpdateWithoutAmcContractsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3288,6 +4520,28 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3336,6 +4590,28 @@ export type LeadCreateManyCreatedByInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3377,6 +4653,28 @@ export type LeadCreateManyAssignedToInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3418,6 +4716,28 @@ export type LeadUpdateWithoutCreatedByInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3466,6 +4786,28 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3514,6 +4856,28 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3555,6 +4919,28 @@ export type LeadUpdateWithoutAssignedToInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3603,6 +4989,28 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3651,6 +5059,28 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3692,6 +5122,28 @@ export type LeadCreateManyAssignedStaffInput = {
   paymentStatus?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3733,6 +5185,28 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3781,6 +5255,28 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3829,6 +5325,28 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3955,6 +5473,28 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -4008,6 +5548,28 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -4053,6 +5615,28 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -4098,6 +5682,28 @@ export type LeadSelectScalar = {
   paymentStatus?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -4108,7 +5714,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "marketingConsentAt" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -4179,6 +5785,28 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     paymentStatus: string | null
     mapLink: string | null
     referralCode: string | null
+    acquisitionChannel: string | null
+    acquisitionCampaign: string | null
+    utmSource: string | null
+    utmMedium: string | null
+    utmCampaign: string | null
+    utmTerm: string | null
+    utmContent: string | null
+    gclid: string | null
+    fbclid: string | null
+    landingPage: string | null
+    landingPageUrl: string | null
+    firstTouchSource: string | null
+    firstTouchMedium: string | null
+    firstTouchCampaign: string | null
+    firstTouchAt: Date | null
+    latestTouchSource: string | null
+    latestTouchMedium: string | null
+    latestTouchCampaign: string | null
+    latestTouchAt: Date | null
+    formSubmittedAt: Date | null
+    marketingConsent: string
+    marketingConsentAt: Date | null
     isDemo: boolean
     deletedAt: Date | null
     deletedByName: string | null
@@ -4651,6 +6279,28 @@ export interface LeadFieldRefs {
   readonly paymentStatus: Prisma.FieldRef<"Lead", 'String'>
   readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
   readonly referralCode: Prisma.FieldRef<"Lead", 'String'>
+  readonly acquisitionChannel: Prisma.FieldRef<"Lead", 'String'>
+  readonly acquisitionCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmSource: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmMedium: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmTerm: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmContent: Prisma.FieldRef<"Lead", 'String'>
+  readonly gclid: Prisma.FieldRef<"Lead", 'String'>
+  readonly fbclid: Prisma.FieldRef<"Lead", 'String'>
+  readonly landingPage: Prisma.FieldRef<"Lead", 'String'>
+  readonly landingPageUrl: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchSource: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchMedium: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly latestTouchSource: Prisma.FieldRef<"Lead", 'String'>
+  readonly latestTouchMedium: Prisma.FieldRef<"Lead", 'String'>
+  readonly latestTouchCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly latestTouchAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly formSubmittedAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly marketingConsent: Prisma.FieldRef<"Lead", 'String'>
+  readonly marketingConsentAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly deletedByName: Prisma.FieldRef<"Lead", 'String'>

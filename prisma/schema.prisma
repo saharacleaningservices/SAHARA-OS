@@ -468,6 +468,33 @@ model Lead {
   mapLink       String?
   referralCode  String?
 
+  // Marketing attribution (2026-09-29 independent marketing system).
+  // acquisitionChannel is the ORIGINAL source and is never overwritten once
+  // set — later touches only update the latestTouch* fields.
+  acquisitionChannel  String?
+  acquisitionCampaign String?
+  utmSource           String?
+  utmMedium           String?
+  utmCampaign         String?
+  utmTerm             String?
+  utmContent          String?
+  gclid               String?
+  fbclid              String?
+  landingPage         String?
+  landingPageUrl      String?
+  firstTouchSource    String?
+  firstTouchMedium    String?
+  firstTouchCampaign  String?
+  firstTouchAt        DateTime?
+  latestTouchSource   String?
+  latestTouchMedium   String?
+  latestTouchCampaign String?
+  latestTouchAt       DateTime?
+  formSubmittedAt     DateTime?
+  // WhatsApp marketing consent: UNKNOWN | OPT_IN | OPT_OUT. Never assumed.
+  marketingConsent    String    @default("UNKNOWN")
+  marketingConsentAt  DateTime?
+
   isDemo        Boolean   @default(false)
   deletedAt     DateTime?
   deletedByName String?
@@ -1273,4 +1300,19 @@ model BusinessTarget {
   updatedAt    DateTime @updatedAt
 
   @@unique([year, month])
+}
+
+// Monthly ad / marketing spend entered by the owner, per channel + campaign —
+// feeds the admin Marketing ROI dashboard (spend → leads → bookings → revenue).
+model MarketingSpend {
+  id        String   @id @default(cuid())
+  month     String // YYYY-MM
+  channel   String // same values as Lead.acquisitionChannel
+  campaign  String   @default("")
+  amount    Float
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([month])
+  @@index([channel])
 }
