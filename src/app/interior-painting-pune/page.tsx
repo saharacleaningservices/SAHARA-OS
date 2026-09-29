@@ -3,6 +3,9 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { PAINT_OPTIONS, PAINT_SCOPE } from "@/lib/marketing-content";
 
+// Reads company settings from the DB, which is not available at image build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Interior Painting in Pune – Asian Paints Range, Site Visit & Quote | Sahara",
   description: "Interior painting in East Pune with Asian Paints options — Oil Bound Distemper, Tractor Emulsion, Premium Emulsion, Royale, Royale Lustre and texture painting. Site visit and measurement-based quote.",

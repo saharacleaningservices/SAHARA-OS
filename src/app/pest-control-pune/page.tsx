@@ -3,6 +3,9 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { PEST_SERVICES } from "@/lib/marketing-content";
 
+// Reads company settings from the DB, which is not available at image build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Pest Control in Pune – Cockroach, Termite, Bed Bug, Ant | Sahara Cleaning Services",
   description: "Professional pest control in East Pune for cockroaches, termites, bed bugs and ants. Inspection-based treatment plan and quote from Sahara Cleaning Services.",
