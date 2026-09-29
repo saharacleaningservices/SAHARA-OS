@@ -1,7 +1,15 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { sendWhatsApp, sendWhatsAppInteractiveList, setWhatsAppOptOut, setWhatsAppOptIn } from "@/lib/whatsapp";
+import {
+  applyWhatsAppStatus,
+  findLeadForNumber,
+  recordInboundWhatsApp,
+  sendWhatsApp,
+  sendWhatsAppInteractiveList,
+  setWhatsAppOptOut,
+  setWhatsAppOptIn,
+} from "@/lib/whatsapp";
 import { getCompanySettings } from "@/server/settings";
 import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
 import { moreOptionsListMessage } from "@/lib/whatsapp-templates";
@@ -25,7 +33,10 @@ import { notify } from "@/server/notify";
  */
 function isValidMetaSignature(rawBody: string, header: string | null): boolean {
   const secret = process.env.WHATSAPP_APP_SECRET;
-  if (!secret) return true;
+  // In production an unsigned/unverifiable webhook is never trusted: without
+  // the App Secret anyone could post fake inbound messages. Local dev (no
+  // secret) still accepts so the handler can be exercised.
+  if (!secret) return process.env.NODE_ENV !== "production";
   if (!header?.startsWith("sha256=")) return false;
   const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
   const provided = header.slice("sha256=".length);
@@ -78,7 +89,7 @@ export async function GET(req: NextRequest) {
 }
 
 type MetaStatusError = { title?: string; message?: string };
-type MetaStatus = { id?: string; status?: string; errors?: MetaStatusError[] };
+type MetaStatus = { id?: string; status?: string; timestamp?: string; errors?: MetaStatusError[] };
 type MetaInboundMessage = {
   id?: string;
   from?: string;
@@ -87,7 +98,8 @@ type MetaInboundMessage = {
   text?: { body?: string };
   interactive?: { type?: string; list_reply?: { id?: string; title?: string }; button_reply?: { id?: string; title?: string } };
 };
-type MetaChangeValue = { messages?: MetaInboundMessage[]; statuses?: MetaStatus[] };
+type MetaContact = { wa_id?: string; profile?: { name?: string } };
+type MetaChangeValue = { messages?: MetaInboundMessage[]; statuses?: MetaStatus[]; contacts?: MetaContact[] };
 type MetaChange = { value?: MetaChangeValue };
 type MetaEntry = { changes?: MetaChange[] };
 type MetaWebhookPayload = { entry?: MetaEntry[] };
@@ -140,10 +152,11 @@ async function sendMoreOptionsList(toNumber: string, messageId?: string) {
  *    company phone number is ever sent — by design, it's never in the
  *    initial confirmation message (Phase 5 readiness instruction).
  * 5. Delivery-status callbacks (sent/delivered/read/failed) are matched to
- *    the WhatsAppMessage row by providerMessageId. Only "failed" is
- *    persisted — WhatsAppStatus only models QUEUED/SENT/FAILED today, so a
- *    "delivered"/"read" callback is acknowledged (200) without a schema
- *    change.
+ *    the outbound WhatsAppMessage row by providerMessageId and stamp
+ *    sentAt / deliveredAt / readAt, or mark it FAILED (applyWhatsAppStatus).
+ * 6. Every inbound message is logged (direction INBOUND) for the WhatsApp
+ *    Inbox and linked to the customer's latest lead; Meta redeliveries of
+ *    the same message id are ignored.
  *
  * Always resolves fast with 200 — Meta disables a webhook that times out or
  * errors repeatedly, and a malformed/unexpected payload is never the
@@ -178,11 +191,13 @@ export async function POST(req: NextRequest) {
 
 async function handleStatuses(value: MetaChangeValue) {
   for (const s of value.statuses ?? []) {
-    if (s.status !== "failed" || !s.id) continue;
-    const reason = s.errors?.[0]?.title || s.errors?.[0]?.message || "Delivery failed (Meta callback)";
-    await db.whatsAppMessage
-      .updateMany({ where: { providerMessageId: s.id }, data: { status: "FAILED", errorMessage: reason } })
-      .catch(() => {});
+    if (!s.id || !s.status) continue;
+    await applyWhatsAppStatus({
+      providerMessageId: s.id,
+      status: s.status,
+      timestamp: s.timestamp,
+      error: s.errors?.[0]?.title || s.errors?.[0]?.message,
+    }).catch(() => {});
   }
 }
 
@@ -196,6 +211,26 @@ async function handleInboundMessages(value: MetaChangeValue) {
   for (const m of messages) {
     if (!m.from) continue;
 
+    // Log every inbound message for the WhatsApp Inbox, mapped to the
+    // customer's latest lead. A redelivered webhook (same Meta message id)
+    // is skipped entirely so it can't trigger duplicate replies or leads.
+    const profileName = value.contacts?.find((c) => c.wa_id === m.from)?.profile?.name ?? null;
+    const inboundText =
+      m.text?.body || m.button?.text || m.interactive?.list_reply?.title || m.interactive?.button_reply?.title || `(${m.type || "message"})`;
+    const inbound = await recordInboundWhatsApp({ from: m.from, providerMessageId: m.id, body: inboundText, profileName }).catch(() => undefined);
+    if (inbound === null) continue;
+    await processInboundMessage({ ...m, from: m.from }, reviewUrl);
+    if (inbound && !inbound.relatedId) {
+      // A brand-new inquiry creates its lead during processing — link it now.
+      const lead = await findLeadForNumber(m.from);
+      if (lead) await db.whatsAppMessage.update({ where: { id: inbound.id }, data: { relatedType: "Lead", relatedId: lead.id } }).catch(() => {});
+    }
+  }
+}
+
+/** The original per-message routing (opt-out/in, MORE, inquiries, quick replies). */
+async function processInboundMessage(m: MetaInboundMessage & { from: string }, reviewUrl: string) {
+  {
     if (m.type === "text") {
       const body = (m.text?.body || "").trim();
       if (OPT_OUT_KEYWORDS.test(body)) {
@@ -229,21 +264,21 @@ async function handleInboundMessages(value: MetaChangeValue) {
         // job doesn't get a duplicate Lead created for every message.
         await handleWhatsAppInquiry(m.from, body);
       }
-      continue;
+      return;
     }
 
     if (m.type === "interactive" && m.interactive?.list_reply?.id) {
       await handleMoreOptionsSelection(m.interactive.list_reply.id, m.from, m.id, reviewUrl);
-      continue;
+      return;
     }
 
-    if (m.type !== "button" || !m.button?.text) continue;
+    if (m.type !== "button" || !m.button?.text) return;
     const from = m.from;
     const label = m.button.text;
 
     if (/more\s*options/i.test(label)) {
       await sendMoreOptionsList(from, m.id);
-      continue;
+      return;
     }
 
     // Older 4-button template's Quick Replies — kept working for any
@@ -256,7 +291,7 @@ async function handleInboundMessages(value: MetaChangeValue) {
         relatedType: "WhatsAppWebhook",
         relatedId: m.id,
       });
-      continue;
+      return;
     }
 
     if (/review/i.test(label)) {

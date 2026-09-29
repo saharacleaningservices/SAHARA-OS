@@ -346,7 +346,14 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
   };
 
   const pending = await db.whatsAppMessage.findMany({
-    where: { status: includeFailed ? { in: ["QUEUED", "FAILED"] } : "QUEUED" },
+    // Only plain-text outbound rows are ever (re)sent here. Template sends
+    // are never queued/retried (see sendWhatsAppTemplate) and inbound rows
+    // are RECEIVED; CANCELLED rows are excluded by the status filter.
+    where: {
+      status: includeFailed ? { in: ["QUEUED", "FAILED"] } : "QUEUED",
+      direction: "OUTBOUND",
+      templateName: null,
+    },
     orderBy: { createdAt: "asc" },
     take: limit,
   });
@@ -435,4 +442,129 @@ export async function cancelPendingWhatsApp(keepIds: string[], reason: string) {
     data: { status: "CANCELLED", errorMessage: reason },
   });
   return res.count;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Approved-template sending and inbound recording (Cloud API go-live).
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Sends one pre-approved Meta template. Unlike sendWhatsApp() this never
+ * queues: if the Cloud API isn't connected it returns an error and writes
+ * nothing, and a Meta rejection is logged FAILED but is never retried by
+ * flushWhatsAppQueue() (which skips rows with a templateName).
+ */
+export async function sendWhatsAppTemplate(input: {
+  kind: WhatsAppKind;
+  toNumber: string;
+  toName?: string | null;
+  templateName: string;
+  languageCode: string;
+  bodyParams?: string[];
+  preview: string;
+  relatedType?: string;
+  relatedId?: string;
+}) {
+  const toNumber = normalizeNumber(input.toNumber);
+  const { whatsapp } = await getResolvedIntegrations();
+  if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
+    return { sent: false as const, error: "WhatsApp Cloud API is not connected" };
+  }
+  if (await isOptedOut(toNumber)) return { sent: false as const, error: WHATSAPP_OPT_OUT_ERROR };
+
+  const params = input.bodyParams ?? [];
+  const message = await db.whatsAppMessage.create({
+    data: {
+      kind: input.kind,
+      toNumber,
+      toName: input.toName ?? null,
+      body: input.preview,
+      templateName: input.templateName,
+      relatedType: input.relatedType ?? null,
+      relatedId: input.relatedId ?? null,
+      status: "QUEUED",
+    },
+  });
+  const result = await deliverPayload(
+    toNumber,
+    {
+      type: "template",
+      template: {
+        name: input.templateName,
+        language: { code: input.languageCode },
+        ...(params.length
+          ? { components: [{ type: "body", parameters: params.map((text) => ({ type: "text", text })) }] }
+          : {}),
+      },
+    },
+    { accessToken: whatsapp.accessToken, phoneNumberId: whatsapp.phoneNumberId, apiVersion: whatsapp.apiVersion },
+  ).catch((e: unknown) => ({ ok: false as const, error: e instanceof Error ? e.message : "Network error" }));
+
+  await db.whatsAppMessage.update({
+    where: { id: message.id },
+    data: result.ok
+      ? { status: "SENT", providerMessageId: result.providerMessageId, sentAt: new Date() }
+      : { status: "FAILED", errorMessage: result.error },
+  });
+  return result.ok ? { sent: true as const, id: message.id } : { sent: false as const, id: message.id, error: result.error };
+}
+
+/** Latest lead for a phone number (last 10 digits), newest first. */
+export async function findLeadForNumber(number: string) {
+  const mobile = number.replace(/\D/g, "").slice(-10);
+  if (mobile.length !== 10) return null;
+  return db.lead.findFirst({
+    where: { deletedAt: null, OR: [{ mobile }, { whatsapp: mobile }] },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, leadNumber: true, name: true, service: true, stage: true, source: true, acquisitionCampaign: true },
+  });
+}
+
+/**
+ * Records one inbound customer message. Returns null when this Meta message
+ * id was already recorded — Meta redelivers webhooks, and the caller uses
+ * that to skip re-processing (no duplicate auto-replies or leads).
+ */
+export async function recordInboundWhatsApp(input: { from: string; providerMessageId?: string; body: string; profileName?: string | null }) {
+  const toNumber = normalizeNumber(input.from);
+  if (input.providerMessageId) {
+    const seen = await db.whatsAppMessage.findFirst({ where: { providerMessageId: input.providerMessageId, direction: "INBOUND" } });
+    if (seen) return null;
+  }
+  const lead = await findLeadForNumber(toNumber);
+  return db.whatsAppMessage.create({
+    data: {
+      kind: "OTHER",
+      direction: "INBOUND",
+      status: "RECEIVED",
+      toNumber,
+      toName: input.profileName ?? lead?.name ?? null,
+      body: input.body || "(non-text message)",
+      providerMessageId: input.providerMessageId ?? null,
+      relatedType: lead ? "Lead" : null,
+      relatedId: lead?.id ?? null,
+      sentAt: new Date(),
+    },
+  });
+}
+
+/** Applies a Meta status callback (sent / delivered / read / failed) to its outbound row. */
+export async function applyWhatsAppStatus(input: { providerMessageId: string; status: string; timestamp?: string; error?: string }) {
+  const at = input.timestamp ? new Date(Number(input.timestamp) * 1000) : new Date();
+  const where = { providerMessageId: input.providerMessageId, direction: "OUTBOUND" };
+  switch (input.status) {
+    case "sent":
+      await db.whatsAppMessage.updateMany({ where: { ...where, sentAt: null }, data: { sentAt: at } });
+      break;
+    case "delivered":
+      await db.whatsAppMessage.updateMany({ where: { ...where, deliveredAt: null }, data: { deliveredAt: at, status: "SENT" } });
+      break;
+    case "read":
+      await db.whatsAppMessage.updateMany({ where: { ...where, deliveredAt: null }, data: { deliveredAt: at } });
+      await db.whatsAppMessage.updateMany({ where: { ...where, readAt: null }, data: { readAt: at, status: "SENT" } });
+      break;
+    case "failed":
+      await db.whatsAppMessage.updateMany({ where, data: { status: "FAILED", errorMessage: input.error || "Delivery failed (Meta callback)" } });
+      break;
+  }
 }
