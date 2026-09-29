@@ -3,6 +3,9 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, PackageGrid, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { PREMIUM, PLATINUM, PREMIUM_SCOPE, PREMIUM_EXCLUDED, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
 
+// Reads company settings from the DB, which is not available at image build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Home Deep Cleaning in Pune – 1 BHK from ₹3,999 | Sahara Cleaning Services",
   description: "Professional home deep cleaning in East Pune with transparent package prices: Premium 1 BHK ₹3,999, Platinum with wall wet cleaning from ₹5,499. Sofa, bathroom, kitchen & mattress cleaning too.",

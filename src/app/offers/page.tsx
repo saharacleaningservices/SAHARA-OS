@@ -8,6 +8,9 @@ import { PREMIUM, PLATINUM, SMALL_SERVICES, inr } from "@/lib/marketing-content"
 // Festival campaign hub (Navratri · Dussehra · Diwali) — the WhatsApp campaign
 // lands here and customers pick a service page.
 
+// Reads company settings from the DB, which is not available at image build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Festival Home & Office Cleaning in Pune – Navratri, Dussehra, Diwali | Sahara",
   description: "Get your home and workplace festival-ready with Sahara Cleaning Services, Pune. Home deep cleaning from ₹3,999, office cleaning, pest control and interior painting. Since 2012.",

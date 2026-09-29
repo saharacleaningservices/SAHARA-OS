@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 
+// Reads company settings from the DB, which is not available at image build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Office & Commercial Cleaning in Pune – Site Visit & Quote | Sahara Cleaning Services",
   description: "Office deep cleaning and commercial cleaning in East Pune: workstations, cabins, pantry, washrooms, glass and floor scrubbing. Free site visit and quote from Sahara Cleaning Services.",
