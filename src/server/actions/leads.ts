@@ -343,6 +343,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
     data: {
       jobNumber,
       leadId,
+      paymentPreference: lead.paymentPreference ?? null,
       customerName: lead.name,
       customerMobile: lead.mobile,
       alternateMobile: lead.alternateMobile,

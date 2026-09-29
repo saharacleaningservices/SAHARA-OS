@@ -70,3 +70,18 @@ export async function getSlotAvailability(dateStr: string) {
   const label = closed ? "Not available" : isFull ? "Full" : `${slotsLeft} Slot${slotsLeft === 1 ? "" : "s"} Left`;
   return { ok: true as const, slotsLeft, isFull, label, slots };
 }
+
+/** Available / full flag for each of the next `days` dates (IST), for the booking date picker. */
+export async function getDateAvailability(days = 21) {
+  const n = Math.min(Math.max(Math.floor(days), 1), 45);
+  const todayIst = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const base = new Date(`${todayIst}T00:00:00+05:30`);
+  const dates = Array.from({ length: n }, (_, i) =>
+    new Date(base.getTime() + i * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
+  );
+  const results = await Promise.all(dates.map((d) => getSlotAvailability(d)));
+  return dates.map((date, i) => {
+    const r = results[i];
+    return { date, available: r.ok ? !r.isFull : false };
+  });
+}

@@ -45,6 +45,10 @@ const publicBookingSchema = z.object({
   upsellLabel: z.string().optional().or(z.literal("")),
   upsellValue: z.coerce.number().optional(),
   upsellAccepted: z.boolean().optional(),
+  // Booking page v2: the customer's payment choice, and the quotation link
+  // token when the booking comes from a quotation (/booking?quote=<token>).
+  paymentPreference: z.enum(["PAY_ADVANCE", "PAY_AFTER_SERVICE"]).optional(),
+  quotationToken: z.string().max(64).optional().or(z.literal("")),
   // Honeypot — real visitors never fill this hidden field.
   website: z.string().max(0).optional().or(z.literal("")),
   // First/latest-touch marketing attribution captured in the browser
@@ -77,6 +81,8 @@ export async function publicBookLead(values: unknown) {
       return { error: "That time slot has just filled up — please pick another time or date." };
     }
   }
+
+  if (data.quotationToken) return bookFromQuotation(data);
 
   const legacyService = SERVICE_CATEGORY_TO_LEGACY[data.serviceCategory] ?? "HOME_DEEP_CLEANING";
 
@@ -172,6 +178,7 @@ export async function publicBookLead(values: unknown) {
           serviceDate: existingOpen.serviceDate ?? (data.serviceDate ? new Date(data.serviceDate) : null),
           timeSlot: existingOpen.timeSlot ?? (data.timeSlot || null),
           mapLink: existingOpen.mapLink ?? (data.mapLink || null),
+          paymentPreference: data.paymentPreference ?? existingOpen.paymentPreference,
           formSubmittedAt: new Date(),
           ...latestFields,
           ...(existingOpen.acquisitionChannel ? {} : originalFields),
@@ -208,6 +215,7 @@ export async function publicBookLead(values: unknown) {
       notes: data.notes || null,
       mapLink: data.mapLink || null,
       referralCode: data.referralCode || null,
+      paymentPreference: data.paymentPreference ?? null,
     },
   });
 
@@ -370,4 +378,52 @@ export async function publicBookLead(values: unknown) {
   revalidatePath("/leads");
   revalidatePath("/dashboard");
   return { success: true as const, leadNumber };
+}
+
+/**
+ * Booking request from a quotation link (/booking?quote=<token>). The
+ * quotation already fixes the customer, service and amount, so the customer
+ * only picks date, slot and payment preference. Updates the quotation's own
+ * lead (never creates a duplicate) and leaves it for the office to confirm.
+ */
+async function bookFromQuotation(data: z.infer<typeof publicBookingSchema>) {
+  const token = data.quotationToken ?? "";
+  if (!/^[A-Za-z0-9_-]{20,40}$/.test(token)) return { error: "This quotation link is not valid." };
+  const quote = await db.quotation.findFirst({
+    where: { publicToken: token },
+    include: { lead: { select: { id: true, leadNumber: true, name: true, mobile: true, deletedAt: true } } },
+  });
+  if (!quote || quote.lead.deletedAt) return { error: "This quotation link is not valid." };
+  if (["REJECTED", "CANCELLED", "EXPIRED"].includes(quote.status)) return { error: "This quotation is no longer active — please contact us." };
+  if (!data.serviceDate || !data.timeSlot) return { error: "Pick a date and an available time slot." };
+
+  const lead = await db.lead.update({
+    where: { id: quote.leadId },
+    data: {
+      serviceDate: new Date(data.serviceDate),
+      timeSlot: data.timeSlot,
+      paymentPreference: data.paymentPreference ?? null,
+      quoteAmount: quote.totalAmount,
+      formSubmittedAt: new Date(),
+    },
+  });
+  const pref = data.paymentPreference === "PAY_AFTER_SERVICE" ? "Pay after service" : "Pay advance";
+  await addTimelineEntry({
+    leadId: lead.id,
+    type: "NOTE",
+    body: `Customer requested booking from quotation ${quote.quoteNumber} — ${data.serviceDate} at ${data.timeSlot} · ${pref}. Awaiting office confirmation.`,
+  }).catch(() => {});
+  await db.followUp
+    .create({ data: { leadId: lead.id, dueDate: new Date(Date.now() + 15 * 60 * 1000), type: "CALL", priority: "HIGH", notes: `Confirm booking request from quotation ${quote.quoteNumber}` } })
+    .catch(() => {});
+  await notify({
+    kind: "NEW_BOOKING",
+    title: `Booking request — ${quote.lead.name} (quotation ${quote.quoteNumber})`,
+    body: `${data.serviceDate} ${data.timeSlot} · ${pref}`,
+    href: `/leads/${lead.id}`,
+  }).catch(() => {});
+
+  revalidatePath("/leads");
+  revalidatePath(`/leads/${lead.id}`);
+  return { success: true as const, leadNumber: quote.lead.leadNumber };
 }

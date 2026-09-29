@@ -45,6 +45,7 @@ export type QuotationSumAggregateOutputType = {
 export type QuotationMinAggregateOutputType = {
   id: string | null
   quoteNumber: string | null
+  publicToken: string | null
   leadId: string | null
   services: string | null
   subTotal: number | null
@@ -63,6 +64,7 @@ export type QuotationMinAggregateOutputType = {
 export type QuotationMaxAggregateOutputType = {
   id: string | null
   quoteNumber: string | null
+  publicToken: string | null
   leadId: string | null
   services: string | null
   subTotal: number | null
@@ -81,6 +83,7 @@ export type QuotationMaxAggregateOutputType = {
 export type QuotationCountAggregateOutputType = {
   id: number
   quoteNumber: number
+  publicToken: number
   leadId: number
   services: number
   subTotal: number
@@ -117,6 +120,7 @@ export type QuotationSumAggregateInputType = {
 export type QuotationMinAggregateInputType = {
   id?: true
   quoteNumber?: true
+  publicToken?: true
   leadId?: true
   services?: true
   subTotal?: true
@@ -135,6 +139,7 @@ export type QuotationMinAggregateInputType = {
 export type QuotationMaxAggregateInputType = {
   id?: true
   quoteNumber?: true
+  publicToken?: true
   leadId?: true
   services?: true
   subTotal?: true
@@ -153,6 +158,7 @@ export type QuotationMaxAggregateInputType = {
 export type QuotationCountAggregateInputType = {
   id?: true
   quoteNumber?: true
+  publicToken?: true
   leadId?: true
   services?: true
   subTotal?: true
@@ -258,6 +264,7 @@ export type QuotationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type QuotationGroupByOutputType = {
   id: string
   quoteNumber: string
+  publicToken: string | null
   leadId: string
   services: string
   subTotal: number
@@ -299,6 +306,7 @@ export type QuotationWhereInput = {
   NOT?: Prisma.QuotationWhereInput | Prisma.QuotationWhereInput[]
   id?: Prisma.StringFilter<"Quotation"> | string
   quoteNumber?: Prisma.StringFilter<"Quotation"> | string
+  publicToken?: Prisma.StringNullableFilter<"Quotation"> | string | null
   leadId?: Prisma.StringFilter<"Quotation"> | string
   services?: Prisma.StringFilter<"Quotation"> | string
   subTotal?: Prisma.FloatFilter<"Quotation"> | number
@@ -319,6 +327,7 @@ export type QuotationWhereInput = {
 export type QuotationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
@@ -339,6 +348,7 @@ export type QuotationOrderByWithRelationInput = {
 export type QuotationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   quoteNumber?: string
+  publicToken?: string
   AND?: Prisma.QuotationWhereInput | Prisma.QuotationWhereInput[]
   OR?: Prisma.QuotationWhereInput[]
   NOT?: Prisma.QuotationWhereInput | Prisma.QuotationWhereInput[]
@@ -357,11 +367,12 @@ export type QuotationWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
-}, "id" | "quoteNumber">
+}, "id" | "quoteNumber" | "publicToken">
 
 export type QuotationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
@@ -388,6 +399,7 @@ export type QuotationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.QuotationScalarWhereWithAggregatesInput | Prisma.QuotationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   quoteNumber?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
+  publicToken?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
   leadId?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   services?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   subTotal?: Prisma.FloatWithAggregatesFilter<"Quotation"> | number
@@ -406,6 +418,7 @@ export type QuotationScalarWhereWithAggregatesInput = {
 export type QuotationCreateInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
   discount?: number
@@ -425,6 +438,7 @@ export type QuotationCreateInput = {
 export type QuotationUncheckedCreateInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   leadId: string
   services: string
   subTotal: number
@@ -444,6 +458,7 @@ export type QuotationUncheckedCreateInput = {
 export type QuotationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -463,6 +478,7 @@ export type QuotationUpdateInput = {
 export type QuotationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -482,6 +498,7 @@ export type QuotationUncheckedUpdateInput = {
 export type QuotationCreateManyInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   leadId: string
   services: string
   subTotal: number
@@ -500,6 +517,7 @@ export type QuotationCreateManyInput = {
 export type QuotationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -517,6 +535,7 @@ export type QuotationUpdateManyMutationInput = {
 export type QuotationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -545,6 +564,7 @@ export type QuotationOrderByRelationAggregateInput = {
 export type QuotationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
@@ -571,6 +591,7 @@ export type QuotationAvgOrderByAggregateInput = {
 export type QuotationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
@@ -589,6 +610,7 @@ export type QuotationMaxOrderByAggregateInput = {
 export type QuotationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
@@ -682,6 +704,7 @@ export type QuotationUpdateOneWithoutInvoiceNestedInput = {
 export type QuotationCreateWithoutLeadInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
   discount?: number
@@ -700,6 +723,7 @@ export type QuotationCreateWithoutLeadInput = {
 export type QuotationUncheckedCreateWithoutLeadInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
   discount?: number
@@ -746,6 +770,7 @@ export type QuotationScalarWhereInput = {
   NOT?: Prisma.QuotationScalarWhereInput | Prisma.QuotationScalarWhereInput[]
   id?: Prisma.StringFilter<"Quotation"> | string
   quoteNumber?: Prisma.StringFilter<"Quotation"> | string
+  publicToken?: Prisma.StringNullableFilter<"Quotation"> | string | null
   leadId?: Prisma.StringFilter<"Quotation"> | string
   services?: Prisma.StringFilter<"Quotation"> | string
   subTotal?: Prisma.FloatFilter<"Quotation"> | number
@@ -764,6 +789,7 @@ export type QuotationScalarWhereInput = {
 export type QuotationCreateWithoutInvoiceInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
   discount?: number
@@ -782,6 +808,7 @@ export type QuotationCreateWithoutInvoiceInput = {
 export type QuotationUncheckedCreateWithoutInvoiceInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   leadId: string
   services: string
   subTotal: number
@@ -816,6 +843,7 @@ export type QuotationUpdateToOneWithWhereWithoutInvoiceInput = {
 export type QuotationUpdateWithoutInvoiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -834,6 +862,7 @@ export type QuotationUpdateWithoutInvoiceInput = {
 export type QuotationUncheckedUpdateWithoutInvoiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -852,6 +881,7 @@ export type QuotationUncheckedUpdateWithoutInvoiceInput = {
 export type QuotationCreateManyLeadInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
   discount?: number
@@ -869,6 +899,7 @@ export type QuotationCreateManyLeadInput = {
 export type QuotationUpdateWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -887,6 +918,7 @@ export type QuotationUpdateWithoutLeadInput = {
 export type QuotationUncheckedUpdateWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -905,6 +937,7 @@ export type QuotationUncheckedUpdateWithoutLeadInput = {
 export type QuotationUncheckedUpdateManyWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   discount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -924,6 +957,7 @@ export type QuotationUncheckedUpdateManyWithoutLeadInput = {
 export type QuotationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
@@ -944,6 +978,7 @@ export type QuotationSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type QuotationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
@@ -963,6 +998,7 @@ export type QuotationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type QuotationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
@@ -982,6 +1018,7 @@ export type QuotationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type QuotationSelectScalar = {
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
@@ -997,7 +1034,7 @@ export type QuotationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteNumber" | "leadId" | "services" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "terms" | "validTill" | "pdfUrl" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["quotation"]>
+export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteNumber" | "publicToken" | "leadId" | "services" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "terms" | "validTill" | "pdfUrl" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["quotation"]>
 export type QuotationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Quotation$invoiceArgs<ExtArgs>
@@ -1018,6 +1055,7 @@ export type $QuotationPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     quoteNumber: string
+    publicToken: string | null
     leadId: string
     services: string
     subTotal: number
@@ -1458,6 +1496,7 @@ export interface Prisma__QuotationClient<T, Null = never, ExtArgs extends runtim
 export interface QuotationFieldRefs {
   readonly id: Prisma.FieldRef<"Quotation", 'String'>
   readonly quoteNumber: Prisma.FieldRef<"Quotation", 'String'>
+  readonly publicToken: Prisma.FieldRef<"Quotation", 'String'>
   readonly leadId: Prisma.FieldRef<"Quotation", 'String'>
   readonly services: Prisma.FieldRef<"Quotation", 'String'>
   readonly subTotal: Prisma.FieldRef<"Quotation", 'Float'>

@@ -4121,6 +4121,7 @@ export const LeadScalarFieldEnum = {
   latestTouchAt: 'latestTouchAt',
   formSubmittedAt: 'formSubmittedAt',
   marketingConsent: 'marketingConsent',
+  paymentPreference: 'paymentPreference',
   marketingConsentAt: 'marketingConsentAt',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
@@ -4138,6 +4139,7 @@ export type LeadScalarFieldEnum = (typeof LeadScalarFieldEnum)[keyof typeof Lead
 export const QuotationScalarFieldEnum = {
   id: 'id',
   quoteNumber: 'quoteNumber',
+  publicToken: 'publicToken',
   leadId: 'leadId',
   services: 'services',
   subTotal: 'subTotal',

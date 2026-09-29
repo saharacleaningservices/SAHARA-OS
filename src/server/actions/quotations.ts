@@ -146,3 +146,22 @@ export async function createInvoice(data: {
   revalidatePath("/invoices");
   return { success: true as const, invoiceId: invoice.id };
 }
+
+/**
+ * Customer booking link for a quotation: /booking?quote=<unguessable token>.
+ * The customer then only picks date, slot and payment preference.
+ */
+export async function getQuotationBookingLink(quotationId: string) {
+  const { error } = await requireBillingAccess();
+  if (error) return { error };
+  const q = await db.quotation.findUnique({ where: { id: quotationId }, select: { publicToken: true } });
+  if (!q) return { error: "Quotation not found" };
+  let token = q.publicToken;
+  if (!token) {
+    const { randomBytes } = await import("node:crypto");
+    token = randomBytes(18).toString("base64url");
+    await db.quotation.update({ where: { id: quotationId }, data: { publicToken: token } });
+  }
+  const { PUBLIC_BOOKING_URL } = await import("@/lib/site-urls");
+  return { success: true as const, url: `${PUBLIC_BOOKING_URL}/booking?quote=${token}` };
+}
