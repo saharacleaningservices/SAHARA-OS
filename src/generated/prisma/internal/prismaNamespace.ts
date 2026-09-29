@@ -434,7 +434,8 @@ export const ModelName = {
   SecurityOtp: 'SecurityOtp',
   Notification: 'Notification',
   PushSubscription: 'PushSubscription',
-  BusinessTarget: 'BusinessTarget'
+  BusinessTarget: 'BusinessTarget',
+  MarketingSpend: 'MarketingSpend'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -450,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3784,6 +3785,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MarketingSpend: {
+      payload: Prisma.$MarketingSpendPayload<ExtArgs>
+      fields: Prisma.MarketingSpendFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MarketingSpendFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MarketingSpendFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>
+        }
+        findFirst: {
+          args: Prisma.MarketingSpendFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MarketingSpendFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>
+        }
+        findMany: {
+          args: Prisma.MarketingSpendFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>[]
+        }
+        create: {
+          args: Prisma.MarketingSpendCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>
+        }
+        createMany: {
+          args: Prisma.MarketingSpendCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MarketingSpendCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>[]
+        }
+        delete: {
+          args: Prisma.MarketingSpendDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>
+        }
+        update: {
+          args: Prisma.MarketingSpendUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>
+        }
+        deleteMany: {
+          args: Prisma.MarketingSpendDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MarketingSpendUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MarketingSpendUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>[]
+        }
+        upsert: {
+          args: Prisma.MarketingSpendUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketingSpendPayload>
+        }
+        aggregate: {
+          args: Prisma.MarketingSpendAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMarketingSpend>
+        }
+        groupBy: {
+          args: Prisma.MarketingSpendGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketingSpendGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MarketingSpendCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketingSpendCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4025,6 +4100,28 @@ export const LeadScalarFieldEnum = {
   paymentStatus: 'paymentStatus',
   mapLink: 'mapLink',
   referralCode: 'referralCode',
+  acquisitionChannel: 'acquisitionChannel',
+  acquisitionCampaign: 'acquisitionCampaign',
+  utmSource: 'utmSource',
+  utmMedium: 'utmMedium',
+  utmCampaign: 'utmCampaign',
+  utmTerm: 'utmTerm',
+  utmContent: 'utmContent',
+  gclid: 'gclid',
+  fbclid: 'fbclid',
+  landingPage: 'landingPage',
+  landingPageUrl: 'landingPageUrl',
+  firstTouchSource: 'firstTouchSource',
+  firstTouchMedium: 'firstTouchMedium',
+  firstTouchCampaign: 'firstTouchCampaign',
+  firstTouchAt: 'firstTouchAt',
+  latestTouchSource: 'latestTouchSource',
+  latestTouchMedium: 'latestTouchMedium',
+  latestTouchCampaign: 'latestTouchCampaign',
+  latestTouchAt: 'latestTouchAt',
+  formSubmittedAt: 'formSubmittedAt',
+  marketingConsent: 'marketingConsent',
+  marketingConsentAt: 'marketingConsentAt',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
   deletedByName: 'deletedByName',
@@ -4645,6 +4742,19 @@ export const BusinessTargetScalarFieldEnum = {
 export type BusinessTargetScalarFieldEnum = (typeof BusinessTargetScalarFieldEnum)[keyof typeof BusinessTargetScalarFieldEnum]
 
 
+export const MarketingSpendScalarFieldEnum = {
+  id: 'id',
+  month: 'month',
+  channel: 'channel',
+  campaign: 'campaign',
+  amount: 'amount',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type MarketingSpendScalarFieldEnum = (typeof MarketingSpendScalarFieldEnum)[keyof typeof MarketingSpendScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5001,6 +5111,7 @@ export type GlobalOmitConfig = {
   notification?: Prisma.NotificationOmit
   pushSubscription?: Prisma.PushSubscriptionOmit
   businessTarget?: Prisma.BusinessTargetOmit
+  marketingSpend?: Prisma.MarketingSpendOmit
 }
 
 /* Types for Logging */

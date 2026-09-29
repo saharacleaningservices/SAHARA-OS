@@ -1077,6 +1077,37 @@ addColumnIfMissing("Review", "replyNote", `"replyNote" TEXT`);
 db.exec(`CREATE INDEX IF NOT EXISTS "Review_replied_idx" ON "Review"("replied");`);
 console.log("Review response workflow migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Independent marketing system (2026-09-29) — lead attribution + spend.
+// Additive only: new nullable Lead columns and a new MarketingSpend table.
+// ─────────────────────────────────────────────────────────────────────────
+for (const col of [
+  "acquisitionChannel", "acquisitionCampaign", "utmSource", "utmMedium", "utmCampaign", "utmTerm", "utmContent",
+  "gclid", "fbclid", "landingPage", "landingPageUrl", "firstTouchSource", "firstTouchMedium", "firstTouchCampaign",
+  "latestTouchSource", "latestTouchMedium", "latestTouchCampaign",
+]) {
+  addColumnIfMissing("Lead", col, `"${col}" TEXT`);
+}
+for (const col of ["firstTouchAt", "latestTouchAt", "formSubmittedAt", "marketingConsentAt"]) {
+  addColumnIfMissing("Lead", col, `"${col}" DATETIME`);
+}
+addColumnIfMissing("Lead", "marketingConsent", `"marketingConsent" TEXT NOT NULL DEFAULT 'UNKNOWN'`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Lead_acquisitionChannel_idx" ON "Lead"("acquisitionChannel");`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "MarketingSpend" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "month" TEXT NOT NULL,
+    "channel" TEXT NOT NULL,
+    "campaign" TEXT NOT NULL DEFAULT '',
+    "amount" REAL NOT NULL,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS "MarketingSpend_month_idx" ON "MarketingSpend"("month");
+  CREATE INDEX IF NOT EXISTS "MarketingSpend_channel_idx" ON "MarketingSpend"("channel");
+`);
+console.log("Marketing attribution + spend migration complete.");
+
 db.close();
 // ─────────────────────────────────────────────────────────────────────────
 // Owner Command Center — monthly business revenue target (ADMIN-editable).

@@ -242,3 +242,8 @@ export type PushSubscription = Prisma.PushSubscriptionModel
  * 
  */
 export type BusinessTarget = Prisma.BusinessTargetModel
+/**
+ * Model MarketingSpend
+ * 
+ */
+export type MarketingSpend = Prisma.MarketingSpendModel

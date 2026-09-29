@@ -93,7 +93,8 @@ export const ModelName = {
   SecurityOtp: 'SecurityOtp',
   Notification: 'Notification',
   PushSubscription: 'PushSubscription',
-  BusinessTarget: 'BusinessTarget'
+  BusinessTarget: 'BusinessTarget',
+  MarketingSpend: 'MarketingSpend'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -314,6 +315,28 @@ export const LeadScalarFieldEnum = {
   paymentStatus: 'paymentStatus',
   mapLink: 'mapLink',
   referralCode: 'referralCode',
+  acquisitionChannel: 'acquisitionChannel',
+  acquisitionCampaign: 'acquisitionCampaign',
+  utmSource: 'utmSource',
+  utmMedium: 'utmMedium',
+  utmCampaign: 'utmCampaign',
+  utmTerm: 'utmTerm',
+  utmContent: 'utmContent',
+  gclid: 'gclid',
+  fbclid: 'fbclid',
+  landingPage: 'landingPage',
+  landingPageUrl: 'landingPageUrl',
+  firstTouchSource: 'firstTouchSource',
+  firstTouchMedium: 'firstTouchMedium',
+  firstTouchCampaign: 'firstTouchCampaign',
+  firstTouchAt: 'firstTouchAt',
+  latestTouchSource: 'latestTouchSource',
+  latestTouchMedium: 'latestTouchMedium',
+  latestTouchCampaign: 'latestTouchCampaign',
+  latestTouchAt: 'latestTouchAt',
+  formSubmittedAt: 'formSubmittedAt',
+  marketingConsent: 'marketingConsent',
+  marketingConsentAt: 'marketingConsentAt',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
   deletedByName: 'deletedByName',
@@ -932,6 +955,19 @@ export const BusinessTargetScalarFieldEnum = {
 } as const
 
 export type BusinessTargetScalarFieldEnum = (typeof BusinessTargetScalarFieldEnum)[keyof typeof BusinessTargetScalarFieldEnum]
+
+
+export const MarketingSpendScalarFieldEnum = {
+  id: 'id',
+  month: 'month',
+  channel: 'channel',
+  campaign: 'campaign',
+  amount: 'amount',
+  notes: 'notes',
+  createdAt: 'createdAt'
+} as const
+
+export type MarketingSpendScalarFieldEnum = (typeof MarketingSpendScalarFieldEnum)[keyof typeof MarketingSpendScalarFieldEnum]
 
 
 export const SortOrder = {

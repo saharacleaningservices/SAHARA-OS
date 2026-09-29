@@ -1,0 +1,55 @@
+import type { Metadata } from "next";
+import { getCompanySettings } from "@/server/settings";
+import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { PAINT_OPTIONS, PAINT_SCOPE } from "@/lib/marketing-content";
+
+export const metadata: Metadata = {
+  title: "Interior Painting in Pune – Asian Paints Range, Site Visit & Quote | Sahara",
+  description: "Interior painting in East Pune with Asian Paints options — Oil Bound Distemper, Tractor Emulsion, Premium Emulsion, Royale, Royale Lustre and texture painting. Site visit and measurement-based quote.",
+  alternates: { canonical: `${BASE_URL}/interior-painting-pune` },
+  openGraph: { title: "Interior Painting in Pune — Sahara Cleaning Services", description: "Site visit and measurement-based painting quote.", url: `${BASE_URL}/interior-painting-pune`, images: [`${BASE_URL}/marketing/hero-painting.webp`], type: "website" },
+};
+
+const WA = "Hi Sahara, I'd like a quote for interior painting.";
+const FAQS = [
+  { q: "How is painting priced?", a: "Painting is quoted after a site visit and measurement, based on the area, surface condition and the paint you choose." },
+  { q: "How many coats do you apply?", a: "The number of coats depends on the site condition and the selected finish; it is confirmed in your quote." },
+  { q: "Do you protect furniture and floors?", a: "Yes — basic protection of furniture and flooring is part of the work, followed by final cleaning." },
+  { q: "Can I choose the paint type?", a: "Yes. Choose from the Asian Paints options listed on this page; our team can advise on the right finish for each room." },
+];
+
+export default async function InteriorPaintingPage() {
+  const settings = await getCompanySettings();
+  return (
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
+      <Hero
+        image="/marketing/hero-painting.webp"
+        alt="Sahara painter rolling fresh paint on a living-room wall in Pune"
+        eyebrow="New painting · Repainting · Texture"
+        title="Professional Interior Painting Services in Pune"
+        subtitle="Neat preparation, the right paint for every room and a clean professional finish."
+        primaryLabel="Get Painting Quote"
+        waText={WA}
+      />
+      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10">
+        <section>
+          <h2 className="text-2xl font-bold">Paint options</h2>
+          <p className="text-sm text-[#0a2540]/70">Site visit / measurement required — price shared after measurement.</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {PAINT_OPTIONS.map((p) => <span key={p} className="rounded-full bg-white px-4 py-2 text-sm font-semibold shadow-sm">{p}</span>)}
+          </div>
+        </section>
+        <section>
+          <h2 className="text-2xl font-bold">Painting process</h2>
+          <ScopeLists included={PAINT_SCOPE} />
+        </section>
+        <QuoteSection title="Get your painting quote" subtitle="Tell us your home size and rooms — we'll schedule a site visit and measurement." campaignName="Interior Painting Pune" defaultService="PAINTING" />
+        <HowItWorks />
+        <Areas />
+        <Faqs faqs={FAQS} />
+        <Terms />
+        <FinalCta title="Give your home a fresh new look" waText={WA} />
+      </main>
+    </LandingShell>
+  );
+}

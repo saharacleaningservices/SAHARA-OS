@@ -1,5 +1,7 @@
 "use client";
 
+import { getAttributionPayload } from "@/components/public/attribution-capture";
+import { trackLead } from "@/components/public/marketing-tags";
 import { useEffect, useState } from "react";
 import {
   Loader2,
@@ -447,6 +449,7 @@ export function PublicBookingForm({
       bookingLinkToken: bookingLinkToken || "",
       estimatedAmount: estNum || undefined,
       advancePaid,
+      attribution: getAttributionPayload(),
     });
     setSubmitting(false);
     if ("error" in res) {
@@ -466,6 +469,7 @@ export function PublicBookingForm({
         content_category: category,
       });
     }
+    trackLead({ category, variant });
     setDone({ leadNumber: res.leadNumber, advancePaid });
   }
 
