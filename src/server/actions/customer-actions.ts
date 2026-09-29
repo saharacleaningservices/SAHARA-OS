@@ -6,6 +6,7 @@ import { getSession } from "@/lib/session";
 import { sendSMS } from "@/lib/sms";
 import { sendWhatsAppMany } from "@/lib/whatsapp";
 import { addTimelineEntry } from "@/server/timeline";
+import { filterToMarketingOptIn } from "@/server/whatsapp-audience";
 
 /**
  * Quick customer search for the Customer Actions top bar. Unrestricted
@@ -123,7 +124,14 @@ export async function bulkSendWhatsAppCampaign(
   if (!body) return { error: "Message is required" };
   if (recipients.length === 0) return { error: "No recipients selected" };
 
-  const batch = recipients.slice(0, MAX_CAMPAIGN_RECIPIENTS);
+  // Promotional WhatsApp only to customers with a recorded marketing opt-in
+  // (never assumed); opted-out numbers are always excluded.
+  const { allowed, skipped: noConsent } = await filterToMarketingOptIn(recipients);
+  if (allowed.length === 0) {
+    return { error: `None of the ${recipients.length} selected customers has a recorded WhatsApp marketing opt-in — nothing was sent.` };
+  }
+
+  const batch = allowed.slice(0, MAX_CAMPAIGN_RECIPIENTS);
   const results = await sendWhatsAppMany(
     batch.map((r) => ({
       kind: "REVIEW_CAMPAIGN",
@@ -146,7 +154,7 @@ export async function bulkSendWhatsAppCampaign(
     queued,
     failed,
     total: batch.length,
-    skipped: recipients.length - batch.length,
+    skipped: allowed.length - batch.length + noConsent,
   };
 }
 

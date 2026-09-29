@@ -67,6 +67,9 @@ export const leadSchema = z.object({
   packageName: z.string().optional().or(z.literal("")),
   comboServices: z.array(z.string()).optional(),
   mapLink: z.string().optional().or(z.literal("")),
+  // Marketing attribution for leads entered by hand (set once, on create).
+  acquisitionChannel: z.string().max(60).optional().or(z.literal("")),
+  acquisitionCampaign: z.string().max(120).optional().or(z.literal("")),
 });
 
 export type LeadFormValues = z.infer<typeof leadSchema>;
