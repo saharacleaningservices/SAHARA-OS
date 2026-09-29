@@ -47,7 +47,7 @@ export function WhatsappCampaignDialog({
       if (res.queued > 0) parts.push(`${res.queued} queued (WhatsApp not connected yet)`);
       if (res.failed > 0) parts.push(`${res.failed} failed`);
       toast.success(
-        `Campaign: ${parts.join(", ") || "nothing to send"}${res.skipped ? ` · ${res.skipped} skipped (300 max per send)` : ""}`,
+        `Campaign: ${parts.join(", ") || "nothing to send"}${res.skipped ? ` · ${res.skipped} skipped (no marketing opt-in, or over 300 per send)` : ""}`,
       );
       setOpen(false);
       setMessage("");
@@ -61,8 +61,8 @@ export function WhatsappCampaignDialog({
         <DialogHeader>
           <DialogTitle>Send WhatsApp Campaign</DialogTitle>
           <DialogDescription>
-            Sends to {recipients.length} selected customer{recipients.length === 1 ? "" : "s"}. Use {"{name}"} to personalize each
-            message.
+            Sends only to the selected customers who have a recorded WhatsApp marketing opt-in ({recipients.length} selected). Use{" "}
+            {"{name}"} to personalize each message.
           </DialogDescription>
         </DialogHeader>
         <Textarea

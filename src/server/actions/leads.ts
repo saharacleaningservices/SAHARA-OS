@@ -27,6 +27,7 @@ import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendBookingConfirmation } from "@/server/booking-messages";
 import { canAccessLead } from "@/server/leads";
+import { channelForManualLead } from "@/lib/attribution";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit allowed lead/booking
@@ -58,6 +59,26 @@ function normalizeTeam(value: number | "" | undefined): number | null {
   return typeof value === "number" && value >= 1 && value <= 4 ? value : null;
 }
 
+/**
+ * Duplicate-lead prevention: one open enquiry per mobile number. Staff update
+ * the existing enquiry instead (the public booking form already does this).
+ */
+async function findOpenDuplicateLead(mobile: string) {
+  const last10 = mobile.replace(/\D/g, "").slice(-10);
+  if (last10.length !== 10) return null;
+  return db.lead.findFirst({
+    where: {
+      deletedAt: null,
+      mobile: { endsWith: last10 },
+      stage: { in: ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] },
+    },
+    select: { leadNumber: true },
+  });
+}
+
+const duplicateLeadError = (leadNumber: string) =>
+  `An open enquiry ${leadNumber} already exists for this mobile number — open and update it instead.`;
+
 export async function createLead(values: unknown) {
   const parsed = leadSchema.safeParse(values);
   if (!parsed.success) {
@@ -65,6 +86,13 @@ export async function createLead(values: unknown) {
   }
   const session = await getSession();
   const data = parsed.data;
+
+  const openDuplicate = await findOpenDuplicateLead(data.mobile);
+  if (openDuplicate) return { error: duplicateLeadError(openDuplicate.leadNumber) };
+
+  const channel = channelForManualLead(data.source, data.acquisitionChannel);
+  const campaign = data.acquisitionCampaign?.trim() || null;
+  const now = new Date();
 
   const leadNumber = await generateLeadNumber();
   const lead = await db.lead.create({
@@ -97,6 +125,14 @@ export async function createLead(values: unknown) {
       paymentMode: data.paymentMode || null,
       paymentStatus: data.paymentStatus || (data.advanceAmount ? "PARTIAL" : "PENDING"),
       mapLink: data.mapLink || null,
+      acquisitionChannel: channel,
+      acquisitionCampaign: campaign,
+      firstTouchSource: channel,
+      firstTouchCampaign: campaign,
+      firstTouchAt: now,
+      latestTouchSource: channel,
+      latestTouchCampaign: campaign,
+      latestTouchAt: now,
       createdById: session?.sub,
       assignedToId: data.assignedToId || session?.sub,
     },
@@ -169,6 +205,10 @@ export async function quickCaptureLead(values: unknown) {
   const session = await getSession();
   const data = parsed.data;
 
+  const openDuplicate = await findOpenDuplicateLead(data.mobile);
+  if (openDuplicate) return { error: duplicateLeadError(openDuplicate.leadNumber) };
+
+  const now = new Date();
   const leadNumber = await generateLeadNumber();
   const lead = await db.lead.create({
     data: {
@@ -180,6 +220,11 @@ export async function quickCaptureLead(values: unknown) {
       pinCode: data.pinCode || null,
       service: data.service,
       source: "CALL",
+      acquisitionChannel: "Phone Call",
+      firstTouchSource: "Phone Call",
+      firstTouchAt: now,
+      latestTouchSource: "Phone Call",
+      latestTouchAt: now,
       createdById: session?.sub,
       assignedToId: session?.sub,
     },

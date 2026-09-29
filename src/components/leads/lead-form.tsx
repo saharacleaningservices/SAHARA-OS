@@ -24,6 +24,7 @@ import { ServiceQuantityFields } from "@/components/shared/service-quantity-fiel
 import { MapsLocationInput } from "@/components/shared/maps-location-input";
 import { parseMapLink } from "@/lib/maps";
 import { TeamSelect } from "@/components/shared/team-select";
+import { ACQUISITION_CHANNELS } from "@/lib/attribution";
 
 type StaffOption = { id: string; name: string; designation: string };
 type UserOption = { id: string; name: string; role: string };
@@ -268,6 +269,30 @@ export function LeadForm({
               </SelectContent>
             </Select>
           </div>
+          {!leadId && (
+            <>
+              <div className="space-y-1.5">
+                <Label>Marketing channel</Label>
+                <Select value={watch("acquisitionChannel") || "AUTO"} onValueChange={(v) => setValue("acquisitionChannel", v === "AUTO" ? "" : v)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="AUTO">Auto from Lead Source</SelectItem>
+                    {ACQUISITION_CHANNELS.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="acquisitionCampaign">Campaign (optional)</Label>
+                <Input id="acquisitionCampaign" {...register("acquisitionCampaign")} placeholder="e.g. sahara_festival_2026" />
+              </div>
+            </>
+          )}
           <div className="space-y-1.5">
             <Label htmlFor="quoteAmount">Estimated Amount (₹)</Label>
             <Input

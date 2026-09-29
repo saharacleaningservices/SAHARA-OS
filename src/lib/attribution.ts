@@ -88,6 +88,28 @@ export function classifyTouch(t?: Touch | null): AcquisitionChannel {
   return t.at ? "Website Direct" : "Unattributed";
 }
 
+/**
+ * Channel for a lead the office enters by hand, from its Lead Source. Only
+ * unambiguous sources map automatically; "Google", "Facebook" and "Instagram"
+ * could be an ad or organic, so staff pick the channel explicitly or the lead
+ * stays "Unattributed" rather than being guessed.
+ */
+const MANUAL_SOURCE_CHANNEL: Record<string, AcquisitionChannel> = {
+  CALL: "Phone Call",
+  WHATSAPP: "WhatsApp Direct",
+  WEBSITE: "Website Direct",
+  GMB: "Google Business Profile",
+  META: "Meta Ads",
+};
+
+export function channelForManualLead(source: string, picked?: string | null): AcquisitionChannel {
+  if (picked && (ACQUISITION_CHANNELS as readonly string[]).includes(picked)) return picked as AcquisitionChannel;
+  return MANUAL_SOURCE_CHANNEL[source] ?? "Unattributed";
+}
+
+/** Festival campaign names used in UTM tags, so the dashboard can group them. */
+export const FESTIVAL_CAMPAIGN_PATTERN = /festival|navratri|dussehra|dasara|diwali/i;
+
 /** Human-readable campaign label for a touch (utm_campaign, else none). */
 export function campaignOf(t?: Touch | null): string | null {
   const c = (t?.campaign ?? "").trim();

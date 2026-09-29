@@ -19,6 +19,7 @@ import { ConfirmBookingDialog } from "@/components/leads/confirm-booking-dialog"
 import { ConversationTimeline } from "@/components/leads/conversation-timeline";
 import { FollowUpsPanel } from "@/components/leads/followups-panel";
 import { EmptyState } from "@/components/shared/empty-state";
+import { MarketingConsentControl } from "@/components/leads/marketing-consent-control";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 
@@ -160,6 +161,21 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               <div>
                 <p className="text-xs text-muted-foreground">Assigned To</p>
                 <p className="font-medium text-foreground">{lead.assignedTo?.name ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Marketing channel</p>
+                <p className="font-medium text-foreground">
+                  {lead.acquisitionChannel ?? "Not tracked"}
+                  {lead.acquisitionCampaign ? ` · ${lead.acquisitionCampaign}` : ""}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs text-muted-foreground">WhatsApp marketing consent</p>
+                <MarketingConsentControl
+                  leadId={lead.id}
+                  consent={/OUT/.test(lead.marketingConsent) ? "OPTED_OUT" : /IN$/.test(lead.marketingConsent) ? "OPTED_IN" : "UNKNOWN"}
+                  canEdit={session.role === "ADMIN" || session.role === "ACCOUNTS"}
+                />
               </div>
               <div className="col-span-2 sm:col-span-3">
                 <p className="text-xs text-muted-foreground">Address</p>

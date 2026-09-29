@@ -55,6 +55,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Interior Painting", href: "/jobs?service=INTERIOR_PAINTING", section: "service-interior-painting", icon: PaintRoller },
   { label: "Revenue Dashboard", href: "/revenue", section: "revenue", icon: Wallet },
   { label: "Profit Dashboard", href: "/profit", section: "profit", icon: TrendingUp },
+  { label: "Marketing Dashboard", href: "/profit/marketing", section: "profit", icon: TrendingUp },
   { label: "Customers", href: "/customers", section: "customers", icon: BookUser },
   { label: "Reports", href: "/reports", section: "reports", icon: FileText },
   { label: "AI Assistant", href: "/assistant", section: "assistant", icon: Sparkles },
