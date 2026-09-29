@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { WhatsAppComposer } from "@/components/whatsapp/whatsapp-composer";
+import { ConversationModeToggle } from "@/components/whatsapp/conversation-mode-toggle";
 import { formatDateTime, cn } from "@/lib/utils";
 import { Info } from "lucide-react";
 
@@ -53,6 +54,7 @@ export default async function WhatsAppInboxPage({ searchParams }: { searchParams
     ? await db.whatsAppMessage.findMany({ where: { toNumber: selected }, orderBy: { createdAt: "asc" }, take: 300 })
     : [];
   const lead = selected ? await findLeadForNumber(selected) : null;
+  const conv = selected ? await db.whatsAppConversation.findUnique({ where: { number: selected } }) : null;
   const lastInbound = [...thread].reverse().find((m) => m.direction === "INBOUND");
   const windowOpen = Boolean(lastInbound && Date.now() - lastInbound.createdAt.getTime() < 24 * 60 * 60 * 1000);
 
@@ -133,6 +135,7 @@ export default async function WhatsAppInboxPage({ searchParams }: { searchParams
                         m.status === "CANCELLED" && "opacity-50",
                       )}
                     >
+                      {m.direction !== "INBOUND" && m.sentByName && <p className="mb-0.5 text-[10px] font-semibold text-muted-foreground">{m.sentByName}</p>}
                       {m.templateName && <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">Template · {m.templateName}</p>}
                       <p className="whitespace-pre-wrap break-words">{m.body}</p>
                       <p className="mt-1 flex justify-end gap-2 text-[10px] text-muted-foreground">
@@ -144,6 +147,7 @@ export default async function WhatsAppInboxPage({ searchParams }: { searchParams
                   </div>
                 ))}
               </div>
+              <ConversationModeToggle number={selected} mode={conv?.mode === "AI" ? "AI" : "HUMAN"} changedBy={conv?.changedByName} />
               <WhatsAppComposer
                 number={selected}
                 ready={ready}

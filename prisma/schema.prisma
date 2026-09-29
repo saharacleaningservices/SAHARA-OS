@@ -941,6 +941,19 @@ model BackupEvent {
 // WHATSAPP_PHONE_NUMBER_ID aren't configured yet, the row is left QUEUED
 // instead of sent — nothing is lost, and the send resumes automatically the
 // moment credentials are added. See src/lib/whatsapp.ts.
+// One row per customer WhatsApp number: who is handling the conversation.
+// mode AI = the grounded assistant may answer; HUMAN = staff only (takeover).
+model WhatsAppConversation {
+  id            String   @id @default(cuid())
+  number        String   @unique
+  mode          String   @default("HUMAN")
+  handoffReason String?
+  changedByName String?
+  changedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model WhatsAppMessage {
   id                String         @id @default(cuid())
   kind              WhatsAppKind
@@ -960,6 +973,9 @@ model WhatsAppMessage {
   deliveredAt       DateTime?
   readAt            DateTime?
   templateName      String?
+  // Who sent an outbound message from the CRM (staff user, or the AI assistant).
+  sentByUserId      String?
+  sentByName        String?
 
   @@index([kind])
   @@index([status])

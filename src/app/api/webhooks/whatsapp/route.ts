@@ -18,6 +18,11 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { notify } from "@/server/notify";
+import { answerWhatsApp, HANDOFF_ACK } from "@/server/whatsapp-ai";
+import { setConversationMode } from "@/server/whatsapp-access";
+
+// Grounded AI assistant — off unless explicitly enabled.
+const AI_ENABLED = process.env.WHATSAPP_AI_ENABLED === "on";
 
 /**
  * Verifies Meta's X-Hub-Signature-256 header (HMAC-SHA256 of the raw body,
@@ -286,6 +291,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
         // so a customer already mid-conversation about an open enquiry or
         // job doesn't get a duplicate Lead created for every message.
         await handleWhatsAppInquiry(m.from, body);
+        await aiRespond(m.from, body);
       }
       return;
     }
@@ -427,13 +433,46 @@ async function handleWhatsAppInquiry(from: string, body: string) {
     href: `/leads/${lead.id}`,
   }).catch(() => {});
 
+  // When the grounded AI assistant is on, it answers instead (no double reply).
+  if (AI_ENABLED) return;
   await sendWhatsApp({
     kind: "OTHER",
     toNumber: from,
-    body: `Thanks for reaching out to ${COMPANY.name}! Our team will get back to you shortly. Meanwhile, you can book directly here: ${PUBLIC_BOOKING_URL}/book`,
+    body: `Thanks for reaching out to ${COMPANY.name}! Our team will get back to you shortly. Meanwhile, you can book directly here: ${PUBLIC_BOOKING_URL}/booking`,
     relatedType: "Lead",
     relatedId: lead.id,
   });
+}
+
+/**
+ * Grounded AI assistant reply (src/server/whatsapp-ai.ts). Runs only when
+ * WHATSAPP_AI_ENABLED=on and the conversation is not under human takeover.
+ * New conversations start in AI mode; a handoff switches the conversation to
+ * HUMAN, sends one short acknowledgement and alerts the team. Replies still
+ * go through the auto-reply guard (WHATSAPP_AUTO_REPLIES) above.
+ */
+async function aiRespond(from: string, body: string) {
+  if (!AI_ENABLED) return;
+  const number = from.replace(/\D/g, "");
+  const existing = await db.whatsAppConversation.findUnique({ where: { number } });
+  if (existing && existing.mode !== "AI") return; // human takeover — AI stays silent
+  if (!existing) await setConversationMode(number, "AI", "Sahara Assistant (AI)", "new conversation");
+
+  const result = answerWhatsApp(body);
+  const text = result.reply ?? HANDOFF_ACK;
+  const sent = await sendWhatsApp({ kind: "OTHER", toNumber: from, body: text, relatedType: "WhatsAppWebhook" });
+  if (sent && "id" in sent && sent.id) {
+    await db.whatsAppMessage.update({ where: { id: sent.id }, data: { sentByName: "Sahara Assistant (AI)" } }).catch(() => {});
+  }
+  if (result.handoff) {
+    await setConversationMode(number, "HUMAN", "Sahara Assistant (AI)", result.handoff);
+    await notify({
+      kind: "NEW_INQUIRY",
+      title: `🙋 WhatsApp handoff — +${number}`,
+      body: `AI handed over: ${result.handoff} · "${body.slice(0, 80)}"`,
+      href: `/admin/whatsapp-inbox?n=${number}`,
+    }).catch(() => {});
+  }
 }
 
 /**

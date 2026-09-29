@@ -76,6 +76,7 @@ export const ModelName = {
   MaterialIssue: 'MaterialIssue',
   Review: 'Review',
   BackupEvent: 'BackupEvent',
+  WhatsAppConversation: 'WhatsAppConversation',
   WhatsAppMessage: 'WhatsAppMessage',
   WhatsAppConsent: 'WhatsAppConsent',
   AmcContract: 'AmcContract',
@@ -655,6 +656,20 @@ export const BackupEventScalarFieldEnum = {
 export type BackupEventScalarFieldEnum = (typeof BackupEventScalarFieldEnum)[keyof typeof BackupEventScalarFieldEnum]
 
 
+export const WhatsAppConversationScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  mode: 'mode',
+  handoffReason: 'handoffReason',
+  changedByName: 'changedByName',
+  changedAt: 'changedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WhatsAppConversationScalarFieldEnum = (typeof WhatsAppConversationScalarFieldEnum)[keyof typeof WhatsAppConversationScalarFieldEnum]
+
+
 export const WhatsAppMessageScalarFieldEnum = {
   id: 'id',
   kind: 'kind',
@@ -671,7 +686,9 @@ export const WhatsAppMessageScalarFieldEnum = {
   direction: 'direction',
   deliveredAt: 'deliveredAt',
   readAt: 'readAt',
-  templateName: 'templateName'
+  templateName: 'templateName',
+  sentByUserId: 'sentByUserId',
+  sentByName: 'sentByName'
 } as const
 
 export type WhatsAppMessageScalarFieldEnum = (typeof WhatsAppMessageScalarFieldEnum)[keyof typeof WhatsAppMessageScalarFieldEnum]

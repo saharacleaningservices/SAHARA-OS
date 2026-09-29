@@ -417,6 +417,7 @@ export const ModelName = {
   MaterialIssue: 'MaterialIssue',
   Review: 'Review',
   BackupEvent: 'BackupEvent',
+  WhatsAppConversation: 'WhatsAppConversation',
   WhatsAppMessage: 'WhatsAppMessage',
   WhatsAppConsent: 'WhatsAppConsent',
   AmcContract: 'AmcContract',
@@ -451,7 +452,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2453,6 +2454,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WhatsAppConversation: {
+      payload: Prisma.$WhatsAppConversationPayload<ExtArgs>
+      fields: Prisma.WhatsAppConversationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WhatsAppConversationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WhatsAppConversationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>
+        }
+        findFirst: {
+          args: Prisma.WhatsAppConversationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WhatsAppConversationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>
+        }
+        findMany: {
+          args: Prisma.WhatsAppConversationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>[]
+        }
+        create: {
+          args: Prisma.WhatsAppConversationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>
+        }
+        createMany: {
+          args: Prisma.WhatsAppConversationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WhatsAppConversationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>[]
+        }
+        delete: {
+          args: Prisma.WhatsAppConversationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>
+        }
+        update: {
+          args: Prisma.WhatsAppConversationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>
+        }
+        deleteMany: {
+          args: Prisma.WhatsAppConversationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WhatsAppConversationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WhatsAppConversationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>[]
+        }
+        upsert: {
+          args: Prisma.WhatsAppConversationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WhatsAppConversationPayload>
+        }
+        aggregate: {
+          args: Prisma.WhatsAppConversationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWhatsAppConversation>
+        }
+        groupBy: {
+          args: Prisma.WhatsAppConversationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WhatsAppConversationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WhatsAppConversationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WhatsAppConversationCountAggregateOutputType> | number
+        }
+      }
+    }
     WhatsAppMessage: {
       payload: Prisma.$WhatsAppMessagePayload<ExtArgs>
       fields: Prisma.WhatsAppMessageFieldRefs
@@ -4440,6 +4515,20 @@ export const BackupEventScalarFieldEnum = {
 export type BackupEventScalarFieldEnum = (typeof BackupEventScalarFieldEnum)[keyof typeof BackupEventScalarFieldEnum]
 
 
+export const WhatsAppConversationScalarFieldEnum = {
+  id: 'id',
+  number: 'number',
+  mode: 'mode',
+  handoffReason: 'handoffReason',
+  changedByName: 'changedByName',
+  changedAt: 'changedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WhatsAppConversationScalarFieldEnum = (typeof WhatsAppConversationScalarFieldEnum)[keyof typeof WhatsAppConversationScalarFieldEnum]
+
+
 export const WhatsAppMessageScalarFieldEnum = {
   id: 'id',
   kind: 'kind',
@@ -4456,7 +4545,9 @@ export const WhatsAppMessageScalarFieldEnum = {
   direction: 'direction',
   deliveredAt: 'deliveredAt',
   readAt: 'readAt',
-  templateName: 'templateName'
+  templateName: 'templateName',
+  sentByUserId: 'sentByUserId',
+  sentByName: 'sentByName'
 } as const
 
 export type WhatsAppMessageScalarFieldEnum = (typeof WhatsAppMessageScalarFieldEnum)[keyof typeof WhatsAppMessageScalarFieldEnum]
@@ -5102,6 +5193,7 @@ export type GlobalOmitConfig = {
   materialIssue?: Prisma.MaterialIssueOmit
   review?: Prisma.ReviewOmit
   backupEvent?: Prisma.BackupEventOmit
+  whatsAppConversation?: Prisma.WhatsAppConversationOmit
   whatsAppMessage?: Prisma.WhatsAppMessageOmit
   whatsAppConsent?: Prisma.WhatsAppConsentOmit
   amcContract?: Prisma.AmcContractOmit

@@ -153,6 +153,11 @@ export type Review = Prisma.ReviewModel
  */
 export type BackupEvent = Prisma.BackupEventModel
 /**
+ * Model WhatsAppConversation
+ * 
+ */
+export type WhatsAppConversation = Prisma.WhatsAppConversationModel
+/**
  * Model WhatsAppMessage
  * 
  */
