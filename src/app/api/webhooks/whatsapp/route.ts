@@ -5,8 +5,8 @@ import {
   applyWhatsAppStatus,
   findLeadForNumber,
   recordInboundWhatsApp,
-  sendWhatsApp,
-  sendWhatsAppInteractiveList,
+  sendWhatsApp as sendWhatsAppNow,
+  sendWhatsAppInteractiveList as sendWhatsAppInteractiveListNow,
   setWhatsAppOptOut,
   setWhatsAppOptIn,
 } from "@/lib/whatsapp";
@@ -67,6 +67,29 @@ function isValidMetaSignature(rawBody: string, header: string | null): boolean {
 //               STOP/START opt-out handling below)
 
 export const dynamic = "force-dynamic";
+
+// Pre-go-live guard: every customer-facing message this webhook would send
+// on its own (new-inquiry acknowledgement, STOP/START confirmations, MORE
+// list, quick-reply answers) is suppressed unless WHATSAPP_AUTO_REPLIES=on.
+// Suppressed means neither sent nor queued, so nothing can flush later.
+// Opt-out/opt-in state, lead creation and timeline notes still happen.
+const AUTO_REPLIES_ENABLED = process.env.WHATSAPP_AUTO_REPLIES === "on";
+
+async function sendWhatsApp(input: Parameters<typeof sendWhatsAppNow>[0]) {
+  if (!AUTO_REPLIES_ENABLED) {
+    console.info("[whatsapp webhook] auto-reply suppressed (WHATSAPP_AUTO_REPLIES is not on)", input.kind);
+    return null;
+  }
+  return sendWhatsAppNow(input);
+}
+
+async function sendWhatsAppInteractiveList(input: Parameters<typeof sendWhatsAppInteractiveListNow>[0]) {
+  if (!AUTO_REPLIES_ENABLED) {
+    console.info("[whatsapp webhook] auto-reply suppressed (WHATSAPP_AUTO_REPLIES is not on)", input.kind);
+    return null;
+  }
+  return sendWhatsAppInteractiveListNow(input);
+}
 
 /**
  * GET — Meta's one-time verification handshake. Meta calls this with
