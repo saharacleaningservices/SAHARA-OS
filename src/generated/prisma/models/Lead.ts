@@ -91,6 +91,7 @@ export type LeadMinAggregateOutputType = {
   latestTouchAt: Date | null
   formSubmittedAt: Date | null
   marketingConsent: string | null
+  paymentPreference: string | null
   marketingConsentAt: Date | null
   isDemo: boolean | null
   deletedAt: Date | null
@@ -155,6 +156,7 @@ export type LeadMaxAggregateOutputType = {
   latestTouchAt: Date | null
   formSubmittedAt: Date | null
   marketingConsent: string | null
+  paymentPreference: string | null
   marketingConsentAt: Date | null
   isDemo: boolean | null
   deletedAt: Date | null
@@ -219,6 +221,7 @@ export type LeadCountAggregateOutputType = {
   latestTouchAt: number
   formSubmittedAt: number
   marketingConsent: number
+  paymentPreference: number
   marketingConsentAt: number
   isDemo: number
   deletedAt: number
@@ -297,6 +300,7 @@ export type LeadMinAggregateInputType = {
   latestTouchAt?: true
   formSubmittedAt?: true
   marketingConsent?: true
+  paymentPreference?: true
   marketingConsentAt?: true
   isDemo?: true
   deletedAt?: true
@@ -361,6 +365,7 @@ export type LeadMaxAggregateInputType = {
   latestTouchAt?: true
   formSubmittedAt?: true
   marketingConsent?: true
+  paymentPreference?: true
   marketingConsentAt?: true
   isDemo?: true
   deletedAt?: true
@@ -425,6 +430,7 @@ export type LeadCountAggregateInputType = {
   latestTouchAt?: true
   formSubmittedAt?: true
   marketingConsent?: true
+  paymentPreference?: true
   marketingConsentAt?: true
   isDemo?: true
   deletedAt?: true
@@ -576,6 +582,7 @@ export type LeadGroupByOutputType = {
   latestTouchAt: Date | null
   formSubmittedAt: Date | null
   marketingConsent: string
+  paymentPreference: string | null
   marketingConsentAt: Date | null
   isDemo: boolean
   deletedAt: Date | null
@@ -663,6 +670,7 @@ export type LeadWhereInput = {
   latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
@@ -737,6 +745,7 @@ export type LeadOrderByWithRelationInput = {
   latestTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
   formSubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -814,6 +823,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
@@ -888,6 +898,7 @@ export type LeadOrderByWithAggregationInput = {
   latestTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
   formSubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -960,6 +971,7 @@ export type LeadScalarWhereWithAggregatesInput = {
   latestTouchAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   formSubmittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   marketingConsent?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
@@ -1024,6 +1036,7 @@ export type LeadCreateInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1095,6 +1108,7 @@ export type LeadUncheckedCreateInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1166,6 +1180,7 @@ export type LeadUpdateInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1237,6 +1252,7 @@ export type LeadUncheckedUpdateInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1308,6 +1324,7 @@ export type LeadCreateManyInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1372,6 +1389,7 @@ export type LeadUpdateManyMutationInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1433,6 +1451,7 @@ export type LeadUncheckedUpdateManyInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1507,6 +1526,7 @@ export type LeadCountOrderByAggregateInput = {
   latestTouchAt?: Prisma.SortOrder
   formSubmittedAt?: Prisma.SortOrder
   marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1577,6 +1597,7 @@ export type LeadMaxOrderByAggregateInput = {
   latestTouchAt?: Prisma.SortOrder
   formSubmittedAt?: Prisma.SortOrder
   marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1641,6 +1662,7 @@ export type LeadMinOrderByAggregateInput = {
   latestTouchAt?: Prisma.SortOrder
   formSubmittedAt?: Prisma.SortOrder
   marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1977,6 +1999,7 @@ export type LeadCreateWithoutCreatedByInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2047,6 +2070,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2126,6 +2150,7 @@ export type LeadCreateWithoutAssignedToInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2196,6 +2221,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2294,6 +2320,7 @@ export type LeadScalarWhereInput = {
   latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
@@ -2374,6 +2401,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2444,6 +2472,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2539,6 +2568,7 @@ export type LeadCreateWithoutQuotationsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2609,6 +2639,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2695,6 +2726,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2765,6 +2797,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2835,6 +2868,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2905,6 +2939,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2991,6 +3026,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3061,6 +3097,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3131,6 +3168,7 @@ export type LeadCreateWithoutTimelineInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3201,6 +3239,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3287,6 +3326,7 @@ export type LeadUpdateWithoutTimelineInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3357,6 +3397,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3427,6 +3468,7 @@ export type LeadCreateWithoutJobsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3497,6 +3539,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3583,6 +3626,7 @@ export type LeadUpdateWithoutJobsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3653,6 +3697,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3723,6 +3768,7 @@ export type LeadCreateWithoutPaymentsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3793,6 +3839,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3879,6 +3926,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3949,6 +3997,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4019,6 +4068,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4089,6 +4139,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4175,6 +4226,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4245,6 +4297,7 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4315,6 +4368,7 @@ export type LeadCreateWithoutAmcContractsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4385,6 +4439,7 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4471,6 +4526,7 @@ export type LeadUpdateWithoutAmcContractsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4541,6 +4597,7 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4611,6 +4668,7 @@ export type LeadCreateManyCreatedByInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4674,6 +4732,7 @@ export type LeadCreateManyAssignedToInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4737,6 +4796,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4807,6 +4867,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4877,6 +4938,7 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4940,6 +5002,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5010,6 +5073,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5080,6 +5144,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5143,6 +5208,7 @@ export type LeadCreateManyAssignedStaffInput = {
   latestTouchAt?: Date | string | null
   formSubmittedAt?: Date | string | null
   marketingConsent?: string
+  paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -5206,6 +5272,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5276,6 +5343,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5346,6 +5414,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5494,6 +5563,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   latestTouchAt?: boolean
   formSubmittedAt?: boolean
   marketingConsent?: boolean
+  paymentPreference?: boolean
   marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -5569,6 +5639,7 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   latestTouchAt?: boolean
   formSubmittedAt?: boolean
   marketingConsent?: boolean
+  paymentPreference?: boolean
   marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -5636,6 +5707,7 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   latestTouchAt?: boolean
   formSubmittedAt?: boolean
   marketingConsent?: boolean
+  paymentPreference?: boolean
   marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -5703,6 +5775,7 @@ export type LeadSelectScalar = {
   latestTouchAt?: boolean
   formSubmittedAt?: boolean
   marketingConsent?: boolean
+  paymentPreference?: boolean
   marketingConsentAt?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -5714,7 +5787,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "marketingConsentAt" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -5806,6 +5879,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     latestTouchAt: Date | null
     formSubmittedAt: Date | null
     marketingConsent: string
+    paymentPreference: string | null
     marketingConsentAt: Date | null
     isDemo: boolean
     deletedAt: Date | null
@@ -6300,6 +6374,7 @@ export interface LeadFieldRefs {
   readonly latestTouchAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly formSubmittedAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly marketingConsent: Prisma.FieldRef<"Lead", 'String'>
+  readonly paymentPreference: Prisma.FieldRef<"Lead", 'String'>
   readonly marketingConsentAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>

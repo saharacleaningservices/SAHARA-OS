@@ -495,6 +495,8 @@ model Lead {
   formSubmittedAt     DateTime?
   // WhatsApp marketing consent: UNKNOWN | OPT_IN | OPT_OUT. Never assumed.
   marketingConsent    String    @default("UNKNOWN")
+  // Customer choice on the booking page: PAY_ADVANCE | PAY_AFTER_SERVICE (copied to the Job on confirmation).
+  paymentPreference String?
   marketingConsentAt  DateTime?
 
   isDemo        Boolean   @default(false)
@@ -532,6 +534,8 @@ model Lead {
 model Quotation {
   id          String          @id @default(cuid())
   quoteNumber String          @unique
+  // Unguessable token for the customer booking link (/booking?quote=<token>).
+  publicToken String?         @unique
   leadId      String
   lead        Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
   services    String // JSON-encoded line items [{name, description, amount}]

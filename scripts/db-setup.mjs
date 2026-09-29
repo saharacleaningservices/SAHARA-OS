@@ -1128,6 +1128,12 @@ addColumnIfMissing("Job", "advanceRequestedAt", `"advanceRequestedAt" DATETIME`)
 db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Job_publicToken_key" ON "Job"("publicToken");`);
 console.log("Booking page token migration complete.");
 
+// ── Booking page v2: payment preference on leads + quotation booking links ──
+addColumnIfMissing("Lead", "paymentPreference", `"paymentPreference" TEXT`);
+addColumnIfMissing("Quotation", "publicToken", `"publicToken" TEXT`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Quotation_publicToken_key" ON "Quotation"("publicToken");`);
+console.log("Booking page v2 migration complete.");
+
 db.close();
 // ─────────────────────────────────────────────────────────────────────────
 // Owner Command Center — monthly business revenue target (ADMIN-editable).

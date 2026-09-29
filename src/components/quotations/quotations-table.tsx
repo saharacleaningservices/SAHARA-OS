@@ -3,13 +3,13 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
-import { FileText, ArrowRightCircle } from "lucide-react";
+import { FileText, ArrowRightCircle, Link2 } from "lucide-react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/shared/empty-state";
-import { updateQuotationStatus, convertQuotationToInvoice } from "@/server/actions/quotations";
+import { updateQuotationStatus, convertQuotationToInvoice, getQuotationBookingLink } from "@/server/actions/quotations";
 import { formatINR, formatDate } from "@/lib/utils";
 
 type Quotation = {
@@ -56,6 +56,17 @@ export function QuotationsTable({ quotations }: { quotations: Quotation[] }) {
       setBusyId(null);
       if ("error" in res && res.error) toast.error(res.error);
       else toast.success("Invoice created");
+    });
+  }
+
+  function copyBookingLink(id: string) {
+    startTransition(async () => {
+      const res = await getQuotationBookingLink(id);
+      if ("error" in res && res.error) return void toast.error(res.error);
+      if ("url" in res && res.url) {
+        await navigator.clipboard.writeText(res.url).catch(() => {});
+        toast.success("Booking link copied — share it with the customer");
+      }
     });
   }
 
@@ -116,6 +127,9 @@ export function QuotationsTable({ quotations }: { quotations: Quotation[] }) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1.5">
+                  <Button variant="outline" size="sm" onClick={() => copyBookingLink(q.id)} title="Copy the customer booking link for this quotation">
+                    <Link2 className="size-3.5" /> Booking link
+                  </Button>
                   <Button variant="outline" size="sm" asChild>
                     <a href={`/api/quotations/${q.id}/pdf`} target="_blank" rel="noreferrer">
                       <FileText className="size-3.5" /> PDF
