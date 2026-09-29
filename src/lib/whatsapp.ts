@@ -389,3 +389,51 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
 
   return { ok: true as const, sent, failed, skippedOptedOut, processed: pending.length };
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Stale-queue cancellation. Before the Cloud API is first connected, the
+// backlog of never-sent messages (old confirmations, dispatches, OTPs…)
+// must not be flushed. Cancelled rows keep their full record for audit;
+// flushWhatsAppQueue() only ever selects QUEUED/FAILED, so a CANCELLED row
+// can never be sent by Save & Connect, the reminder cron or a manual flush.
+// ─────────────────────────────────────────────────────────────────────────
+
+export type PendingCategory = "Customer" | "Staff/team" | "OTP/security" | "Other" | "QA test";
+
+const CUSTOMER_KINDS = new Set<WhatsAppKind>([
+  "BOOKING_CONFIRMATION", "CUSTOMER_REMINDER", "PAYMENT_REMINDER", "REVIEW_REQUEST", "REVIEW_CAMPAIGN", "AMC_RENEWAL",
+]);
+const STAFF_KINDS = new Set<WhatsAppKind>(["TEAM_DISPATCH", "ATTENDANCE_SUMMARY"]);
+
+function categorize(m: { kind: WhatsAppKind; toNumber: string; body: string }, keepNumbers: Set<string>): PendingCategory {
+  if (keepNumbers.has(m.toNumber)) return "QA test";
+  if (m.kind === "DEVICE_APPROVAL" || /\bOTP\b|signed in|login/i.test(m.body)) return "OTP/security";
+  if (CUSTOMER_KINDS.has(m.kind)) return "Customer";
+  if (STAFF_KINDS.has(m.kind)) return "Staff/team";
+  return "Other";
+}
+
+/** Counts every pending (QUEUED/FAILED) message by category. Sends nothing. */
+export async function previewPendingWhatsApp(keepNumbers: string[]) {
+  const keep = new Set(keepNumbers.map(normalizeNumber));
+  const pending = await db.whatsAppMessage.findMany({
+    where: { status: { in: ["QUEUED", "FAILED"] } },
+    select: { id: true, kind: true, toNumber: true, body: true, createdAt: true },
+  });
+  const counts: Record<PendingCategory, number> = { Customer: 0, "Staff/team": 0, "OTP/security": 0, Other: 0, "QA test": 0 };
+  for (const m of pending) counts[categorize(m, keep)] += 1;
+  return { total: pending.length, counts };
+}
+
+/**
+ * Marks every pending message CANCELLED except those addressed to
+ * `keepNumbers` (the QA test recipient). Never deletes, never sends.
+ */
+export async function cancelPendingWhatsApp(keepNumbers: string[], reason: string) {
+  const keep = keepNumbers.map(normalizeNumber);
+  const res = await db.whatsAppMessage.updateMany({
+    where: { status: { in: ["QUEUED", "FAILED"] }, toNumber: { notIn: keep } },
+    data: { status: "CANCELLED", errorMessage: reason },
+  });
+  return res.count;
+}
