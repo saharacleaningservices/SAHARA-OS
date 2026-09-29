@@ -1,7 +1,9 @@
+import { pricesIn } from "@/lib/pricing-master";
+
 // Customer-facing marketing content shared by the public landing pages.
-// PRICES: the live WhatsApp Catalogue (9175220270) is the single source of
-// truth — these values mirror it exactly. Change them ONLY after the catalogue
-// changes. Services without a catalogue price are enquiry / inspection based.
+// PRICES: never defined here — PREMIUM / PLATINUM / SMALL_SERVICES / COMBOS are
+// derived from the Sahara pricing master (src/lib/pricing-master.ts), which the
+// booking page, CRM price list, quotations and catalogue feed also read.
 
 export const CONTACT = {
   call: ["8956567130", "7083347130"] as const,
@@ -15,18 +17,10 @@ export const CONTACT = {
 export const FESTIVAL_CAMPAIGN = "sahara_festival_2026";
 
 export type Pkg = { bhk: string; mrp: number; price: number };
-export const PREMIUM: Pkg[] = [
-  { bhk: "1 BHK", mrp: 4499, price: 3999 },
-  { bhk: "2 BHK", mrp: 5499, price: 4999 },
-  { bhk: "3 BHK", mrp: 6999, price: 6499 },
-  { bhk: "4 BHK", mrp: 7999, price: 7499 },
-];
-export const PLATINUM: Pkg[] = [
-  { bhk: "1 BHK", mrp: 5999, price: 5499 },
-  { bhk: "2 BHK", mrp: 6999, price: 6499 },
-  { bhk: "3 BHK", mrp: 8499, price: 7999 },
-  { bhk: "4 BHK", mrp: 9499, price: 8999 },
-];
+// Prices come from the single pricing master (src/lib/pricing-master.ts).
+const toPkg = (g: "PREMIUM" | "PLATINUM"): Pkg[] => pricesIn(g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price!, price: p.price! }));
+export const PREMIUM: Pkg[] = toPkg("PREMIUM");
+export const PLATINUM: Pkg[] = toPkg("PLATINUM");
 export const PREMIUM_SCOPE = [
   "Window glass cleaning & sliding channel vacuuming",
   "Furniture exterior dusting, sofa dry vacuuming",
@@ -42,19 +36,8 @@ export const PREMIUM_EXCLUDED = [
   "Sofa / carpet / mattress shampooing (available separately)",
   "Inaccessible areas and moving heavy furniture",
 ];
-// Live catalogue shows only the offer price for these (no strike price).
-export const SMALL_SERVICES = [
-  { name: "Sofa Cleaning", price: 199, unit: "per seat", rule: "Minimum 5 seater" },
-  { name: "Bathroom Deep Cleaning", price: 499, unit: "per bathroom", rule: "Minimum 2 bathrooms" },
-  { name: "Mattress Cleaning", price: 699, unit: "per mattress", rule: "Minimum 2 mattresses" },
-  { name: "Kitchen Deep Cleaning (Without Chimney)", price: 1499, unit: "", rule: "Chimney cleaning not included" },
-];
-export const COMBOS = [
-  { name: "Kitchen + 2 Bathroom + Fridge", price: 3499, note: "" },
-  { name: "Kitchen + 3 Bathroom", price: 3999, note: "" },
-  { name: "Sofa + Mattress + Carpet", price: 3999, note: "" },
-  { name: "Sofa + Mattress + Fridge", price: 1999, note: "Add-on only — booked with another service" },
-];
+export const SMALL_SERVICES = pricesIn("INDIVIDUAL").map((p) => ({ name: p.name, price: p.price!, unit: p.unit ?? "", rule: p.rule ?? "" }));
+export const COMBOS = pricesIn("COMBO").map((p) => ({ name: p.name, price: p.price!, note: p.addOnOnly ? p.rule ?? "Add-on only" : "" }));
 export const PEST_SERVICES = [
   { name: "Cockroach Control", desc: "Inspection of kitchen, bathrooms and drains; gel baiting in cracks and crevices; targeted spray where suitable." },
   { name: "Termite Control", desc: "Inspection of wooden furniture, frames and walls; targeted anti-termite treatment of affected areas." },

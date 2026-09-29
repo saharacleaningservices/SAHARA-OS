@@ -156,7 +156,7 @@ export function ScopeLists({ included, excluded }: { included: string[]; exclude
 // Landing-page booking section: the same CRM-powered booking flow as /booking
 // (package → available date → slot → payment preference → Confirm Booking
 // Request), preselected for the page's service.
-const SERVICE_TO_CHOICE: Record<string, string> = { COMMERCIAL_CLEANING: "commercial", PEST_CONTROL: "pest", PAINTING: "painting" };
+const SERVICE_TO_CHOICE: Record<string, string> = { COMMERCIAL_CLEANING: "SCS-INS-COMMERCIAL", PEST_CONTROL: "SCS-INS-PEST", PAINTING: "SCS-INS-PAINTING" };
 
 export function QuoteSection({ title, subtitle, campaignName, defaultService }: { title: string; subtitle: string; campaignName: string; defaultService?: string }) {
   return (

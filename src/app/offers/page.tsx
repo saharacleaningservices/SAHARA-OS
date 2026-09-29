@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HOME_FROM_PRICE } from "@/lib/pricing-master";
 import Image from "next/image";
 import Link from "next/link";
 import { getCompanySettings } from "@/server/settings";
@@ -13,14 +14,14 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Festival Home & Office Cleaning in Pune – Navratri, Dussehra, Diwali | Sahara",
-  description: "Get your home and workplace festival-ready with Sahara Cleaning Services, Pune. Home deep cleaning from ₹3,999, office cleaning, pest control and interior painting. Since 2012.",
+  description: `Get your home and workplace festival-ready with Sahara Cleaning Services, Pune. Home deep cleaning from ${inr(HOME_FROM_PRICE)}, office cleaning, pest control and interior painting. Since 2012.`,
   alternates: { canonical: `${BASE_URL}/offers` },
-  openGraph: { title: "Get Your Home & Workplace Festival-Ready — Sahara Cleaning Services", description: "Navratri • Dussehra • Diwali. Transparent home deep cleaning prices from ₹3,999.", url: `${BASE_URL}/offers`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
+  openGraph: { title: "Get Your Home & Workplace Festival-Ready — Sahara Cleaning Services", description: `Navratri • Dussehra • Diwali. Transparent home deep cleaning prices from ${inr(HOME_FROM_PRICE)}.`, url: `${BASE_URL}/offers`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
 };
 
 const WA = "Hi Sahara, I'd like to book festival cleaning. Please share details.";
 const SERVICES = [
-  { href: "/home-deep-cleaning-pune", img: "/marketing/hero-home.webp", title: "Home Deep Cleaning", text: `Premium & Platinum packages from ${inr(3999)}.`, cta: "View Packages" },
+  { href: "/home-deep-cleaning-pune", img: "/marketing/hero-home.webp", title: "Home Deep Cleaning", text: `Premium & Platinum packages from ${inr(HOME_FROM_PRICE)}.`, cta: "View Packages" },
   { href: "/commercial-cleaning-pune", img: "/marketing/hero-commercial.webp", title: "Office & Commercial Cleaning", text: "Offices, workspaces and commercial premises — site visit and quote.", cta: "Get Quote" },
   { href: "/pest-control-pune", img: "/marketing/hero-pest.webp", title: "Pest Control", text: "Cockroach, termite, bed bug and ant control after inspection.", cta: "Book Inspection" },
   { href: "/interior-painting-pune", img: "/marketing/hero-painting.webp", title: "Interior Painting", text: "Asian Paints range — site visit and measurement based quote.", cta: "Get Painting Quote" },

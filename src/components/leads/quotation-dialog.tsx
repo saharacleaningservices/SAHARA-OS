@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label";
 import { createQuotation } from "@/server/actions/leads";
 import { formatINR } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { PRICING_MASTER, lineTotal } from "@/lib/pricing-master";
 
 type LineItem = { name: string; description: string; amount: number };
 
@@ -153,14 +154,44 @@ export function QuotationDialog({
               />
             </div>
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setItems((prev) => [...prev, { name: "", description: "", amount: 0 }])}
-          >
-            <Plus className="size-3.5" /> Add line item
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setItems((prev) => [...prev, { name: "", description: "", amount: 0 }])}
+            >
+              <Plus className="size-3.5" /> Add line item
+            </Button>
+            {/* Same approved prices as the landing pages, booking page and catalogue (pricing master). */}
+            <select
+              value=""
+              onChange={(e) => {
+                const p = PRICING_MASTER.find((x) => x.contentId === e.target.value);
+                if (!p) return;
+                const qty = p.minQty ?? 1;
+                setItems((prev) => [
+                  ...prev,
+                  {
+                    name: p.name,
+                    description:
+                      p.price == null
+                        ? `${p.name} — price after inspection`
+                        : `${p.name}${p.unit ? ` — ${qty} × ₹${p.price.toLocaleString("en-IN")} ${p.unit}` : ""}${p.rule ? ` (${p.rule})` : ""}`,
+                    amount: lineTotal(p, qty) ?? 0,
+                  },
+                ]);
+              }}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            >
+              <option value="">+ Add from Sahara price list…</option>
+              {PRICING_MASTER.map((p) => (
+                <option key={p.contentId} value={p.contentId}>
+                  {p.name} — {p.price == null ? "after inspection" : `₹${p.price.toLocaleString("en-IN")}${p.unit ? ` ${p.unit}` : ""}`}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex items-center gap-3">
             <Label className="w-24 text-xs text-muted-foreground">GST %</Label>

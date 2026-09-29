@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HOME_FROM_PRICE, PLATINUM_FROM_PRICE } from "@/lib/pricing-master";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, PackageGrid, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { PREMIUM, PLATINUM, PREMIUM_SCOPE, PREMIUM_EXCLUDED, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
@@ -7,10 +8,10 @@ import { PREMIUM, PLATINUM, PREMIUM_SCOPE, PREMIUM_EXCLUDED, SMALL_SERVICES, COM
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Home Deep Cleaning in Pune – 1 BHK from ₹3,999 | Sahara Cleaning Services",
-  description: "Professional home deep cleaning in East Pune with transparent package prices: Premium 1 BHK ₹3,999, Platinum with wall wet cleaning from ₹5,499. Sofa, bathroom, kitchen & mattress cleaning too.",
+  title: `Home Deep Cleaning in Pune – 1 BHK from ${inr(HOME_FROM_PRICE)} | Sahara Cleaning Services`,
+  description: `Professional home deep cleaning in East Pune with transparent package prices: Premium 1 BHK ${inr(HOME_FROM_PRICE)}, Platinum with wall wet cleaning from ${inr(PLATINUM_FROM_PRICE)}. Sofa, bathroom, kitchen & mattress cleaning too.`,
   alternates: { canonical: `${BASE_URL}/home-deep-cleaning-pune` },
-  openGraph: { title: "Home Deep Cleaning in Pune — Transparent Package Prices", description: "Premium from ₹3,999 · Platinum from ₹5,499 · Since 2012.", url: `${BASE_URL}/home-deep-cleaning-pune`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
+  openGraph: { title: "Home Deep Cleaning in Pune — Transparent Package Prices", description: `Premium from ${inr(HOME_FROM_PRICE)} · Platinum from ${inr(PLATINUM_FROM_PRICE)} · Since 2012.`, url: `${BASE_URL}/home-deep-cleaning-pune`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
 };
 
 const WA = "Hi Sahara, I'd like to book home deep cleaning. Please share details.";
