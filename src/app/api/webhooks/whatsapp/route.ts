@@ -304,6 +304,48 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
       return;
     }
 
+    // Booking-confirmation quick reply: record the customer's choice on
+    // their next upcoming job (data change only — nothing is marked paid).
+    if (/pay\s*after\s*service/i.test(label)) {
+      const job = await db.job.findFirst({
+        where: {
+          customerMobile: { endsWith: from.replace(/\D/g, "").slice(-10) },
+          deletedAt: null,
+          status: { notIn: ["CANCELLED", "COMPLETED"] },
+        },
+        orderBy: { scheduledDate: "asc" },
+      });
+      if (job) {
+        await db.job.update({ where: { id: job.id }, data: { paymentPreference: "PAY_AFTER_SERVICE" } });
+        await db.activityLog.create({ data: { jobId: job.id, action: "Customer chose Pay After Service (WhatsApp)" } }).catch(() => {});
+      }
+      await sendWhatsApp({
+        kind: "OTHER",
+        toNumber: from,
+        body: "Noted — you can pay after the service is completed. Our team will share the payment details once the job is done.",
+        relatedType: "WhatsAppWebhook",
+        relatedId: m.id,
+      });
+      return;
+    }
+
+    // Marketing templates' "Stop promotions": marketing opt-out only —
+    // booking and service messages keep working.
+    if (/stop\s*promotions?/i.test(label)) {
+      const mobile = from.replace(/\D/g, "").slice(-10);
+      await db.lead
+        .updateMany({ where: { OR: [{ mobile }, { whatsapp: mobile }] }, data: { marketingConsent: "OPTED_OUT", marketingConsentAt: new Date() } })
+        .catch(() => {});
+      await sendWhatsApp({
+        kind: "OTHER",
+        toNumber: from,
+        body: "You won't receive promotional messages from Sahara Cleaning Services any more. Booking updates will still reach you.",
+        relatedType: "WhatsAppWebhook",
+        relatedId: m.id,
+      });
+      return;
+    }
+
     // Older 4-button template's Quick Replies — kept working for any
     // message already sent/in-flight under booking_confirmation_v1.
     if (/before.*after|gallery|photo/i.test(label)) {

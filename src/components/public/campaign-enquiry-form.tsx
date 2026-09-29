@@ -4,6 +4,8 @@ import { useState } from "react";
 import { publicBookLead } from "@/server/actions/public-booking";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
+import { getSlotAvailability } from "@/server/actions/slot-availability";
+import { TIME_SLOTS } from "@/lib/constants";
 
 // Short enquiry form for campaign landing pages. Goes through the same
 // publicBookLead action as /book, so attribution + duplicate protection apply.
@@ -17,12 +19,25 @@ const SERVICES: { value: string; label: string }[] = [
   { value: "PAINTING", label: "Interior Painting" },
 ];
 const PROPERTIES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Villa / Bungalow", "Office / Commercial", "Other"];
-const SLOTS = ["Morning (9 AM – 12 PM)", "Afternoon (12 – 3 PM)", "Evening (3 – 6 PM)"];
 
 export function CampaignEnquiryForm({ campaignName, defaultService = "" }: { campaignName: string; defaultService?: string }) {
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const [ref, setRef] = useState("");
+  // Real availability for the chosen date (same CRM calculation as /book).
+  const [full, setFull] = useState<Set<string>>(new Set());
+  const [dayLabel, setDayLabel] = useState("");
+
+  async function onDateChange(value: string) {
+    setFull(new Set());
+    setDayLabel("");
+    if (!value) return;
+    const res = await getSlotAvailability(value).catch(() => null);
+    if (res?.ok) {
+      setFull(new Set(res.slots.filter((x) => !x.available).map((x) => x.slot)));
+      setDayLabel(res.label);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,12 +97,18 @@ export function CampaignEnquiryForm({ campaignName, defaultService = "" }: { cam
       </select>
       <input name="location" placeholder="Location / society (e.g. Magarpatta)" className={input} />
       <div className="grid grid-cols-2 gap-2">
-        <input name="date" type="date" className={input} aria-label="Preferred date" />
+        <input name="date" type="date" className={input} aria-label="Preferred date" onChange={(e) => onDateChange(e.target.value)} />
         <select name="slot" defaultValue="" className={input} aria-label="Preferred time">
           <option value="">Preferred time</option>
-          {SLOTS.map((s) => <option key={s}>{s}</option>)}
+          {TIME_SLOTS.map((s) => (
+            <option key={s} value={s} disabled={full.has(s)}>
+              {s}
+              {full.has(s) ? " — Full" : ""}
+            </option>
+          ))}
         </select>
       </div>
+      {dayLabel && <p className="text-xs text-[#0a2540]/70">{dayLabel} on this date — our team confirms the final slot.</p>}
       <textarea name="message" rows={2} placeholder="Message (optional)" className={`${input} sm:col-span-2`} />
       {/* Honeypot */}
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />

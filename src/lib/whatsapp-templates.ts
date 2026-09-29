@@ -96,12 +96,15 @@ export function premiumBookingConfirmationMessage(input: {
   area: string;
   balanceDue?: number | null;
   googleReviewUrl?: string | null;
+  /** Secure /booking/<token> page; falls back to the legacy /j/<jobNumber> page. */
+  bookingUrl?: string | null;
 }) {
-  const trackingUrl = `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
+  const trackingUrl = input.bookingUrl || `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
+  const payUrl = input.bookingUrl ? `${input.bookingUrl}?pay=advance` : `${trackingUrl}#payment`;
   const location = input.address?.trim() || input.area;
   const hasBalance = !!input.balanceDue && input.balanceDue > 0;
   const paymentLine = hasBalance
-    ? `💳 Pay Advance — ${formatINR(input.balanceDue!)} due: ${trackingUrl}#payment`
+    ? `💳 Pay Advance — ${formatINR(input.balanceDue!)} due: ${payUrl}`
     : `💳 Payment — fully settled, thank you!`;
 
   return [

@@ -250,7 +250,7 @@ export function PublicBookingForm({
   // Smart Calendar — real (never fabricated) slot-availability estimate for
   // the selected date. "Not a final confirmation" — the office team always
   // verifies before a slot is locked in.
-  const [slotInfo, setSlotInfo] = useState<{ label: string; isFull: boolean } | null>(null);
+  const [slotInfo, setSlotInfo] = useState<{ label: string; isFull: boolean; slots: { slot: string; available: boolean }[] } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -259,7 +259,11 @@ export function PublicBookingForm({
       return;
     }
     getSlotAvailability(serviceDate).then((res) => {
-      if (!cancelled && res.ok) setSlotInfo({ label: res.label, isFull: res.isFull });
+      if (!cancelled && res.ok) {
+        setSlotInfo({ label: res.label, isFull: res.isFull, slots: res.slots });
+        // Drop a previously picked slot that is no longer available on this date.
+        setTimeSlot((cur) => (cur && res.slots.some((x) => x.slot === cur && !x.available) ? "" : cur));
+      }
     }).catch(() => {
       if (!cancelled) setSlotInfo(null);
     });
@@ -744,7 +748,14 @@ export function PublicBookingForm({
           <Select value={timeSlot} onValueChange={setTimeSlot}>
             <SelectTrigger><SelectValue placeholder="Select Time" /></SelectTrigger>
             <SelectContent>
-              {TIME_SLOTS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              {TIME_SLOTS.map((s) => {
+                const full = slotInfo?.slots.some((x) => x.slot === s && !x.available) ?? false;
+                return (
+                  <SelectItem key={s} value={s} disabled={full}>
+                    {s}{full ? " — Full" : ""}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>

@@ -14,6 +14,7 @@ import { sendWhatsApp } from "@/lib/whatsapp";
 import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
+import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit ... only for TODAY
@@ -102,6 +103,10 @@ export async function createJob(values: unknown) {
 
   await db.activityLog.create({ data: { jobId: job.id, actorId: session?.sub, action: `Job ${jobNumber} created` } });
 
+  // A job saved manually in the CRM is a confirmed booking — same customer
+  // confirmation as an online request confirmed via confirmBooking().
+  await sendBookingConfirmation(job.id).catch(() => {});
+
   revalidatePath("/jobs");
   revalidatePath("/dashboard");
   return { success: true as const, jobId: job.id };
@@ -115,6 +120,7 @@ export async function updateJob(id: string, values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const d = parsed.data;
+  const before = await db.job.findUnique({ where: { id }, select: { scheduledDate: true, scheduledTime: true } });
   await db.job.update({
     where: { id },
     data: {
@@ -159,6 +165,12 @@ export async function updateJob(id: string, values: unknown) {
       });
     }
   }
+
+  const moved =
+    before &&
+    ((d.scheduledDate && new Date(d.scheduledDate).getTime() !== before.scheduledDate.getTime()) ||
+      (d.scheduledTime && d.scheduledTime !== before.scheduledTime));
+  if (moved) await sendBookingChangeNotice(id, "RESCHEDULED").catch(() => {});
 
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${id}`);
@@ -261,6 +273,9 @@ export async function updateJobStatus(jobId: string, status: JobStatus) {
 
   if (status === "COMPLETED") {
     await sendJobCompletionReview(job).catch(() => {});
+  }
+  if (status === "CANCELLED") {
+    await sendBookingChangeNotice(jobId, "CANCELLED").catch(() => {});
   }
 
   revalidatePath("/jobs");
