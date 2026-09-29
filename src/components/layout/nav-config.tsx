@@ -39,6 +39,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", section: "dashboard", icon: LayoutDashboard },
   { label: "Leads / CRM", href: "/leads", section: "leads", icon: Users },
+  { label: "Price List", href: "/leads/price-list", section: "leads", icon: IndianRupee },
   { label: "Jobs", href: "/jobs", section: "jobs", icon: ClipboardList },
   { label: "Team Dispatch", href: "/jobs/dispatch", section: "jobs", icon: Route },
   { label: "Staff", href: "/staff", section: "staff", icon: UserCog },

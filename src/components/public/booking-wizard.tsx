@@ -6,7 +6,8 @@ import { publicBookLead } from "@/server/actions/public-booking";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
-import { COMBOS, PLATINUM, PREMIUM, SMALL_SERVICES, inr } from "@/lib/marketing-content";
+import { inr } from "@/lib/marketing-content";
+import { PRICE_GROUP_LABEL, PRICING_MASTER } from "@/lib/pricing-master";
 
 // Customer booking flow in the approved landing-page design. Prices come only
 // from marketing-content.ts (the approved catalogue prices). Submitting sends
@@ -35,23 +36,21 @@ type Choice = {
   minQty?: number;
 };
 
-const SMALL_MIN: Record<string, number> = {
-  "Sofa Cleaning": 5,
-  "Bathroom Deep Cleaning": 2,
-  "Mattress Cleaning": 2,
-  "Kitchen Deep Cleaning (Without Chimney)": 1,
-};
-const ADD_ON = COMBOS.find((c) => c.note);
-
-const CHOICES: Choice[] = [
-  ...PREMIUM.map((p) => ({ key: `premium-${p.bhk}`, group: "Premium Home Deep Cleaning", label: `${p.bhk} Premium`, category: "HOME_DEEP_CLEANING", variant: "Premium", packageName: `${p.bhk} Premium`, propertyType: p.bhk, unitPrice: p.price })),
-  ...PLATINUM.map((p) => ({ key: `platinum-${p.bhk}`, group: "Platinum Home Deep Cleaning", label: `${p.bhk} Platinum`, category: "HOME_DEEP_CLEANING", variant: "Platinum", packageName: `${p.bhk} Platinum`, propertyType: p.bhk, unitPrice: p.price })),
-  ...SMALL_SERVICES.map((s) => ({ key: `small-${s.name}`, group: "Individual Services", label: s.name, category: "INDIVIDUAL_CLEANING", variant: s.name, unitPrice: s.price, unit: s.unit, minQty: SMALL_MIN[s.name] ?? 1 })),
-  ...COMBOS.filter((c) => !c.note).map((c) => ({ key: `combo-${c.name}`, group: "Combo Packages", label: c.name, category: "COMBO_PACKAGE", variant: c.name, unitPrice: c.price })),
-  { key: "commercial", group: "Price After Inspection", label: "Office / Commercial / Villa Cleaning", category: "COMMERCIAL_CLEANING", variant: "Commercial Cleaning", unitPrice: null },
-  { key: "pest", group: "Price After Inspection", label: "Pest Control", category: "PEST_CONTROL", variant: "Pest Control", unitPrice: null },
-  { key: "painting", group: "Price After Inspection", label: "Interior Painting", category: "PAINTING", variant: "Interior Painting", unitPrice: null },
-];
+// Every option and price comes from the pricing master — the same numbers the
+// landing pages, CRM price list, quotations and catalogue feed use.
+const ADD_ON = PRICING_MASTER.find((p) => p.addOnOnly) ?? null;
+const CHOICES: Choice[] = PRICING_MASTER.filter((p) => !p.addOnOnly).map((p) => ({
+  key: p.contentId,
+  group: PRICE_GROUP_LABEL[p.group],
+  label: p.bhk ? `${p.bhk} ${p.variant}` : p.name,
+  category: p.category,
+  variant: p.variant,
+  packageName: p.bhk ? `${p.bhk} ${p.variant}` : undefined,
+  propertyType: p.bhk,
+  unitPrice: p.price,
+  unit: p.unit,
+  minQty: p.minQty,
+}));
 
 const card = "rounded-2xl bg-white p-5 shadow-sm";
 const input = "h-11 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-sm outline-none focus:border-primary";
@@ -94,7 +93,7 @@ export function BookingWizard({ quote, defaultChoice, campaignName }: { quote?: 
   const total = useMemo(() => {
     if (quote) return quote.totalAmount;
     if (!choice || choice.unitPrice == null) return null;
-    return choice.unitPrice * (choice.minQty ? qty : 1) + (addOn && ADD_ON ? ADD_ON.price : 0);
+    return choice.unitPrice * (choice.minQty ? qty : 1) + (addOn && ADD_ON ? ADD_ON.price ?? 0 : 0);
   }, [quote, choice, qty, addOn]);
 
   const serviceLine = quote
@@ -203,7 +202,7 @@ export function BookingWizard({ quote, defaultChoice, campaignName }: { quote?: 
           {choice && choice.unitPrice != null && ADD_ON && (
             <label className="mt-3 flex items-center gap-2 text-sm">
               <input type="checkbox" checked={addOn} onChange={(e) => setAddOn(e.target.checked)} className="size-4" />
-              Add {ADD_ON.name} ({inr(ADD_ON.price)}, add-on)
+              Add {ADD_ON.name} ({inr(ADD_ON.price ?? 0)}, add-on)
             </label>
           )}
         </div>
