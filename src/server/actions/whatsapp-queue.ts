@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { cancelPendingWhatsApp, previewPendingWhatsApp } from "@/lib/whatsapp";
-import { qaKeepIds } from "@/server/whatsapp-qa";
 
 
 async function requireAdmin() {
@@ -17,18 +16,17 @@ async function requireAdmin() {
 export async function previewStaleWhatsApp() {
   const { error } = await requireAdmin();
   if (error) return { error };
-  return { success: true as const, ...(await previewPendingWhatsApp(await qaKeepIds())) };
+  return { success: true as const, ...(await previewPendingWhatsApp([])) };
 }
 
-/** Cancels every pending WhatsApp message except the QA test. Sends nothing, deletes nothing. */
+/** Cancels every pending WhatsApp message. Sends nothing, deletes nothing. */
 export async function cancelStaleWhatsApp() {
   const { error, session } = await requireAdmin();
   if (error || !session) return { error: error ?? "Admin only" };
 
-  const keepIds = await qaKeepIds();
-  const before = await previewPendingWhatsApp(keepIds);
+  const before = await previewPendingWhatsApp([]);
   const count = await cancelPendingWhatsApp(
-    keepIds,
+    [],
     `Cancelled by ${session.name} before WhatsApp Cloud API go-live (stale queue)`,
   );
   await db.auditLog.create({
@@ -38,7 +36,7 @@ export async function cancelStaleWhatsApp() {
       action: "WHATSAPP_QUEUE_CANCELLED",
       summary: `Cancelled ${count} stale WhatsApp messages (${Object.entries(before.counts)
         .map(([k, v]) => `${k}: ${v}`)
-        .join(", ")}; QA test kept)`,
+        .join(", ")})`,
       actorName: session.name,
       actorEmail: session.email,
     },

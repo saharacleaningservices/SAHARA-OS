@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { WhatsAppConsentCard } from "@/components/settings/whatsapp-consent-card";
-import { qaKeepIds } from "@/server/whatsapp-qa";
 import { WhatsAppStaleQueueCard } from "@/components/settings/whatsapp-stale-queue-card";
 import { formatDateTime } from "@/lib/utils";
 import { Info } from "lucide-react";
@@ -24,7 +23,7 @@ export default async function MessageLogPage() {
     db.emailMessage.findMany({ orderBy: { createdAt: "desc" }, take: 200 }).catch(() => []),
     listOptedOutNumbers(),
   ]);
-  const stalePreview = me.role === "ADMIN" ? await previewPendingWhatsApp(await qaKeepIds()) : null;
+  const stalePreview = me.role === "ADMIN" ? await previewPendingWhatsApp([]) : null;
 
   const rows = [
     ...waMsgs.map((m) => ({
