@@ -624,6 +624,14 @@ model Job {
 
   teamNumber Int? // internal crew team 1–4, inherited from the Lead / set on the job
 
+  // Customer-facing booking page (/booking/<publicToken>) — unguessable, unlike
+  // jobNumber. paymentPreference: PAY_AFTER_SERVICE when the customer chooses it;
+  // advanceRequestedAt: when an advance was requested. Paid amounts always come
+  // from Payment rows recorded by staff — never marked paid automatically.
+  publicToken        String?   @unique
+  paymentPreference  String?
+  advanceRequestedAt DateTime?
+
   supervisorId String?
   supervisor   Staff?  @relation("JobSupervisor", fields: [supervisorId], references: [id])
 

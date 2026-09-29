@@ -1,15 +1,23 @@
 // WhatsApp Cloud API message templates for the +91 9175220270 sender.
 //
-// These are PREPARED, not submitted: each must be created and approved in
-// WhatsApp Manager → Message templates (same name, category, language and
-// body) before it can be sent. The WhatsApp Inbox template picker lists
-// them; Meta rejects any send whose template isn't approved yet, and that
-// rejection is logged on the Message Log.
+// PREPARED, not submitted: each must be created and approved in WhatsApp
+// Manager → Message templates with exactly this name, category, language,
+// body and buttons before it can be sent. Meta rejects a send whose template
+// isn't approved, and that rejection is logged on the Message Log.
 //
-// Category follows Meta's rules: UTILITY = about an existing enquiry,
-// booking, job or payment the customer initiated; MARKETING = anything
-// promotional or re-engaging (offers, generic follow-ups, review asks).
-// Meta may re-categorise on review — its decision wins.
+// Buttons follow Meta's current template limits: up to 10 buttons, at most
+// 2 URL buttons, quick replies allowed alongside. A URL button's dynamic part
+// is a single {{1}} at the END of the URL.
+//
+// Category: UTILITY = about an enquiry, booking, job or payment the customer
+// already has; MARKETING = promotional / re-engagement. Meta may
+// re-categorise on review — its decision wins.
+
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+
+export type TemplateButton =
+  | { type: "URL"; text: string; url: string; example?: string }
+  | { type: "QUICK_REPLY"; text: string };
 
 export type CloudTemplate = {
   key: string;
@@ -18,13 +26,17 @@ export type CloudTemplate = {
   language: "en";
   purpose: string;
   body: string;
-  /** Example value per {{n}} placeholder, in order (Meta requires examples). */
+  /** Example value per {{n}} body placeholder, in order (Meta requires examples). */
   examples: string[];
+  buttons?: TemplateButton[];
 };
+
+const BOOKING_PAGE = `${PUBLIC_BOOKING_URL}/booking/`;
+const EX_TOKEN = "q7Xk2mPz9LwR4tNc8vB1yH6s";
 
 export const CLOUD_TEMPLATES: CloudTemplate[] = [
   {
-    key: "J",
+    key: "QA",
     name: "sahara_test_booking",
     category: "MARKETING",
     language: "en",
@@ -34,94 +46,145 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     examples: ["SAHARA QA TEST"],
   },
   {
-    key: "A",
-    name: "sahara_booking_acknowledgement",
+    key: "1",
+    name: "sahara_booking_request_received",
     category: "UTILITY",
     language: "en",
-    purpose: "Booking/enquiry acknowledgement",
+    purpose: "Booking request received (NOT a confirmation)",
     body:
-      "Hi {{1}}, thank you for contacting Sahara Cleaning Services. We have received your enquiry {{2}} for {{3}}. Our team will call you shortly to confirm the details.",
-    examples: ["Priya", "LD-2026-0130", "Home Deep Cleaning"],
+      "Hi {{1}}, we have received your booking request {{2}} for {{3}} on {{4}} ({{5}}).\nOur team will confirm the slot shortly. This is not yet a confirmed booking.\n— Sahara Cleaning Services",
+    examples: ["Priya", "LD-2026-0130", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00"],
   },
   {
-    key: "B",
-    name: "sahara_booking_confirmation",
+    key: "2",
+    name: "sahara_booking_confirmed",
     category: "UTILITY",
     language: "en",
-    purpose: "Booking confirmation",
+    purpose: "Booking confirmed (same for online and manual CRM bookings)",
     body:
-      "Hi {{1}}, your booking {{2}} for {{3}} is confirmed for {{4}}, {{5}}.\nAddress: {{6}}\nOur team will reach on time. Please keep water and electricity available.",
-    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 AM – 1:00 PM", "Magarpatta, Hadapsar"],
+      "Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\n\nOur team will reach on time. Please keep water and electricity available.",
+    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00", "Magarpatta, Hadapsar"],
+    buttons: [
+      { type: "URL", text: "View Booking", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}${EX_TOKEN}` },
+      { type: "URL", text: "Pay Advance", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}${EX_TOKEN}` },
+      { type: "QUICK_REPLY", text: "Pay After Service" },
+      { type: "QUICK_REPLY", text: "Google Review" },
+    ],
   },
   {
-    key: "C",
-    name: "sahara_appointment_reminder",
+    key: "3",
+    name: "sahara_booking_rescheduled",
     category: "UTILITY",
     language: "en",
-    purpose: "24-hour appointment reminder",
-    body:
-      "Hi {{1}}, a reminder that your {{2}} service is scheduled for tomorrow, {{3}} ({{4}}). Please keep water and electricity available. Reply here if you need to reschedule.",
-    examples: ["Priya", "Home Deep Cleaning", "12 Oct 2026", "10:00 AM – 1:00 PM"],
+    purpose: "Booking rescheduled",
+    body: "Hi {{1}}, your booking {{2}} for {{3}} has been rescheduled to {{4}} ({{5}}).\nReply here if this doesn't suit you.",
+    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "14 Oct 2026", "11:00 – 2:00"],
+    buttons: [{ type: "URL", text: "View Booking", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}${EX_TOKEN}` }],
   },
   {
-    key: "D",
-    name: "sahara_team_dispatch",
+    key: "4",
+    name: "sahara_booking_cancelled",
     category: "UTILITY",
     language: "en",
-    purpose: "Team dispatch notification (to staff)",
-    body:
-      "Job {{1}} assigned to you: {{2}} on {{3}} at {{4}}.\nCustomer: {{5}}\nArea: {{6}}\nPlease reach on time and update the job status in Sahara OS.",
-    examples: ["JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 AM", "Priya", "Magarpatta"],
+    purpose: "Booking cancelled",
+    body: "Hi {{1}}, your booking {{2}} for {{3}} on {{4}} has been cancelled.\nReply here or call 8956567130 if you'd like to book a new date.",
+    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026"],
   },
   {
-    key: "E",
-    name: "sahara_advance_reminder",
+    key: "5",
+    name: "sahara_advance_payment_request",
     category: "UTILITY",
     language: "en",
-    purpose: "Advance / payment reminder",
-    body:
-      "Hi {{1}}, a gentle reminder that an advance of ₹{{2}} is pending for booking {{3}}. You can pay here: {{4}}\nThank you, Sahara Cleaning Services.",
-    examples: ["Priya", "1,000", "JOB-2026-0150", "https://booking.saharacleaningservices.com/j/JOB-2026-0150#payment"],
+    purpose: "Advance payment request",
+    body: "Hi {{1}}, to secure booking {{2}} on {{3}}, please pay the advance of ₹{{4}}.\nPayment details are on your booking page.",
+    examples: ["Priya", "JOB-2026-0150", "12 Oct 2026", "1,000"],
+    buttons: [{ type: "URL", text: "Pay Advance", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}${EX_TOKEN}` }],
   },
   {
-    key: "F",
-    name: "sahara_service_completed",
+    key: "6",
+    name: "sahara_payment_received",
     category: "UTILITY",
     language: "en",
-    purpose: "Service completion",
-    body:
-      "Hi {{1}}, your {{2}} service (booking {{3}}) has been completed. Thank you for choosing Sahara Cleaning Services. Reply here if anything needs our attention.",
+    purpose: "Payment confirmation (sent only after staff records the payment)",
+    body: "Hi {{1}}, we have received your payment of ₹{{2}} for booking {{3}}. Thank you!\n— Sahara Cleaning Services",
+    examples: ["Priya", "1,000", "JOB-2026-0150"],
+  },
+  {
+    key: "7",
+    name: "sahara_pay_after_service_reminder",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Pay-after-service reminder",
+    body: "Hi {{1}}, your {{2}} service (booking {{3}}) is complete. The balance of ₹{{4}} is due as agreed. Payment details are on your booking page.",
+    examples: ["Priya", "Home Deep Cleaning", "JOB-2026-0150", "3,999"],
+    buttons: [{ type: "URL", text: "Pay Now", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}${EX_TOKEN}` }],
+  },
+  {
+    key: "8",
+    name: "sahara_service_reminder",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Service reminder (day before)",
+    body: "Hi {{1}}, a reminder that your {{2}} service is scheduled for {{3}} ({{4}}) in {{5}}. Please keep water and electricity available.",
+    examples: ["Priya", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00", "Magarpatta"],
+    buttons: [{ type: "URL", text: "View Booking", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}${EX_TOKEN}` }],
+  },
+  {
+    key: "9",
+    name: "sahara_job_completed",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Job completed",
+    body: "Hi {{1}}, your {{2}} service (booking {{3}}) has been completed. Thank you for choosing Sahara Cleaning Services. Reply here if anything needs our attention.",
     examples: ["Priya", "Home Deep Cleaning", "JOB-2026-0150"],
+    buttons: [{ type: "URL", text: "View Booking", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}${EX_TOKEN}` }],
   },
   {
-    key: "G",
+    key: "10",
     name: "sahara_review_request",
     category: "MARKETING",
     language: "en",
     purpose: "Google review request (Meta usually treats review asks as marketing)",
-    body:
-      "Hi {{1}}, we hope you're happy with your {{2}} service. Could you spare a minute to review Sahara Cleaning Services on Google? {{3}}\nThank you!",
-    examples: ["Priya", "Home Deep Cleaning", "https://g.page/r/sahara-review"],
+    body: "Hi {{1}}, we hope you're happy with your {{2}} service. Could you spare a minute to review Sahara Cleaning Services on Google? It really helps us. Thank you!",
+    examples: ["Priya", "Home Deep Cleaning"],
+    buttons: [{ type: "QUICK_REPLY", text: "Google Review" }],
   },
   {
-    key: "H",
-    name: "sahara_lead_followup",
+    key: "11",
+    name: "sahara_customer_followup",
     category: "MARKETING",
     language: "en",
-    purpose: "Lead follow-up (enquiry not yet booked)",
-    body:
-      "Hi {{1}}, following up on your enquiry for {{2}}. Would you like us to confirm a date? Reply here or call us at 8956567130.",
+    purpose: "Customer / lead follow-up",
+    body: "Hi {{1}}, following up on your enquiry for {{2}}. Would you like us to confirm a date? Reply here or book online.",
     examples: ["Priya", "Home Deep Cleaning"],
+    buttons: [{ type: "URL", text: "Book Now", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/home-deep-cleaning-pune?utm_source=whatsapp&utm_medium=marketing&utm_campaign=followup` }],
   },
   {
-    key: "I",
+    key: "12",
     name: "sahara_festival_offer",
     category: "MARKETING",
     language: "en",
-    purpose: "Festival cleaning offer (Navratri • Dussehra • Diwali)",
+    purpose: "Festival marketing (Navratri • Dussehra • Diwali)",
     body:
-      "Hi {{1}}, get your home & workplace festival-ready with Sahara Cleaning Services. Home deep cleaning from ₹3,999 (1 BHK Premium). Festival-season demand can lead to price revisions — book early to secure the current listed price: {{2}}\nReply STOP to opt out.",
-    examples: ["Priya", "https://booking.saharacleaningservices.com/offers"],
+      "Hi {{1}}, get your home & workplace festival-ready with Sahara Cleaning Services. Home deep cleaning from ₹3,999 (1 BHK Premium). Festival-season demand can lead to price revisions — book early to secure the current listed price.",
+    examples: ["Priya"],
+    buttons: [
+      { type: "URL", text: "Book Now", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/offers?utm_source=whatsapp&utm_medium=marketing&utm_campaign=sahara_festival_2026&utm_content=festival_offer` },
+      { type: "QUICK_REPLY", text: "Stop promotions" },
+    ],
+  },
+  {
+    key: "13",
+    name: "sahara_customer_reactivation",
+    category: "MARKETING",
+    language: "en",
+    purpose: "Existing customer reactivation",
+    body: "Hi {{1}}, it's been a while since your last {{2}} with Sahara Cleaning Services. Book your next deep clean today — same trained team, transparent package prices.",
+    examples: ["Priya", "home deep cleaning"],
+    buttons: [
+      { type: "URL", text: "Book Now", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/home-deep-cleaning-pune?utm_source=whatsapp&utm_medium=marketing&utm_campaign=reactivation` },
+      { type: "QUICK_REPLY", text: "Stop promotions" },
+    ],
   },
 ];
 
@@ -136,4 +199,9 @@ export function renderTemplatePreview(t: CloudTemplate, params: string[]) {
 
 export function placeholderCount(t: CloudTemplate) {
   return new Set(t.body.match(/\{\{\d+\}\}/g) ?? []).size;
+}
+
+/** Number of URL buttons that take a dynamic {{1}} suffix. */
+export function dynamicUrlButtons(t: CloudTemplate) {
+  return (t.buttons ?? []).map((b, index) => ({ b, index })).filter(({ b }) => b.type === "URL" && b.url.endsWith("{{1}}"));
 }

@@ -38,7 +38,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
   return (
     <div className="min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
-      <MarketingTags />
+      <MarketingTags withPixel />
       {jsonLd.map((j, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }} />
       ))}

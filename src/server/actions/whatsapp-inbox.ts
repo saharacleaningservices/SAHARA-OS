@@ -74,6 +74,11 @@ export async function sendInboxTemplate(values: unknown) {
   }
 
   const lead = await findLeadForNumber(parsed.data.number);
+  if (t.category === "MARKETING" && t.name !== "sahara_test_booking") {
+    const mobile = normalizeNumber(parsed.data.number).slice(-10);
+    const optedOut = await db.lead.findFirst({ where: { OR: [{ mobile }, { whatsapp: mobile }], marketingConsent: "OPTED_OUT" }, select: { id: true } });
+    if (optedOut) return { error: "This customer opted out of promotional messages." };
+  }
   const res = await sendWhatsAppTemplate({
     kind: "OTHER",
     toNumber: parsed.data.number,

@@ -421,6 +421,14 @@ export const HEAR_ABOUT_US_OPTIONS = [
 // on in a day.
 export const DAILY_BOOKING_CAPACITY = 8;
 
+// Slot-level availability (src/server/actions/slot-availability.ts): how many
+// crews work in parallel (teams 1–4), how long one booking occupies a crew
+// (home deep cleaning is documented at 7–8 hours), and dates the office has
+// blocked (holidays etc., "YYYY-MM-DD").
+export const BOOKING_TEAM_COUNT = 4;
+export const BOOKING_JOB_DURATION_HOURS = 8;
+export const BLOCKED_BOOKING_DATES: readonly string[] = [];
+
 export const LEAD_STAGES = [
   "NEW",
   "INTERESTED",

@@ -1121,6 +1121,13 @@ db.exec(`
 `);
 console.log("WhatsApp inbox/receipts migration complete.");
 
+// ── Customer booking page + payment preference (additive) ────────────────
+addColumnIfMissing("Job", "publicToken", `"publicToken" TEXT`);
+addColumnIfMissing("Job", "paymentPreference", `"paymentPreference" TEXT`);
+addColumnIfMissing("Job", "advanceRequestedAt", `"advanceRequestedAt" DATETIME`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Job_publicToken_key" ON "Job"("publicToken");`);
+console.log("Booking page token migration complete.");
+
 db.close();
 // ─────────────────────────────────────────────────────────────────────────
 // Owner Command Center — monthly business revenue target (ADMIN-editable).

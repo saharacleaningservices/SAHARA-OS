@@ -17,6 +17,7 @@ import { useEffect } from "react";
 const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
 const ADS = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 const ADS_LEAD_LABEL = process.env.NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL;
+const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 type Gtag = (...args: unknown[]) => void;
 const gtag = (): Gtag | null =>
@@ -26,13 +27,15 @@ const fbq = (): Gtag | null =>
 
 /** Fire once after a successful booking/lead form submission. */
 export function trackLead(details: { category?: string; variant?: string }) {
+  fbq()?.("track", "Lead", { content_category: details.category });
   const g = gtag();
   if (!g) return;
   g("event", "generate_lead", { service_category: details.category, service_variant: details.variant });
   if (ADS && ADS_LEAD_LABEL) g("event", "conversion", { send_to: `${ADS}/${ADS_LEAD_LABEL}` });
 }
 
-export function MarketingTags() {
+/** withPixel: also load the Meta Pixel (pages other than /book, which loads its own). */
+export function MarketingTags({ withPixel = false }: { withPixel?: boolean } = {}) {
   useEffect(() => {
     function onClick(e: MouseEvent) {
       const a = (e.target as HTMLElement | null)?.closest?.("a") as HTMLAnchorElement | null;
@@ -46,16 +49,24 @@ export function MarketingTags() {
     return () => document.removeEventListener("click", onClick, true);
   }, []);
 
-  if (!GA4 && !ADS) return null;
+  const pixel = withPixel && PIXEL;
+  if (!GA4 && !ADS && !pixel) return null;
   const ids = [GA4, ADS].filter(Boolean) as string[];
   return (
     <>
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${ids[0]}`} strategy="afterInteractive" />
-      <Script id="sahara-gtag" strategy="afterInteractive">
-        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());${ids
-          .map((id) => `gtag('config','${id}');`)
-          .join("")}`}
-      </Script>
+      {pixel && (
+        <Script id="sahara-meta-pixel" strategy="afterInteractive">
+          {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL}');fbq('track','PageView');`}
+        </Script>
+      )}
+      {ids.length > 0 && <Script src={`https://www.googletagmanager.com/gtag/js?id=${ids[0]}`} strategy="afterInteractive" />}
+      {ids.length > 0 && (
+        <Script id="sahara-gtag" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());${ids
+            .map((id) => `gtag('config','${id}');`)
+            .join("")}`}
+        </Script>
+      )}
     </>
   );
 }

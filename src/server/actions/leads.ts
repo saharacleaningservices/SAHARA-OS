@@ -21,13 +21,11 @@ import {
   FOLLOWUP_TYPE_LABELS,
   CALL_OUTCOME_LABELS,
   COMPANY,
-  SERVICE_LABELS,
 } from "@/lib/constants";
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
-import { sendWhatsApp } from "@/lib/whatsapp";
-import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
+import { sendBookingConfirmation } from "@/server/booking-messages";
 import { canAccessLead } from "@/server/leads";
 
 /**
@@ -436,41 +434,10 @@ export async function confirmBooking(leadId: string, values: unknown) {
     data: { jobId: job.id, actorId: session?.sub, action: `Job ${jobNumber} created from enquiry ${lead.leadNumber}` },
   });
 
-  // Balance due right now (quote − advance actually paid), used in the
-  // "Pay Now / Payment Link" line of the premium confirmation message below.
-  const paymentRow = await db.payment.findFirst({ where: { jobId: job.id } });
-  const balanceDue = paymentRow ? Math.max(paymentRow.amount - (paymentRow.paidAmount ?? 0), 0) : jobValue;
-
-  // ONE premium WhatsApp booking-confirmation message — identical whether the
-  // enquiry's source was WEBSITE, CALL/manual CRM entry, GMB, or any other
-  // LeadSource, since every source funnels through this single confirmBooking()
-  // action. SMS is intentionally NOT sent for this flow — WhatsApp is the
-  // single channel. Guarded against a duplicate send the same way
-  // src/server/reminders.ts guards its own sends.
-  const alreadySent = await db.whatsAppMessage.findFirst({
-    where: { kind: "BOOKING_CONFIRMATION", relatedType: "Job", relatedId: job.id },
-  });
-  if (!alreadySent) {
-    const settings = await db.companySettings.findUnique({ where: { id: "default" } });
-    await sendWhatsApp({
-      kind: "BOOKING_CONFIRMATION",
-      toNumber: lead.mobile,
-      toName: lead.name,
-      body: premiumBookingConfirmationMessage({
-        customerName: lead.name,
-        jobNumber,
-        service: SERVICE_LABELS[lead.service] ?? lead.service,
-        date: scheduledDate,
-        timeSlot: data.timeSlot,
-        address: lead.address,
-        area: lead.area,
-        balanceDue,
-        googleReviewUrl: settings?.googleReviewUrl ?? null,
-      }),
-      relatedType: "Job",
-      relatedId: job.id,
-    }).catch(() => {});
-  }
+  // ONE WhatsApp booking confirmation, identical for every lead source and
+  // for manual CRM jobs (createJob) — see src/server/booking-messages.ts,
+  // which also owns the once-per-job duplicate guard.
+  await sendBookingConfirmation(job.id).catch(() => {});
   await dispatchTeamForJob(job.id).catch(() => {});
 
   revalidatePath("/leads");

@@ -7,7 +7,9 @@ import { addTimelineEntry } from "@/server/timeline";
 import { COMPANY, SERVICE_CATEGORY_TO_LEGACY, SERVICE_LABELS } from "@/lib/constants";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { recordUpsellEvent } from "@/server/upsell";
-import { sendWhatsApp } from "@/lib/whatsapp";
+import { sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
+import { getSlotAvailability } from "@/server/actions/slot-availability";
 import { notify } from "@/server/notify";
 import { z } from "zod";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
@@ -66,6 +68,15 @@ export async function publicBookLead(values: unknown) {
   }
   const data = parsed.data;
   if (data.website) return { error: "Something went wrong. Please try again." }; // honeypot tripped
+
+  // Re-check the requested slot on the server so a stale form can't request a
+  // slot that filled up after the page loaded.
+  if (data.serviceDate && data.timeSlot) {
+    const avail = await getSlotAvailability(data.serviceDate).catch(() => null);
+    if (avail?.ok && avail.slots.some((x) => x.slot === data.timeSlot && !x.available)) {
+      return { error: "That time slot has just filled up — please pick another time or date." };
+    }
+  }
 
   const legacyService = SERVICE_CATEGORY_TO_LEGACY[data.serviceCategory] ?? "HOME_DEEP_CLEANING";
 
@@ -279,15 +290,40 @@ export async function publicBookLead(values: unknown) {
   // Booking confirmation is normally sent when the enquiry is confirmed into
   // a job (see confirmBooking); this one acknowledges the request itself.
   // Queues safely when the WhatsApp Cloud API isn't connected yet.
+  // This is a REQUEST acknowledgement, never a confirmation — the slot is
+  // confirmed only when the office confirms the booking (confirmBooking /
+  // manual job → src/server/booking-messages.ts). One acknowledgement per
+  // lead per day, so a repeat submission doesn't message the customer again.
   const svc = SERVICE_LABELS[legacyService] ?? legacyService;
-  await sendWhatsApp({
+  const ackedRecently = await db.whatsAppMessage.findFirst({
+    where: { relatedType: "Lead", relatedId: lead.id, kind: "BOOKING_CONFIRMATION", createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
+    select: { id: true },
+  });
+  if (ackedRecently) {
+    // skip — already acknowledged
+  } else if (process.env.WHATSAPP_USE_TEMPLATES === "on") {
+    const t = templateByName("sahara_booking_request_received")!;
+    const params = [data.name, leadNumber, svc, data.serviceDate || "your preferred date", data.timeSlot || "flexible time"];
+    await sendWhatsAppTemplate({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: data.mobile,
+      toName: data.name,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Lead",
+      relatedId: lead.id,
+    }).catch(() => {});
+  } else await sendWhatsApp({
     kind: "BOOKING_CONFIRMATION",
     toNumber: data.mobile,
     toName: data.name,
     body: [
-      `Hi ${data.name}, thank you for booking with ${COMPANY.name}! ✅`,
+      `Hi ${data.name}, we have received your booking request with ${COMPANY.name}.`,
+      `Our team will confirm the slot shortly — this is not yet a confirmed booking.`,
       ``,
-      `Booking ID: ${leadNumber}`,
+      `Request ID: ${leadNumber}`,
       `Service: ${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}${data.packageName ? ` – ${data.packageName}` : ""}`,
       combos.length ? `Combos: ${combos.join(", ")}` : null,
       addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
@@ -295,7 +331,7 @@ export async function publicBookLead(values: unknown) {
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
       data.address ? `Address: ${data.address}${data.pinCode ? ` – ${data.pinCode}` : ""}` : null,
       ``,
-      `Our team will call you shortly to confirm the schedule.`,
+      `Our team will call you shortly to confirm your slot.`,
       `Reach us on ${COMPANY.phones.join(" / ")}.`,
     ]
       .filter((l) => l !== null)

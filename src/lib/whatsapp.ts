@@ -461,6 +461,8 @@ export async function sendWhatsAppTemplate(input: {
   templateName: string;
   languageCode: string;
   bodyParams?: string[];
+  /** Dynamic suffix for URL buttons, by the button's index in the template. */
+  buttonUrlParams?: { index: number; value: string }[];
   preview: string;
   relatedType?: string;
   relatedId?: string;
@@ -473,6 +475,15 @@ export async function sendWhatsAppTemplate(input: {
   if (await isOptedOut(toNumber)) return { sent: false as const, error: WHATSAPP_OPT_OUT_ERROR };
 
   const params = input.bodyParams ?? [];
+  const components = [
+    ...(params.length ? [{ type: "body", parameters: params.map((text) => ({ type: "text", text })) }] : []),
+    ...(input.buttonUrlParams ?? []).map((b) => ({
+      type: "button",
+      sub_type: "url",
+      index: String(b.index),
+      parameters: [{ type: "text", text: b.value }],
+    })),
+  ];
   const message = await db.whatsAppMessage.create({
     data: {
       kind: input.kind,
@@ -492,9 +503,7 @@ export async function sendWhatsAppTemplate(input: {
       template: {
         name: input.templateName,
         language: { code: input.languageCode },
-        ...(params.length
-          ? { components: [{ type: "body", parameters: params.map((text) => ({ type: "text", text })) }] }
-          : {}),
+        ...(components.length ? { components } : {}),
       },
     },
     { accessToken: whatsapp.accessToken, phoneNumberId: whatsapp.phoneNumberId, apiVersion: whatsapp.apiVersion },
