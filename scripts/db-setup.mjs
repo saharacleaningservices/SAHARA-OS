@@ -1134,6 +1134,24 @@ addColumnIfMissing("Quotation", "publicToken", `"publicToken" TEXT`);
 db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Quotation_publicToken_key" ON "Quotation"("publicToken");`);
 console.log("Booking page v2 migration complete.");
 
+// ── WhatsApp Inbox v2: sender attribution + human takeover ──
+addColumnIfMissing("WhatsAppMessage", "sentByUserId", `"sentByUserId" TEXT`);
+addColumnIfMissing("WhatsAppMessage", "sentByName", `"sentByName" TEXT`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "WhatsAppConversation" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "number" TEXT NOT NULL,
+    "mode" TEXT NOT NULL DEFAULT 'HUMAN',
+    "handoffReason" TEXT,
+    "changedByName" TEXT,
+    "changedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS "WhatsAppConversation_number_key" ON "WhatsAppConversation"("number");
+`);
+console.log("WhatsApp inbox v2 migration complete.");
+
 db.close();
 // ─────────────────────────────────────────────────────────────────────────
 // Owner Command Center — monthly business revenue target (ADMIN-editable).
