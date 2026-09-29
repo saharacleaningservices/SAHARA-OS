@@ -662,7 +662,11 @@ export const WhatsAppMessageScalarFieldEnum = {
   relatedType: 'relatedType',
   relatedId: 'relatedId',
   createdAt: 'createdAt',
-  sentAt: 'sentAt'
+  sentAt: 'sentAt',
+  direction: 'direction',
+  deliveredAt: 'deliveredAt',
+  readAt: 'readAt',
+  templateName: 'templateName'
 } as const
 
 export type WhatsAppMessageScalarFieldEnum = (typeof WhatsAppMessageScalarFieldEnum)[keyof typeof WhatsAppMessageScalarFieldEnum]

@@ -245,7 +245,8 @@ export const WhatsAppStatus = {
   QUEUED: 'QUEUED',
   SENT: 'SENT',
   FAILED: 'FAILED',
-  CANCELLED: 'CANCELLED'
+  CANCELLED: 'CANCELLED',
+  RECEIVED: 'RECEIVED'
 } as const
 
 export type WhatsAppStatus = (typeof WhatsAppStatus)[keyof typeof WhatsAppStatus]

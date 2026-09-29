@@ -1108,6 +1108,19 @@ db.exec(`
 `);
 console.log("Marketing attribution + spend migration complete.");
 
+// ── WhatsApp Cloud API go-live: inbound rows + delivery/read receipts ─────
+// Additive only. Existing rows default to OUTBOUND. The new CANCELLED /
+// RECEIVED statuses are plain TEXT values, so the enum needs no DDL.
+addColumnIfMissing("WhatsAppMessage", "direction", `"direction" TEXT NOT NULL DEFAULT 'OUTBOUND'`);
+addColumnIfMissing("WhatsAppMessage", "deliveredAt", `"deliveredAt" DATETIME`);
+addColumnIfMissing("WhatsAppMessage", "readAt", `"readAt" DATETIME`);
+addColumnIfMissing("WhatsAppMessage", "templateName", `"templateName" TEXT`);
+db.exec(`
+  CREATE INDEX IF NOT EXISTS "WhatsAppMessage_toNumber_idx" ON "WhatsAppMessage"("toNumber");
+  CREATE INDEX IF NOT EXISTS "WhatsAppMessage_providerMessageId_idx" ON "WhatsAppMessage"("providerMessageId");
+`);
+console.log("WhatsApp inbox/receipts migration complete.");
+
 db.close();
 // ─────────────────────────────────────────────────────────────────────────
 // Owner Command Center — monthly business revenue target (ADMIN-editable).

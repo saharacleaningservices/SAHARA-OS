@@ -202,6 +202,7 @@ enum WhatsAppStatus {
   SENT
   FAILED
   CANCELLED // withdrawn by an admin; never flushed or retried (flush only picks QUEUED/FAILED)
+  RECEIVED // inbound customer message (never flushed)
 }
 
 enum DeviceStatus {
@@ -941,9 +942,17 @@ model WhatsAppMessage {
   relatedId         String?
   createdAt         DateTime       @default(now())
   sentAt            DateTime?
+  // Cloud API go-live additions: inbound rows, delivery/read receipts,
+  // and which approved template (if any) an outbound row used.
+  direction         String         @default("OUTBOUND") // OUTBOUND | INBOUND
+  deliveredAt       DateTime?
+  readAt            DateTime?
+  templateName      String?
 
   @@index([kind])
   @@index([status])
+  @@index([toNumber])
+  @@index([providerMessageId])
   @@index([createdAt])
 }
 
