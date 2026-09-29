@@ -168,7 +168,7 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     // Festival name and price are variables so a price change (pricing
     // master → HOME_FROM_PRICE) never needs a new template approval.
     body:
-      "Hi {{1}}, get your home ready for {{2}} with Sahara Cleaning Services. Home deep cleaning from ₹{{3}} (1 BHK Premium) with transparent package prices. Book early to get your preferred slot.",
+      "Hi {{1}}, get ready for {{2}} with Sahara Cleaning Services! We offer Home Deep Cleaning, Office & Commercial Cleaning, Interior Painting and Pest Control across Pune & PCMC. Home deep cleaning starts from ₹{{3}} (1 BHK Premium) with transparent package prices. Book early to get your preferred slot.",
     examples: ["Priya", "Diwali", "4,000"],
     buttons: [
       { type: "URL", text: "Book Now", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/offers?utm_source=whatsapp&utm_medium=marketing&utm_campaign=sahara_festival_2026&utm_content=festival_offer` },
