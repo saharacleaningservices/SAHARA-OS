@@ -4,10 +4,8 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { cancelPendingWhatsApp, previewPendingWhatsApp } from "@/lib/whatsapp";
+import { qaKeepIds } from "@/server/whatsapp-qa";
 
-// The controlled production QA recipient (lead LD-2026-0126). Its pending
-// message is deliberately kept out of the stale-queue cancellation.
-const QA_KEEP_NUMBERS = ["919921215250"];
 
 async function requireAdmin() {
   const session = await getSession();
@@ -19,7 +17,7 @@ async function requireAdmin() {
 export async function previewStaleWhatsApp() {
   const { error } = await requireAdmin();
   if (error) return { error };
-  return { success: true as const, ...(await previewPendingWhatsApp(QA_KEEP_NUMBERS)) };
+  return { success: true as const, ...(await previewPendingWhatsApp(await qaKeepIds())) };
 }
 
 /** Cancels every pending WhatsApp message except the QA test. Sends nothing, deletes nothing. */
@@ -27,9 +25,10 @@ export async function cancelStaleWhatsApp() {
   const { error, session } = await requireAdmin();
   if (error || !session) return { error: error ?? "Admin only" };
 
-  const before = await previewPendingWhatsApp(QA_KEEP_NUMBERS);
+  const keepIds = await qaKeepIds();
+  const before = await previewPendingWhatsApp(keepIds);
   const count = await cancelPendingWhatsApp(
-    QA_KEEP_NUMBERS,
+    keepIds,
     `Cancelled by ${session.name} before WhatsApp Cloud API go-live (stale queue)`,
   );
   await db.auditLog.create({

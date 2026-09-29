@@ -405,20 +405,20 @@ const CUSTOMER_KINDS = new Set<WhatsAppKind>([
 ]);
 const STAFF_KINDS = new Set<WhatsAppKind>(["TEAM_DISPATCH", "ATTENDANCE_SUMMARY"]);
 
-function categorize(m: { kind: WhatsAppKind; toNumber: string; body: string }, keepNumbers: Set<string>): PendingCategory {
-  if (keepNumbers.has(m.toNumber)) return "QA test";
-  if (m.kind === "DEVICE_APPROVAL" || /\bOTP\b|signed in|login/i.test(m.body)) return "OTP/security";
+function categorize(m: { id: string; kind: WhatsAppKind; body: string }, keepIds: Set<string>): PendingCategory {
+  if (keepIds.has(m.id)) return "QA test";
+  if (m.kind === "DEVICE_APPROVAL" || /OTP|signed in|login/i.test(m.body)) return "OTP/security";
   if (CUSTOMER_KINDS.has(m.kind)) return "Customer";
   if (STAFF_KINDS.has(m.kind)) return "Staff/team";
   return "Other";
 }
 
 /** Counts every pending (QUEUED/FAILED) message by category. Sends nothing. */
-export async function previewPendingWhatsApp(keepNumbers: string[]) {
-  const keep = new Set(keepNumbers.map(normalizeNumber));
+export async function previewPendingWhatsApp(keepIds: string[]) {
+  const keep = new Set(keepIds);
   const pending = await db.whatsAppMessage.findMany({
     where: { status: { in: ["QUEUED", "FAILED"] } },
-    select: { id: true, kind: true, toNumber: true, body: true, createdAt: true },
+    select: { id: true, kind: true, body: true },
   });
   const counts: Record<PendingCategory, number> = { Customer: 0, "Staff/team": 0, "OTP/security": 0, Other: 0, "QA test": 0 };
   for (const m of pending) counts[categorize(m, keep)] += 1;
@@ -426,13 +426,12 @@ export async function previewPendingWhatsApp(keepNumbers: string[]) {
 }
 
 /**
- * Marks every pending message CANCELLED except those addressed to
- * `keepNumbers` (the QA test recipient). Never deletes, never sends.
+ * Marks every pending message CANCELLED except the explicitly kept message
+ * ids (the QA test). Never deletes, never sends.
  */
-export async function cancelPendingWhatsApp(keepNumbers: string[], reason: string) {
-  const keep = keepNumbers.map(normalizeNumber);
+export async function cancelPendingWhatsApp(keepIds: string[], reason: string) {
   const res = await db.whatsAppMessage.updateMany({
-    where: { status: { in: ["QUEUED", "FAILED"] }, toNumber: { notIn: keep } },
+    where: { status: { in: ["QUEUED", "FAILED"] }, id: { notIn: keepIds } },
     data: { status: "CANCELLED", errorMessage: reason },
   });
   return res.count;
