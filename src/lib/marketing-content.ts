@@ -36,7 +36,7 @@ export const PREMIUM_EXCLUDED = [
   "Sofa / carpet / mattress shampooing (available separately)",
   "Inaccessible areas and moving heavy furniture",
 ];
-export const SMALL_SERVICES = pricesIn("INDIVIDUAL").map((p) => ({ name: p.name, price: p.price!, unit: p.unit ?? "", rule: p.rule ?? "" }));
+export const SMALL_SERVICES = pricesIn("CUSTOMISED").map((p) => ({ name: p.name, price: p.price, unit: p.unit ?? "", rule: [p.rule, p.scope].filter(Boolean).join(" · "), priceNote: p.priceNote ?? "" }));
 export const COMBOS = pricesIn("COMBO").map((p) => ({ name: p.name, price: p.price!, note: p.addOnOnly ? p.rule ?? "Add-on only" : "" }));
 export const PEST_SERVICES = [
   { name: "Cockroach Control", desc: "Inspection of kitchen, bathrooms and drains; gel baiting in cracks and crevices; targeted spray where suitable." },

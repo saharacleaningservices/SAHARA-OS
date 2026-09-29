@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Office & Commercial Cleaning in Pune – Site Visit & Quote | Sahara Cleaning Services",
-  description: "Office deep cleaning and commercial cleaning in East Pune: workstations, cabins, pantry, washrooms, glass and floor scrubbing. Free site visit and quote from Sahara Cleaning Services.",
+  description: "Office deep cleaning and commercial cleaning across Pune & PCMC: workstations, cabins, pantry, washrooms, glass and floor scrubbing. Free site visit and quote from Sahara Cleaning Services.",
   alternates: { canonical: `${BASE_URL}/commercial-cleaning-pune` },
   openGraph: { title: "Office & Commercial Cleaning in Pune — Sahara Cleaning Services", description: "Site visit and quote for offices, workspaces and commercial premises.", url: `${BASE_URL}/commercial-cleaning-pune`, images: [`${BASE_URL}/marketing/hero-commercial.webp`], type: "website" },
 };

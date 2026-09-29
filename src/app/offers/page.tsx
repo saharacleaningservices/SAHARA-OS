@@ -31,7 +31,7 @@ const FAQS = [
   { q: "Will the prices change during the festival season?", a: "The prices shown are our current package prices. Festival-season demand can lead to price revisions later in the season, so booking early is recommended." },
   { q: "What is the difference between Premium and Platinum?", a: "Platinum includes everything in Premium plus wall wet cleaning and ceiling dry dusting." },
   { q: "Do you clean offices and shops too?", a: "Yes — offices, workspaces and commercial premises. We visit the site and share a quote." },
-  { q: "Which areas do you cover?", a: "East Pune — Hadapsar, Magarpatta, Kharadi, Viman Nagar, Wagholi, NIBM, Kondhwa, Undri and nearby areas." },
+  { q: "Which areas do you cover?", a: "We serve Pune and Pimpri-Chinchwad (PCMC). Standard package prices apply to our standard serviceable areas; additional charges may apply for locations outside it, depending on distance and requirements." },
 ];
 
 export default async function FestivalOffersPage() {
@@ -76,7 +76,7 @@ export default async function FestivalOffersPage() {
             {SMALL_SERVICES.map((s) => (
               <div key={s.name} className="rounded-2xl bg-white p-4 shadow-sm">
                 <p className="font-semibold">{s.name}</p>
-                <p className="text-xl font-extrabold text-primary">{inr(s.price)} <span className="text-xs font-medium text-[#0a2540]/70">{s.unit}</span></p>
+                <p className="text-xl font-extrabold text-primary">{s.price == null ? <span className="text-sm font-semibold">{s.priceNote}</span> : <>{inr(s.price)} <span className="text-xs font-medium text-[#0a2540]/70">{s.unit}</span></>}</p>
                 <p className="text-xs font-bold uppercase text-amber-700">{s.rule}</p>
               </div>
             ))}

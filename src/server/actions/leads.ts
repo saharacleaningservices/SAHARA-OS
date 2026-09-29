@@ -333,7 +333,9 @@ export async function confirmBooking(leadId: string, values: unknown) {
   }
 
   const scheduledDate = new Date(data.serviceDate);
-  const jobValue = lead.quoteAmount && lead.quoteAmount >= MIN_JOB_VALUE ? lead.quoteAmount : MIN_JOB_VALUE;
+  // Transparent-pricing bookings keep their real total (no minimum booking
+  // value); the legacy minimum is only a fallback when no amount exists.
+  const jobValue = lead.quoteAmount && lead.quoteAmount > 0 ? lead.quoteAmount : MIN_JOB_VALUE;
 
   // Team carries over from the enquiry; the confirm dialog can override it.
   const teamNumber = normalizeTeam(data.teamNumber) ?? lead.teamNumber ?? null;

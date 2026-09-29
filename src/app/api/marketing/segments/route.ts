@@ -46,7 +46,9 @@ export async function GET() {
     if (l.stage === "CANCELLED") c.lost = true;
     if (l.stage === "QUOTATION" || l.stage === "NEGOTIATION" || l._count.quotations > 0 || (l.quoteAmount ?? 0) > 0) c.quoted = true;
     if (l.serviceCategory === "COMMERCIAL_CLEANING" || COMMERCIAL.test(l.propertyType ?? "")) c.commercial = true;
-    if (l.marketingConsent === "OPT_OUT" || (l.marketingConsent === "OPT_IN" && c.consent !== "OPT_OUT")) c.consent = l.marketingConsent;
+    // Booking form / webhook write OPTED_IN / OPTED_OUT; older values used OPT_IN / OPT_OUT.
+    const consent = /OUT/.test(l.marketingConsent ?? "") ? "OPT_OUT" : /IN$/.test(l.marketingConsent ?? "") ? "OPT_IN" : "UNKNOWN";
+    if (consent === "OPT_OUT" || (consent === "OPT_IN" && c.consent !== "OPT_OUT")) c.consent = consent;
     if (!c.lastEnquiry || l.createdAt > c.lastEnquiry) c.lastEnquiry = l.createdAt;
   }
   for (const j of jobs) {
@@ -61,6 +63,10 @@ export async function GET() {
       if (!c.lastCompleted || d > c.lastCompleted) c.lastCompleted = d;
     }
   }
+
+  // Numbers that replied STOP on WhatsApp are never eligible, whatever the lead says.
+  const waOptedOut = new Set((await db.whatsAppConsent.findMany({ where: { optedOut: true }, select: { phoneNumber: true } })).map((r) => r.phoneNumber.slice(-10)));
+  for (const [m, c] of people) if (waOptedOut.has(m)) c.consent = "OPT_OUT";
 
   const all = [...people.values()];
   const count = (f: (c: C) => boolean) => all.filter(f).length;
@@ -86,7 +92,10 @@ export async function GET() {
       optIn: count((c) => c.consent === "OPT_IN"),
       optOut: count((c) => c.consent === "OPT_OUT"),
       unknown: count((c) => c.consent === "UNKNOWN"),
-      note: "Consent has never been recorded in the CRM, so UNKNOWN is expected. Customers who booked a job have an existing business relationship; others need care under WhatsApp policy.",
+      // The only audience a promotional campaign may target: explicit opt-in
+      // (booking-form checkbox), valid number, not opted out, deduplicated.
+      eligibleForPromotions: count((c) => c.consent === "OPT_IN"),
+      note: "Promotional campaigns go only to eligibleForPromotions (explicit WhatsApp opt-in). UNKNOWN contacts need opt-in first; OPT_OUT are always excluded.",
     },
   });
 }

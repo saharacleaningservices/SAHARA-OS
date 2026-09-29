@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
@@ -104,6 +105,18 @@ export default async function PublicBookingPage({
   searchParams: Promise<{ ref?: string; source?: string; src?: string; customer?: string; phone?: string; name?: string; mobile?: string; bl?: string; category?: string }>;
 }) {
   const sp = await searchParams;
+  // The transparent-pricing booking page (/booking) replaces this form for
+  // customers. Only staff-sent booking links (?bl=, tracked per link) still
+  // use this legacy form. All other params (ref, UTM, prefill) are carried over.
+  if (!sp.bl) {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(sp as Record<string, string | string[] | undefined>)) {
+      if (typeof v === "string" && v && k !== "category") q.set(k, v);
+    }
+    const cat = { HOME_DEEP_CLEANING: "home", COMMERCIAL_CLEANING: "commercial", PEST_CONTROL: "pest", PAINTING: "painting" }[sp.category ?? ""];
+    if (cat) q.set("service", cat);
+    redirect(`/booking${q.size ? `?${q.toString()}` : ""}`);
+  }
   const [{ googleMaps }, settings, galleryItems] = await Promise.all([
     getResolvedIntegrations(),
     getCompanySettings(),
