@@ -201,6 +201,7 @@ enum WhatsAppStatus {
   QUEUED
   SENT
   FAILED
+  CANCELLED // withdrawn by an admin; never flushed or retried (flush only picks QUEUED/FAILED)
 }
 
 enum DeviceStatus {
