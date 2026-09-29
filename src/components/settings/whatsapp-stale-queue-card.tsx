@@ -19,8 +19,7 @@ export function WhatsAppStaleQueueCard({ initial }: { initial: Preview }) {
   const [pending, startTransition] = useTransition();
 
   function cancelAll() {
-    const toCancel = preview.total - (preview.counts["QA test"] ?? 0);
-    if (!confirm(`Cancel ${toCancel} pending WhatsApp messages? They will never be sent. The QA test message is kept.`)) return;
+    if (!confirm(`Cancel ${preview.total} pending WhatsApp messages? They will never be sent.`)) return;
     startTransition(async () => {
       const res = await cancelStaleWhatsApp();
       if ("error" in res && res.error) return void toast.error(res.error);
@@ -46,8 +45,8 @@ export function WhatsAppStaleQueueCard({ initial }: { initial: Preview }) {
             </span>
           ))}
         </div>
-        <Button type="button" size="sm" variant="destructive" onClick={cancelAll} disabled={pending || preview.total === (preview.counts["QA test"] ?? 0)}>
-          {pending && <Loader2 className="size-4 animate-spin" />} Cancel stale queue (keep QA test)
+        <Button type="button" size="sm" variant="destructive" onClick={cancelAll} disabled={pending || preview.total === 0}>
+          {pending && <Loader2 className="size-4 animate-spin" />} Cancel stale queue
         </Button>
       </CardContent>
     </Card>
