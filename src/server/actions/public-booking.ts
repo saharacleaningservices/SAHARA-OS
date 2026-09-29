@@ -49,6 +49,8 @@ const publicBookingSchema = z.object({
   // token when the booking comes from a quotation (/booking?quote=<token>).
   paymentPreference: z.enum(["PAY_ADVANCE", "PAY_AFTER_SERVICE"]).optional(),
   quotationToken: z.string().max(64).optional().or(z.literal("")),
+  // Explicit WhatsApp marketing opt-in ticked by the customer (never pre-ticked).
+  marketingOptIn: z.boolean().optional(),
   // Honeypot — real visitors never fill this hidden field.
   website: z.string().max(0).optional().or(z.literal("")),
   // First/latest-touch marketing attribution captured in the browser
@@ -179,6 +181,7 @@ export async function publicBookLead(values: unknown) {
           timeSlot: existingOpen.timeSlot ?? (data.timeSlot || null),
           mapLink: existingOpen.mapLink ?? (data.mapLink || null),
           paymentPreference: data.paymentPreference ?? existingOpen.paymentPreference,
+          ...(data.marketingOptIn ? { marketingConsent: "OPTED_IN", marketingConsentAt: new Date() } : {}),
           formSubmittedAt: new Date(),
           ...latestFields,
           ...(existingOpen.acquisitionChannel ? {} : originalFields),
@@ -216,6 +219,7 @@ export async function publicBookLead(values: unknown) {
       mapLink: data.mapLink || null,
       referralCode: data.referralCode || null,
       paymentPreference: data.paymentPreference ?? null,
+      ...(data.marketingOptIn ? { marketingConsent: "OPTED_IN", marketingConsentAt: new Date() } : {}),
     },
   });
 

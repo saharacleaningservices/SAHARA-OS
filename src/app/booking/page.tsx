@@ -15,8 +15,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ quote?: string }> }): Promise<Metadata> {
   const { quote } = await searchParams;
   return {
-    title: "Book Home Deep Cleaning in Pune – Available Slots | Sahara Cleaning Services",
-    description: "Book Sahara Cleaning Services online: transparent package prices, real available dates and time slots, and pay advance or after service. Our team confirms every booking request.",
+    title: "Book Professional Cleaning in Pune & PCMC – Available Slots | Sahara Cleaning Services",
+    description: "Book home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC: transparent prices, real available slots, pay advance or after service. Festival cleaning slots for Navratri, Dussehra and Diwali.",
     alternates: { canonical: `${BASE_URL}/booking` },
     robots: quote ? { index: false, follow: false } : undefined,
   };
@@ -48,8 +48,14 @@ async function loadQuote(token?: string): Promise<QuotePrefill | null> {
   return { token, quoteNumber: q.quoteNumber, customerName: q.lead.name, mobile: q.lead.mobile, services: services.length ? services : ["As per quotation"], totalAmount: q.totalAmount };
 }
 
-export default async function BookingPage({ searchParams }: { searchParams: Promise<{ quote?: string; service?: string }> }) {
-  const { quote: quoteToken, service } = await searchParams;
+const CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { home: "HOME", commercial: "COMMERCIAL", pest: "PEST", painting: "PAINTING" };
+
+export default async function BookingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ quote?: string; service?: string; ref?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
+}) {
+  const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
   const [settings, quote] = await Promise.all([getCompanySettings(), loadQuote(quoteToken)]);
 
   return (
@@ -58,9 +64,9 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
         image={CAROUSEL.team.src}
         alt={CAROUSEL.team.alt}
         images={[CAROUSEL.team, CAROUSEL.equipment, CAROUSEL.result]}
-        eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Online booking · East Pune"}
-        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Book Your Deep Cleaning in Pune"}
-        subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Transparent package prices, real available slots, and pay advance or after service."}
+        eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
+        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning Services Across Pune & PCMC"}
+        subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Transparent prices, real available slots, and pay advance or after service. Book early to get your preferred festival slot."}
         primaryLabel="Choose Date & Slot"
         primaryHref="#book"
         waText={WA}
@@ -70,7 +76,12 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
           <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">This quotation link is no longer valid. You can still book below, or call us on 8956567130 / 7083347130.</p>
         )}
         <section id="book" className="scroll-mt-20">
-          <BookingWizard quote={quote} defaultChoice={service} />
+          <BookingWizard
+            quote={quote}
+            defaultCategory={CATEGORY[service ?? ""]}
+            referralCode={ref}
+            prefill={{ name: name ?? customer, mobile: mobile ?? phone }}
+          />
         </section>
 
         {!quote && (
@@ -93,7 +104,7 @@ export default async function BookingPage({ searchParams }: { searchParams: Prom
                 {SMALL_SERVICES.map((s) => (
                   <div key={s.name} className="rounded-2xl bg-white p-4 shadow-sm">
                     <h3 className="font-bold">{s.name}</h3>
-                    <p className="text-xl font-extrabold text-primary">{inr(s.price)} <span className="text-xs font-medium text-[#0a2540]/70">{s.unit}</span></p>
+                    <p className="text-xl font-extrabold text-primary">{s.price == null ? <span className="text-sm font-semibold">{s.priceNote}</span> : <>{inr(s.price)} <span className="text-xs font-medium text-[#0a2540]/70">{s.unit}</span></>}</p>
                     <p className="text-xs font-bold uppercase text-amber-700">{s.rule}</p>
                   </div>
                 ))}

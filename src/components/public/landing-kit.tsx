@@ -6,7 +6,8 @@ import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
 import { BookingWizard } from "@/components/public/booking-wizard";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
-import { CONTACT, EAST_PUNE_AREAS, TERMS, inr, type Pkg } from "@/lib/marketing-content";
+import { CONTACT, TERMS, inr, type Pkg } from "@/lib/marketing-content";
+import { PRICING_NOTICE, SERVICE_AREA_NOTICE } from "@/lib/pricing-master";
 import { toWhatsAppLink } from "@/lib/utils";
 
 // Building blocks for the public marketing landing pages (/offers and the
@@ -36,7 +37,7 @@ export function businessJsonLd(extra: Record<string, unknown> = {}) {
     email: CONTACT.email,
     foundingDate: "2012",
     address: { "@type": "PostalAddress", streetAddress: "Opposite South Gate, Magarpatta City, Hadapsar", addressLocality: "Pune", postalCode: "411028", addressRegion: "Maharashtra", addressCountry: "IN" },
-    areaServed: EAST_PUNE_AREAS.map((a) => `${a}, Pune`),
+    areaServed: ["Pune", "Pimpri-Chinchwad (PCMC)"],
     ...extra,
   };
 }
@@ -116,7 +117,7 @@ export function Hero({ image, alt, eyebrow, title, subtitle, badge, note, primar
           <a href={waLink(waText)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-success px-5 py-3 text-sm font-bold"><MessageCircle className="size-4" />WhatsApp</a>
         </div>
         {note && <p className="mt-4 max-w-2xl text-xs text-white/75">{note}</p>}
-        <p className="mt-4 text-xs font-semibold text-white/80">Since 2012 · 20+ Years Cleaning Industry Experience · East Pune</p>
+        <p className="mt-4 text-xs font-semibold text-white/80">Since 2012 · 20+ Years Cleaning Industry Experience · Pune & PCMC</p>
       </div>
     </section>
   );
@@ -156,20 +157,20 @@ export function ScopeLists({ included, excluded }: { included: string[]; exclude
 // Landing-page booking section: the same CRM-powered booking flow as /booking
 // (package → available date → slot → payment preference → Confirm Booking
 // Request), preselected for the page's service.
-const SERVICE_TO_CHOICE: Record<string, string> = { COMMERCIAL_CLEANING: "SCS-INS-COMMERCIAL", PEST_CONTROL: "SCS-INS-PEST", PAINTING: "SCS-INS-PAINTING" };
+const SERVICE_TO_CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { HOME_DEEP_CLEANING: "HOME", COMMERCIAL_CLEANING: "COMMERCIAL", PEST_CONTROL: "PEST", PAINTING: "PAINTING" };
 
 export function QuoteSection({ title, subtitle, campaignName, defaultService }: { title: string; subtitle: string; campaignName: string; defaultService?: string }) {
   return (
     <section id="quote" className="scroll-mt-20">
       <h2 className="text-center text-2xl font-bold">{title}</h2>
       <p className="mb-4 text-center text-sm text-[#0a2540]/70">{subtitle}</p>
-      <BookingWizard campaignName={campaignName} defaultChoice={SERVICE_TO_CHOICE[defaultService ?? ""]} />
+      <BookingWizard campaignName={campaignName} defaultCategory={SERVICE_TO_CATEGORY[defaultService ?? ""]} />
     </section>
   );
 }
 
 export function HowItWorks() {
-  const steps = ["Get a quote on call, WhatsApp or the form", "Confirm your preferred date & time", "Our trained team arrives with equipment", "Enjoy a cleaner, healthier space"];
+  const steps = ["Choose your service and see the price", "Pick an available date & time", "We confirm your booking on WhatsApp", "Our trained team arrives with equipment"];
   return (
     <section>
       <h2 className="text-xl font-bold">How it works</h2>
@@ -182,11 +183,9 @@ export function HowItWorks() {
 
 export function Areas() {
   return (
-    <section>
-      <h2 className="text-xl font-bold">Areas we serve in East Pune</h2>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {EAST_PUNE_AREAS.map((a) => <span key={a} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-medium shadow-sm"><MapPin className="size-3 text-primary" />{a}</span>)}
-      </div>
+    <section className="rounded-2xl bg-white p-5 shadow-sm">
+      <h2 className="flex items-center gap-2 text-xl font-bold"><MapPin className="size-5 text-primary" /> Serving Pune &amp; PCMC</h2>
+      <p className="mt-1 text-sm text-[#0a2540]/75">Professional cleaning services across Pune and Pimpri-Chinchwad. {SERVICE_AREA_NOTICE}</p>
     </section>
   );
 }
@@ -212,6 +211,7 @@ export function Terms() {
     <section>
       <h2 className="text-xl font-bold">Terms &amp; conditions</h2>
       <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-[#0a2540]/80">{TERMS.map((t) => <li key={t}>{t}</li>)}</ol>
+      <p className="mt-4 rounded-xl bg-white p-4 text-xs leading-relaxed text-[#0a2540]/70 shadow-sm">{PRICING_NOTICE}</p>
     </section>
   );
 }

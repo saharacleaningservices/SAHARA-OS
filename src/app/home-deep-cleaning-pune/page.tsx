@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: `Home Deep Cleaning in Pune – 1 BHK from ${inr(HOME_FROM_PRICE)} | Sahara Cleaning Services`,
-  description: `Professional home deep cleaning in East Pune with transparent package prices: Premium 1 BHK ${inr(HOME_FROM_PRICE)}, Platinum with wall wet cleaning from ${inr(PLATINUM_FROM_PRICE)}. Sofa, bathroom, kitchen & mattress cleaning too.`,
+  description: `Professional home deep cleaning across Pune & PCMC with transparent package prices: Premium 1 BHK ${inr(HOME_FROM_PRICE)}, Platinum with wall wet cleaning from ${inr(PLATINUM_FROM_PRICE)}. Sofa, bathroom, kitchen & mattress cleaning too.`,
   alternates: { canonical: `${BASE_URL}/home-deep-cleaning-pune` },
   openGraph: { title: "Home Deep Cleaning in Pune — Transparent Package Prices", description: `Premium from ${inr(HOME_FROM_PRICE)} · Platinum from ${inr(PLATINUM_FROM_PRICE)} · Since 2012.`, url: `${BASE_URL}/home-deep-cleaning-pune`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
 };
@@ -30,9 +30,9 @@ export default async function HomeDeepCleaningPage() {
       <Hero
         image="/marketing/hero-home.webp"
         alt="Sahara team vacuuming a carpet and wiping surfaces during home deep cleaning in Pune"
-        eyebrow="Home deep cleaning · East Pune"
-        title="Professional Home Deep Cleaning in Pune"
-        subtitle="Transparent package pricing for a cleaner, healthier home."
+        eyebrow="Navratri • Dussehra • Diwali · Festival cleaning"
+        title="Professional Cleaning Services Across Pune & PCMC"
+        subtitle="Home deep cleaning with transparent package prices — book early for your preferred festival slot."
         primaryLabel="View Packages / Book Now"
         waText={WA}
       />
@@ -55,7 +55,7 @@ export default async function HomeDeepCleaningPage() {
             {SMALL_SERVICES.map((s) => (
               <div key={s.name} className="rounded-2xl bg-white p-4 shadow-sm">
                 <h3 className="font-bold">{s.name}</h3>
-                <p className="text-2xl font-extrabold text-primary">{inr(s.price)} <span className="text-sm font-medium text-[#0a2540]/70">{s.unit}</span></p>
+                <p className="text-2xl font-extrabold text-primary">{s.price == null ? <span className="text-sm font-semibold">{s.priceNote}</span> : <>{inr(s.price)} <span className="text-sm font-medium text-[#0a2540]/70">{s.unit}</span></>}</p>
                 <p className="text-xs font-bold uppercase text-amber-700">{s.rule}</p>
               </div>
             ))}

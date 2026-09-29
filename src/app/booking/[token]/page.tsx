@@ -6,6 +6,7 @@ import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate, formatINR } from "@/lib/utils";
 import { customerPaymentStatus, PAYMENT_STATUS_LABEL } from "@/server/booking-messages";
 import { PayAfterServiceButton } from "@/components/public/pay-after-service-button";
+import { BookingChangeRequest } from "@/components/public/booking-change-request";
 
 // Customer-facing booking page, reached only through the unguessable token in
 // the WhatsApp confirmation (never by the sequential job number). Shows the
@@ -127,6 +128,13 @@ export default async function BookingPage({
             <span className="flex items-center gap-2 font-semibold"><Star className="size-4 text-amber-500" /> Rate us on Google</span>
             <span className="text-primary">Review →</span>
           </a>
+        )}
+
+        {open && (
+          <div className="space-y-2 rounded-2xl bg-white p-5 text-sm shadow-sm">
+            <p className="font-semibold text-[#0a2540]">Need a change?</p>
+            <BookingChangeRequest token={token} />
+          </div>
         )}
 
         <div className="rounded-2xl bg-white p-5 text-sm shadow-sm">
