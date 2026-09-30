@@ -18,7 +18,7 @@ import { deleteJob, bulkDeleteJobs } from "@/server/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
-import { formatDateShort, formatINR, dayBucket, cn } from "@/lib/utils";
+import { formatDateShort, formatINR, dayBucket, todayTomorrowFirst, cn } from "@/lib/utils";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
 type Job = {
@@ -52,7 +52,7 @@ function jobPaymentStatus(job: Job) {
   return "PENDING";
 }
 
-export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = true }: { jobs: Job[]; canManage?: boolean; canSeeCustomerContact?: boolean }) {
+export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = true, showMoney = true }: { jobs: Job[]; canManage?: boolean; canSeeCustomerContact?: boolean; showMoney?: boolean }) {
   const params = useSearchParams();
   const whenParam = params.get("when") ?? "";
   const statusParam = params.get("status") ?? "";
@@ -75,7 +75,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return jobs.filter((job) => {
+    const matches = jobs.filter((job) => {
       if (q && !`${job.customerName} ${job.jobNumber} ${job.area}`.toLowerCase().includes(q)) return false;
       if (statusFilter !== "ALL" && job.status !== statusFilter) return false;
       if (whenParam === "today" && dayBucket(job.scheduledDate) !== "TODAY") return false;
@@ -83,6 +83,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
       if (serviceParam && job.service !== serviceParam) return false;      
       return true;
     });
+    return todayTomorrowFirst(matches, (j) => j.scheduledDate, (j) => j.scheduledTime);
   }, [jobs, search, statusFilter, whenParam, serviceParam]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -211,11 +212,13 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                       <TableCell className="text-sm">
                         <div className="flex flex-wrap items-center gap-1">
                           <JobStatusBadge status={job.status} />
-                          {pay && <PaymentStatusBadge status={pay} />}
+                          {showMoney && pay && <PaymentStatusBadge status={pay} />}
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          Adv {formatINR(adv)} · Bal {formatINR(bal)}
-                        </p>
+                        {showMoney && (
+                          <p className="text-xs text-muted-foreground">
+                            Adv {formatINR(adv)} · Bal {formatINR(bal)}
+                          </p>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-1.5">
@@ -295,7 +298,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1">
                       <JobStatusBadge status={job.status} />
-                      {pay && <PaymentStatusBadge status={pay} />}
+                      {showMoney && pay && <PaymentStatusBadge status={pay} />}
                     </div>
                   </div>
 
@@ -315,9 +318,11 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                         {(job.serviceVariant || job.packageName) && ` · ${[job.serviceVariant, job.packageName].filter(Boolean).join(" · ")}`}
                       </p>
                       {job.assignments.length > 0 && <p>Crew: {job.assignments.map((a) => a.staff.name).join(", ")}</p>}
-                      <p>
-                        Adv {formatINR(adv)} · Bal {formatINR(bal)}
-                      </p>
+                      {showMoney && (
+                        <p>
+                          Adv {formatINR(adv)} · Bal {formatINR(bal)}
+                        </p>
+                      )}
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         {canSeeCustomerContact && (
                           <>

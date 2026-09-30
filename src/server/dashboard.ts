@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, addDays } from "date-fns";
 import { getTodayAttendanceSummary } from "@/server/attendance";
 import { supervisorLeadWhere } from "@/server/leads";
+import { slotStartMinutes } from "@/lib/utils";
 
 /**
  * `role` scopes the two "actionable booking visibility" lists — upcomingJobs
@@ -104,7 +105,7 @@ export async function getDashboardData(role?: string) {
       where: { deletedAt: null, scheduledDate: { gte: todayStart, lte: todayEnd } },
       orderBy: { scheduledTime: "asc" },
       include: { supervisor: true },
-      take: 8,
+      take: 30,
     }),
     db.job.findMany({
       where: {
@@ -289,8 +290,11 @@ export async function getDashboardData(role?: string) {
     recentLeads,
     recentContacts,
     recentReviews,
-    todaysJobs,
-    upcomingJobs,
+    // scheduledTime is a label ("8:00 – 11:00"), so order by real start time.
+    todaysJobs: [...todaysJobs].sort((a, b) => slotStartMinutes(a.scheduledTime) - slotStartMinutes(b.scheduledTime)),
+    upcomingJobs: [...upcomingJobs].sort(
+      (a, b) => startOfDay(a.scheduledDate).getTime() - startOfDay(b.scheduledDate).getTime() || slotStartMinutes(a.scheduledTime) - slotStartMinutes(b.scheduledTime),
+    ),
     overduePayments,
     followUpsToday,
     followUpsTomorrow,

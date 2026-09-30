@@ -48,15 +48,9 @@ export function CompanyLogo({
     setSrc((cur) => (cur === BRAND_SVG ? LAST_RESORT : BRAND_SVG));
   }
 
-  const img = (
-    <img src={src} alt={alt} onError={handleError} className={cn("h-8 w-auto object-contain", className)} />
-  );
-
-  if (!showTm) return img;
-  return (
-    <span className="relative inline-flex">
-      {img}
-      <sup className="absolute -right-1.5 top-0 text-[0.5em] font-semibold leading-none text-current">™</sup>
-    </span>
-  );
+  // The logo artwork carries its own ™ on the left, so no extra mark is
+  // added (a second ™ on the right was a duplicate). `showTm` is kept only so
+  // existing call sites compile.
+  void showTm;
+  return <img src={src} alt={alt} onError={handleError} className={cn("h-8 w-auto object-contain", className)} />;
 }

@@ -7,7 +7,7 @@ import { MarketingTags } from "@/components/public/marketing-tags";
 import { BookingWizard } from "@/components/public/booking-wizard";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import { CONTACT, TERMS, inr, type Pkg } from "@/lib/marketing-content";
-import { PRICING_NOTICE, SERVICE_AREA_NOTICE } from "@/lib/pricing-master";
+import { SERVICE_AREA_NOTICE } from "@/lib/pricing-master";
 import { toWhatsAppLink } from "@/lib/utils";
 
 // Building blocks for the public marketing landing pages (/offers and the
@@ -71,53 +71,52 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
       </header>
       {children}
       <footer className="mx-auto max-w-6xl px-4 pb-8 text-center text-xs text-[#0a2540]/60">
-        © Sahara Cleaning Services · Since 2012 · {CONTACT.address} · {CONTACT.email} ·{" "}
+        © Sahara Cleaning Services · Since 2012 · {CONTACT.address} ·{" "}
+        <a href={`tel:+91${CONTACT.call[0]}`} className="font-semibold text-primary">{CONTACT.call[0]}</a> · {CONTACT.email} ·{" "}
         <Link href="/privacy-policy" className="underline">Privacy</Link> · <Link href="/terms" className="underline">Terms</Link>
       </footer>
+      {/* Mobile bottom bar — one primary number only. */}
       <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-border bg-white text-center text-xs font-bold sm:hidden">
-        <details className="relative">
-          <summary className="cursor-pointer list-none py-3 text-primary">Call</summary>
-          <div className="absolute bottom-full left-1 mb-1 w-44 space-y-1 rounded-xl border bg-white p-2 text-left shadow-lg">
-            {CONTACT.call.map((n) => (
-              <a key={n} href={`tel:+91${n}`} className="flex items-center gap-2 rounded-lg px-2 py-2 text-primary"><Phone className="size-3.5" /> {n}</a>
-            ))}
-          </div>
-        </details>
-        <details className="relative">
-          <summary className="cursor-pointer list-none bg-success py-3 text-white">WhatsApp</summary>
-          <div className="absolute bottom-full left-1/2 mb-1 w-44 -translate-x-1/2 space-y-1 rounded-xl border bg-white p-2 text-left shadow-lg">
-            {CONTACT.call.map((n) => (
-              <a key={n} href={waLink(waText, n)} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-lg px-2 py-2 text-success"><MessageCircle className="size-3.5" /> {n}</a>
-            ))}
-          </div>
-        </details>
+        <a href={`tel:+91${CONTACT.call[0]}`} className="flex items-center justify-center gap-1 py-3 text-primary"><Phone className="size-3.5" /> Call</a>
+        <a href={waLink(waText)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
         <Link href="/booking" className="bg-primary py-3 text-white">Book Now</Link>
       </div>
     </div>
   );
 }
 
-export function Hero({ image, alt, eyebrow, title, subtitle, badge, note, primaryLabel, waText, primaryHref = "#quote", images }: {
+export const FESTIVAL_BADGE = "🎉 NAVRATRI • DUSSEHRA • DIWALI — FESTIVAL CLEANING";
+
+// Compact hero: short headline over clearly visible team photos. `subtitle`,
+// `eyebrow` and `note` are kept for call-site compatibility but only the
+// headline + one short line are shown so the photos stay visible.
+export function Hero({ image, alt, title, subtitle, badge, waText, primaryHref = "/booking", images }: {
   image: string; alt: string; eyebrow?: string; title: string; subtitle: string; badge?: string; note?: string; primaryLabel: string; waText: string; primaryHref?: string; images?: CarouselImage[];
 }) {
+  const bookHref = primaryHref.startsWith("#") && primaryHref !== "#book" ? "/booking" : primaryHref === "#book" ? "/booking#book" : primaryHref;
   return (
-    <section className="relative overflow-hidden bg-[#0a2540] text-white">
+    <section className="relative flex min-h-[360px] items-end overflow-hidden bg-[#0a2540] text-white sm:min-h-[440px]">
       <LandingHeroCarousel images={images ?? heroImages(image, alt)} />
-      {/* Overlay and text pass touches through so the carousel can be swiped; links stay clickable. */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a2540] via-[#0a2540]/85 to-transparent" />
-      <div className="pointer-events-none relative mx-auto max-w-6xl px-4 py-12 md:py-20 [&_a]:pointer-events-auto">
-        {badge && <p className="inline-block animate-pulse rounded-full bg-amber-400 px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-[#0a2540] [animation-duration:2.5s]">{badge}</p>}
-        {eyebrow && <p className="mt-3 text-sm font-semibold uppercase tracking-wider text-white/85">{eyebrow}</p>}
-        <h1 className="mt-2 max-w-3xl font-serif text-3xl font-bold italic leading-tight sm:text-5xl">{title}</h1>
-        <p className="mt-3 max-w-2xl text-base text-white/90 sm:text-lg">{subtitle}</p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <a href={primaryHref} className="rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-lg">{primaryLabel}</a>
-          <a href={`tel:+91${CONTACT.call[0]}`} className="rounded-full border border-white/70 px-5 py-3 text-sm font-bold">Call {CONTACT.call[0]}</a>
-          <a href={`tel:+91${CONTACT.call[1]}`} className="rounded-full border border-white/70 px-5 py-3 text-sm font-bold">Call {CONTACT.call[1]}</a>
-          <a href={waLink(waText)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full bg-success px-5 py-3 text-sm font-bold"><MessageCircle className="size-4" />WhatsApp</a>
+      {/* Light bottom scrim only — photos stay visible. Text layer passes swipes through; links stay clickable. */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a2540]/90 via-[#0a2540]/25 to-transparent md:bg-gradient-to-r md:from-[#0a2540]/80 md:via-[#0a2540]/20" />
+      <div className="pointer-events-none relative z-10 mx-auto w-full max-w-6xl px-4 pb-10 pt-24 md:pb-14 [&_a]:pointer-events-auto">
+        <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold tracking-wide text-[#0a2540] shadow sm:text-xs">{badge?.startsWith("Quotation") ? badge : FESTIVAL_BADGE}</p>
+        <h1 className="mt-3 max-w-xl text-2xl font-bold leading-tight drop-shadow sm:text-4xl">{title}</h1>
+        <p className="mt-2 max-w-md text-sm text-white/90 drop-shadow sm:text-base">{subtitle.split(/(?<=\.)\s/)[0]}</p>
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <Link href={bookHref} className="relative rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-lg">
+            <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-white/60 [animation-duration:2.2s]" aria-hidden />
+            Book Now
+          </Link>
+          {CONTACT.call.map((n) => (
+            <a key={n} href={`tel:+91${n}`} aria-label={`Call ${n}`} className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-xs font-semibold backdrop-blur hover:bg-white/25">
+              <Phone className="size-3.5" /> {n}
+            </a>
+          ))}
+          <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="inline-flex size-9 items-center justify-center rounded-full bg-success">
+            <MessageCircle className="size-4" />
+          </a>
         </div>
-        {note && <p className="mt-4 max-w-2xl text-xs text-white/75">{note}</p>}
-        <p className="mt-4 text-xs font-semibold text-white/80">Since 2012 · 20+ Years Cleaning Industry Experience · Pune & PCMC</p>
       </div>
     </section>
   );
@@ -208,11 +207,10 @@ export function Faqs({ faqs }: { faqs: { q: string; a: string }[] }) {
 
 export function Terms() {
   return (
-    <section>
-      <h2 className="text-xl font-bold">Terms &amp; conditions</h2>
-      <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-[#0a2540]/80">{TERMS.map((t) => <li key={t}>{t}</li>)}</ol>
-      <p className="mt-4 rounded-xl bg-white p-4 text-xs leading-relaxed text-[#0a2540]/70 shadow-sm">{PRICING_NOTICE}</p>
-    </section>
+    <details className="rounded-2xl bg-white p-4 shadow-sm">
+      <summary className="cursor-pointer text-sm font-bold">Terms &amp; conditions</summary>
+      <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-xs text-[#0a2540]/75">{TERMS.map((t) => <li key={t}>{t}</li>)}</ol>
+    </details>
   );
 }
 
@@ -223,8 +221,7 @@ export function FinalCta({ title, waText }: { title: string; waText: string }) {
       <div className="mt-5 flex flex-wrap justify-center gap-3">
         <a href="#quote" className="rounded-full bg-white px-6 py-3 text-sm font-bold text-primary">Book Now</a>
         <a href={`tel:+91${CONTACT.call[0]}`} className="rounded-full border border-white/70 px-5 py-3 text-sm font-bold">Call {CONTACT.call[0]}</a>
-        <a href={`tel:+91${CONTACT.call[1]}`} className="rounded-full border border-white/70 px-5 py-3 text-sm font-bold">Call {CONTACT.call[1]}</a>
-        <a href={waLink(waText)} target="_blank" rel="noreferrer" className="rounded-full bg-success px-5 py-3 text-sm font-bold">WhatsApp {CONTACT.whatsapp}</a>
+        <a href={waLink(waText)} target="_blank" rel="noreferrer" className="rounded-full bg-success px-5 py-3 text-sm font-bold">WhatsApp</a>
       </div>
     </section>
   );

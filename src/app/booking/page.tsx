@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, PackageGrid, ScopeLists, HowItWorks, Faqs, Terms, BASE_URL, CAROUSEL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, HowItWorks, Faqs, Terms, BASE_URL, CAROUSEL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
-import { PREMIUM, PLATINUM, PREMIUM_SCOPE, PREMIUM_EXCLUDED, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
 
 // Customer booking page in the approved transparent-pricing landing design.
 // /booking                → pick a package, date, available slot, payment preference
@@ -65,7 +64,8 @@ export default async function BookingPage({
         alt={CAROUSEL.team.alt}
         images={[CAROUSEL.team, CAROUSEL.equipment, CAROUSEL.result]}
         eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
-        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning Services Across Pune & PCMC"}
+        badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
+        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning in Pune & PCMC"}
         subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Transparent prices, real available slots, and pay advance or after service. Book early to get your preferred festival slot."}
         primaryLabel="Choose Date & Slot"
         primaryHref="#book"
@@ -84,39 +84,10 @@ export default async function BookingPage({
           />
         </section>
 
+        {/* Prices and scope live only inside the booking flow above — no
+            repeated pricing sections below it. */}
         {!quote && (
           <>
-            <section>
-              <h2 className="text-2xl font-bold">Premium home deep cleaning</h2>
-              <p className="text-sm text-[#0a2540]/70">Complete top-to-bottom cleaning · wall dry dusting · ceiling dry dusting · estimated 7–8 hours.</p>
-              <PackageGrid items={PREMIUM} />
-              <ScopeLists included={PREMIUM_SCOPE} excluded={PREMIUM_EXCLUDED} />
-            </section>
-            <section>
-              <h2 className="text-2xl font-bold">Platinum home deep cleaning</h2>
-              <p className="mt-1 inline-block rounded-lg bg-amber-100 px-3 py-1 text-sm font-bold text-amber-900">⭐ WALL WET CLEANING &amp; CEILING DRY DUSTING INCLUDED</p>
-              <p className="mt-1 text-sm text-[#0a2540]/70">The same complete scope as Premium — with wall wet cleaning instead of wall dry dusting.</p>
-              <PackageGrid items={PLATINUM} accent />
-            </section>
-            <section>
-              <h2 className="text-2xl font-bold">Individual services &amp; combos</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {SMALL_SERVICES.map((s) => (
-                  <div key={s.name} className="rounded-2xl bg-white p-4 shadow-sm">
-                    <h3 className="font-bold">{s.name}</h3>
-                    <p className="text-xl font-extrabold text-primary">{s.price == null ? <span className="text-sm font-semibold">{s.priceNote}</span> : <>{inr(s.price)} <span className="text-xs font-medium text-[#0a2540]/70">{s.unit}</span></>}</p>
-                    <p className="text-xs font-bold uppercase text-amber-700">{s.rule}</p>
-                  </div>
-                ))}
-                {COMBOS.map((c) => (
-                  <div key={c.name} className="rounded-2xl bg-white p-4 shadow-sm">
-                    <h3 className="font-bold">{c.name}</h3>
-                    <p className="text-xl font-extrabold text-primary">{inr(c.price)}</p>
-                    {c.note && <p className="text-xs font-semibold text-amber-700">{c.note}</p>}
-                  </div>
-                ))}
-              </div>
-            </section>
             <section>
               <h2 className="text-xl font-bold">Professional equipment</h2>
               <ul className="mt-2 grid gap-1 text-sm text-[#0a2540]/80 sm:grid-cols-2">{EQUIPMENT.map((e) => <li key={e}>• {e}</li>)}</ul>

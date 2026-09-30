@@ -34,6 +34,8 @@ FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+# Business runs on India time — "today/tomorrow" everywhere depends on it.
+ENV TZ=Asia/Kolkata
 
 # tar is used by the built-in backup/restore API routes; ca-certificates for
 # any outbound HTTPS calls (WhatsApp API, Google Drive backups, etc.).

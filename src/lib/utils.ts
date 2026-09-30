@@ -115,6 +115,36 @@ export function dayBucket(date: Date | string | null | undefined): DayBucket {
   return "FUTURE";
 }
 
+/**
+ * Minutes-after-midnight for an arrival-window label ("8:00 – 11:00",
+ * "10:00 AM", "2 PM"). Bare 1–7 o'clock means afternoon (business hours).
+ * Unparseable / "Flexible" sorts last within its day.
+ */
+export function slotStartMinutes(slot: string | null | undefined): number {
+  const m = (slot ?? "").match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+  if (!m) return 24 * 60;
+  let h = Number(m[1]);
+  const ampm = m[3]?.toLowerCase();
+  if (ampm) h = (h % 12) + (ampm === "pm" ? 12 : 0);
+  else if (h >= 1 && h <= 7) h += 12;
+  return h * 60 + Number(m[2] ?? 0);
+}
+
+/**
+ * Today's records first, then tomorrow's — each in time order — then
+ * everything else in its original order.
+ */
+export function todayTomorrowFirst<T>(items: T[], date: (t: T) => Date | string | null | undefined, time: (t: T) => string | null | undefined): T[] {
+  const rank = (t: T) => {
+    const b = dayBucket(date(t));
+    return b === "TODAY" ? 0 : b === "TOMORROW" ? 1 : 2;
+  };
+  return items
+    .map((t, i) => ({ t, i, r: rank(t) }))
+    .sort((a, b) => a.r - b.r || (a.r < 2 ? slotStartMinutes(time(a.t)) - slotStartMinutes(time(b.t)) : 0) || a.i - b.i)
+    .map((x) => x.t);
+}
+
 export const DAY_BUCKET_META: Record<
   Exclude<DayBucket, "NONE" | "FUTURE">,
   { label: string; badge: "destructive" | "success" | "info"; dot: string }
