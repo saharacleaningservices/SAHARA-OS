@@ -303,7 +303,7 @@ export function LeadForm({
                 quoteAmountField.onChange(e);
                 setEstimateTouched(true);
               }}
-              placeholder="Minimum ₹3,999"
+              placeholder="As per pricing master"
             />
           </div>
 

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { HOME_FROM_PRICE, PLATINUM_FROM_PRICE } from "@/lib/pricing-master";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, PackageGrid, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
-import { PREMIUM, PLATINUM, PREMIUM_SCOPE, PREMIUM_EXCLUDED, PLATINUM_SCOPE, PLATINUM_EXCLUDED, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
+import { LandingShell, Hero, PackageGrid, RoomScope, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { PREMIUM, PLATINUM, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
 export const dynamic = "force-dynamic";
@@ -40,15 +40,15 @@ export default async function HomeDeepCleaningPage() {
         <section>
           <h2 className="text-2xl font-bold">Premium home deep cleaning</h2>
           <p className="text-sm text-[#0a2540]/70">Complete top-to-bottom cleaning of your home. Estimated 7–8 hours.</p>
-          <PackageGrid items={PREMIUM} />
-          <ScopeLists included={PREMIUM_SCOPE} excluded={PREMIUM_EXCLUDED} />
+          <PackageGrid items={PREMIUM} tier="Premium" />
+          <RoomScope tier="Premium" />
         </section>
         <section>
           <h2 className="text-2xl font-bold">Platinum home deep cleaning</h2>
           <p className="mt-1 inline-block rounded-lg bg-amber-100 px-3 py-1 text-sm font-bold text-amber-900">⭐ WALL WET CLEANING &amp; CEILING DRY DUSTING INCLUDED</p>
           <p className="mt-1 text-sm text-[#0a2540]/70">The same complete scope as Premium, with wall wet cleaning instead of wall dry dusting.</p>
-          <PackageGrid items={PLATINUM} accent />
-          <ScopeLists included={PLATINUM_SCOPE} excluded={PLATINUM_EXCLUDED} />
+          <PackageGrid items={PLATINUM} accent tier="Platinum" />
+          <details className="mt-3 rounded-2xl bg-white shadow-sm"><summary className="cursor-pointer p-4 text-sm font-bold text-primary">View Platinum room-wise scope</summary><div className="px-1 pb-1"><RoomScope tier="Platinum" compact /></div></details>
         </section>
         <section>
           <h2 className="text-2xl font-bold">Individual cleaning services</h2>

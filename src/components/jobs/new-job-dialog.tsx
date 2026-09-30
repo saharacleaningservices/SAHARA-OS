@@ -45,7 +45,7 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
     resolver: zodResolver(jobSchema),
     defaultValues: {
       service: "HOME_DEEP_CLEANING",
-      jobValue: 3999,
+      jobValue: 0,
       scheduledTime: "10:00",
       teamNumber: "",
     },
@@ -79,7 +79,7 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Schedule a New Job</DialogTitle>
-          <DialogDescription>Minimum job value is ₹3,999.</DialogDescription>
+          <DialogDescription>Enter the job value as per the Sahara pricing master.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">

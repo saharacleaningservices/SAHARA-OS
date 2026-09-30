@@ -58,6 +58,13 @@ export const PEST_SERVICES = [
   { name: "Bed Bug Control", desc: "Inspection of beds, mattresses, sofas and furniture joints; targeted treatment and follow-up guidance." },
   { name: "Ant Control", desc: "Inspection of ant trails and entry points; targeted gel / spray treatment." },
 ];
+export const OFFICE_SCOPE = [
+  "Workstations, tables and chairs",
+  "Glass partitions and doors",
+  "Floors — scrubbing and mopping (machine cleaning where required)",
+  "Pantry and washrooms",
+  "Common areas, dusting and cobweb removal",
+];
 export const PAINT_OPTIONS = [
   "Asian Oil Bound Distemper",
   "Asian Tractor Emulsion",
@@ -78,8 +85,11 @@ export const TERMS = [
   "Old, permanent or stubborn stains cannot be guaranteed for complete removal.",
   "Inaccessible areas are excluded from the scope.",
   "Heavy furniture and fixtures are not moved unless separately agreed.",
-  "Water and electricity must be available during the service.",
+  "Customer provides an adequate water supply during the service.",
+  "Customer provides electricity supply for the team's equipment.",
+  "Customer arranges a suitable ladder / step ladder where required.",
   "Customer should provide access to the service area.",
+  "Cash, jewellery and fragile valuables should be kept secured before the service starts.",
   "Additional work outside the listed scope may be chargeable.",
   "Payment is due as per the agreed booking terms.",
 ];
