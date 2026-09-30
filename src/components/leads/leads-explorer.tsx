@@ -28,7 +28,7 @@ import {
   LEAD_SOURCE_OPTIONS,
   LEAD_SOURCE_LABELS,
 } from "@/lib/constants";
-import { formatINR, formatDateShort, dayBucket, DAY_BUCKET_META } from "@/lib/utils";
+import { formatINR, formatDateShort, dayBucket, todayTomorrowFirst, DAY_BUCKET_META } from "@/lib/utils";
 
 type Lead = {
   id: string;
@@ -42,6 +42,7 @@ type Lead = {
   quoteAmount: number | null;
   followUpDate: Date | null;
   serviceDate: Date | null;
+  timeSlot?: string | null;
   teamNumber: number | null;
   createdAt: Date;
   assignedStaff?: { name: string } | null;
@@ -107,7 +108,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return leads.filter((lead) => {
+    const matches = leads.filter((lead) => {
       if (q) {
         const haystack = `${lead.name} ${lead.mobile} ${lead.area} ${lead.leadNumber}`.toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -122,6 +123,8 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
       }
       return true;
     });
+    // Today's and tomorrow's records first (time order), then the rest.
+    return todayTomorrowFirst(matches, (l) => smartDate(l).date, (l) => l.timeSlot);
   }, [leads, search, stageFilter, sourceFilter, serviceFilter, dueParam]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));

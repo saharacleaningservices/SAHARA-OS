@@ -13,7 +13,9 @@ import {
   Star,
   XCircle,
   PauseCircle,
+  MapPin,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { getOwnerCommandCenterHome } from "@/server/owner-command-center";
 import { getOwnerSnapshot } from "@/server/owner";
 import { getCompanySettings } from "@/server/settings";
@@ -25,6 +27,7 @@ import { RevenueIntelligence } from "./revenue-intelligence";
 import { QuickDispatch } from "./quick-dispatch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { JobStatusBadge } from "@/components/shared/status-badge";
 import { formatINR, formatDate } from "@/lib/utils";
 
 type DayData = {
@@ -34,12 +37,38 @@ type DayData = {
   siteVisits: number;
   collectionCount: number;
   collectionAmount: number;
+  jobs: { id: string; customerName: string; scheduledTime: string; area: string; status: string; teamNumber: number | null }[];
 };
 
-function dayCardBody(data: DayData) {
+function dayCardBody(data: DayData, when: "today" | "tomorrow") {
   return (
     <div className="space-y-3 pt-3">
-      <div className="space-y-1.5">
+      {data.jobs.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No jobs scheduled.</p>
+      ) : (
+        <div className="space-y-1.5">
+          {data.jobs.map((j) => (
+            <Link
+              key={j.id}
+              href={`/jobs/${j.id}`}
+              className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-primary/40"
+            >
+              <span className="min-w-0">
+                <span className="block truncate font-medium text-foreground">{j.customerName}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {j.scheduledTime} · {j.area}
+                  {j.teamNumber ? ` · T${j.teamNumber}` : ""}
+                </span>
+              </span>
+              <JobStatusBadge status={j.status} />
+            </Link>
+          ))}
+        </div>
+      )}
+      <Link href={`/jobs?when=${when}`} className="block text-center text-xs font-medium text-primary">
+        Open {when === "today" ? "today's" : "tomorrow's"} job list →
+      </Link>
+      <div className="space-y-1.5 border-t border-border pt-3">
         {data.categories.map((c) => (
           <div key={c.service} className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{c.label}</span>
@@ -65,8 +94,11 @@ function dayCardBody(data: DayData) {
   );
 }
 
+// Always India time — the server itself may run in UTC.
 function getGreeting(date: Date = new Date()): string {
-  const hour = date.getHours();
+  const hour = Number(
+    new Intl.DateTimeFormat("en-IN", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kolkata" }).format(date),
+  );
   if (hour < 12) return "Good Morning";
   if (hour < 17) return "Good Afternoon";
   return "Good Evening";
@@ -96,8 +128,27 @@ export async function OwnerCommandCenter({
     getDashboardData(),
   ]);
 
-  const { today, tomorrow, totalLeadsCount, businessTarget, revenue, staffList, vehicleList, alerts, calendar } =
+  const { today, tomorrow, totalLeadsCount, businessTarget, revenue, staffList, vehicleList, alerts, calendar, followUpsToday, siteVisitsToday } =
     home;
+  const attentionCount = alerts.totalCount + followUpsToday.length + siteVisitsToday.length;
+
+  const chips = [
+    { href: "/jobs?when=today", label: "jobs today", count: today.totalJobs },
+    { href: "/leads?due=today", label: "follow-ups", count: followUpsToday.length },
+    { href: "/leads?stage=SITE_VISIT", label: "site visits", count: siteVisitsToday.length },
+    { href: "/payments?filter=pending", label: "overdue payments", count: alerts.overduePayments.length },
+    { href: "/jobs?when=today", label: "jobs without staff", count: alerts.unassignedJobsToday.length },
+  ];
+  const bigTile = (icon: ReactNode, tint: string, label: string, value: number, sub: string) => (
+    <div className="flex items-center gap-3">
+      <div className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${tint}`}>{icon}</div>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-2xl font-bold leading-tight text-foreground">{value}</p>
+        <p className="truncate text-[11px] text-muted-foreground">{sub}</p>
+      </div>
+    </div>
+  );
 
   const collectionPercent =
     snapshot.collected + snapshot.pendingCollections > 0
@@ -115,61 +166,35 @@ export async function OwnerCommandCenter({
 
   return (
     <div className="space-y-6">
-      <div className="sahara-gradient rounded-xl p-5 text-white">
-        <p className="text-xs font-medium uppercase tracking-wide text-white/70">Owner Command Center</p>
-        <h1 className="mt-1 text-2xl font-semibold text-white">{getGreeting()}, {ownerName}</h1>
-        <p className="mt-1 text-sm text-white/80">
-          {today.totalJobs} job{today.totalJobs === 1 ? "" : "s"} today · {today.followUps} follow-up
-          {today.followUps === 1 ? "" : "s"} · {today.siteVisits} site visit{today.siteVisits === 1 ? "" : "s"}
-        </p>
+      <div className="sahara-gradient rounded-xl p-4 text-white sm:p-5">
+        <h1 className="text-xl font-semibold text-white sm:text-2xl">{getGreeting()}, {ownerName}</h1>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {chips.map((c) => (
+            <Link
+              key={c.label}
+              href={c.href}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium ${c.count > 0 ? "bg-white text-foreground" : "bg-white/15 text-white/80"}`}
+            >
+              <span className="font-bold">{c.count}</span> {c.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Four click-to-expand hero cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Today / Tomorrow / Total Leads — the three numbers checked first */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <ExpandableCard
-          trigger={
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                <ClipboardList className="size-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Today&apos;s Jobs</p>
-                <p className="text-xs text-muted-foreground">{today.totalJobs} scheduled</p>
-              </div>
-            </div>
-          }
+          trigger={bigTile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}
         >
-          {dayCardBody(today)}
+          {dayCardBody(today, "today")}
         </ExpandableCard>
-
         <ExpandableCard
-          trigger={
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-600">
-                <CalendarClock className="size-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Tomorrow&apos;s Jobs</p>
-                <p className="text-xs text-muted-foreground">{tomorrow.totalJobs} scheduled</p>
-              </div>
-            </div>
-          }
+          trigger={bigTile(<CalendarClock className="size-5" />, "bg-indigo-500/15 text-indigo-600", "Tomorrow's Jobs", tomorrow.totalJobs, "Tap for the full list")}
         >
-          {dayCardBody(tomorrow)}
+          {dayCardBody(tomorrow, "tomorrow")}
         </ExpandableCard>
-
         <ExpandableCard
-          trigger={
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-blue-500/15 text-blue-600">
-                <Users className="size-4" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Total Leads</p>
-                <p className="text-xs text-muted-foreground">{totalLeadsCount} in pipeline</p>
-              </div>
-            </div>
-          }
+          trigger={bigTile(<Users className="size-5" />, "bg-blue-500/15 text-blue-600", "Total Leads", totalLeadsCount, "Tap for the booking calendar")}
         >
           <div className="pt-3">
             <LeadMonthCalendar
@@ -180,9 +205,9 @@ export async function OwnerCommandCenter({
             />
           </div>
         </ExpandableCard>
-
-        {showBusinessTarget && <BusinessTargetCard businessTarget={businessTarget} />}
       </div>
+
+      {showBusinessTarget && <BusinessTargetCard businessTarget={businessTarget} />}
 
       {/* Revenue Intelligence */}
       <RevenueIntelligence
@@ -201,19 +226,55 @@ export async function OwnerCommandCenter({
           <CardTitle className="flex items-center gap-2 text-base">
             <BellRing className="size-4 text-primary" /> Owner Alert Center
           </CardTitle>
-          {alerts.totalCount > 0 && (
+          {attentionCount > 0 && (
             <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
-              {alerts.totalCount} need{alerts.totalCount === 1 ? "s" : ""} attention
+              {attentionCount} need{attentionCount === 1 ? "s" : ""} attention
             </span>
           )}
         </CardHeader>
         <CardContent className="space-y-4">
-          {alerts.totalCount === 0 ? (
+          {attentionCount === 0 ? (
             <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-3 text-sm font-medium text-success">
               <CheckCircle2 className="size-4" /> All clear — nothing needs your attention right now.
             </div>
           ) : (
             <>
+              {followUpsToday.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <BellRing className="size-3.5 text-primary" /> Follow-ups Today ({followUpsToday.length})
+                  </p>
+                  {followUpsToday.map((f) => (
+                    <Link
+                      key={f.id}
+                      href={`/leads/${f.lead.id}`}
+                      className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-primary/40"
+                    >
+                      <span className="truncate text-foreground">{f.lead.name}</span>
+                      <span className="shrink-0 text-xs capitalize text-muted-foreground">
+                        {f.type.replace("_", " ").toLowerCase()} · {f.lead.area}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {siteVisitsToday.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <MapPin className="size-3.5 text-indigo-600" /> Site Visits Today ({siteVisitsToday.length})
+                  </p>
+                  {siteVisitsToday.map((l) => (
+                    <Link
+                      key={l.id}
+                      href={`/leads/${l.id}`}
+                      className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-primary/40"
+                    >
+                      <span className="truncate text-foreground">{l.name}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{l.timeSlot ?? l.area}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
               {alerts.overduePayments.length > 0 && (
                 <div className="space-y-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">

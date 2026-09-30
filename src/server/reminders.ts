@@ -317,7 +317,9 @@ export async function sweepPostPaymentReview() {
     if (already) continue;
 
     const job = await db.job.findUnique({ where: { id: p.jobId } });
-    if (!job || job.deletedAt) continue;
+    // Only after the service is done — an advance paid before the visit must
+    // never trigger a review request.
+    if (!job || job.deletedAt || job.status !== "COMPLETED") continue;
 
     const reviewed = await db.review.findFirst({
       where: { customerMobile: job.customerMobile, createdAt: { gte: p.paidDate ?? from } },

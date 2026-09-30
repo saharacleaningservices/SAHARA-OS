@@ -60,7 +60,7 @@ export function LandingHeroCarousel({ images }: { images: CarouselImage[] }) {
               priority={i === 0}
               loading={i === 0 ? undefined : "lazy"}
               sizes="100vw"
-              className="object-cover opacity-45"
+              className="object-cover"
             />
           </div>
         ))}

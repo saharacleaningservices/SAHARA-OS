@@ -367,6 +367,10 @@ export function LeadForm({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="NONE">Any</SelectItem>
+                  {/* Keep an older (pre-2-hour) slot visible on existing leads. */}
+                  {watch("timeSlot") && !(TIME_SLOTS as readonly string[]).includes(watch("timeSlot") ?? "") && (
+                    <SelectItem value={watch("timeSlot")!}>{watch("timeSlot")}</SelectItem>
+                  )}
                   {TIME_SLOTS.map((slot) => (
                     <SelectItem key={slot} value={slot}>
                       {slot}

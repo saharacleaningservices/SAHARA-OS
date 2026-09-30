@@ -458,15 +458,13 @@ export const LEAD_STAGE_LABELS: Record<string, string> = {
 // form, the CRM lead form and the Confirm-Booking dialog. Stored as a plain
 // string on Lead.timeSlot / Job.scheduledTime, so historical single-time values
 // ("10:00 AM") still render fine; only the picker options changed.
+// 2-hour arrival windows (owner request 2026-09-30). Availability is computed
+// from each window's start hour, so older 3-hour labels still count.
 export const TIME_SLOTS = [
-  "8:00 – 11:00",
-  "9:00 – 12:00",
-  "10:00 – 1:00",
-  "11:00 – 2:00",
-  "12:00 – 3:00",
-  "1:00 – 4:00",
-  "2:00 – 5:00",
-  "3:00 – 6:00",
+  "8:00 – 10:00 AM",
+  "10:00 AM – 12:00 PM",
+  "12:00 – 2:00 PM",
+  "2:00 – 4:00 PM",
   "Flexible",
 ] as const;
 

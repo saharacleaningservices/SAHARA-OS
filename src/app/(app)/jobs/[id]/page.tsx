@@ -20,6 +20,7 @@ import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { JobCardActions } from "@/components/jobs/job-card-actions";
 import { EmptyState } from "@/components/shared/empty-state";
+import { canViewRevenue } from "@/lib/permissions";
 import { formatINR, formatDate, formatDateTime, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { jobCardMessage } from "@/lib/whatsapp-templates";
@@ -41,6 +42,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   // field-only policy. Deliberately separate from canManage, which still
   // covers his other job actions (vehicle assignment, review/payment links).
   const canSeeCustomerContact = session.role !== "OPERATIONS";
+  // Job value, advance, balance, invoices — owner + Accounts only. Francis
+  // and field roles get job information without any money figures.
+  const showMoney = canViewRevenue(session.role);
   const [vehicles, { googleMaps }, settings] = await Promise.all([
     canManage ? getVehiclesForAssignment() : Promise.resolve([]),
     getResolvedIntegrations(),
@@ -102,7 +106,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             {canManage && job.status === "COMPLETED" && (
               <SendBookingFormButton name={job.customerName} mobile={job.customerMobile} jobId={job.id} kind="REVIEW" />
             )}
-            {canManage && balance > 0 && (
+            {canManage && showMoney && balance > 0 && (
               <SendPaymentLinkButton
                 mobile={job.customerMobile}
                 details={paymentDetails}
@@ -180,6 +184,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     {formatDate(job.scheduledDate)} · {job.scheduledTime}
                   </p>
                 </div>
+                {showMoney && (
+                  <>
                 <div>
                   <p className="text-xs text-muted-foreground">Job Value</p>
                   <p className="font-medium text-foreground">{formatINR(job.jobValue)}</p>
@@ -194,6 +200,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     {formatINR(balance)} <span className="text-xs text-muted-foreground">({paymentStatus})</span>
                   </p>
                 </div>
+                  </>
+                )}
                 <div>
                   <p className="text-xs text-muted-foreground">Supervisor</p>
                   <p className="font-medium text-foreground">{job.supervisor?.name ?? "—"}</p>
@@ -320,7 +328,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             mapsApiKey={googleMaps.apiKey}
           />
 
-          {job.payments.length > 0 && (
+          {showMoney && job.payments.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Invoice</CardTitle>
@@ -345,7 +353,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           {/* Job Expenses carries cost amounts — financial data. Francis
               (SUPERVISOR) must not see Expenses in any form, including
               tied to a specific job (2026-09-22 policy). */}
-          {job.expenses.length > 0 && session.role !== "SUPERVISOR" && (
+          {showMoney && job.expenses.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

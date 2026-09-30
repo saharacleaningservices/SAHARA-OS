@@ -3,6 +3,7 @@ import { startOfDay, endOfDay, startOfMonth, endOfMonth, addDays, subDays, forma
 import { SERVICE_LABELS } from "@/lib/constants";
 import { getBusinessTarget } from "@/server/actions/business-target";
 import { getRevenueDashboard } from "@/server/revenue";
+import { slotStartMinutes } from "@/lib/utils";
 
 const SERVICE_ORDER = [
   "HOME_DEEP_CLEANING",
@@ -13,7 +14,7 @@ const SERVICE_ORDER = [
 ] as const;
 
 async function dayBreakdown(dayStart: Date, dayEnd: Date) {
-  const [byService, followUps, siteVisits, collection] = await Promise.all([
+  const [byService, followUps, siteVisits, collection, jobs] = await Promise.all([
     db.job.groupBy({
       by: ["service"],
       where: { deletedAt: null, scheduledDate: { gte: dayStart, lte: dayEnd } },
@@ -30,7 +31,12 @@ async function dayBreakdown(dayStart: Date, dayEnd: Date) {
       _sum: { paidAmount: true },
       _count: true,
     }),
+    db.job.findMany({
+      where: { deletedAt: null, scheduledDate: { gte: dayStart, lte: dayEnd } },
+      select: { id: true, customerName: true, scheduledTime: true, area: true, status: true, service: true, teamNumber: true },
+    }),
   ]);
+  jobs.sort((a, b) => slotStartMinutes(a.scheduledTime) - slotStartMinutes(b.scheduledTime));
 
   const byServiceMap = new Map(byService.map((r) => [r.service, r._count]));
   const categories = SERVICE_ORDER.map((s) => ({
@@ -47,6 +53,7 @@ async function dayBreakdown(dayStart: Date, dayEnd: Date) {
     siteVisits,
     collectionCount: collection._count,
     collectionAmount: collection._sum.paidAmount ?? 0,
+    jobs,
   };
 }
 
@@ -379,6 +386,19 @@ export async function getOwnerCommandCenterHome() {
     getLeadMonthCalendar(year, month),
     getWeeklyRevenueBreakdown(year, month),
   ]);
+  const [followUpsToday, siteVisitsToday] = await Promise.all([
+    db.followUp.findMany({
+      where: { isDone: false, dueDate: { gte: todayStart, lte: todayEnd }, lead: { deletedAt: null } },
+      select: { id: true, type: true, dueDate: true, lead: { select: { id: true, name: true, area: true } } },
+      orderBy: { dueDate: "asc" },
+      take: 10,
+    }),
+    db.lead.findMany({
+      where: { deletedAt: null, stage: "SITE_VISIT", followUpDate: { gte: todayStart, lte: todayEnd } },
+      select: { id: true, name: true, area: true, timeSlot: true },
+      take: 10,
+    }),
+  ]);
 
   const targetAmount = target?.targetAmount ?? null;
   const achieved = revenue.monthlyRevenue;
@@ -402,6 +422,8 @@ export async function getOwnerCommandCenterHome() {
     staffList,
     vehicleList,
     alerts,
+    followUpsToday,
+    siteVisitsToday,
     calendar,
   };
 }

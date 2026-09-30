@@ -23,6 +23,10 @@ export default async function JobsPage() {
     canManage ? getJobsPageStats() : Promise.resolve(null),
   ]);
   const showRevenue = canViewRevenue(session.role);
+  // Non-finance roles never receive money figures, not even in the payload.
+  const listJobs = showRevenue
+    ? jobs
+    : jobs.map((j) => ({ ...j, jobValue: 0, payments: j.payments.map((p) => ({ ...p, amount: 0, paidAmount: 0 })) }));
 
   const scopeNote =
     session.role === "OPERATIONS"
@@ -72,7 +76,7 @@ export default async function JobsPage() {
         </div>
       )}
 
-      <JobsExplorer jobs={jobs} canManage={canManage} canSeeCustomerContact={canSeeCustomerContact} />
+      <JobsExplorer jobs={listJobs} canManage={canManage} canSeeCustomerContact={canSeeCustomerContact} showMoney={showRevenue} />
     </div>
   );
 }

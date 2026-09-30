@@ -1,13 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { Building2, Bug, CalendarDays, CheckCircle2, ChevronDown, Clock, Home, Loader2, Paintbrush, Wallet } from "lucide-react";
+import { Building2, Bug, CheckCircle2, ChevronDown, Clock, Home, Loader2, LocateFixed, Paintbrush, Wallet } from "lucide-react";
 import { publicBookLead } from "@/server/actions/public-booking";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
-import { inr } from "@/lib/marketing-content";
-import { PRICING_MASTER, PRICING_NOTICE, SERVICE_AREA_NOTICE, pricesIn, priceLabel, type PriceItem } from "@/lib/pricing-master";
+import { inr, PREMIUM_SCOPE, PREMIUM_EXCLUDED } from "@/lib/marketing-content";
+import { PRICING_MASTER, pricesIn, priceLabel, type PriceItem } from "@/lib/pricing-master";
+
+// Shown once, right under the service prices.
+const PRICE_NOTE =
+  "Standard prices shown. Final price may vary based on your requirements, service scope, location and applicable demand/season. Final price will be confirmed before booking.";
 
 // Customer booking flow (approved transparent-pricing design). Every price
 // comes from the Sahara pricing master — never the legacy CRM estimate
@@ -28,8 +32,12 @@ type Line = { label: string; amount: number | null; note?: string };
 
 const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"];
 const PEST_SIZES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Commercial"];
+const PAINT_PROPERTIES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Office / Shop"];
+const PAINT_JOBS = ["Fresh Painting", "Repainting"];
 const CUSTOMISED = pricesIn("CUSTOMISED");
 const COMBOS = pricesIn("COMBO");
+const ADDON_COMBOS = COMBOS.filter((c) => c.addOnOnly);
+const PACKAGE_COMBOS = COMBOS.filter((c) => !c.addOnOnly);
 const PAINTS = pricesIn("PAINTING").filter((p) => !p.addOnOnly);
 const PUTTY = PRICING_MASTER.find((p) => p.contentId === "SCS-PUTTY") ?? null;
 
@@ -65,7 +73,8 @@ export function BookingWizard({
   const [category, setCategory] = useState<Category | "">(defaultCategory ?? "");
   // Home
   const [bhk, setBhk] = useState("");
-  const [pkg, setPkg] = useState<"Premium" | "Platinum" | "Customised" | "">("");
+  const [homeType, setHomeType] = useState<"FULL" | "CUSTOM" | "COMBO" | "">("");
+  const [pkg, setPkg] = useState<"Premium" | "Platinum" | "">("");
   const [qty, setQty] = useState<Record<string, number>>({});
   const [combos, setCombos] = useState<Record<string, boolean>>({});
   // Commercial / Pest / Painting
@@ -74,6 +83,8 @@ export function BookingWizard({
   const [pest, setPest] = useState("");
   const [pestSize, setPestSize] = useState("");
   const [paint, setPaint] = useState("");
+  const [paintProperty, setPaintProperty] = useState("");
+  const [paintJob, setPaintJob] = useState("");
   const [sqft, setSqft] = useState("");
   const [putty, setPutty] = useState(false);
   // Schedule / details
@@ -83,9 +94,12 @@ export function BookingWizard({
   const [slot, setSlot] = useState("");
   const [name, setName] = useState(quote?.customerName ?? prefill?.name ?? "");
   const [mobile, setMobile] = useState(quote?.mobile ?? prefill?.mobile ?? "");
+  const [altMobile, setAltMobile] = useState("");
+  const [email, setEmail] = useState("");
   const [location, setLocation] = useState("");
   const [address, setAddress] = useState("");
-  const [notes, setNotes] = useState("");
+  const [mapLink, setMapLink] = useState("");
+  const [locating, setLocating] = useState(false);
   const [pay, setPay] = useState<"PAY_ADVANCE" | "PAY_AFTER_SERVICE" | "">("");
   const [optIn, setOptIn] = useState(false);
   const [error, setError] = useState("");
@@ -106,51 +120,82 @@ export function BookingWizard({
   const lines: Line[] = useMemo(() => {
     if (quote) return quote.services.map((s) => ({ label: s, amount: null }));
     const out: Line[] = [];
-    if (category === "HOME" && bhk && (pkg === "Premium" || pkg === "Platinum")) {
+    if (category === "HOME" && homeType === "FULL" && bhk && pkg) {
       const item = PRICING_MASTER.find((p) => p.bhk === bhk && p.variant === pkg);
       if (item) out.push({ label: `${bhk} ${pkg} Deep Cleaning`, amount: item.price });
     }
-    if (category === "HOME" && pkg === "Customised") {
+    if (category === "HOME" && homeType === "CUSTOM") {
       for (const it of CUSTOMISED) {
         const n = qty[it.contentId] ?? 0;
         if (n > 0) out.push({ label: `${it.name} × ${n}`, amount: it.price == null ? null : it.price * n, note: it.price == null ? it.priceNote : undefined });
       }
-      for (const c of COMBOS) if (combos[c.contentId]) out.push({ label: c.name, amount: c.price });
     }
-    if (category === "COMMERCIAL" && comType) out.push({ label: `${comType} Cleaning${area ? ` · ${area} sq ft` : ""}`, amount: null, note: "Price after inspection / requirement assessment" });
+    if (category === "HOME" && (homeType === "CUSTOM" || homeType === "COMBO")) {
+      for (const c of homeType === "COMBO" ? PACKAGE_COMBOS : ADDON_COMBOS) if (combos[c.contentId]) out.push({ label: c.name, amount: c.price });
+    }
+    if (category === "COMMERCIAL" && comType) out.push({ label: `${comType} Cleaning${area ? ` · ${area} sq ft` : ""}`, amount: null, note: "Price after inspection" });
     if (category === "PEST" && pest) out.push({ label: `${pest}${pestSize ? ` · ${pestSize}` : ""}`, amount: null, note: "Price after inspection" });
     if (category === "PAINTING" && paint) {
       const item = PAINTS.find((p) => p.contentId === paint)!;
       const s = Number(sqft) || 0;
       const rate = item.price == null ? null : item.price + (putty && PUTTY?.price ? PUTTY.price : 0);
       out.push({
-        label: `${item.name}${s ? ` · ${s} sq ft` : ""}${putty ? " + putty" : ""}`,
+        label: `${paintJob ? `${paintJob} · ` : ""}${item.name}${paintProperty ? ` · ${paintProperty}` : ""}${s ? ` · ${s} sq ft` : ""}${putty ? " + putty" : ""}`,
         amount: rate != null && s > 0 ? rate * s : null,
         note: rate == null ? "Price after inspection" : s > 0 ? "Estimate — final after site measurement" : "Enter area for an estimate",
       });
     }
     return out;
-  }, [quote, category, bhk, pkg, qty, combos, comType, area, pest, pestSize, paint, sqft, putty]);
+  }, [quote, category, homeType, bhk, pkg, qty, combos, comType, area, pest, pestSize, paint, paintProperty, paintJob, sqft, putty]);
 
   const pricedTotal = quote ? quote.totalAmount : lines.reduce((s, l) => s + (l.amount ?? 0), 0);
   const hasUnpriced = !quote && lines.some((l) => l.amount == null);
   const addOnOnlyAlone = !quote && lines.length > 0 && lines.every((l) => COMBOS.find((c) => c.name === l.label)?.addOnOnly);
-  const serviceChosen = quote ? true : lines.length > 0 && !addOnOnlyAlone && (category !== "PAINTING" || Number(sqft) > 0 || PAINTS.find((p) => p.contentId === paint)?.price == null);
-  const detailsOk = quote || (name.trim().length >= 2 && /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)) && location.trim());
+  const serviceChosen = quote
+    ? true
+    : lines.length > 0 &&
+      !addOnOnlyAlone &&
+      (category !== "PEST" || !!pestSize) &&
+      (category !== "PAINTING" || (!!paintProperty && !!paintJob && (Number(sqft) > 0 || PAINTS.find((p) => p.contentId === paint)?.price == null)));
+  const altDigits = altMobile.replace(/\D/g, "");
+  const detailsOk =
+    quote ||
+    (name.trim().length >= 2 &&
+      /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)) &&
+      location.trim() &&
+      (!altDigits || altDigits.length >= 10) &&
+      (!email.trim() || /^\S+@\S+\.\S+$/.test(email.trim())));
+
+  function useCurrentLocation() {
+    if (!navigator.geolocation) return setError("Location isn't available on this device — please type your area.");
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setMapLink(`https://www.google.com/maps?q=${latitude.toFixed(6)},${longitude.toFixed(6)}`);
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        setError("Couldn't get your location — please type your area / society.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
   const ready = serviceChosen && date && slot && pay && detailsOk;
 
   function mapping() {
-    if (category === "HOME" && (pkg === "Premium" || pkg === "Platinum")) {
+    if (category === "HOME" && homeType === "FULL") {
       return { serviceCategory: "HOME_DEEP_CLEANING", serviceVariant: pkg, packageName: `${bhk} ${pkg}`, propertyType: bhk };
     }
     if (category === "HOME") {
-      const first = CUSTOMISED.find((it) => (qty[it.contentId] ?? 0) > 0);
-      return { serviceCategory: first ? "INDIVIDUAL_CLEANING" : "COMBO_PACKAGE", serviceVariant: first?.variant ?? "", packageName: "", propertyType: bhk };
+      const first = homeType === "CUSTOM" ? CUSTOMISED.find((it) => (qty[it.contentId] ?? 0) > 0) : undefined;
+      return { serviceCategory: first ? "INDIVIDUAL_CLEANING" : "COMBO_PACKAGE", serviceVariant: first?.variant ?? "", packageName: "", propertyType: "" };
     }
     if (category === "COMMERCIAL") return { serviceCategory: "COMMERCIAL_CLEANING", serviceVariant: comType, packageName: "", propertyType: comType };
     if (category === "PEST") return { serviceCategory: "PEST_CONTROL", serviceVariant: pest, packageName: "", propertyType: pestSize };
     const item = PAINTS.find((p) => p.contentId === paint);
-    return { serviceCategory: "PAINTING", serviceVariant: item?.variant ?? "", packageName: "", propertyType: "" };
+    return { serviceCategory: "PAINTING", serviceVariant: item?.variant ?? "", packageName: paintJob, propertyType: paintProperty };
   }
 
   function submit() {
@@ -162,10 +207,13 @@ export function BookingWizard({
       const res = await publicBookLead({
         name: name.trim(),
         mobile: mobile.replace(/\D/g, "").slice(-10),
+        alternateMobile: altDigits ? altDigits.slice(-10) : "",
+        email: email.trim(),
         area: location.trim(),
         address: address.trim(),
+        mapLink,
         ...m,
-        comboServices: COMBOS.filter((c) => combos[c.contentId]).map((c) => c.name),
+        comboServices: lines.filter((l) => COMBOS.some((c) => c.name === l.label)).map((l) => l.label),
         estimatedAmount: pricedTotal > 0 ? pricedTotal : undefined,
         serviceDate: date,
         timeSlot: slot,
@@ -173,7 +221,7 @@ export function BookingWizard({
         marketingOptIn: optIn,
         quotationToken: quote?.token ?? "",
         referralCode: referralCode ?? "",
-        notes: [quote ? `Quotation ${quote.quoteNumber}` : `${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`, notes.trim()].filter(Boolean).join(" · "),
+        notes: quote ? `Quotation ${quote.quoteNumber}` : `${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`,
         source: "WEBSITE",
         attribution: getAttributionPayload(),
       });
@@ -231,46 +279,63 @@ export function BookingWizard({
         <div className={card}>
           {step(1, "Choose your service")}
           <div className="mt-3 space-y-3">
-            {section("HOME", <Home className="size-5" />, "Home Cleaning", "Premium · Platinum · Customised cleaning", (
+            {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full house · Customized · Combo", (
               <>
-                <div>
-                  <p className="mb-2 text-sm font-semibold">Property size</p>
-                  <div className="flex flex-wrap gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={chip(bhk === b)}>{b}</button>)}</div>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    ["FULL", "Full House"],
+                    ["CUSTOM", "Customized"],
+                    ["COMBO", "Combo"],
+                  ] as const).map(([v, t]) => (
+                    <button key={v} type="button" onClick={() => setHomeType(v)} className={chip(homeType === v)}>{t}</button>
+                  ))}
                 </div>
-                <div>
-                  <p className="mb-2 text-sm font-semibold">Package</p>
-                  <div className="grid gap-2 sm:grid-cols-3">
-                    {(["Premium", "Platinum"] as const).map((t) => {
-                      const it = pkgPrice(t);
-                      return (
-                        <button key={t} type="button" onClick={() => setPkg(t)} className={`rounded-xl border p-3 text-left text-sm ${pkg === t ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
-                          <span className="block font-bold">{t}</span>
-                          <span className="block text-xs text-[#0a2540]/65">{t === "Premium" ? "Complete scope · wall & ceiling dry dusting" : "Complete scope · wall wet cleaning · ceiling dry dusting"}</span>
-                          {bhk && it ? (
-                            <span className="mt-1 block">
-                              <span className="text-lg font-extrabold text-primary">{inr(it.price!)}</span>
-                              {it.mrp && <span className="ml-1.5 text-xs text-[#0a2540]/45 line-through">{inr(it.mrp)}</span>}
-                            </span>
-                          ) : (
-                            <span className="mt-1 block text-xs text-[#0a2540]/55">Select property size to see price</span>
-                          )}
-                        </button>
-                      );
-                    })}
-                    <button type="button" onClick={() => setPkg("Customised")} className={`rounded-xl border p-3 text-left text-sm ${pkg === "Customised" ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
-                      <span className="block font-bold">Customised Cleaning</span>
-                      <span className="block text-xs text-[#0a2540]/65">Pick individual services by quantity</span>
-                    </button>
-                  </div>
-                </div>
-                {pkg === "Customised" && (
+                {homeType === "FULL" && (
+                  <>
+                    <div>
+                      <p className="mb-2 text-sm font-semibold">Property</p>
+                      <div className="flex flex-wrap gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={chip(bhk === b)}>{b}</button>)}</div>
+                    </div>
+                    {bhk && (
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {(["Premium", "Platinum"] as const).map((t) => {
+                          const it = pkgPrice(t);
+                          return (
+                            <button key={t} type="button" onClick={() => setPkg(t)} className={`rounded-xl border p-3 text-left text-sm ${pkg === t ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
+                              <span className="block font-bold">{t}</span>
+                              <span className="block text-xs text-[#0a2540]/65">{t === "Premium" ? "Wall & ceiling dry dusting" : "Wall wet cleaning · ceiling dry dusting"}</span>
+                              {it && (
+                                <span className="mt-1 block">
+                                  <span className="text-lg font-extrabold text-primary">{inr(it.price!)}</span>
+                                  {it.mrp && <span className="ml-1.5 text-xs text-[#0a2540]/45 line-through">{inr(it.mrp)}</span>}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {pkg && (
+                      <details className="rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
+                        <summary className="cursor-pointer font-semibold text-primary">What&apos;s included in {pkg}</summary>
+                        <ul className="mt-2 space-y-1 text-xs text-[#0a2540]/80">
+                          {PREMIUM_SCOPE.map((s) => <li key={s}>✓ {s}</li>)}
+                          <li className="font-semibold">✓ {pkg === "Platinum" ? "Wall wet cleaning" : "Wall dry dusting"} · ceiling dry dusting</li>
+                        </ul>
+                        <p className="mt-2 text-xs font-semibold">Not included</p>
+                        <ul className="mt-1 space-y-1 text-xs text-[#0a2540]/60">{PREMIUM_EXCLUDED.map((s) => <li key={s}>✕ {s}</li>)}</ul>
+                      </details>
+                    )}
+                  </>
+                )}
+                {homeType === "CUSTOM" && (
                   <div className="space-y-2">
                     {CUSTOMISED.map((it: PriceItem) => (
                       <div key={it.contentId} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3">
                         <div className="min-w-0">
                           <p className="font-semibold">{it.name}</p>
                           <p className="text-xs text-primary">{priceLabel(it)}</p>
-                          {(it.rule || it.scope) && <p className="text-[11px] font-semibold text-amber-700">{[it.rule, it.scope].filter(Boolean).join(" · ")}</p>}
+                          {(qty[it.contentId] ?? 0) > 0 && (it.rule || it.scope) && <p className="text-[11px] font-semibold text-amber-700">{[it.rule, it.scope].filter(Boolean).join(" · ")}</p>}
                         </div>
                         <div className="flex items-center gap-3">
                           <Stepper value={qty[it.contentId] ?? 0} min={it.minQty ?? 1} onChange={(v) => setQty((q) => ({ ...q, [it.contentId]: v }))} />
@@ -278,15 +343,27 @@ export function BookingWizard({
                         </div>
                       </div>
                     ))}
-                    <p className="pt-2 text-sm font-semibold">Combo packages</p>
-                    {COMBOS.map((c) => (
+                    {ADDON_COMBOS.map((c) => (
                       <label key={c.contentId} className="flex items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
                         <span className="flex items-center gap-2">
                           <input type="checkbox" className="size-4" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
                           <span>
                             <span className="font-semibold">{c.name}</span>
-                            {c.addOnOnly && <span className="block text-[11px] font-semibold text-amber-700">{c.rule}</span>}
+                            <span className="block text-[11px] font-semibold text-amber-700">{c.rule}</span>
                           </span>
+                        </span>
+                        <span className="font-bold text-primary">{inr(c.price!)}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {homeType === "COMBO" && (
+                  <div className="space-y-2">
+                    {PACKAGE_COMBOS.map((c) => (
+                      <label key={c.contentId} className="flex items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
+                        <span className="flex items-center gap-2">
+                          <input type="checkbox" className="size-4" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
+                          <span className="font-semibold">{c.name}</span>
                         </span>
                         <span className="font-bold text-primary">{inr(c.price!)}</span>
                       </label>
@@ -295,18 +372,24 @@ export function BookingWizard({
                 )}
               </>
             ))}
-            {section("COMMERCIAL", <Building2 className="size-5" />, "Commercial Cleaning", "Shop · Office · Warehouse · Clinic", (
+            {section("COMMERCIAL", <Building2 className="size-5" />, "Commercial Cleaning", "Office · Shop · Warehouse · Clinic", (
               <>
                 <div className="flex flex-wrap gap-2">{pricesIn("COMMERCIAL").map((c) => <button key={c.contentId} type="button" onClick={() => setComType(c.variant)} className={chip(comType === c.variant)}>{c.variant}</button>)}</div>
                 <input className={input} inputMode="numeric" placeholder="Approximate area (sq ft)" value={area} onChange={(e) => setArea(e.target.value.replace(/\D/g, ""))} />
-                <p className="text-sm font-semibold text-primary">Price after inspection / requirement assessment</p>
+                <p className="text-sm font-semibold text-primary">Inspection-based pricing</p>
               </>
             ))}
             {section("PEST", <Bug className="size-5" />, "Pest Control", "Cockroach · Termite · Bed bug · Ant", (
               <>
-                <div className="flex flex-wrap gap-2">{pricesIn("PEST").map((p) => <button key={p.contentId} type="button" onClick={() => setPest(p.name)} className={chip(pest === p.name)}>{p.name}</button>)}</div>
-                <div className="flex flex-wrap gap-2">{PEST_SIZES.map((s) => <button key={s} type="button" onClick={() => setPestSize(s)} className={chip(pestSize === s)}>{s}</button>)}</div>
-                <p className="text-sm font-semibold text-primary">Price after inspection</p>
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Pest type</p>
+                  <div className="flex flex-wrap gap-2">{pricesIn("PEST").map((p) => <button key={p.contentId} type="button" onClick={() => setPest(p.name)} className={chip(pest === p.name)}>{p.name}</button>)}</div>
+                </div>
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Property type</p>
+                  <div className="flex flex-wrap gap-2">{PEST_SIZES.map((s) => <button key={s} type="button" onClick={() => setPestSize(s)} className={chip(pestSize === s)}>{s}</button>)}</div>
+                </div>
+                <p className="text-sm font-semibold text-primary">Inspection-based pricing</p>
               </>
             ))}
             {section("PAINTING", <Paintbrush className="size-5" />, "Interior Painting", "Per sq ft · Asian Paints range", (
@@ -319,13 +402,17 @@ export function BookingWizard({
                     </button>
                   ))}
                 </div>
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Property</p>
+                  <div className="flex flex-wrap gap-2">{PAINT_PROPERTIES.map((s) => <button key={s} type="button" onClick={() => setPaintProperty(s)} className={chip(paintProperty === s)}>{s}</button>)}</div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">{PAINT_JOBS.map((s) => <button key={s} type="button" onClick={() => setPaintJob(s)} className={chip(paintJob === s)}>{s}</button>)}</div>
                 <input className={input} inputMode="numeric" placeholder="Paintable area (sq ft)" value={sqft} onChange={(e) => setSqft(e.target.value.replace(/\D/g, ""))} />
                 {PUTTY && (
                   <label className="flex items-center gap-2 text-sm">
                     <input type="checkbox" className="size-4" checked={putty} onChange={(e) => setPutty(e.target.checked)} /> Add putty ({priceLabel(PUTTY)})
                   </label>
                 )}
-                <p className="text-xs text-[#0a2540]/65">Estimate only — the final price is confirmed after site measurement.</p>
               </>
             ))}
           </div>
@@ -340,71 +427,76 @@ export function BookingWizard({
               {addOnOnlyAlone && <p className="mt-1 text-xs font-semibold text-red-600">This combo is an add-on — please add another service.</p>}
             </div>
           )}
+          <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-relaxed text-amber-900">{PRICE_NOTE}</p>
         </div>
       )}
 
       <div className={card}>
-        {step(2, "Pick a date")}
+        {step(2, "Preferred date & time")}
         {!dates ? (
           <p className="mt-2 flex items-center gap-2 text-sm text-[#0a2540]/60"><Loader2 className="size-4 animate-spin" /> Checking availability…</p>
         ) : (
-          <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-7">
+          <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
             {dates.map((d) => (
               <button
                 key={d.date}
                 type="button"
                 disabled={!d.available}
                 onClick={() => setDate(d.date)}
-                className={`rounded-xl border p-2 text-center text-xs font-semibold ${date === d.date ? "border-primary bg-primary text-white" : d.available ? "border-[#0a2540]/10 bg-white hover:border-primary/40" : "cursor-not-allowed border-transparent bg-[#0a2540]/5 text-[#0a2540]/35"}`}
+                className={`shrink-0 rounded-xl border px-3 py-2 text-center text-xs font-semibold ${date === d.date ? "border-primary bg-primary text-white" : d.available ? "border-[#0a2540]/10 bg-white hover:border-primary/40" : "cursor-not-allowed border-transparent bg-[#0a2540]/5 text-[#0a2540]/35"}`}
               >
-                <CalendarDays className="mx-auto mb-0.5 size-3.5" />
                 {fmtDay(d.date)}
                 {!d.available && <span className="block text-[10px]">Full</span>}
               </button>
             ))}
           </div>
         )}
-      </div>
-
-      <div className={card}>
-        {step(3, "Pick an available time")}
-        {!date ? (
-          <p className="mt-2 text-sm text-[#0a2540]/60">Select a date first.</p>
-        ) : !slots ? (
-          <p className="mt-2 flex items-center gap-2 text-sm text-[#0a2540]/60"><Loader2 className="size-4 animate-spin" /> Loading slots…</p>
-        ) : (
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-            {slots.map((s) => (
-              <button
-                key={s.slot}
-                type="button"
-                disabled={!s.available}
-                onClick={() => setSlot(s.slot)}
-                className={`flex items-center justify-center gap-1 rounded-xl border p-2.5 text-sm font-semibold ${slot === s.slot ? "border-primary bg-primary text-white" : s.available ? "border-[#0a2540]/10 bg-white hover:border-primary/40" : "cursor-not-allowed bg-[#0a2540]/5 text-[#0a2540]/35"}`}
-              >
-                <Clock className="size-3.5" /> {s.slot}
-                {!s.available && <span className="text-[10px]">· Full</span>}
-              </button>
-            ))}
-          </div>
+        {date && (
+          !slots ? (
+            <p className="mt-3 flex items-center gap-2 text-sm text-[#0a2540]/60"><Loader2 className="size-4 animate-spin" /> Loading slots…</p>
+          ) : (
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {slots.map((s) => (
+                <button
+                  key={s.slot}
+                  type="button"
+                  disabled={!s.available}
+                  onClick={() => setSlot(s.slot)}
+                  className={`flex items-center justify-center gap-1 rounded-xl border p-2 text-xs font-semibold ${slot === s.slot ? "border-primary bg-primary text-white" : s.available ? "border-[#0a2540]/10 bg-white hover:border-primary/40" : "cursor-not-allowed bg-[#0a2540]/5 text-[#0a2540]/35"}`}
+                >
+                  <Clock className="size-3.5" /> {s.slot}
+                  {!s.available && <span className="text-[10px]">· Full</span>}
+                </button>
+              ))}
+            </div>
+          )
         )}
       </div>
 
       {!quote && (
         <div className={card}>
-          {step(4, "Your details")}
+          {step(3, "Your details")}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <input className={input} placeholder="Full name *" value={name} onChange={(e) => setName(e.target.value)} />
             <input className={input} placeholder="Mobile number *" inputMode="numeric" value={mobile} onChange={(e) => setMobile(e.target.value)} />
+            <input className={input} placeholder="Alternate mobile (optional)" inputMode="numeric" value={altMobile} onChange={(e) => setAltMobile(e.target.value)} />
+            <input className={input} placeholder="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             <input className={input} placeholder="Area / society * (e.g. Magarpatta, Wakad)" value={location} onChange={(e) => setLocation(e.target.value)} />
             <input className={input} placeholder="Full address (optional)" value={address} onChange={(e) => setAddress(e.target.value)} />
-            <textarea className={`${input} h-20 py-2 sm:col-span-2`} placeholder="Anything we should know? (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <button
+              type="button"
+              onClick={useCurrentLocation}
+              className={`flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold sm:col-span-2 ${mapLink ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-primary/40 text-primary"}`}
+            >
+              {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
+              {mapLink ? "Current location added ✓" : "Use my current location"}
+            </button>
           </div>
         </div>
       )}
 
       <div className={card}>
-        {step(quote ? 4 : 5, "Payment preference")}
+        {step(quote ? 3 : 4, "Payment *")}
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {([
             ["PAY_ADVANCE", "Pay Advance", "Secure your slot with an advance — payment details are on your booking page."],
@@ -435,8 +527,6 @@ export function BookingWizard({
             {hasUnpriced && pricedTotal > 0 && <span className="ml-1 text-xs font-medium text-[#0a2540]/60">+ items priced before booking</span>}
           </dd>
         </dl>
-        <p className="mt-3 text-[11px] leading-relaxed text-[#0a2540]/60">{PRICING_NOTICE}</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-[#0a2540]/60">{SERVICE_AREA_NOTICE}</p>
         <label className="mt-3 flex items-start gap-2 text-xs text-[#0a2540]/75">
           <input type="checkbox" className="mt-0.5 size-4" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
           Send me festival offers and cleaning reminders on WhatsApp (optional — you can reply STOP any time).
