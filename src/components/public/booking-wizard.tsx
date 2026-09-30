@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Building2, Bug, CheckCircle2, ChevronDown, Clock, Home, Loader2, LocateFixed, Paintbrush, Wallet } from "lucide-react";
 import { publicBookLead } from "@/server/actions/public-booking";
-import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
+import { getDateAvailability, getSlotAvailability, type DayStatus } from "@/server/actions/slot-availability";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
-import { inr, PREMIUM_SCOPE, PREMIUM_EXCLUDED } from "@/lib/marketing-content";
+import { inr, PREMIUM_SCOPE, PREMIUM_EXCLUDED, PLATINUM_SCOPE, PLATINUM_EXCLUDED, EQUIPMENT } from "@/lib/marketing-content";
 import { PRICING_MASTER, pricesIn, priceLabel, type PriceItem } from "@/lib/pricing-master";
 
 // Shown once, right under the service prices.
@@ -88,7 +88,8 @@ export function BookingWizard({
   const [sqft, setSqft] = useState("");
   const [putty, setPutty] = useState(false);
   // Schedule / details
-  const [dates, setDates] = useState<{ date: string; available: boolean }[] | null>(null);
+  const [dates, setDates] = useState<{ date: string; available: boolean; status: DayStatus }[] | null>(null);
+  const [monthOffset, setMonthOffset] = useState(0);
   const [date, setDate] = useState("");
   const [slots, setSlots] = useState<{ slot: string; available: boolean }[] | null>(null);
   const [slot, setSlot] = useState("");
@@ -96,18 +97,16 @@ export function BookingWizard({
   const [mobile, setMobile] = useState(quote?.mobile ?? prefill?.mobile ?? "");
   const [altMobile, setAltMobile] = useState("");
   const [email, setEmail] = useState("");
-  const [location, setLocation] = useState("");
   const [address, setAddress] = useState("");
   const [mapLink, setMapLink] = useState("");
   const [locating, setLocating] = useState(false);
   const [pay, setPay] = useState<"PAY_ADVANCE" | "PAY_AFTER_SERVICE" | "">("");
-  const [optIn, setOptIn] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    getDateAvailability(21).then(setDates).catch(() => setDates([]));
+    getDateAvailability(45).then(setDates).catch(() => setDates([]));
   }, []);
   useEffect(() => {
     setSlot("");
@@ -162,12 +161,12 @@ export function BookingWizard({
     quote ||
     (name.trim().length >= 2 &&
       /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)) &&
-      location.trim() &&
+      address.trim().length >= 5 &&
       (!altDigits || altDigits.length >= 10) &&
       (!email.trim() || /^\S+@\S+\.\S+$/.test(email.trim())));
 
   function useCurrentLocation() {
-    if (!navigator.geolocation) return setError("Location isn't available on this device — please type your area.");
+    if (!navigator.geolocation) return setError("Location isn't available on this device — please type your full address.");
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -177,7 +176,7 @@ export function BookingWizard({
       },
       () => {
         setLocating(false);
-        setError("Couldn't get your location — please type your area / society.");
+        setError("Couldn't get your location — please type your full address.");
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -209,7 +208,7 @@ export function BookingWizard({
         mobile: mobile.replace(/\D/g, "").slice(-10),
         alternateMobile: altDigits ? altDigits.slice(-10) : "",
         email: email.trim(),
-        area: location.trim(),
+        area: address.trim().slice(0, 80),
         address: address.trim(),
         mapLink,
         ...m,
@@ -218,7 +217,7 @@ export function BookingWizard({
         serviceDate: date,
         timeSlot: slot,
         paymentPreference: pay || undefined,
-        marketingOptIn: optIn,
+        marketingOptIn: false,
         quotationToken: quote?.token ?? "",
         referralCode: referralCode ?? "",
         notes: quote ? `Quotation ${quote.quoteNumber}` : `${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`,
@@ -319,11 +318,14 @@ export function BookingWizard({
                       <details className="rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
                         <summary className="cursor-pointer font-semibold text-primary">What&apos;s included in {pkg}</summary>
                         <ul className="mt-2 space-y-1 text-xs text-[#0a2540]/80">
-                          {PREMIUM_SCOPE.map((s) => <li key={s}>✓ {s}</li>)}
-                          <li className="font-semibold">✓ {pkg === "Platinum" ? "Wall wet cleaning" : "Wall dry dusting"} · ceiling dry dusting</li>
+                          {(pkg === "Platinum" ? PLATINUM_SCOPE : PREMIUM_SCOPE).map((s, i, a) => (
+                            <li key={s} className={i === a.length - 1 ? "font-semibold" : undefined}>✓ {s}</li>
+                          ))}
                         </ul>
+                        <p className="mt-2 text-xs font-semibold">Equipment we bring</p>
+                        <p className="mt-0.5 text-xs text-[#0a2540]/70">{EQUIPMENT.join(" · ")}</p>
                         <p className="mt-2 text-xs font-semibold">Not included</p>
-                        <ul className="mt-1 space-y-1 text-xs text-[#0a2540]/60">{PREMIUM_EXCLUDED.map((s) => <li key={s}>✕ {s}</li>)}</ul>
+                        <ul className="mt-1 space-y-1 text-xs text-[#0a2540]/60">{(pkg === "Platinum" ? PLATINUM_EXCLUDED : PREMIUM_EXCLUDED).map((s) => <li key={s}>✕ {s}</li>)}</ul>
                       </details>
                     )}
                   </>
@@ -335,7 +337,7 @@ export function BookingWizard({
                         <div className="min-w-0">
                           <p className="font-semibold">{it.name}</p>
                           <p className="text-xs text-primary">{priceLabel(it)}</p>
-                          {(qty[it.contentId] ?? 0) > 0 && (it.rule || it.scope) && <p className="text-[11px] font-semibold text-amber-700">{[it.rule, it.scope].filter(Boolean).join(" · ")}</p>}
+                          {(it.rule || it.scope) && <p className="text-[11px] font-semibold text-amber-700">{[it.rule, it.scope].filter(Boolean).join(" · ")}</p>}
                         </div>
                         <div className="flex items-center gap-3">
                           <Stepper value={qty[it.contentId] ?? 0} min={it.minQty ?? 1} onChange={(v) => setQty((q) => ({ ...q, [it.contentId]: v }))} />
@@ -355,6 +357,11 @@ export function BookingWizard({
                         <span className="font-bold text-primary">{inr(c.price!)}</span>
                       </label>
                     ))}
+                    <p className="rounded-xl bg-[#0a2540]/[0.03] p-3 text-[11px] leading-relaxed text-[#0a2540]/70">
+                      <span className="font-semibold">Terms:</span> minimum quantities apply where shown · old, permanent or stubborn stains can&apos;t be guaranteed for complete removal · heavy furniture isn&apos;t moved unless agreed · work outside the listed scope may be chargeable.
+                      <br />
+                      <span className="font-semibold">Equipment:</span> {EQUIPMENT.join(" · ")}.
+                    </p>
                   </div>
                 )}
                 {homeType === "COMBO" && (
@@ -436,20 +443,7 @@ export function BookingWizard({
         {!dates ? (
           <p className="mt-2 flex items-center gap-2 text-sm text-[#0a2540]/60"><Loader2 className="size-4 animate-spin" /> Checking availability…</p>
         ) : (
-          <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
-            {dates.map((d) => (
-              <button
-                key={d.date}
-                type="button"
-                disabled={!d.available}
-                onClick={() => setDate(d.date)}
-                className={`shrink-0 rounded-xl border px-3 py-2 text-center text-xs font-semibold ${date === d.date ? "border-primary bg-primary text-white" : d.available ? "border-[#0a2540]/10 bg-white hover:border-primary/40" : "cursor-not-allowed border-transparent bg-[#0a2540]/5 text-[#0a2540]/35"}`}
-              >
-                {fmtDay(d.date)}
-                {!d.available && <span className="block text-[10px]">Full</span>}
-              </button>
-            ))}
-          </div>
+          <BookingCalendar dates={dates} value={date} onChange={setDate} monthOffset={monthOffset} setMonthOffset={setMonthOffset} />
         )}
         {date && (
           !slots ? (
@@ -481,15 +475,14 @@ export function BookingWizard({
             <input className={input} placeholder="Mobile number *" inputMode="numeric" value={mobile} onChange={(e) => setMobile(e.target.value)} />
             <input className={input} placeholder="Alternate mobile (optional)" inputMode="numeric" value={altMobile} onChange={(e) => setAltMobile(e.target.value)} />
             <input className={input} placeholder="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <input className={input} placeholder="Area / society * (e.g. Magarpatta, Wakad)" value={location} onChange={(e) => setLocation(e.target.value)} />
-            <input className={input} placeholder="Full address (optional)" value={address} onChange={(e) => setAddress(e.target.value)} />
+            <textarea className={`${input} h-20 py-2 sm:col-span-2`} placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
             <button
               type="button"
               onClick={useCurrentLocation}
-              className={`flex h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold sm:col-span-2 ${mapLink ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-primary/40 text-primary"}`}
+              className={`flex h-10 items-center justify-center gap-2 rounded-xl border text-sm font-semibold sm:col-span-2 ${mapLink ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-primary/40 text-primary"}`}
             >
               {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
-              {mapLink ? "Current location added ✓" : "Use my current location"}
+              {mapLink ? "Current location added ✓" : "Add current location (optional)"}
             </button>
           </div>
         </div>
@@ -497,14 +490,13 @@ export function BookingWizard({
 
       <div className={card}>
         {step(quote ? 3 : 4, "Payment *")}
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           {([
-            ["PAY_ADVANCE", "Pay Advance", "Secure your slot with an advance — payment details are on your booking page."],
-            ["PAY_AFTER_SERVICE", "Pay After Service", "Pay once the service is completed, as per Sahara's booking terms."],
-          ] as const).map(([v, t, d]) => (
-            <button key={v} type="button" onClick={() => setPay(v)} className={`rounded-xl border p-3 text-left text-sm ${pay === v ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/10"}`}>
-              <span className="flex items-center gap-1.5 font-semibold"><Wallet className="size-4 text-primary" /> {t}</span>
-              <span className="mt-0.5 block text-xs text-[#0a2540]/70">{d}</span>
+            ["PAY_ADVANCE", "Pay Advance"],
+            ["PAY_AFTER_SERVICE", "Pay After Service"],
+          ] as const).map(([v, t]) => (
+            <button key={v} type="button" onClick={() => setPay(v)} className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-sm font-semibold ${pay === v ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white"}`}>
+              <Wallet className="size-4" /> {t}
             </button>
           ))}
         </div>
@@ -527,15 +519,84 @@ export function BookingWizard({
             {hasUnpriced && pricedTotal > 0 && <span className="ml-1 text-xs font-medium text-[#0a2540]/60">+ items priced before booking</span>}
           </dd>
         </dl>
-        <label className="mt-3 flex items-start gap-2 text-xs text-[#0a2540]/75">
-          <input type="checkbox" className="mt-0.5 size-4" checked={optIn} onChange={(e) => setOptIn(e.target.checked)} />
-          Send me festival offers and cleaning reminders on WhatsApp (optional — you can reply STOP any time).
-        </label>
         {error && <p className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
         <button type="button" onClick={submit} disabled={!ready || pending} className="mt-3 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-white disabled:opacity-50">
           {pending ? "Sending…" : "Confirm Booking Request"}
         </button>
         <p className="mt-2 text-center text-xs text-[#0a2540]/60">Your booking is confirmed only after our team verifies the slot.</p>
+      </div>
+    </div>
+  );
+}
+
+const DAY_STYLE: Record<DayStatus, string> = {
+  AVAILABLE: "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-500",
+  FILLING: "border-amber-200 bg-amber-50 text-amber-800 hover:border-amber-500",
+  FULL: "cursor-not-allowed border-transparent bg-[#0a2540]/5 text-[#0a2540]/30 line-through",
+};
+
+/** Month calendar coloured by CRM team capacity: Available / Filling Fast / Fully Booked. */
+function BookingCalendar({
+  dates,
+  value,
+  onChange,
+  monthOffset,
+  setMonthOffset,
+}: {
+  dates: { date: string; available: boolean; status: DayStatus }[];
+  value: string;
+  onChange: (d: string) => void;
+  monthOffset: number;
+  setMonthOffset: (n: number) => void;
+}) {
+  const byDate = new Map(dates.map((d) => [d.date, d]));
+  const first = dates[0]?.date ?? new Date().toISOString().slice(0, 10);
+  const last = dates[dates.length - 1]?.date ?? first;
+  const [y0, m0] = first.split("-").map(Number);
+  const [y1, m1] = last.split("-").map(Number);
+  const maxOffset = (y1 - y0) * 12 + (m1 - m0);
+  const year = y0 + Math.floor((m0 - 1 + monthOffset) / 12);
+  const month = ((m0 - 1 + monthOffset) % 12) + 1;
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const lead = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const title = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString("en-IN", { month: "long", year: "numeric", timeZone: "UTC" });
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between">
+        <button type="button" disabled={monthOffset <= 0} onClick={() => setMonthOffset(monthOffset - 1)} className="size-8 rounded-full border text-lg disabled:opacity-30" aria-label="Previous month">‹</button>
+        <p className="text-sm font-bold">{title}</p>
+        <button type="button" disabled={monthOffset >= maxOffset} onClick={() => setMonthOffset(monthOffset + 1)} className="size-8 rounded-full border text-lg disabled:opacity-30" aria-label="Next month">›</button>
+      </div>
+      <div className="mt-2 grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[#0a2540]/50">
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i}>{d}</span>)}
+      </div>
+      <div className="mt-1 grid grid-cols-7 gap-1">
+        {Array.from({ length: lead }, (_, i) => <span key={`b${i}`} />)}
+        {Array.from({ length: daysInMonth }, (_, i) => {
+          const iso = `${year}-${pad(month)}-${pad(i + 1)}`;
+          const d = byDate.get(iso);
+          if (!d) return <span key={iso} className="flex h-9 items-center justify-center rounded-lg text-xs text-[#0a2540]/20">{i + 1}</span>;
+          const selected = value === iso;
+          return (
+            <button
+              key={iso}
+              type="button"
+              disabled={!d.available}
+              onClick={() => onChange(iso)}
+              aria-label={`${iso} ${d.status === "FULL" ? "fully booked" : d.status === "FILLING" ? "filling fast" : "available"}`}
+              className={`h-9 rounded-lg border text-xs font-bold ${selected ? "border-primary bg-primary text-white" : DAY_STYLE[d.status]}`}
+            >
+              {i + 1}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-[#0a2540]/70">
+        <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-emerald-400" /> Available</span>
+        <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-amber-400" /> Filling Fast</span>
+        <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-[#0a2540]/20" /> Fully Booked</span>
       </div>
     </div>
   );

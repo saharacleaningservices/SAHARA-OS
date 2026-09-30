@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 
 // Reads company settings from the DB, which is not available at image build time.
 export const dynamic = "force-dynamic";
@@ -36,12 +36,12 @@ export default async function CommercialCleaningPage() {
         image="/marketing/hero-commercial.webp"
         alt="Sahara cleaning team scrubbing floors and cleaning glass partitions in a Pune office"
         eyebrow="Offices · Workspaces · Commercial premises"
-        title="Professional Office & Commercial Cleaning in Pune"
+        title="Office & Commercial Cleaning in Pune"
         subtitle="Trained team, professional equipment and flexible scheduling — quoted after a site visit."
         primaryLabel="Get Site Visit & Quote"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10">
+      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
         <section>
           <h2 className="text-2xl font-bold">Office deep cleaning</h2>
           <p className="text-sm text-[#0a2540]/70">Inspection on call — price shared after the site visit.</p>
@@ -57,6 +57,7 @@ export default async function CommercialCleaningPage() {
         <Areas />
         <Faqs faqs={FAQS} />
         <Terms />
+        <OtherServices current="/commercial-cleaning-pune" />
         <FinalCta title="Get a cleaner, healthier workplace" waText={WA} />
       </main>
     </LandingShell>
