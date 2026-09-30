@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { HOME_FROM_PRICE, PLATINUM_FROM_PRICE } from "@/lib/pricing-master";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, PackageGrid, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
-import { PREMIUM, PLATINUM, PREMIUM_SCOPE, PREMIUM_EXCLUDED, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
+import { LandingShell, Hero, PackageGrid, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { PREMIUM, PLATINUM, PREMIUM_SCOPE, PREMIUM_EXCLUDED, PLATINUM_SCOPE, PLATINUM_EXCLUDED, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
 export const dynamic = "force-dynamic";
@@ -31,12 +31,12 @@ export default async function HomeDeepCleaningPage() {
         image="/marketing/hero-home.webp"
         alt="Sahara team vacuuming a carpet and wiping surfaces during home deep cleaning in Pune"
         eyebrow="Navratri • Dussehra • Diwali · Festival cleaning"
-        title="Professional Cleaning Services Across Pune & PCMC"
-        subtitle="Home deep cleaning with transparent package prices — book early for your preferred festival slot."
+        title="Home Deep Cleaning in Pune"
+        subtitle="Premium & Platinum packages with transparent prices, done by a trained Sahara team."
         primaryLabel="View Packages / Book Now"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10">
+      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
         <section>
           <h2 className="text-2xl font-bold">Premium home deep cleaning</h2>
           <p className="text-sm text-[#0a2540]/70">Complete top-to-bottom cleaning of your home. Estimated 7–8 hours.</p>
@@ -46,8 +46,9 @@ export default async function HomeDeepCleaningPage() {
         <section>
           <h2 className="text-2xl font-bold">Platinum home deep cleaning</h2>
           <p className="mt-1 inline-block rounded-lg bg-amber-100 px-3 py-1 text-sm font-bold text-amber-900">⭐ WALL WET CLEANING &amp; CEILING DRY DUSTING INCLUDED</p>
-          <p className="mt-1 text-sm text-[#0a2540]/70">Everything in Premium, plus wall wet cleaning of every room.</p>
+          <p className="mt-1 text-sm text-[#0a2540]/70">The same complete scope as Premium, with wall wet cleaning instead of wall dry dusting.</p>
           <PackageGrid items={PLATINUM} accent />
+          <ScopeLists included={PLATINUM_SCOPE} excluded={PLATINUM_EXCLUDED} />
         </section>
         <section>
           <h2 className="text-2xl font-bold">Individual cleaning services</h2>
@@ -73,15 +74,12 @@ export default async function HomeDeepCleaningPage() {
             ))}
           </div>
         </section>
-        <section>
-          <h2 className="text-xl font-bold">Professional equipment</h2>
-          <p className="mt-2 text-sm text-[#0a2540]/80">Commercial vacuum cleaners, scrubbing machines where applicable, microfiber system and appropriate cleaning chemicals — handled by a trained, supervisor-led team.</p>
-        </section>
         <QuoteSection title="Book home deep cleaning" subtitle="Tell us your home size and preferred date — we’ll confirm the price and slot." campaignName="Home Deep Cleaning Pune" defaultService="HOME_DEEP_CLEANING" />
         <HowItWorks />
         <Areas />
         <Faqs faqs={FAQS} />
         <Terms />
+        <OtherServices current="/home-deep-cleaning-pune" />
         <FinalCta title="Get your home deep cleaned by Sahara" waText={WA} />
       </main>
     </LandingShell>

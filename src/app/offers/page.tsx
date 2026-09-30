@@ -3,7 +3,7 @@ import { HOME_FROM_PRICE } from "@/lib/pricing-master";
 import Image from "next/image";
 import Link from "next/link";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, PackageGrid, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, PackageGrid, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, ALL_SERVICES_SLIDES, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { PREMIUM, PLATINUM, SMALL_SERVICES, inr } from "@/lib/marketing-content";
 
 // Festival campaign hub (Navratri · Dussehra · Diwali) — the WhatsApp campaign
@@ -41,6 +41,7 @@ export default async function FestivalOffersPage() {
       <Hero
         image="/marketing/hero-home.webp"
         alt="Sahara Cleaning Services team deep cleaning a living room in Pune"
+        images={ALL_SERVICES_SLIDES}
         badge="Limited-time festival pricing"
         eyebrow="Navratri • Dussehra • Diwali"
         title="Get Your Home & Workplace Festival-Ready"
@@ -49,7 +50,7 @@ export default async function FestivalOffersPage() {
         note="Festival-season demand can lead to price revisions and limited preferred-date availability. Book early to secure the current listed package price."
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10">
+      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
         <section>
           <h2 className="text-2xl font-bold">Choose your service</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

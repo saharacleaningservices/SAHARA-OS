@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { PAINT_OPTIONS, PAINT_SCOPE } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
@@ -29,12 +29,12 @@ export default async function InteriorPaintingPage() {
         image="/marketing/hero-painting.webp"
         alt="Sahara painter rolling fresh paint on a living-room wall in Pune"
         eyebrow="New painting · Repainting · Texture"
-        title="Professional Interior Painting Services in Pune"
+        title="Interior Painting in Pune"
         subtitle="Neat preparation, the right paint for every room and a clean professional finish."
         primaryLabel="Get Painting Quote"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10">
+      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
         <section>
           <h2 className="text-2xl font-bold">Paint options</h2>
           <p className="text-sm text-[#0a2540]/70">Site visit / measurement required — price shared after measurement.</p>
@@ -44,13 +44,14 @@ export default async function InteriorPaintingPage() {
         </section>
         <section>
           <h2 className="text-2xl font-bold">Painting process</h2>
-          <ScopeLists included={PAINT_SCOPE} />
+          <ScopeLists included={PAINT_SCOPE} equipment={null} />
         </section>
         <QuoteSection title="Get your painting quote" subtitle="Tell us your home size and rooms — we'll schedule a site visit and measurement." campaignName="Interior Painting Pune" defaultService="PAINTING" />
         <HowItWorks />
         <Areas />
         <Faqs faqs={FAQS} />
         <Terms />
+        <OtherServices current="/interior-painting-pune" />
         <FinalCta title="Give your home a fresh new look" waText={WA} />
       </main>
     </LandingShell>

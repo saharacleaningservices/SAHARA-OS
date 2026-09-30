@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { PEST_SERVICES } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
@@ -29,12 +29,12 @@ export default async function PestControlPage() {
         image="/marketing/hero-pest.webp"
         alt="Sahara pest control technician treating kitchen skirting in a Pune apartment"
         eyebrow="Cockroach · Termite · Bed bug · Ant"
-        title="Professional Pest Control Services in Pune"
+        title="Pest Control in Pune"
         subtitle="Inspection first, then a targeted treatment plan by a trained team."
         primaryLabel="Book Inspection"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10">
+      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
         <section>
           <h2 className="text-2xl font-bold">Pest control services</h2>
           <p className="text-sm text-[#0a2540]/70">Inspection / site assessment required — quote shared after inspection.</p>
@@ -52,6 +52,7 @@ export default async function PestControlPage() {
         <Areas />
         <Faqs faqs={FAQS} />
         <Terms />
+        <OtherServices current="/pest-control-pune" />
         <FinalCta title="Book your pest control inspection" waText={WA} />
       </main>
     </LandingShell>

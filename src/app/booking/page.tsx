@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, HowItWorks, Faqs, Terms, BASE_URL, CAROUSEL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, HowItWorks, Faqs, Terms, OtherServices, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 
 // Customer booking page in the approved transparent-pricing landing design.
@@ -29,7 +29,6 @@ const FAQS = [
   { q: "What is the difference between Premium and Platinum?", a: "Both include the same complete cleaning scope. Premium includes wall dry dusting; Platinum includes wall wet cleaning. Both include ceiling dry dusting." },
   { q: "Are there minimum quantities?", a: "Sofa cleaning needs a minimum of 5 seats, bathroom cleaning 2 bathrooms and mattress cleaning 2 mattresses." },
 ];
-const EQUIPMENT = ["Commercial vacuum cleaners", "Scrubbing machines where applicable", "Upholstery shampoo machine for sofa / carpet / mattress", "Microfiber system", "Appropriate cleaning chemicals"];
 
 async function loadQuote(token?: string): Promise<QuotePrefill | null> {
   if (!token || !/^[A-Za-z0-9_-]{20,40}$/.test(token)) return null;
@@ -62,7 +61,7 @@ export default async function BookingPage({
       <Hero
         image={CAROUSEL.team.src}
         alt={CAROUSEL.team.alt}
-        images={[CAROUSEL.team, CAROUSEL.equipment, CAROUSEL.result]}
+        images={ALL_SERVICES_SLIDES}
         eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
         badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
         title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning in Pune & PCMC"}
@@ -71,7 +70,7 @@ export default async function BookingPage({
         primaryHref="#book"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-12 px-4 py-10">
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-8">
         {quoteToken && !quote && (
           <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">This quotation link is no longer valid. You can still book below, or call us on 8956567130 / 7083347130.</p>
         )}
@@ -84,19 +83,10 @@ export default async function BookingPage({
           />
         </section>
 
-        {/* Prices and scope live only inside the booking flow above — no
-            repeated pricing sections below it. */}
-        {!quote && (
-          <>
-            <section>
-              <h2 className="text-xl font-bold">Professional equipment</h2>
-              <ul className="mt-2 grid gap-1 text-sm text-[#0a2540]/80 sm:grid-cols-2">{EQUIPMENT.map((e) => <li key={e}>• {e}</li>)}</ul>
-            </section>
-          </>
-        )}
         <HowItWorks />
         <Faqs faqs={FAQS} />
         <Terms />
+        <OtherServices current="/booking" />
       </main>
     </LandingShell>
   );

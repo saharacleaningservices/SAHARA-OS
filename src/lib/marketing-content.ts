@@ -21,7 +21,10 @@ export type Pkg = { bhk: string; mrp: number; price: number };
 const toPkg = (g: "PREMIUM" | "PLATINUM"): Pkg[] => pricesIn(g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price!, price: p.price! }));
 export const PREMIUM: Pkg[] = toPkg("PREMIUM");
 export const PLATINUM: Pkg[] = toPkg("PLATINUM");
-export const PREMIUM_SCOPE = [
+// Scope shared by both full-house packages; the wall treatment is the only
+// difference (Premium: wall dry dusting · Platinum: wall wet cleaning; both
+// include ceiling dry dusting).
+export const HOME_BASE_SCOPE = [
   "Window glass cleaning & sliding channel vacuuming",
   "Furniture exterior dusting, sofa dry vacuuming",
   "Bathrooms: WC, basin, fittings, taps, wall & floor tiles",
@@ -29,12 +32,23 @@ export const PREMIUM_SCOPE = [
   "Balcony cleaning",
   "Lights, fans & doors dusting",
   "Floor manual scrubbing & mopping",
-  "Cobweb & spider web removal, wall & ceiling dry dusting",
+  "Cobweb & spider web removal",
 ];
+export const PREMIUM_SCOPE = [...HOME_BASE_SCOPE, "Wall dry dusting & ceiling dry dusting"];
+export const PLATINUM_SCOPE = [...HOME_BASE_SCOPE, "Wall wet cleaning & ceiling dry dusting"];
 export const PREMIUM_EXCLUDED = [
   "Wall wet cleaning (included in Platinum)",
   "Sofa / carpet / mattress shampooing (available separately)",
   "Inaccessible areas and moving heavy furniture",
+];
+export const PLATINUM_EXCLUDED = PREMIUM_EXCLUDED.slice(1);
+// Equipment the team brings — shown inside each package / service scope.
+export const EQUIPMENT = [
+  "Commercial vacuum cleaners",
+  "Scrubbing machines where applicable",
+  "Upholstery shampoo machine for sofa / carpet / mattress",
+  "Microfiber system",
+  "Appropriate cleaning chemicals",
 ];
 export const SMALL_SERVICES = pricesIn("CUSTOMISED").map((p) => ({ name: p.name, price: p.price, unit: p.unit ?? "", rule: [p.rule, p.scope].filter(Boolean).join(" · "), priceNote: p.priceNote ?? "" }));
 export const COMBOS = pricesIn("COMBO").map((p) => ({ name: p.name, price: p.price!, note: p.addOnOnly ? p.rule ?? "Add-on only" : "" }));

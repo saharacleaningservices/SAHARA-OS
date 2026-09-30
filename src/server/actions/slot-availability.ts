@@ -57,10 +57,13 @@ export async function getSlotAvailability(dateStr: string) {
   const dayTotal = bookedStarts.length;
   const dayOpen = !closed && dayTotal < DAILY_BOOKING_CAPACITY;
 
+  // Today: windows whose start time has already passed can't be booked.
+  const isToday = start.getTime() === today.getTime();
+  const nowHourIst = Number(new Intl.DateTimeFormat("en-IN", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kolkata" }).format(new Date()));
   const slots: { slot: string; available: boolean }[] = TIME_SLOTS.filter((s) => s !== "Flexible").map((slot) => {
     const t = startHour(slot)!;
     const overlapping = bookedStarts.filter((b) => b === null || Math.abs(b - t) < BOOKING_JOB_DURATION_HOURS).length;
-    return { slot, available: dayOpen && overlapping < BOOKING_TEAM_COUNT };
+    return { slot, available: dayOpen && overlapping < BOOKING_TEAM_COUNT && !(isToday && t <= nowHourIst) };
   });
   const anyOpen = slots.some((s) => s.available);
   slots.push({ slot: "Flexible", available: anyOpen });
@@ -71,7 +74,14 @@ export async function getSlotAvailability(dateStr: string) {
   return { ok: true as const, slotsLeft, isFull, label, slots };
 }
 
-/** Available / full flag for each of the next `days` dates (IST), for the booking date picker. */
+export type DayStatus = "AVAILABLE" | "FILLING" | "FULL";
+
+/**
+ * Status of each of the next `days` dates (IST) for the booking calendar,
+ * from the same CRM team-capacity calculation as the slots: FULL when no
+ * crew window is free, FILLING when half or more of the crews are already
+ * booked that day, otherwise AVAILABLE.
+ */
 export async function getDateAvailability(days = 21) {
   const n = Math.min(Math.max(Math.floor(days), 1), 45);
   const todayIst = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
@@ -82,6 +92,11 @@ export async function getDateAvailability(days = 21) {
   const results = await Promise.all(dates.map((d) => getSlotAvailability(d)));
   return dates.map((date, i) => {
     const r = results[i];
-    return { date, available: r.ok ? !r.isFull : false };
+    const available = r.ok ? !r.isFull : false;
+    // Jobs run ~8h, so every booking overlaps every window of the day —
+    // "filling fast" = half or more of the crews already booked that day.
+    const booked = r.ok ? DAILY_BOOKING_CAPACITY - r.slotsLeft : 0;
+    const status: DayStatus = !available ? "FULL" : booked >= Math.ceil(BOOKING_TEAM_COUNT / 2) ? "FILLING" : "AVAILABLE";
+    return { date, available, status };
   });
 }
