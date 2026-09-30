@@ -95,7 +95,7 @@ export const jobSchema = z.object({
   teamNumber: teamNumberSchema,
   supervisorId: z.string().optional().or(z.literal("")),
   staffIds: z.array(z.string()).optional(),
-  jobValue: z.coerce.number().min(3999, "Minimum job value is ₹3,999"),
+  jobValue: z.coerce.number().min(0, "Job value can't be negative"), // no minimum — pricing master is the source of truth
   notes: z.string().optional().or(z.literal("")),
   leadId: z.string().optional().or(z.literal("")),
 });

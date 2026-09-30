@@ -70,7 +70,7 @@ export function QuotationDialog({
     {
       name: SERVICE_LABELS[service] ?? service,
       description: `${SERVICE_LABELS[service] ?? service} at ${area}`,
-      amount: suggestedAmount ?? 3999,
+      amount: suggestedAmount ?? 0,
     },
     ...selectionLinesFromNotes(notes).map((line) => ({
       name: line,

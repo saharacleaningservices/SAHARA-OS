@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { Building2, Bug, CheckCircle2, ChevronDown, Clock, Home, Loader2, LocateFixed, Paintbrush, Wallet } from "lucide-react";
+import { Building2, Bug, Check, CheckCircle2, ChevronDown, Clock, Home, Loader2, LocateFixed, Paintbrush, Wallet, X } from "lucide-react";
 import { publicBookLead } from "@/server/actions/public-booking";
 import { getDateAvailability, getSlotAvailability, type DayStatus } from "@/server/actions/slot-availability";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
-import { inr, PREMIUM_SCOPE, PREMIUM_EXCLUDED, PLATINUM_SCOPE, PLATINUM_EXCLUDED, EQUIPMENT } from "@/lib/marketing-content";
+import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";
+import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, type HomeTier } from "@/lib/service-scope";
 import { PRICING_MASTER, pricesIn, priceLabel, type PriceItem } from "@/lib/pricing-master";
 
 // Shown once, right under the service prices.
@@ -41,18 +42,18 @@ const PACKAGE_COMBOS = COMBOS.filter((c) => !c.addOnOnly);
 const PAINTS = pricesIn("PAINTING").filter((p) => !p.addOnOnly);
 const PUTTY = PRICING_MASTER.find((p) => p.contentId === "SCS-PUTTY") ?? null;
 
-const card = "rounded-2xl bg-white p-5 shadow-sm";
-const input = "h-11 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-sm outline-none focus:border-primary";
+const card = "rounded-2xl bg-white p-4 shadow-sm sm:p-5";
+const input = "h-12 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-11 sm:text-sm";
 const chip = (on: boolean) =>
-  `rounded-xl border px-3 py-2 text-sm font-semibold transition ${on ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white hover:border-primary/50"}`;
+  `min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition active:scale-[0.98] ${on ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white hover:border-primary/50"}`;
 const fmtDay = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
 
 function Stepper({ value, min, onChange }: { value: number; min: number; onChange: (v: number) => void }) {
   return (
     <div className="flex items-center gap-2">
-      <button type="button" aria-label="Decrease" onClick={() => onChange(value <= min ? 0 : value - 1)} className="size-9 rounded-full border text-lg font-bold">−</button>
+      <button type="button" aria-label="Decrease" onClick={() => onChange(value <= min ? 0 : value - 1)} className="size-10 rounded-full border border-[#0a2540]/20 text-lg font-bold active:bg-primary/10">−</button>
       <span className="w-7 text-center font-bold">{value}</span>
-      <button type="button" aria-label="Increase" onClick={() => onChange(value === 0 ? min : value + 1)} className="size-9 rounded-full border text-lg font-bold">+</button>
+      <button type="button" aria-label="Increase" onClick={() => onChange(value === 0 ? min : value + 1)} className="size-10 rounded-full border border-primary/40 text-lg font-bold text-primary active:bg-primary/10">+</button>
     </div>
   );
 }
@@ -63,18 +64,21 @@ export function BookingWizard({
   campaignName,
   referralCode,
   prefill,
+  preset,
 }: {
   quote?: QuotePrefill | null;
   defaultCategory?: Category;
+  /** Package pages open with the full-house package already chosen. */
+  preset?: { bhk: string; pkg: HomeTier };
   campaignName?: string;
   referralCode?: string;
   prefill?: { name?: string; mobile?: string };
 }) {
-  const [category, setCategory] = useState<Category | "">(defaultCategory ?? "");
+  const [category, setCategory] = useState<Category | "">(preset ? "HOME" : (defaultCategory ?? ""));
   // Home
-  const [bhk, setBhk] = useState("");
-  const [homeType, setHomeType] = useState<"FULL" | "CUSTOM" | "COMBO" | "">("");
-  const [pkg, setPkg] = useState<"Premium" | "Platinum" | "">("");
+  const [bhk, setBhk] = useState(preset?.bhk ?? "");
+  const [homeType, setHomeType] = useState<"FULL" | "CUSTOM" | "COMBO" | "">(preset ? "FULL" : "");
+  const [pkg, setPkg] = useState<HomeTier | "">(preset?.pkg ?? "");
   const [qty, setQty] = useState<Record<string, number>>({});
   const [combos, setCombos] = useState<Record<string, boolean>>({});
   // Commercial / Pest / Painting
@@ -104,9 +108,36 @@ export function BookingWizard({
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // Hide the mobile sticky bar once the summary (with its own Confirm) is on or above screen.
+  const [pastSummary, setPastSummary] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const el = document.getElementById("bk-summary");
+      if (el) setPastSummary(el.getBoundingClientRect().top < window.innerHeight - 120);
+    };
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
 
   useEffect(() => {
-    getDateAvailability(45).then(setDates).catch(() => setDates([]));
+    getDateAvailability(45)
+      .then((d) => {
+        setDates(d);
+        // Open on the month of the first bookable date (not an all-past month).
+        const first = d[0]?.date;
+        const firstOpen = d.find((x) => x.available)?.date;
+        if (first && firstOpen) {
+          const [y0, m0] = first.split("-").map(Number);
+          const [y1, m1] = firstOpen.split("-").map(Number);
+          setMonthOffset((y1 - y0) * 12 + (m1 - m0));
+        }
+      })
+      .catch(() => setDates([]));
   }, []);
   useEffect(() => {
     setSlot("");
@@ -232,7 +263,7 @@ export function BookingWizard({
 
   if (done !== null) {
     return (
-      <div className={`${card} text-center`}>
+      <div id="bk-done" ref={(el) => el?.scrollIntoView({ behavior: "smooth", block: "center" })} className={`${card} scroll-mt-20 text-center`}>
         <CheckCircle2 className="mx-auto size-10 text-emerald-600" />
         <h3 className="mt-2 text-xl font-bold">Booking request received</h3>
         <p className="mt-1 text-sm text-[#0a2540]/75">Reference: <span className="font-semibold">{done}</span></p>
@@ -244,40 +275,58 @@ export function BookingWizard({
     );
   }
 
-  const step = (n: number, title: string) => (
-    <h3 className="flex items-center gap-2 text-lg font-bold">
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm text-white">{n}</span>
+  const step = (n: number, title: string, doneFlag?: boolean) => (
+    <h3 className="flex items-center gap-2 text-base font-bold sm:text-lg">
+      <span className={`flex size-7 shrink-0 items-center justify-center rounded-full text-sm text-white ${doneFlag ? "bg-emerald-600" : "bg-primary"}`}>
+        {doneFlag ? <Check className="size-4" /> : n}
+      </span>
       {title}
     </h3>
   );
   const section = (key: Category, icon: React.ReactNode, title: string, hint: string, body: React.ReactNode) => (
     <div className={`rounded-2xl border ${category === key ? "border-primary/40 bg-primary/[0.03]" : "border-[#0a2540]/10 bg-white"}`}>
-      <button type="button" onClick={() => setCategory(category === key ? "" : key)} className="flex w-full items-center gap-3 p-4 text-left" aria-expanded={category === key}>
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">{icon}</span>
+      <button type="button" onClick={() => setCategory(category === key ? "" : key)} className="flex min-h-14 w-full items-center gap-3 p-3.5 text-left sm:p-4" aria-expanded={category === key}>
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">{icon}</span>
         <span className="flex-1">
           <span className="block font-bold">{title}</span>
           <span className="block text-xs text-[#0a2540]/60">{hint}</span>
         </span>
         <ChevronDown className={`size-5 transition ${category === key ? "rotate-180" : ""}`} />
       </button>
-      {category === key && <div className="space-y-4 border-t border-[#0a2540]/10 p-4">{body}</div>}
+      {category === key && <div className="space-y-4 border-t border-[#0a2540]/10 p-3.5 sm:p-4">{body}</div>}
     </div>
   );
-  const pkgPrice = (tier: "Premium" | "Platinum") => PRICING_MASTER.find((p) => p.bhk === bhk && p.variant === tier);
+  const pkgPrice = (tier: HomeTier) => PRICING_MASTER.find((p) => p.bhk === bhk && p.variant === tier);
+  const tier: HomeTier | null = category === "HOME" && homeType === "FULL" && pkg ? pkg : null;
+  const pleaseNote: string[] = tier
+    ? homePleaseNote(tier)
+    : category === "HOME"
+      ? [
+          "Minimum quantities apply where shown.",
+          "Old, permanent or stubborn stains cannot be guaranteed for complete removal.",
+          "Heavy furniture is not moved unless agreed.",
+          "Additional work outside the listed scope may be chargeable.",
+        ]
+      : category === "PAINTING"
+        ? ["Final price is confirmed after site measurement.", "Number of coats depends on site condition and the selected finish."]
+        : ["Price is confirmed after inspection / requirement assessment.", "Additional work outside the agreed scope may be chargeable."];
+  const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const nextStep = !serviceChosen ? "bk-service" : !date || !slot ? "bk-date" : !quote && !detailsOk ? "bk-details" : !pay ? "bk-pay" : "bk-summary";
+  const showSticky = !quote && lines.length > 0 && !pastSummary;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {quote ? (
         <div className={card}>
-          {step(1, "Your quotation")}
+          {step(1, "Your quotation", true)}
           <p className="mt-2 text-sm">Quotation <span className="font-semibold">{quote.quoteNumber}</span> · {quote.customerName}</p>
           <ul className="mt-1 list-disc pl-5 text-sm text-[#0a2540]/80">{quote.services.map((s) => <li key={s}>{s}</li>)}</ul>
           <p className="mt-2 text-xl font-extrabold text-primary">{inr(quote.totalAmount)}</p>
         </div>
       ) : (
-        <div className={card}>
-          {step(1, "Choose your service")}
-          <div className="mt-3 space-y-3">
+        <div id="bk-service" className={`${card} scroll-mt-20`}>
+          {step(1, "Choose service & package", serviceChosen)}
+          <div className="mt-3 space-y-2.5">
             {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full house · Customized · Combo", (
               <>
                 <div className="grid grid-cols-3 gap-2">
@@ -286,69 +335,64 @@ export function BookingWizard({
                     ["CUSTOM", "Customized"],
                     ["COMBO", "Combo"],
                   ] as const).map(([v, t]) => (
-                    <button key={v} type="button" onClick={() => setHomeType(v)} className={chip(homeType === v)}>{t}</button>
+                    <button key={v} type="button" onClick={() => setHomeType(v)} className={`${chip(homeType === v)} whitespace-nowrap px-1.5 text-[13px]`}>{t}</button>
                   ))}
                 </div>
                 {homeType === "FULL" && (
                   <>
                     <div>
-                      <p className="mb-2 text-sm font-semibold">Property</p>
-                      <div className="flex flex-wrap gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={chip(bhk === b)}>{b}</button>)}</div>
+                      <p className="mb-2 text-sm font-semibold">Property size</p>
+                      <div className="grid grid-cols-4 gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} whitespace-nowrap px-1`}>{b}</button>)}</div>
                     </div>
                     {bhk && (
-                      <div className="grid gap-2 sm:grid-cols-2">
+                      <div className="grid gap-2.5 sm:grid-cols-2">
                         {(["Premium", "Platinum"] as const).map((t) => {
                           const it = pkgPrice(t);
+                          const on = pkg === t;
                           return (
-                            <button key={t} type="button" onClick={() => setPkg(t)} className={`rounded-xl border p-3 text-left text-sm ${pkg === t ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
-                              <span className="block font-bold">{t}</span>
-                              <span className="block text-xs text-[#0a2540]/65">{t === "Premium" ? "Wall & ceiling dry dusting" : "Wall wet cleaning · ceiling dry dusting"}</span>
-                              {it && (
-                                <span className="mt-1 block">
-                                  <span className="text-lg font-extrabold text-primary">{inr(it.price!)}</span>
-                                  {it.mrp && <span className="ml-1.5 text-xs text-[#0a2540]/45 line-through">{inr(it.mrp)}</span>}
+                            <button key={t} type="button" onClick={() => setPkg(t)} className={`rounded-2xl border p-3.5 text-left ${on ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
+                              <span className="flex items-start justify-between gap-2">
+                                <span>
+                                  <span className="block text-base font-bold">{bhk} {t}</span>
+                                  <span className="block text-[11px] font-semibold text-[#0a2540]/55">{HOME_DURATION}</span>
                                 </span>
-                              )}
+                                {it && (
+                                  <span className="text-right">
+                                    <span className="block text-lg font-extrabold text-primary">{inr(it.price!)}</span>
+                                    {it.mrp && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(it.mrp)}</span>}
+                                  </span>
+                                )}
+                              </span>
+                              <span className="mt-2 block space-y-0.5 text-xs text-[#0a2540]/75">
+                                {homeHighlights(t).slice(0, 3).map((h) => <span key={h} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{h}</span>)}
+                              </span>
+                              <span className={`mt-2.5 block rounded-lg py-1.5 text-center text-xs font-bold ${on ? "bg-primary text-white" : "bg-primary/10 text-primary"}`}>{on ? "Selected" : "Select"}</span>
                             </button>
                           );
                         })}
                       </div>
-                    )}
-                    {pkg && (
-                      <details className="rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
-                        <summary className="cursor-pointer font-semibold text-primary">What&apos;s included in {pkg}</summary>
-                        <ul className="mt-2 space-y-1 text-xs text-[#0a2540]/80">
-                          {(pkg === "Platinum" ? PLATINUM_SCOPE : PREMIUM_SCOPE).map((s, i, a) => (
-                            <li key={s} className={i === a.length - 1 ? "font-semibold" : undefined}>✓ {s}</li>
-                          ))}
-                        </ul>
-                        <p className="mt-2 text-xs font-semibold">Equipment we bring</p>
-                        <p className="mt-0.5 text-xs text-[#0a2540]/70">{EQUIPMENT.join(" · ")}</p>
-                        <p className="mt-2 text-xs font-semibold">Not included</p>
-                        <ul className="mt-1 space-y-1 text-xs text-[#0a2540]/60">{(pkg === "Platinum" ? PLATINUM_EXCLUDED : PREMIUM_EXCLUDED).map((s) => <li key={s}>✕ {s}</li>)}</ul>
-                      </details>
                     )}
                   </>
                 )}
                 {homeType === "CUSTOM" && (
                   <div className="space-y-2">
                     {CUSTOMISED.map((it: PriceItem) => (
-                      <div key={it.contentId} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3">
-                        <div className="min-w-0">
-                          <p className="font-semibold">{it.name}</p>
-                          <p className="text-xs text-primary">{priceLabel(it)}</p>
-                          {(it.rule || it.scope) && <p className="text-[11px] font-semibold text-amber-700">{[it.rule, it.scope].filter(Boolean).join(" · ")}</p>}
-                        </div>
-                        <div className="flex items-center gap-3">
+                      <div key={it.contentId} className={`rounded-xl border bg-white p-3 ${(qty[it.contentId] ?? 0) > 0 ? "border-primary/50" : "border-[#0a2540]/10"}`}>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="font-semibold">{it.name}</p>
+                            <p className="text-xs font-semibold text-primary">{priceLabel(it)}</p>
+                          </div>
                           <Stepper value={qty[it.contentId] ?? 0} min={it.minQty ?? 1} onChange={(v) => setQty((q) => ({ ...q, [it.contentId]: v }))} />
-                          <span className="w-20 text-right text-sm font-bold">{(qty[it.contentId] ?? 0) > 0 && it.price != null ? inr(it.price * qty[it.contentId]) : ""}</span>
                         </div>
+                        {(it.rule || it.scope) && <p className="mt-1 text-[11px] font-semibold text-amber-700">{[it.rule, it.scope].filter(Boolean).join(" · ")}</p>}
+                        {(qty[it.contentId] ?? 0) > 0 && it.price != null && <p className="mt-1 text-right text-sm font-bold">{inr(it.price * qty[it.contentId])}</p>}
                       </div>
                     ))}
                     {ADDON_COMBOS.map((c) => (
-                      <label key={c.contentId} className="flex items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
-                        <span className="flex items-center gap-2">
-                          <input type="checkbox" className="size-4" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
+                      <label key={c.contentId} className="flex min-h-12 items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
+                        <span className="flex items-center gap-2.5">
+                          <input type="checkbox" className="size-5" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
                           <span>
                             <span className="font-semibold">{c.name}</span>
                             <span className="block text-[11px] font-semibold text-amber-700">{c.rule}</span>
@@ -357,19 +401,14 @@ export function BookingWizard({
                         <span className="font-bold text-primary">{inr(c.price!)}</span>
                       </label>
                     ))}
-                    <p className="rounded-xl bg-[#0a2540]/[0.03] p-3 text-[11px] leading-relaxed text-[#0a2540]/70">
-                      <span className="font-semibold">Terms:</span> minimum quantities apply where shown · old, permanent or stubborn stains can&apos;t be guaranteed for complete removal · heavy furniture isn&apos;t moved unless agreed · work outside the listed scope may be chargeable.
-                      <br />
-                      <span className="font-semibold">Equipment:</span> {EQUIPMENT.join(" · ")}.
-                    </p>
                   </div>
                 )}
                 {homeType === "COMBO" && (
                   <div className="space-y-2">
                     {PACKAGE_COMBOS.map((c) => (
-                      <label key={c.contentId} className="flex items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
-                        <span className="flex items-center gap-2">
-                          <input type="checkbox" className="size-4" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
+                      <label key={c.contentId} className="flex min-h-12 items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
+                        <span className="flex items-center gap-2.5">
+                          <input type="checkbox" className="size-5" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
                           <span className="font-semibold">{c.name}</span>
                         </span>
                         <span className="font-bold text-primary">{inr(c.price!)}</span>
@@ -416,101 +455,200 @@ export function BookingWizard({
                 <div className="grid grid-cols-2 gap-2">{PAINT_JOBS.map((s) => <button key={s} type="button" onClick={() => setPaintJob(s)} className={chip(paintJob === s)}>{s}</button>)}</div>
                 <input className={input} inputMode="numeric" placeholder="Paintable area (sq ft)" value={sqft} onChange={(e) => setSqft(e.target.value.replace(/\D/g, ""))} />
                 {PUTTY && (
-                  <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" className="size-4" checked={putty} onChange={(e) => setPutty(e.target.checked)} /> Add putty ({priceLabel(PUTTY)})
+                  <label className="flex min-h-11 items-center gap-2.5 text-sm">
+                    <input type="checkbox" className="size-5" checked={putty} onChange={(e) => setPutty(e.target.checked)} /> Add putty ({priceLabel(PUTTY)})
                   </label>
                 )}
               </>
             ))}
           </div>
-          {lines.length > 0 && (
-            <div className="mt-4 rounded-xl bg-[#0a2540]/[0.03] p-3 text-sm">
-              {lines.map((l) => (
-                <p key={l.label} className="flex justify-between gap-3">
-                  <span>{l.label}</span>
-                  <span className="shrink-0 font-semibold">{l.amount != null ? inr(l.amount) : <span className="text-xs text-[#0a2540]/60">{l.note}</span>}</span>
-                </p>
-              ))}
-              {addOnOnlyAlone && <p className="mt-1 text-xs font-semibold text-red-600">This combo is an add-on — please add another service.</p>}
-            </div>
-          )}
-          <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-relaxed text-amber-900">{PRICE_NOTE}</p>
         </div>
       )}
 
-      <div className={card}>
-        {step(2, "Preferred date & time")}
+      {/* Package details: price → highlights → full scope → please note → terms */}
+      {!quote && lines.length > 0 && (
+        <div className={card}>
+          {step(2, "Package details & scope")}
+          <div className="mt-3 rounded-xl bg-[#0a2540]/[0.03] p-3 text-sm">
+            {lines.map((l) => (
+              <p key={l.label} className="flex justify-between gap-3 py-0.5">
+                <span>{l.label}</span>
+                <span className="shrink-0 font-semibold">{l.amount != null ? inr(l.amount) : <span className="text-xs text-[#0a2540]/60">{l.note}</span>}</span>
+              </p>
+            ))}
+            {pricedTotal > 0 && (
+              <p className="mt-1.5 flex justify-between border-t border-[#0a2540]/10 pt-1.5 font-extrabold">
+                <span>Total</span>
+                <span className="text-primary">{inr(pricedTotal)}{hasUnpriced ? " +" : ""}</span>
+              </p>
+            )}
+            {addOnOnlyAlone && <p className="mt-1 text-xs font-semibold text-red-600">This combo is an add-on — please add another service.</p>}
+          </div>
+          <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-relaxed text-amber-900">{PRICE_NOTE}</p>
+
+          {tier && (
+            <ul className="mt-3 grid gap-1 text-sm sm:grid-cols-2">
+              {homeHighlights(tier).map((h) => <li key={h} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{h}</li>)}
+            </ul>
+          )}
+
+          <div className="mt-3 divide-y divide-[#0a2540]/10 overflow-hidden rounded-xl border border-[#0a2540]/10">
+            <details className="group bg-white" open={!!tier}>
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-3 text-sm font-bold">
+                Full scope of work
+                <ChevronDown className="size-4 transition group-open:rotate-180" />
+              </summary>
+              <div className="space-y-3 px-3 pb-3 text-sm">
+                {tier ? (
+                  homeScopeByArea(tier).map((a) => (
+                    <div key={a.area}>
+                      <p className="text-xs font-bold uppercase tracking-wide text-primary">{a.area}</p>
+                      <ul className="mt-1 space-y-1">
+                        {a.items.map((i) => (
+                          <li key={i.item} className="flex gap-1.5 text-[13px]">
+                            <Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />
+                            <span><span className="font-semibold">{i.item}:</span> {i.method}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))
+                ) : category === "HOME" ? (
+                  <ul className="space-y-1.5 text-[13px]">
+                    {CUSTOMISED.filter((it) => (qty[it.contentId] ?? 0) > 0).map((it) => (
+                      <li key={it.contentId}><span className="font-semibold">{it.name}:</span> {smallServiceNotes(it).join(" · ") || "As listed"}</li>
+                    ))}
+                    {COMBOS.filter((c) => combos[c.contentId]).map((c) => <li key={c.contentId}><span className="font-semibold">{c.name}:</span> combo package{c.rule ? ` · ${c.rule}` : ""}</li>)}
+                  </ul>
+                ) : category === "COMMERCIAL" ? (
+                  <ul className="space-y-1 text-[13px]">{OFFICE_SCOPE.map((s) => <li key={s} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{s}</li>)}</ul>
+                ) : category === "PEST" ? (
+                  <p className="text-[13px]">{PEST_SERVICES.find((p) => p.name.startsWith(pest.split(" ")[0]))?.desc ?? "Inspection first, then a targeted treatment plan."}</p>
+                ) : (
+                  <ul className="space-y-1 text-[13px]">{PAINT_SCOPE.map((s) => <li key={s} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{s}</li>)}</ul>
+                )}
+                {category !== "PAINTING" && category !== "PEST" && (
+                  <p className="text-xs text-[#0a2540]/65"><span className="font-semibold">Equipment we bring:</span> {EQUIPMENT.join(" · ")}</p>
+                )}
+              </div>
+            </details>
+            <details className="group bg-white">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-3 text-sm font-bold">
+                Please note · not included · extra
+                <ChevronDown className="size-4 transition group-open:rotate-180" />
+              </summary>
+              <ul className="space-y-1 px-3 pb-3 text-[13px] text-[#0a2540]/80">{pleaseNote.map((s) => <li key={s} className="flex gap-1.5"><X className="mt-0.5 size-3.5 shrink-0 text-red-500" />{s}</li>)}</ul>
+            </details>
+            <details className="group bg-white">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-3 text-sm font-bold">
+                Customer requirements & terms
+                <ChevronDown className="size-4 transition group-open:rotate-180" />
+              </summary>
+              <div className="px-3 pb-3 text-[13px] text-[#0a2540]/80">
+                <p className="font-semibold">Please arrange:</p>
+                <ul className="mt-1 list-disc space-y-0.5 pl-5">{CUSTOMER_REQUIREMENTS.map((s) => <li key={s}>{s}</li>)}</ul>
+                <p className="mt-2 font-semibold">Terms</p>
+                <ol className="mt-1 list-decimal space-y-0.5 pl-5">{TERMS.map((t) => <li key={t}>{t}</li>)}</ol>
+              </div>
+            </details>
+          </div>
+        </div>
+      )}
+
+      <div id="bk-date" className={`${card} scroll-mt-20`}>
+        {step(quote ? 2 : 3, "Preferred date & time", !!date && !!slot)}
         {!dates ? (
-          <p className="mt-2 flex items-center gap-2 text-sm text-[#0a2540]/60"><Loader2 className="size-4 animate-spin" /> Checking availability…</p>
+          <div className="mt-3 grid grid-cols-7 gap-1">{Array.from({ length: 35 }, (_, i) => <span key={i} className="h-10 animate-pulse rounded-lg bg-[#0a2540]/5" />)}</div>
         ) : (
           <BookingCalendar dates={dates} value={date} onChange={setDate} monthOffset={monthOffset} setMonthOffset={setMonthOffset} />
         )}
         {date && (
           !slots ? (
-            <p className="mt-3 flex items-center gap-2 text-sm text-[#0a2540]/60"><Loader2 className="size-4 animate-spin" /> Loading slots…</p>
+            <p className="mt-3 flex items-center gap-2 text-sm text-[#0a2540]/60"><Loader2 className="size-4 animate-spin" /> Loading time slots…</p>
           ) : (
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-              {slots.map((s) => (
-                <button
-                  key={s.slot}
-                  type="button"
-                  disabled={!s.available}
-                  onClick={() => setSlot(s.slot)}
-                  className={`flex items-center justify-center gap-1 rounded-xl border p-2 text-xs font-semibold ${slot === s.slot ? "border-primary bg-primary text-white" : s.available ? "border-[#0a2540]/10 bg-white hover:border-primary/40" : "cursor-not-allowed bg-[#0a2540]/5 text-[#0a2540]/35"}`}
-                >
-                  <Clock className="size-3.5" /> {s.slot}
-                  {!s.available && <span className="text-[10px]">· Full</span>}
-                </button>
-              ))}
-            </div>
+            <>
+              <p className="mt-3 text-sm font-semibold">Arrival time · {fmtDay(date)}</p>
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                {slots.map((s) => (
+                  <button
+                    key={s.slot}
+                    type="button"
+                    disabled={!s.available}
+                    onClick={() => setSlot(s.slot)}
+                    className={`flex min-h-11 items-center justify-center gap-1 rounded-xl border px-2 text-xs font-semibold ${slot === s.slot ? "border-primary bg-primary text-white" : s.available ? "border-[#0a2540]/15 bg-white hover:border-primary/40" : "cursor-not-allowed bg-[#0a2540]/5 text-[#0a2540]/35"}`}
+                  >
+                    <Clock className="size-3.5" /> {s.slot}
+                    {!s.available && <span className="text-[10px]">· Full</span>}
+                  </button>
+                ))}
+              </div>
+            </>
           )
         )}
       </div>
 
       {!quote && (
-        <div className={card}>
-          {step(3, "Your details")}
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <input className={input} placeholder="Full name *" value={name} onChange={(e) => setName(e.target.value)} />
-            <input className={input} placeholder="Mobile number *" inputMode="numeric" value={mobile} onChange={(e) => setMobile(e.target.value)} />
-            <input className={input} placeholder="Alternate mobile (optional)" inputMode="numeric" value={altMobile} onChange={(e) => setAltMobile(e.target.value)} />
-            <input className={input} placeholder="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <textarea className={`${input} h-20 py-2 sm:col-span-2`} placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
-            <button
-              type="button"
-              onClick={useCurrentLocation}
-              className={`flex h-10 items-center justify-center gap-2 rounded-xl border text-sm font-semibold sm:col-span-2 ${mapLink ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-primary/40 text-primary"}`}
-            >
-              {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
-              {mapLink ? "Current location added ✓" : "Add current location (optional)"}
-            </button>
+        <div id="bk-details" className={`${card} scroll-mt-20`}>
+          {step(4, "Your details", name.trim().length >= 2 && /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)))}
+          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+            <input className={input} autoComplete="name" placeholder="Full name *" value={name} onChange={(e) => setName(e.target.value)} />
+            <input className={input} autoComplete="tel" type="tel" placeholder="Mobile number *" inputMode="numeric" value={mobile} onChange={(e) => setMobile(e.target.value)} />
+            <input className={input} type="tel" placeholder="Alternate mobile (optional)" inputMode="numeric" value={altMobile} onChange={(e) => setAltMobile(e.target.value)} />
+            <input className={input} autoComplete="email" placeholder="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
         </div>
       )}
 
-      <div className={card}>
-        {step(quote ? 3 : 4, "Payment *")}
+      {!quote && (
+        <div id="bk-address" className={`${card} scroll-mt-20`}>
+          {step(5, "Service address", address.trim().length >= 5)}
+          <textarea className={`${input} mt-3 h-24 py-2.5`} autoComplete="street-address" placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
+          <button
+            type="button"
+            onClick={useCurrentLocation}
+            className={`mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm font-semibold ${mapLink ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-primary/40 text-primary"}`}
+          >
+            {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
+            {mapLink ? "Current location added ✓" : "Add current location (optional)"}
+          </button>
+        </div>
+      )}
+
+      <div id="bk-pay" className={`${card} scroll-mt-20`}>
+        {step(quote ? 3 : 6, "Payment *", !!pay)}
         <div className="mt-3 grid grid-cols-2 gap-2">
           {([
             ["PAY_ADVANCE", "Pay Advance"],
             ["PAY_AFTER_SERVICE", "Pay After Service"],
           ] as const).map(([v, t]) => (
-            <button key={v} type="button" onClick={() => setPay(v)} className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-sm font-semibold ${pay === v ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white"}`}>
+            <button key={v} type="button" onClick={() => setPay(v)} className={`flex min-h-12 items-center justify-center gap-1.5 rounded-xl border px-2 text-sm font-semibold ${pay === v ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white"}`}>
               <Wallet className="size-4" /> {t}
             </button>
           ))}
         </div>
       </div>
 
-      <div className={`${card} border-2 border-primary/20`}>
-        <h3 className="text-lg font-bold">Booking summary</h3>
-        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+      <div id="bk-summary" className={`${card} scroll-mt-20 border-2 border-primary/20`}>
+        <h3 className="text-base font-bold sm:text-lg">Booking summary</h3>
+        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
           <dt className="text-[#0a2540]/60">Service</dt>
-          <dd className="font-medium">{lines.length ? lines.map((l) => l.label).join(", ") : "—"}</dd>
+          <dd className="font-medium">{lines.length ? lines.map((l) => l.label).join(", ") : quote ? quote.services.join(", ") : "—"}</dd>
+          {tier && (
+            <>
+              <dt className="text-[#0a2540]/60">Scope</dt>
+              <dd className="font-medium">{tier === "Platinum" ? "Wall wet cleaning + ceiling dry dusting" : "Wall dry dusting + ceiling dry dusting"} · {HOME_DURATION}</dd>
+            </>
+          )}
           <dt className="text-[#0a2540]/60">Date</dt>
           <dd className="font-medium">{date ? fmtDay(date) : "—"}</dd>
           <dt className="text-[#0a2540]/60">Time</dt>
           <dd className="font-medium">{slot || "—"}</dd>
+          {!quote && (
+            <>
+              <dt className="text-[#0a2540]/60">Address</dt>
+              <dd className="line-clamp-2 font-medium">{address.trim() || "—"}</dd>
+            </>
+          )}
           <dt className="text-[#0a2540]/60">Payment</dt>
           <dd className="font-medium">{pay === "PAY_ADVANCE" ? "Pay advance" : pay === "PAY_AFTER_SERVICE" ? "Pay after service" : "—"}</dd>
           <dt className="text-[#0a2540]/60">{quote ? "Quoted amount" : "Total"}</dt>
@@ -519,12 +657,32 @@ export function BookingWizard({
             {hasUnpriced && pricedTotal > 0 && <span className="ml-1 text-xs font-medium text-[#0a2540]/60">+ items priced before booking</span>}
           </dd>
         </dl>
+        <p className="mt-2 text-[11px] text-[#0a2540]/60">By confirming you agree to the scope, please-note points and terms shown above.</p>
         {error && <p className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
-        <button type="button" onClick={submit} disabled={!ready || pending} className="mt-3 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-white disabled:opacity-50">
+        <button type="button" onClick={submit} disabled={!ready || pending} className="mt-3 min-h-12 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-white disabled:opacity-50">
           {pending ? "Sending…" : "Confirm Booking Request"}
         </button>
         <p className="mt-2 text-center text-xs text-[#0a2540]/60">Your booking is confirmed only after our team verifies the slot.</p>
       </div>
+
+      {/* Mobile sticky progress bar — sits above the site's Call / WhatsApp / Book Now bar. */}
+      {showSticky && (
+        <div className="fixed inset-x-0 bottom-[44px] z-40 border-t border-[#0a2540]/10 bg-white/95 px-4 py-2 shadow-[0_-4px_12px_rgba(10,37,64,0.08)] backdrop-blur sm:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-[11px] text-[#0a2540]/60">{lines.map((l) => l.label).join(", ")}</p>
+              <p className="text-base font-extrabold text-primary">{pricedTotal > 0 ? inr(pricedTotal) : "After inspection"}</p>
+            </div>
+            {ready ? (
+              <button type="button" onClick={submit} disabled={pending} className="shrink-0 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white">{pending ? "Sending…" : "Confirm"}</button>
+            ) : (
+              <button type="button" onClick={() => go(nextStep)} className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white">
+                {nextStep === "bk-service" ? "Finish selection" : nextStep === "bk-date" ? "Pick date & time" : nextStep === "bk-details" ? "Add details" : nextStep === "bk-pay" ? "Choose payment" : "Review"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -577,7 +735,7 @@ function BookingCalendar({
         {Array.from({ length: daysInMonth }, (_, i) => {
           const iso = `${year}-${pad(month)}-${pad(i + 1)}`;
           const d = byDate.get(iso);
-          if (!d) return <span key={iso} className="flex h-9 items-center justify-center rounded-lg text-xs text-[#0a2540]/20">{i + 1}</span>;
+          if (!d) return <span key={iso} className="flex h-10 items-center justify-center rounded-lg text-xs text-[#0a2540]/20">{i + 1}</span>;
           const selected = value === iso;
           return (
             <button
@@ -586,7 +744,7 @@ function BookingCalendar({
               disabled={!d.available}
               onClick={() => onChange(iso)}
               aria-label={`${iso} ${d.status === "FULL" ? "fully booked" : d.status === "FILLING" ? "filling fast" : "available"}`}
-              className={`h-9 rounded-lg border text-xs font-bold ${selected ? "border-primary bg-primary text-white" : DAY_STYLE[d.status]}`}
+              className={`h-10 rounded-lg border text-sm font-bold ${selected ? "border-primary bg-primary text-white" : DAY_STYLE[d.status]}`}
             >
               {i + 1}
             </button>

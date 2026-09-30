@@ -52,10 +52,7 @@ export function draftQuotation(lead: {
   notes?: string | null;
 }): QuotationDraft {
   const label = SERVICE_LABELS[lead.service] ?? lead.service;
-  const base = Math.max(
-    lead.quoteAmount ?? SERVICE_BASE_PRICE[lead.service] ?? COMPANY.minimumJobValue,
-    COMPANY.minimumJobValue
-  );
+  const base = lead.quoteAmount ?? SERVICE_BASE_PRICE[lead.service] ?? 0;
 
   const lineItems: QuotationLineItem[] = [
     { name: label, description: `${label} — ${lead.area}`, amount: base },

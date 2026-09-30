@@ -5,7 +5,8 @@ export const COMPANY = {
   address: "Opp. South Gate, Magarpatta City, Hadapsar, Pune.",
   email: "contact@saharacleaningservices.com",
   gstin: "27DMTPS3584R2ZJ", // real registered GSTIN, 2026-09-22 booking-form master prompt
-  minimumJobValue: 3999,
+  // No minimum job value (owner decision 2026-09-30) — prices come from the pricing master.
+  minimumJobValue: 0,
   teamSize: 20,
 };
 
@@ -705,8 +706,7 @@ export const QUOTATION_TERMS = `1. Prices are inclusive of standard materials & 
 2. GST as applicable will be charged extra.
 3. 50% advance payment confirms the booking; balance is due on job completion.
 4. Rescheduling requires at least 24 hours' notice.
-5. This quotation is valid for 7 days from the date of issue.
-6. Minimum job value is ₹${3999}.`;
+5. This quotation is valid for 7 days from the date of issue.`;
 
 // ─────────────────────────────────────────────────────────────────────────
 // Phase 3 — Revenue, WhatsApp & Workforce Automation

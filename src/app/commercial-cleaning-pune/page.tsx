@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
+import { OFFICE_SCOPE } from "@/lib/marketing-content";
 import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 
 // Reads company settings from the DB, which is not available at image build time.
@@ -13,13 +14,6 @@ export const metadata: Metadata = {
 };
 
 const WA = "Hi Sahara, I'd like a site visit and quote for office/commercial cleaning.";
-const OFFICE_SCOPE = [
-  "Workstations, tables and chairs",
-  "Glass partitions and doors",
-  "Floors — scrubbing and mopping (machine cleaning where required)",
-  "Pantry and washrooms",
-  "Common areas, dusting and cobweb removal",
-];
 const VILLA_SCOPE = ["Rooms and living areas", "Kitchen and bathrooms", "Windows, glass and balconies", "Furniture exterior, doors, fans and lights", "Detailed dusting and cobweb removal"];
 const FAQS = [
   { q: "How is commercial cleaning priced?", a: "Every site is different, so we visit, understand the area and scope, and share a clear quote before work starts." },

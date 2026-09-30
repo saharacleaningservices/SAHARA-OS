@@ -26,6 +26,7 @@ import { SERVICE_LABELS } from "@/lib/constants";
 import { jobCardMessage } from "@/lib/whatsapp-templates";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
+import { PackageScopeCard } from "@/components/shared/package-scope-card";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -234,6 +235,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               <StatusActions jobId={job.id} status={job.status} />
             </CardContent>
           </Card>
+
+          <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} />
 
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
