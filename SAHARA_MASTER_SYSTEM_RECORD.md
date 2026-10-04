@@ -77,7 +77,7 @@ Values are **never** written here. Status as of 2026-10-04 22:00 IST (production
 |---|---|---|---|
 | `WHATSAPP_ACCESS_TOKEN` | **SECRET** | System-user permanent token (Sahara OS API) | **SET by Altaf** (Coolify) |
 | `WHATSAPP_APP_SECRET` | **SECRET** | Meta App 1569646490957820 → App settings → Basic → App Secret (verifies webhook signatures) | **SET by Altaf** (Coolify) |
-| `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | **SECRET** | Any long random string; same value pasted in Meta webhook config | **NOT SET — Altaf** |
+| `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | **SECRET** | Any long random string; same value pasted in Meta webhook config | **SET by Altaf** (Coolify + Meta) |
 | `WHATSAPP_PHONE_NUMBER_ID` | no | `1278812171990562` | **SET** 2026-10-04 |
 | `WHATSAPP_BUSINESS_ACCOUNT_ID` | no | `1629093895673046` | **SET** 2026-10-04 |
 | `WHATSAPP_USE_TEMPLATES` | no | `on` — booking messages use approved templates | **SET** 2026-10-04 |
@@ -152,14 +152,16 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 | Template/button mapping vs approved Meta template | PASS |
 | Coolify env (5 of 6 WhatsApp vars) + redeploy | DONE 2026-10-04 ~21:45 IST |
 | CRM WhatsApp status | Connected · env |
-| Meta webhook registration | **PENDING** — needs verify token (Altaf) |
-| WhatsApp production send/receive (QA test) | **NOT RUN** — QA button needs a browser confirm; run by Altaf after the queue decision (§8) |
+| Meta webhook registration | DONE — callback saved/verified (Altaf); **messages** field subscribed 2026-10-04 23:59 IST |
+| Webhook security probes | bad signature → 401, wrong verify token → 403 (PASS) |
+| Stale WhatsApp queue | 192 cancelled 2026-10-04 21:57 IST (audit-logged); 0 pending |
+| WhatsApp production send (QA test) | **FAILED at Meta: (#133010) Account not registered** — token/IDs accepted; phone number +91 9175220270 must be registered for Cloud API (Altaf, §8) |
 
 ---
 
 ## 8. Remaining manual steps (Altaf only — secrets / payment)
 
-**0. URGENT — stale WhatsApp queue (decide before 09:00 IST daily cron):** CRM → Admin → Message Log shows **192 pending** queued messages created while WhatsApp was offline (customer 44, staff/team 102, OTP/security 42, other 4) — old OTP codes, repeated attendance summaries, past booking confirmations. With credentials now live, the 09:00 IST cron (or Settings → *Save & Connect*) will send them. Recommended: Message Log → **Cancel stale queue** (marks them CANCELLED, keeps the rows, audit-logged). Do **not** press *Save & Connect* in Settings before deciding (it flushes the queue).
+**0. ~~URGENT — stale WhatsApp queue~~ DONE (192 cancelled). Original note: stale WhatsApp queue (decide before 09:00 IST daily cron):** CRM → Admin → Message Log shows **192 pending** queued messages created while WhatsApp was offline (customer 44, staff/team 102, OTP/security 42, other 4) — old OTP codes, repeated attendance summaries, past booking confirmations. With credentials now live, the 09:00 IST cron (or Settings → *Save & Connect*) will send them. Recommended: Message Log → **Cancel stale queue** (marks them CANCELLED, keeps the rows, audit-logged). Do **not** press *Save & Connect* in Settings before deciding (it flushes the queue).
 
 1. ~~Generate token~~ (DONE by Altaf). **Meta → Business Settings → System users → "Sahara OS API" → Generate token**: app 1569646490957820; permissions `whatsapp_business_messaging` + `whatsapp_business_management` only; expiry **Never**. Copy it straight into Coolify (step 2). Do not paste it anywhere else.
 2. **Coolify → Sahara OS → Environment**: only `WHATSAPP_WEBHOOK_VERIFY_TOKEN` is still missing (others done) — add it, then **Redeploy**. Original note: set the variables in §3 (three secrets + `WHATSAPP_PHONE_NUMBER_ID=1278812171990562`, `WHATSAPP_BUSINESS_ACCOUNT_ID=1629093895673046`, `WHATSAPP_USE_TEMPLATES=on`). Leave CAMPAIGNS / AUTO_REPLIES / AI unset. **Redeploy.**
@@ -169,6 +171,8 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 6. Only after 5 passes: decide on `WHATSAPP_CAMPAIGNS=on` for a festival campaign (opted-in contacts only).
 
 ---
+
+**NEXT (Altaf) — register the number:** Meta for Developers → app 1569646490957820 → WhatsApp → Step 2 *Production setup* → **Register your WhatsApp phone number** (or WhatsApp Manager → Phone numbers → +91 9175220270). Choose a 6-digit two-step-verification PIN (keep it secret, store it only in your password manager); enter any SMS/voice code Meta sends. Then **Add payment** if Meta asks. Then CRM → Marketing → **QA test** (click OK) to 9921215250 and reply from that phone; confirm it appears in CRM → WhatsApp Inbox.
 
 ## 9. Maintenance
 
