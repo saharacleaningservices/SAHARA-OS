@@ -86,6 +86,8 @@ export const ModelName = {
   Advance: 'Advance',
   FineRecord: 'FineRecord',
   RewardRecord: 'RewardRecord',
+  TeamIncentive: 'TeamIncentive',
+  Announcement: 'Announcement',
   Invoice: 'Invoice',
   JobVideo: 'JobVideo',
   IntegrationSettings: 'IntegrationSettings',
@@ -434,6 +436,7 @@ export const JobScalarFieldEnum = {
   notes: 'notes',
   customerSignatureUrl: 'customerSignatureUrl',
   signedAt: 'signedAt',
+  teamSnapshot: 'teamSnapshot',
   mapLink: 'mapLink',
   vehicleId: 'vehicleId',
   isDemo: 'isDemo',
@@ -636,7 +639,8 @@ export const ReviewScalarFieldEnum = {
   createdAt: 'createdAt',
   replied: 'replied',
   repliedAt: 'repliedAt',
-  replyNote: 'replyNote'
+  replyNote: 'replyNote',
+  jobId: 'jobId'
 } as const
 
 export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
@@ -817,6 +821,35 @@ export const RewardRecordScalarFieldEnum = {
 } as const
 
 export type RewardRecordScalarFieldEnum = (typeof RewardRecordScalarFieldEnum)[keyof typeof RewardRecordScalarFieldEnum]
+
+
+export const TeamIncentiveScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  amount: 'amount',
+  teamSnapshot: 'teamSnapshot',
+  notes: 'notes',
+  date: 'date',
+  recordedByName: 'recordedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type TeamIncentiveScalarFieldEnum = (typeof TeamIncentiveScalarFieldEnum)[keyof typeof TeamIncentiveScalarFieldEnum]
+
+
+export const AnnouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  important: 'important',
+  isActive: 'isActive',
+  publishedAt: 'publishedAt',
+  expiresAt: 'expiresAt',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt'
+} as const
+
+export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
 
 
 export const InvoiceScalarFieldEnum = {

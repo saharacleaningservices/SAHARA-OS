@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   Users,
   MapPin,
@@ -41,6 +42,8 @@ import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-c
 
 export default async function DashboardPage() {
   const session = await requireUser();
+  // Field staff use the mobile Staff App, not the office dashboard.
+  if (session.role === "STAFF") redirect("/my");
 
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
     return (

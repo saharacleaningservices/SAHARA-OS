@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { hashPassword, verifyPassword } from "@/lib/auth";
-import { companySettingsSchema, changePasswordSchema, strongPasswordSchema } from "@/lib/validation";
+import { companySettingsSchema, changePasswordSchema, strongPasswordSchema, staffChangePinSchema } from "@/lib/validation";
 
 export async function updateCompanySettings(values: unknown) {
   const session = await getSession();
@@ -79,7 +79,8 @@ export async function changePassword(values: unknown) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
 
-  const parsed = changePasswordSchema.safeParse(values);
+  // Field Staff use a simple 4–6 digit PIN; office roles keep the password policy.
+  const parsed = (session.role === "STAFF" ? staffChangePinSchema : changePasswordSchema).safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
   }
@@ -91,11 +92,19 @@ export async function changePassword(values: unknown) {
   const ok = await verifyPassword(currentPassword, user.passwordHash);
   if (!ok) return { error: "Current password is incorrect" };
 
-  if (user.role === "ADMIN") {
+  // Super Admin, and Field Staff changing their own Staff App PIN (owner
+  // rule 2026-10-04: a logged-in staff member changes it themselves, no owner
+  // OTP — they've just proved the current password). Office roles keep OTP.
+  if (user.role === "ADMIN" || user.role === "STAFF") {
     await db.user.update({
       where: { id: user.id },
       data: { passwordHash: await hashPassword(newPassword), mustChangePassword: false },
     });
+    await db.auditLog
+      .create({
+        data: { entityType: "User", entityId: user.id, action: "PASSWORD_CHANGED_SELF", summary: `${user.name} changed their own password`, actorName: user.name, actorEmail: user.email },
+      })
+      .catch(() => {});
     return { success: true as const };
   }
 

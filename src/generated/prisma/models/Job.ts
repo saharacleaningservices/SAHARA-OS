@@ -66,6 +66,7 @@ export type JobMinAggregateOutputType = {
   notes: string | null
   customerSignatureUrl: string | null
   signedAt: Date | null
+  teamSnapshot: string | null
   mapLink: string | null
   vehicleId: string | null
   isDemo: boolean | null
@@ -105,6 +106,7 @@ export type JobMaxAggregateOutputType = {
   notes: string | null
   customerSignatureUrl: string | null
   signedAt: Date | null
+  teamSnapshot: string | null
   mapLink: string | null
   vehicleId: string | null
   isDemo: boolean | null
@@ -144,6 +146,7 @@ export type JobCountAggregateOutputType = {
   notes: number
   customerSignatureUrl: number
   signedAt: number
+  teamSnapshot: number
   mapLink: number
   vehicleId: number
   isDemo: number
@@ -195,6 +198,7 @@ export type JobMinAggregateInputType = {
   notes?: true
   customerSignatureUrl?: true
   signedAt?: true
+  teamSnapshot?: true
   mapLink?: true
   vehicleId?: true
   isDemo?: true
@@ -234,6 +238,7 @@ export type JobMaxAggregateInputType = {
   notes?: true
   customerSignatureUrl?: true
   signedAt?: true
+  teamSnapshot?: true
   mapLink?: true
   vehicleId?: true
   isDemo?: true
@@ -273,6 +278,7 @@ export type JobCountAggregateInputType = {
   notes?: true
   customerSignatureUrl?: true
   signedAt?: true
+  teamSnapshot?: true
   mapLink?: true
   vehicleId?: true
   isDemo?: true
@@ -399,6 +405,7 @@ export type JobGroupByOutputType = {
   notes: string | null
   customerSignatureUrl: string | null
   signedAt: Date | null
+  teamSnapshot: string | null
   mapLink: string | null
   vehicleId: string | null
   isDemo: boolean
@@ -461,6 +468,7 @@ export type JobWhereInput = {
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
@@ -512,6 +520,7 @@ export type JobOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   signedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -566,6 +575,7 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
@@ -617,6 +627,7 @@ export type JobOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   signedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -664,6 +675,7 @@ export type JobScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Job"> | boolean
@@ -701,6 +713,7 @@ export type JobCreateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -751,6 +764,7 @@ export type JobUncheckedCreateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -797,6 +811,7 @@ export type JobUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -847,6 +862,7 @@ export type JobUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -895,6 +911,7 @@ export type JobCreateManyInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -932,6 +949,7 @@ export type JobUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -970,6 +988,7 @@ export type JobUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1019,6 +1038,7 @@ export type JobCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -1063,6 +1083,7 @@ export type JobMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -1102,6 +1123,7 @@ export type JobMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
@@ -1418,6 +1440,7 @@ export type JobCreateWithoutSupervisorInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1466,6 +1489,7 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -1542,6 +1566,7 @@ export type JobScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
@@ -1579,6 +1604,7 @@ export type JobCreateWithoutLeadInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1627,6 +1653,7 @@ export type JobUncheckedCreateWithoutLeadInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -1698,6 +1725,7 @@ export type JobCreateWithoutAssignmentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1747,6 +1775,7 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -1808,6 +1837,7 @@ export type JobUpdateWithoutAssignmentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1857,6 +1887,7 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1902,6 +1933,7 @@ export type JobCreateWithoutPhotosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1951,6 +1983,7 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -2012,6 +2045,7 @@ export type JobUpdateWithoutPhotosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2061,6 +2095,7 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2106,6 +2141,7 @@ export type JobCreateWithoutCertificateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2155,6 +2191,7 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -2216,6 +2253,7 @@ export type JobUpdateWithoutCertificateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2265,6 +2303,7 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2310,6 +2349,7 @@ export type JobCreateWithoutPaymentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2359,6 +2399,7 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -2420,6 +2461,7 @@ export type JobUpdateWithoutPaymentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2469,6 +2511,7 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2514,6 +2557,7 @@ export type JobCreateWithoutExpensesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2563,6 +2607,7 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -2624,6 +2669,7 @@ export type JobUpdateWithoutExpensesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2673,6 +2719,7 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2718,6 +2765,7 @@ export type JobCreateWithoutActivityLogsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2767,6 +2815,7 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -2828,6 +2877,7 @@ export type JobUpdateWithoutActivityLogsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2877,6 +2927,7 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2922,6 +2973,7 @@ export type JobCreateWithoutVehicleInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2971,6 +3023,7 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3041,6 +3094,7 @@ export type JobCreateWithoutMaterialIssuesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3090,6 +3144,7 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -3151,6 +3206,7 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3200,6 +3256,7 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3245,6 +3302,7 @@ export type JobCreateWithoutInvoiceInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3294,6 +3352,7 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -3355,6 +3414,7 @@ export type JobUpdateWithoutInvoiceInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3404,6 +3464,7 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3449,6 +3510,7 @@ export type JobCreateWithoutVideosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3498,6 +3560,7 @@ export type JobUncheckedCreateWithoutVideosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -3559,6 +3622,7 @@ export type JobUpdateWithoutVideosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3608,6 +3672,7 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3654,6 +3719,7 @@ export type JobCreateManySupervisorInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -3691,6 +3757,7 @@ export type JobUpdateWithoutSupervisorInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3739,6 +3806,7 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3786,6 +3854,7 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3824,6 +3893,7 @@ export type JobCreateManyLeadInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   vehicleId?: string | null
   isDemo?: boolean
@@ -3861,6 +3931,7 @@ export type JobUpdateWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3909,6 +3980,7 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3956,6 +4028,7 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3995,6 +4068,7 @@ export type JobCreateManyVehicleInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
   mapLink?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4031,6 +4105,7 @@ export type JobUpdateWithoutVehicleInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4080,6 +4155,7 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4127,6 +4203,7 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4250,6 +4327,7 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
   mapLink?: boolean
   vehicleId?: boolean
   isDemo?: boolean
@@ -4302,6 +4380,7 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
   mapLink?: boolean
   vehicleId?: boolean
   isDemo?: boolean
@@ -4344,6 +4423,7 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
   mapLink?: boolean
   vehicleId?: boolean
   isDemo?: boolean
@@ -4386,6 +4466,7 @@ export type JobSelectScalar = {
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
   mapLink?: boolean
   vehicleId?: boolean
   isDemo?: boolean
@@ -4395,7 +4476,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -4468,6 +4549,7 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     notes: string | null
     customerSignatureUrl: string | null
     signedAt: Date | null
+    teamSnapshot: string | null
     mapLink: string | null
     vehicleId: string | null
     isDemo: boolean
@@ -4939,6 +5021,7 @@ export interface JobFieldRefs {
   readonly notes: Prisma.FieldRef<"Job", 'String'>
   readonly customerSignatureUrl: Prisma.FieldRef<"Job", 'String'>
   readonly signedAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly teamSnapshot: Prisma.FieldRef<"Job", 'String'>
   readonly mapLink: Prisma.FieldRef<"Job", 'String'>
   readonly vehicleId: Prisma.FieldRef<"Job", 'String'>
   readonly isDemo: Prisma.FieldRef<"Job", 'Boolean'>

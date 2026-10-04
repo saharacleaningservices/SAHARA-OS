@@ -427,6 +427,8 @@ export const ModelName = {
   Advance: 'Advance',
   FineRecord: 'FineRecord',
   RewardRecord: 'RewardRecord',
+  TeamIncentive: 'TeamIncentive',
+  Announcement: 'Announcement',
   Invoice: 'Invoice',
   JobVideo: 'JobVideo',
   IntegrationSettings: 'IntegrationSettings',
@@ -452,7 +454,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3194,6 +3196,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TeamIncentive: {
+      payload: Prisma.$TeamIncentivePayload<ExtArgs>
+      fields: Prisma.TeamIncentiveFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TeamIncentiveFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TeamIncentiveFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>
+        }
+        findFirst: {
+          args: Prisma.TeamIncentiveFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TeamIncentiveFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>
+        }
+        findMany: {
+          args: Prisma.TeamIncentiveFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>[]
+        }
+        create: {
+          args: Prisma.TeamIncentiveCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>
+        }
+        createMany: {
+          args: Prisma.TeamIncentiveCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TeamIncentiveCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>[]
+        }
+        delete: {
+          args: Prisma.TeamIncentiveDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>
+        }
+        update: {
+          args: Prisma.TeamIncentiveUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>
+        }
+        deleteMany: {
+          args: Prisma.TeamIncentiveDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TeamIncentiveUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TeamIncentiveUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>[]
+        }
+        upsert: {
+          args: Prisma.TeamIncentiveUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeamIncentivePayload>
+        }
+        aggregate: {
+          args: Prisma.TeamIncentiveAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTeamIncentive>
+        }
+        groupBy: {
+          args: Prisma.TeamIncentiveGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeamIncentiveGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TeamIncentiveCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeamIncentiveCountAggregateOutputType> | number
+        }
+      }
+    }
+    Announcement: {
+      payload: Prisma.$AnnouncementPayload<ExtArgs>
+      fields: Prisma.AnnouncementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnnouncementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnnouncementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>
+        }
+        findFirst: {
+          args: Prisma.AnnouncementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnnouncementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>
+        }
+        findMany: {
+          args: Prisma.AnnouncementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>[]
+        }
+        create: {
+          args: Prisma.AnnouncementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>
+        }
+        createMany: {
+          args: Prisma.AnnouncementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AnnouncementCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>[]
+        }
+        delete: {
+          args: Prisma.AnnouncementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>
+        }
+        update: {
+          args: Prisma.AnnouncementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnnouncementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnnouncementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AnnouncementUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>[]
+        }
+        upsert: {
+          args: Prisma.AnnouncementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementPayload>
+        }
+        aggregate: {
+          args: Prisma.AnnouncementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnnouncement>
+        }
+        groupBy: {
+          args: Prisma.AnnouncementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnnouncementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnnouncementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnnouncementCountAggregateOutputType> | number
+        }
+      }
+    }
     Invoice: {
       payload: Prisma.$InvoicePayload<ExtArgs>
       fields: Prisma.InvoiceFieldRefs
@@ -4293,6 +4443,7 @@ export const JobScalarFieldEnum = {
   notes: 'notes',
   customerSignatureUrl: 'customerSignatureUrl',
   signedAt: 'signedAt',
+  teamSnapshot: 'teamSnapshot',
   mapLink: 'mapLink',
   vehicleId: 'vehicleId',
   isDemo: 'isDemo',
@@ -4495,7 +4646,8 @@ export const ReviewScalarFieldEnum = {
   createdAt: 'createdAt',
   replied: 'replied',
   repliedAt: 'repliedAt',
-  replyNote: 'replyNote'
+  replyNote: 'replyNote',
+  jobId: 'jobId'
 } as const
 
 export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
@@ -4676,6 +4828,35 @@ export const RewardRecordScalarFieldEnum = {
 } as const
 
 export type RewardRecordScalarFieldEnum = (typeof RewardRecordScalarFieldEnum)[keyof typeof RewardRecordScalarFieldEnum]
+
+
+export const TeamIncentiveScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  amount: 'amount',
+  teamSnapshot: 'teamSnapshot',
+  notes: 'notes',
+  date: 'date',
+  recordedByName: 'recordedByName',
+  createdAt: 'createdAt'
+} as const
+
+export type TeamIncentiveScalarFieldEnum = (typeof TeamIncentiveScalarFieldEnum)[keyof typeof TeamIncentiveScalarFieldEnum]
+
+
+export const AnnouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  important: 'important',
+  isActive: 'isActive',
+  publishedAt: 'publishedAt',
+  expiresAt: 'expiresAt',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt'
+} as const
+
+export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
 
 
 export const InvoiceScalarFieldEnum = {
@@ -5203,6 +5384,8 @@ export type GlobalOmitConfig = {
   advance?: Prisma.AdvanceOmit
   fineRecord?: Prisma.FineRecordOmit
   rewardRecord?: Prisma.RewardRecordOmit
+  teamIncentive?: Prisma.TeamIncentiveOmit
+  announcement?: Prisma.AnnouncementOmit
   invoice?: Prisma.InvoiceOmit
   jobVideo?: Prisma.JobVideoOmit
   integrationSettings?: Prisma.IntegrationSettingsOmit

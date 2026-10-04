@@ -29,7 +29,8 @@ export type NotifKind =
   | "PASSWORD_OTP"
   | "APPROVAL_REQUEST"
   | "LOGIN_ATTEMPT"
-  | "LOGIN_ID_RECOVERY";
+  | "LOGIN_ID_RECOVERY"
+  | "STAFF_PIN_RESET";
 
 type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
@@ -46,6 +47,7 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   APPROVAL_REQUEST: ["ADMIN"],
   LOGIN_ATTEMPT: ["ADMIN"],
   LOGIN_ID_RECOVERY: ["ADMIN"],
+  STAFF_PIN_RESET: ["ADMIN", "ACCOUNTS"], // approvable by Super Admin or Accounts (in-app + push only)
 };
 
 const CRITICAL_KINDS = new Set<NotifKind>(["DEVICE_LOGIN", "PASSWORD_OTP", "APPROVAL_REQUEST", "LOGIN_ATTEMPT", "LOGIN_ID_RECOVERY"]);

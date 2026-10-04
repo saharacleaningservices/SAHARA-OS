@@ -8,6 +8,7 @@ import { EXPENSE_CATEGORY_LABELS, EXPENSE_CATEGORIES } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { SprayCan, Fuel, Car, Wrench, Bike, HandCoins, Store, Receipt } from "lucide-react";
 import { requireRole } from "@/lib/current-user";
+import { db } from "@/lib/db";
 
 const CATEGORY_ICON: Record<string, typeof Receipt> = {
   HOUSEKEEPING_MATERIAL: SprayCan,
@@ -28,7 +29,11 @@ export default async function ExpensesPage() {
   // middleware" requirement. Matches canAccessExpenses in
   // server/actions/expenses.ts.
   await requireRole(["ADMIN", "ACCOUNTS"]);
-  const [expenses, jobOptions] = await Promise.all([getAllExpensesForList(), getJobsForSelection()]);
+  const [expenses, jobOptions, staffOptions] = await Promise.all([
+    getAllExpensesForList(),
+    getJobsForSelection(),
+    db.staff.findMany({ where: { deletedAt: null, isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true, employeeCode: true } }),
+  ]);
   // Show a tile for every current category, plus any legacy category that
   // still has spend recorded against it.
   const legacyWithSpend = [...new Set(expenses.map((e) => e.category))].filter(
@@ -44,7 +49,7 @@ export default async function ExpensesPage() {
       <PageHeader
         title="Expenses"
         description={`${expenses.length} expenses tracked`}
-        actions={<NewExpenseDialog jobOptions={jobOptions} />}
+        actions={<NewExpenseDialog jobOptions={jobOptions} staffOptions={staffOptions} />}
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

@@ -39,7 +39,8 @@ export async function requestPasswordReset(values: unknown) {
   // Always return the same shape whether or not the account exists, so the
   // form never leaks which mobile numbers are registered. Only a real,
   // active account actually raises an OTP to the Super Admin.
-  if (user && user.isActive) {
+  // Field Staff reset via /staff-reset (approved in the CRM), not the owner-OTP relay.
+  if (user && user.isActive && user.role !== "STAFF") {
         const { requestPasswordOtp } = await import("@/server/security");
         const { otpId, ttlMinutes } = await requestPasswordOtp({
                 targetUserId: user.id,

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
+import { notifyCrewAssigned } from "@/server/job-team";
 import { getSession } from "@/lib/session";
 import {
   leadSchema,
@@ -429,6 +430,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
                 body: `${job.jobNumber} · ${crew.map((c) => c.name).join(", ")} · ${scheduledDate.toLocaleDateString("en-IN")} ${data.timeSlot}`,
                 href: `/jobs/${job.id}`,
         });
+    await notifyCrewAssigned(job.id, [...new Set(leadStaffIds)]);
   }
 
   // Payments — attach any advance the customer already paid to the job, and

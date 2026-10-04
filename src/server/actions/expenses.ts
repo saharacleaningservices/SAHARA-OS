@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { expenseSchema } from "@/lib/validation";
 import { softDeleteMany } from "@/server/audit";
+import { canViewSalary } from "@/lib/permissions";
 
 /**
  * None of these actions had ANY role check at all before the 2026-09-21
@@ -27,6 +28,10 @@ export async function createExpense(values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const data = parsed.data;
+  // Salary payouts are salary figures — Super Admin + Accounts only.
+  if (data.category === "SALARY" && !canViewSalary(session?.role ?? "")) {
+    return { error: "Not authorized to record salary", success: false as const };
+  }
 
   await db.expense.create({
     data: {
@@ -55,6 +60,9 @@ export async function updateExpense(id: string, values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const d = parsed.data;
+  if (d.category === "SALARY" && !canViewSalary(session?.role ?? "")) {
+    return { error: "Not authorized to record salary", success: false as const };
+  }
   await db.expense.update({
     where: { id },
     data: {

@@ -344,6 +344,30 @@ export async function getTodayAttendanceSummary() {
   return { present, absent, halfDay, total: staff.length };
 }
 
+/**
+ * Earned wage for one month of attendance rows — the single payroll rule
+ * shared by the ledger, the Staff Portal and the Export Center (pure, so
+ * bulk callers can aggregate rows they already fetched).
+ */
+export function computeEarned(
+  staff: { salaryType: string; monthlySalary: number | null } | null,
+  attendance: { status: string; wageForDay: number | null }[],
+) {
+  const fullDays = attendance.filter((a) => a.status === "PRESENT").length;
+  const halfDays = attendance.filter((a) => a.status === "HALF_DAY").length;
+  const payableDays = fullDays + halfDays * 0.5;
+  const presentDays = fullDays + halfDays;
+
+  // Prefer the per-day wage stored on each row (set for both wage types now);
+  // fall back to prorating the monthly salary for legacy rows with no wage.
+  const wageRowsTotal = attendance.reduce((sum, a) => sum + (a.wageForDay ?? 0), 0);
+  const monthlyProrated =
+    staff?.salaryType === "MONTHLY" && staff.monthlySalary ? (staff.monthlySalary / 30) * payableDays : 0;
+  const earned =
+    wageRowsTotal > 0 ? wageRowsTotal : staff?.salaryType === "MONTHLY" ? monthlyProrated : 0;
+  return { fullDays, halfDays, payableDays, presentDays, earned };
+}
+
 /** Staff payroll ledger for one calendar month: earned wage, advances, fines, rewards, net balance. */
 export async function getStaffLedger(staffId: string, year: number, month: number) {
   const start = new Date(year, month - 1, 1);
@@ -357,18 +381,7 @@ export async function getStaffLedger(staffId: string, year: number, month: numbe
     db.rewardRecord.findMany({ where: { staffId, date: { gte: start, lt: end } }, orderBy: { date: "desc" } }),
   ]);
 
-  const fullDays = attendance.filter((a) => a.status === "PRESENT").length;
-  const halfDays = attendance.filter((a) => a.status === "HALF_DAY").length;
-  const payableDays = fullDays + halfDays * 0.5;
-  const presentDays = fullDays + halfDays;
-
-  // Prefer the per-day wage stored on each row (set for both wage types now);
-  // fall back to prorating the monthly salary for legacy rows with no wage.
-  const wageRowsTotal = attendance.reduce((sum, a) => sum + (a.wageForDay ?? 0), 0);
-  const monthlyProrated =
-    staff?.salaryType === "MONTHLY" && staff.monthlySalary ? (staff.monthlySalary / 30) * payableDays : 0;
-  const earned =
-    wageRowsTotal > 0 ? wageRowsTotal : staff?.salaryType === "MONTHLY" ? monthlyProrated : 0;
+  const { fullDays, halfDays, payableDays, presentDays, earned } = computeEarned(staff, attendance);
 
   const advanceTotal = advances.reduce((s, a) => s + a.amount, 0);
   const fineTotal = fines.reduce((s, f) => s + f.amount, 0);

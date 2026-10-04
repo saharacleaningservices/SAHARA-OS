@@ -24,8 +24,9 @@ import { EXPENSE_CATEGORY_OPTIONS } from "@/lib/constants";
 import { createExpense } from "@/server/actions/expenses";
 
 type JobOption = { id: string; jobNumber: string; customerName: string };
+type StaffOption = { id: string; name: string; employeeCode: string };
 
-export function NewExpenseDialog({ jobOptions = [] }: { jobOptions?: JobOption[] }) {
+export function NewExpenseDialog({ jobOptions = [], staffOptions = [] }: { jobOptions?: JobOption[]; staffOptions?: StaffOption[] }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -66,7 +67,7 @@ export function NewExpenseDialog({ jobOptions = [] }: { jobOptions?: JobOption[]
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Record an Expense</DialogTitle>
-          <DialogDescription>Track housekeeping material, fuel, cab fare, equipment, vendor payments and more.</DialogDescription>
+          <DialogDescription>Track material purchases, fuel, cab fare, equipment, vendor payments, salaries, rent, repairs and more.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="space-y-1">
@@ -84,6 +85,25 @@ export function NewExpenseDialog({ jobOptions = [] }: { jobOptions?: JobOption[]
               </SelectContent>
             </Select>
           </div>
+          {watch("category") === "SALARY" && staffOptions.length > 0 && (
+            <div className="space-y-1">
+              <Label>Staff member</Label>
+              <Select value={watch("staffId") || "none"} onValueChange={(v) => setValue("staffId", v === "none" ? "" : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select staff" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Not for one staff member</SelectItem>
+                  {staffOptions.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name} · {s.employeeCode}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Shows in that staff member’s Staff App as salary paid.</p>
+            </div>
+          )}
           <div className="space-y-1">
             <Label>Description</Label>
             <Input {...register("description")} />

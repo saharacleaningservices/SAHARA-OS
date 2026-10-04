@@ -9,6 +9,7 @@ export const metadata = { title: "Set a new password — Sahara OS" };
 
 export default async function SetPasswordPage() {
   const session = await requireUser();
+  if (session.role === "STAFF") redirect("/my/account"); // staff change their PIN in the Staff App
   const [account, settings] = await Promise.all([
     db.user.findUnique({ where: { id: session.sub }, select: { mustChangePassword: true } }),
     getCompanySettings(),

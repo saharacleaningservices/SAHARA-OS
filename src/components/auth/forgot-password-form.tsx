@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { ArrowLeft, KeyRound, Loader2, Lock, RefreshCw, ShieldCheck, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/lib/validation";
@@ -193,10 +194,9 @@ export function ForgotPasswordForm() {
         <div className="space-y-1.5">
           <Label htmlFor="newPassword">New Password</Label>
           <div className="relative">
-            <Lock className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <Lock className="pointer-events-none absolute left-2.5 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+            <PasswordInput
               id="newPassword"
-              type="password"
               autoComplete="new-password"
               className="pl-8"
               {...register("newPassword")}
@@ -208,10 +208,9 @@ export function ForgotPasswordForm() {
         <div className="space-y-1.5">
           <Label htmlFor="confirmPassword">Confirm New Password</Label>
           <div className="relative">
-            <Lock className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <Lock className="pointer-events-none absolute left-2.5 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground" />
+            <PasswordInput
               id="confirmPassword"
-              type="password"
               autoComplete="new-password"
               className="pl-8"
               {...register("confirmPassword")}
