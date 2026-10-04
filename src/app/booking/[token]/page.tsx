@@ -7,6 +7,7 @@ import { formatDate, formatINR } from "@/lib/utils";
 import { customerPaymentStatus, PAYMENT_STATUS_LABEL } from "@/server/booking-messages";
 import { PayAfterServiceButton } from "@/components/public/pay-after-service-button";
 import { BookingChangeRequest } from "@/components/public/booking-change-request";
+import { PackageScopeCard } from "@/components/shared/package-scope-card";
 
 // Customer-facing booking page, reached only through the unguessable token in
 // the WhatsApp confirmation (never by the sequential job number). Shows the
@@ -47,6 +48,10 @@ export default async function BookingPage({
       scheduledDate: true,
       scheduledTime: true,
       area: true,
+      address: true,
+      packageName: true,
+      serviceVariant: true,
+      comboServices: true,
       status: true,
       jobValue: true,
       paymentPreference: true,
@@ -65,6 +70,13 @@ export default async function BookingPage({
   const showPay = pmt.due > 0 && job.status !== "CANCELLED";
   const hasPaymentDetails = !!(settings?.upiId || settings?.upiQrUrl || settings?.bankAccountNumber);
   const support = ["8956567130", "7083347130"];
+  let included: string[] = [];
+  try {
+    const v = job.comboServices ? JSON.parse(job.comboServices) : [];
+    included = Array.isArray(v) ? v.map(String).filter(Boolean) : [];
+  } catch {
+    included = [];
+  }
 
   return (
     <div className="min-h-screen bg-[#f4f7fb] px-4 py-8">
@@ -80,16 +92,31 @@ export default async function BookingPage({
 
         <div className="space-y-2 rounded-2xl bg-white p-5 text-sm shadow-sm">
           <p className="font-semibold text-[#0a2540]">{SERVICE_LABELS[job.service] ?? job.service}</p>
+          {(job.packageName || job.serviceVariant) && (
+            <p>
+              Package: <span className="font-semibold">{job.packageName || job.serviceVariant}</span>
+              {job.packageName && job.serviceVariant ? ` · ${job.serviceVariant}` : ""}
+            </p>
+          )}
           <p className="flex items-center gap-2"><CalendarDays className="size-4 text-primary" /> {formatDate(job.scheduledDate)}</p>
           <p className="flex items-center gap-2"><Clock className="size-4 text-primary" /> {job.scheduledTime}</p>
-          <p className="flex items-center gap-2"><MapPin className="size-4 text-primary" /> {job.area}</p>
+          <p className="flex items-start gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" /> {job.address || job.area}</p>
+          {included.length > 0 && (
+            <div>
+              <p className="mt-1 text-xs font-semibold uppercase text-primary">Services included</p>
+              <ul className="mt-1 list-disc pl-5">{included.map((c) => <li key={c}>{c}</li>)}</ul>
+            </div>
+          )}
         </div>
+
+        <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} />
 
         <div id="payment" className="space-y-3 rounded-2xl bg-white p-5 text-sm shadow-sm">
           <p className="flex items-center justify-between font-semibold text-[#0a2540]">
             <span className="flex items-center gap-2"><Wallet className="size-4 text-primary" /> Payment</span>
             <span className="rounded-full bg-[#0a2540]/5 px-2 py-0.5 text-xs">{PAYMENT_STATUS_LABEL[pmt.status]}</span>
           </p>
+          {job.jobValue > 0 && <p>Total price: <span className="font-semibold">{formatINR(job.jobValue)}</span></p>}
           {pmt.paid > 0 && <p>Received: {formatINR(pmt.paid)}</p>}
           {showPay && <p>Balance: <span className="font-semibold">{formatINR(pmt.due)}</span></p>}
 
@@ -144,6 +171,7 @@ export default async function BookingPage({
             <li>Arrange a stool / ladder where required.</li>
             <li>Need to change the date? Call or WhatsApp us.</li>
           </ul>
+          <a href="/terms" className="mt-2 inline-block text-xs font-semibold text-primary">Terms &amp; Conditions →</a>
           <div className="mt-3 flex flex-wrap gap-2">
             {support.map((n) => (
               <a key={n} href={`tel:+91${n}`} className="flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold">
