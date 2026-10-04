@@ -6,6 +6,8 @@ import { getSession } from "@/lib/session";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { sendSMS } from "@/lib/sms";
 import { staffAttendanceMessage } from "@/lib/whatsapp-templates";
+import { ATTENDANCE_STATUS_LABELS } from "@/lib/constants";
+import { notifyStaff, dayHref } from "@/server/staff-notify";
 import {
   checkIn,
   checkOut,
@@ -73,6 +75,19 @@ async function notifyStaffAttendance(staffId: string, status: string, when: Date
   await sendSMS({ kind: "ATTENDANCE", toNumber: staff.mobile, toName: staff.name, body, relatedType: "Staff", relatedId: staffId }).catch(() => {});
 }
 
+/** Staff App push — one per real change (a bulk range is one notification, not one per day). */
+async function pushStaffAttendance(staffId: string, status: string, from: Date, to?: Date) {
+  const label = ATTENDANCE_STATUS_LABELS[status] ?? status;
+  const fmt = (d: Date) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  await notifyStaff([staffId], {
+    kind: "STAFF_ATTENDANCE",
+    title: `Attendance: ${label}`,
+    body: to && to.getTime() !== from.getTime() ? `${fmt(from)} – ${fmt(to)} marked ${label}` : `${fmt(from)} marked ${label}`,
+    href: dayHref(from, "attendance"),
+    recordId: `${staffId}:${from.getTime()}:${to?.getTime() ?? ""}:${status}:${Date.now()}`,
+  });
+}
+
 function bump() {
   revalidatePath("/attendance");
   revalidatePath("/staff", "layout");
@@ -107,7 +122,11 @@ export async function markAttendanceDay(staffId: string, dateIso: string, status
   if (!CODES.includes(status)) return { error: "Invalid status" };
   const res = await setAttendanceForDate({ staffId, date: dateIso, status, actorName: session.name });
   if ("error" in res) return { error: res.error };
-  if (!("unchanged" in res)) await notifyStaffAttendance(staffId, status, new Date(dateIso));
+  if (!("unchanged" in res)) {
+    await notifyStaffAttendance(staffId, status, new Date(dateIso));
+    const [y, m, d] = dateIso.slice(0, 10).split("-").map(Number);
+    await pushStaffAttendance(staffId, status, new Date(y, m - 1, d));
+  }
   bump();
   return { success: true as const };
 }
@@ -119,6 +138,13 @@ export async function bulkMarkAttendance(staffId: string, from: string, to: stri
   const res = await bulkSetAttendance({ staffId, from, to, status, actorName: session.name });
   if ("error" in res) return { error: res.error };
   await notifyStaffAttendance(staffId, status, new Date(to));
+  if (res.applied > 0) {
+    const day = (iso: string) => {
+      const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+      return new Date(y, m - 1, d);
+    };
+    await pushStaffAttendance(staffId, status, day(from), day(to));
+  }
   bump();
   return { success: true as const, applied: res.applied, skipped: res.skipped };
 }
@@ -129,7 +155,12 @@ export async function officeCheckIn(staffId: string) {
   if (!session || !canOperateAttendance(session.role)) return { error: "Not authorized" };
   const res = await officeCheckInSrv(staffId, session.name);
   if ("error" in res) return { error: res.error };
-  if (!("alreadyIn" in res)) await notifyStaffAttendance(staffId, "PRESENT", new Date());
+  if (!("alreadyIn" in res)) {
+    await notifyStaffAttendance(staffId, "PRESENT", new Date());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    await pushStaffAttendance(staffId, "PRESENT", today);
+  }
   bump();
   return { success: true as const };
 }

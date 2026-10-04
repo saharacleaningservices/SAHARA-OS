@@ -474,6 +474,55 @@ Owner reported three GitHub Actions failure emails received the same day as §3.
 
 **Remaining owner action**: none required unless/until the owner wants to revisit the `booking.*`/`crm.*` nameserver migration described above.
 
+## 3.25 URL migration prep (`app.*` → `booking.*`/`crm.*`) — prepared and held at the DNS gate, owner-approved cutover pending (2026-09-23)
+
+**Owner request**: prepare (not cut over) the split from the single `https://app.saharacleaningservices.com` into `https://booking.saharacleaningservices.com` (public) and `https://crm.saharacleaningservices.com` (internal), under a strict rule: never disturb the old URL, never touch DNS/cPanel/MX beyond read-only inspection, and stop for explicit approval before any cutover. Owner confirmed mid-session with fresh logged-in sessions (Namecheap, Hostinger, GitHub, Coolify, Drive) and asked to proceed with full prep + verification.
+
+**What was actually done this pass (all additive/reversible, zero production impact)**:
+- Audited production read-only: `tsc --noEmit` clean, local `coolify-deploy-current` byte-identical to `origin/coolify-deploy` (commit `22b5120`), matches what's actually deployed in Coolify (confirmed in deployment history). `app.saharacleaningservices.com` verified healthy — HTTP 200 on `/login`, SSL valid to 2026-12-07.
+- Confirmed the domain-split code from an earlier session (`src/lib/site-urls.ts`, `src/middleware.ts`) is genuinely inert today: both `PUBLIC_BOOKING_URL`/`INTERNAL_CRM_URL` fall back to the legacy host whenever `BOOKING_URL`/`CRM_URL` are unset, which they still are (Coolify's Environment Variables page shows only `DATABASE_URL` and `AUTH_SECRET` — confirmed via the UI, not assumed).
+- Added `booking.saharacleaningservices.com` and `crm.saharacleaningservices.com` as domains on the Sahara OS application in Coolify (port 3000, HTTPS), removing the `www.*` variants Coolify auto-generated for each (not requested, kept the config minimal). This left Coolify showing "Changes pending" — **a restart/redeploy has deliberately NOT been triggered**, so this exists only as saved configuration, not yet active routing.
+- Verified via `curl --resolve <domain>:443:187.53.134.175` (no DNS or hosts-file change, purely a local test-harness override) that hitting the server directly with these hostnames currently returns 503 — expected, since Coolify hasn't been restarted to pick up the new domain labels yet.
+- Verified the Google Drive backup dependency is healthy and was not touched: `Sahara OS Backups` folder has 3 real backups from today (most recent 2026-09-22 20:35 IST, ~3.5MB each); Drive usage ~17.91GB/30GB, unrelated to this migration.
+- Noted but did not investigate further: Coolify's own DNS check shows "DNS mismatch" for `app.saharacleaningservices.com` despite it resolving and serving correctly externally (external `nslookup`/`curl` both confirm it correctly points at `187.53.134.175`) — likely a stale/cosmetic reading in Coolify's own checker, not a real problem; worth a glance next time someone's in that screen but not blocking anything.
+
+**Hard blocker — confirmed unchanged from §3.24, this is not a new problem**: `booking.*`/`crm.*` have zero DNS records (confirmed via live `nslookup` — NXDOMAIN). Namecheap's nameservers are Custom DNS pointing at the agency's cPanel; Namecheap's own Advanced DNS editor is locked while Custom DNS is selected; cPanel is strictly read-only per the owner's rule. **There is no partial/safe way to add just these two records** — the only technically valid path is a full nameserver cutover (recreate all 33 existing records — root `@`, `www`, MX×5, SPF, DKIM, every cPanel service record, `promo.*`, `app.*` — in Namecheap first, then switch nameservers), which the owner has now been asked about twice and has not yet approved.
+
+**Owner instruction received this pass**: hold here. Do not perform any DNS cutover, nameserver change, Coolify redeploy, redirect, old-URL shutdown, `BOOKING_URL`/`CRM_URL` env change, or Google Workspace/MX/email change. Keep `app.saharacleaningservices.com` fully operational. Preserve the current Coolify domain preparation (the two new domain entries stay as-is). Wait for explicit further instruction.
+
+**Exact DNS requirements for when the owner is ready** (either path ends up needing these two records; the difference is only who/how they get created):
+| Type | Host | Points to | Notes |
+|---|---|---|---|
+| A | `booking` | `187.53.134.175` (the same VPS IP `app` already uses) | Or CNAME to `app.saharacleaningservices.com` if the DNS provider prefers that |
+| A | `crm` | `187.53.134.175` | Same as above |
+
+Two ways to actually create these, neither started yet:
+1. **Full nameserver cutover** (the only route that doesn't require agency involvement): recreate the existing 33-record cPanel zone in Namecheap's own BasicDNS first (full record list already documented in §3.24's audit), verify byte-for-byte match, then switch nameservers from Custom DNS to Namecheap BasicDNS. Risk: any mismatch during propagation could affect live Google Workspace email or the separate Ad Agency website — this is why it needs explicit owner sign-off, not something to do opportunistically.
+2. **Ask the agency directly** to add just these two A records inside their own cPanel (they can edit their own panel even though this session treats it as read-only) — avoids the nameserver cutover entirely if the agency is responsive. Owner's call which path to take.
+
+**Rollback plan (both for right now, and for after a future cutover)**:
+- *Right now*: nothing production-facing has changed. To fully revert this session's prep, delete the two domain entries (`booking.*`, `crm.*`) from the Sahara OS app in Coolify → Domains. `app.saharacleaningservices.com` was never modified.
+- *After DNS is eventually added but before `BOOKING_URL`/`CRM_URL` are set*: still zero behavior change — the code only activates once those env vars are set, so DNS existing by itself changes nothing.
+- *After cutover (env vars set + redeploy + `LEGACY_APP_REDIRECT_ENABLED=true` eventually)*: rollback is to unset `LEGACY_APP_REDIRECT_ENABLED` (stops the old→new redirect immediately) and/or unset `BOOKING_URL`/`CRM_URL` and redeploy — both env vars falling back to the legacy host restores exactly today's single-domain behavior, no code changes needed, no data at risk (same database throughout).
+
+**Remaining owner action**: decide DNS path (nameserver cutover vs. asking the agency), then say so explicitly — no further production changes will be made until then.
+
 ## 3. What "COMPLETE" does not mean here
 
 §1 now distinguishes **COMPLETE (live)** — actually clicked through / triggered against production this pass — from plain **COMPLETE (code)** — implements the requirement and type-checks, but not yet exercised live (usually because it needs Francis's or Shoaib's own login, which this environment doesn't have). Treat the latter as provisional until someone with that role actually uses it.
+
+## Staff App / Staff Portal (2026-10-04, scope-locked) — COMPLETE (code + local test), NOT deployed
+
+Mobile-first installable PWA at **/my** ("Sahara Staff"), built on the CRM's own tables (no duplicate database, no new modules). Tested end-to-end on a scratch copy of the DB (never the committed dev.db) in a phone-sized browser; `npm run build` passes. Not yet tried on physical Android/iPhone devices.
+
+- **Login**: registered **mobile number + PIN** (one rule for every staff member). Super Admin creates/resets/disables logins from Staff → *Staff App access*; each staff member gets their **own unique 4-digit initial PIN** (checked against everyone still on an initial PIN; no repeated digits, runs or years). The PIN is shown once to hand over and only its bcrypt hash is stored. Not forced to change it — the home screen shows a reminder until they do. Show/Hide on every PIN field.
+- **Change PIN**: logged-in staff change it themselves to any 4–6 digit PIN (current PIN required, no owner OTP; obvious PINs like 1234/0000 refused). Office roles keep the OTP rule.
+- **Forgot PIN**: `/staff-reset` (mobile number + chosen new PIN) → Super Admin / Accounts get an in-app + push alert → Approve/Reject on the staff record. New PIN works only after approval. Reuses the `SecurityOtp` table (purpose `STAFF_PIN_RESET`). Response never reveals whether an account exists. Staff accounts no longer use the owner-OTP `/forgot-password` route.
+- **Isolation**: STAFF role only; staffId always from the session. No sales/profit/purchase/expenses/job value/customer mobiles/other staff pay. Past jobs show area only. Fixed a pre-existing leak where the job page sent Advance/Balance to Staff/Operations in the share-card text.
+- **Calendar / day detail / records**: month + year, P/A/H/L/WO, job dates, team frozen at completion (`Job.teamSnapshot`), advance, fine, reward, salary paid; salary tab = basic rate, monthly calculation, slip view/download, year net / paid / balance.
+- **Team incentive**: one ₹50 TOTAL per completed job + team (`TeamIncentive`), recorded from the Job page by Admin/Accounts. Never split per person, never added to individual payroll, never linked to reviews.
+- **Salary paid / purchases / expenses**: no new ledgers. Salary payouts are Expenses in the new **Salary Paid** category linked to the staff member (picker appears in the existing Add Expense form). New categories: Salary Paid, Office Rent, Machine Repair. Purchases = Housekeeping Material / Chemicals / Equipment expense entries.
+- **Notifications (free Web Push only)**: attendance, advance, fine, reward, team incentive, new job, date/team change, important announcements. One event = one notification, tap opens the exact record, unchanged re-saves are silent. Browsers don't allow a custom push sound: Android gets a distinct Sahara vibration, the open app plays a Sahara chime. iPhone requires Add to Home Screen (iOS 16.4+).
+- **Announcements**: /admin/announcements (Admin/Accounts); only *Important* ones send a push.
+- **Management Export**: /reports/export-center (Admin/Accounts) → .xlsx per month or year: Summary, Business Summary (monthly Sales, Revenue, Purchase, Salary paid, Other, Total Expenses, Net), Sales, Revenue, Purchase, Expenses, Expenses by Category, Attendance, Salary, Salary Paid, Advance, Debit-Fine, Rewards, Team Incentives, Jobs-Team. Revenue/Net use the Profit dashboard rule (PAID payments by paid date − all expenses).
+- **Schema**: additive only, applied idempotently by `scripts/db-setup.mjs` on boot (tables TeamIncentive, Announcement; nullable Job.teamSnapshot, Review.jobId; 3 new ExpenseCategory values; per-staff date indexes).

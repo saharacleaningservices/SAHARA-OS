@@ -1229,3 +1229,61 @@ db.close();
   console.log("Quotation/Invoice status workflow + MyBillBook removal migration complete.");
   qiDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff App / Staff Portal (2026-10-04, idempotent, additive only):
+// team snapshot on Job, job link on Review, TeamIncentive, Announcement,
+// and per-staff date indexes so the portal
+// calendar/records and the month/year Export Center stay fast at 100+ staff.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const spDb = new Database(dbPath);
+  spDb.pragma("foreign_keys = ON");
+
+  function addCol(table, column, ddl) {
+    const cols = spDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) spDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  }
+
+  addCol("Job", "teamSnapshot", `"teamSnapshot" TEXT`);
+  addCol("Review", "jobId", `"jobId" TEXT`);
+
+  spDb.exec(`
+    CREATE TABLE IF NOT EXISTS "TeamIncentive" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "jobId" TEXT NOT NULL,
+      "amount" REAL NOT NULL DEFAULT 50,
+      "teamSnapshot" TEXT NOT NULL,
+      "notes" TEXT,
+      "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "recordedByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "TeamIncentive_jobId_key" ON "TeamIncentive"("jobId");
+    CREATE INDEX IF NOT EXISTS "TeamIncentive_date_idx" ON "TeamIncentive"("date");
+
+    CREATE TABLE IF NOT EXISTS "Announcement" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "title" TEXT NOT NULL,
+      "body" TEXT NOT NULL,
+      "important" BOOLEAN NOT NULL DEFAULT false,
+      "isActive" BOOLEAN NOT NULL DEFAULT true,
+      "publishedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "expiresAt" DATETIME,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "Announcement_isActive_publishedAt_idx" ON "Announcement"("isActive", "publishedAt");
+
+    CREATE INDEX IF NOT EXISTS "Advance_staffId_givenAt_idx" ON "Advance"("staffId", "givenAt");
+    CREATE INDEX IF NOT EXISTS "FineRecord_staffId_date_idx" ON "FineRecord"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "RewardRecord_staffId_date_idx" ON "RewardRecord"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "Review_jobId_idx" ON "Review"("jobId");
+    CREATE INDEX IF NOT EXISTS "Invoice_createdAt_idx" ON "Invoice"("createdAt");
+    CREATE INDEX IF NOT EXISTS "Payment_paidDate_idx" ON "Payment"("paidDate");
+    CREATE INDEX IF NOT EXISTS "Expense_staffId_category_idx" ON "Expense"("staffId", "category");
+  `);
+
+  console.log("Staff App (portal, team incentives, announcements) migration complete.");
+  spDb.close();
+}

@@ -17,6 +17,8 @@ export type PushPayload = {
   href?: string;
   critical?: boolean;
   tag?: string;
+  /** Staff App event — the service worker uses the Sahara vibration pattern + in-app chime. */
+  staffApp?: boolean;
 };
 
 async function ensureRow() {

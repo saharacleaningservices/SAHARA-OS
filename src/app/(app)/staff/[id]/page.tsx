@@ -19,6 +19,10 @@ import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { canViewSalary, canManageStaffFinancials, canManageAttendance } from "@/lib/permissions";
 import { getStaffLedger, getMonthMatrix } from "@/server/attendance";
+import { StaffAppAccessCard } from "@/components/staff/staff-app-access-card";
+import { getStaffAppAccess } from "@/server/actions/staff-app-access";
+import { startStaffPreview } from "@/server/actions/staff-preview";
+import { Smartphone } from "lucide-react";
 
 export default async function StaffDetailPage({
   params,
@@ -45,9 +49,10 @@ export default async function StaffDetailPage({
   const calMonth = Number(mStr) || now.getMonth() + 1;
   const showSalary = canViewSalary(session.role);
   const canAttendance = canManageAttendance(session.role);
-  const [ledger, matrix] = await Promise.all([
+  const [ledger, matrix, appAccess] = await Promise.all([
     showSalary ? getStaffLedger(staff.id, calYear, calMonth) : Promise.resolve(null),
     canAttendance ? getMonthMatrix(staff.id, calYear, calMonth) : Promise.resolve(null),
+    showSalary ? getStaffAppAccess(staff.id) : Promise.resolve(null),
   ]);
   const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${calYear}&month=${calMonth}`;
 
@@ -58,6 +63,13 @@ export default async function StaffDetailPage({
         description={`${staff.employeeCode} · ${staff.designation}`}
         actions={
           <>
+            {session.role === "ADMIN" && (
+              <form action={startStaffPreview.bind(null, staff.id)}>
+                <Button variant="outline" type="submit">
+                  <Smartphone className="size-3.5" /> Preview Staff App
+                </Button>
+              </form>
+            )}
             <CallButton mobile={staff.mobile} />
             <WhatsAppButton mobile={staff.mobile} />
             {showSalary && (
@@ -267,6 +279,14 @@ export default async function StaffDetailPage({
               rewardTotal={ledger.rewardTotal}
               netBalance={ledger.netBalance}
               canManage={canManageStaffFinancials(session.role)}
+            />
+          )}
+          {appAccess && (
+            <StaffAppAccessCard
+              staffId={staff.id}
+              access={appAccess}
+              canManage={session.role === "ADMIN"}
+              canApproveReset={session.role === "ADMIN" || session.role === "ACCOUNTS"}
             />
           )}
           {!canAttendance && staff.attendance.length > 0 && (

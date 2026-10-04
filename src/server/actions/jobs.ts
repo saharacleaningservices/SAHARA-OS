@@ -15,6 +15,7 @@ import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
+import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit ... only for TODAY
@@ -88,6 +89,7 @@ export async function createJob(values: unknown) {
       body: `${job.jobNumber} · ${crew.map((c) => c.name).join(", ")} · ${new Date(job.scheduledDate).toLocaleDateString("en-IN")} ${job.scheduledTime}`,
       href: `/jobs/${job.id}`,
     });
+    await notifyCrewAssigned(job.id, data.staffIds);
   }
 
   if (data.leadId) {
@@ -120,7 +122,10 @@ export async function updateJob(id: string, values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const d = parsed.data;
-  const before = await db.job.findUnique({ where: { id }, select: { scheduledDate: true, scheduledTime: true } });
+  const before = await db.job.findUnique({
+    where: { id },
+    select: { scheduledDate: true, scheduledTime: true, status: true, assignments: { select: { staffId: true, isLead: true } } },
+  });
   await db.job.update({
     where: { id },
     data: {
@@ -144,9 +149,20 @@ export async function updateJob(id: string, values: unknown) {
     },
   });
 
-  // Multi-crew assignment — replace the crew list when the form sends one.
-  if (d.staffIds !== undefined) {
-    const staffIds = [...new Set(d.staffIds.filter(Boolean))];
+  // Multi-crew assignment — replace the crew list when the form sends one,
+  // but only when it actually differs (members or lead): an unchanged crew
+  // re-saved with the form no longer re-sends the WhatsApp dispatch or any
+  // crew notification.
+  const prevIds = before?.assignments.map((a) => a.staffId) ?? [];
+  const prevLead = before?.assignments.find((a) => a.isLead)?.staffId ?? null;
+  const nextIds = d.staffIds !== undefined ? [...new Set(d.staffIds.filter(Boolean))] : prevIds;
+  const crewChanged =
+    d.staffIds !== undefined &&
+    (nextIds.length !== prevIds.length ||
+      nextIds.some((s) => !prevIds.includes(s)) ||
+      (nextIds[0] ?? null) !== prevLead);
+  if (crewChanged) {
+    const staffIds = nextIds;
     await db.jobAssignment.deleteMany({ where: { jobId: id } });
     if (staffIds.length) {
       await db.jobAssignment.createMany({
@@ -171,6 +187,19 @@ export async function updateJob(id: string, values: unknown) {
     ((d.scheduledDate && new Date(d.scheduledDate).getTime() !== before.scheduledDate.getTime()) ||
       (d.scheduledTime && d.scheduledTime !== before.scheduledTime));
   if (moved) await sendBookingChangeNotice(id, "RESCHEDULED").catch(() => {});
+
+  // Staff App — one notification per affected staff member per save.
+  if (before && (crewChanged || moved)) {
+    const added = nextIds.filter((s) => !prevIds.includes(s));
+    const removed = prevIds.filter((s) => !nextIds.includes(s));
+    const kept = nextIds.filter((s) => prevIds.includes(s));
+    const what = [moved && "Date/time changed", crewChanged && "Team changed"].filter(Boolean).join(" · ");
+    await notifyCrewAssigned(id, added);
+    await notifyCrewChanged(id, kept, what);
+    await notifyCrewRemoved(id, removed, before.scheduledDate);
+    // An office correction to a completed job's crew re-freezes the history.
+    if (crewChanged && before.status === "COMPLETED") await freezeJobTeam(id, { force: true });
+  }
 
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${id}`);
@@ -272,10 +301,13 @@ export async function updateJobStatus(jobId: string, status: JobStatus) {
   });
 
   if (status === "COMPLETED") {
+    await freezeJobTeam(jobId).catch(() => {});
     await sendJobCompletionReview(job).catch(() => {});
   }
   if (status === "CANCELLED") {
     await sendBookingChangeNotice(jobId, "CANCELLED").catch(() => {});
+    const crew = await db.jobAssignment.findMany({ where: { jobId }, select: { staffId: true } });
+    await notifyCrewChanged(jobId, crew.map((c) => c.staffId), "Job cancelled").catch(() => {});
   }
 
   revalidatePath("/jobs");
@@ -310,6 +342,7 @@ export async function completeJobWithCertificate(jobId: string) {
     where: { id: jobId },
     data: { status: "COMPLETED", completedAt: job.completedAt ?? now },
   });
+  await freezeJobTeam(jobId).catch(() => {});
 
   if (job.leadId) {
     await db.lead.update({ where: { id: job.leadId }, data: { stage: "COMPLETED" } }).catch(() => {});

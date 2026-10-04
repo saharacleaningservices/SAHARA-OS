@@ -17,6 +17,24 @@ export const strongPasswordSchema = z
   .min(6, "Use at least 6 characters")
   .max(72, "Password is too long");
 
+// Staff App PIN (owner rule 2026-10-04: simple PINs for field staff). A
+// 4–6 digit PIN, or any password of 6+ characters. Obvious PINs (all one
+// digit, 1234…) are refused since staff sign in with their public mobile.
+const WEAK_PINS = new Set(["1234", "12345", "123456", "4321", "654321", "1212", "123123"]);
+export const staffPinSchema = z
+  .string()
+  .max(72, "Too long")
+  .refine((v) => (/^\d+$/.test(v) ? v.length >= 4 && v.length <= 6 : v.length >= 6), "Use a 4–6 digit PIN")
+  .refine((v) => !(/^(\d)\1+$/.test(v) || WEAK_PINS.has(v)), "This PIN is too easy to guess — choose another");
+
+export const staffChangePinSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current PIN"),
+    newPassword: staffPinSchema,
+    confirmPassword: z.string().min(1, "Enter the new PIN again"),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, { message: "PINs do not match", path: ["confirmPassword"] });
+
 export const LEAD_SOURCES = [
   "CALL",
   "WHATSAPP",
@@ -130,6 +148,9 @@ export const expenseSchema = z.object({
     "BIKE_SERVICE",
     "STAFF_ADVANCE",
     "VENDOR_PAYMENT",
+    "SALARY",
+    "OFFICE_RENT",
+    "MACHINE_REPAIR",
     "MISCELLANEOUS",
     "CHEMICALS",
     "BACK_OFFICE",

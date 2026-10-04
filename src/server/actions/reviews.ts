@@ -23,8 +23,21 @@ export async function createReview(values: unknown) {
   }
   const data = parsed.data;
 
+  // Best-effort attribution to the customer's most recent completed job (and
+  // so its team) — informational only; Google gives no reliable confirmation
+  // and no incentive depends on a review.
+  const digits = data.customerMobile.replace(/\D/g, "").slice(-10);
+  const lastJob = digits.length === 10
+    ? await db.job.findFirst({
+        where: { customerMobile: { contains: digits }, status: "COMPLETED", deletedAt: null },
+        orderBy: { completedAt: "desc" },
+        select: { id: true },
+      })
+    : null;
+
   await db.review.create({
     data: {
+      jobId: lastJob?.id ?? null,
       customerMobile: data.customerMobile,
       customerName: data.customerName || null,
       rating: data.rating,

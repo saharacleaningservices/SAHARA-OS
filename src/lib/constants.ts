@@ -557,6 +557,9 @@ export const EXPENSE_CATEGORIES = [
   "BIKE_SERVICE",
   "STAFF_ADVANCE",
   "VENDOR_PAYMENT",
+  "SALARY",
+  "OFFICE_RENT",
+  "MACHINE_REPAIR",
   "MISCELLANEOUS",
 ] as const;
 
@@ -571,11 +574,21 @@ export const EXPENSE_CATEGORY_LABELS: Record<string, string> = {
   BIKE_SERVICE: "Bike Service",
   STAFF_ADVANCE: "Staff Advance",
   VENDOR_PAYMENT: "Vendor Payment",
+  SALARY: "Salary Paid",
+  OFFICE_RENT: "Office Rent",
+  MACHINE_REPAIR: "Machine Repair",
   MISCELLANEOUS: "Miscellaneous",
   // legacy
   CHEMICALS: "Chemicals (legacy)",
   BACK_OFFICE: "Back Office (legacy)",
 };
+
+/**
+ * Manual purchase entries — the Expense categories the Export Center reports
+ * as "Purchase" (there is no separate purchase ledger). Every expense,
+ * purchases included, counts once in Total Expenses.
+ */
+export const PURCHASE_EXPENSE_CATEGORIES = ["HOUSEKEEPING_MATERIAL", "CHEMICALS", "EQUIPMENT"] as const;
 
 export const EXPENSE_CATEGORY_OPTIONS = EXPENSE_CATEGORIES.map((value) => ({
   value,
@@ -656,6 +669,7 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "reports",
           "assistant",
           "admin",
+          "announcements", // nav visibility for /admin/announcements (Staff App announcements)
           "whatsapp-log",
           "trash",
           "profile",
@@ -679,7 +693,8 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   SUPERVISOR: ["dashboard", "leads", "jobs", "staff", "vehicles", "attendance", "profile"],
   // Field Staff (Worker): mobile-only — mark attendance, see assigned jobs,
   // upload before/after photos & videos, open Maps.
-  STAFF: ["dashboard", "jobs", "profile", "attendance"],
+  // "my" = the Staff App (/my) — own records only, see src/server/staff-portal.ts.
+  STAFF: ["dashboard", "jobs", "profile", "attendance", "my"],
 };
 
 export function canAccess(role: string, section: string) {
@@ -756,8 +771,15 @@ export const FINE_TYPES = [
   "Before/After Photo Missing",
 ] as const;
 
+// "Five-Star Review" removed from new entries (2026-10-04 owner rule: no
+// incentive may depend on a positive/star Google review). Historical rows
+// keep their type text. The ₹50 team incentive is recorded per job from the
+// Job page (see src/server/actions/team-incentive.ts), never here.
 export const REWARD_TYPES = [
   "On-Time",
-  "Five-Star Review",
   "Zero Complaints (Month)",
+  "Customer Appreciation",
 ] as const;
+
+/** ₹50 TOTAL team incentive per eligible (completed) job — recorded for the team, never split per person. */
+export const TEAM_INCENTIVE_AMOUNT = 50;

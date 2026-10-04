@@ -20,9 +20,11 @@ import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { JobCardActions } from "@/components/jobs/job-card-actions";
 import { EmptyState } from "@/components/shared/empty-state";
-import { canViewRevenue } from "@/lib/permissions";
+import { canViewRevenue, canManageStaffFinancials } from "@/lib/permissions";
+import { TeamIncentiveCard } from "@/components/jobs/team-incentive-card";
+import { db } from "@/lib/db";
 import { formatINR, formatDate, formatDateTime, toTelLink, toWhatsAppLink } from "@/lib/utils";
-import { SERVICE_LABELS } from "@/lib/constants";
+import { SERVICE_LABELS, TEAM_INCENTIVE_AMOUNT } from "@/lib/constants";
 import { jobCardMessage } from "@/lib/whatsapp-templates";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
@@ -46,10 +48,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   // Job value, advance, balance, invoices — owner + Accounts only. Francis
   // and field roles get job information without any money figures.
   const showMoney = canViewRevenue(session.role);
-  const [vehicles, { googleMaps }, settings] = await Promise.all([
+  const canIncentive = canManageStaffFinancials(session.role);
+  const [vehicles, { googleMaps }, settings, teamIncentive] = await Promise.all([
     canManage ? getVehiclesForAssignment() : Promise.resolve([]),
     getResolvedIntegrations(),
     getCompanySettings(),
+    canIncentive ? db.teamIncentive.findUnique({ where: { jobId: job.id } }) : Promise.resolve(null),
   ]);
   const paymentDetails = {
     upiId: settings.upiId ?? null,
@@ -83,9 +87,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     team: job.teamNumber,
     crew: job.assignments.map((a) => a.staff.name),
     supervisor: job.supervisor?.name ?? null,
-    paymentStatus,
-    advance,
-    balance,
+    // Money only for roles that may see it — this text is sent to the client
+    // as a prop, so hiding it in the UI alone would still leak it to Staff/Operations.
+    paymentStatus: showMoney ? paymentStatus : null,
+    advance: showMoney ? advance : null,
+    balance: showMoney ? balance : null,
     notes: job.notes,
   } as const;
   const officeCardText = jobCardMessage({ ...cardBase, audience: "office" });
@@ -320,6 +326,25 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </div>
 
         <div className="space-y-4">
+          {canIncentive && (
+            <TeamIncentiveCard
+              jobId={job.id}
+              completed={job.status === "COMPLETED"}
+              teamSize={job.assignments.length}
+              amount={TEAM_INCENTIVE_AMOUNT}
+              canReverse={session.role === "ADMIN"}
+              incentive={
+                teamIncentive
+                  ? {
+                      amount: teamIncentive.amount,
+                      date: teamIncentive.date,
+                      recordedByName: teamIncentive.recordedByName,
+                      team: JSON.parse(teamIncentive.teamSnapshot) as { name: string }[],
+                    }
+                  : null
+              }
+            />
+          )}
           <JobLogisticsCard
             jobId={job.id}
             mapLink={job.mapLink}

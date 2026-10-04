@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Lock, Smartphone, ShieldCheck, XCircle } from "lucide-react";
+import { Loader2, Lock, Smartphone, ShieldCheck, XCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ export function LoginForm({ next }: { next?: string }) {
   const [loading, setLoading] = useState(false);
   const [pendingApproval, setPendingApproval] = useState(false);
   const [denied, setDenied] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const {
@@ -129,6 +130,9 @@ export function LoginForm({ next }: { next?: string }) {
               type="text"
               inputMode="tel"
               autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               placeholder="10-digit mobile number"
               className="pl-8"
               {...register("loginId")}
@@ -141,7 +145,23 @@ export function LoginForm({ next }: { next?: string }) {
           <Label htmlFor="password">Password</Label>
           <div className="relative">
             <Lock className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="password" type="password" placeholder="••••••••" className="pl-8" {...register("password")} />
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="Password or PIN"
+              className="pl-8 pr-10"
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-1 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
           </div>
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
@@ -154,6 +174,12 @@ export function LoginForm({ next }: { next?: string }) {
             Forgot password?
           </Link>
         </div>
+        <p className="text-center text-xs text-muted-foreground">
+          Field staff forgot PIN?{" "}
+          <Link href="/staff-reset" className="font-medium text-primary hover:underline">
+            Request a reset
+          </Link>
+        </p>
 
         {denied && (
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">

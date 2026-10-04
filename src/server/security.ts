@@ -195,7 +195,8 @@ export async function confirmPasswordOtp(otpId: string, code: string) {
 /** Open (unconsumed, unexpired) OTPs — shown to the admin as a relay list. */
 export async function getOpenSecurityOtps() {
   return db.securityOtp.findMany({
-    where: { consumedAt: null, expiresAt: { gt: new Date() } },
+    // Staff App PIN-reset requests are approved from the staff record, not relayed as OTP codes.
+    where: { consumedAt: null, expiresAt: { gt: new Date() }, purpose: { not: "STAFF_PIN_RESET" } },
     orderBy: { createdAt: "desc" },
   });
 }

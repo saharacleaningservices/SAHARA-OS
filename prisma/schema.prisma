@@ -87,6 +87,9 @@ enum ExpenseCategory {
   STAFF_ADVANCE
   VENDOR_PAYMENT
   MISCELLANEOUS
+  SALARY // salary paid out — link the staff member (Expense.staffId)
+  OFFICE_RENT
+  MACHINE_REPAIR
   // legacy — kept so historical rows still deserialize
   CHEMICALS
   BACK_OFFICE
@@ -650,6 +653,12 @@ model Job {
   customerSignatureUrl String?
   signedAt             DateTime?
 
+  // Frozen crew at completion — JSON [{staffId, name, employeeCode, isLead}].
+  // The Staff Portal calendar reads this first, so a completed job always
+  // shows the team exactly as it was on that day, even if the crew is
+  // edited, a staff record is renamed or soft-deleted later.
+  teamSnapshot String?
+
   mapLink   String?
   vehicleId String?
   vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
@@ -758,6 +767,7 @@ model Payment {
 
   @@index([status])
   @@index([dueDate])
+  @@index([paidDate])
 }
 
 model Expense {
@@ -785,6 +795,7 @@ model Expense {
 
   @@index([category])
   @@index([date])
+  @@index([staffId, category])
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -914,7 +925,13 @@ model Review {
   repliedAt      DateTime?
   replyNote      String?
 
+  // Best-effort attribution: the customer's most recent completed job at the
+  // time the review was logged (matched by mobile). Google gives no reliable
+  // confirmation, so this is informational only — never a payroll input.
+  jobId          String?
+
   @@index([customerMobile])
+  @@index([jobId])
   @@index([replied])
 }
 
@@ -1089,6 +1106,7 @@ model Advance {
   createdAt   DateTime @default(now())
 
   @@index([staffId])
+  @@index([staffId, givenAt])
 }
 
 model FineRecord {
@@ -1103,6 +1121,7 @@ model FineRecord {
   createdAt      DateTime @default(now())
 
   @@index([staffId])
+  @@index([staffId, date])
 }
 
 model RewardRecord {
@@ -1117,6 +1136,39 @@ model RewardRecord {
   createdAt      DateTime @default(now())
 
   @@index([staffId])
+  @@index([staffId, date])
+}
+
+// ₹50 TEAM incentive — one TOTAL amount recorded against one Job + the team
+// that was assigned to it. Never split into individual shares and never
+// written to any individual's payroll (owner rule, 2026-10-04 scope lock).
+// Not tied to a Google review or star rating.
+model TeamIncentive {
+  id             String   @id @default(cuid())
+  jobId          String   @unique // one team incentive per job
+  amount         Float    @default(50)
+  teamSnapshot   String // JSON [{staffId, name, isLead}] — the team as on the job
+  notes          String?
+  date           DateTime @default(now())
+  recordedByName String?
+  createdAt      DateTime @default(now())
+
+  @@index([date])
+}
+
+// Company announcements published from the CRM and shown in the Staff App.
+model Announcement {
+  id            String    @id @default(cuid())
+  title         String
+  body          String
+  important     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  publishedAt   DateTime  @default(now())
+  expiresAt     DateTime?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+
+  @@index([isActive, publishedAt])
 }
 
 // CRM-native invoice document — Sahara OS's own billing record, generated
@@ -1149,6 +1201,7 @@ model Invoice {
 
   @@index([jobId])
   @@index([status])
+  @@index([createdAt])
 }
 
 enum InvoiceStatus {
@@ -1298,7 +1351,7 @@ model Notification {
   id        String    @id @default(cuid())
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kind      String // NEW_BOOKING | NEW_INQUIRY | PAYMENT_RECEIVED | FOLLOWUP_DUE | STALE_LEAD | SITE_VISIT | CREW_UPDATE | DEVICE_LOGIN | PASSWORD_OTP | APPROVAL_REQUEST | LOGIN_ATTEMPT | LOGIN_ID_RECOVERY
+  kind      String // NEW_BOOKING | NEW_INQUIRY | PAYMENT_RECEIVED | FOLLOWUP_DUE | STALE_LEAD | SITE_VISIT | CREW_UPDATE | DEVICE_LOGIN | PASSWORD_OTP | APPROVAL_REQUEST | LOGIN_ATTEMPT | LOGIN_ID_RECOVERY | Staff App: STAFF_ATTENDANCE | STAFF_ADVANCE | STAFF_FINE | STAFF_REWARD | STAFF_JOB_ASSIGNED | STAFF_JOB_CHANGED | ANNOUNCEMENT | STAFF_PIN_RESET
   title     String
   body      String?
   href      String?

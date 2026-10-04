@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { COMPANY } from "@/lib/constants";
@@ -50,6 +51,12 @@ export default async function ForgotPasswordPage() {
             </p>
           </div>
           <ForgotPasswordForm />
+          <p className="text-center text-xs text-muted-foreground">
+            Field staff (Staff App)?{" "}
+            <Link href="/staff-reset" className="font-medium text-primary hover:underline">
+              Reset your PIN here
+            </Link>
+          </p>
         </div>
       </div>
     </div>

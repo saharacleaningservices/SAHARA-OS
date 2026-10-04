@@ -35,6 +35,7 @@ const PUBLIC_PATHS = [
   "/login",
   "/forgot-password",
   "/forgot-login-id",
+  "/staff-reset",
   "/privacy-policy",
   "/terms",
   "/data-deletion",
@@ -83,7 +84,8 @@ function isStaticAssetPath(pathname: string): boolean {
     // /login, so they can never be gated behind a session.
     pathname === "/icon.svg" ||
     pathname === "/apple-icon" ||
-    pathname === "/manifest.webmanifest"
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/staff.webmanifest"
   );
 }
 

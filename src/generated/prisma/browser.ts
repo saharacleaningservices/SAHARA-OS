@@ -203,6 +203,16 @@ export type FineRecord = Prisma.FineRecordModel
  */
 export type RewardRecord = Prisma.RewardRecordModel
 /**
+ * Model TeamIncentive
+ * 
+ */
+export type TeamIncentive = Prisma.TeamIncentiveModel
+/**
+ * Model Announcement
+ * 
+ */
+export type Announcement = Prisma.AnnouncementModel
+/**
  * Model Invoice
  * 
  */

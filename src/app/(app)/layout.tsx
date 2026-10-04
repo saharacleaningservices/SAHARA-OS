@@ -13,7 +13,8 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     where: { id: session.sub },
     select: { mustChangePassword: true },
   });
-  if (account?.mustChangePassword) redirect("/set-password");
+  // Field Staff keep their office-issued PIN until they choose to change it (Staff App rule).
+  if (account?.mustChangePassword && session.role !== "STAFF") redirect("/set-password");
 
   return (
     <AppShell name={session.name} role={session.role} logoUrl={settings.logoUrl}>
