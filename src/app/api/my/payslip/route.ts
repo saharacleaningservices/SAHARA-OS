@@ -5,7 +5,7 @@ import { getStaffLedger } from "@/server/attendance";
 import { getMyStaff } from "@/server/staff-portal";
 import { getCompanySettings } from "@/server/settings";
 import { PayslipDocument } from "@/lib/pdf/payslip-document";
-import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
+import { resolveBrandLogoDataUrl, publicFileToDataUrl } from "@/lib/pdf/file-to-data-url";
 import { formatINR } from "@/lib/utils";
 
 export const runtime = "nodejs";
@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
   const s = ledger.staff;
 
   const settings = await getCompanySettings();
-  const logoDataUrl = await resolveBrandLogoDataUrl(settings.logoUrl);
+  // Salary slips use the original high-resolution Sahara wordmark (sharp in print).
+  const logoDataUrl = (await publicFileToDataUrl("/brand/sahara-logo-hires.png")) ?? (await resolveBrandLogoDataUrl(settings.logoUrl));
   const monthLabel = new Date(year, month - 1, 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" });
   const daysInMonth = new Date(year, month, 0).getDate();
   const absentDays = ledger.attendance.filter((a) => a.status === "ABSENT").length;
