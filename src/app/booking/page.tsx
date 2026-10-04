@@ -18,6 +18,20 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     description: "Book home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC: transparent prices, real available slots, pay advance or after service. Festival cleaning slots for Navratri, Dussehra and Diwali.",
     alternates: { canonical: `${BASE_URL}/booking` },
     robots: quote ? { index: false, follow: false } : undefined,
+    openGraph: {
+      title: "Book Professional Cleaning in Pune & PCMC — Sahara Cleaning Services",
+      description: "Home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC. Transparent prices, real available slots, pay advance or after service.",
+      url: `${BASE_URL}/booking`,
+      siteName: "Sahara Cleaning Services",
+      images: [`${BASE_URL}/marketing/hero-home.webp`],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Book Professional Cleaning in Pune & PCMC — Sahara Cleaning Services",
+      description: "Transparent prices, real available slots, pay advance or after service.",
+      images: [`${BASE_URL}/marketing/hero-home.webp`],
+    },
   };
 }
 

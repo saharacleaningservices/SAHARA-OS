@@ -11,6 +11,7 @@ import { CONTACT, EQUIPMENT, TERMS, inr, type Pkg } from "@/lib/marketing-conten
 import { SERVICE_AREA_NOTICE } from "@/lib/pricing-master";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
 import { toWhatsAppLink } from "@/lib/utils";
+import { COMPANY } from "@/lib/constants";
 
 // Building blocks for the public marketing landing pages (/offers, /booking
 // and the four service pages). Server components; all SEO text is real HTML.
@@ -99,6 +100,10 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
             <a href={`tel:+91${CONTACT.call[0]}`} className="inline-flex items-center gap-1.5 text-primary"><Phone className="size-3.5" />{CONTACT.call[0]}</a>
             <a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-1.5 text-primary"><Mail className="size-3.5" />{CONTACT.email}</a>
           </div>
+          <address className="mt-2 not-italic">
+            <span className="inline-flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" />{CONTACT.address}</span>
+            <span className="mt-0.5 block text-[11px] text-[#0a2540]/55">GSTIN: {COMPANY.gstin}</span>
+          </address>
           <nav aria-label="Services" className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1.5">
             {SERVICE_LINKS.map((s) => <Link key={s.href} href={s.href} className="hover:text-primary">{s.label.replace(" Pune", "")}</Link>)}
             <Link href="/booking" className="font-semibold text-primary">Book Online</Link>
