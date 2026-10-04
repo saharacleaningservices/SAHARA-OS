@@ -6,6 +6,7 @@ import { getMyDay, parseIsoDay, toIsoDay } from "@/server/staff-portal";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { Section, StatusChip, EmptyNote, JOB_STATUS_LABEL } from "@/components/staff-app/ui";
+import { PackageScopeCard } from "@/components/shared/package-scope-card";
 
 export const dynamic = "force-dynamic";
 
@@ -83,8 +84,41 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                 </div>
                 <div className="flex items-start gap-2 text-sm">
                   <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                  <span>{j.address ? `${j.customerName ? `${j.customerName} — ` : ""}${j.address}` : j.area}</span>
+                  <span>
+                    <b>{j.customerName}</b> — {j.address}
+                    {" "}
+                    <a
+                      href={j.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(j.address)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="whitespace-nowrap font-medium text-primary"
+                    >
+                      Open map
+                    </a>
+                  </span>
                 </div>
+                <div className="rounded-lg bg-muted/60 px-2.5 py-1.5 text-sm">
+                  <span className="text-muted-foreground">Package: </span>
+                  <b>{j.packageName || j.serviceVariant || "As per office notes"}</b>
+                  {j.packageName && j.serviceVariant ? <span className="text-muted-foreground"> · {j.serviceVariant}</span> : null}
+                </div>
+                <PackageScopeCard service={j.service} packageName={j.packageName} serviceVariant={j.serviceVariant} />
+                {j.comboServices.length > 0 && (
+                  <div className="text-sm">
+                    <div className="text-xs font-semibold uppercase text-primary">Services included</div>
+                    <ul className="mt-1 list-disc pl-5">
+                      {j.comboServices.map((c) => (
+                        <li key={c}>{c}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {j.notes && (
+                  <div className="text-sm">
+                    <div className="text-xs font-semibold uppercase text-primary">Office notes / scope / extras</div>
+                    <p className="mt-1 whitespace-pre-line">{j.notes}</p>
+                  </div>
+                )}
                 <div className="flex items-start gap-2 text-sm">
                   <Users className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <div className="space-y-1">

@@ -124,6 +124,12 @@ export default async function StaffHomePage() {
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="size-4 text-muted-foreground" /> {j.scheduledTime}
                 </div>
+                {(j.packageName || j.serviceVariant) && (
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">Package: </span>
+                    <b>{j.packageName || j.serviceVariant}</b>
+                  </div>
+                )}
                 <div className="flex items-start gap-2 text-sm">
                   <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <span>
@@ -140,6 +146,12 @@ export default async function StaffHomePage() {
                     </div>
                   </div>
                 </div>
+                <Link
+                  href={`/my/day/${toIsoDay(j.scheduledDate)}#job-${j.id}`}
+                  className="flex min-h-11 items-center justify-center rounded-xl border border-primary/40 bg-accent text-sm font-medium text-accent-foreground"
+                >
+                  Scope of work &amp; what’s not included
+                </Link>
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
                     href={j.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(j.address)}`}

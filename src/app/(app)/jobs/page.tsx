@@ -16,7 +16,7 @@ export default async function JobsPage() {
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
   // Francis (OPERATIONS) must never see customer mobile numbers — 2026-09-25
   // field-only policy. Call/WhatsApp buttons on the jobs table read this.
-  const canSeeCustomerContact = session.role !== "OPERATIONS";
+  const canSeeCustomerContact = session.role !== "OPERATIONS" && session.role !== "STAFF";
   const [jobs, staffOptions, stats] = await Promise.all([
     getAllJobsForList(session),
     getStaffForAssignment(),
@@ -27,6 +27,9 @@ export default async function JobsPage() {
   const listJobs = showRevenue
     ? jobs
     : jobs.map((j) => ({ ...j, jobValue: 0, payments: j.payments.map((p) => ({ ...p, amount: 0, paidAmount: 0 })) }));
+  // Field Staff never receive customer phone numbers (Staff App rule), not even in the payload.
+  const visibleJobs =
+    session.role === "STAFF" ? listJobs.map((j) => ({ ...j, customerMobile: "", alternateMobile: null })) : listJobs;
 
   const scopeNote =
     session.role === "OPERATIONS"
@@ -76,7 +79,7 @@ export default async function JobsPage() {
         </div>
       )}
 
-      <JobsExplorer jobs={listJobs} canManage={canManage} canSeeCustomerContact={canSeeCustomerContact} showMoney={showRevenue} />
+      <JobsExplorer jobs={visibleJobs} canManage={canManage} canSeeCustomerContact={canSeeCustomerContact} showMoney={showRevenue} />
     </div>
   );
 }

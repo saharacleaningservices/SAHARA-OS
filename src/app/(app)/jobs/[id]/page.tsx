@@ -44,7 +44,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   // Francis (OPERATIONS) must never see customer mobile numbers — 2026-09-25
   // field-only policy. Deliberately separate from canManage, which still
   // covers his other job actions (vehicle assignment, review/payment links).
-  const canSeeCustomerContact = session.role !== "OPERATIONS";
+  // Field Staff never see customer phone numbers either (Staff App rule) — they reach the customer via the office.
+  const canSeeCustomerContact = session.role !== "OPERATIONS" && session.role !== "STAFF";
   // Job value, advance, balance, invoices — owner + Accounts only. Francis
   // and field roles get job information without any money figures.
   const showMoney = canViewRevenue(session.role);

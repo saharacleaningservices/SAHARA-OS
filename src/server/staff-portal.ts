@@ -174,6 +174,7 @@ export async function getPortalHome(staff: MyStaff) {
     jobNumber: j.jobNumber,
     service: j.service,
     serviceVariant: j.serviceVariant,
+    packageName: j.packageName,
     scheduledDate: j.scheduledDate,
     scheduledTime: j.scheduledTime,
     status: j.status,
@@ -320,7 +321,6 @@ export async function getMyDay(staffId: string, day: Date) {
   from.setHours(0, 0, 0, 0);
   const to = new Date(from);
   to.setDate(to.getDate() + 1);
-  const isUpcoming = from >= startOfToday();
 
   const [attendance, jobs, advances, fines, rewards, payments] = await Promise.all([
     db.attendance.findFirst({
@@ -330,7 +330,8 @@ export async function getMyDay(staffId: string, day: Date) {
     db.job.findMany({
       where: myJobsWhere(staffId, from, to),
       orderBy: { scheduledTime: "asc" },
-      select: { ...JOB_STAFF_SELECT, address: true, mapLink: true, customerName: true },
+      // Scope + site details for the crew. Never customerMobile / jobValue.
+      select: { ...JOB_STAFF_SELECT, address: true, mapLink: true, customerName: true, comboServices: true, notes: true },
     }),
     db.advance.findMany({ where: { staffId, givenAt: { gte: from, lt: to } }, orderBy: { givenAt: "asc" }, select: { id: true, amount: true, reason: true, givenAt: true } }),
     db.fineRecord.findMany({ where: { staffId, date: { gte: from, lt: to } }, orderBy: { date: "asc" }, select: { id: true, type: true, amount: true, notes: true, date: true } }),
@@ -361,10 +362,11 @@ export async function getMyDay(staffId: string, day: Date) {
       scheduledTime: j.scheduledTime,
       status: j.status,
       area: j.area,
-      // Full address / customer name only for today & upcoming work.
-      address: isUpcoming ? j.address : null,
-      mapLink: isUpcoming ? j.mapLink : null,
-      customerName: isUpcoming ? j.customerName : null,
+      address: j.address,
+      mapLink: j.mapLink,
+      customerName: j.customerName,
+      comboServices: parseList(j.comboServices),
+      notes: j.notes,
       teamNumber: j.teamNumber,
       supervisorName: j.supervisor?.name ?? null,
       team: teamOf(j, staffId),
@@ -456,6 +458,16 @@ function salaryPaidWhere(staffId: string, from: Date, to: Date, order: "asc" | "
     orderBy: { date: order },
     select: { id: true, amount: true, date: true, description: true },
   });
+}
+
+function parseList(json: string | null): string[] {
+  if (!json) return [];
+  try {
+    const v = JSON.parse(json);
+    return Array.isArray(v) ? v.map(String).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
 }
 
 function round2(n: number) {
