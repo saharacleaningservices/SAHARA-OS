@@ -5,12 +5,34 @@ import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate, formatINR } from "@/lib/utils";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
-export const metadata = { title: "Your Booking — Sahara Cleaning Services" };
+export const metadata = { title: "Your Booking — Sahara Cleaning Services", robots: { index: false, follow: false } };
 
-export default async function PublicJobConfirmationPage({ params }: { params: Promise<{ jobNumber: string }> }) {
+export default async function PublicJobConfirmationPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ jobNumber: string }>;
+  searchParams: Promise<{ t?: string }>;
+}) {
   const { jobNumber } = await params;
+  const { t } = await searchParams;
   const data = await getPublicJobSummary(jobNumber);
   if (!data) notFound();
+  // Job numbers are sequential and guessable, so customer data is shown only
+  // with the booking's unguessable token (?t=). Without it: no data at all.
+  if (!t || !data.job.publicToken || t !== data.job.publicToken) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-sm space-y-3 rounded-xl border border-border bg-card p-6 text-center">
+          <h1 className="text-lg font-semibold text-foreground">Open your booking link</h1>
+          <p className="text-sm text-muted-foreground">
+            For your privacy, please open the booking link from your latest WhatsApp message from {COMPANY.name}, or call us on{" "}
+            {COMPANY.phones.join(" / ")}.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const { job, googleReviewUrl, offer, referralCode, balanceDue, payment } = data;
   const before = job.photos.filter((p) => p.type === "BEFORE");

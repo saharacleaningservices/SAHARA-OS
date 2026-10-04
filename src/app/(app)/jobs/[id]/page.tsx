@@ -151,11 +151,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 </a>
               </Button>
             )}
-            <Button variant="outline" size="sm" asChild>
-              <a href={`/j/${job.jobNumber}`} target="_blank" rel="noreferrer">
-                <ExternalLink className="size-3.5" /> Customer Page
-              </a>
-            </Button>
+            {job.publicToken && (
+              <Button variant="outline" size="sm" asChild>
+                <a href={`/j/${job.jobNumber}?t=${job.publicToken}`} target="_blank" rel="noreferrer">
+                  <ExternalLink className="size-3.5" /> Customer Page
+                </a>
+              </Button>
+            )}
           </>
         }
       />
