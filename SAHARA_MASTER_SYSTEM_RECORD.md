@@ -71,16 +71,16 @@ Code: `src/lib/whatsapp-cloud-templates.ts`, sender `src/server/booking-messages
 
 ## 3. Environment variables (Coolify → Sahara OS app → Environment)
 
-Values are **never** written here. Status as of 2026-10-04 is "owner to set" unless noted.
+Values are **never** written here. Status as of 2026-10-04 22:00 IST (production redeployed with these at ~21:45 IST; CRM Settings shows **WhatsApp Cloud API: Connected · env**).
 
 | Variable | Secret? | Value / purpose | Status |
 |---|---|---|---|
-| `WHATSAPP_ACCESS_TOKEN` | **SECRET** | System-user permanent token (Sahara OS API) | Owner to generate + set |
-| `WHATSAPP_APP_SECRET` | **SECRET** | Meta App 1569646490957820 → App settings → Basic → App Secret (verifies webhook signatures) | Owner to set |
-| `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | **SECRET** | Any long random string; same value pasted in Meta webhook config | Owner to set |
-| `WHATSAPP_PHONE_NUMBER_ID` | no | `1278812171990562` | Owner to set |
-| `WHATSAPP_BUSINESS_ACCOUNT_ID` | no | `1629093895673046` | Owner to set |
-| `WHATSAPP_USE_TEMPLATES` | no | `on` — booking messages use approved templates | Owner to set |
+| `WHATSAPP_ACCESS_TOKEN` | **SECRET** | System-user permanent token (Sahara OS API) | **SET by Altaf** (Coolify) |
+| `WHATSAPP_APP_SECRET` | **SECRET** | Meta App 1569646490957820 → App settings → Basic → App Secret (verifies webhook signatures) | **SET by Altaf** (Coolify) |
+| `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | **SECRET** | Any long random string; same value pasted in Meta webhook config | **NOT SET — Altaf** |
+| `WHATSAPP_PHONE_NUMBER_ID` | no | `1278812171990562` | **SET** 2026-10-04 |
+| `WHATSAPP_BUSINESS_ACCOUNT_ID` | no | `1629093895673046` | **SET** 2026-10-04 |
+| `WHATSAPP_USE_TEMPLATES` | no | `on` — booking messages use approved templates | **SET** 2026-10-04 |
 | `WHATSAPP_BOOKING_CHANGE_NOTICES` | no | `on` only if customers should get reschedule/cancel notices | Optional |
 | `WHATSAPP_CAMPAIGNS` | no | **leave unset/OFF** — live festival sends blocked | OFF |
 | `WHATSAPP_AUTO_REPLIES` | no | **leave unset/OFF** — no automatic replies to inbound messages | OFF |
@@ -150,14 +150,19 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 | Customer booking page content | PASS (local); live after deploy |
 | Webhook endpoint live, wrong token rejected | PASS |
 | Template/button mapping vs approved Meta template | PASS |
-| WhatsApp production send/receive | **NOT RUN** — waiting for owner secrets (§8) |
+| Coolify env (5 of 6 WhatsApp vars) + redeploy | DONE 2026-10-04 ~21:45 IST |
+| CRM WhatsApp status | Connected · env |
+| Meta webhook registration | **PENDING** — needs verify token (Altaf) |
+| WhatsApp production send/receive (QA test) | **NOT RUN** — QA button needs a browser confirm; run by Altaf after the queue decision (§8) |
 
 ---
 
 ## 8. Remaining manual steps (Altaf only — secrets / payment)
 
-1. **Meta → Business Settings → System users → "Sahara OS API" → Generate token**: app 1569646490957820; permissions `whatsapp_business_messaging` + `whatsapp_business_management` only; expiry **Never**. Copy it straight into Coolify (step 2). Do not paste it anywhere else.
-2. **Coolify → Sahara OS → Environment**: set the variables in §3 (three secrets + `WHATSAPP_PHONE_NUMBER_ID=1278812171990562`, `WHATSAPP_BUSINESS_ACCOUNT_ID=1629093895673046`, `WHATSAPP_USE_TEMPLATES=on`). Leave CAMPAIGNS / AUTO_REPLIES / AI unset. **Redeploy.**
+**0. URGENT — stale WhatsApp queue (decide before 09:00 IST daily cron):** CRM → Admin → Message Log shows **192 pending** queued messages created while WhatsApp was offline (customer 44, staff/team 102, OTP/security 42, other 4) — old OTP codes, repeated attendance summaries, past booking confirmations. With credentials now live, the 09:00 IST cron (or Settings → *Save & Connect*) will send them. Recommended: Message Log → **Cancel stale queue** (marks them CANCELLED, keeps the rows, audit-logged). Do **not** press *Save & Connect* in Settings before deciding (it flushes the queue).
+
+1. ~~Generate token~~ (DONE by Altaf). **Meta → Business Settings → System users → "Sahara OS API" → Generate token**: app 1569646490957820; permissions `whatsapp_business_messaging` + `whatsapp_business_management` only; expiry **Never**. Copy it straight into Coolify (step 2). Do not paste it anywhere else.
+2. **Coolify → Sahara OS → Environment**: only `WHATSAPP_WEBHOOK_VERIFY_TOKEN` is still missing (others done) — add it, then **Redeploy**. Original note: set the variables in §3 (three secrets + `WHATSAPP_PHONE_NUMBER_ID=1278812171990562`, `WHATSAPP_BUSINESS_ACCOUNT_ID=1629093895673046`, `WHATSAPP_USE_TEMPLATES=on`). Leave CAMPAIGNS / AUTO_REPLIES / AI unset. **Redeploy.**
 3. **Meta App → WhatsApp → Configuration → Webhook**: Callback `https://crm.saharacleaningservices.com/api/webhooks/whatsapp`, Verify token = same value as step 2 → *Verify and save* → subscribe **messages**.
 4. **Payment method**: if Meta asks, add it yourself in Business Settings → Billing / WhatsApp Manager → Payment configurations. (Not done by Claude by instruction.)
 5. **Go-live test**: CRM → Marketing → WhatsApp → *Send test booking* → 9921215250 only; reply from that phone and confirm it appears in CRM → WhatsApp Inbox. Then create one test booking for that number and confirm the booking-confirmation message + View Booking link.
