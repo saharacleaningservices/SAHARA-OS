@@ -172,6 +172,8 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 
 ---
 
+**Registration status (2026-10-05):** WhatsApp Manager shows +91 9175220270 = **Pending** (not registered); Two-step verification = **OFF** ("Turn on"). 3 registration PIN attempts failed (2026-10-04/05) — Meta temporarily blocks PIN attempts after repeated failures. **Do not retry registration until the block clears (wait 12–24 h).** Single next action (Altaf): WhatsApp Manager → Phone numbers → +91 9175220270 → ⚙ → *Two-step verification* → **Turn on** → set a NEW 6-digit PIN (password manager only), then register the number once using that same PIN. If Meta still rejects it, use *Forgot PIN / reset* there or contact Meta Business Support; do not guess repeatedly.
+
 **NEXT (Altaf) — register the number:** Meta for Developers → app 1569646490957820 → WhatsApp → Step 2 *Production setup* → **Register your WhatsApp phone number** (or WhatsApp Manager → Phone numbers → +91 9175220270). Choose a 6-digit two-step-verification PIN (keep it secret, store it only in your password manager); enter any SMS/voice code Meta sends. Then **Add payment** if Meta asks. Then CRM → Marketing → **QA test** (click OK) to 9921215250 and reply from that phone; confirm it appears in CRM → WhatsApp Inbox.
 
 ## 9. Maintenance
