@@ -190,3 +190,17 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 - Google Ads 892-332-3597: only user = owner (admin). Manager link **Brand Make Digital Marketing Solution (898-956-9172)**, not owner; conversions are account-owned (no cross-account tracking); Google says the account keeps serving after unlink. Unlink was blocked at a Google **passkey "Confirm it's you"** step → owner must finish: Admin → Access and security → Managers → Remove access → Unlink → passkey.
 - Meta Business 152082702561104: partner **Brand Make + Partners (980500526587392)** has full access to FB Page + Instagram, AND **owns the only ad account "Sahara Cleaning Services" (1065166308165456)**, which is shared to Sahara. Removing the partner would cut Sahara's ad access and stop ads. Nothing changed. Plan: create a Sahara-owned ad account (add payment method, connect pixel/dataset), move campaigns over, then remove Brand Make's Page/IG access and the partner.
 - WhatsApp +91 9175220270: still Pending, 2FA OFF. Needs owner to set the PIN and register (see above).
+
+**Landing hero images (2026-10-05):** replaced `public/marketing/hero-{commercial,painting,pest}.webp` (were 1200×1200 ~30 KB, blurry) with new Canva AI photos, 1680×944 WebP, navy-uniform Sahara crews, no text/watermark. Same paths → no code, URL, SEO, form or CRM changes. Verified locally on desktop + mobile for /commercial-cleaning-pune, /interior-painting-pune, /pest-control-pune.
+
+**Meta read-only audit (2026-10-05) — must exist before Brand Make is removed:**
+- Owned by Sahara: FB Page "Sahara Cleaning Services" and Instagram @saharacleaningservices.pune. Sahara shares both TO Brand Make (Page = full access except sensitive actions; IG = full access).
+- Owned by Brand Make: the only ad account "Sahara Cleaning Services", shared to Sahara (full access).
+- Sahara portfolio has **no dataset/pixel** of its own.
+- To do later (owner, no rush): create a Sahara-owned ad account + payment method; create a Sahara-owned dataset/pixel and set `NEXT_PUBLIC_META_PIXEL_ID`; rebuild campaigns there; only then remove Brand Make's Page/IG access and the partner.
+
+**Ads tracking audit (2026-10-05, read-only):**
+- Code is ready: `src/components/public/marketing-tags.tsx` (GA4, Google Ads lead conversion, Meta Pixel; call/WhatsApp taps as separate events) and `attribution-capture.tsx` (UTM, gclid, fbclid → Lead first-touch channel) run on every landing page and /book.
+- Live booking.saharacleaningservices.com loads **no** GA4, Google Ads or Meta Pixel tags → Coolify env vars are unset: `NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`, `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL`, `NEXT_PUBLIC_META_PIXEL_ID` (build-time vars → redeploy after setting).
+- Google Ads conversions today: Phone call leads (6 actions), Submit lead form, Leads from messages; enhanced conversions "managed through Google Tag Manager" (container not on the booking site). CRM leads from ads still get Google Ads/Meta Ads channel via gclid/fbclid/UTM even without tags.
+- To do later: in Sahara's Google Ads create a "Lead Form Submit" website conversion (gives AW- ID + label); set the 4 env vars from Sahara-owned accounts; redeploy; test with Tag Assistant / Meta Test Events. Do not change existing campaign settings.
