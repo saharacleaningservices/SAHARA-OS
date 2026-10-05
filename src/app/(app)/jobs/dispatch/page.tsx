@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { JobStatusBadge } from "@/components/shared/status-badge";
+import { jobDateWindowForRole } from "@/server/jobs";
 import { requireUser } from "@/lib/current-user";
 import { getTodayDispatch } from "@/server/jobs";
 import { SERVICE_LABELS } from "@/lib/constants";
@@ -31,11 +32,11 @@ export default async function DispatchPage({
   if (session.role === "SUPERVISOR" && date && startOfDay(new Date(date)).getTime() !== startOfDay(new Date()).getTime()) {
     date = undefined;
   }
-  // Operations (Francis): job detail only for today + tomorrow — any other ?date= falls back to today.
+  // Operations (Francis): yesterday / today / tomorrow only — any other ?date= falls back to today.
   if (session.role === "OPERATIONS" && date) {
-    const d = startOfDay(new Date(date)).getTime();
-    const today = startOfDay(new Date()).getTime();
-    if (Number.isNaN(d) || d < today || d > today + 86_400_000) date = undefined;
+    const d = new Date(date);
+    const w = jobDateWindowForRole(session.role)!;
+    if (Number.isNaN(d.getTime()) || startOfDay(d) < w.from || startOfDay(d) > w.to) date = undefined;
   }
   const { date: day, total, groups } = await getTodayDispatch(date);
   const allRoute = buildRouteLink(groups.flatMap((g) => g.jobs));

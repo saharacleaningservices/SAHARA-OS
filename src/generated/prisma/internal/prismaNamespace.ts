@@ -5823,6 +5823,8 @@ export const StaffLoanEntryScalarFieldEnum = {
   signedAmount: 'signedAmount',
   fromSalary: 'fromSalary',
   description: 'description',
+  reversalOfId: 'reversalOfId',
+  reason: 'reason',
   source: 'source',
   sourceParty: 'sourceParty',
   sourceRow: 'sourceRow',

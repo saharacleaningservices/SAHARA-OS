@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { startOfDay, endOfDay, addDays } from "date-fns";
-import { jobScopeFor } from "@/lib/permissions";
+import { jobScopeFor, type JobScope } from "@/lib/permissions";
 import type { SessionPayload } from "@/lib/session";
 
 /** Resolves the logged-in user's own Staff record id, if they have one. */
@@ -10,8 +10,25 @@ export async function getOwnStaffId(userId: string): Promise<string | null> {
 }
 
 /**
+ * Date window (inclusive) a time-scoped role may see/act on; null = unrestricted.
+ * One definition for the Jobs list, Job Detail, Dispatch, Dashboard and the
+ * server actions, so the UI and the server-side block can never disagree.
+ */
+export function jobDateWindow(scope: JobScope, now = new Date()): { from: Date; to: Date } | null {
+  if (scope === "YESTERDAY_TODAY_TOMORROW") return { from: startOfDay(addDays(now, -1)), to: endOfDay(addDays(now, 1)) };
+  if (scope === "TODAY_TOMORROW" || scope === "OWN_TODAY_TOMORROW") return { from: startOfDay(now), to: endOfDay(addDays(now, 1)) };
+  if (scope === "OWN_TODAY") return { from: startOfDay(now), to: endOfDay(now) };
+  return null;
+}
+
+/** The window for a role (null = unrestricted). */
+export function jobDateWindowForRole(role: string, now = new Date()) {
+  return jobDateWindow(jobScopeFor(role), now);
+}
+
+/**
  * Job list, scoped per role:
- * - Operations Manager: today + tomorrow only
+ * - Operations (Francis): yesterday + today + tomorrow only
  * - Field Supervisor: jobs they supervise or are assigned to, AND only if
  *   scheduled today or tomorrow
  * - Worker: jobs they're assigned to, today only
@@ -23,8 +40,9 @@ export async function getAllJobsForList(session?: SessionPayload) {
 
   const where: Record<string, unknown> = { deletedAt: null };
 
-  if (scope === "TODAY_TOMORROW") {
-    where.scheduledDate = { gte: startOfDay(now), lte: endOfDay(addDays(now, 1)) };
+  if (scope === "YESTERDAY_TODAY_TOMORROW" || scope === "TODAY_TOMORROW") {
+    const w = jobDateWindow(scope, now)!;
+    where.scheduledDate = { gte: w.from, lte: w.to };
   } else if (scope === "OWN_TODAY_TOMORROW" || scope === "OWN_TODAY") {
     const staffId = session ? await getOwnStaffId(session.sub) : null;
     where.OR = [{ supervisorId: staffId ?? "__none__" }, { assignments: { some: { staffId: staffId ?? "__none__" } } }];
@@ -48,9 +66,10 @@ export async function getAllJobsForList(session?: SessionPayload) {
 }
 
 /** Summary cards shown above the Jobs list. */
-export async function getJobsPageStats() {
+export async function getJobsPageStats(window: { from: Date; to: Date } | null = null) {
   const now = new Date();
-  const [todayJobs, tomorrowJobs, pendingJobs, completedToday, pendingPaymentsAgg] = await Promise.all([
+  const inWindow = window ? { scheduledDate: { gte: window.from, lte: window.to } } : {};
+  const [todayJobs, tomorrowJobs, pendingJobs, completedToday, pendingPaymentsAgg, yesterdayJobs] = await Promise.all([
     db.job.count({
       where: { deletedAt: null, status: { notIn: ["CANCELLED"] }, scheduledDate: { gte: startOfDay(now), lte: endOfDay(now) } },
     }),
@@ -61,14 +80,18 @@ export async function getJobsPageStats() {
         scheduledDate: { gte: startOfDay(addDays(now, 1)), lte: endOfDay(addDays(now, 1)) },
       },
     }),
-    db.job.count({ where: { deletedAt: null, status: "PENDING" } }),
-    db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: startOfDay(now), lte: endOfDay(now) } } }),
+    db.job.count({ where: { deletedAt: null, status: "PENDING", ...inWindow } }),
+    db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: startOfDay(now), lte: endOfDay(now) }, ...inWindow } }),
     db.payment.aggregate({
       where: { deletedAt: null, status: { not: "PAID" }, jobId: { not: null } },
       _sum: { amount: true, paidAmount: true },
     }),
+    db.job.count({
+      where: { deletedAt: null, status: { notIn: ["CANCELLED"] }, scheduledDate: { gte: startOfDay(addDays(now, -1)), lte: endOfDay(addDays(now, -1)) } },
+    }),
   ]);
   return {
+    yesterdayJobs,
     todayJobs,
     tomorrowJobs,
     pendingJobs,
@@ -138,9 +161,10 @@ export function canAccessJob(
   const scope = jobScopeFor(session.role);
   if (scope === "ALL") return true;
   const now = new Date();
-  if (scope === "TODAY_TOMORROW") {
-    // Field Coordinator: today's and tomorrow's jobs only — any team.
-    return job.scheduledDate >= startOfDay(now) && job.scheduledDate <= endOfDay(addDays(now, 1));
+  if (scope === "YESTERDAY_TODAY_TOMORROW" || scope === "TODAY_TOMORROW") {
+    // Operations: yesterday/today/tomorrow; Field Coordinator: today/tomorrow — any team.
+    const w = jobDateWindow(scope, now)!;
+    return job.scheduledDate >= w.from && job.scheduledDate <= w.to;
   }
   if (!ownStaffId) return false;
   const isOwnJob = job.supervisorId === ownStaffId || job.assignments.some((a) => a.staffId === ownStaffId);

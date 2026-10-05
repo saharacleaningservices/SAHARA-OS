@@ -1,36 +1,66 @@
 import { db } from "@/lib/db";
 import { computeEarned } from "@/server/attendance";
+import { autoFareAllowed } from "@/lib/staff-money-rules";
 
 // ─────────────────────────────────────────────────────────────────────────
-// Staff money — ONE calculation for the Staff App, the CRM staff profile and
-// the Khata Book import reconciliation.
+// Money Khata — the ONE calculation engine for the CRM staff profile, the
+// Staff App, salary slips, attendance messages and the Khata import check.
 //
-// Every money event becomes one unified entry:
-//   work  (+)  imported Khata earnings, attendance wage after the cutover, rewards
-//   paid  (−)  imported Khata payments/advances/fines, advances, fines,
-//              salary paid, loan recovery cut from salary (after the cutover)
-//   opening    imported opening balance (signed)
+// Every money event becomes one entry in exactly one bucket:
+//   Earned      imported Khata earnings, attendance wage after the cutover, approved overtime
+//   Auto Fare   Kaleem (SCS-0004) only — anyone else's fare counts as Earned and is never shown
+//   Bonus       bonus, rewards
+//   Adjustment  adjustments / other / expenses owed to the worker (signed)
+//   Opening     imported opening balance (signed)
+//   Salary Paid salary payments (Khata payments, office salary entries)
+//   Advance     advances
+//   Deductions  fines, deductions
 //
-//   Salary Due     = Σ work − Σ paid + opening
-//   Loan Remaining = Σ loan given − Σ loan repaid   (separate from salary)
+//   Salary Due     = Earned + Auto Fare + Bonus ± Adjustment + Opening − Salary Paid − Advance − Deductions
+//   Loan Remaining = Opening Loan + Loan Given − Loan Recovery        (completely separate)
 //
-// Positive Salary Due = Sahara owes the worker ("You will give" in Khata Book);
-// negative = the worker took more than earned ("You will get" / advance).
-// Soft-deleted rows never count. Imported history covers everything up to
-// Staff.ledgerCutoverAt; native records count only after it.
+// Salary payments never touch the loan; a loan recovery reduces ONLY the loan.
+// A correction is a reversal row pointing at the original (counted in the
+// original's bucket with the opposite sign) plus, if needed, a new row — the
+// original is never edited or deleted. Soft-deleted rows never count.
+// Positive Salary Due = Sahara owes the worker; negative = worker owes (advance).
+// Imported history covers everything up to Staff.ledgerCutoverAt; native
+// attendance/advance/fine/reward/salary records count only after it.
 // ─────────────────────────────────────────────────────────────────────────
+
+export type SalaryBucket = "earned" | "autoFare" | "bonus" | "adjustment" | "opening" | "salaryPaid" | "advance" | "deductions";
+export type LoanBucket = "opening" | "given" | "recovery";
 
 export type MoneyEntry = {
+  /** StaffLedgerEntry id — only ledger rows can be corrected from the Khata. */
+  id?: string;
   date: Date;
   group: "work" | "paid" | "opening";
   amount: number; // positive (opening: signed)
+  signed: number; // effect on Salary Due
+  bucket: SalaryBucket;
   text: string;
   source: "KHATABOOK" | "APP";
   kind: string;
+  reversed?: boolean;
 };
-export type LoanEntry = { date: Date; kind: string; amount: number; signedAmount: number; text: string; fromSalary: boolean };
+export type LoanEntry = {
+  id: string;
+  date: Date;
+  kind: string;
+  amount: number;
+  signedAmount: number;
+  bucket: LoanBucket;
+  text: string;
+  fromSalary: boolean;
+  source: string;
+  createdByName: string | null;
+  reason: string | null;
+  reversed: boolean;
+};
 
-const r2 = (n: number) => Math.round(n * 100) / 100;
+// `|| 0` turns −0 into 0 (React would otherwise serialise it as "$-0").
+const r2 = (n: number) => Math.round(n * 100) / 100 || 0;
 // Months are India-time months whatever the server timezone: an entry stored
 // as 31-Dec 18:30 UTC is 1-Jan in India and belongs to January.
 const IST_MS = 5.5 * 3600 * 1000;
@@ -40,29 +70,61 @@ const istYM = (d: Date) => {
 };
 /** Start of an India-time month as an absolute instant (month may overflow, e.g. 12 → next Jan). */
 const istMonthStart = (y: number, m: number) => new Date(Date.UTC(y, m, 1) - IST_MS);
-const LEDGER_GROUP: Record<string, MoneyEntry["group"]> = {
-  EARNING: "work",
-  OTHER_CREDIT: "work",
-  AUTO_FARE: "work",
-  TRANSFER_TO_LOAN: "opening",
-  PAYMENT: "paid",
-  ADVANCE: "paid",
-  FINE: "paid",
-  DEDUCTION: "paid",
-  OPENING_BALANCE: "opening",
-};
+
+function salaryBucket(kind: string, fareOk: boolean): SalaryBucket {
+  switch (kind) {
+    case "EARNING":
+    case "PRESENT":
+    case "HALF_DAY":
+    case "OVERTIME":
+      return "earned";
+    case "AUTO_FARE":
+      return fareOk ? "autoFare" : "earned";
+    case "BONUS":
+    case "REWARD":
+      return "bonus";
+    case "SALARY_PAID":
+    case "PAYMENT":
+      return "salaryPaid";
+    case "ADVANCE":
+      return "advance";
+    case "FINE":
+    case "DEDUCTION":
+      return "deductions";
+    case "OPENING_BALANCE":
+    case "TRANSFER_TO_LOAN":
+      return "opening";
+    default:
+      return "adjustment";
+  }
+}
+function loanBucket(kind: string): LoanBucket {
+  if (kind === "LOAN_OPENING") return "opening";
+  if (kind === "LOAN_REPAID") return "recovery";
+  return "given";
+}
+const groupOf = (bucket: SalaryBucket, signed: number): MoneyEntry["group"] =>
+  bucket === "opening" ? "opening" : signed >= 0 ? "work" : "paid";
 
 async function loadAll(staffId: string) {
   const staff = await db.staff.findUnique({
     where: { id: staffId },
-    select: { id: true, name: true, salaryType: true, monthlySalary: true, ledgerCutoverAt: true },
+    select: { id: true, name: true, employeeCode: true, salaryType: true, monthlySalary: true, ledgerCutoverAt: true },
   });
   if (!staff) return null;
+  const fareOk = autoFareAllowed(staff.employeeCode);
   const cut = staff.ledgerCutoverAt;
   const after = cut ? { gt: cut } : undefined;
   const [ledger, loans, attendance, advances, fines, rewards, salaryPaid, overtime] = await Promise.all([
-    db.staffLedgerEntry.findMany({ where: { staffId, deletedAt: null }, select: { id: true, date: true, kind: true, amount: true, signedAmount: true, description: true, paymentMode: true, reference: true, source: true } }),
-    db.staffLoanEntry.findMany({ where: { staffId, deletedAt: null }, orderBy: { date: "asc" }, select: { date: true, kind: true, amount: true, signedAmount: true, fromSalary: true, source: true, description: true } }),
+    db.staffLedgerEntry.findMany({
+      where: { staffId, deletedAt: null },
+      select: { id: true, date: true, kind: true, amount: true, signedAmount: true, description: true, paymentMode: true, reference: true, source: true, reversalOfId: true },
+    }),
+    db.staffLoanEntry.findMany({
+      where: { staffId, deletedAt: null },
+      orderBy: { date: "asc" },
+      select: { id: true, date: true, kind: true, amount: true, signedAmount: true, fromSalary: true, source: true, description: true, createdByName: true, reversalOfId: true, reason: true },
+    }),
     db.attendance.findMany({ where: { staffId, ...(after ? { date: after } : {}) }, select: { date: true, status: true, wageForDay: true, notes: true } }),
     db.advance.findMany({ where: { staffId, ...(after ? { givenAt: after } : {}) }, select: { givenAt: true, amount: true, reason: true } }),
     db.fineRecord.findMany({ where: { staffId, ...(after ? { date: after } : {}) }, select: { date: true, amount: true, type: true, notes: true } }),
@@ -73,38 +135,87 @@ async function loadAll(staffId: string) {
   ]);
 
   const entries: MoneyEntry[] = [];
+  const push = (e: Omit<MoneyEntry, "group">) => entries.push({ ...e, group: groupOf(e.bucket, e.signed) });
+
+  // Ledger rows (imported Khata + office entries). A reversal counts in its original's bucket.
+  const kindById = new Map(ledger.map((l) => [l.id, l.kind]));
+  const reversedIds = new Set(ledger.filter((l) => l.reversalOfId).map((l) => l.reversalOfId!));
   for (const l of ledger) {
-    const group = LEDGER_GROUP[l.kind] ?? (l.signedAmount >= 0 ? "work" : "paid");
-    entries.push({
+    const baseKind = l.kind === "REVERSAL" && l.reversalOfId ? (kindById.get(l.reversalOfId) ?? "ADJUSTMENT") : l.kind;
+    const bucket = salaryBucket(baseKind, fareOk);
+    // Hide Auto Fare completely for everyone except the allowed employee.
+    const hideFare = !fareOk && baseKind === "AUTO_FARE";
+    push({
+      id: l.id,
       date: l.date,
-      group,
-      amount: group === "opening" ? l.signedAmount : l.amount,
-      text: [l.description, l.paymentMode ? l.paymentMode.replace("_", " ") : null, l.reference ? `Ref ${l.reference}` : null].filter(Boolean).join(" · "),
+      signed: l.signedAmount,
+      amount: bucket === "opening" ? l.signedAmount : Math.abs(l.signedAmount),
+      bucket,
+      text: hideFare
+        ? "Earning"
+        : [l.description, l.paymentMode ? l.paymentMode.replace("_", " ") : null, l.reference ? `Ref ${l.reference}` : null].filter(Boolean).join(" · "),
       source: l.source === "KHATABOOK" ? "KHATABOOK" : "APP",
-      kind: l.kind,
+      kind: hideFare ? "EARNING" : l.kind,
+      reversed: reversedIds.has(l.id),
     });
   }
   for (const a of attendance) {
     const earned = computeEarned(staff, [a]).earned;
-    if (earned > 0) entries.push({ date: a.date, group: "work", amount: earned, text: a.notes ?? (a.status === "HALF_DAY" ? "Half day" : "Work day"), source: "APP", kind: a.status });
+    if (earned > 0) push({ date: a.date, signed: earned, amount: earned, bucket: "earned", text: a.notes ?? (a.status === "HALF_DAY" ? "Half day" : "Work day"), source: "APP", kind: a.status });
   }
-  for (const o of overtime) entries.push({ date: o.date, group: "work", amount: o.otAmount, text: `${o.otHours} h${o.reason ? ` · ${o.reason}` : ""}`, source: "APP", kind: "OVERTIME" });
-  for (const r of rewards) entries.push({ date: r.date, group: "work", amount: r.amount, text: r.type, source: "APP", kind: "REWARD" });
-  for (const a of advances) entries.push({ date: a.givenAt, group: "paid", amount: a.amount, text: a.reason ?? "Advance", source: "APP", kind: "ADVANCE" });
-  for (const f of fines) entries.push({ date: f.date, group: "paid", amount: f.amount, text: [f.type, f.notes].filter(Boolean).join(" · "), source: "APP", kind: "FINE" });
-  for (const p of salaryPaid) entries.push({ date: p.date, group: "paid", amount: p.amount, text: p.description ?? "Salary paid", source: "APP", kind: "SALARY_PAID" });
-  for (const l of loans) {
-    // Recoveries cut from salary after the cutover also reduce Salary Due (imported ones are already inside the imported salary history).
-    if (l.fromSalary && l.source !== "KHATABOOK" && (!cut || l.date > cut) && l.signedAmount < 0)
-      entries.push({ date: l.date, group: "paid", amount: l.amount, text: l.description ?? "Loan cut from salary", source: "APP", kind: "LOAN_CUT" });
-  }
+  for (const o of overtime) push({ date: o.date, signed: o.otAmount, amount: o.otAmount, bucket: "earned", text: `${o.otHours} h${o.reason ? ` · ${o.reason}` : ""}`, source: "APP", kind: "OVERTIME" });
+  for (const r of rewards) push({ date: r.date, signed: r.amount, amount: r.amount, bucket: "bonus", text: r.type, source: "APP", kind: "REWARD" });
+  for (const a of advances) push({ date: a.givenAt, signed: -a.amount, amount: a.amount, bucket: "advance", text: a.reason ?? "Advance", source: "APP", kind: "ADVANCE" });
+  for (const f of fines) push({ date: f.date, signed: -f.amount, amount: f.amount, bucket: "deductions", text: [f.type, f.notes].filter(Boolean).join(" · "), source: "APP", kind: "FINE" });
+  for (const p of salaryPaid) push({ date: p.date, signed: -p.amount, amount: p.amount, bucket: "salaryPaid", text: p.description ?? "Salary paid", source: "APP", kind: "SALARY_PAID" });
   entries.sort((a, b) => a.date.getTime() - b.date.getTime());
-  const loanEntries: LoanEntry[] = loans.map((l) => ({ date: l.date, kind: l.kind, amount: l.amount, signedAmount: l.signedAmount, text: l.description ?? "", fromSalary: l.fromSalary }));
-  return { staff, entries, loanEntries, attendance };
+
+  // Loan ledger — separate; a correction counts in its original's bucket.
+  const loanKindById = new Map(loans.map((l) => [l.id, l.kind]));
+  const loanReversed = new Set(loans.filter((l) => l.reversalOfId).map((l) => l.reversalOfId!));
+  const loanEntries: LoanEntry[] = loans.map((l) => ({
+    id: l.id,
+    date: l.date,
+    kind: l.kind,
+    amount: l.amount,
+    signedAmount: l.signedAmount,
+    bucket: loanBucket(l.kind === "LOAN_CORRECTION" && l.reversalOfId ? (loanKindById.get(l.reversalOfId) ?? "LOAN_GIVEN") : l.kind),
+    text: l.description ?? "",
+    fromSalary: l.fromSalary,
+    source: l.source,
+    createdByName: l.createdByName,
+    reason: l.reason,
+    reversed: loanReversed.has(l.id),
+  }));
+  return { staff, fareOk, entries, loanEntries, attendance };
 }
 
-const total = (entries: MoneyEntry[]) =>
-  entries.reduce((s, e) => s + (e.group === "work" ? e.amount : e.group === "paid" ? -e.amount : e.amount), 0);
+const total = (entries: MoneyEntry[]) => entries.reduce((s, e) => s + e.signed, 0);
+
+/** Bucket totals. Money-out buckets (salaryPaid / advance / deductions) are returned as positive amounts. */
+export function salarySummary(entries: MoneyEntry[]) {
+  const sum = (b: SalaryBucket) => entries.filter((e) => e.bucket === b).reduce((s, e) => s + e.signed, 0);
+  return {
+    earned: r2(sum("earned")),
+    autoFare: r2(sum("autoFare")),
+    bonus: r2(sum("bonus")),
+    adjustment: r2(sum("adjustment")),
+    opening: r2(sum("opening")),
+    salaryPaid: r2(-sum("salaryPaid")),
+    advance: r2(-sum("advance")),
+    deductions: r2(-sum("deductions")),
+    salaryDue: r2(total(entries)),
+  };
+}
+export type SalarySummary = ReturnType<typeof salarySummary>;
+
+export function loanSummary(loans: LoanEntry[]) {
+  const sum = (b: LoanBucket) => loans.filter((l) => l.bucket === b).reduce((s, l) => s + l.signedAmount, 0);
+  const opening = r2(sum("opening"));
+  const given = r2(sum("given"));
+  const recovered = r2(-sum("recovery"));
+  return { opening, given, recovered, paid: recovered, remaining: r2(opening + given - recovered) };
+}
 
 export type StaffMoney = NonNullable<Awaited<ReturnType<typeof getStaffMoney>>>;
 
@@ -112,7 +223,7 @@ export type StaffMoney = NonNullable<Awaited<ReturnType<typeof getStaffMoney>>>;
 export async function getStaffMoney(staffId: string, now = new Date()) {
   const all = await loadAll(staffId);
   if (!all) return null;
-  const { staff, entries, loanEntries, attendance } = all;
+  const { staff, fareOk, entries, loanEntries, attendance } = all;
   const nowIst = istYM(now);
   const m0 = istMonthStart(nowIst.y, nowIst.m);
   const m1 = istMonthStart(nowIst.y, nowIst.m + 1);
@@ -122,18 +233,20 @@ export async function getStaffMoney(staffId: string, now = new Date()) {
   const khataWorkDays = new Set(month.filter((e) => e.source === "KHATABOOK" && e.kind === "EARNING").map((e) => e.date.toDateString()));
   const present = monthAtt.filter((a) => a.status === "PRESENT").length + khataWorkDays.size;
   const halfDay = monthAtt.filter((a) => a.status === "HALF_DAY").length;
-  const given = loanEntries.filter((l) => l.signedAmount > 0).reduce((s, l) => s + l.signedAmount, 0);
-  const repaid = -loanEntries.filter((l) => l.signedAmount < 0).reduce((s, l) => s + l.signedAmount, 0);
+  const summary = salarySummary(entries);
   return {
     staffId: staff.id,
     name: staff.name,
+    employeeCode: staff.employeeCode,
+    autoFareEnabled: fareOk,
     cutover: staff.ledgerCutoverAt,
-    salaryDue: r2(total(entries)),
-    loan: { given: r2(given), paid: r2(repaid), remaining: r2(given - repaid) },
+    salaryDue: summary.salaryDue,
+    summary,
+    loan: loanSummary(loanEntries),
     month: {
-      // Salary excludes auto fare (separate ledger line); fare is still owed and inside Salary Due.
-      salary: r2(month.filter((e) => e.group === "work" && e.kind !== "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
-      fare: r2(month.filter((e) => e.kind === "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
+      // Salary excludes auto fare (its own line, Kaleem only); fare is still owed and inside Salary Due.
+      salary: r2(month.filter((e) => e.group === "work" && e.bucket !== "autoFare").reduce((s, e) => s + e.amount, 0)),
+      fare: r2(month.filter((e) => e.bucket === "autoFare").reduce((s, e) => s + e.signed, 0)),
       paid: r2(month.filter((e) => e.group === "paid").reduce((s, e) => s + e.amount, 0)),
       present,
       halfDay,
@@ -144,7 +257,28 @@ export async function getStaffMoney(staffId: string, now = new Date()) {
   };
 }
 
-/** One year of money history for "My Money": month rows + entry lists + loan. */
+/** One India-time month from the same engine — salary slips, attendance messages, monthly reports. */
+export async function getStaffMoneyMonth(staffId: string, year: number, month: number) {
+  const all = await loadAll(staffId);
+  if (!all) return null;
+  const m0 = istMonthStart(year, month - 1);
+  const m1 = istMonthStart(year, month);
+  const before = all.entries.filter((e) => e.date < m0);
+  const inMonth = all.entries.filter((e) => e.date >= m0 && e.date < m1);
+  const s = salarySummary(inMonth);
+  const openingDue = r2(total(before));
+  return {
+    autoFareEnabled: all.fareOk,
+    openingDue,
+    ...s,
+    monthNet: s.salaryDue,
+    closingDue: r2(openingDue + s.salaryDue),
+    loan: loanSummary(all.loanEntries.filter((l) => l.date < m1)),
+    khataWorkDays: new Set(inMonth.filter((e) => e.source === "KHATABOOK" && e.kind === "EARNING").map((e) => e.date.toDateString())).size,
+  };
+}
+
+/** One year of money history for "My Money" / the office Khata: month rows + entry lists + loan. */
 export async function getStaffMoneyYear(staffId: string, year: number) {
   const all = await loadAll(staffId);
   if (!all) return null;
@@ -155,12 +289,12 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
   const before = entries.filter((e) => e.date < y0);
   const months = Array.from({ length: 12 }, (_, m) => {
     const rows = inY.filter((e) => istYM(e.date).m === m);
-    const days = new Set(rows.filter((e) => e.group === "work" && (e.kind === "EARNING" || e.kind === "PRESENT" || e.kind === "HALF_DAY")).map((e) => e.date.toDateString()));
+    const days = new Set(rows.filter((e) => e.bucket === "earned" && (e.kind === "EARNING" || e.kind === "PRESENT" || e.kind === "HALF_DAY")).map((e) => e.date.toDateString()));
     return {
       month: m + 1,
       workDays: days.size,
-      salary: r2(rows.filter((e) => e.group === "work" && e.kind !== "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
-      fare: r2(rows.filter((e) => e.kind === "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
+      salary: r2(rows.filter((e) => e.group === "work" && e.bucket !== "autoFare").reduce((s, e) => s + e.amount, 0)),
+      fare: r2(rows.filter((e) => e.bucket === "autoFare").reduce((s, e) => s + e.signed, 0)),
       paid: r2(rows.filter((e) => e.group === "paid").reduce((s, e) => s + e.amount, 0)),
       opening: r2(rows.filter((e) => e.group === "opening").reduce((s, e) => s + e.amount, 0)),
     };
@@ -168,11 +302,22 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
   // Khata-style ledger with running balance (oldest first, then shown newest first).
   let run = total(before);
   const lines = inY.map((e) => {
-    const delta = e.group === "work" ? e.amount : e.group === "paid" ? -e.amount : e.amount;
-    run += delta;
-    return { date: e.date, text: e.text, kind: e.kind, source: e.source, credit: delta > 0 ? Math.abs(delta) : 0, debit: delta < 0 ? Math.abs(delta) : 0, balance: r2(run) };
+    run += e.signed;
+    return {
+      id: e.id ?? null,
+      date: e.date,
+      text: e.text,
+      kind: e.kind,
+      bucket: e.bucket,
+      source: e.source,
+      credit: e.signed > 0 ? Math.abs(e.signed) : 0,
+      debit: e.signed < 0 ? Math.abs(e.signed) : 0,
+      balance: r2(run),
+      reversed: !!e.reversed,
+    };
   });
   const loanY = loanEntries.filter((l) => l.date < y1);
+  const loanSum = loanSummary(loanY);
   return {
     startBalance: r2(total(before)),
     endBalance: r2(total([...before, ...inY])),
@@ -181,11 +326,7 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
     paid: inY.filter((e) => e.group === "paid").reverse(),
     opening: inY.filter((e) => e.group === "opening"),
     lines: lines.reverse(),
-    loan: {
-      entries: loanY.slice().reverse(),
-      given: r2(loanY.filter((l) => l.signedAmount > 0).reduce((s, l) => s + l.signedAmount, 0)),
-      paid: r2(-loanY.filter((l) => l.signedAmount < 0).reduce((s, l) => s + l.signedAmount, 0)),
-    },
+    loan: { entries: loanY.slice().reverse(), ...loanSum },
   };
 }
 

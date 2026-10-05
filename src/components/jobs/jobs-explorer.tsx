@@ -52,6 +52,15 @@ function jobPaymentStatus(job: Job) {
   return "PENDING";
 }
 
+function isYesterday(date: Date | string) {
+  const y = new Date();
+  y.setHours(0, 0, 0, 0);
+  y.setDate(y.getDate() - 1);
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime() === y.getTime();
+}
+
 export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = true, showMoney = true }: { jobs: Job[]; canManage?: boolean; canSeeCustomerContact?: boolean; showMoney?: boolean }) {
   const params = useSearchParams();
   const whenParam = params.get("when") ?? "";
@@ -78,6 +87,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
     const matches = jobs.filter((job) => {
       if (q && !`${job.customerName} ${job.jobNumber} ${job.area}`.toLowerCase().includes(q)) return false;
       if (statusFilter !== "ALL" && job.status !== statusFilter) return false;
+      if (whenParam === "yesterday" && !isYesterday(job.scheduledDate)) return false;
       if (whenParam === "today" && dayBucket(job.scheduledDate) !== "TODAY") return false;
       if (whenParam === "tomorrow" && dayBucket(job.scheduledDate) !== "TOMORROW") return false;
       if (serviceParam && job.service !== serviceParam) return false;      
@@ -113,7 +123,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
           </SelectContent>
         </Select>
         {(whenParam || serviceParam) && (
-              <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">{whenParam === "today" ? "Today" : whenParam === "tomorrow" ? "Tomorrow" : SERVICE_LABELS[serviceParam]} only ·{" "}
+              <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">{whenParam === "yesterday" ? "Yesterday" : whenParam === "today" ? "Today" : whenParam === "tomorrow" ? "Tomorrow" : SERVICE_LABELS[serviceParam]} only ·{" "}
             <Link href="/jobs" className="underline">clear</Link>
           </span>
         )}

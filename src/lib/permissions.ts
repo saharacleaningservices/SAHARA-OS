@@ -122,16 +122,17 @@ export function canAllocateResources(role: string): boolean {
 /**
  * How far a role's job list reaches:
  * - ALL: every job (Admin, Accounts)
- * - TODAY_TOMORROW: only jobs scheduled today or tomorrow (Operations —
- *   Francis — and Field Coordinator)
+ * - YESTERDAY_TODAY_TOMORROW: only jobs scheduled yesterday, today or
+ *   tomorrow (Operations — Francis, owner rule 2026-10-06)
+ * - TODAY_TOMORROW: only jobs scheduled today or tomorrow (Field Coordinator)
  * - OWN_TODAY_TOMORROW: only jobs the user supervises or is assigned to,
  *   AND only if scheduled today or tomorrow
  * - OWN_TODAY: only the user's own jobs scheduled today (Worker)
  */
-export type JobScope = "ALL" | "TODAY_TOMORROW" | "OWN_TODAY_TOMORROW" | "OWN_TODAY";
+export type JobScope = "ALL" | "YESTERDAY_TODAY_TOMORROW" | "TODAY_TOMORROW" | "OWN_TODAY_TOMORROW" | "OWN_TODAY";
 
 export function jobScopeFor(role: string): JobScope {
-  if (role === "OPERATIONS") return "TODAY_TOMORROW"; // Operations Manager: dispatch-focused, today + tomorrow
+  if (role === "OPERATIONS") return "YESTERDAY_TODAY_TOMORROW"; // Francis: yesterday + today + tomorrow, all teams
   if (role === "SUPERVISOR") return "TODAY_TOMORROW"; // Field Coordinator: today + tomorrow, all teams
   if (role === "STAFF") return "OWN_TODAY";
   return "ALL"; // ADMIN, ACCOUNTS

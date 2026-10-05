@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { getStaffDetail } from "@/server/staff";
+import { jobDateWindowForRole } from "@/server/jobs";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -10,21 +11,17 @@ import { AvailabilityBadge, AttendanceBadge, JobStatusBadge } from "@/components
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { FileDown } from "lucide-react";
 import { NewStaffDialog } from "@/components/staff/new-staff-dialog";
-import { PayrollLedgerCard } from "@/components/staff/payroll-ledger-card";
-import { StaffDocumentsCard } from "@/components/staff/staff-documents-card";
 import { MonthlyAttendanceCalendar } from "@/components/attendance/monthly-attendance-calendar";
 import { Button } from "@/components/ui/button";
 import { formatINR, formatDate, maskTail } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { StaffPhotoUploader } from "@/components/staff/staff-photo-uploader";
-import { StaffMoneyCard } from "@/components/staff/staff-money-card";
 import { getStaffMoney, getStaffMoneyYear } from "@/server/staff-balance";
-import { getStaffMoneyAdmin } from "@/server/actions/staff-money";
+import { getStaffMoneyAdmin, getStaffMoneyAudit } from "@/server/actions/staff-money";
 import { StaffKhataCard } from "@/components/staff/staff-khata-card";
-import { getLoanEntries } from "@/server/actions/staff-loan";
 import { canViewSalary, canManageStaffFinancials, canManageAttendance } from "@/lib/permissions";
-import { getStaffLedger, getMonthMatrix } from "@/server/attendance";
+import { getMonthMatrix } from "@/server/attendance";
 import { StaffAppAccessCard } from "@/components/staff/staff-app-access-card";
 import { getStaffAppAccess } from "@/server/actions/staff-app-access";
 import { startStaffPreview } from "@/server/actions/staff-preview";
@@ -45,10 +42,6 @@ export default async function StaffDetailPage({
 
   const presentDays = staff.attendance.filter((a) => a.status === "PRESENT" || a.status === "HALF_DAY").length;
   const absentDays = staff.attendance.filter((a) => a.status === "ABSENT").length;
-  const totalWages = staff.attendance.reduce((sum, a) => sum + (a.wageForDay ?? 0), 0);
-  const documents: { label: string; url: string; uploadedAt: string }[] = staff.documents
-    ? JSON.parse(staff.documents)
-    : [];
 
   const now = new Date();
   const calYear = Number(yStr) || now.getFullYear();
@@ -56,14 +49,15 @@ export default async function StaffDetailPage({
   const showSalary = canViewSalary(session.role);
   const canAttendance = canManageAttendance(session.role);
   const canFin = canManageStaffFinancials(session.role);
-  const [ledger, matrix, appAccess, money, loanEntries, moneyYear, moneyAdmin] = await Promise.all([
-    showSalary ? getStaffLedger(staff.id, calYear, calMonth) : Promise.resolve(null),
+  // ONE Money Khata (owner rule 2026-10-06): Super Admin + Accounts add/correct;
+  // every other office role gets no salary/loan figures at all (canViewSalary).
+  const [matrix, appAccess, money, moneyYear, moneyAdmin, moneyAudit] = await Promise.all([
     canAttendance ? getMonthMatrix(staff.id, calYear, calMonth) : Promise.resolve(null),
     showSalary ? getStaffAppAccess(staff.id) : Promise.resolve(null),
     showSalary ? getStaffMoney(staff.id) : Promise.resolve(null),
-    showSalary ? getLoanEntries(staff.id) : Promise.resolve([]),
-    canFin ? getStaffMoneyYear(staff.id, now.getFullYear()) : Promise.resolve(null),
+    showSalary ? getStaffMoneyYear(staff.id, now.getFullYear()) : Promise.resolve(null),
     canFin ? getStaffMoneyAdmin(staff.id) : Promise.resolve(null),
+    canFin ? getStaffMoneyAudit(staff.id) : Promise.resolve([]),
   ]);
   const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${calYear}&month=${calMonth}`;
 
@@ -141,24 +135,18 @@ export default async function StaffDetailPage({
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          {money && (
-            <StaffMoneyCard
-              staffId={staff.id}
-              salaryDue={money.salaryDue}
-              loan={money.loan}
-              cutover={money.cutover}
-              entries={loanEntries}
-              canManage={canManageStaffFinancials(session.role)}
-            />
-          )}
-          {money && moneyYear && moneyAdmin && (
+          {money && moneyYear && (
             <StaffKhataCard
               staffId={staff.id}
-              balance={money.salaryDue}
+              summary={money.summary}
+              loan={money.loan}
+              autoFareEnabled={money.autoFareEnabled}
               lines={moneyYear.lines}
-              manual={moneyAdmin.ledger}
-              overtime={moneyAdmin.overtime}
+              loanEntries={moneyYear.loan.entries}
+              overtime={moneyAdmin?.overtime ?? []}
               details={{ bankName: staff.bankName, bankAccountName: staff.bankAccountName, bankAccount: staff.bankAccount, bankIfsc: staff.bankIfsc, upiId: staff.upiId, gpayNumber: staff.gpayNumber }}
+              audit={moneyAudit}
+              canManage={canFin}
             />
           )}
           <Card>
@@ -210,12 +198,6 @@ export default async function StaffDetailPage({
                 <p className="text-xs text-muted-foreground">Absent (last 30d)</p>
                 <p className="font-medium text-foreground">{absentDays} days</p>
               </div>
-              {showSalary && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Wages Paid (last 30d)</p>
-                  <p className="font-medium text-foreground">{formatINR(totalWages)}</p>
-                </div>
-              )}
               {/* Bank/GPay account details are financial-sensitive, same
                   category as salary/wage — previously shown to ANY role with
                   staff-detail access (a real gap found in the 2026-09-21
@@ -247,10 +229,10 @@ export default async function StaffDetailPage({
             const s0 = new Date(now); s0.setHours(0, 0, 0, 0);
             const s1 = new Date(s0); s1.setDate(s1.getDate() + 1);
             const jobs = staff.jobAssignments.map((a) => a.job);
-            // Operations/Supervisor: customer & job detail only for today + tomorrow; other days show date + status.
-            const s2 = new Date(s1); s2.setDate(s2.getDate() + 1);
-            const fieldRole = session.role === "OPERATIONS" || session.role === "SUPERVISOR";
-            const detailOk = (d: Date) => !fieldRole || (d >= s0 && d < s2);
+            // Operations (yesterday/today/tomorrow) and Supervisor (today/tomorrow): job detail only inside
+            // their window — the same window the job pages enforce; other days show date + status only.
+            const win = jobDateWindowForRole(session.role);
+            const detailOk = (d: Date) => !win || (d >= win.from && d <= win.to);
             const today = jobs.filter((j) => j.scheduledDate >= s0 && j.scheduledDate < s1 && j.status !== "COMPLETED" && j.status !== "CANCELLED");
             const upcoming = jobs.filter((j) => j.scheduledDate >= s1 && j.status !== "COMPLETED" && j.status !== "CANCELLED");
             const completed = jobs.filter((j) => j.status === "COMPLETED");
@@ -305,29 +287,6 @@ export default async function StaffDetailPage({
         </div>
 
         <div className="space-y-4">
-          {/* Owner instruction 2026-09-21 (Francis final policy): "HIDE
-              COMPLETELY: Private staff documents" for SUPERVISOR/Francis —
-              was previously shown to any role with staff-detail access. */}
-          {session.role !== "SUPERVISOR" && (
-            <StaffDocumentsCard
-              staffId={staff.id}
-              documents={documents}
-              canEdit={session.role === "ADMIN" || session.role === "ACCOUNTS"}
-            />
-          )}
-          {ledger && (
-            <PayrollLedgerCard
-              staffId={staff.id}
-              monthLabel={new Date(calYear, calMonth - 1, 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
-              presentDays={ledger.presentDays}
-              earned={ledger.earned}
-              advanceTotal={ledger.advanceTotal}
-              fineTotal={ledger.fineTotal}
-              rewardTotal={ledger.rewardTotal}
-              netBalance={ledger.netBalance}
-              canManage={canManageStaffFinancials(session.role)}
-            />
-          )}
           {appAccess && (
             <StaffAppAccessCard
               staffId={staff.id}

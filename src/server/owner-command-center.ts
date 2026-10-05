@@ -210,7 +210,13 @@ export type DayStatusCounts = {
  * restricted caller's network response never contains the omitted fields
  * at all. "counts" doesn't even build a leadsByDay map, only day totals.
  */
-export async function getLeadMonthCalendar(year: number, month: number, detailLevel: CalendarDetailLevel = "full") {
+export async function getLeadMonthCalendar(
+  year: number,
+  month: number,
+  detailLevel: CalendarDetailLevel = "full",
+  /** Time-scoped roles (Francis): only days inside this window are counted. */
+  window: { from: Date; to: Date } | null = null,
+) {
   const monthStart = startOfMonth(new Date(year, month - 1, 1));
   const monthEnd = endOfMonth(monthStart);
 
@@ -290,6 +296,7 @@ export async function getLeadMonthCalendar(year: number, month: number, detailLe
   // omitted entirely ("counts" level never populates this).
   const leadsByDay = new Map<string, CalendarLead[]>();
   for (const l of leads) {
+    if (window && (l.day < window.from || l.day > window.to)) continue;
     const iso = format(l.day, "yyyy-MM-dd");
 
     const stages = stagesByDay.get(iso) ?? [];

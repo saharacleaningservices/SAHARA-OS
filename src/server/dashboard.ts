@@ -22,6 +22,10 @@ export async function getDashboardData(role?: string, userId?: string) {
   const tomorrowEnd = endOfDay(addDays(now, 1));
   const weekAheadEnd = endOfDay(addDays(now, 7));
   const isFieldRestricted = role === "SUPERVISOR" || role === "OPERATIONS";
+  // Francis (OPERATIONS) works a yesterday / today / tomorrow window (owner rule 2026-10-06).
+  const yesterdayStart = startOfDay(addDays(now, -1));
+  const yesterdayEnd = endOfDay(addDays(now, -1));
+  const listFrom = role === "OPERATIONS" ? yesterdayStart : todayStart;
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
   const lastMonthStart = startOfMonth(subMonths(now, 1));
@@ -111,7 +115,7 @@ export async function getDashboardData(role?: string, userId?: string) {
       where: {
         deletedAt: null,
         status: { not: "COMPLETED" },
-        scheduledDate: { gte: todayStart, lte: isFieldRestricted ? tomorrowEnd : weekAheadEnd },
+        scheduledDate: { gte: listFrom, lte: isFieldRestricted ? tomorrowEnd : weekAheadEnd },
       },
       orderBy: [{ scheduledDate: "asc" }, { scheduledTime: "asc" }],
       include: { supervisor: true },
@@ -250,8 +254,12 @@ export async function getDashboardData(role?: string, userId?: string) {
     if (recentContacts.length >= 12) break;
   }
 
+  const yesterdaysJobsCount =
+    role === "OPERATIONS" ? await db.job.count({ where: { deletedAt: null, scheduledDate: { gte: yesterdayStart, lte: yesterdayEnd } } }) : 0;
+
   return {
     stats: {
+      yesterdaysJobsCount,
       todaysLeadsCount,
       totalLeadsCount,
       monthlyLeadsCount,
