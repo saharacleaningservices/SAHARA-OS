@@ -12,7 +12,7 @@ import { autoFareAllowed } from "@/lib/staff-money-rules";
 //   Bonus       bonus, rewards
 //   Adjustment  adjustments / other / expenses owed to the worker (signed)
 //   Opening     imported opening balance (signed)
-//   Salary Paid salary payments (Khata payments, office salary entries)
+//   Salary Paid salary payments (Khata payments, Money Khata "Salary paid")
 //   Advance     advances
 //   Deductions  fines, deductions
 //
@@ -25,7 +25,10 @@ import { autoFareAllowed } from "@/lib/staff-money-rules";
 // original is never edited or deleted. Soft-deleted rows never count.
 // Positive Salary Due = Sahara owes the worker; negative = worker owes (advance).
 // Imported history covers everything up to Staff.ledgerCutoverAt; native
-// attendance/advance/fine/reward/salary records count only after it.
+// attendance/advance/fine/reward records count only after it.
+// Salary and advance PAYMENTS come only from the Money Khata ledger — an
+// Expenses-page row is company bookkeeping and never counts here, so one
+// payment can never be subtracted twice (owner check 2026-10-06).
 // ─────────────────────────────────────────────────────────────────────────
 
 export type SalaryBucket = "earned" | "autoFare" | "bonus" | "adjustment" | "opening" | "salaryPaid" | "advance" | "deductions";
@@ -115,7 +118,7 @@ async function loadAll(staffId: string) {
   const fareOk = autoFareAllowed(staff.employeeCode);
   const cut = staff.ledgerCutoverAt;
   const after = cut ? { gt: cut } : undefined;
-  const [ledger, loans, attendance, advances, fines, rewards, salaryPaid, overtime] = await Promise.all([
+  const [ledger, loans, attendance, advances, fines, rewards, overtime] = await Promise.all([
     db.staffLedgerEntry.findMany({
       where: { staffId, deletedAt: null },
       select: { id: true, date: true, kind: true, amount: true, signedAmount: true, description: true, paymentMode: true, reference: true, source: true, reversalOfId: true },
@@ -129,7 +132,6 @@ async function loadAll(staffId: string) {
     db.advance.findMany({ where: { staffId, ...(after ? { givenAt: after } : {}) }, select: { givenAt: true, amount: true, reason: true } }),
     db.fineRecord.findMany({ where: { staffId, ...(after ? { date: after } : {}) }, select: { date: true, amount: true, type: true, notes: true } }),
     db.rewardRecord.findMany({ where: { staffId, ...(after ? { date: after } : {}) }, select: { date: true, amount: true, type: true } }),
-    db.expense.findMany({ where: { staffId, category: "SALARY", deletedAt: null, isDemo: false, ...(after ? { date: after } : {}) }, select: { date: true, amount: true, description: true } }),
     // Only APPROVED overtime is money owed; pending/rejected never count.
     db.overtimeRecord.findMany({ where: { staffId, deletedAt: null, status: "APPROVED" }, select: { date: true, otHours: true, otAmount: true, reason: true } }),
   ]);
@@ -167,7 +169,6 @@ async function loadAll(staffId: string) {
   for (const r of rewards) push({ date: r.date, signed: r.amount, amount: r.amount, bucket: "bonus", text: r.type, source: "APP", kind: "REWARD" });
   for (const a of advances) push({ date: a.givenAt, signed: -a.amount, amount: a.amount, bucket: "advance", text: a.reason ?? "Advance", source: "APP", kind: "ADVANCE" });
   for (const f of fines) push({ date: f.date, signed: -f.amount, amount: f.amount, bucket: "deductions", text: [f.type, f.notes].filter(Boolean).join(" · "), source: "APP", kind: "FINE" });
-  for (const p of salaryPaid) push({ date: p.date, signed: -p.amount, amount: p.amount, bucket: "salaryPaid", text: p.description ?? "Salary paid", source: "APP", kind: "SALARY_PAID" });
   entries.sort((a, b) => a.date.getTime() - b.date.getTime());
 
   // Loan ledger — separate; a correction counts in its original's bucket.
