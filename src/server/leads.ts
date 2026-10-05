@@ -27,12 +27,38 @@ export function supervisorLeadWhere() {
   };
 }
 
+/**
+ * Francis (OPERATIONS) — owner request 2026-10-05: a "New Leads" section with
+ * Create New Lead. Scoped, not the full customer database: every NEW
+ * enquiry, leads assigned to or created by him, plus the same today/tomorrow
+ * window as SUPERVISOR.
+ */
+export function operationsLeadWhere(userId: string) {
+  return {
+    OR: [
+      ...supervisorLeadWhere().OR,
+      { stage: "NEW" as never },
+      { assignedToId: userId },
+      { createdById: userId },
+    ],
+  };
+}
+
+/** List-query scope for field roles (SUPERVISOR / OPERATIONS); {} for everyone else. */
+export function fieldLeadWhere(session?: Pick<SessionPayload, "role" | "sub"> | null) {
+  if (session?.role === "SUPERVISOR") return supervisorLeadWhere();
+  if (session?.role === "OPERATIONS") return operationsLeadWhere(session.sub);
+  return {};
+}
+
 /** True if this lead is one SUPERVISOR should be able to see/edit at all — evaluated in JS against a single already-fetched lead (e.g. for a direct-URL detail-page check), matching the same window supervisorLeadWhere() applies at the list-query level. */
 export function canAccessLead(
   session: SessionPayload,
-  lead: { followUpDate: Date | null; serviceDate: Date | null; createdAt: Date; stage: string },
+  lead: { followUpDate: Date | null; serviceDate: Date | null; createdAt: Date; stage: string; assignedToId?: string | null; createdById?: string | null },
 ): boolean {
-  if (session.role !== "SUPERVISOR") return true;
+  if (session.role === "OPERATIONS") {
+    if (lead.stage === "NEW" || lead.assignedToId === session.sub || lead.createdById === session.sub) return true;
+  } else if (session.role !== "SUPERVISOR") return true;
   const now = new Date();
   const todayStart = startOfDay(now);
   const tomorrowEnd = endOfDay(addDays(now, 1));
@@ -67,7 +93,7 @@ export async function getLeadsPageStats() {
 
 export async function getAllLeadsForList(session?: SessionPayload) {
   const where: Record<string, unknown> = { deletedAt: null };
-  if (session?.role === "SUPERVISOR") Object.assign(where, supervisorLeadWhere());
+  Object.assign(where, fieldLeadWhere(session));
 
   const leads = await db.lead.findMany({
     where,
@@ -124,4 +150,16 @@ export async function getLeadDetail(id: string) {
       payments: { orderBy: { createdAt: "desc" } },
     },
   });
+}
+
+/** Francis's dashboard "New Leads" card: open NEW enquiries + leads assigned to him. */
+export async function getNewLeadsForDashboard(userId: string) {
+  const rows = await db.lead.findMany({
+    where: { deletedAt: null, OR: [{ stage: "NEW" }, { assignedToId: userId, stage: { notIn: ["COMPLETED", "CANCELLED", "JOB_SCHEDULED"] as never } }] },
+    orderBy: { createdAt: "desc" },
+    take: 12,
+    select: { id: true, leadNumber: true, name: true, service: true, area: true, stage: true, createdAt: true, serviceDate: true, timeSlot: true, assignedToId: true, packageName: true },
+  });
+  const newCount = await db.lead.count({ where: { deletedAt: null, stage: "NEW" } });
+  return { rows: rows.map((r) => ({ ...r, assignedToMe: r.assignedToId === userId })), newCount };
 }

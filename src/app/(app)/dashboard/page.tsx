@@ -20,6 +20,8 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { getDashboardData } from "@/server/dashboard";
+import { getNewLeadsForDashboard } from "@/server/leads";
+import { NewLeadsCard } from "@/components/dashboard/new-leads-card";
 import { getLeadSourceStats } from "@/server/owner";
 import { getLeadMonthCalendar, type CalendarDetailLevel } from "@/server/owner-command-center";
 import { LeadMonthCalendar } from "@/components/dashboard/owner/lead-calendar";
@@ -75,10 +77,13 @@ export default async function DashboardPage() {
     },
     sourceStats,
     calendar,
+    newLeads,
   ] = await Promise.all([
-    getDashboardData(session.role),
+    getDashboardData(session.role, session.sub),
     getLeadSourceStats(3),
     getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, calendarDetailLevel),
+    // Francis (OPERATIONS): New Leads + Create New Lead, owner request 2026-10-05.
+    session.role === "OPERATIONS" ? getNewLeadsForDashboard(session.sub) : Promise.resolve(null),
   ]);
 
   const firstName = session.name.split(" ")[0];
@@ -110,6 +115,8 @@ export default async function DashboardPage() {
         title={`Welcome back, ${firstName}`}
         description="Here's what's happening at Sahara Cleaning Services today."
       />
+
+      {newLeads && <NewLeadsCard rows={newLeads.rows} newCount={newLeads.newCount} />}
 
       {/* Sahara CRM Dashboard Redesign — Phase 1: the four numbers the
           office checks first, above everything else. */}

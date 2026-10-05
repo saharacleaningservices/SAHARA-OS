@@ -13,7 +13,8 @@ import { formatINR } from "@/lib/utils";
 
 export default async function LeadsPage() {
   const session = await requireUser();
-  const isSupervisor = session.role === "SUPERVISOR";
+  // Field roles see a scoped list (server/leads.ts fieldLeadWhere) and no bulk import.
+  const isSupervisor = session.role === "SUPERVISOR" || session.role === "OPERATIONS";
   const [leads, userOptions, stats] = await Promise.all([
     getAllLeadsForList(session),
     getUsersForAssignment(),
@@ -26,7 +27,9 @@ export default async function LeadsPage() {
       <PageHeader
         title="Lead CRM"
         description={
-          isSupervisor
+          session.role === "OPERATIONS"
+            ? `${leads.length} new, assigned & today/tomorrow leads`
+            : isSupervisor
             ? `${leads.length} today/tomorrow leads & active enquiries`
             : `${leads.length} leads across the pipeline`
         }
