@@ -21,6 +21,11 @@ const QUOTATION_STATUSES = ["DRAFT", "SENT", "ACCEPTED", "REJECTED", "EXPIRED", 
 const INVOICE_STATUSES = ["DRAFT", "ISSUED", "PARTIALLY_PAID", "PAID", "CANCELLED"] as const;
 
 export async function updateQuotationStatus(quotationId: string, status: (typeof QUOTATION_STATUSES)[number]) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const { error, session } = await requireBillingAccess();
   if (error) return { error };
   if (!QUOTATION_STATUSES.includes(status)) return { error: "Invalid status" };
@@ -43,6 +48,11 @@ export async function updateQuotationStatus(quotationId: string, status: (typeof
 
 /** Converts an accepted Quotation directly into a Sahara-native Invoice, carrying over its line items/GST/discount/terms. */
 export async function convertQuotationToInvoice(quotationId: string) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const { error, session } = await requireBillingAccess();
   if (error) return { error };
 
@@ -87,6 +97,11 @@ export async function convertQuotationToInvoice(quotationId: string) {
 }
 
 export async function updateInvoiceStatus(invoiceId: string, status: (typeof INVOICE_STATUSES)[number]) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const { error } = await requireBillingAccess();
   if (error) return { error };
   if (!INVOICE_STATUSES.includes(status)) return { error: "Invalid status" };
@@ -112,6 +127,11 @@ export async function createInvoice(data: {
   notes?: string;
   terms?: string;
 }) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const { error } = await requireBillingAccess();
   if (error) return { error };
   if (!data.customerName.trim()) return { error: "Customer name is required" };

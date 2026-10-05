@@ -75,10 +75,14 @@ a broken migration.
 
 - Live today: `app.saharacleaningservices.com` (single domain, both public
   booking and internal CRM).
-- Deferred (owner decision, 2026-09-22): splitting into
-  `booking.saharacleaningservices.com` (public) and
+- In progress, held at the DNS gate (owner decision pending, 2026-09-23):
+  splitting into `booking.saharacleaningservices.com` (public) and
   `crm.saharacleaningservices.com` (internal). Code side is done and fully
   backward-compatible (inactive until env vars are set — see below).
+  **Coolify side is now partially prepared**: both domains have been added
+  to the Sahara OS application in Coolify (port 3000, HTTPS) — this is
+  saved configuration only, not yet active ("Changes pending", no
+  restart/redeploy triggered). `BOOKING_URL`/`CRM_URL` are still **unset**.
   `saharacleaningservices.com`'s DNS is authoritative in a cPanel account
   (Ad Agency-managed, now kept strictly read-only) — nameservers are Custom
   DNS pointing there, not Namecheap's own DNS. Namecheap's Advanced DNS
@@ -89,11 +93,15 @@ a broken migration.
   first, then switch nameservers), which risks live Google Workspace email
   and the separate Ad Agency website during propagation if done wrong. The
   owner was presented this and chose to defer it — see `SAHARA_OS_STATUS.md`
-  §3.24. Once ready: add DNS records for both new subdomains pointing at
-  the Hostinger VPS IP (wherever that ends up being authoritative), add
-  both domains to the Coolify app, verify both load correctly, **then** set
-  `BOOKING_URL`/`CRM_URL`, redeploy, verify again, and only then optionally
-  set `LEGACY_APP_REDIRECT_ENABLED=true`.
+  §3.24, re-confirmed still blocking in §3.25. Alternative: ask the agency
+  to add the two A records directly in their own cPanel (they can edit
+  their own panel; this session cannot). Once DNS resolves for both: verify
+  both load correctly, **then** set `BOOKING_URL`/`CRM_URL`, redeploy,
+  verify again, and only then optionally set
+  `LEGACY_APP_REDIRECT_ENABLED=true`. Rollback at any stage: unset
+  `LEGACY_APP_REDIRECT_ENABLED` and/or `BOOKING_URL`/`CRM_URL` and redeploy
+  — both fall back to the legacy host with no code change and no data risk
+  (single shared database throughout).
 
 ## Environment variables (names/purpose only — see `.env.example` for the full list, never commit real values)
 

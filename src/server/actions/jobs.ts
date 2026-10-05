@@ -23,9 +23,20 @@ import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved
  * no session check at all before), not just by hiding/redirecting the edit
  * page, so a direct action call can't bypass it. No-op for every other role.
  */
-async function assertJobEditable(jobId: string): Promise<{ error: string; success: false } | null> {
+async function assertJobEditable(jobId: string, opts: { staffAllowed?: boolean } = {}): Promise<{ error: string; success: false } | null> {
   const session = await getSession();
-  if (!session || (session.role !== "SUPERVISOR" && session.role !== "OPERATIONS")) return null;
+  // RBAC 2026-10-05: a session is always required; Field Staff may only use the
+  // actions that explicitly allow them (photos/videos/status from the Staff App),
+  // and only on their own job scheduled for today.
+  if (!session) return { error: "Not authorized", success: false };
+  if (session.role === "STAFF") {
+    if (!opts.staffAllowed) return { error: "Not authorized", success: false };
+    const job = await db.job.findUnique({ where: { id: jobId }, select: { scheduledDate: true, supervisorId: true, assignments: { select: { staffId: true } } } });
+    if (!job) return { error: "Job not found", success: false };
+    const own = await getOwnStaffId(session.sub);
+    return canAccessJob(session, job, own) ? null : { error: "Not your job today", success: false };
+  }
+  if (session.role !== "SUPERVISOR" && session.role !== "OPERATIONS") return null;
   const job = await db.job.findUnique({
     where: { id: jobId },
     select: { scheduledDate: true, supervisorId: true, assignments: { select: { staffId: true } } },
@@ -39,6 +50,11 @@ async function assertJobEditable(jobId: string): Promise<{ error: string; succes
 }
 
 export async function createJob(values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const parsed = jobSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -209,6 +225,11 @@ export async function updateJob(id: string, values: unknown) {
 }
 
 export async function deleteJob(id: string) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
 
@@ -221,6 +242,11 @@ export async function deleteJob(id: string) {
 }
 
 export async function bulkDeleteJobs(ids: string[]) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
   const count = await softDeleteMany("Job", ids, session);
@@ -285,6 +311,11 @@ export async function updateJobStatus(jobId: string, status: JobStatus) {
   const scopeError = await assertJobEditable(jobId);
   if (scopeError) return scopeError;
   const session = await getSession();
+  return updateJobStatusInternal(jobId, status, session?.sub);
+}
+
+async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId?: string) {
+  const session = { sub: actorId };
   const now = new Date();
 
   const job = await db.job.update({
@@ -317,8 +348,24 @@ export async function updateJobStatus(jobId: string, status: JobStatus) {
   return { success: true as const };
 }
 
+/**
+ * Staff App: move MY job of today forward — Assigned → On the way → Started →
+ * Completed. No other status, no financial fields; every change is logged.
+ */
+export async function staffUpdateJobStatus(jobId: string, status: "ON_THE_WAY" | "STARTED" | "COMPLETED") {
+  const session = await getSession();
+  if (!session || session.role !== "STAFF") return { error: "Not authorized", success: false as const };
+  const order = ["PENDING", "ASSIGNED", "REACTIVATED", "ON_THE_WAY", "STARTED", "COMPLETED"];
+  if (!["ON_THE_WAY", "STARTED", "COMPLETED"].includes(status)) return { error: "Invalid status", success: false as const };
+  const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
+  if (scopeError) return scopeError;
+  const current = await db.job.findUnique({ where: { id: jobId }, select: { status: true } });
+  if (!current || order.indexOf(status) <= order.indexOf(current.status)) return { error: "This step is already done", success: false as const };
+  return updateJobStatusInternal(jobId, status, session.sub);
+}
+
 export async function addJobPhoto(jobId: string, type: "BEFORE" | "AFTER", url: string, caption?: string) {
-  const scopeError = await assertJobEditable(jobId);
+  const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
   if (scopeError) return scopeError;
   const session = await getSession();
   await db.photo.create({ data: { jobId, type, url, caption: caption || null, uploadedById: session?.sub } });
@@ -329,7 +376,7 @@ export async function addJobPhoto(jobId: string, type: "BEFORE" | "AFTER", url: 
 export async function addJobVideo(jobId: string, url: string, caption?: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
-  const scopeError = await assertJobEditable(jobId);
+  const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
   if (scopeError) return scopeError;
   await db.jobVideo.create({ data: { jobId, url, caption: caption || null } });
   revalidatePath(`/jobs/${jobId}`);

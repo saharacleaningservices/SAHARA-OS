@@ -14,12 +14,14 @@ import { PayrollLedgerCard } from "@/components/staff/payroll-ledger-card";
 import { StaffDocumentsCard } from "@/components/staff/staff-documents-card";
 import { MonthlyAttendanceCalendar } from "@/components/attendance/monthly-attendance-calendar";
 import { Button } from "@/components/ui/button";
-import { formatINR, formatDate } from "@/lib/utils";
+import { formatINR, formatDate, maskTail } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { StaffPhotoUploader } from "@/components/staff/staff-photo-uploader";
 import { StaffMoneyCard } from "@/components/staff/staff-money-card";
-import { getStaffMoney } from "@/server/staff-balance";
+import { getStaffMoney, getStaffMoneyYear } from "@/server/staff-balance";
+import { getStaffMoneyAdmin } from "@/server/actions/staff-money";
+import { StaffKhataCard } from "@/components/staff/staff-khata-card";
 import { getLoanEntries } from "@/server/actions/staff-loan";
 import { canViewSalary, canManageStaffFinancials, canManageAttendance } from "@/lib/permissions";
 import { getStaffLedger, getMonthMatrix } from "@/server/attendance";
@@ -53,12 +55,15 @@ export default async function StaffDetailPage({
   const calMonth = Number(mStr) || now.getMonth() + 1;
   const showSalary = canViewSalary(session.role);
   const canAttendance = canManageAttendance(session.role);
-  const [ledger, matrix, appAccess, money, loanEntries] = await Promise.all([
+  const canFin = canManageStaffFinancials(session.role);
+  const [ledger, matrix, appAccess, money, loanEntries, moneyYear, moneyAdmin] = await Promise.all([
     showSalary ? getStaffLedger(staff.id, calYear, calMonth) : Promise.resolve(null),
     canAttendance ? getMonthMatrix(staff.id, calYear, calMonth) : Promise.resolve(null),
     showSalary ? getStaffAppAccess(staff.id) : Promise.resolve(null),
     showSalary ? getStaffMoney(staff.id) : Promise.resolve(null),
     showSalary ? getLoanEntries(staff.id) : Promise.resolve([]),
+    canFin ? getStaffMoneyYear(staff.id, now.getFullYear()) : Promise.resolve(null),
+    canFin ? getStaffMoneyAdmin(staff.id) : Promise.resolve(null),
   ]);
   const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${calYear}&month=${calMonth}`;
 
@@ -146,6 +151,16 @@ export default async function StaffDetailPage({
               canManage={canManageStaffFinancials(session.role)}
             />
           )}
+          {money && moneyYear && moneyAdmin && (
+            <StaffKhataCard
+              staffId={staff.id}
+              balance={money.salaryDue}
+              lines={moneyYear.lines}
+              manual={moneyAdmin.ledger}
+              overtime={moneyAdmin.overtime}
+              details={{ bankName: staff.bankName, bankAccountName: staff.bankAccountName, bankAccount: staff.bankAccount, bankIfsc: staff.bankIfsc, upiId: staff.upiId, gpayNumber: staff.gpayNumber }}
+            />
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Profile</CardTitle>
@@ -212,9 +227,9 @@ export default async function StaffDetailPage({
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-muted-foreground">Payment Details</p>
                   <p className="font-medium text-foreground">
-                    {staff.bankAccount ? `A/C ${staff.bankAccount}${staff.bankIfsc ? ` · ${staff.bankIfsc}` : ""}` : ""}
+                    {staff.bankAccount ? `A/C ${maskTail(staff.bankAccount)}${staff.bankIfsc ? ` · ${staff.bankIfsc}` : ""}` : ""}
                     {staff.bankAccount && staff.gpayNumber ? " · " : ""}
-                    {staff.gpayNumber ? `GPay ${staff.gpayNumber}` : ""}
+                    {staff.gpayNumber ? `GPay ${maskTail(staff.gpayNumber)}` : ""}
                   </p>
                 </div>
               )}

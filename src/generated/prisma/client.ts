@@ -308,11 +308,22 @@ export type FestivalPrice = Prisma.FestivalPriceModel
  */
 export type StaffLedgerEntry = Prisma.StaffLedgerEntryModel
 /**
- * Model StaffLoanEntry
+ * Model OvertimeRecord
  * * Loan ledger — separate from salary. kind: LOAN_GIVEN | LOAN_REPAID | LOAN_OPENING.
  *  *  fromSalary = recovery cut from salary (also reduces Salary Due).
+ * * Overtime — separate from multiple jobs. Only Super Admin / Accounts approve; only APPROVED counts as earning.
+ */
+export type OvertimeRecord = Prisma.OvertimeRecordModel
+/**
+ * Model StaffLoanEntry
+ * 
  */
 export type StaffLoanEntry = Prisma.StaffLoanEntryModel
+/**
+ * Model AnnouncementRead
+ * * Read receipt per staff user for office announcements.
+ */
+export type AnnouncementRead = Prisma.AnnouncementReadModel
 /**
  * Model KhataImportBatch
  * 

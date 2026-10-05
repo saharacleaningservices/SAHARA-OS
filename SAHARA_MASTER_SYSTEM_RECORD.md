@@ -244,7 +244,7 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 ### 2026-10-05 (round 3) — RBAC + review holds, still NOT applied to production
 - RBAC (server-enforced, tested by calling server actions directly):
   - Super Admin: everything.
-  - Accounts (Shoaib Qazi — owner 2026-10-05; not Shweta): staff, attendance (all statuses/dates, bulk, month close), loans, auto fare, advances/fines/rewards, salary payments, staff photo. Blocked: system settings, users/roles, integrations, pricing, Khata import, backup/restore.
+  - Accounts (Shoaib Qazi — owner 2026-10-05): staff, attendance (all statuses/dates, bulk, month close), loans, auto fare, advances/fines/rewards, salary payments, staff photo. Blocked: system settings, users/roles, integrations, pricing, Khata import, backup/restore.
   - Operations / Supervisor (Francis): attendance Present/Absent for TODAY only (`markTodayPresentAbsent`). Blocked: other statuses, past dates, bulk, month close, loans, auto fare, salary/payslips, staff editing/photo, reports, revenue, settings. Own salary card hidden. Job/lead access from earlier today unchanged.
 - Dataset: no 2025 opening balance pre-approved (Mahesh +2,300, Sikandar +1,400, Fransis −8,000, Shoyab loan +22,500 await owner); 15 report-based balances pending LIVE Khata verification (extension blocked on desktop.khatabook.com); holds: Shariful Rehman (₹20,000/month vs Khata ₹600/day → +₹12,800 pro-rata / +₹26,800 full months), Tohid rows 193+194 (19-Sep duplicate?), Kaleem rows 480+144 (₹350 extras).
 - Engine regression on fresh test DB with a test-only unblocked copy: 20/20 ₹0, independently verified (3,387/3,387 rows, 0 duplicates); real dataset preview: 1/20 ready (Matin), 19 blocked with reasons.

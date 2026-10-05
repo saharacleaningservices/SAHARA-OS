@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { BellRing, BellOff, Loader2, Share, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPushPublicKey, savePushSubscription } from "@/server/actions/notifications";
+import { getMyLatestAlert } from "@/server/actions/staff-self";
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -49,19 +51,61 @@ export function playSaharaChime(important = false) {
  */
 export function StaffPushListener() {
   const router = useRouter();
+  const lastShown = useRef<string | null>(null);
+
+  // In-app popup + chime + short vibration for a real notification.
+  const popup = useCallback(
+    (n: { key: string; title: string; body?: string; href?: string; critical?: boolean }) => {
+      if (lastShown.current === n.key) return;
+      lastShown.current = n.key;
+      playSaharaChime(Boolean(n.critical));
+      try {
+        navigator.vibrate?.(n.critical ? [90, 60, 90, 60, 260] : [90, 60, 90]);
+      } catch {
+        /* vibration unsupported */
+      }
+      toast(n.title, {
+        description: n.body || undefined,
+        duration: n.critical ? 12000 : 6000,
+        action: n.href ? { label: "Open", onClick: () => router.push(n.href!) } : undefined,
+      });
+      router.refresh();
+    },
+    [router],
+  );
+
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
     navigator.serviceWorker.register("/sw.js").catch(() => {});
     const onMessage = (e: MessageEvent) => {
-      if (e.data?.type === "sahara-push") {
-        playSaharaChime(Boolean(e.data.critical));
-        router.refresh();
-      }
+      if (e.data?.type === "sahara-push") popup({ key: e.data.tag ?? String(Date.now()), title: e.data.title ?? "Sahara", body: e.data.body, href: e.data.href, critical: e.data.critical });
     };
     navigator.serviceWorker.addEventListener("message", onMessage);
     if ("Notification" in window && Notification.permission === "granted") void subscribe().catch(() => {});
     return () => navigator.serviceWorker.removeEventListener("message", onMessage);
-  }, [router]);
+  }, [popup]);
+
+  // Fallback when push isn't available (permission not granted / no VAPID):
+  // a tiny check every 60 s, ONLY while the app is open and visible.
+  useEffect(() => {
+    let seen: string | null | undefined;
+    const check = async () => {
+      if (document.visibilityState !== "visible") return;
+      const r = await getMyLatestAlert().catch(() => null);
+      if (!r) return;
+      const id = r.latest?.id ?? null;
+      if (seen !== undefined && id && id !== seen) popup({ key: id, title: r.latest!.title, body: r.latest!.body ?? undefined, href: r.latest!.href ?? undefined, critical: r.latest!.critical });
+      seen = id;
+    };
+    void check();
+    const timer = setInterval(check, 60_000);
+    const onVis = () => void check();
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [popup]);
   return null;
 }
 

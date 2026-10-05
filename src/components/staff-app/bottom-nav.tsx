@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, CalendarDays, Wallet, QrCode, Bell } from "lucide-react";
+import { Home, Briefcase, Wallet, Bell, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Labels = { home: string; calendar: string; money: string; customer: string; alerts: string };
+type Labels = { home: string; jobs: string; money: string; alerts: string; profile: string };
 const ITEMS = [
   { href: "/my", key: "home", icon: Home, match: (p: string) => p === "/my" },
-  { href: "/my/calendar", key: "calendar", icon: CalendarDays, match: (p: string) => p.startsWith("/my/calendar") || p.startsWith("/my/day") },
+  { href: "/my/calendar", key: "jobs", icon: Briefcase, match: (p: string) => p.startsWith("/my/calendar") || p.startsWith("/my/day") || p.startsWith("/my/jobs") || p.startsWith("/my/tools") },
   { href: "/my/records", key: "money", icon: Wallet, match: (p: string) => p.startsWith("/my/records") },
-  { href: "/my/tools", key: "customer", icon: QrCode, match: (p: string) => p.startsWith("/my/tools") },
   { href: "/my/alerts", key: "alerts", icon: Bell, match: (p: string) => p.startsWith("/my/alerts") || p.startsWith("/my/announcements") },
+  { href: "/my/account", key: "profile", icon: UserRound, match: (p: string) => p.startsWith("/my/account") },
 ] as const;
 
 export function StaffBottomNav({ unread, labels }: { unread: number; labels: Labels }) {

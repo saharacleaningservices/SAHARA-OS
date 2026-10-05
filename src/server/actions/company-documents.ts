@@ -6,6 +6,11 @@ import { getSession } from "@/lib/session";
 import { COMPANY_DOC_CATEGORIES } from "@/lib/company-documents";
 
 export async function getCompanyDocuments() {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return [] as never;
+  }
   return db.companyDocument.findMany({ orderBy: { createdAt: "desc" } });
 }
 

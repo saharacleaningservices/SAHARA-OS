@@ -49,7 +49,7 @@ function canOperateAttendance(role?: string) {
 function canEditCalendar(role?: string) {
   // RBAC 2026-10-05 (owner): Francis (OPERATIONS / SUPERVISOR) may ONLY mark
   // Present / Absent for today — see markTodayPresentAbsent. Calendar
-  // backfill, other statuses, bulk and month-close are Super Admin + Accounts (Shweta).
+  // backfill, other statuses, bulk and month-close are Super Admin + Accounts.
   return role === "ADMIN" || role === "ACCOUNTS";
 }
 

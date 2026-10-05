@@ -102,7 +102,9 @@ export const ModelName = {
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
   StaffLedgerEntry: 'StaffLedgerEntry',
+  OvertimeRecord: 'OvertimeRecord',
   StaffLoanEntry: 'StaffLoanEntry',
+  AnnouncementRead: 'AnnouncementRead',
   KhataImportBatch: 'KhataImportBatch',
   KhataImportLog: 'KhataImportLog'
 } as const
@@ -177,6 +179,10 @@ export const StaffScalarFieldEnum = {
   photoUrl: 'photoUrl',
   notes: 'notes',
   ledgerCutoverAt: 'ledgerCutoverAt',
+  language: 'language',
+  bankName: 'bankName',
+  bankAccountName: 'bankAccountName',
+  upiId: 'upiId',
   qrCode: 'qrCode',
   userId: 'userId',
   createdAt: 'createdAt',
@@ -860,7 +866,10 @@ export const AnnouncementScalarFieldEnum = {
   publishedAt: 'publishedAt',
   expiresAt: 'expiresAt',
   createdByName: 'createdByName',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  audience: 'audience',
+  staffIds: 'staffIds',
+  teamNumbers: 'teamNumbers'
 } as const
 
 export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
@@ -1087,6 +1096,11 @@ export const StaffLedgerEntryScalarFieldEnum = {
   amount: 'amount',
   signedAmount: 'signedAmount',
   description: 'description',
+  paymentMode: 'paymentMode',
+  reference: 'reference',
+  upiId: 'upiId',
+  reversalOfId: 'reversalOfId',
+  reason: 'reason',
   source: 'source',
   sourceParty: 'sourceParty',
   sourceRow: 'sourceRow',
@@ -1099,6 +1113,28 @@ export const StaffLedgerEntryScalarFieldEnum = {
 } as const
 
 export type StaffLedgerEntryScalarFieldEnum = (typeof StaffLedgerEntryScalarFieldEnum)[keyof typeof StaffLedgerEntryScalarFieldEnum]
+
+
+export const OvertimeRecordScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  date: 'date',
+  jobId: 'jobId',
+  regularHours: 'regularHours',
+  otHours: 'otHours',
+  otRate: 'otRate',
+  otAmount: 'otAmount',
+  reason: 'reason',
+  status: 'status',
+  createdByName: 'createdByName',
+  approvedByName: 'approvedByName',
+  approvedAt: 'approvedAt',
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName'
+} as const
+
+export type OvertimeRecordScalarFieldEnum = (typeof OvertimeRecordScalarFieldEnum)[keyof typeof OvertimeRecordScalarFieldEnum]
 
 
 export const StaffLoanEntryScalarFieldEnum = {
@@ -1122,6 +1158,16 @@ export const StaffLoanEntryScalarFieldEnum = {
 } as const
 
 export type StaffLoanEntryScalarFieldEnum = (typeof StaffLoanEntryScalarFieldEnum)[keyof typeof StaffLoanEntryScalarFieldEnum]
+
+
+export const AnnouncementReadScalarFieldEnum = {
+  id: 'id',
+  announcementId: 'announcementId',
+  userId: 'userId',
+  readAt: 'readAt'
+} as const
+
+export type AnnouncementReadScalarFieldEnum = (typeof AnnouncementReadScalarFieldEnum)[keyof typeof AnnouncementReadScalarFieldEnum]
 
 
 export const KhataImportBatchScalarFieldEnum = {

@@ -7,7 +7,6 @@ import { Section } from "@/components/staff-app/ui";
 import { PushControl } from "@/components/staff-app/push-control";
 import { StaffLogoutButton } from "@/components/staff-app/logout-button";
 import { ChangePasswordDialog } from "@/components/profile/change-password-dialog";
-import { LanguageSwitcher } from "@/components/staff-app/language-switcher";
 import { StaffPhotoUploader } from "@/components/staff/staff-photo-uploader";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +24,6 @@ export default async function StaffAccountPage() {
   ];
   return (
     <div className="space-y-4">
-      <LanguageSwitcher lang={lang} />
       <Section>
         <div className="flex items-center gap-3">
           <StaffPhotoUploader name={staff.name} photoUrl={staff.photoUrl} canEdit={!preview} labels={{ add: t("addPhoto"), change: t("changePhoto") }} />

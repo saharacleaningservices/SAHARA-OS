@@ -8,6 +8,8 @@ import { getAllStaffForList } from "@/server/staff";
 import { requireUser } from "@/lib/current-user";
 import { canViewSalary } from "@/lib/permissions";
 import { BarChart3 } from "lucide-react";
+import { listOpenStaffPinResets } from "@/server/staff-pin-reset";
+import { PinResetRequests } from "@/components/staff/pin-reset-requests";
 
 export default async function StaffPage() {
   const session = await requireUser();
@@ -38,6 +40,7 @@ export default async function StaffPage() {
           ) : undefined
         }
       />
+      {showSalary && <PinResetRequests rows={await listOpenStaffPinResets()} />}
       <StaffExplorer staff={rows} canViewSalary={showSalary} />
     </div>
   );

@@ -104,6 +104,11 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
 }
 
 export async function importStaff(rows: unknown[]): Promise<ImportSummary> {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const results: ImportRowResult[] = [];
   let created = 0;
 

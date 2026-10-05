@@ -14,8 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model StaffLoanEntry
- * * Loan ledger — separate from salary. kind: LOAN_GIVEN | LOAN_REPAID | LOAN_OPENING.
- *  *  fromSalary = recovery cut from salary (also reduces Salary Due).
+ * 
  */
 export type StaffLoanEntryModel = runtime.Types.Result.DefaultSelection<Prisma.$StaffLoanEntryPayload>
 

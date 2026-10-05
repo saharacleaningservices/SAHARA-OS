@@ -25,6 +25,13 @@ export async function freezeJobTeam(jobId: string, opts: { force?: boolean } = {
   await db.job.update({ where: { id: jobId }, data: { teamSnapshot: JSON.stringify(snapshot) } });
 }
 
+/** Staff are told about a job only on its own day (no future-assignment alerts — owner rule 2026-10-05). */
+function isTodayOrPast(d: Date) {
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  return d <= end;
+}
+
 async function jobLabel(jobId: string) {
   const job = await db.job.findUnique({
     where: { id: jobId },
@@ -39,12 +46,12 @@ async function jobLabel(jobId: string) {
 export async function notifyCrewAssigned(jobId: string, staffIds: string[]) {
   if (staffIds.length === 0) return;
   const label = await jobLabel(jobId);
-  if (!label) return;
+  if (!label || !isTodayOrPast(label.job.scheduledDate)) return;
   await notifyStaff(staffIds, {
     kind: "STAFF_JOB_ASSIGNED",
-    title: `New job assigned — ${label.job.jobNumber}`,
+    title: `Today's job — ${label.job.jobNumber}`,
     body: label.text,
-    href: dayHref(label.job.scheduledDate, `job-${jobId}`),
+    href: `/my/jobs/${jobId}`,
     recordId: `${jobId}:assign:${Date.now()}`,
   });
 }
@@ -53,7 +60,7 @@ export async function notifyCrewAssigned(jobId: string, staffIds: string[]) {
 export async function notifyCrewChanged(jobId: string, staffIds: string[], what: string) {
   if (staffIds.length === 0) return;
   const label = await jobLabel(jobId);
-  if (!label) return;
+  if (!label || !isTodayOrPast(label.job.scheduledDate)) return;
   await notifyStaff(staffIds, {
     kind: "STAFF_JOB_CHANGED",
     title: `Job updated — ${label.job.jobNumber}`,
@@ -65,6 +72,7 @@ export async function notifyCrewChanged(jobId: string, staffIds: string[], what:
 
 export async function notifyCrewRemoved(jobId: string, staffIds: string[], previousDate: Date) {
   if (staffIds.length === 0) return;
+  if (!isTodayOrPast(previousDate)) return;
   const label = await jobLabel(jobId);
   if (!label) return;
   await notifyStaff(staffIds, {

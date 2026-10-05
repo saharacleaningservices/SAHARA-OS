@@ -81,6 +81,11 @@ const duplicateLeadError = (leadNumber: string) =>
   `An open enquiry ${leadNumber} already exists for this mobile number — open and update it instead.`;
 
 export async function createLead(values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const parsed = leadSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
@@ -200,6 +205,11 @@ export async function createLead(values: unknown) {
 
 /** AI Quick Capture — mobile + name + area + service, everything else later. */
 export async function quickCaptureLead(values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const parsed = quickCaptureSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
@@ -550,6 +560,11 @@ export async function scheduleVisit(leadId: string, date: string) {
 }
 
 export async function addFollowUp(leadId: string, values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const parsed = followUpSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -597,6 +612,11 @@ export async function addFollowUp(leadId: string, values: unknown) {
 }
 
 export async function toggleFollowUpDone(followUpId: string, leadId: string) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const followUp = await db.followUp.findUnique({ where: { id: followUpId } });
   if (!followUp) return { error: "Not found" };
   const nowDone = !followUp.isDone;
@@ -625,6 +645,11 @@ export async function toggleFollowUpDone(followUpId: string, leadId: string) {
  * previously a follow-up could only be created then ticked done.
  */
 export async function updateFollowUp(followUpId: string, leadId: string, values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const parsed = followUpSchema.partial().safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -672,6 +697,11 @@ export async function updateFollowUp(followUpId: string, leadId: string, values:
 }
 
 export async function addNote(leadId: string, values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const parsed = timelineNoteSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid note", success: false as const };
@@ -683,6 +713,11 @@ export async function addNote(leadId: string, values: unknown) {
 }
 
 export async function addVoiceNote(leadId: string, audioUrl: string) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   if (!audioUrl || !audioUrl.startsWith("/uploads/")) {
     return { error: "Invalid recording", success: false as const };
   }
@@ -693,6 +728,11 @@ export async function addVoiceNote(leadId: string, audioUrl: string) {
 }
 
 export async function logCall(leadId: string, values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const parsed = callLogSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -787,6 +827,11 @@ export async function updateLeadLocation(leadId: string, mapLink: string) {
 
 /** One-click repeat booking — clone the customer's last job into a fresh lead. */
 export async function createRepeatBooking(mobile: string) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
   const digits = mobile.replace(/[^\d]/g, "").slice(-10);

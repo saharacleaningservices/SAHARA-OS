@@ -157,6 +157,11 @@ export async function bulkCreateBookingLinks(
   kind: Kind,
   customers: { name: string; mobile: string; leadId?: string }[],
 ) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
   const results: { name: string; mobile: string; waUrl: string }[] = [];

@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { UserRound } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
 import { countMyUnread } from "@/server/staff-portal";
 import { getCompanySettings } from "@/server/settings";
@@ -10,6 +9,7 @@ import { StaffBottomNav } from "@/components/staff-app/bottom-nav";
 import { StaffPushListener } from "@/components/staff-app/push-control";
 import { StaffLogoutButton } from "@/components/staff-app/logout-button";
 import { HashHighlight } from "@/components/staff-app/hash-highlight";
+import { LanguageSwitcher } from "@/components/staff-app/language-switcher";
 import { Toaster } from "@/components/ui/sonner";
 import { exitStaffPreview } from "@/server/actions/staff-preview";
 import { getStaffLang } from "@/server/staff-lang";
@@ -46,13 +46,8 @@ export default async function StaffAppLayout({ children }: { children: ReactNode
           <Link href="/my" className="flex items-center" aria-label="Sahara Staff home">
             <CompanyLogo logoUrl={settings.logoUrl} className="h-8 w-auto" />
           </Link>
-          <Link
-            href="/my/account"
-            className="flex min-h-11 items-center gap-2 rounded-full border border-border px-3 text-sm font-medium text-foreground"
-          >
-            <UserRound className="size-4 text-primary" />
-            <span className="max-w-[11rem] truncate">{staff?.name ?? session.name}</span>
-          </Link>
+          <span className="sr-only">{staff?.name ?? session.name}</span>
+          <LanguageSwitcher lang={lang} label={t("language")} />
         </div>
       </header>
 
@@ -80,7 +75,7 @@ export default async function StaffAppLayout({ children }: { children: ReactNode
         )}
       </main>
 
-      {staff && <StaffBottomNav unread={unread} labels={{ home: t("navHome"), calendar: t("navCalendar"), money: t("navMoney"), customer: t("navCustomer"), alerts: t("navAlerts") }} />}
+      {staff && <StaffBottomNav unread={unread} labels={{ home: t("navHome"), jobs: t("navJobs"), money: t("navMoney"), alerts: t("navAlerts"), profile: t("navProfile") }} />}
       {!preview && <StaffPushListener />}
       <HashHighlight />
       <Toaster position="top-center" richColors />

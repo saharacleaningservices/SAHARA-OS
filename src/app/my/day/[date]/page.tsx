@@ -170,12 +170,7 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                     ))}
                   </ul>
                 </details>
-                {j.notes && (
-                  <div className="text-sm">
-                    <div className="text-xs font-semibold uppercase text-primary">{t("officeNotes")}</div>
-                    <p className="mt-1 whitespace-pre-line">{j.notes}</p>
-                  </div>
-                )}
+
                 <div className="flex items-start gap-2 text-sm">
                   <Users className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                   <div className="space-y-1">
@@ -214,7 +209,7 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                   </div>
                 ))}
                 {isToday && (
-                  <Link href={`/jobs/${j.id}`} className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-medium text-primary-foreground">
+                  <Link href={`/my/jobs/${j.id}`} className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-medium text-primary-foreground">
                     <ExternalLink className="size-4" /> Open job
                   </Link>
                 )}

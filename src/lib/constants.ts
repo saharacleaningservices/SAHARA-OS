@@ -698,7 +698,8 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
   // Field Staff (Worker): mobile-only — mark attendance, see assigned jobs,
   // upload before/after photos & videos, open Maps.
   // "my" = the Staff App (/my) — own records only, see src/server/staff-portal.ts.
-  STAFF: ["dashboard", "jobs", "profile", "attendance", "my"],
+  // 2026-10-05: Staff use ONLY the restricted Staff App (/my) — never CRM pages.
+  STAFF: ["my"],
 };
 
 export function canAccess(role: string, section: string) {

@@ -34,6 +34,9 @@ export type AnnouncementMinAggregateOutputType = {
   expiresAt: Date | null
   createdByName: string | null
   createdAt: Date | null
+  audience: string | null
+  staffIds: string | null
+  teamNumbers: string | null
 }
 
 export type AnnouncementMaxAggregateOutputType = {
@@ -46,6 +49,9 @@ export type AnnouncementMaxAggregateOutputType = {
   expiresAt: Date | null
   createdByName: string | null
   createdAt: Date | null
+  audience: string | null
+  staffIds: string | null
+  teamNumbers: string | null
 }
 
 export type AnnouncementCountAggregateOutputType = {
@@ -58,6 +64,9 @@ export type AnnouncementCountAggregateOutputType = {
   expiresAt: number
   createdByName: number
   createdAt: number
+  audience: number
+  staffIds: number
+  teamNumbers: number
   _all: number
 }
 
@@ -72,6 +81,9 @@ export type AnnouncementMinAggregateInputType = {
   expiresAt?: true
   createdByName?: true
   createdAt?: true
+  audience?: true
+  staffIds?: true
+  teamNumbers?: true
 }
 
 export type AnnouncementMaxAggregateInputType = {
@@ -84,6 +96,9 @@ export type AnnouncementMaxAggregateInputType = {
   expiresAt?: true
   createdByName?: true
   createdAt?: true
+  audience?: true
+  staffIds?: true
+  teamNumbers?: true
 }
 
 export type AnnouncementCountAggregateInputType = {
@@ -96,6 +111,9 @@ export type AnnouncementCountAggregateInputType = {
   expiresAt?: true
   createdByName?: true
   createdAt?: true
+  audience?: true
+  staffIds?: true
+  teamNumbers?: true
   _all?: true
 }
 
@@ -181,6 +199,9 @@ export type AnnouncementGroupByOutputType = {
   expiresAt: Date | null
   createdByName: string | null
   createdAt: Date
+  audience: string
+  staffIds: string | null
+  teamNumbers: string | null
   _count: AnnouncementCountAggregateOutputType | null
   _min: AnnouncementMinAggregateOutputType | null
   _max: AnnouncementMaxAggregateOutputType | null
@@ -214,6 +235,9 @@ export type AnnouncementWhereInput = {
   expiresAt?: Prisma.DateTimeNullableFilter<"Announcement"> | Date | string | null
   createdByName?: Prisma.StringNullableFilter<"Announcement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Announcement"> | Date | string
+  audience?: Prisma.StringFilter<"Announcement"> | string
+  staffIds?: Prisma.StringNullableFilter<"Announcement"> | string | null
+  teamNumbers?: Prisma.StringNullableFilter<"Announcement"> | string | null
 }
 
 export type AnnouncementOrderByWithRelationInput = {
@@ -226,6 +250,9 @@ export type AnnouncementOrderByWithRelationInput = {
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  staffIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamNumbers?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type AnnouncementWhereUniqueInput = Prisma.AtLeast<{
@@ -241,6 +268,9 @@ export type AnnouncementWhereUniqueInput = Prisma.AtLeast<{
   expiresAt?: Prisma.DateTimeNullableFilter<"Announcement"> | Date | string | null
   createdByName?: Prisma.StringNullableFilter<"Announcement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Announcement"> | Date | string
+  audience?: Prisma.StringFilter<"Announcement"> | string
+  staffIds?: Prisma.StringNullableFilter<"Announcement"> | string | null
+  teamNumbers?: Prisma.StringNullableFilter<"Announcement"> | string | null
 }, "id">
 
 export type AnnouncementOrderByWithAggregationInput = {
@@ -253,6 +283,9 @@ export type AnnouncementOrderByWithAggregationInput = {
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  staffIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamNumbers?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AnnouncementCountOrderByAggregateInput
   _max?: Prisma.AnnouncementMaxOrderByAggregateInput
   _min?: Prisma.AnnouncementMinOrderByAggregateInput
@@ -271,6 +304,9 @@ export type AnnouncementScalarWhereWithAggregatesInput = {
   expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Announcement"> | Date | string | null
   createdByName?: Prisma.StringNullableWithAggregatesFilter<"Announcement"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Announcement"> | Date | string
+  audience?: Prisma.StringWithAggregatesFilter<"Announcement"> | string
+  staffIds?: Prisma.StringNullableWithAggregatesFilter<"Announcement"> | string | null
+  teamNumbers?: Prisma.StringNullableWithAggregatesFilter<"Announcement"> | string | null
 }
 
 export type AnnouncementCreateInput = {
@@ -283,6 +319,9 @@ export type AnnouncementCreateInput = {
   expiresAt?: Date | string | null
   createdByName?: string | null
   createdAt?: Date | string
+  audience?: string
+  staffIds?: string | null
+  teamNumbers?: string | null
 }
 
 export type AnnouncementUncheckedCreateInput = {
@@ -295,6 +334,9 @@ export type AnnouncementUncheckedCreateInput = {
   expiresAt?: Date | string | null
   createdByName?: string | null
   createdAt?: Date | string
+  audience?: string
+  staffIds?: string | null
+  teamNumbers?: string | null
 }
 
 export type AnnouncementUpdateInput = {
@@ -307,6 +349,9 @@ export type AnnouncementUpdateInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  audience?: Prisma.StringFieldUpdateOperationsInput | string
+  staffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumbers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AnnouncementUncheckedUpdateInput = {
@@ -319,6 +364,9 @@ export type AnnouncementUncheckedUpdateInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  audience?: Prisma.StringFieldUpdateOperationsInput | string
+  staffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumbers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AnnouncementCreateManyInput = {
@@ -331,6 +379,9 @@ export type AnnouncementCreateManyInput = {
   expiresAt?: Date | string | null
   createdByName?: string | null
   createdAt?: Date | string
+  audience?: string
+  staffIds?: string | null
+  teamNumbers?: string | null
 }
 
 export type AnnouncementUpdateManyMutationInput = {
@@ -343,6 +394,9 @@ export type AnnouncementUpdateManyMutationInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  audience?: Prisma.StringFieldUpdateOperationsInput | string
+  staffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumbers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AnnouncementUncheckedUpdateManyInput = {
@@ -355,6 +409,9 @@ export type AnnouncementUncheckedUpdateManyInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  audience?: Prisma.StringFieldUpdateOperationsInput | string
+  staffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumbers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AnnouncementCountOrderByAggregateInput = {
@@ -367,6 +424,9 @@ export type AnnouncementCountOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  staffIds?: Prisma.SortOrder
+  teamNumbers?: Prisma.SortOrder
 }
 
 export type AnnouncementMaxOrderByAggregateInput = {
@@ -379,6 +439,9 @@ export type AnnouncementMaxOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  staffIds?: Prisma.SortOrder
+  teamNumbers?: Prisma.SortOrder
 }
 
 export type AnnouncementMinOrderByAggregateInput = {
@@ -391,6 +454,9 @@ export type AnnouncementMinOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   createdByName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
+  staffIds?: Prisma.SortOrder
+  teamNumbers?: Prisma.SortOrder
 }
 
 
@@ -405,6 +471,9 @@ export type AnnouncementSelect<ExtArgs extends runtime.Types.Extensions.Internal
   expiresAt?: boolean
   createdByName?: boolean
   createdAt?: boolean
+  audience?: boolean
+  staffIds?: boolean
+  teamNumbers?: boolean
 }, ExtArgs["result"]["announcement"]>
 
 export type AnnouncementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -417,6 +486,9 @@ export type AnnouncementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   expiresAt?: boolean
   createdByName?: boolean
   createdAt?: boolean
+  audience?: boolean
+  staffIds?: boolean
+  teamNumbers?: boolean
 }, ExtArgs["result"]["announcement"]>
 
 export type AnnouncementSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -429,6 +501,9 @@ export type AnnouncementSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   expiresAt?: boolean
   createdByName?: boolean
   createdAt?: boolean
+  audience?: boolean
+  staffIds?: boolean
+  teamNumbers?: boolean
 }, ExtArgs["result"]["announcement"]>
 
 export type AnnouncementSelectScalar = {
@@ -441,9 +516,12 @@ export type AnnouncementSelectScalar = {
   expiresAt?: boolean
   createdByName?: boolean
   createdAt?: boolean
+  audience?: boolean
+  staffIds?: boolean
+  teamNumbers?: boolean
 }
 
-export type AnnouncementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "body" | "important" | "isActive" | "publishedAt" | "expiresAt" | "createdByName" | "createdAt", ExtArgs["result"]["announcement"]>
+export type AnnouncementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "body" | "important" | "isActive" | "publishedAt" | "expiresAt" | "createdByName" | "createdAt" | "audience" | "staffIds" | "teamNumbers", ExtArgs["result"]["announcement"]>
 
 export type $AnnouncementPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Announcement"
@@ -458,6 +536,9 @@ export type $AnnouncementPayload<ExtArgs extends runtime.Types.Extensions.Intern
     expiresAt: Date | null
     createdByName: string | null
     createdAt: Date
+    audience: string
+    staffIds: string | null
+    teamNumbers: string | null
   }, ExtArgs["result"]["announcement"]>
   composites: {}
 }
@@ -890,6 +971,9 @@ export interface AnnouncementFieldRefs {
   readonly expiresAt: Prisma.FieldRef<"Announcement", 'DateTime'>
   readonly createdByName: Prisma.FieldRef<"Announcement", 'String'>
   readonly createdAt: Prisma.FieldRef<"Announcement", 'DateTime'>
+  readonly audience: Prisma.FieldRef<"Announcement", 'String'>
+  readonly staffIds: Prisma.FieldRef<"Announcement", 'String'>
+  readonly teamNumbers: Prisma.FieldRef<"Announcement", 'String'>
 }
     
 

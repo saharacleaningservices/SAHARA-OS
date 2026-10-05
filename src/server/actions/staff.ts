@@ -139,6 +139,11 @@ export async function bulkDeleteStaff(ids: string[]) {
 }
 
 export async function updateAvailability(staffId: string, availability: "AVAILABLE" | "ON_JOB" | "ON_LEAVE" | "OFF_DUTY") {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   await db.staff.update({ where: { id: staffId }, data: { availability } });
   revalidatePath("/staff");
   revalidatePath(`/staff/${staffId}`);
@@ -151,6 +156,11 @@ export async function markAttendance(
   status: "PRESENT" | "ABSENT" | "HALF_DAY" | "LEAVE",
   method: "MANUAL" | "QR" | "GPS" = "MANUAL"
 ) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const staff = await db.staff.findUnique({ where: { id: staffId } });
   if (!staff) return { error: "Staff not found", success: false as const };
 

@@ -19,6 +19,9 @@ export type StaffNotifKind =
   | "STAFF_REWARD"
   | "STAFF_JOB_ASSIGNED"
   | "STAFF_JOB_CHANGED"
+  | "STAFF_PAYMENT"
+  | "STAFF_LOAN"
+  | "STAFF_OVERTIME"
   | "ANNOUNCEMENT";
 
 export type StaffNotifyInput = {

@@ -1437,3 +1437,65 @@ db.close();
   console.log("Staff ledgers + Khata import log migration complete.");
   lgDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff App finalisation (2026-10-05, additive only): staff language + payment
+// details, payment mode/reference/reversal on the staff ledger, overtime,
+// announcement recipients + read receipts.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const fDb = new Database(dbPath);
+  fDb.pragma("foreign_keys = ON");
+  const addCol = (table, column, ddl) => {
+    const cols = fDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) fDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  };
+  addCol("Staff", "language", `"language" TEXT`);
+  addCol("Staff", "bankName", `"bankName" TEXT`);
+  addCol("Staff", "bankAccountName", `"bankAccountName" TEXT`);
+  addCol("Staff", "upiId", `"upiId" TEXT`);
+  for (const c of ["paymentMode", "reference", "upiId", "reversalOfId", "reason"]) addCol("StaffLedgerEntry", c, `"${c}" TEXT`);
+  addCol("Announcement", "audience", `"audience" TEXT NOT NULL DEFAULT 'ALL'`);
+  addCol("Announcement", "staffIds", `"staffIds" TEXT`);
+  addCol("Announcement", "teamNumbers", `"teamNumbers" TEXT`);
+  fDb.exec(`
+    CREATE TABLE IF NOT EXISTS "OvertimeRecord" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "staffId" TEXT NOT NULL,
+      "date" DATETIME NOT NULL,
+      "jobId" TEXT,
+      "regularHours" REAL NOT NULL DEFAULT 8,
+      "otHours" REAL NOT NULL,
+      "otRate" REAL NOT NULL,
+      "otAmount" REAL NOT NULL,
+      "reason" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "createdByName" TEXT,
+      "approvedByName" TEXT,
+      "approvedAt" DATETIME,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "deletedAt" DATETIME,
+      "deletedByName" TEXT,
+      CONSTRAINT "OT_staff" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS "OvertimeRecord_staffId_date_idx" ON "OvertimeRecord"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "OvertimeRecord_status_idx" ON "OvertimeRecord"("status");
+    CREATE TABLE IF NOT EXISTS "AnnouncementRead" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "announcementId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "readAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "AnnouncementRead_announcementId_userId_key" ON "AnnouncementRead"("announcementId", "userId");
+  `);
+  // Owner rule: real employees start at SCS-001 (Mahesh first). The only SCS
+  // codes issued so far belong to SOFT-DELETED DEMO staff (isDemo = 1), never
+  // real people — re-label those DEMO-### so the real sequence starts at 001.
+  // Real (non-demo) or active staff codes are never touched. Idempotent.
+  const demoRelabel = fDb
+    .prepare(`UPDATE "Staff" SET "employeeCode" = 'DEMO-' || substr("employeeCode", 5) WHERE "isDemo" = 1 AND "deletedAt" IS NOT NULL AND "employeeCode" LIKE 'SCS-%'`)
+    .run();
+  if (demoRelabel.changes) console.log(`Re-labelled ${demoRelabel.changes} deleted demo staff codes to DEMO-###.`);
+  console.log("Staff App finalisation migration complete.");
+  fDb.close();
+}

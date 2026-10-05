@@ -155,8 +155,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Field Staff live entirely inside the Staff App (/my); every CRM page sends them back there.
+  const isStaff = (session as { role?: string }).role === "STAFF";
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL(isStaff ? "/my" : "/dashboard", request.url));
   }
 
   if (pathname.startsWith("/api/")) {
@@ -164,13 +166,16 @@ export async function middleware(request: NextRequest) {
   }
 
   // Authenticated pages that every role may reach (no section gating).
-  if (pathname === "/set-password" || pathname === "/profile") {
+  if (pathname === "/set-password") {
     return NextResponse.next();
+  }
+  if (pathname === "/profile") {
+    return isStaff ? NextResponse.redirect(new URL("/my/account", request.url)) : NextResponse.next();
   }
 
   const section = getSectionFromPath(pathname);
   if (section && !canAccess(session.role || "", section)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL(isStaff ? "/my" : "/dashboard", request.url));
   }
 
   return NextResponse.next();

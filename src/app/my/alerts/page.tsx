@@ -19,6 +19,9 @@ const ICONS: Record<string, typeof Bell> = {
   STAFF_SALARY: IndianRupee,
   STAFF_JOB_ASSIGNED: Briefcase,
   STAFF_JOB_CHANGED: RefreshCw,
+  STAFF_PAYMENT: IndianRupee,
+  STAFF_LOAN: Wallet,
+  STAFF_OVERTIME: Award,
   ANNOUNCEMENT: Megaphone,
 };
 

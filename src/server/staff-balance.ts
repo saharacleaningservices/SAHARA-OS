@@ -51,25 +51,35 @@ async function loadAll(staffId: string) {
   if (!staff) return null;
   const cut = staff.ledgerCutoverAt;
   const after = cut ? { gt: cut } : undefined;
-  const [ledger, loans, attendance, advances, fines, rewards, salaryPaid] = await Promise.all([
-    db.staffLedgerEntry.findMany({ where: { staffId, deletedAt: null }, select: { date: true, kind: true, amount: true, signedAmount: true, description: true } }),
+  const [ledger, loans, attendance, advances, fines, rewards, salaryPaid, overtime] = await Promise.all([
+    db.staffLedgerEntry.findMany({ where: { staffId, deletedAt: null }, select: { id: true, date: true, kind: true, amount: true, signedAmount: true, description: true, paymentMode: true, reference: true, source: true } }),
     db.staffLoanEntry.findMany({ where: { staffId, deletedAt: null }, orderBy: { date: "asc" }, select: { date: true, kind: true, amount: true, signedAmount: true, fromSalary: true, source: true, description: true } }),
     db.attendance.findMany({ where: { staffId, ...(after ? { date: after } : {}) }, select: { date: true, status: true, wageForDay: true, notes: true } }),
     db.advance.findMany({ where: { staffId, ...(after ? { givenAt: after } : {}) }, select: { givenAt: true, amount: true, reason: true } }),
     db.fineRecord.findMany({ where: { staffId, ...(after ? { date: after } : {}) }, select: { date: true, amount: true, type: true, notes: true } }),
     db.rewardRecord.findMany({ where: { staffId, ...(after ? { date: after } : {}) }, select: { date: true, amount: true, type: true } }),
     db.expense.findMany({ where: { staffId, category: "SALARY", deletedAt: null, isDemo: false, ...(after ? { date: after } : {}) }, select: { date: true, amount: true, description: true } }),
+    // Only APPROVED overtime is money owed; pending/rejected never count.
+    db.overtimeRecord.findMany({ where: { staffId, deletedAt: null, status: "APPROVED" }, select: { date: true, otHours: true, otAmount: true, reason: true } }),
   ]);
 
   const entries: MoneyEntry[] = [];
   for (const l of ledger) {
     const group = LEDGER_GROUP[l.kind] ?? (l.signedAmount >= 0 ? "work" : "paid");
-    entries.push({ date: l.date, group, amount: group === "opening" ? l.signedAmount : l.amount, text: l.description ?? "", source: "KHATABOOK", kind: l.kind });
+    entries.push({
+      date: l.date,
+      group,
+      amount: group === "opening" ? l.signedAmount : l.amount,
+      text: [l.description, l.paymentMode ? l.paymentMode.replace("_", " ") : null, l.reference ? `Ref ${l.reference}` : null].filter(Boolean).join(" · "),
+      source: l.source === "KHATABOOK" ? "KHATABOOK" : "APP",
+      kind: l.kind,
+    });
   }
   for (const a of attendance) {
     const earned = computeEarned(staff, [a]).earned;
     if (earned > 0) entries.push({ date: a.date, group: "work", amount: earned, text: a.notes ?? (a.status === "HALF_DAY" ? "Half day" : "Work day"), source: "APP", kind: a.status });
   }
+  for (const o of overtime) entries.push({ date: o.date, group: "work", amount: o.otAmount, text: `${o.otHours} h${o.reason ? ` · ${o.reason}` : ""}`, source: "APP", kind: "OVERTIME" });
   for (const r of rewards) entries.push({ date: r.date, group: "work", amount: r.amount, text: r.type, source: "APP", kind: "REWARD" });
   for (const a of advances) entries.push({ date: a.givenAt, group: "paid", amount: a.amount, text: a.reason ?? "Advance", source: "APP", kind: "ADVANCE" });
   for (const f of fines) entries.push({ date: f.date, group: "paid", amount: f.amount, text: [f.type, f.notes].filter(Boolean).join(" · "), source: "APP", kind: "FINE" });
@@ -145,6 +155,13 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
       opening: r2(rows.filter((e) => e.group === "opening").reduce((s, e) => s + e.amount, 0)),
     };
   });
+  // Khata-style ledger with running balance (oldest first, then shown newest first).
+  let run = total(before);
+  const lines = inY.map((e) => {
+    const delta = e.group === "work" ? e.amount : e.group === "paid" ? -e.amount : e.amount;
+    run += delta;
+    return { date: e.date, text: e.text, kind: e.kind, source: e.source, credit: delta > 0 ? Math.abs(delta) : 0, debit: delta < 0 ? Math.abs(delta) : 0, balance: r2(run) };
+  });
   const loanY = loanEntries.filter((l) => l.date < y1);
   return {
     startBalance: r2(total(before)),
@@ -153,6 +170,7 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
     work: inY.filter((e) => e.group === "work").reverse(),
     paid: inY.filter((e) => e.group === "paid").reverse(),
     opening: inY.filter((e) => e.group === "opening"),
+    lines: lines.reverse(),
     loan: {
       entries: loanY.slice().reverse(),
       given: r2(loanY.filter((l) => l.signedAmount > 0).reduce((s, l) => s + l.signedAmount, 0)),

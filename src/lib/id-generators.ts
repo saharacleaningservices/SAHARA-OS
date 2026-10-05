@@ -42,9 +42,15 @@ export async function generateCertificateNumber() {
   return nextNumber("CERT", count);
 }
 
+/**
+ * Permanent employee code SCS-001, SCS-002… = highest SCS number ever issued
+ * (incl. soft-deleted / inactive staff) + 1, so a code is never reused even
+ * after deletions. (A row count would hand out an existing code again.)
+ */
 export async function generateEmployeeCode() {
-  const count = await db.staff.count();
-  return `SCS-${String(count + 1).padStart(3, "0")}`;
+  const rows = await db.staff.findMany({ where: { employeeCode: { startsWith: "SCS-" } }, select: { employeeCode: true } });
+  const max = rows.reduce((m, r) => Math.max(m, Number(r.employeeCode.slice(4)) || 0), 0);
+  return `SCS-${String(max + 1).padStart(3, "0")}`;
 }
 
 export async function generateAmcNumber() {

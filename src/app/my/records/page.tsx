@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // "My Money" — simple words only (Salary · Paid · Due · Loan · Work). Same
 // numbers as the home screen and the office (server/staff-balance.ts).
 
-const TABS = ["salary", "work", "paid", "loan"] as const;
+const TABS = ["salary", "ledger", "paid", "loan"] as const;
 type Tab = (typeof TABS)[number];
 
 export default async function MyMoneyPage({ searchParams }: { searchParams: Promise<{ tab?: string; year?: string }> }) {
@@ -20,7 +20,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
   const sp = await searchParams;
   const now = new Date();
   const year = Math.min(Math.max(Number(sp.year) || now.getFullYear(), 2020), 2100);
-  const tab: Tab = (TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as Tab) : "salary";
+  const tab: Tab = sp.tab === "work" ? "ledger" : (TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as Tab) : "salary";
   const [data, money, lang] = await Promise.all([getStaffMoneyYear(staff.id, year), getStaffMoney(staff.id), getStaffLang()]);
   if (!data || !money) return null;
   const t = staffT(lang);
@@ -33,7 +33,15 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
   const slipOk = (m: number) => !cut || new Date(year, m - 1, 1) > cut;
   const due = money.salaryDue;
   const isThisYear = year === now.getFullYear();
-  const tabLabel: Record<Tab, string> = { salary: t("salary"), work: t("workList"), paid: t("paidList"), loan: t("loan") };
+  const tabLabel: Record<Tab, string> = { salary: t("salary"), ledger: t("ledger"), paid: t("paidList"), loan: t("loan") };
+  // Due at the end of each month = running balance (old balance + salary + fare − paid). The latest month's Due equals the big number above.
+  let run = data.startBalance;
+  const monthRows = data.months.map((m) => {
+    run += m.salary + m.fare - m.paid + m.opening;
+    return { ...m, due: Math.round(run * 100) / 100 };
+  });
+  const visibleMonths = monthRows.filter((m) => m.salary || m.paid || m.opening || m.fare || (isThisYear && m.month === now.getMonth() + 1));
+  const COLS = "grid grid-cols-[minmax(0,1fr)_2.5rem_4.75rem_4.75rem_4.75rem] gap-x-2";
 
   return (
     <div className="space-y-4">
@@ -74,24 +82,23 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
 
       {tab === "salary" && (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 border-b border-border bg-muted/50 px-4 py-2 text-[11px] font-bold uppercase text-muted-foreground">
+          <div className={cn(COLS, "border-b border-border bg-muted/50 px-3 py-2 text-[11px] font-bold uppercase text-muted-foreground")}>
             <span>{t("month")}</span>
             <span className="text-right">{t("workDays")}</span>
             <span className="text-right">{t("salary")}</span>
             <span className="text-right">{t("paid")}</span>
+            <span className="text-right">{t("due")}</span>
           </div>
-          {data.months.filter((m) => m.salary || m.paid || m.opening || (isThisYear && m.month === now.getMonth() + 1)).length === 0 && (
-            <p className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</p>
-          )}
-          {data.months
-            .filter((m) => m.salary || m.paid || m.opening || (isThisYear && m.month === now.getMonth() + 1))
+          {visibleMonths.length === 0 && <p className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</p>}
+          {visibleMonths
+            .slice()
             .reverse()
             .map((m) => (
-              <div key={m.month} className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-x-3 border-b border-border px-4 py-3 last:border-0">
-                <span className="font-semibold">
+              <div key={m.month} className={cn(COLS, "items-start border-b border-border px-3 py-3 text-sm")}>
+                <span className="min-w-0 font-semibold">
                   {monthName(m.month)}
                   {slipOk(m.month) && (m.salary || m.paid) ? (
-                    <a href={slipHref(m.month)} target="_blank" rel="noreferrer" className="ml-2 inline-flex items-center gap-0.5 text-[11px] font-medium text-primary">
+                    <a href={slipHref(m.month)} target="_blank" rel="noreferrer" className="flex items-center gap-0.5 text-[11px] font-medium text-primary">
                       <FileDown className="size-3" /> {t("salarySlip")}
                     </a>
                   ) : null}
@@ -100,27 +107,67 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
                 <span className="text-right tabular-nums">{m.workDays}</span>
                 <span className="text-right font-bold tabular-nums text-success">
                   {inr(m.salary)}
-                  {m.fare ? <span className="block text-[10px] font-medium text-muted-foreground">+ {t("autoFare")} {inr(m.fare)}</span> : null}
+                  {m.fare ? <span className="block text-[10px] font-medium text-muted-foreground">+{t("autoFare")} {inr(m.fare)}</span> : null}
                 </span>
                 <span className="text-right font-bold tabular-nums text-destructive">{inr(m.paid)}</span>
+                <span className={cn("text-right font-extrabold tabular-nums", m.due < 0 ? "text-destructive" : "")}>{signed(lang, m.due)}</span>
               </div>
             ))}
+          {data.startBalance !== 0 && (
+            <div className={cn(COLS, "border-b border-border px-3 py-2 text-xs text-muted-foreground")}>
+              <span className="col-span-4">{t("oldBalance")} ({year - 1})</span>
+              <span className="text-right font-bold tabular-nums">{signed(lang, data.startBalance)}</span>
+            </div>
+          )}
+          <div className={cn(COLS, "bg-muted/50 px-3 py-2.5 text-sm font-extrabold")}>
+            <span>{t("totalDue")}</span>
+            <span className="text-right tabular-nums">{visibleMonths.reduce((s2, m) => s2 + m.workDays, 0)}</span>
+            <span className="text-right tabular-nums text-success">{inr(visibleMonths.reduce((s2, m) => s2 + m.salary + m.fare, 0))}</span>
+            <span className="text-right tabular-nums text-destructive">{inr(visibleMonths.reduce((s2, m) => s2 + m.paid, 0))}</span>
+            <span className="text-right tabular-nums">{signed(lang, data.endBalance)}</span>
+          </div>
         </section>
       )}
 
-      {(tab === "work" || tab === "paid") && (
+      {tab === "ledger" && (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          {(tab === "work" ? data.work : data.paid).length === 0 && <p className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</p>}
+          <div className="grid grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_5rem] gap-x-2 border-b border-border bg-muted/50 px-3 py-2 text-[11px] font-bold uppercase text-muted-foreground">
+            <span>{t("date")}</span>
+            <span className="text-right">{t("credit")}</span>
+            <span className="text-right">{t("debit")}</span>
+            <span className="text-right">{t("runningBalance")}</span>
+          </div>
+          {data.lines.length === 0 && <p className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</p>}
           <ul className="divide-y divide-border">
-            {(tab === "work" ? data.work : data.paid).map((e, i) => (
+            {data.lines.map((l, i) => (
+              <li key={i} className="grid grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_5rem] items-start gap-x-2 px-3 py-2.5 text-sm">
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-muted-foreground">{fmt(l.date)}</div>
+                  <div className="break-words text-[13px]">{l.kind === "OVERTIME" ? `${t("overtime")} · ${l.text}` : l.kind === "AUTO_FARE" ? `${t("autoFare")}${l.text && l.text !== "Auto fare" ? ` · ${l.text}` : ""}` : l.text || (l.credit ? t("work") : t("paid"))}</div>
+                  {l.source === "KHATABOOK" && <div className="text-[10px] text-muted-foreground">{t("fromKhata")}</div>}
+                </div>
+                <span className="text-right font-bold tabular-nums text-success">{l.credit ? inr(l.credit) : ""}</span>
+                <span className="text-right font-bold tabular-nums text-destructive">{l.debit ? inr(l.debit) : ""}</span>
+                <span className={cn("text-right font-extrabold tabular-nums", l.balance < 0 && "text-destructive")}>{signed(lang, l.balance)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {tab === "paid" && (
+        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+          {data.paid.length === 0 && <p className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</p>}
+          <ul className="divide-y divide-border">
+            {data.paid.map((e, i) => (
               <li key={i} className="flex items-start justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <div className="text-xs font-semibold text-muted-foreground">{fmt(e.date)}</div>
-                  <div className="break-words text-sm font-medium">{e.text || (tab === "work" ? t("work") : t("paid"))}</div>
+                  <div className="break-words text-sm font-medium">{e.text || t("paid")}</div>
                   {e.source === "KHATABOOK" && <div className="text-[10px] text-muted-foreground">{t("fromKhata")}</div>}
                 </div>
-                <div className={cn("shrink-0 text-base font-extrabold tabular-nums", tab === "work" ? "text-success" : "text-destructive")}>
-                  {tab === "work" ? "+" : "−"}
+                <div className="shrink-0 text-base font-extrabold tabular-nums text-destructive">
+                  −
                   {inr(e.amount)}
                 </div>
               </li>
