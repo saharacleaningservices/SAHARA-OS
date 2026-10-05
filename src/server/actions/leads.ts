@@ -345,16 +345,17 @@ export async function updateLead(id: string, values: unknown) {
   const newDate = data.serviceDate ? new Date(data.serviceDate) : null;
   const dateChanged = data.serviceDate !== undefined && (newDate?.getTime() ?? null) !== (before?.serviceDate?.getTime() ?? null);
   const slotChanged = data.timeSlot !== undefined && (data.timeSlot || null) !== (before?.timeSlot ?? null);
-  if (dateChanged || slotChanged) {
-    const session = await getSession();
-    const jobId = await rescheduleJobFromLead(id, dateChanged ? newDate : null, slotChanged ? data.timeSlot || null : null, session?.sub);
-    if (jobId) {
-      await syncLeadFromJob(jobId, session?.sub);
-      revalidatePath("/jobs");
-      revalidatePath(`/jobs/${jobId}`);
-      revalidatePath("/dashboard");
-    }
+  const session = await getSession();
+  const movedJobId = dateChanged || slotChanged ? await rescheduleJobFromLead(id, dateChanged ? newDate : null, slotChanged ? data.timeSlot || null : null, session?.sub) : null;
+  // Any booked enquiry is re-mirrored from its job after a save, so stale form
+  // values (e.g. an old follow-up date) never override the job's schedule.
+  const bookedJob = await db.job.findFirst({ where: { leadId: id, deletedAt: null }, select: { id: true } });
+  if (bookedJob) await syncLeadFromJob(movedJobId ?? bookedJob.id, session?.sub);
+  if (movedJobId) {
+    revalidatePath("/jobs");
+    revalidatePath(`/jobs/${movedJobId}`);
   }
+  if (bookedJob) revalidatePath("/dashboard");
   revalidatePath("/leads");
   revalidatePath(`/leads/${id}`);
   return { success: true, leadId: id };
@@ -544,7 +545,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
 
   await db.lead.update({
     where: { id: leadId },
-    data: { stage: "JOB_SCHEDULED", followUpDate: scheduledDate, teamNumber },
+    data: { stage: "JOB_SCHEDULED", followUpDate: scheduledDate, serviceDate: scheduledDate, timeSlot: data.timeSlot, teamNumber },
   });
 
   await addTimelineEntry({
