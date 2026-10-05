@@ -42,15 +42,19 @@ export async function generateCertificateNumber() {
   return nextNumber("CERT", count);
 }
 
+/** SCS-0001…SCS-0021 are the owner-approved Employee ID master (server/employee-id-master.ts). */
+export const EMPLOYEE_ID_RESERVED_UPTO = 21;
+
 /**
- * Permanent employee code SCS-001, SCS-002… = highest SCS number ever issued
- * (incl. soft-deleted / inactive staff) + 1, so a code is never reused even
- * after deletions. (A row count would hand out an existing code again.)
+ * Permanent Employee ID, format SCS-#### (owner rule 05-Oct-2026).
+ * Next = highest SCS-#### ever issued (incl. soft-deleted / inactive staff) + 1,
+ * never below the reserved master range, so an ID is never reused.
+ * Legacy 3-digit codes (SCS-021…) are a different format and are ignored.
  */
 export async function generateEmployeeCode() {
   const rows = await db.staff.findMany({ where: { employeeCode: { startsWith: "SCS-" } }, select: { employeeCode: true } });
-  const max = rows.reduce((m, r) => Math.max(m, Number(r.employeeCode.slice(4)) || 0), 0);
-  return `SCS-${String(max + 1).padStart(3, "0")}`;
+  const max = rows.reduce((m, r) => (/^SCS-\d{4}$/.test(r.employeeCode) ? Math.max(m, Number(r.employeeCode.slice(4))) : m), EMPLOYEE_ID_RESERVED_UPTO);
+  return `SCS-${String(max + 1).padStart(4, "0")}`;
 }
 
 export async function generateAmcNumber() {
