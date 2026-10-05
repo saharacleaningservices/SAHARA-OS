@@ -62,6 +62,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Reports", href: "/reports", section: "reports", icon: FileText },
   { label: "Export Center", href: "/reports/export-center", section: "reports", icon: FileSpreadsheet },
   { label: "Pricing & Packages", href: "/settings/pricing", section: "pricing", icon: IndianRupee },
+  { label: "Khata Book Import", href: "/admin/khata-import", section: "khata-import", icon: FileSpreadsheet },
   { label: "Announcements", href: "/admin/announcements", section: "announcements", icon: Megaphone },
   { label: "AI Assistant", href: "/assistant", section: "assistant", icon: Sparkles },
   { label: "Gallery", href: "/admin/gallery", section: "admin", icon: Images },

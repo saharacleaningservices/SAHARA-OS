@@ -1,244 +1,224 @@
 import Link from "next/link";
-import { CalendarDays, ChevronRight, KeyRound, MapPin, Megaphone, Phone, Siren, Users, Clock, ExternalLink, FileDown, QrCode } from "lucide-react";
+import { CalendarDays, ChevronRight, Clock, KeyRound, Landmark, MapPin, Phone, Users, Wallet, BadgeIndianRupee, HandCoins, CircleCheck } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
 import { getPortalHome, toIsoDay } from "@/server/staff-portal";
+import { getStaffMoney } from "@/server/staff-balance";
+import { getStaffLang } from "@/server/staff-lang";
 import { getCompanySettings } from "@/server/settings";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
-import { Section, StatusChip, EmptyNote, JOB_STATUS_LABEL } from "@/components/staff-app/ui";
-import { PushControl } from "@/components/staff-app/push-control";
-import { initials } from "@/lib/utils";
+import { inrFor, staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
+import { LanguageSwitcher } from "@/components/staff-app/language-switcher";
+import { initials, cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-function TeamLine({ team }: { team: { staffId: string; name: string; isLead: boolean; isMe: boolean }[] }) {
-  if (team.length === 0) return <span className="text-muted-foreground">Team not assigned yet</span>;
-  return (
-    <span className="flex flex-wrap gap-1.5">
-      {team.map((m) => (
-        <span
-          key={m.staffId}
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${m.isMe ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}
-        >
-          {m.isMe ? "You" : m.name}
-          {m.isLead ? " ★" : ""}
-        </span>
-      ))}
-    </span>
-  );
-}
+// Staff App home — deliberately simple (owner rule 2026-10-05): name, today's
+// work, salary, paid, salary due, loan, attendance. Big numbers, few colours:
+// green = earned / owed to the worker, red = paid / advance, loan in its own box.
+
+const STATUS_CLS: Record<string, string> = {
+  PRESENT: "bg-success text-white",
+  HALF_DAY: "bg-warning text-white",
+  ABSENT: "bg-destructive text-white",
+  LEAVE: "bg-violet-600 text-white",
+  WEEKLY_OFF: "bg-slate-400 text-white",
+};
 
 export default async function StaffHomePage() {
-  const { staff, onInitialPin, preview } = await requireMyStaff();
+  const { staff, onInitialPin } = await requireMyStaff();
   if (!staff) return null;
-  const [home, settings] = await Promise.all([getPortalHome(staff), getCompanySettings()]);
+  const [home, money, lang, settings] = await Promise.all([getPortalHome(staff), getStaffMoney(staff.id), getStaffLang(), getCompanySettings()]);
+  const t = staffT(lang);
+  const inr = (n: number) => inrFor(lang, n);
   const today = new Date();
-  const officePhones = [...new Set([settings.phone, ...COMPANY.phones].filter(Boolean))];
+  const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
+  const due = money?.salaryDue ?? 0;
+  const loan = money?.loan ?? { given: 0, paid: 0, remaining: 0 };
+  const status = home.attendance?.status ?? null;
 
   return (
     <div className="space-y-4">
-      {/* Profile + today's status */}
-      <section className="rounded-2xl bg-primary p-4 text-primary-foreground shadow-sm">
+      {/* 👤 My Name */}
+      <section className="rounded-3xl bg-gradient-to-br from-primary to-[#0a3d8f] p-4 text-primary-foreground shadow-md">
         <div className="flex items-center gap-3">
           {staff.photoUrl ? (
-            <img src={staff.photoUrl} alt="" className="size-14 rounded-full border-2 border-white/40 object-cover" />
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={staff.photoUrl} alt="" className="size-16 rounded-full border-2 border-white/50 object-cover" />
           ) : (
-            <div className="flex size-14 items-center justify-center rounded-full bg-white/15 text-lg font-bold">{initials(staff.name)}</div>
+            <div className="flex size-16 items-center justify-center rounded-full bg-white/15 text-xl font-bold">{initials(staff.name)}</div>
           )}
           <div className="min-w-0 flex-1">
-            <div className="truncate text-lg font-bold">{staff.name}</div>
-            <div className="text-sm opacity-85">
-              {staff.employeeCode} · {staff.designation}
-            </div>
+            <div className="text-xs font-medium opacity-80">👤 {t("myName")}</div>
+            <div className="break-words text-xl font-extrabold leading-tight">{staff.name}</div>
+            <div className="text-xs opacity-80">{staff.designation}</div>
           </div>
-        </div>
-        <div className="mt-4 flex items-center justify-between rounded-xl bg-white/10 px-3 py-2.5">
-          <div>
-            <div className="text-xs opacity-80">{today.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</div>
-            <div className="text-sm font-semibold">Today’s attendance</div>
-          </div>
-          <StatusChip status={home.attendance?.status ?? null} className="border border-white/30" />
         </div>
       </section>
+
+      <LanguageSwitcher lang={lang} />
 
       {onInitialPin && (
         <Link href="/my/account" className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
           <KeyRound className="size-5 shrink-0 text-warning" />
-          <span className="flex-1">
-            <b>Make your PIN private.</b> Change the PIN the office gave you to your own 4-digit PIN.
-          </span>
+          <span className="flex-1 font-medium">{t("makePinPrivate")}</span>
           <ChevronRight className="size-4 text-muted-foreground" />
         </Link>
       )}
 
-      {/* Announcements */}
-      {home.announcements.length > 0 && (
-        <Section
-          title={
-            <span className="flex items-center gap-2">
-              <Megaphone className="size-4 text-primary" /> Announcements
-            </span>
-          }
-          action={
-            <Link href="/my/announcements" className="text-xs font-medium text-primary">
-              See all
-            </Link>
-          }
-        >
-          <ul className="space-y-2">
-            {home.announcements.slice(0, 2).map((a) => (
-              <li key={a.id}>
-                <Link
-                  href={`/my/announcements#a-${a.id}`}
-                  className={`block rounded-xl p-3 ${a.important ? "border border-destructive/40 bg-destructive/5" : "bg-muted/60"}`}
-                >
-                  <div className="text-sm font-semibold">
-                    {a.important && <span className="mr-1 text-destructive">Important ·</span>}
-                    {a.title}
-                  </div>
-                  <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
-
-      {/* Today's job */}
-      <Section title="Today’s job">
+      {/* 📅 Today's Work */}
+      <section className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="text-base font-bold">📅 {t("todaysWork")}</h2>
+          <span className={cn("rounded-full px-3 py-1 text-xs font-bold", status ? STATUS_CLS[status] : "bg-muted text-muted-foreground")}>
+            {t("todayAttendance")}: {status ? t(status as StaffKey) : t("notMarked")}
+          </span>
+        </div>
+        <p className="-mt-2 mb-3 text-xs text-muted-foreground">{today.toLocaleDateString(staffLocale(lang), { weekday: "long", day: "numeric", month: "long" })}</p>
         {home.todaysJobs.length === 0 ? (
-          <EmptyNote>No job assigned for today.</EmptyNote>
+          <p className="rounded-2xl bg-muted/60 p-4 text-center text-sm font-medium text-muted-foreground">{t("noWorkToday")}</p>
         ) : (
           <ul className="space-y-3">
             {home.todaysJobs.map((j) => (
-              <li key={j.id} className="space-y-2 rounded-xl border border-border p-3">
+              <li key={j.id} className="space-y-2 rounded-2xl border border-primary/25 bg-primary/[0.03] p-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-semibold">{SERVICE_LABELS[j.service] ?? j.service}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {j.jobNumber}
-                      {j.serviceVariant ? ` · ${j.serviceVariant}` : ""}
-                    </div>
-                  </div>
-                  <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">{JOB_STATUS_LABEL[j.status] ?? j.status}</span>
+                  <div className="text-base font-bold">{SERVICE_LABELS[j.service] ?? j.service}</div>
+                  <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">{t(j.status as StaffKey)}</span>
                 </div>
+                {(j.packageName || j.serviceVariant) && <div className="text-sm font-medium">{j.packageName || j.serviceVariant}</div>}
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="size-4 text-muted-foreground" /> {j.scheduledTime}
                 </div>
-                {(j.packageName || j.serviceVariant) && (
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Package: </span>
-                    <b>{j.packageName || j.serviceVariant}</b>
-                  </div>
-                )}
                 <div className="flex items-start gap-2 text-sm">
                   <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                  <span>
-                    {j.customerName} — {j.address}
-                  </span>
+                  <span>{j.area}</span>
                 </div>
-                <div className="flex items-start gap-2 text-sm">
-                  <Users className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                  <div className="space-y-1">
-                    <TeamLine team={j.team} />
-                    <div className="text-xs text-muted-foreground">
-                      {j.teamNumber ? `Team ${j.teamNumber}` : ""}
-                      {j.supervisorName ? `${j.teamNumber ? " · " : ""}Supervisor: ${j.supervisorName}` : ""}
-                    </div>
+                {j.team.length > 0 && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Users className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    <span className="flex flex-wrap gap-1.5">
+                      {j.team.map((m) => (
+                        <span key={m.staffId} className={cn("rounded-full px-2 py-0.5 text-xs font-medium", m.isMe ? "bg-primary text-primary-foreground" : "bg-muted")}>
+                          {m.isMe ? t("you") : m.name}
+                        </span>
+                      ))}
+                    </span>
                   </div>
-                </div>
-                <Link
-                  href={`/my/day/${toIsoDay(j.scheduledDate)}#job-${j.id}`}
-                  className="flex min-h-11 items-center justify-center rounded-xl border border-primary/40 bg-accent text-sm font-medium text-accent-foreground"
-                >
-                  Scope of work &amp; what’s not included
-                </Link>
+                )}
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
                     href={j.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(j.address)}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border text-sm font-medium"
+                    className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-border text-sm font-semibold"
                   >
-                    <MapPin className="size-4" /> Directions
+                    <MapPin className="size-4" /> {t("directions")}
                   </a>
-                  <Link
-                    href={`/jobs/${j.id}`}
-                    className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-medium text-primary-foreground"
-                  >
-                    <ExternalLink className="size-4" /> Open job
+                  <Link href={`/my/day/${toIsoDay(j.scheduledDate)}#job-${j.id}`} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
+                    {t("jobDetails")}
                   </Link>
                 </div>
               </li>
             ))}
           </ul>
         )}
-      </Section>
+        {officePhone && (
+          <a href={`tel:${officePhone}`} className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-muted text-sm font-semibold text-foreground">
+            <Phone className="size-4" /> {t("callOffice")}
+          </a>
+        )}
+      </section>
 
-      {/* Upcoming */}
-      {home.upcomingJobs.length > 0 && (
-        <Section title="Upcoming assigned dates">
-          <ul className="divide-y divide-border">
-            {home.upcomingJobs.map((j) => (
-              <li key={j.id}>
-                <Link href={`/my/day/${toIsoDay(j.scheduledDate)}#job-${j.id}`} className="flex min-h-12 items-center gap-3 py-2">
-                  <div className="w-12 shrink-0 rounded-lg bg-accent py-1 text-center">
-                    <div className="text-[10px] font-semibold uppercase text-accent-foreground">
-                      {j.scheduledDate.toLocaleDateString("en-IN", { weekday: "short" })}
-                    </div>
-                    <div className="text-base font-bold leading-tight text-accent-foreground">{j.scheduledDate.getDate()}</div>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium">{SERVICE_LABELS[j.service] ?? j.service}</div>
-                    <div className="truncate text-xs text-muted-foreground">
-                      {j.scheduledTime} · {j.area}
-                    </div>
-                  </div>
-                  <ChevronRight className="size-4 text-muted-foreground" />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
-
-      {/* Quick links */}
-      <div className="grid grid-cols-3 gap-2">
-        {[
-          { href: "/my/calendar", label: "My Calendar", icon: CalendarDays },
-          { href: "/my/records?tab=salary", label: "Salary Slip", icon: FileDown },
-          { href: "/my/tools", label: "Review / Pay QR", icon: QrCode },
-        ].map(({ href, label, icon: Icon }) => (
-          <Link key={href} href={href} className="flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border border-border bg-card text-center text-xs font-medium shadow-sm">
-            <Icon className="size-5 text-primary" />
-            {label}
-          </Link>
-        ))}
-      </div>
-
-      {/* Emergency */}
-      <Section
-        title={
-          <span className="flex items-center gap-2">
-            <Siren className="size-4 text-destructive" /> Emergency call
-          </span>
-        }
-      >
+      {/* 💰 Salary · 💵 Paid · 🟢 Due */}
+      <section className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
-          {officePhones.map((p, i) => (
-            <a key={p} href={`tel:${p}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary/10 text-sm font-semibold text-primary">
-              <Phone className="size-4" /> Office {officePhones.length > 1 ? i + 1 : ""}
-            </a>
-          ))}
-          <a href="tel:112" className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-destructive/10 text-sm font-semibold text-destructive">
-            <Phone className="size-4" /> Emergency 112
-          </a>
-          <a href="tel:108" className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-destructive/10 text-sm font-semibold text-destructive">
-            <Phone className="size-4" /> Ambulance 108
-          </a>
+          <MoneyCard icon={<BadgeIndianRupee className="size-5" />} emoji="💰" label={t("mySalary")} sub={t("thisMonth")} value={inr(money?.month.salary ?? 0)} tone="green" />
+          <MoneyCard icon={<HandCoins className="size-5" />} emoji="💵" label={t("paid")} sub={t("thisMonth")} value={inr(money?.month.paid ?? 0)} tone="red" />
         </div>
-      </Section>
+        <Link
+          href="/my/records"
+          className={cn(
+            "flex items-center justify-between rounded-3xl p-4 shadow-sm",
+            due > 0 ? "bg-success text-white" : due < 0 ? "bg-destructive text-white" : "bg-card border border-border",
+          )}
+        >
+          <div>
+            <div className="text-sm font-semibold opacity-90">{due > 0 ? `🟢 ${t("salaryDue")}` : due < 0 ? `🔴 ${t("advanceTaken")}` : `✅ ${t("allSettled")}`}</div>
+            <div className="text-4xl font-extrabold tabular-nums">{inr(due)}</div>
+          </div>
+          <span className="flex items-center gap-1 text-xs font-semibold opacity-90">
+            {t("seeDetails")} <ChevronRight className="size-4" />
+          </span>
+        </Link>
+      </section>
 
-      {!preview && <PushControl />}
+      {/* 🏦 My Loan — separate from salary */}
+      <section className="rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-indigo-950/40">
+        <h2 className="mb-2 flex items-center gap-2 text-base font-bold text-indigo-900 dark:text-indigo-200">
+          <Landmark className="size-5" /> 🏦 {t("myLoan")}
+        </h2>
+        {loan.given === 0 && loan.remaining === 0 ? (
+          <p className="text-sm font-medium text-indigo-900/70 dark:text-indigo-200/70">{t("noLoan")}</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-3 items-center gap-1 text-center">
+              <LoanStep label={t("loanGiven")} value={inr(loan.given)} />
+              <LoanStep label={t("loanPaid")} value={inr(loan.paid)} />
+              <LoanStep label={t("loanRemaining")} value={inr(loan.remaining)} strong />
+            </div>
+            <p className="mt-2 text-center text-[11px] text-indigo-900/70 dark:text-indigo-200/70">{t("loanNote")}</p>
+          </>
+        )}
+      </section>
+
+      {/* 📆 Attendance this month */}
+      <Link href="/my/calendar" className="block rounded-3xl border border-border bg-card p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-base font-bold">
+            <CalendarDays className="size-5 text-primary" /> 📆 {t("attendance")} · {t("thisMonth")}
+          </h2>
+          <ChevronRight className="size-4 text-muted-foreground" />
+        </div>
+        <div className="grid grid-cols-4 gap-2 text-center">
+          <AttStat label={t("PRESENT")} value={money?.month.present ?? 0} cls="text-success" />
+          <AttStat label={t("HALF_DAY")} value={money?.month.halfDay ?? 0} cls="text-warning" />
+          <AttStat label={t("ABSENT")} value={money?.month.absent ?? 0} cls="text-destructive" />
+          <AttStat label={t("LEAVE")} value={money?.month.leave ?? 0} cls="text-violet-600" />
+        </div>
+      </Link>
+
+      <Link href="/my/records" className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card text-sm font-semibold shadow-sm">
+        <Wallet className="size-4 text-primary" /> {t("myMoney")} <CircleCheck className="size-4 text-success" />
+      </Link>
+    </div>
+  );
+}
+
+function MoneyCard({ icon, emoji, label, sub, value, tone }: { icon: React.ReactNode; emoji: string; label: string; sub: string; value: string; tone: "green" | "red" }) {
+  return (
+    <div className={cn("rounded-3xl border p-3.5 shadow-sm", tone === "green" ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5")}>
+      <div className={cn("flex items-center gap-1.5 text-sm font-bold", tone === "green" ? "text-success" : "text-destructive")}>
+        {icon} {emoji} {label}
+      </div>
+      <div className="text-[11px] text-muted-foreground">{sub}</div>
+      <div className={cn("mt-1 text-2xl font-extrabold tabular-nums", tone === "green" ? "text-success" : "text-destructive")}>{value}</div>
+    </div>
+  );
+}
+
+function LoanStep({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className={cn("rounded-2xl p-2", strong ? "bg-indigo-600 text-white" : "bg-white/70 text-indigo-950 dark:bg-indigo-900/40 dark:text-indigo-100")}>
+      <div className="text-[11px] font-semibold leading-tight">{label}</div>
+      <div className={cn("font-extrabold tabular-nums", strong ? "text-xl" : "text-base")}>{value}</div>
+    </div>
+  );
+}
+
+function AttStat({ label, value, cls }: { label: string; value: number; cls: string }) {
+  return (
+    <div className="rounded-2xl bg-muted/60 p-2">
+      <div className={cn("text-2xl font-extrabold tabular-nums", cls)}>{value}</div>
+      <div className="text-[11px] font-medium leading-tight text-muted-foreground">{label}</div>
     </div>
   );
 }

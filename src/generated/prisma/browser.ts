@@ -277,3 +277,25 @@ export type FestivalOffer = Prisma.FestivalOfferModel
  * 
  */
 export type FestivalPrice = Prisma.FestivalPriceModel
+/**
+ * Model StaffLedgerEntry
+ * * Salary ledger. kind: EARNING | OTHER_CREDIT | PAYMENT | ADVANCE | FINE | DEDUCTION | OPENING_BALANCE.
+ *  *  amount is always positive; sign comes from kind (OPENING_BALANCE uses signedAmount).
+ */
+export type StaffLedgerEntry = Prisma.StaffLedgerEntryModel
+/**
+ * Model StaffLoanEntry
+ * * Loan ledger — separate from salary. kind: LOAN_GIVEN | LOAN_REPAID | LOAN_OPENING.
+ *  *  fromSalary = recovery cut from salary (also reduces Salary Due).
+ */
+export type StaffLoanEntry = Prisma.StaffLoanEntryModel
+/**
+ * Model KhataImportBatch
+ * 
+ */
+export type KhataImportBatch = Prisma.KhataImportBatchModel
+/**
+ * Model KhataImportLog
+ * 
+ */
+export type KhataImportLog = Prisma.KhataImportLogModel

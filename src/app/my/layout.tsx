@@ -12,6 +12,8 @@ import { StaffLogoutButton } from "@/components/staff-app/logout-button";
 import { HashHighlight } from "@/components/staff-app/hash-highlight";
 import { Toaster } from "@/components/ui/sonner";
 import { exitStaffPreview } from "@/server/actions/staff-preview";
+import { getStaffLang } from "@/server/staff-lang";
+import { staffT } from "@/lib/staff-i18n";
 
 export const metadata: Metadata = {
   title: "Sahara Staff",
@@ -29,10 +31,13 @@ export const viewport: Viewport = {
 
 export default async function StaffAppLayout({ children }: { children: ReactNode }) {
   const { session, staff, preview, notifUserId } = await requireMyStaff();
-  const [settings, unread] = await Promise.all([getCompanySettings(), notifUserId ? countMyUnread(notifUserId) : 0]);
+  const [settings, unread, lang] = await Promise.all([getCompanySettings(), notifUserId ? countMyUnread(notifUserId) : 0, getStaffLang()]);
+  const t = staffT(lang);
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="staff-app min-h-dvh bg-background" lang={lang === "en" ? "en" : lang}>
+      {/* Devanagari font for हिंदी / मराठी (falls back to the phone's built-in Noto / Mangal). */}
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap" />
       <header
         className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/85"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
@@ -46,7 +51,7 @@ export default async function StaffAppLayout({ children }: { children: ReactNode
             className="flex min-h-11 items-center gap-2 rounded-full border border-border px-3 text-sm font-medium text-foreground"
           >
             <UserRound className="size-4 text-primary" />
-            <span className="max-w-[9rem] truncate">{(staff?.name ?? session.name).split(" ")[0]}</span>
+            <span className="max-w-[11rem] truncate">{staff?.name ?? session.name}</span>
           </Link>
         </div>
       </header>
@@ -55,10 +60,10 @@ export default async function StaffAppLayout({ children }: { children: ReactNode
         <div className="sticky top-14 z-30 border-b border-warning/40 bg-warning/15">
           <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-4 py-2 text-xs">
             <span>
-              <b>Owner preview</b> · viewing as {preview.name} · read-only
+              <b>{t("ownerPreview")}</b> · {preview.name}
             </span>
             <form action={exitStaffPreview}>
-              <button className="min-h-9 rounded-full border border-border bg-card px-3 font-medium">Exit preview</button>
+              <button className="min-h-9 rounded-full border border-border bg-card px-3 font-medium">{t("exitPreview")}</button>
             </form>
           </div>
         </div>
@@ -69,17 +74,13 @@ export default async function StaffAppLayout({ children }: { children: ReactNode
           children
         ) : (
           <div className="space-y-4 rounded-2xl border border-border bg-card p-5 text-center">
-            <h1 className="text-base font-semibold">Your login isn’t linked to a staff profile yet</h1>
-            <p className="text-sm text-muted-foreground">
-              Please ask the office to enable your Staff App login from your staff record. Your attendance, jobs and salary
-              will appear here once it’s linked.
-            </p>
+            <p className="text-sm font-medium">{t("notLinked")}</p>
             <StaffLogoutButton />
           </div>
         )}
       </main>
 
-      {staff && <StaffBottomNav unread={unread} />}
+      {staff && <StaffBottomNav unread={unread} labels={{ home: t("navHome"), calendar: t("navCalendar"), money: t("navMoney"), customer: t("navCustomer"), alerts: t("navAlerts") }} />}
       {!preview && <StaffPushListener />}
       <HashHighlight />
       <Toaster position="top-center" richColors />

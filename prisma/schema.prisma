@@ -291,6 +291,10 @@ model Staff {
   isActive        Boolean           @default(true)
   photoUrl        String?
   notes           String?
+  // Khata Book migration (2026-10-05): history up to this moment lives in
+  // StaffLedgerEntry; attendance/advances/fines/salary-paid dated after it
+  // are added on top. Null = no imported history (native data only).
+  ledgerCutoverAt DateTime?
   qrCode          String?           @unique // future QR check-in token
   userId          String?           @unique
   user            User?             @relation(fields: [userId], references: [id])
@@ -309,6 +313,8 @@ model Staff {
   advances        Advance[]
   fines           FineRecord[]
   rewards         RewardRecord[]
+  ledgerEntries   StaffLedgerEntry[]
+  loanEntries     StaffLoanEntry[]
 
   @@index([availability])
   @@index([designation])
@@ -1460,4 +1466,98 @@ model FestivalPrice {
   price      Float
 
   @@unique([festivalId, contentId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff money ledgers (2026-10-05, Khata Book migration). Financial rows are
+// NEVER hard-deleted — deletedAt/deletedByName only. Every imported row keeps
+// its Khata Book source (party, row no., exact description) and a unique
+// sourceHash so the same transaction can never be imported twice.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Salary ledger. kind: EARNING | OTHER_CREDIT | PAYMENT | ADVANCE | FINE | DEDUCTION | OPENING_BALANCE.
+ *  amount is always positive; sign comes from kind (OPENING_BALANCE uses signedAmount). */
+model StaffLedgerEntry {
+  id            String    @id @default(cuid())
+  staffId       String
+  staff         Staff     @relation(fields: [staffId], references: [id])
+  date          DateTime
+  kind          String
+  amount        Float
+  signedAmount  Float // + = Sahara owes the worker, − = paid / deducted
+  description   String?
+  source        String    @default("MANUAL") // KHATABOOK | MANUAL
+  sourceParty   String? // exact Khata Book party name
+  sourceRow     Int? // Khata Book report S.No.
+  sourceHash    String?   @unique
+  batchId       String?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+  deletedAt     DateTime?
+  deletedByName String?
+
+  @@index([staffId, date])
+  @@index([batchId])
+}
+
+/** Loan ledger — separate from salary. kind: LOAN_GIVEN | LOAN_REPAID | LOAN_OPENING.
+ *  fromSalary = recovery cut from salary (also reduces Salary Due). */
+model StaffLoanEntry {
+  id            String    @id @default(cuid())
+  staffId       String
+  staff         Staff     @relation(fields: [staffId], references: [id])
+  date          DateTime
+  kind          String
+  amount        Float
+  signedAmount  Float // + = loan outstanding increases, − = repaid
+  fromSalary    Boolean   @default(false)
+  description   String?
+  source        String    @default("MANUAL")
+  sourceParty   String?
+  sourceRow     Int?
+  sourceHash    String?   @unique
+  batchId       String?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+  deletedAt     DateTime?
+  deletedByName String?
+
+  @@index([staffId, date])
+  @@index([batchId])
+}
+
+model KhataImportBatch {
+  id            String    @id @default(cuid())
+  status        String // PREVIEW | APPLIED | PARTIAL | FAILED | ROLLED_BACK
+  cutoffDate    DateTime
+  sourceName    String?
+  sourceRows    Int?
+  datasetJson   String // uploaded dataset (kept for audit)
+  previewJson   String?
+  resultJson    String?
+  snapshotFile  String?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+  appliedAt     DateTime?
+  rolledBackAt  DateTime?
+}
+
+model KhataImportLog {
+  id           String   @id @default(cuid())
+  batchId      String
+  party        String
+  staffId      String?
+  staffName    String?
+  sourceRow    Int?
+  date         DateTime?
+  amount       Float?
+  type         String?
+  description  String?
+  destination  String? // e.g. StaffLedgerEntry:<id>
+  status       String // MIGRATED | SKIPPED_DUPLICATE | BLOCKED | FAILED | ROLLED_BACK
+  message      String?
+  createdAt    DateTime @default(now())
+
+  @@index([batchId])
+  @@index([party])
 }
