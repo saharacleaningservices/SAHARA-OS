@@ -31,6 +31,15 @@ export type MoneyEntry = {
 export type LoanEntry = { date: Date; kind: string; amount: number; signedAmount: number; text: string; fromSalary: boolean };
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
+// Months are India-time months whatever the server timezone: an entry stored
+// as 31-Dec 18:30 UTC is 1-Jan in India and belongs to January.
+const IST_MS = 5.5 * 3600 * 1000;
+const istYM = (d: Date) => {
+  const x = new Date(d.getTime() + IST_MS);
+  return { y: x.getUTCFullYear(), m: x.getUTCMonth() };
+};
+/** Start of an India-time month as an absolute instant (month may overflow, e.g. 12 → next Jan). */
+const istMonthStart = (y: number, m: number) => new Date(Date.UTC(y, m, 1) - IST_MS);
 const LEDGER_GROUP: Record<string, MoneyEntry["group"]> = {
   EARNING: "work",
   OTHER_CREDIT: "work",
@@ -104,8 +113,9 @@ export async function getStaffMoney(staffId: string, now = new Date()) {
   const all = await loadAll(staffId);
   if (!all) return null;
   const { staff, entries, loanEntries, attendance } = all;
-  const m0 = new Date(now.getFullYear(), now.getMonth(), 1);
-  const m1 = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const nowIst = istYM(now);
+  const m0 = istMonthStart(nowIst.y, nowIst.m);
+  const m1 = istMonthStart(nowIst.y, nowIst.m + 1);
   const inM = (d: Date) => d >= m0 && d < m1;
   const month = entries.filter((e) => inM(e.date));
   const monthAtt = attendance.filter((a) => inM(a.date));
@@ -139,12 +149,12 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
   const all = await loadAll(staffId);
   if (!all) return null;
   const { entries, loanEntries } = all;
-  const y0 = new Date(year, 0, 1);
-  const y1 = new Date(year + 1, 0, 1);
+  const y0 = istMonthStart(year, 0);
+  const y1 = istMonthStart(year + 1, 0);
   const inY = entries.filter((e) => e.date >= y0 && e.date < y1);
   const before = entries.filter((e) => e.date < y0);
   const months = Array.from({ length: 12 }, (_, m) => {
-    const rows = inY.filter((e) => e.date.getMonth() === m);
+    const rows = inY.filter((e) => istYM(e.date).m === m);
     const days = new Set(rows.filter((e) => e.group === "work" && (e.kind === "EARNING" || e.kind === "PRESENT" || e.kind === "HALF_DAY")).map((e) => e.date.toDateString()));
     return {
       month: m + 1,
