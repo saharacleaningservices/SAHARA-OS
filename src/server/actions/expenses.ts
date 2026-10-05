@@ -32,6 +32,10 @@ export async function createExpense(values: unknown) {
   if (data.category === "SALARY" && !canViewSalary(session?.role ?? "")) {
     return { error: "Not authorized to record salary", success: false as const };
   }
+  // ONE ledger: an employee's salary / advance is recorded only in Staff → Money Khata.
+  if ((data.category === "SALARY" || data.category === "STAFF_ADVANCE") && data.staffId) {
+    return { error: "Salary and advances for an employee are recorded in Staff → Money Khata (one ledger), not as an expense.", success: false as const };
+  }
 
   await db.expense.create({
     data: {
@@ -62,6 +66,9 @@ export async function updateExpense(id: string, values: unknown) {
   const d = parsed.data;
   if (d.category === "SALARY" && !canViewSalary(session?.role ?? "")) {
     return { error: "Not authorized to record salary", success: false as const };
+  }
+  if ((d.category === "SALARY" || d.category === "STAFF_ADVANCE") && d.staffId) {
+    return { error: "Salary and advances for an employee are recorded in Staff → Money Khata (one ledger), not as an expense.", success: false as const };
   }
   await db.expense.update({
     where: { id },
