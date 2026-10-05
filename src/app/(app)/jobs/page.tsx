@@ -4,9 +4,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { Button } from "@/components/ui/button";
 import { JobsExplorer } from "@/components/jobs/jobs-explorer";
-import { NewJobDialog } from "@/components/jobs/new-job-dialog";
 import { getAllJobsForList, getJobsPageStats } from "@/server/jobs";
-import { getStaffForAssignment } from "@/server/staff";
 import { requireUser } from "@/lib/current-user";
 import { canViewJobAmount } from "@/lib/permissions";
 import { formatINR } from "@/lib/utils";
@@ -18,11 +16,8 @@ export default async function JobsPage() {
   // field-only policy. Call/WhatsApp buttons on the jobs table read this.
   // Operations' list is server-scoped to today + tomorrow (getAllJobsForList), so phone/call is shown there (owner decision 2026-10-05).
   const canSeeCustomerContact = session.role !== "STAFF";
-  const [jobs, staffOptions, stats] = await Promise.all([
-    getAllJobsForList(session),
-    getStaffForAssignment(),
-    canManage ? getJobsPageStats() : Promise.resolve(null),
-  ]);
+  // Jobs are created only from Leads → Confirm Booking (single intake), so no staff list is needed here.
+  const [jobs, stats] = await Promise.all([getAllJobsForList(session), canManage ? getJobsPageStats() : Promise.resolve(null)]);
   // Job amount / paid / balance per job — no revenue totals, profit or costs.
   const showRevenue = canViewJobAmount(session.role);
   // Roles without job-amount access never receive money figures, not even in the payload.
@@ -54,7 +49,6 @@ export default async function JobsPage() {
                 <Route className="size-4" /> Team Dispatch
               </Link>
             </Button>
-            {canManage && <NewJobDialog staffOptions={staffOptions} />}
           </>
         }
       />

@@ -231,6 +231,27 @@ export async function updateJob(id: string, values: unknown) {
   return { success: true as const };
 }
 
+/**
+ * Reschedule = move the SAME job to a new date/time (never a new job). Updates the
+ * job, the linked enquiry, the job lists/calendar/dashboard (all read the job),
+ * the customer notice and the assigned crew. A postponed job comes back as
+ * Scheduled (crew assigned) or Pending (no crew).
+ */
+export async function rescheduleJob(jobId: string, date: string, time: string, reason?: string) {
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !time?.trim()) return { error: "Choose the new date and time", success: false as const };
+  const job = await db.job.findUnique({ where: { id: jobId }, select: { status: true, scheduledDate: true, scheduledTime: true, deletedAt: true, assignments: { select: { staffId: true } } } });
+  if (!job || job.deletedAt) return { error: "Job not found", success: false as const };
+  if (job.status === "COMPLETED" || job.status === "CANCELLED") return { error: "A completed or cancelled job can't be rescheduled — reactivate it first.", success: false as const };
+  const res = await updateJob(jobId, { scheduledDate: date, scheduledTime: time.trim() });
+  if ("error" in res && res.error) return res;
+  const session = await getSession();
+  if (reason?.trim()) await db.activityLog.create({ data: { jobId, actorId: session?.sub ?? null, action: `Reschedule reason: ${reason.trim().slice(0, 200)}` } });
+  if (job.status === "POSTPONED") await updateJobStatusInternal(jobId, job.assignments.length ? "ASSIGNED" : "PENDING", session?.sub);
+  return { success: true as const };
+}
+
 export async function deleteJob(id: string) {
   // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
   {
@@ -408,23 +429,17 @@ export async function completeJobWithCertificate(jobId: string) {
 
   const session = await getSession();
   const now = new Date();
+  // Already completed (double tap / second user) → no second review, log or invoice.
+  if (job.status === "COMPLETED") return { success: true as const, certificateId: job.certificate?.id, unchanged: true as const };
+  if (job.status === "CANCELLED") return { error: "This job is cancelled — reactivate it first.", success: false as const };
 
   await db.job.update({
     where: { id: jobId },
     data: { status: "COMPLETED", completedAt: job.completedAt ?? now },
   });
   await freezeJobTeam(jobId).catch(() => {});
-
-  if (job.leadId) {
-    await db.lead.update({ where: { id: job.leadId }, data: { stage: "COMPLETED" } }).catch(() => {});
-    await addTimelineEntry({
-      leadId: job.leadId,
-      type: "STAGE",
-      body: `Job ${job.jobNumber} completed`,
-      meta: { toStage: "COMPLETED", jobId },
-      authorId: session?.sub,
-    }).catch(() => {});
-  }
+  // Enquiry follows its job(s) — safe when an enquiry has more than one job.
+  await syncLeadFromJob(jobId, session?.sub).catch(() => {});
 
   let certificateId = job.certificate?.id;
   if (!job.certificate) {

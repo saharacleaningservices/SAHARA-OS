@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Phone, MessageCircle, Megaphone, UserPlus, ClipboardList, X, Search, Loader2, Send } from "lucide-react";
+import { Phone, MessageCircle, Megaphone, UserPlus, X, Search, Loader2, Send } from "lucide-react";
 import { toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { searchCustomersQuick, bulkSendWhatsAppCampaign } from "@/server/actions/customer-actions";
 
@@ -98,12 +98,6 @@ export function CustomerActionsBar() {
           className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
         >
           <UserPlus className="size-3.5 text-primary" /> New Lead
-        </Link>
-        <Link
-          href="/jobs"
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
-        >
-          <ClipboardList className="size-3.5 text-primary" /> New Job
         </Link>
       </div>
 

@@ -252,7 +252,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <p className="mb-1.5 text-xs text-muted-foreground">Notes / Remarks</p>
                 <JobNotesEditor jobId={job.id} notes={job.notes} />
               </div>
-              <StatusActions jobId={job.id} status={job.status} />
+              <StatusActions
+                jobId={job.id}
+                status={job.status}
+                scheduledDate={new Date(job.scheduledDate.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)}
+                scheduledTime={job.scheduledTime}
+              />
             </CardContent>
           </Card>
 

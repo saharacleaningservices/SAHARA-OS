@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { UserPlus, ClipboardList, Route, Wallet } from "lucide-react";
+import { UserPlus, ClipboardList, Route, Wallet, Users, IndianRupee } from "lucide-react";
 
 // Sahara CRM Dashboard Redesign — Phase 1: one-tap actions for the four
 // most common things done from the dashboard.
+// One intake: a Lead becomes a Job only through Confirm Booking — no "New Job" tile.
 const ACTIONS = [
   { href: "/leads/new", label: "New Lead", icon: UserPlus },
-  { href: "/jobs", label: "New Job", icon: ClipboardList },
+  { href: "/leads", label: "Leads / CRM", icon: Users },
+  { href: "/leads/price-list", label: "Price List", icon: IndianRupee },
+  { href: "/jobs", label: "Jobs", icon: ClipboardList },
   { href: "/jobs/dispatch", label: "Dispatch Team", icon: Route },
   { href: "/payments", label: "Record Payment", icon: Wallet },
 ] as const;
@@ -15,9 +18,9 @@ const ACTIONS = [
 // having lost "leads" nav access) drops "New Lead" — both would otherwise be
 // dead-end tiles linking to a now-blocked page for that role.
 export function DashboardQuickActions({ showPayments = true, showNewLead = true }: { showPayments?: boolean; showNewLead?: boolean }) {
-  const actions = ACTIONS.filter((a) => (showPayments || a.href !== "/payments") && (showNewLead || a.href !== "/leads/new"));
+  const actions = ACTIONS.filter((a) => (showPayments || a.href !== "/payments") && (showNewLead || !a.href.startsWith("/leads")));
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
       {actions.map(({ href, label, icon: Icon }) => (
         <Link
           key={label}
