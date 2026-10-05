@@ -368,26 +368,34 @@ export function computeEarned(
   return { fullDays, halfDays, payableDays, presentDays, earned };
 }
 
-/** Staff payroll ledger for one calendar month: earned wage, advances, fines, rewards, net balance. */
+/**
+ * Staff payroll for one calendar month. Day counts come from attendance; every
+ * money figure comes from the ONE Money Khata engine (server/staff-balance.ts),
+ * so salary slips, attendance messages and monthly reports always match the
+ * Khata and the Staff App.
+ *   earned        wage + approved overtime (Khata earnings included)
+ *   autoFare      Kaleem (SCS-0004) only, else 0
+ *   rewardTotal   bonus / rewards
+ *   advanceTotal  advances           fineTotal  deductions
+ *   salaryPaid    salary payments    adjustment ± adjustments (incl. Khata opening)
+ *   netBalance    Salary Due at the end of the month (= openingDue + month)
+ */
 export async function getStaffLedger(staffId: string, year: number, month: number) {
   const start = new Date(year, month - 1, 1);
   const end = new Date(year, month, 1);
+  const { getStaffMoneyMonth } = await import("@/server/staff-balance");
 
-  const [staff, attendance, advances, fines, rewards] = await Promise.all([
+  const [staff, attendance, advances, fines, rewards, money] = await Promise.all([
     db.staff.findUnique({ where: { id: staffId } }),
     listAttendanceForMonth(staffId, year, month),
     db.advance.findMany({ where: { staffId, givenAt: { gte: start, lt: end } }, orderBy: { givenAt: "desc" } }),
     db.fineRecord.findMany({ where: { staffId, date: { gte: start, lt: end } }, orderBy: { date: "desc" } }),
     db.rewardRecord.findMany({ where: { staffId, date: { gte: start, lt: end } }, orderBy: { date: "desc" } }),
+    getStaffMoneyMonth(staffId, year, month),
   ]);
 
-  const { fullDays, halfDays, payableDays, presentDays, earned } = computeEarned(staff, attendance);
-
-  const advanceTotal = advances.reduce((s, a) => s + a.amount, 0);
-  const fineTotal = fines.reduce((s, f) => s + f.amount, 0);
-  const rewardTotal = rewards.reduce((s, r) => s + r.amount, 0);
-
-  const netBalance = earned + rewardTotal - advanceTotal - fineTotal;
+  const { fullDays, halfDays, payableDays, presentDays } = computeEarned(staff, attendance);
+  const m = money ?? { earned: 0, autoFare: 0, bonus: 0, advance: 0, deductions: 0, salaryPaid: 0, adjustment: 0, opening: 0, openingDue: 0, closingDue: 0, autoFareEnabled: false, loan: { opening: 0, given: 0, recovered: 0, paid: 0, remaining: 0 } };
 
   return {
     staff,
@@ -399,13 +407,19 @@ export async function getStaffLedger(staffId: string, year: number, month: numbe
     fullDays,
     halfDays,
     payableDays,
-    earned,
-    advanceTotal,
-    fineTotal,
-    rewardTotal,
-    netBalance,
-    runningSalary: earned,
-    finalSalary: netBalance,
+    earned: m.earned,
+    autoFare: m.autoFareEnabled ? m.autoFare : 0,
+    autoFareEnabled: m.autoFareEnabled,
+    advanceTotal: m.advance,
+    fineTotal: m.deductions,
+    rewardTotal: m.bonus,
+    salaryPaid: m.salaryPaid,
+    adjustment: Math.round((m.adjustment + m.opening) * 100) / 100,
+    openingDue: m.openingDue,
+    netBalance: m.closingDue,
+    loanRemaining: m.loan.remaining,
+    runningSalary: m.earned + (m.autoFareEnabled ? m.autoFare : 0),
+    finalSalary: m.closingDue,
   };
 }
 

@@ -60,6 +60,13 @@ export type PayslipPdfProps = {
   advanceTotal: number;
   fineTotal: number;
   netBalance: number;
+  /** Money Khata extras (same engine as the CRM / Staff App). */
+  openingDue?: number;
+  autoFare?: number;
+  autoFareEnabled?: boolean;
+  salaryPaid?: number;
+  adjustment?: number;
+  loanRemaining?: number;
 };
 
 export function PayslipDocument(props: PayslipPdfProps) {
@@ -119,11 +126,29 @@ export function PayslipDocument(props: PayslipPdfProps) {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Earnings & Deductions</Text>
+          {props.openingDue ? (
+            <View style={styles.lineRow}><Text style={styles.lineLabel}>Balance brought forward</Text><Text style={styles.lineValue}>{props.openingDue < 0 ? "- " : ""}{inr(Math.abs(props.openingDue))}</Text></View>
+          ) : null}
           <View style={styles.lineRow}><Text style={styles.lineLabel}>Earned Wage</Text><Text style={styles.lineValue}>{inr(props.earned)}</Text></View>
-          <View style={styles.lineRow}><Text style={styles.lineLabel}>Rewards / Incentives</Text><Text style={styles.lineValue}>+ {inr(props.rewardTotal)}</Text></View>
+          {props.autoFareEnabled ? (
+            <>
+              <View style={styles.lineRow}><Text style={styles.lineLabel}>Auto Fare</Text><Text style={styles.lineValue}>+ {inr(props.autoFare ?? 0)}</Text></View>
+              <View style={styles.lineRow}><Text style={styles.lineLabel}>Total Payable (wage + auto fare)</Text><Text style={styles.lineValue}>{inr(props.earned + (props.autoFare ?? 0))}</Text></View>
+            </>
+          ) : null}
+          <View style={styles.lineRow}><Text style={styles.lineLabel}>Bonus / Incentives</Text><Text style={styles.lineValue}>+ {inr(props.rewardTotal)}</Text></View>
+          {props.adjustment ? (
+            <View style={styles.lineRow}><Text style={styles.lineLabel}>Adjustment</Text><Text style={styles.lineValue}>{props.adjustment < 0 ? "- " : "+ "}{inr(Math.abs(props.adjustment))}</Text></View>
+          ) : null}
+          {props.salaryPaid !== undefined ? (
+            <View style={styles.lineRow}><Text style={styles.lineLabel}>Salary Paid</Text><Text style={styles.lineValue}>- {inr(props.salaryPaid)}</Text></View>
+          ) : null}
           <View style={styles.lineRow}><Text style={styles.lineLabel}>Advance Taken</Text><Text style={styles.lineValue}>- {inr(props.advanceTotal)}</Text></View>
-          <View style={styles.lineRow}><Text style={styles.lineLabel}>Fines / Penalties</Text><Text style={styles.lineValue}>- {inr(props.fineTotal)}</Text></View>
-          <View style={styles.netRow}><Text style={styles.netLabel}>Net Payable</Text><Text style={styles.netValue}>{inr(props.netBalance)}</Text></View>
+          <View style={styles.lineRow}><Text style={styles.lineLabel}>Deductions</Text><Text style={styles.lineValue}>- {inr(props.fineTotal)}</Text></View>
+          <View style={styles.netRow}><Text style={styles.netLabel}>{props.netBalance < 0 ? "Advance Outstanding" : "Salary Due"}</Text><Text style={styles.netValue}>{inr(Math.abs(props.netBalance))}</Text></View>
+          {props.loanRemaining ? (
+            <View style={styles.lineRow}><Text style={styles.lineLabel}>Loan remaining (separate, not deducted)</Text><Text style={styles.lineValue}>{inr(props.loanRemaining)}</Text></View>
+          ) : null}
         </View>
 
         <Text style={styles.footer}>

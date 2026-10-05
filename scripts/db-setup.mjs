@@ -1512,3 +1512,15 @@ db.close();
   console.log("Package calculator migration complete.");
   pDb.close();
 }
+
+// Money Khata corrections — additive columns on the loan ledger (Old → New → Reason audit).
+{
+  const kDb = new Database(dbPath);
+  const have = kDb.prepare(`PRAGMA table_info("StaffLoanEntry")`).all().map((c) => c.name);
+  if (have.length) {
+    if (!have.includes("reversalOfId")) kDb.exec(`ALTER TABLE "StaffLoanEntry" ADD COLUMN "reversalOfId" TEXT`);
+    if (!have.includes("reason")) kDb.exec(`ALTER TABLE "StaffLoanEntry" ADD COLUMN "reason" TEXT`);
+  }
+  console.log("Money Khata corrections migration complete.");
+  kDb.close();
+}

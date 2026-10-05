@@ -1,10 +1,13 @@
 "use server";
 
-// Khata-style employee money (Super Admin + Accounts only).
-// - One payment entry screen: type + mode + reference/UPI + note.
-// - Records are never edited or hard-deleted: corrections are REVERSAL
-//   entries that point at the original (reason required).
-// - Every write is audit-logged and the staff member gets a Staff-App alert.
+// Money Khata — employee money (add / correct: Super Admin + Accounts only).
+// - One entry screen: type + mode + reference/UPI + note.
+// - Records are never edited or deleted: a correction adds a reversal that
+//   points at the original plus, when needed, the corrected new entry, and
+//   is audit-logged as Old → New → Reason → Edited by → Date/time.
+// - Duplicates are refused (exact repeat within 2 minutes) or need an explicit
+//   confirmation (same type/amount/date already in the Khata).
+// - Auto Fare exists only for Kaleem (SCS-0004) — refused for anyone else.
 // - Balance is always computed from transactions (server/staff-balance.ts).
 
 import { revalidatePath } from "next/cache";
@@ -13,10 +16,11 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { canManageStaffFinancials } from "@/lib/permissions";
 import { notifyStaff } from "@/server/staff-notify";
+import { autoFareAllowed } from "@/lib/staff-money-rules";
 
 const MODES = ["CASH", "UPI", "GOOGLE_PAY", "BANK_TRANSFER", "OTHER"] as const;
 // LOAN / LOAN_RECOVERY go to the separate loan ledger; the rest to the salary ledger.
-const TYPES = ["SALARY", "ADVANCE", "LOAN", "LOAN_RECOVERY", "EXPENSE", "ADJUSTMENT", "BONUS", "OTHER"] as const;
+const TYPES = ["SALARY", "ADVANCE", "LOAN", "LOAN_RECOVERY", "EXPENSE", "ADJUSTMENT", "BONUS", "OTHER", "AUTO_FARE"] as const;
 type PayType = (typeof TYPES)[number];
 
 const LABEL: Record<PayType, string> = {
@@ -28,6 +32,7 @@ const LABEL: Record<PayType, string> = {
   ADJUSTMENT: "Adjustment",
   BONUS: "Bonus",
   OTHER: "Other",
+  AUTO_FARE: "Auto fare",
 };
 
 const schema = z.object({
@@ -41,8 +46,10 @@ const schema = z.object({
   note: z.string().trim().max(300).optional(),
   // ADJUSTMENT / OTHER: direction from the worker's side.
   direction: z.enum(["OWED_TO_WORKER", "PAID_TO_WORKER"]).optional(),
-  // LOAN_RECOVERY: cut from salary (also reduces Salary Due) or paid back separately.
+  // Kept for old clients only — a loan recovery reduces ONLY the loan, never Salary Due.
   fromSalary: z.boolean().optional(),
+  // The same type/amount/date already exists — the office confirmed it is a separate entry.
+  confirmDuplicate: z.boolean().optional(),
 });
 
 async function guard() {
@@ -65,6 +72,7 @@ export async function recordStaffTransaction(values: unknown) {
   const v = parsed.data;
   const staff = await db.staff.findFirst({ where: { id: v.staffId, deletedAt: null }, select: { id: true, name: true, employeeCode: true } });
   if (!staff) return { error: "Employee not found" };
+  if (v.type === "AUTO_FARE" && !autoFareAllowed(staff.employeeCode)) return { error: "Auto fare applies only to Kaleem (SCS-0004)." };
   if ((v.type === "ADJUSTMENT" || v.type === "OTHER") && (!v.direction || !v.note)) return { error: "Adjustment needs a direction and a reason" };
   const when = new Date(`${v.date}T12:00:00+05:30`);
   const text = [LABEL[v.type], v.note].filter(Boolean).join(" · ");
@@ -76,6 +84,19 @@ export async function recordStaffTransaction(values: unknown) {
     ? await db.staffLoanEntry.findFirst({ where: { staffId: staff.id, amount: v.amount, date: when, source: "MANUAL", deletedAt: null, createdAt: { gte: since }, description: { startsWith: text } } })
     : await db.staffLedgerEntry.findFirst({ where: { staffId: staff.id, amount: v.amount, date: when, kind: v.type === "SALARY" ? "SALARY_PAID" : v.type, source: "MANUAL", deletedAt: null, createdAt: { gte: since } } });
   if (twin) return { error: "This entry was just saved — check the ledger before adding it again." };
+  // Same type + amount + date already in the Khata (any time) → only with an explicit confirmation.
+  if (!v.confirmDuplicate) {
+    const day0 = new Date(`${v.date}T00:00:00+05:30`);
+    const day1 = new Date(day0.getTime() + 86_400_000);
+    const same = isLoan
+      ? await db.staffLoanEntry.findFirst({ where: { staffId: staff.id, amount: v.amount, kind: v.type === "LOAN" ? "LOAN_GIVEN" : "LOAN_REPAID", date: { gte: day0, lt: day1 }, deletedAt: null } })
+      : await db.staffLedgerEntry.findFirst({ where: { staffId: staff.id, amount: v.amount, kind: v.type === "SALARY" ? "SALARY_PAID" : v.type, date: { gte: day0, lt: day1 }, deletedAt: null } });
+    if (same)
+      return {
+        duplicate: true as const,
+        error: `A ${LABEL[v.type].toLowerCase()} of ₹${v.amount.toLocaleString("en-IN")} on this date is already in the Khata. Save it again only if it is a separate payment.`,
+      };
+  }
   let createdId: string;
 
   if (isLoan) {
@@ -90,7 +111,7 @@ export async function recordStaffTransaction(values: unknown) {
         kind: v.type === "LOAN" ? "LOAN_GIVEN" : "LOAN_REPAID",
         amount: v.amount,
         signedAmount: v.type === "LOAN" ? v.amount : -v.amount,
-        fromSalary: v.type === "LOAN_RECOVERY" ? v.fromSalary !== false : false,
+        fromSalary: false,
         description: [text, v.mode, v.reference ? `Ref ${v.reference}` : null].filter(Boolean).join(" · "),
         source: "MANUAL",
         createdByName: session.name,
@@ -100,7 +121,7 @@ export async function recordStaffTransaction(values: unknown) {
   } else {
     // + = owed to the worker (credit), − = paid to the worker (debit)
     const owed =
-      v.type === "EXPENSE" || v.type === "BONUS" || ((v.type === "ADJUSTMENT" || v.type === "OTHER") && v.direction === "OWED_TO_WORKER");
+      v.type === "EXPENSE" || v.type === "BONUS" || v.type === "AUTO_FARE" || ((v.type === "ADJUSTMENT" || v.type === "OTHER") && v.direction === "OWED_TO_WORKER");
     const row = await db.staffLedgerEntry.create({
       data: {
         staffId: staff.id,
@@ -142,44 +163,202 @@ export async function recordStaffTransaction(values: unknown) {
   return { ok: true as const, id: createdId };
 }
 
-/** Correct a manual salary-ledger entry by adding its exact opposite (the original stays). */
-export async function reverseStaffTransaction(entryId: string, reason: string) {
+const correctionSchema = z.object({
+  amount: z.number().positive().max(10_000_000),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  note: z.string().trim().max(300).optional(),
+});
+const ymd = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+const atNoon = (d: string) => new Date(`${d}T12:00:00+05:30`);
+
+/**
+ * Correct one Khata entry (salary ledger or loan ledger). The original row is
+ * never edited or deleted: a reversal row (opposite sign, pointing at it) is
+ * added, then — unless the entry is being cancelled (next = null) — the
+ * corrected new row. Audit: Old → New → Reason → Edited by → Date/time.
+ */
+export async function correctStaffEntry(input: { table: "ledger" | "loan"; id: string; next: unknown | null; reason: string }) {
   const session = await guard();
   if (!session) return { error: "Not authorized" };
-  if (!reason?.trim()) return { error: "Reason is required" };
-  const e = await db.staffLedgerEntry.findUnique({ where: { id: entryId } });
-  if (!e || e.deletedAt) return { error: "Entry not found" };
-  if (e.source === "KHATABOOK") return { error: "Imported Khata Book entries are corrected by rolling back the import batch." };
-  if (e.kind === "REVERSAL") return { error: "A reversal cannot be reversed — add a new entry instead." };
-  if (await db.staffLedgerEntry.findFirst({ where: { reversalOfId: e.id, deletedAt: null } })) return { error: "Already reversed" };
-  const row = await db.staffLedgerEntry.create({
-    data: {
-      staffId: e.staffId,
-      date: new Date(),
-      kind: "REVERSAL",
-      amount: e.amount,
-      signedAmount: -e.signedAmount,
-      description: `Reversal of ${e.description ?? e.kind} (${e.date.toLocaleDateString("en-IN")})`,
-      reversalOfId: e.id,
-      reason: reason.trim(),
-      source: "MANUAL",
-      createdByName: session.name,
-    },
+  const reason = input.reason?.trim();
+  if (!reason) return { error: "Reason is required" };
+  let next: z.infer<typeof correctionSchema> | null = null;
+  if (input.next) {
+    const p = correctionSchema.safeParse(input.next);
+    if (!p.success) return { error: p.error.issues[0]?.message ?? "Invalid corrected entry" };
+    next = p.data;
+  }
+
+  if (input.table === "ledger") {
+    const e = await db.staffLedgerEntry.findUnique({ where: { id: input.id }, include: { staff: { select: { employeeCode: true, name: true } } } });
+    if (!e || e.deletedAt) return { error: "Entry not found" };
+    if (e.kind === "REVERSAL") return { error: "A reversal cannot be corrected — correct the original entry." };
+    if (e.kind === "AUTO_FARE" && !autoFareAllowed(e.staff.employeeCode)) return { error: "Auto fare applies only to Kaleem (SCS-0004)." };
+    if (await db.staffLedgerEntry.findFirst({ where: { reversalOfId: e.id, deletedAt: null } })) return { error: "This entry was already corrected — correct the new entry instead." };
+    if (next && next.amount === e.amount && next.date === ymd(e.date) && !next.note) return { error: "Nothing changed" };
+    const result = await db.$transaction(async (tx) => {
+      const rev = await tx.staffLedgerEntry.create({
+        data: {
+          staffId: e.staffId,
+          date: e.date,
+          kind: "REVERSAL",
+          amount: e.amount,
+          signedAmount: -e.signedAmount,
+          description: `Correction of ${e.description ?? e.kind} (${e.date.toLocaleDateString("en-IN")})`,
+          reversalOfId: e.id,
+          reason,
+          source: "MANUAL",
+          createdByName: session.name,
+        },
+      });
+      const fresh = next
+        ? await tx.staffLedgerEntry.create({
+            data: {
+              staffId: e.staffId,
+              date: atNoon(next.date),
+              kind: e.kind,
+              amount: next.amount,
+              signedAmount: (e.signedAmount < 0 ? -1 : 1) * next.amount,
+              description: next.note || e.description,
+              paymentMode: e.paymentMode,
+              reference: e.reference,
+              upiId: e.upiId,
+              reason: `Corrected entry — ${reason}`,
+              source: "MANUAL",
+              createdByName: session.name,
+            },
+          })
+        : null;
+      return { rev, fresh };
+    });
+    await auditCorrection(session, e.staffId, e.staff, {
+      table: "ledger",
+      kind: e.kind,
+      old: { amount: e.amount, date: ymd(e.date), text: e.description },
+      next,
+      reason,
+      ids: { original: e.id, reversal: result.rev.id, corrected: result.fresh?.id ?? null },
+    });
+    refresh(e.staffId);
+    return { ok: true as const };
+  }
+
+  const l = await db.staffLoanEntry.findUnique({ where: { id: input.id }, include: { staff: { select: { employeeCode: true, name: true } } } });
+  if (!l || l.deletedAt) return { error: "Entry not found" };
+  if (l.kind === "LOAN_CORRECTION") return { error: "A correction cannot be corrected — correct the original entry." };
+  if (await db.staffLoanEntry.findFirst({ where: { reversalOfId: l.id, deletedAt: null } })) return { error: "This entry was already corrected — correct the new entry instead." };
+  if (next && next.amount === l.amount && next.date === ymd(l.date) && !next.note) return { error: "Nothing changed" };
+  // The loan can never go below zero after a correction.
+  const sign = l.signedAmount < 0 ? -1 : 1;
+  const out = await db.staffLoanEntry.aggregate({ where: { staffId: l.staffId, deletedAt: null }, _sum: { signedAmount: true } });
+  const after = (out._sum.signedAmount ?? 0) - l.signedAmount + (next ? sign * next.amount : 0);
+  if (after < -0.001) return { error: "After this correction the recoveries would be more than the loan." };
+  const result = await db.$transaction(async (tx) => {
+    const rev = await tx.staffLoanEntry.create({
+      data: {
+        staffId: l.staffId,
+        date: l.date,
+        kind: "LOAN_CORRECTION",
+        amount: l.amount,
+        signedAmount: -l.signedAmount,
+        description: `Correction of ${l.description ?? l.kind} (${l.date.toLocaleDateString("en-IN")})`,
+        reversalOfId: l.id,
+        reason,
+        source: "MANUAL",
+        createdByName: session.name,
+      },
+    });
+    const fresh = next
+      ? await tx.staffLoanEntry.create({
+          data: {
+            staffId: l.staffId,
+            date: atNoon(next.date),
+            kind: l.kind,
+            amount: next.amount,
+            signedAmount: sign * next.amount,
+            description: next.note || l.description,
+            reason: `Corrected entry — ${reason}`,
+            source: "MANUAL",
+            createdByName: session.name,
+          },
+        })
+      : null;
+    return { rev, fresh };
   });
+  await auditCorrection(session, l.staffId, l.staff, {
+    table: "loan",
+    kind: l.kind,
+    old: { amount: l.amount, date: ymd(l.date), text: l.description },
+    next,
+    reason,
+    ids: { original: l.id, reversal: result.rev.id, corrected: result.fresh?.id ?? null },
+  });
+  refresh(l.staffId);
+  return { ok: true as const };
+}
+
+type CorrectionAudit = {
+  table: "ledger" | "loan";
+  kind: string;
+  old: { amount: number; date: string; text: string | null };
+  next: { amount: number; date: string; note?: string } | null;
+  reason: string;
+  ids: { original: string; reversal: string; corrected: string | null };
+};
+
+async function auditCorrection(session: { name: string; email: string }, staffId: string, staff: { employeeCode: string | null; name: string }, c: CorrectionAudit) {
+  const newText = c.next ? `₹${c.next.amount} (${c.next.date})` : "cancelled";
   await db.auditLog.create({
     data: {
       entityType: "Staff",
-      entityId: e.staffId,
-      action: "MONEY_REVERSAL",
-      summary: `Reversed ${e.kind} ₹${e.amount}: ${reason.trim()}`,
+      entityId: staffId,
+      action: "MONEY_CORRECTION",
+      summary: `${staff.employeeCode ?? ""} ${staff.name}: ${c.kind} ₹${c.old.amount} (${c.old.date}) → ${newText} · Reason: ${c.reason}`.trim(),
       actorName: session.name,
       actorEmail: session.email,
-      meta: JSON.stringify({ reversedId: e.id, recordId: row.id }),
+      meta: JSON.stringify(c),
     },
   });
-  await notifyStaff([e.staffId], { kind: "STAFF_PAYMENT", title: `Correction: ${e.description ?? e.kind} ₹${e.amount.toLocaleString("en-IN")} reversed`, body: reason.trim(), href: "/my/records?tab=ledger", recordId: row.id });
-  refresh(e.staffId);
-  return { ok: true as const };
+  await notifyStaff([staffId], {
+    kind: c.table === "loan" ? "STAFF_LOAN" : "STAFF_PAYMENT",
+    title: `Correction: ${c.kind.replaceAll("_", " ").toLowerCase()} ₹${c.old.amount.toLocaleString("en-IN")} → ${newText}`,
+    body: c.reason,
+    href: "/my/records?tab=ledger",
+    recordId: c.ids.reversal,
+  });
+}
+
+/** Older clients: cancel an entry with a reason (same as a correction to "cancelled"). */
+export async function reverseStaffTransaction(entryId: string, reason: string) {
+  return correctStaffEntry({ table: "ledger", id: entryId, next: null, reason });
+}
+
+/** Audit History tab: every money / overtime / payment-details change for one employee, newest first. */
+export async function getStaffMoneyAudit(staffId: string) {
+  const session = await guard();
+  if (!session) return [];
+  const rows = await db.auditLog.findMany({
+    where: { entityType: "Staff", entityId: staffId, OR: [{ action: { startsWith: "MONEY_" } }, { action: { startsWith: "OT_" } }, { action: "PAYMENT_DETAILS_UPDATED" }] },
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    select: { id: true, action: true, summary: true, actorName: true, createdAt: true, meta: true },
+  });
+  return rows.map((r) => {
+    let old: string | null = null;
+    let next: string | null = null;
+    let reason: string | null = null;
+    if (r.action === "MONEY_CORRECTION" && r.meta) {
+      try {
+        const m = JSON.parse(r.meta) as CorrectionAudit;
+        old = `₹${m.old.amount.toLocaleString("en-IN")} · ${m.old.date}${m.old.text ? ` · ${m.old.text}` : ""}`;
+        next = m.next ? `₹${m.next.amount.toLocaleString("en-IN")} · ${m.next.date}${m.next.note ? ` · ${m.next.note}` : ""}` : "Cancelled";
+        reason = m.reason;
+      } catch {
+        /* summary only */
+      }
+    }
+    return { id: r.id, action: r.action, summary: r.summary, by: r.actorName, at: r.createdAt, old, next, reason };
+  });
 }
 
 const otSchema = z.object({

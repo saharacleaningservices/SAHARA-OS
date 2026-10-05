@@ -4,9 +4,9 @@ import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { Button } from "@/components/ui/button";
 import { JobsExplorer } from "@/components/jobs/jobs-explorer";
-import { getAllJobsForList, getJobsPageStats } from "@/server/jobs";
+import { getAllJobsForList, getJobsPageStats, jobDateWindowForRole } from "@/server/jobs";
 import { requireUser } from "@/lib/current-user";
-import { canViewJobAmount } from "@/lib/permissions";
+import { canViewJobAmount, canViewRevenue } from "@/lib/permissions";
 import { formatINR } from "@/lib/utils";
 
 export default async function JobsPage() {
@@ -17,7 +17,9 @@ export default async function JobsPage() {
   // Operations' list is server-scoped to today + tomorrow (getAllJobsForList), so phone/call is shown there (owner decision 2026-10-05).
   const canSeeCustomerContact = session.role !== "STAFF";
   // Jobs are created only from Leads → Confirm Booking (single intake), so no staff list is needed here.
-  const [jobs, stats] = await Promise.all([getAllJobsForList(session), canManage ? getJobsPageStats() : Promise.resolve(null)]);
+  // Time-scoped roles (Francis) get counts for their own window only — never all-time numbers.
+  const jobWindow = jobDateWindowForRole(session.role);
+  const [jobs, stats] = await Promise.all([getAllJobsForList(session), canManage ? getJobsPageStats(jobWindow) : Promise.resolve(null)]);
   // Job amount / paid / balance per job — no revenue totals, profit or costs.
   const showRevenue = canViewJobAmount(session.role);
   // Roles without job-amount access never receive money figures, not even in the payload.
@@ -30,7 +32,7 @@ export default async function JobsPage() {
 
   const scopeNote =
     session.role === "OPERATIONS"
-      ? "Today & tomorrow"
+      ? "Yesterday, today & tomorrow"
       : session.role === "SUPERVISOR"
         ? "Your team"
         : session.role === "STAFF"
@@ -55,6 +57,11 @@ export default async function JobsPage() {
 
       {stats && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {session.role === "OPERATIONS" && (
+            <Link href="/jobs?when=yesterday">
+              <StatCard label="Yesterday Jobs" value={stats.yesterdayJobs} icon={<ClipboardList className="size-4" />} />
+            </Link>
+          )}
           <Link href="/jobs?when=today">
             <StatCard label="Today Jobs" value={stats.todayJobs} icon={<ClipboardList className="size-4" />} tone="primary" />
           </Link>
@@ -67,7 +74,8 @@ export default async function JobsPage() {
           <Link href="/jobs?status=COMPLETED">
             <StatCard label="Completed Today" value={stats.completedToday} icon={<CheckCircle2 className="size-4" />} tone="success" />
           </Link>
-          {showRevenue && (
+          {/* Company-wide pending total is financial data — owner + Accounts only (never Francis). */}
+          {canViewRevenue(session.role) && (
             <Link href="/payments">
               <StatCard label="Pending Payments" value={formatINR(stats.pendingPayments)} icon={<Wallet className="size-4" />} tone="warning" />
             </Link>

@@ -33,7 +33,8 @@ export default async function StaffHomePage() {
   const today = new Date();
   const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
   const due = money?.salaryDue ?? 0;
-  const loan = money?.loan ?? { given: 0, paid: 0, remaining: 0 };
+  // Loan Given shown to the worker = opening loan + loans given, so Given − Paid = Remaining.
+  const loan = money ? { given: money.loan.opening + money.loan.given, paid: money.loan.paid, remaining: money.loan.remaining } : { given: 0, paid: 0, remaining: 0 };
   const status = home.attendance?.status ?? null;
 
   return (

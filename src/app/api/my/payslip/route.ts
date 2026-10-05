@@ -61,6 +61,12 @@ export async function GET(request: NextRequest) {
       advanceTotal: ledger.advanceTotal,
       fineTotal: ledger.fineTotal,
       netBalance: ledger.netBalance,
+      openingDue: ledger.openingDue,
+      autoFare: ledger.autoFare,
+      autoFareEnabled: ledger.autoFareEnabled,
+      salaryPaid: ledger.salaryPaid,
+      adjustment: ledger.adjustment,
+      loanRemaining: ledger.loanRemaining,
     }),
   );
 

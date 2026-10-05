@@ -1556,6 +1556,8 @@ model StaffLoanEntry {
   signedAmount  Float // + = loan outstanding increases, − = repaid
   fromSalary    Boolean   @default(false)
   description   String?
+  reversalOfId  String? // correction = an opposite row pointing at the original, never an edit
+  reason        String? // required for corrections
   source        String    @default("MANUAL")
   sourceParty   String?
   sourceRow     Int?

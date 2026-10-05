@@ -46,7 +46,7 @@ async function assertJobEditable(jobId: string, opts: { staffAllowed?: boolean }
   if (!job) return { error: "Job not found", success: false };
   const ownStaffId = await getOwnStaffId(session.sub);
   if (!canAccessJob(session, job, ownStaffId)) {
-    return { error: "You can only edit today's and tomorrow's jobs", success: false };
+    return { error: session.role === "OPERATIONS" ? "You can only open yesterday's, today's and tomorrow's jobs" : "You can only edit today's and tomorrow's jobs", success: false };
   }
   return null;
 }

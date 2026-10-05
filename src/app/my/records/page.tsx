@@ -199,7 +199,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
         <section className="space-y-3 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-indigo-950/40">
           <div className="grid grid-cols-3 gap-1 text-center">
             {[
-              [t("loanGiven"), money.loan.given],
+              [t("loanGiven"), money.loan.opening + money.loan.given],
               [t("loanPaid"), money.loan.paid],
               [t("loanRemaining"), money.loan.remaining],
             ].map(([l, v], i) => (

@@ -47,6 +47,8 @@ export type StaffLoanEntryMinAggregateOutputType = {
   signedAmount: number | null
   fromSalary: boolean | null
   description: string | null
+  reversalOfId: string | null
+  reason: string | null
   source: string | null
   sourceParty: string | null
   sourceRow: number | null
@@ -67,6 +69,8 @@ export type StaffLoanEntryMaxAggregateOutputType = {
   signedAmount: number | null
   fromSalary: boolean | null
   description: string | null
+  reversalOfId: string | null
+  reason: string | null
   source: string | null
   sourceParty: string | null
   sourceRow: number | null
@@ -87,6 +91,8 @@ export type StaffLoanEntryCountAggregateOutputType = {
   signedAmount: number
   fromSalary: number
   description: number
+  reversalOfId: number
+  reason: number
   source: number
   sourceParty: number
   sourceRow: number
@@ -121,6 +127,8 @@ export type StaffLoanEntryMinAggregateInputType = {
   signedAmount?: true
   fromSalary?: true
   description?: true
+  reversalOfId?: true
+  reason?: true
   source?: true
   sourceParty?: true
   sourceRow?: true
@@ -141,6 +149,8 @@ export type StaffLoanEntryMaxAggregateInputType = {
   signedAmount?: true
   fromSalary?: true
   description?: true
+  reversalOfId?: true
+  reason?: true
   source?: true
   sourceParty?: true
   sourceRow?: true
@@ -161,6 +171,8 @@ export type StaffLoanEntryCountAggregateInputType = {
   signedAmount?: true
   fromSalary?: true
   description?: true
+  reversalOfId?: true
+  reason?: true
   source?: true
   sourceParty?: true
   sourceRow?: true
@@ -268,6 +280,8 @@ export type StaffLoanEntryGroupByOutputType = {
   signedAmount: number
   fromSalary: boolean
   description: string | null
+  reversalOfId: string | null
+  reason: string | null
   source: string
   sourceParty: string | null
   sourceRow: number | null
@@ -311,6 +325,8 @@ export type StaffLoanEntryWhereInput = {
   signedAmount?: Prisma.FloatFilter<"StaffLoanEntry"> | number
   fromSalary?: Prisma.BoolFilter<"StaffLoanEntry"> | boolean
   description?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
+  reason?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
   source?: Prisma.StringFilter<"StaffLoanEntry"> | string
   sourceParty?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
   sourceRow?: Prisma.IntNullableFilter<"StaffLoanEntry"> | number | null
@@ -332,6 +348,8 @@ export type StaffLoanEntryOrderByWithRelationInput = {
   signedAmount?: Prisma.SortOrder
   fromSalary?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -357,6 +375,8 @@ export type StaffLoanEntryWhereUniqueInput = Prisma.AtLeast<{
   signedAmount?: Prisma.FloatFilter<"StaffLoanEntry"> | number
   fromSalary?: Prisma.BoolFilter<"StaffLoanEntry"> | boolean
   description?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
+  reason?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
   source?: Prisma.StringFilter<"StaffLoanEntry"> | string
   sourceParty?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
   sourceRow?: Prisma.IntNullableFilter<"StaffLoanEntry"> | number | null
@@ -377,6 +397,8 @@ export type StaffLoanEntryOrderByWithAggregationInput = {
   signedAmount?: Prisma.SortOrder
   fromSalary?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -405,6 +427,8 @@ export type StaffLoanEntryScalarWhereWithAggregatesInput = {
   signedAmount?: Prisma.FloatWithAggregatesFilter<"StaffLoanEntry"> | number
   fromSalary?: Prisma.BoolWithAggregatesFilter<"StaffLoanEntry"> | boolean
   description?: Prisma.StringNullableWithAggregatesFilter<"StaffLoanEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableWithAggregatesFilter<"StaffLoanEntry"> | string | null
+  reason?: Prisma.StringNullableWithAggregatesFilter<"StaffLoanEntry"> | string | null
   source?: Prisma.StringWithAggregatesFilter<"StaffLoanEntry"> | string
   sourceParty?: Prisma.StringNullableWithAggregatesFilter<"StaffLoanEntry"> | string | null
   sourceRow?: Prisma.IntNullableWithAggregatesFilter<"StaffLoanEntry"> | number | null
@@ -424,6 +448,8 @@ export type StaffLoanEntryCreateInput = {
   signedAmount: number
   fromSalary?: boolean
   description?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -445,6 +471,8 @@ export type StaffLoanEntryUncheckedCreateInput = {
   signedAmount: number
   fromSalary?: boolean
   description?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -464,6 +492,8 @@ export type StaffLoanEntryUpdateInput = {
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   fromSalary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -485,6 +515,8 @@ export type StaffLoanEntryUncheckedUpdateInput = {
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   fromSalary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -505,6 +537,8 @@ export type StaffLoanEntryCreateManyInput = {
   signedAmount: number
   fromSalary?: boolean
   description?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -524,6 +558,8 @@ export type StaffLoanEntryUpdateManyMutationInput = {
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   fromSalary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -544,6 +580,8 @@ export type StaffLoanEntryUncheckedUpdateManyInput = {
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   fromSalary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -574,6 +612,8 @@ export type StaffLoanEntryCountOrderByAggregateInput = {
   signedAmount?: Prisma.SortOrder
   fromSalary?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
@@ -600,6 +640,8 @@ export type StaffLoanEntryMaxOrderByAggregateInput = {
   signedAmount?: Prisma.SortOrder
   fromSalary?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
@@ -620,6 +662,8 @@ export type StaffLoanEntryMinOrderByAggregateInput = {
   signedAmount?: Prisma.SortOrder
   fromSalary?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
@@ -687,6 +731,8 @@ export type StaffLoanEntryCreateWithoutStaffInput = {
   signedAmount: number
   fromSalary?: boolean
   description?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -706,6 +752,8 @@ export type StaffLoanEntryUncheckedCreateWithoutStaffInput = {
   signedAmount: number
   fromSalary?: boolean
   description?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -754,6 +802,8 @@ export type StaffLoanEntryScalarWhereInput = {
   signedAmount?: Prisma.FloatFilter<"StaffLoanEntry"> | number
   fromSalary?: Prisma.BoolFilter<"StaffLoanEntry"> | boolean
   description?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
+  reason?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
   source?: Prisma.StringFilter<"StaffLoanEntry"> | string
   sourceParty?: Prisma.StringNullableFilter<"StaffLoanEntry"> | string | null
   sourceRow?: Prisma.IntNullableFilter<"StaffLoanEntry"> | number | null
@@ -773,6 +823,8 @@ export type StaffLoanEntryCreateManyStaffInput = {
   signedAmount: number
   fromSalary?: boolean
   description?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -792,6 +844,8 @@ export type StaffLoanEntryUpdateWithoutStaffInput = {
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   fromSalary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -811,6 +865,8 @@ export type StaffLoanEntryUncheckedUpdateWithoutStaffInput = {
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   fromSalary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -830,6 +886,8 @@ export type StaffLoanEntryUncheckedUpdateManyWithoutStaffInput = {
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   fromSalary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -852,6 +910,8 @@ export type StaffLoanEntrySelect<ExtArgs extends runtime.Types.Extensions.Intern
   signedAmount?: boolean
   fromSalary?: boolean
   description?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -873,6 +933,8 @@ export type StaffLoanEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Type
   signedAmount?: boolean
   fromSalary?: boolean
   description?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -894,6 +956,8 @@ export type StaffLoanEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   signedAmount?: boolean
   fromSalary?: boolean
   description?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -915,6 +979,8 @@ export type StaffLoanEntrySelectScalar = {
   signedAmount?: boolean
   fromSalary?: boolean
   description?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -926,7 +992,7 @@ export type StaffLoanEntrySelectScalar = {
   deletedByName?: boolean
 }
 
-export type StaffLoanEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "kind" | "amount" | "signedAmount" | "fromSalary" | "description" | "source" | "sourceParty" | "sourceRow" | "sourceHash" | "batchId" | "createdByName" | "createdAt" | "deletedAt" | "deletedByName", ExtArgs["result"]["staffLoanEntry"]>
+export type StaffLoanEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "kind" | "amount" | "signedAmount" | "fromSalary" | "description" | "reversalOfId" | "reason" | "source" | "sourceParty" | "sourceRow" | "sourceHash" | "batchId" | "createdByName" | "createdAt" | "deletedAt" | "deletedByName", ExtArgs["result"]["staffLoanEntry"]>
 export type StaffLoanEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
 }
@@ -951,6 +1017,8 @@ export type $StaffLoanEntryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     signedAmount: number
     fromSalary: boolean
     description: string | null
+    reversalOfId: string | null
+    reason: string | null
     source: string
     sourceParty: string | null
     sourceRow: number | null
@@ -1392,6 +1460,8 @@ export interface StaffLoanEntryFieldRefs {
   readonly signedAmount: Prisma.FieldRef<"StaffLoanEntry", 'Float'>
   readonly fromSalary: Prisma.FieldRef<"StaffLoanEntry", 'Boolean'>
   readonly description: Prisma.FieldRef<"StaffLoanEntry", 'String'>
+  readonly reversalOfId: Prisma.FieldRef<"StaffLoanEntry", 'String'>
+  readonly reason: Prisma.FieldRef<"StaffLoanEntry", 'String'>
   readonly source: Prisma.FieldRef<"StaffLoanEntry", 'String'>
   readonly sourceParty: Prisma.FieldRef<"StaffLoanEntry", 'String'>
   readonly sourceRow: Prisma.FieldRef<"StaffLoanEntry", 'Int'>
