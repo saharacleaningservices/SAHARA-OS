@@ -130,7 +130,8 @@ export async function getOwnerAlerts() {
   };
 }
 
-// Smart Monthly Calendar — leads grouped by day (followUpDate, falling back to
+// Smart Monthly Calendar — booked enquiries grouped by their job date; open
+// enquiries by followUpDate (falling back to
 // createdAt), with a "dominant" color per day: the color bucket with the most
 // leads that day (ties broken green > blue > orange > red > white, i.e. the
 // more "closed/positive" outcome wins the tie). COMPLETED is bucketed with
@@ -175,11 +176,8 @@ export type CalendarLead = {
 // bucketForStage's color bucketing above, though they overlap — this one
 // names each count explicitly instead of picking a single "dominant" color,
 // and also supplies the per-lead "status label" for the supervisor detail
-// level. "Postponed" has no direct Lead-stage equivalent today (that's a Job
-// status, not a Lead stage) so it's always 0 for this lead-day calendar —
-// kept as its own field/label for forward compatibility rather than
-// removed, so the UI doesn't need to change if a future pass sources it
-// from Job.status instead.
+// level. "Postponed" has no Lead-stage equivalent — it's counted from
+// Job.status (POSTPONED) for booked entries in getLeadMonthCalendar.
 function statusBucketForStage(stage: string): "pending" | "confirmed" | "postponed" | "cancelled" | "siteVisits" | null {
   if (stage === "NEW" || stage === "INTERESTED" || stage === "QUOTATION" || stage === "NEGOTIATION") return "pending";
   if (stage === "CONFIRMED" || stage === "JOB_SCHEDULED" || stage === "COMPLETED") return "confirmed";
@@ -216,48 +214,88 @@ export async function getLeadMonthCalendar(year: number, month: number, detailLe
   const monthStart = startOfMonth(new Date(year, month - 1, 1));
   const monthEnd = endOfMonth(monthStart);
 
-  const leads = await db.lead.findMany({
-    where: {
-      deletedAt: null,
-      OR: [
-        { followUpDate: { gte: monthStart, lte: monthEnd } },
-        { followUpDate: null, createdAt: { gte: monthStart, lte: monthEnd } },
-      ],
-    },
-    select: {
-      id: true,
-      name: true,
-      mobile: true,
-      stage: true,
-      leadNumber: true,
-      service: true,
-      teamNumber: true,
-      area: true,
-      address: true,
-      quoteAmount: true,
-      advanceAmount: true,
-      paymentStatus: true,
-      followUpDate: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const leadSelect = {
+    id: true,
+    name: true,
+    mobile: true,
+    stage: true,
+    leadNumber: true,
+    service: true,
+    teamNumber: true,
+    area: true,
+    address: true,
+    quoteAmount: true,
+    advanceAmount: true,
+    paymentStatus: true,
+  } as const;
+  // Booked enquiries are placed on their JOB's working schedule (Job.scheduledDate),
+  // never on the lead's own follow-up/created date — so a reschedule shows on the
+  // new date only, matching Jobs, Dispatch and the dashboard day counts. Enquiries
+  // with no job yet keep the follow-up date (falling back to createdAt).
+  const [openLeads, jobs] = await Promise.all([
+    db.lead.findMany({
+      where: {
+        deletedAt: null,
+        jobs: { none: { deletedAt: null } },
+        OR: [
+          { followUpDate: { gte: monthStart, lte: monthEnd } },
+          { followUpDate: null, createdAt: { gte: monthStart, lte: monthEnd } },
+        ],
+      },
+      select: { ...leadSelect, followUpDate: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.job.findMany({
+      where: { deletedAt: null, scheduledDate: { gte: monthStart, lte: monthEnd }, OR: [{ leadId: null }, { lead: { deletedAt: null } }] },
+      select: {
+        id: true,
+        status: true,
+        scheduledDate: true,
+        customerName: true,
+        customerMobile: true,
+        service: true,
+        teamNumber: true,
+        area: true,
+        address: true,
+        jobNumber: true,
+        lead: { select: leadSelect },
+      },
+      orderBy: { scheduledDate: "asc" },
+    }),
+  ]);
+  // Job status → the calendar's lead-stage vocabulary (colours / status counts).
+  const jobStage = (status: string) => (status === "CANCELLED" ? "CANCELLED" : status === "COMPLETED" ? "COMPLETED" : "JOB_SCHEDULED");
+  const leads = [
+    ...openLeads.map((l) => ({ ...l, day: l.followUpDate ?? l.createdAt, postponed: false })),
+    ...jobs.map((j) => ({
+      ...(j.lead ?? { name: j.customerName, mobile: j.customerMobile, leadNumber: j.jobNumber, quoteAmount: null, advanceAmount: null, paymentStatus: null }),
+      id: j.id,
+      stage: jobStage(j.status),
+      service: j.service,
+      teamNumber: j.teamNumber ?? j.lead?.teamNumber ?? null,
+      area: j.area,
+      address: j.address,
+      day: j.scheduledDate,
+      postponed: j.status === "POSTPONED",
+    })),
+  ];
 
   // Raw per-day stage list — built once from every lead regardless of
   // detailLevel, since day-level counts (shown to every role) always need
   // the full picture even when the per-lead listing itself is trimmed or
   // omitted below.
   const stagesByDay = new Map<string, string[]>();
+  const postponedByDay = new Map<string, number>();
   // The detail-scoped per-lead listing actually sent to the client —
   // omitted entirely ("counts" level never populates this).
   const leadsByDay = new Map<string, CalendarLead[]>();
   for (const l of leads) {
-    const d = l.followUpDate ?? l.createdAt;
-    const iso = format(d, "yyyy-MM-dd");
+    const iso = format(l.day, "yyyy-MM-dd");
 
     const stages = stagesByDay.get(iso) ?? [];
     stages.push(l.stage);
     stagesByDay.set(iso, stages);
+    if (l.postponed) postponedByDay.set(iso, (postponedByDay.get(iso) ?? 0) + 1);
 
     if (detailLevel === "counts") continue;
     const arr = leadsByDay.get(iso) ?? [];
@@ -283,7 +321,7 @@ export async function getLeadMonthCalendar(year: number, month: number, detailLe
         service: l.service,
         teamNumber: l.teamNumber,
         area: l.area,
-        statusLabel: sb ? STATUS_LABEL[sb] : "Pending",
+        statusLabel: l.postponed ? STATUS_LABEL.postponed : sb ? STATUS_LABEL[sb] : "Pending",
       });
     }
     leadsByDay.set(iso, arr);
@@ -304,6 +342,10 @@ export async function getLeadMonthCalendar(year: number, month: number, detailLe
       const sb = statusBucketForStage(stage);
       if (sb) statusCounts[sb] += 1;
     }
+    // A postponed job is still on the books for that date — counted as Postponed, not Confirmed.
+    const postponed = postponedByDay.get(iso) ?? 0;
+    statusCounts.postponed += postponed;
+    statusCounts.confirmed -= postponed;
     let color: (typeof priority)[number] = "white";
     let max = 0;
     for (const p of priority) {

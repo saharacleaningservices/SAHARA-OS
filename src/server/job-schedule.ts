@@ -34,15 +34,18 @@ export async function syncLeadFromJob(jobId: string, authorId?: string | null) {
   const job = await db.job.findUnique({ where: { id: jobId }, select: { leadId: true, jobNumber: true, status: true } });
   if (!job?.leadId) return;
   const [lead, jobs] = await Promise.all([
-    db.lead.findUnique({ where: { id: job.leadId }, select: { stage: true, serviceDate: true, timeSlot: true } }),
+    db.lead.findUnique({ where: { id: job.leadId }, select: { stage: true, serviceDate: true, followUpDate: true, timeSlot: true } }),
     db.job.findMany({ where: { leadId: job.leadId, deletedAt: null }, orderBy: { scheduledDate: "asc" }, select: { status: true, scheduledDate: true, scheduledTime: true } }),
   ]);
   if (!lead || jobs.length === 0) return;
   const active = jobs.filter((j) => j.status !== "COMPLETED" && j.status !== "CANCELLED");
   const stage: "JOB_SCHEDULED" | "COMPLETED" | "CANCELLED" = active.length ? "JOB_SCHEDULED" : jobs.some((j) => j.status === "COMPLETED") ? "COMPLETED" : "CANCELLED";
   const mirror = jobs.length === 1 ? jobs[0] : active[0];
+  // serviceDate and followUpDate are checked independently: a lead edit can move
+  // serviceDate with the job while re-saving a stale follow-up date from the form.
   const data = {
-    ...(mirror && lead.serviceDate?.getTime() !== mirror.scheduledDate.getTime() && { serviceDate: mirror.scheduledDate, followUpDate: mirror.scheduledDate }),
+    ...(mirror && lead.serviceDate?.getTime() !== mirror.scheduledDate.getTime() && { serviceDate: mirror.scheduledDate }),
+    ...(mirror && lead.followUpDate?.getTime() !== mirror.scheduledDate.getTime() && { followUpDate: mirror.scheduledDate }),
     ...(mirror && lead.timeSlot !== mirror.scheduledTime && { timeSlot: mirror.scheduledTime }),
     ...(lead.stage !== stage && { stage }),
   };
