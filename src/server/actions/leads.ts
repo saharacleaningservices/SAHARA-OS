@@ -38,10 +38,10 @@ import { channelForManualLead } from "@/lib/attribution";
  */
 async function assertLeadEditable(leadId: string): Promise<{ error: string } | null> {
   const session = await getSession();
-  if (!session || session.role !== "SUPERVISOR") return null;
+  if (!session || (session.role !== "SUPERVISOR" && session.role !== "OPERATIONS")) return null;
   const lead = await db.lead.findUnique({
     where: { id: leadId },
-    select: { followUpDate: true, serviceDate: true, createdAt: true, stage: true },
+    select: { followUpDate: true, serviceDate: true, createdAt: true, stage: true, assignedToId: true, createdById: true },
   });
   if (!lead || !canAccessLead(session, lead)) {
     return { error: "You can only edit today's and tomorrow's leads/bookings" };
@@ -338,9 +338,9 @@ export async function updateLeadStage(leadId: string, stage: LeadStage) {
   const session = await getSession();
   const current = await db.lead.findUnique({
     where: { id: leadId },
-    select: { stage: true, followUpDate: true, serviceDate: true, createdAt: true },
+    select: { stage: true, followUpDate: true, serviceDate: true, createdAt: true, assignedToId: true, createdById: true },
   });
-  if (session?.role === "SUPERVISOR" && (!current || !canAccessLead(session, current))) {
+  if ((session?.role === "SUPERVISOR" || session?.role === "OPERATIONS") && (!current || !canAccessLead(session, current))) {
     return { error: "You can only update today's and tomorrow's leads/bookings", success: false as const };
   }
   await db.lead.update({ where: { id: leadId }, data: { stage } });
@@ -369,7 +369,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
 
   const lead = await db.lead.findUnique({ where: { id: leadId } });
   if (!lead) return { error: "Lead not found", success: false as const };
-  if (session?.role === "SUPERVISOR" && !canAccessLead(session, lead)) {
+  if ((session?.role === "SUPERVISOR" || session?.role === "OPERATIONS") && !canAccessLead(session, lead)) {
     return { error: "You can only confirm bookings for today's and tomorrow's leads", success: false as const };
   }
 

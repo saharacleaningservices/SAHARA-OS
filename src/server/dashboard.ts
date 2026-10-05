@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths, addDays } from "date-fns";
 import { getTodayAttendanceSummary } from "@/server/attendance";
-import { supervisorLeadWhere } from "@/server/leads";
+import { supervisorLeadWhere, operationsLeadWhere } from "@/server/leads";
 import { slotStartMinutes } from "@/lib/utils";
 
 /**
@@ -14,7 +14,7 @@ import { slotStartMinutes } from "@/lib/utils";
  * isn't SUPERVISOR/OPERATIONS for the original unscoped (full week ahead)
  * behavior.
  */
-export async function getDashboardData(role?: string) {
+export async function getDashboardData(role?: string, userId?: string) {
   const now = new Date();
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
@@ -97,7 +97,7 @@ export async function getDashboardData(role?: string) {
     db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: subMonths(now, 1) } } }),
     db.review.count({ where: { createdAt: { gte: subMonths(now, 1) } } }),
     db.lead.findMany({
-      where: isFieldRestricted ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
+      where: isFieldRestricted ? { deletedAt: null, ...(role === "OPERATIONS" && userId ? operationsLeadWhere(userId) : supervisorLeadWhere()) } : { deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 6,
     }),
@@ -224,7 +224,7 @@ export async function getDashboardData(role?: string) {
   // category his policy forbids.
   const [recentLeadContacts, recentJobContacts] = await Promise.all([
     db.lead.findMany({
-      where: isFieldRestricted ? { deletedAt: null, ...supervisorLeadWhere() } : { deletedAt: null },
+      where: isFieldRestricted ? { deletedAt: null, ...(role === "OPERATIONS" && userId ? operationsLeadWhere(userId) : supervisorLeadWhere()) } : { deletedAt: null },
       orderBy: { updatedAt: "desc" },
       take: 15,
       select: { name: true, mobile: true },

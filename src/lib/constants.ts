@@ -626,6 +626,10 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     // WhatsApp Log, system settings.
     OPERATIONS: [
           "dashboard",
+          // 2026-10-05 owner request: New Leads + Create New Lead for Francis.
+          // Scoped list (new / assigned / created by him / today-tomorrow) —
+          // see operationsLeadWhere in server/leads.ts.
+          "leads",
           "jobs",
           "staff",
           "vehicles",
