@@ -31,6 +31,12 @@ export default async function DispatchPage({
   if (session.role === "SUPERVISOR" && date && startOfDay(new Date(date)).getTime() !== startOfDay(new Date()).getTime()) {
     date = undefined;
   }
+  // Operations (Francis): job detail only for today + tomorrow — any other ?date= falls back to today.
+  if (session.role === "OPERATIONS" && date) {
+    const d = startOfDay(new Date(date)).getTime();
+    const today = startOfDay(new Date()).getTime();
+    if (Number.isNaN(d) || d < today || d > today + 86_400_000) date = undefined;
+  }
   const { date: day, total, groups } = await getTodayDispatch(date);
   const allRoute = buildRouteLink(groups.flatMap((g) => g.jobs));
 

@@ -25,7 +25,7 @@ import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved
  */
 async function assertJobEditable(jobId: string): Promise<{ error: string; success: false } | null> {
   const session = await getSession();
-  if (!session || session.role !== "SUPERVISOR") return null;
+  if (!session || (session.role !== "SUPERVISOR" && session.role !== "OPERATIONS")) return null;
   const job = await db.job.findUnique({
     where: { id: jobId },
     select: { scheduledDate: true, supervisorId: true, assignments: { select: { staffId: true } } },
@@ -318,6 +318,8 @@ export async function updateJobStatus(jobId: string, status: JobStatus) {
 }
 
 export async function addJobPhoto(jobId: string, type: "BEFORE" | "AFTER", url: string, caption?: string) {
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   const session = await getSession();
   await db.photo.create({ data: { jobId, type, url, caption: caption || null, uploadedById: session?.sub } });
   revalidatePath(`/jobs/${jobId}`);
@@ -327,12 +329,16 @@ export async function addJobPhoto(jobId: string, type: "BEFORE" | "AFTER", url: 
 export async function addJobVideo(jobId: string, url: string, caption?: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   await db.jobVideo.create({ data: { jobId, url, caption: caption || null } });
   revalidatePath(`/jobs/${jobId}`);
   return { success: true as const };
 }
 
 export async function completeJobWithCertificate(jobId: string) {
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   const job = await db.job.findUnique({ where: { id: jobId }, include: { supervisor: true, certificate: true } });
   if (!job) return { error: "Job not found", success: false as const };
 
@@ -457,6 +463,8 @@ export async function updateJobLocation(jobId: string, mapLink: string) {
 export async function updateJobNotes(jobId: string, notes: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
   const trimmed = notes.trim();
   if (trimmed.length > 2000) return { error: "Notes are too long (2000 characters max)" };
   await db.job.update({ where: { id: jobId }, data: { notes: trimmed || null } });
@@ -496,6 +504,8 @@ export async function addMaterialIssue(jobId: string, item: string, quantity: st
 export async function sendTeamDispatch(jobId: string) {
   const session = await getSession();
   if (!session) return { success: false as const, error: "Not authorized", sent: 0, queued: 0 };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return { ...scopeError, sent: 0, queued: 0 };
   // Francis (SUPERVISOR) final policy, 2026-09-21: Team Dispatch is a
   // TODAY-ONLY operational action for him.
   if (session.role === "SUPERVISOR") {

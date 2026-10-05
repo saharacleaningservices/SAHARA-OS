@@ -43,11 +43,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     redirect("/jobs");
   }
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
-  // Francis (OPERATIONS) must never see customer mobile numbers — 2026-09-25
-  // field-only policy. Deliberately separate from canManage, which still
-  // covers his other job actions (vehicle assignment, review/payment links).
-  // Field Staff never see customer phone numbers either (Staff App rule) — they reach the customer via the office.
-  const canSeeCustomerContact = session.role !== "OPERATIONS" && session.role !== "STAFF";
+  // Customer phone + click-to-call. Francis (OPERATIONS) — owner decision
+  // 2026-10-05: full detail incl. phone for TODAY + TOMORROW only; canAccessJob
+  // above already redirects him away from any other date, so every job that
+  // reaches this line for him is today's or tomorrow's.
+  // Field Staff never see customer phone numbers (Staff App rule) — they reach the customer via the office.
+  const canSeeCustomerContact = session.role !== "STAFF";
   // Job value, advance, balance, invoices — owner + Accounts only. Francis
   // and field roles get job information without any money figures.
   const showMoney = canViewRevenue(session.role);
@@ -234,6 +235,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <div>
                     <p className="text-xs text-muted-foreground">Alternate Number</p>
                     <p className="font-medium text-foreground">{job.alternateMobile}</p>
+                  </div>
+                )}
+                {canSeeCustomerContact && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Customer Phone</p>
+                    <a href={toTelLink(job.customerMobile)} className="font-medium text-primary underline-offset-2 hover:underline">{job.customerMobile}</a>
                   </div>
                 )}
                 <div className="col-span-2 sm:col-span-3">

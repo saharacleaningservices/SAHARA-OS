@@ -217,6 +217,10 @@ export default async function StaffDetailPage({
             const s0 = new Date(now); s0.setHours(0, 0, 0, 0);
             const s1 = new Date(s0); s1.setDate(s1.getDate() + 1);
             const jobs = staff.jobAssignments.map((a) => a.job);
+            // Operations/Supervisor: customer & job detail only for today + tomorrow; other days show date + status.
+            const s2 = new Date(s1); s2.setDate(s2.getDate() + 1);
+            const fieldRole = session.role === "OPERATIONS" || session.role === "SUPERVISOR";
+            const detailOk = (d: Date) => !fieldRole || (d >= s0 && d < s2);
             const today = jobs.filter((j) => j.scheduledDate >= s0 && j.scheduledDate < s1 && j.status !== "COMPLETED" && j.status !== "CANCELLED");
             const upcoming = jobs.filter((j) => j.scheduledDate >= s1 && j.status !== "COMPLETED" && j.status !== "CANCELLED");
             const completed = jobs.filter((j) => j.status === "COMPLETED");
@@ -229,7 +233,12 @@ export default async function StaffDetailPage({
                   <p className="text-xs text-muted-foreground">None</p>
                 ) : (
                   <div className="space-y-1.5">
-                    {list.slice(0, 6).map((j) => (
+                    {list.slice(0, 6).map((j) => !detailOk(j.scheduledDate) ? (
+                      <div key={j.id} className="flex items-center justify-between rounded-lg border border-border p-2.5">
+                        <p className="text-xs text-muted-foreground">Job · {formatDate(j.scheduledDate)}</p>
+                        <JobStatusBadge status={j.status} />
+                      </div>
+                    ) : (
                       <Link key={j.id} href={`/jobs/${j.id}`} className="flex items-center justify-between rounded-lg border border-border p-2.5 hover:bg-muted/40">
                         <div>
                           <p className="text-sm font-medium text-foreground">{j.customerName}</p>
