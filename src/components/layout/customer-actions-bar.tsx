@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Phone, MessageCircle, Megaphone, UserPlus, X, Search, Loader2, Send } from "lucide-react";
 import { toTelLink, toWhatsAppLink } from "@/lib/utils";
+import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { searchCustomersQuick, bulkSendWhatsAppCampaign } from "@/server/actions/customer-actions";
 
 type Cust = { name: string; mobile: string; leadId?: string };
@@ -93,6 +94,7 @@ export function CustomerActionsBar() {
           </button>
         ))}
         <span className="mx-0.5 h-4 w-px shrink-0 bg-border" />
+        <PackageCalculatorButton />
         <Link
           href="/leads/new"
           className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"

@@ -83,6 +83,7 @@ export type QuotationPdfProps = {
   customerAddress: string;
   services: { name: string; description: string; amount: number }[];
   subTotal: number;
+  discount?: number;
   gstPercent: number;
   gstAmount: number;
   totalAmount: number;
@@ -158,6 +159,12 @@ export function QuotationDocument(props: QuotationPdfProps) {
             <Text style={styles.totalsLabel}>Subtotal</Text>
             <Text style={styles.totalsValue}>{inr(props.subTotal)}</Text>
           </View>
+          {props.discount ? (
+            <View style={styles.totalsRow}>
+              <Text style={styles.totalsLabel}>Discount</Text>
+              <Text style={styles.totalsValue}>- {inr(props.discount)}</Text>
+            </View>
+          ) : null}
           <View style={styles.totalsRow}>
             <Text style={styles.totalsLabel}>GST ({props.gstPercent}%)</Text>
             <Text style={styles.totalsValue}>{inr(props.gstAmount)}</Text>

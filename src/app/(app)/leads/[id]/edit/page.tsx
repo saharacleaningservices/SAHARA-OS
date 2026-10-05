@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { LeadForm } from "@/components/leads/lead-form";
+import { canEditPackagePricing } from "@/lib/package-calc";
 import { getLeadDetail, canAccessLead } from "@/server/leads";
 import { getStaffForAssignment } from "@/server/staff";
 import { getUsersForAssignment } from "@/server/users";
@@ -27,6 +28,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
     <div className="max-w-3xl space-y-6">
       <PageHeader title={`Edit ${lead.name}`} description={lead.leadNumber} />
       <LeadForm
+        canEditPricing={canEditPackagePricing(session.role)}
         leadId={lead.id}
         staffOptions={staffOptions}
         userOptions={userOptions}
@@ -63,6 +65,8 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
           serviceVariant: lead.serviceVariant ?? "",
           packageName: lead.packageName ?? "",
           propertyType: lead.propertyType ?? "",
+          serviceItems: lead.serviceItems ?? "",
+          discountAmount: lead.discountAmount ?? 0,
           comboServices: lead.comboServices ? (JSON.parse(lead.comboServices) as string[]) : [],
           mapLink: lead.mapLink ?? "",
         }}

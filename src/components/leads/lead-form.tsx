@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +25,8 @@ import { MapsLocationInput } from "@/components/shared/maps-location-input";
 import { parseMapLink } from "@/lib/maps";
 import { TeamSelect } from "@/components/shared/team-select";
 import { ACQUISITION_CHANNELS } from "@/lib/attribution";
+import { PackageCalculator } from "@/components/shared/package-calculator";
+import { packageTotals, parsePackage, serializeLines, type PackageDraft } from "@/lib/package-calc";
 
 type StaffOption = { id: string; name: string; designation: string };
 type UserOption = { id: string; name: string; role: string };
@@ -35,12 +37,15 @@ export function LeadForm({
   defaultValues,
   leadId,
   mapsApiKey = null,
+  canEditPricing = false,
 }: {
   staffOptions: StaffOption[];
   userOptions: UserOption[];
   defaultValues?: Partial<LeadFormValues>;
   leadId?: string;
   mapsApiKey?: string | null;
+  /** Super Admin / Accounts: may edit unit price, discount and final amount (server re-checks). */
+  canEditPricing?: boolean;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -110,6 +115,20 @@ export function LeadForm({
     },
   });
 
+  // Package Calculator (Customized Service): multiple services in one lead.
+  const [pkg, setPkg] = useState<PackageDraft>(() => parsePackage(defaultValues?.serviceItems, defaultValues?.discountAmount));
+  function applyPkg(d: PackageDraft) {
+    setPkg(d);
+    const tot = packageTotals(d);
+    setValue("serviceItems", d.lines.length ? serializeLines(d) : "", { shouldDirty: true });
+    setValue("discountAmount", tot.discount, { shouldDirty: true });
+    if (d.lines.length) {
+      setValue("quoteAmount", tot.final, { shouldDirty: true });
+      setValue("serviceVariant", d.lines.length > 1 ? `${d.lines[0].name} + ${d.lines.length - 1} more` : d.lines[0].name);
+    }
+  }
+  const isCustomized = (watch("serviceCategory") || "") === "CUSTOMIZER_PACKAGE";
+
   const estimated = Number(watch("quoteAmount")) || 0;
   const advReceived = Number(watch("advanceAmount")) || 0;
   const leadBalance = Math.max(estimated - advReceived, 0);
@@ -132,7 +151,7 @@ export function LeadForm({
     // putty, Pest property size, Housekeeping staff/hours) into Notes — same
     // composition the public booking form uses — so nothing the staff
     // selected is lost even though Lead has no dedicated columns for them.
-    const mergedNotes = [values.notes?.trim(), selectionNotesLines.join("\n")].filter(Boolean).join("\n\n");
+    const mergedNotes = [values.notes?.trim(), isCustomized ? "" : selectionNotesLines.join("\n")].filter(Boolean).join("\n\n");
     const finalValues = { ...values, notes: mergedNotes };
     const res = leadId ? await updateLead(leadId, finalValues) : await createLead(finalValues);
     setSubmitting(false);
@@ -234,7 +253,10 @@ export function LeadForm({
                 setValue("serviceVariant", "");
                 setValue("packageName", "");
                 setValue("service", (SERVICE_CATEGORY_TO_LEGACY[v] ?? "HOME_DEEP_CLEANING") as LeadFormValues["service"]);
+                // Leaving Customized Service clears its package (nothing hidden is saved).
+                if (v !== "CUSTOMIZER_PACKAGE" && pkg.lines.length) applyPkg({ lines: [], discount: 0 });
               }}
+              hideVariant={(watch("serviceCategory") || "") === "CUSTOMIZER_PACKAGE"}
               onVariantChange={(v) => {
                 setValue("serviceVariant", v);
                 // Home Deep Cleaning: the picker's second field is the Property Type.
@@ -243,6 +265,12 @@ export function LeadForm({
               onPackageChange={(v) => setValue("packageName", v)}
             />
           </div>
+          {isCustomized && (
+            <div className="sm:col-span-2">
+              <PackageCalculator value={pkg} onChange={applyPkg} canEditPrice={canEditPricing} />
+            </div>
+          )}
+{!isCustomized && (
           <div className="sm:col-span-2">
             <ServiceQuantityFields
               key={`${watch("serviceCategory") || ""}-${watch("serviceVariant") || ""}`}
@@ -255,6 +283,7 @@ export function LeadForm({
               onNotesLines={setSelectionNotesLines}
             />
           </div>
+          )}
           <div className="space-y-1.5">
             <Label>Lead Source</Label>
             <Select value={watch("source")} onValueChange={(v) => setValue("source", v as LeadFormValues["source"])}>
@@ -452,5 +481,41 @@ export function LeadForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * New Lead page wrapper: picks up a package handed over from the header
+ * Package Calculator ("New lead with this package") and starts the form as a
+ * Customized Service with those services. Read once after mount (no SSR mismatch).
+ */
+export function NewLeadForm(props: Omit<Parameters<typeof LeadForm>[0], "defaultValues" | "leadId">) {
+  const [draft, setDraft] = useState<PackageDraft | null>(null);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("sahara_pkg_draft");
+      if (!raw) return;
+      sessionStorage.removeItem("sahara_pkg_draft");
+      const d = JSON.parse(raw) as PackageDraft;
+      if (d?.lines?.length) setDraft(d);
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+  if (!draft) return <LeadForm {...props} />;
+  const t = packageTotals(draft);
+  return (
+    <LeadForm
+      key="with-package"
+      {...props}
+      defaultValues={{
+        serviceCategory: "CUSTOMIZER_PACKAGE",
+        service: (SERVICE_CATEGORY_TO_LEGACY.CUSTOMIZER_PACKAGE ?? "HOUSEKEEPING") as LeadFormValues["service"],
+        serviceItems: serializeLines(draft),
+        discountAmount: t.discount,
+        quoteAmount: t.final,
+        serviceVariant: draft.lines.length > 1 ? `${draft.lines[0].name} + ${draft.lines.length - 1} more` : draft.lines[0].name,
+      }}
+    />
   );
 }

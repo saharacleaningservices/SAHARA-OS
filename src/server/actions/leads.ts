@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { notifyCrewAssigned } from "@/server/job-team";
 import { getSession } from "@/lib/session";
+import { enforcePricing, packageTotals, parsePackage, serializeLines, canEditPackagePricing } from "@/lib/package-calc";
+import { getLivePricing } from "@/server/pricing";
+
 import { rescheduleJobFromLead, syncLeadFromJob } from "@/server/job-schedule";
 import {
   leadSchema,
@@ -50,6 +53,22 @@ async function assertLeadEditable(leadId: string): Promise<{ error: string } | n
     return { error: "You can only edit today's and tomorrow's leads/bookings" };
   }
   return null;
+}
+
+
+/**
+ * Package Calculator lines → stored package. Prices are re-checked against the
+ * live pricing master: only Super Admin / Accounts may change unit price or give
+ * a discount. When a package is present, the lead amount = package final amount.
+ */
+async function packageFields(serviceItems: string | undefined, discountAmount: number | undefined, role?: string) {
+  if (serviceItems === undefined) return null;
+  if (!serviceItems) return { serviceItems: null, discountAmount: null } as const;
+  const { items } = await getLivePricing();
+  const draft = enforcePricing(parsePackage(serviceItems, discountAmount ?? 0), items, canEditPackagePricing(role));
+  if (draft.lines.length === 0) return { serviceItems: null, discountAmount: null } as const;
+  const t = packageTotals(draft);
+  return { serviceItems: serializeLines(draft), discountAmount: t.discount, quoteAmount: t.final } as const;
 }
 
 const MIN_JOB_VALUE = COMPANY.minimumJobValue;
@@ -103,10 +122,12 @@ export async function createLead(values: unknown) {
   const campaign = data.acquisitionCampaign?.trim() || null;
   const now = new Date();
 
+  const pkg = await packageFields(data.serviceItems, data.discountAmount, session?.role);
   const leadNumber = await generateLeadNumber();
   const lead = await db.lead.create({
     data: {
       leadNumber,
+      ...(pkg ?? {}),
       name: data.name,
       mobile: data.mobile,
       alternateMobile: data.alternateMobile || null,
@@ -118,7 +139,7 @@ export async function createLead(values: unknown) {
       addOnServices: data.addOnServices?.length ? JSON.stringify(data.addOnServices) : null,
       service: data.service,
       source: data.source,
-      quoteAmount: data.quoteAmount ?? null,
+      quoteAmount: pkg && "quoteAmount" in pkg ? pkg.quoteAmount : (data.quoteAmount ?? null),
       followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
       timeSlot: data.timeSlot || null,
@@ -267,9 +288,11 @@ export async function updateLead(id: string, values: unknown) {
   }
   const data = parsed.data;
   const before = await db.lead.findUnique({ where: { id }, select: { serviceDate: true, timeSlot: true } });
+  const pkg = await packageFields(data.serviceItems, data.discountAmount, (await getSession())?.role);
   await db.lead.update({
     where: { id },
     data: {
+      ...(pkg ?? {}),
       ...(data.name && { name: data.name }),
       ...(data.mobile && { mobile: data.mobile }),
       ...(data.alternateMobile !== undefined && { alternateMobile: data.alternateMobile || null }),
@@ -283,7 +306,7 @@ export async function updateLead(id: string, values: unknown) {
       }),
       ...(data.service && { service: data.service }),
       ...(data.source && { source: data.source }),
-      ...(data.quoteAmount !== undefined && { quoteAmount: data.quoteAmount }),
+      ...(data.quoteAmount !== undefined && !(pkg && "quoteAmount" in pkg) && { quoteAmount: data.quoteAmount }),
       ...(data.followUpDate !== undefined && {
         followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       }),
@@ -449,6 +472,9 @@ export async function confirmBooking(leadId: string, values: unknown) {
       propertyType: lead.propertyType,
       packageName: lead.packageName,
       comboServices: lead.comboServices,
+      // Package Calculator lines + discount travel with the booking (jobValue = final amount).
+      serviceItems: lead.serviceItems,
+      discountAmount: lead.discountAmount,
       // Confirmed package price snapshot + scope travel with the booking.
       priceType: lead.priceType,
       festivalName: lead.festivalName,
@@ -810,6 +836,7 @@ export async function createQuotation(
   leadId: string,
   services: { name: string; description: string; amount: number }[],
   gstPercent: number,
+  discount = 0,
 ) {
   const scopeError = await assertLeadEditable(leadId);
   if (scopeError) return scopeError;
@@ -817,8 +844,12 @@ export async function createQuotation(
   if (!lead) return { error: "Lead not found" };
 
   const subTotal = services.reduce((sum, s) => sum + s.amount, 0);
-  const gstAmount = Math.round((subTotal * gstPercent) / 100);
-  const totalAmount = subTotal + gstAmount;
+  // Discount: Super Admin / Accounts may set any; others only the package discount already approved on the lead.
+  const role = (await getSession())?.role;
+  const allowed = canEditPackagePricing(role) ? subTotal : Math.min(subTotal, lead.discountAmount ?? 0);
+  const disc = Math.max(0, Math.min(Number(discount) || 0, allowed));
+  const gstAmount = Math.round(((subTotal - disc) * gstPercent) / 100);
+  const totalAmount = subTotal - disc + gstAmount;
 
   const quoteNumber = await generateQuoteNumber();
   const quotation = await db.quotation.create({
@@ -827,6 +858,7 @@ export async function createQuotation(
       leadId,
       services: JSON.stringify(services),
       subTotal,
+      discount: disc,
       gstPercent,
       gstAmount,
       totalAmount,

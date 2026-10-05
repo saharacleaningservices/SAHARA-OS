@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { syncLeadFromJob } from "@/server/job-schedule";
+import { packageToQuoteItems, packageTotals, parsePackage } from "@/lib/package-calc";
 import { jobSchema } from "@/lib/validation";
 import { deriveArea } from "@/lib/utils";
 import { notify } from "@/server/notify";
@@ -492,6 +493,10 @@ export async function completeJobWithCertificate(jobId: string) {
   const existingInvoice = await db.invoice.findUnique({ where: { jobId } });
   if (!existingInvoice) {
     const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
+    // Multi-service package → one invoice line per service + the discount; else one line.
+    const pkg = parsePackage(job.serviceItems, job.discountAmount);
+    const pkgTotals = packageTotals(pkg);
+    const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - job.jobValue) < 0.01;
     await db.invoice.create({
       data: {
         invoiceNumber: payment.invoiceNumber,
@@ -500,10 +505,11 @@ export async function completeJobWithCertificate(jobId: string) {
         customerName: job.customerName,
         customerMobile: job.customerMobile,
         customerAddress: job.address,
-        lineItems: JSON.stringify([
-          { name: serviceLabel, description: `${serviceLabel} — ${job.area}`, amount: job.jobValue },
-        ]),
-        subTotal: job.jobValue,
+        lineItems: JSON.stringify(
+          usePkg ? packageToQuoteItems(pkg) : [{ name: serviceLabel, description: `${serviceLabel} — ${job.area}`, amount: job.jobValue }],
+        ),
+        subTotal: usePkg ? pkgTotals.subtotal : job.jobValue,
+        discount: usePkg ? pkgTotals.discount : 0,
         gstPercent: 0,
         gstAmount: 0,
         totalAmount: job.jobValue,

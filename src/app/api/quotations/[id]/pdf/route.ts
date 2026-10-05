@@ -53,6 +53,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       customerAddress: quotation.lead.address || quotation.lead.area,
       services,
       subTotal: quotation.subTotal,
+      discount: quotation.discount,
       gstPercent: quotation.gstPercent,
       gstAmount: quotation.gstAmount,
       totalAmount: quotation.totalAmount,

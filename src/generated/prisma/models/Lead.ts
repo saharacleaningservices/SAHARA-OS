@@ -30,12 +30,14 @@ export type LeadAvgAggregateOutputType = {
   quoteAmount: number | null
   teamNumber: number | null
   advanceAmount: number | null
+  discountAmount: number | null
 }
 
 export type LeadSumAggregateOutputType = {
   quoteAmount: number | null
   teamNumber: number | null
   advanceAmount: number | null
+  discountAmount: number | null
 }
 
 export type LeadMinAggregateOutputType = {
@@ -96,6 +98,8 @@ export type LeadMinAggregateOutputType = {
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
+  serviceItems: string | null
+  discountAmount: number | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -164,6 +168,8 @@ export type LeadMaxAggregateOutputType = {
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
+  serviceItems: string | null
+  discountAmount: number | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -232,6 +238,8 @@ export type LeadCountAggregateOutputType = {
   priceType: number
   festivalName: number
   scopeOfWork: number
+  serviceItems: number
+  discountAmount: number
   isDemo: number
   deletedAt: number
   deletedByName: number
@@ -248,12 +256,14 @@ export type LeadAvgAggregateInputType = {
   quoteAmount?: true
   teamNumber?: true
   advanceAmount?: true
+  discountAmount?: true
 }
 
 export type LeadSumAggregateInputType = {
   quoteAmount?: true
   teamNumber?: true
   advanceAmount?: true
+  discountAmount?: true
 }
 
 export type LeadMinAggregateInputType = {
@@ -314,6 +324,8 @@ export type LeadMinAggregateInputType = {
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
+  serviceItems?: true
+  discountAmount?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -382,6 +394,8 @@ export type LeadMaxAggregateInputType = {
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
+  serviceItems?: true
+  discountAmount?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -450,6 +464,8 @@ export type LeadCountAggregateInputType = {
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
+  serviceItems?: true
+  discountAmount?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -605,6 +621,8 @@ export type LeadGroupByOutputType = {
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
+  serviceItems: string | null
+  discountAmount: number | null
   isDemo: boolean
   deletedAt: Date | null
   deletedByName: string | null
@@ -696,6 +714,8 @@ export type LeadWhereInput = {
   priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -774,6 +794,8 @@ export type LeadOrderByWithRelationInput = {
   priceType?: Prisma.SortOrderInput | Prisma.SortOrder
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -855,6 +877,8 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -933,6 +957,8 @@ export type LeadOrderByWithAggregationInput = {
   priceType?: Prisma.SortOrderInput | Prisma.SortOrder
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -1009,6 +1035,8 @@ export type LeadScalarWhereWithAggregatesInput = {
   priceType?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   festivalName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   scopeOfWork?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableWithAggregatesFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -1077,6 +1105,8 @@ export type LeadCreateInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1152,6 +1182,8 @@ export type LeadUncheckedCreateInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1227,6 +1259,8 @@ export type LeadUpdateInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1302,6 +1336,8 @@ export type LeadUncheckedUpdateInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1377,6 +1413,8 @@ export type LeadCreateManyInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1445,6 +1483,8 @@ export type LeadUpdateManyMutationInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1510,6 +1550,8 @@ export type LeadUncheckedUpdateManyInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1588,6 +1630,8 @@ export type LeadCountOrderByAggregateInput = {
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1602,6 +1646,7 @@ export type LeadAvgOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   advanceAmount?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
 }
 
 export type LeadMaxOrderByAggregateInput = {
@@ -1662,6 +1707,8 @@ export type LeadMaxOrderByAggregateInput = {
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1730,6 +1777,8 @@ export type LeadMinOrderByAggregateInput = {
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1744,6 +1793,7 @@ export type LeadSumOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   advanceAmount?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
 }
 
 export type LeadScalarRelationFilter = {
@@ -2070,6 +2120,8 @@ export type LeadCreateWithoutCreatedByInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2144,6 +2196,8 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2227,6 +2281,8 @@ export type LeadCreateWithoutAssignedToInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2301,6 +2357,8 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2403,6 +2461,8 @@ export type LeadScalarWhereInput = {
   priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -2487,6 +2547,8 @@ export type LeadCreateWithoutAssignedStaffInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2561,6 +2623,8 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2660,6 +2724,8 @@ export type LeadCreateWithoutQuotationsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2734,6 +2800,8 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2824,6 +2892,8 @@ export type LeadUpdateWithoutQuotationsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2898,6 +2968,8 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2972,6 +3044,8 @@ export type LeadCreateWithoutFollowUpsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3046,6 +3120,8 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3136,6 +3212,8 @@ export type LeadUpdateWithoutFollowUpsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3210,6 +3288,8 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3284,6 +3364,8 @@ export type LeadCreateWithoutTimelineInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3358,6 +3440,8 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3448,6 +3532,8 @@ export type LeadUpdateWithoutTimelineInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3522,6 +3608,8 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3596,6 +3684,8 @@ export type LeadCreateWithoutJobsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3670,6 +3760,8 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3760,6 +3852,8 @@ export type LeadUpdateWithoutJobsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3834,6 +3928,8 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3908,6 +4004,8 @@ export type LeadCreateWithoutPaymentsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3982,6 +4080,8 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4072,6 +4172,8 @@ export type LeadUpdateWithoutPaymentsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4146,6 +4248,8 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4220,6 +4324,8 @@ export type LeadCreateWithoutActivityLogsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4294,6 +4400,8 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4384,6 +4492,8 @@ export type LeadUpdateWithoutActivityLogsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4458,6 +4568,8 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4532,6 +4644,8 @@ export type LeadCreateWithoutAmcContractsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4606,6 +4720,8 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4696,6 +4812,8 @@ export type LeadUpdateWithoutAmcContractsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4770,6 +4888,8 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4844,6 +4964,8 @@ export type LeadCreateManyCreatedByInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4911,6 +5033,8 @@ export type LeadCreateManyAssignedToInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4978,6 +5102,8 @@ export type LeadUpdateWithoutCreatedByInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5052,6 +5178,8 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5126,6 +5254,8 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5193,6 +5323,8 @@ export type LeadUpdateWithoutAssignedToInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5267,6 +5399,8 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5341,6 +5475,8 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5408,6 +5544,8 @@ export type LeadCreateManyAssignedStaffInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -5475,6 +5613,8 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5549,6 +5689,8 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5623,6 +5765,8 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5775,6 +5919,8 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -5854,6 +6000,8 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -5925,6 +6073,8 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -5996,6 +6146,8 @@ export type LeadSelectScalar = {
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -6006,7 +6158,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -6103,6 +6255,8 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     priceType: string | null
     festivalName: string | null
     scopeOfWork: string | null
+    serviceItems: string | null
+    discountAmount: number | null
     isDemo: boolean
     deletedAt: Date | null
     deletedByName: string | null
@@ -6601,6 +6755,8 @@ export interface LeadFieldRefs {
   readonly priceType: Prisma.FieldRef<"Lead", 'String'>
   readonly festivalName: Prisma.FieldRef<"Lead", 'String'>
   readonly scopeOfWork: Prisma.FieldRef<"Lead", 'String'>
+  readonly serviceItems: Prisma.FieldRef<"Lead", 'String'>
+  readonly discountAmount: Prisma.FieldRef<"Lead", 'Float'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly deletedByName: Prisma.FieldRef<"Lead", 'String'>

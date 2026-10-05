@@ -519,6 +519,10 @@ model Lead {
   priceType    String?
   festivalName String?
   scopeOfWork  String?
+  // Multi-service package (Package Calculator): JSON [{group, contentId, name, unit, qty, unitPrice}]
+  // and the discount; quoteAmount = subtotal − discount. Carried to the Job on Confirm Booking.
+  serviceItems   String?
+  discountAmount Float?
 
   isDemo        Boolean   @default(false)
   deletedAt     DateTime?
@@ -676,6 +680,8 @@ model Job {
   // shows the team exactly as it was on that day, even if the crew is
   // edited, a staff record is renamed or soft-deleted later.
   teamSnapshot String?
+  serviceItems   String? // package lines carried from the enquiry (Package Calculator)
+  discountAmount Float?
 
   // Price snapshot frozen at booking (2026-10-05 pricing master): REGULAR |
   // FESTIVAL, the festival name, and the scope text the customer booked.
