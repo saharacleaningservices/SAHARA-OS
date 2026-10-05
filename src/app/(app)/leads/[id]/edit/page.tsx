@@ -62,6 +62,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
           serviceCategory: lead.serviceCategory ?? "HOME_DEEP_CLEANING",
           serviceVariant: lead.serviceVariant ?? "",
           packageName: lead.packageName ?? "",
+          propertyType: lead.propertyType ?? "",
           comboServices: lead.comboServices ? (JSON.parse(lead.comboServices) as string[]) : [],
           mapLink: lead.mapLink ?? "",
         }}

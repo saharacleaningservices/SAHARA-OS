@@ -84,6 +84,7 @@ export const leadSchema = z.object({
   serviceCategory: z.string().optional().or(z.literal("")),
   serviceVariant: z.string().optional().or(z.literal("")),
   packageName: z.string().optional().or(z.literal("")),
+  propertyType: z.string().max(60).optional().or(z.literal("")),
   comboServices: z.array(z.string()).optional(),
   mapLink: z.string().optional().or(z.literal("")),
   // Marketing attribution for leads entered by hand (set once, on create).

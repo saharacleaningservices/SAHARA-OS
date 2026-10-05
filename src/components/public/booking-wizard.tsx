@@ -31,7 +31,11 @@ export type QuotePrefill = {
 type Category = "HOME" | "COMMERCIAL" | "PEST" | "PAINTING";
 type Line = { label: string; amount: number | null; note?: string };
 
-const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"];
+// Owner 2026-10-05: Property Type + 4 packages. Fixed prices exist only for
+// 1–4 BHK × Premium / Platinum; every other combination is "price on confirmation".
+const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"];
+const HOME_PACKAGES = ["Premium", "Platinum", "Diamond", "Unfurnished"] as const;
+const isTier = (v: string): v is HomeTier => v === "Premium" || v === "Platinum";
 const PEST_SIZES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Commercial"];
 const PAINT_PROPERTIES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Office / Shop"];
 const PAINT_JOBS = ["Fresh Painting", "Repainting"];
@@ -99,7 +103,7 @@ export function BookingWizard({
   // Home
   const [bhk, setBhk] = useState(preset?.bhk ?? "");
   const [homeType, setHomeType] = useState<"FULL" | "CUSTOM" | "COMBO" | "">(preset ? "FULL" : "");
-  const [pkg, setPkg] = useState<HomeTier | "">(preset?.pkg ?? "");
+  const [pkg, setPkg] = useState<string>(preset?.pkg ?? "");
   const [qty, setQty] = useState<Record<string, number>>({});
   const [combos, setCombos] = useState<Record<string, boolean>>({});
   // Commercial / Pest / Painting
@@ -127,6 +131,7 @@ export function BookingWizard({
   const [altMobile, setAltMobile] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [pinCode, setPinCode] = useState("");
   const [mapLink, setMapLink] = useState("");
   const [locating, setLocating] = useState(false);
   const [pay, setPay] = useState<"PAY_ADVANCE" | "PAY_AFTER_SERVICE" | "">("");
@@ -177,7 +182,7 @@ export function BookingWizard({
     const out: Line[] = [];
     if (category === "HOME" && homeType === "FULL" && bhk && pkg) {
       const item = items.find((p) => p.bhk === bhk && p.variant === pkg);
-      if (item) out.push({ label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item) });
+      out.push(item ? { label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item) } : { label: `${bhk} ${pkg} Deep Cleaning`, amount: null, note: "Price on confirmation" });
     }
     if (category === "HOME" && homeType === "CUSTOM") {
       for (const it of CUSTOMISED) {
@@ -223,6 +228,7 @@ export function BookingWizard({
       /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)) &&
       address.trim().length >= 5 &&
       (!altDigits || altDigits.length >= 10) &&
+      (!pinCode.trim() || /^\d{6}$/.test(pinCode.trim())) &&
       (!email.trim() || /^\S+@\S+\.\S+$/.test(email.trim())));
 
   function useCurrentLocation() {
@@ -249,7 +255,8 @@ export function BookingWizard({
     }
     if (category === "HOME") {
       const first = homeType === "CUSTOM" ? CUSTOMISED.find((it) => (qty[it.contentId] ?? 0) > 0) : undefined;
-      return { serviceCategory: first ? "INDIVIDUAL_CLEANING" : "COMBO_PACKAGE", serviceVariant: first?.variant ?? "", packageName: "", propertyType: "" };
+      // Individual Cleaning removed (owner 2026-10-05): itemised home services are a Customized Service.
+      return { serviceCategory: first ? "CUSTOMIZER_PACKAGE" : "COMBO_PACKAGE", serviceVariant: first?.variant ?? "", packageName: "", propertyType: "" };
     }
     if (category === "COMMERCIAL") return { serviceCategory: "COMMERCIAL_CLEANING", serviceVariant: comType, packageName: "", propertyType: comType };
     if (category === "PEST") return { serviceCategory: "PEST_CONTROL", serviceVariant: pest, packageName: "", propertyType: pestSize };
@@ -282,6 +289,7 @@ export function BookingWizard({
         email: email.trim(),
         area: address.trim().slice(0, 80),
         address: address.trim(),
+        pinCode: pinCode.trim(),
         mapLink,
         ...m,
         comboServices: lines.filter((l) => COMBOS.some((c) => c.name === l.label)).map((l) => l.label),
@@ -344,7 +352,7 @@ export function BookingWizard({
   // Festival price shown next to the regular price (first upcoming festival until a date is picked).
   const previewFestival = (date && festivalForDate(festivals, date)) || festivals[0] || null;
   const festivalPriceOf = (it: PriceItem) => (previewFestival ? (previewFestival.prices[it.contentId] ?? null) : null);
-  const tier: HomeTier | null = category === "HOME" && homeType === "FULL" && pkg ? pkg : null;
+  const tier: HomeTier | null = category === "HOME" && homeType === "FULL" && isTier(pkg) ? pkg : null;
   const pleaseNote: string[] = tier
     ? homePleaseNote(tier)
     : category === "HOME"
@@ -405,13 +413,13 @@ export function BookingWizard({
                 {homeType === "FULL" && (
                   <>
                     <div>
-                      <p className="mb-2 text-sm font-semibold">Property size</p>
-                      <div className="grid grid-cols-4 gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} whitespace-nowrap px-1`}>{b}</button>)}</div>
+                      <p className="mb-2 text-sm font-semibold">Property type</p>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} whitespace-nowrap px-1 text-[13px]`}>{b}</button>)}</div>
                     </div>
                     {bhk && (
                       <div className="grid gap-2.5 sm:grid-cols-2">
-                        {(["Premium", "Platinum"] as const).map((t) => {
-                          const it = pkgPrice(t);
+                        {HOME_PACKAGES.map((t) => {
+                          const it = isTier(t) ? pkgPrice(t) : undefined;
                           const on = pkg === t;
                           return (
                             <button key={t} type="button" onClick={() => setPkg(t)} className={`rounded-2xl border p-3.5 text-left ${on ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
@@ -420,10 +428,14 @@ export function BookingWizard({
                                   <span className="block text-base font-bold">{bhk} {t}</span>
                                   <span className="block text-[11px] font-semibold text-[#0a2540]/55">{HOME_DURATION}</span>
                                 </span>
-                                {it && <PackagePrice item={it} festivalPrice={festivalApplies ? festivalPriceOf(it) : null} festivalOn={priceMode === "FESTIVAL"} />}
+                                {it ? (
+                                  <PackagePrice item={it} festivalPrice={festivalApplies ? festivalPriceOf(it) : null} festivalOn={priceMode === "FESTIVAL"} />
+                                ) : (
+                                  <span className="text-right text-[11px] font-semibold text-[#0a2540]/60">Price on confirmation</span>
+                                )}
                               </span>
                               <span className="mt-2 block space-y-0.5 text-xs text-[#0a2540]/75">
-                                {homeHighlights(t).slice(0, 3).map((h) => <span key={h} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{h}</span>)}
+                                {isTier(t) && homeHighlights(t).slice(0, 3).map((h) => <span key={h} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{h}</span>)}
                               </span>
                               <span className={`mt-2.5 block rounded-lg py-1.5 text-center text-xs font-bold ${on ? "bg-primary text-white" : "bg-primary/10 text-primary"}`}>{on ? "Selected" : "Select"}</span>
                             </button>
@@ -687,13 +699,14 @@ export function BookingWizard({
         <div id="bk-address" className={`${card} scroll-mt-20`}>
           {step(5, "Service address", address.trim().length >= 5)}
           <textarea className={`${input} mt-3 h-24 py-2.5`} autoComplete="street-address" placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
+          <input className={`${input} mt-2`} autoComplete="postal-code" placeholder="PIN code (6 digits)" inputMode="numeric" maxLength={6} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))} />
           <button
             type="button"
             onClick={useCurrentLocation}
             className={`mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm font-semibold ${mapLink ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-primary/40 text-primary"}`}
           >
             {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
-            {mapLink ? "Current location added ✓" : "Add current location (optional)"}
+            {mapLink ? "Google Maps location added ✓" : "Add Google Maps location (optional)"}
           </button>
         </div>
       )}
