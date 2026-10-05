@@ -204,3 +204,30 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 - Live booking.saharacleaningservices.com loads **no** GA4, Google Ads or Meta Pixel tags → Coolify env vars are unset: `NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`, `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL`, `NEXT_PUBLIC_META_PIXEL_ID` (build-time vars → redeploy after setting).
 - Google Ads conversions today: Phone call leads (6 actions), Submit lead form, Leads from messages; enhanced conversions "managed through Google Tag Manager" (container not on the booking site). CRM leads from ads still get Google Ads/Meta Ads channel via gclid/fbclid/UTM even without tags.
 - To do later: in Sahara's Google Ads create a "Lead Form Submit" website conversion (gives AW- ID + label); set the 4 env vars from Sahara-owned accounts; redeploy; test with Tag Assistant / Meta Test Events. Do not change existing campaign settings.
+
+## 2026-10-05 — Francis leads, Staff App job info, Pricing & Packages, festival marketing (deployed)
+
+**Francis (OPERATIONS) — commit 4245603:** Leads section restored, *scoped*: all NEW enquiries + leads assigned to / created by him + today/tomorrow leads (not the full customer database). Dashboard "New Leads" card with **Create New Lead**. Edit / stage / confirm actions enforce the same scope. No bulk import.
+
+**Staff — commit 47e1a9c:**
+- Jobs list: **Job Amount** column; job page shows Job Amount / Advance / Balance + **Terms & conditions** for Super Admin, Accounts, Operations, Supervisor (no revenue totals, expenses, profit, staff cost).
+- Staff App day view: Job amount, Paid, Balance + status, scope, T&C.
+- **Staff profile photo** (optional): staff upload their own in Staff App → Account; Super Admin/Accounts/Operations/Supervisor update from CRM → Staff → profile. Never blocks login/attendance/jobs.
+- Fix: trashed (soft-deleted) payments no longer count as paid on the Jobs list / job page.
+- Attendance unchanged: Operations = view + office clock; calendar/payroll corrections stay Super Admin/Accounts.
+
+**Pricing — commit 89d2c6c:**
+- **CRM → Pricing & Packages** (Super Admin only, audit-logged): regular price, MRP, visible per catalogue item; festival offers with their own per-item prices and dates. Live prices feed landing pages, /booking wizard, CRM price list, package pages, quotation picker, WhatsApp catalogue feed.
+- Seeded festival offers (prices owner-approved; **dates are editable defaults — owner to confirm**): Navratri 1–19 Oct, Dussehra 20–25 Oct, Diwali 26 Oct–10 Nov 2026. Festival prices: 1 BHK Premium ₹5,000 / Platinum ₹6,500 · 2 BHK ₹5,500 / ₹7,000 · 3 BHK ₹7,000 / ₹8,500. Regular prices unchanged (1 BHK ₹4,000/₹5,499 · 2 BHK ₹4,999/₹6,499 · 3 BHK ₹6,499/₹7,999). Small services unchanged (Sofa ₹199/seat, Bathroom ₹499 — current catalogue values kept). Combos unchanged; festival combo prices can be set in the admin page.
+- Booking wizard: Festival Special / Regular choice; package cards show both prices; calendar shows only festival dates (Festival) or non-festival dates (Regular). Server re-prices from live pricing by service date and freezes **amount, price type, festival, scope of work** on the lead; Confirm Booking copies them to the job. Price edits never change existing bookings (tested: booking at ₹5,500 stayed ₹5,500 after the regular price was edited).
+- Editable **Scope of work** on CRM lead/job forms; shown on lead page, job page and Staff App.
+- Festival section (no countdowns / fake availability) on /home-deep-cleaning-pune, /offers, /booking; /offers copy no longer says "lock your current price". Painting + Pest Control heroes now carousels (3 slides each, Canva 1680×944 WebP, lazy-loaded).
+- DB: additive only (Lead/Job: priceType, festivalName, scopeOfWork; tables PriceSetting, FestivalOffer, FestivalPrice) via scripts/db-setup.mjs.
+
+**Google Ads audit (read-only, 2026-10-05; data Jan 1 – Aug 18 2026):**
+- Status: main campaign "Home Cleaning Search | Pune | Feb'26" (Search only, no partners, Max conversions, ₹620/day) is Enabled but **not serving — account balance ₹0.37, last top-up ₹5,000 on 27 Jul**. "Cleaning services" (₹2,000/day) and Smart campaign (₹657/day) are Paused — keep paused when adding funds. 2 drafts untouched.
+- Results: ₹90,963 spend · 6,011 clicks · CTR 16.5% · avg CPC ₹15 · 95% mobile. Reported 1,908 conversions @ ₹47.67 (31.7% conv. rate) is inflated — ~1,590 are "Phone call leads" and Google counts 419 actual phone calls; website form conversions are not tracked (no tag on booking site). Conversion tracking: 0 actions recording, 8 no recent conversions, 2 tags inactive.
+- Location: target = 8 km radius around Mohammed Wadi, but only ₹38.5k of ₹91k was spent on users located in it (≈58% outside → likely "presence or interest").
+- Keywords: "cleaning services near me" took ₹44k (~48% of spend). Search terms include competitor brand "safsafaiwala / saaf safai wala" and low-value small jobs (sofa, bathroom, kitchen, carpet, mattress, toilet, wall/floor cleaning, housekeeping) below the ₹3,999 job target. A shared negative list "Sahara Home Negative Keywords" exists.
+- Ad copy uses "Lowest Cost Guaranteed" — unsubstantiated claim; replace.
+- Brand Make manager link (898-956-9172) still linked; unlink needs the owner's passkey (not done).
