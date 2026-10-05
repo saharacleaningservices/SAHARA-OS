@@ -279,7 +279,13 @@ export async function quickCaptureLead(values: unknown) {
   return { success: true, leadId: lead.id };
 }
 
-export async function updateLead(id: string, values: unknown) {
+/**
+ * `scheduleBase` = the service date / slot the edit form was opened with. For a
+ * booked enquiry the job owns the schedule: an untouched date/slot is never
+ * written back (so a stale form can't undo a reschedule), and a touched one is
+ * refused if the booking moved after the form was opened.
+ */
+export async function updateLead(id: string, values: unknown, scheduleBase?: { serviceDate?: string | null; timeSlot?: string | null }) {
   const scopeError = await assertLeadEditable(id);
   if (scopeError) return scopeError;
   const parsed = leadSchema.partial().safeParse(values);
@@ -288,6 +294,23 @@ export async function updateLead(id: string, values: unknown) {
   }
   const data = parsed.data;
   const before = await db.lead.findUnique({ where: { id }, select: { serviceDate: true, timeSlot: true } });
+  const booked = await db.job.findFirst({ where: { leadId: id, deletedAt: null }, select: { id: true } });
+  if (booked) {
+    const ymd = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : "");
+    const curDate = ymd(before?.serviceDate);
+    const curSlot = before?.timeSlot ?? "";
+    const base = scheduleBase ? { date: scheduleBase.serviceDate ?? "", slot: scheduleBase.timeSlot ?? "" } : { date: curDate, slot: curSlot };
+    const dateTouched = data.serviceDate !== undefined && (data.serviceDate || "") !== base.date;
+    const slotTouched = data.timeSlot !== undefined && (data.timeSlot || "") !== base.slot;
+    if ((dateTouched || slotTouched) && (base.date !== curDate || base.slot !== curSlot)) {
+      const when = [before?.serviceDate?.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }), before?.timeSlot].filter(Boolean).join(", ");
+      return { error: `This booking was rescheduled to ${when || "a new date"} after this form was opened. Reload the page and try again.` };
+    }
+    if (!dateTouched) delete data.serviceDate;
+    if (!slotTouched) delete data.timeSlot;
+    // Follow-up date of a booked enquiry always mirrors the job (syncLeadFromJob below).
+    delete data.followUpDate;
+  }
   const pkg = await packageFields(data.serviceItems, data.discountAmount, (await getSession())?.role);
   await db.lead.update({
     where: { id },
@@ -347,15 +370,14 @@ export async function updateLead(id: string, values: unknown) {
   const slotChanged = data.timeSlot !== undefined && (data.timeSlot || null) !== (before?.timeSlot ?? null);
   const session = await getSession();
   const movedJobId = dateChanged || slotChanged ? await rescheduleJobFromLead(id, dateChanged ? newDate : null, slotChanged ? data.timeSlot || null : null, session?.sub) : null;
-  // Any booked enquiry is re-mirrored from its job after a save, so stale form
-  // values (e.g. an old follow-up date) never override the job's schedule.
-  const bookedJob = await db.job.findFirst({ where: { leadId: id, deletedAt: null }, select: { id: true } });
-  if (bookedJob) await syncLeadFromJob(movedJobId ?? bookedJob.id, session?.sub);
+  // Any booked enquiry is re-mirrored from its job after a save, so the lead's
+  // service / follow-up date and slot always equal the job's schedule.
+  if (booked) await syncLeadFromJob(movedJobId ?? booked.id, session?.sub);
   if (movedJobId) {
     revalidatePath("/jobs");
     revalidatePath(`/jobs/${movedJobId}`);
   }
-  if (bookedJob) revalidatePath("/dashboard");
+  if (booked) revalidatePath("/dashboard");
   revalidatePath("/leads");
   revalidatePath(`/leads/${id}`);
   return { success: true, leadId: id };

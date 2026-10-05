@@ -153,7 +153,9 @@ export function LeadForm({
     // selected is lost even though Lead has no dedicated columns for them.
     const mergedNotes = [values.notes?.trim(), isCustomized ? "" : selectionNotesLines.join("\n")].filter(Boolean).join("\n\n");
     const finalValues = { ...values, notes: mergedNotes };
-    const res = leadId ? await updateLead(leadId, finalValues) : await createLead(finalValues);
+    const res = leadId
+      ? await updateLead(leadId, finalValues, { serviceDate: defaultValues?.serviceDate ?? "", timeSlot: defaultValues?.timeSlot ?? "" })
+      : await createLead(finalValues);
     setSubmitting(false);
     if ("error" in res && res.error) {
       toast.error(res.error);
