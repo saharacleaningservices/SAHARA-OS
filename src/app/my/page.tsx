@@ -1,19 +1,19 @@
 import Link from "next/link";
-import { CalendarDays, ChevronRight, Clock, KeyRound, Landmark, MapPin, Phone, Users, Wallet, BadgeIndianRupee, HandCoins, CircleCheck } from "lucide-react";
+import { CalendarDays, ChevronRight, Clock, KeyRound, Landmark, MapPin, Megaphone, Navigation, Phone, Users, BadgeIndianRupee, HandCoins } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
-import { getPortalHome, toIsoDay } from "@/server/staff-portal";
+import { getPortalHome } from "@/server/staff-portal";
 import { getStaffMoney } from "@/server/staff-balance";
 import { getStaffLang } from "@/server/staff-lang";
 import { getCompanySettings } from "@/server/settings";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { inrFor, staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
-import { LanguageSwitcher } from "@/components/staff-app/language-switcher";
 import { initials, cn } from "@/lib/utils";
+import { NotifNudge } from "@/components/staff-app/notif-nudge";
 
 export const dynamic = "force-dynamic";
 
-// Staff App home — deliberately simple (owner rule 2026-10-05): name, today's
-// work, salary, paid, salary due, loan, attendance. Big numbers, few colours:
+// Staff App home — deliberately simple. Order (owner, final staff-app prompt):
+// Today's Work → Attendance → Salary summary → My Money (loan) → Announcements. Big numbers, few colours:
 // green = earned / owed to the worker, red = paid / advance, loan in its own box.
 
 const STATUS_CLS: Record<string, string> = {
@@ -25,9 +25,9 @@ const STATUS_CLS: Record<string, string> = {
 };
 
 export default async function StaffHomePage() {
-  const { staff, onInitialPin } = await requireMyStaff();
+  const { staff, onInitialPin, notifUserId, preview } = await requireMyStaff();
   if (!staff) return null;
-  const [home, money, lang, settings] = await Promise.all([getPortalHome(staff), getStaffMoney(staff.id), getStaffLang(), getCompanySettings()]);
+  const [home, money, lang, settings] = await Promise.all([getPortalHome(staff, notifUserId), getStaffMoney(staff.id), getStaffLang(), getCompanySettings()]);
   const t = staffT(lang);
   const inr = (n: number) => inrFor(lang, n);
   const today = new Date();
@@ -38,24 +38,23 @@ export default async function StaffHomePage() {
 
   return (
     <div className="space-y-4">
-      {/* 👤 My Name */}
-      <section className="rounded-3xl bg-gradient-to-br from-primary to-[#0a3d8f] p-4 text-primary-foreground shadow-md">
-        <div className="flex items-center gap-3">
-          {staff.photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={staff.photoUrl} alt="" className="size-16 rounded-full border-2 border-white/50 object-cover" />
-          ) : (
-            <div className="flex size-16 items-center justify-center rounded-full bg-white/15 text-xl font-bold">{initials(staff.name)}</div>
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="text-xs font-medium opacity-80">👤 {t("myName")}</div>
-            <div className="break-words text-xl font-extrabold leading-tight">{staff.name}</div>
-            <div className="text-xs opacity-80">{staff.designation}</div>
+      {/* 👤 Name + employee code (compact) */}
+      <section className="flex items-center gap-3">
+        {staff.photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={staff.photoUrl} alt="" className="size-12 rounded-full border border-border object-cover" />
+        ) : (
+          <div className="flex size-12 items-center justify-center rounded-full bg-primary text-base font-bold text-primary-foreground">{initials(staff.name)}</div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="break-words text-lg font-extrabold leading-tight">{staff.name}</div>
+          <div className="text-xs text-muted-foreground">
+            <span className="font-mono font-semibold text-foreground">{staff.employeeCode}</span> · {staff.designation}
           </div>
         </div>
       </section>
 
-      <LanguageSwitcher lang={lang} />
+      {!preview && <NotifNudge label={t("turnOnAlerts")} />}
 
       {onInitialPin && (
         <Link href="/my/account" className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
@@ -106,14 +105,14 @@ export default async function StaffHomePage() {
                 )}
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
-                    href={j.mapLink || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(j.address)}`}
+                    href={directionsHref(j.address, j.mapLink)}
                     target="_blank"
                     rel="noreferrer"
                     className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-border text-sm font-semibold"
                   >
-                    <MapPin className="size-4" /> {t("directions")}
+                    <Navigation className="size-4" /> {t("directions")}
                   </a>
-                  <Link href={`/my/day/${toIsoDay(j.scheduledDate)}#job-${j.id}`} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
+                  <Link href={`/my/jobs/${j.id}`} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
                     {t("jobDetails")}
                   </Link>
                 </div>
@@ -128,8 +127,25 @@ export default async function StaffHomePage() {
         )}
       </section>
 
-      {/* 💰 Salary · 💵 Paid · 🟢 Due */}
+      {/* 📆 Attendance this month */}
+      <Link href="/my/calendar" className="block rounded-3xl border border-border bg-card p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-base font-bold">
+            <CalendarDays className="size-5 text-primary" /> 📆 {t("attendance")} · {t("thisMonth")}
+          </h2>
+          <ChevronRight className="size-4 text-muted-foreground" />
+        </div>
+        <div className="grid grid-cols-4 gap-2 text-center">
+          <AttStat label={t("PRESENT")} value={money?.month.present ?? 0} cls="text-success" />
+          <AttStat label={t("HALF_DAY")} value={money?.month.halfDay ?? 0} cls="text-warning" />
+          <AttStat label={t("ABSENT")} value={money?.month.absent ?? 0} cls="text-destructive" />
+          <AttStat label={t("LEAVE")} value={money?.month.leave ?? 0} cls="text-violet-600" />
+        </div>
+      </Link>
+
+      {/* 💰 Salary summary: Salary · Paid · Due */}
       <section className="space-y-2">
+        <h2 className="px-1 text-base font-bold">💰 {t("salarySummary")}</h2>
         <div className="grid grid-cols-2 gap-2">
           <MoneyCard
             icon={<BadgeIndianRupee className="size-5" />}
@@ -177,27 +193,43 @@ export default async function StaffHomePage() {
         )}
       </section>
 
-      {/* 📆 Attendance this month */}
-      <Link href="/my/calendar" className="block rounded-3xl border border-border bg-card p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between">
+      {/* 📢 Announcements (office messages only) */}
+      <section className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+        <Link href="/my/announcements" className="mb-2 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-base font-bold">
-            <CalendarDays className="size-5 text-primary" /> 📆 {t("attendance")} · {t("thisMonth")}
+            <Megaphone className="size-5 text-primary" /> {t("announcements")}
           </h2>
-          <ChevronRight className="size-4 text-muted-foreground" />
-        </div>
-        <div className="grid grid-cols-4 gap-2 text-center">
-          <AttStat label={t("PRESENT")} value={money?.month.present ?? 0} cls="text-success" />
-          <AttStat label={t("HALF_DAY")} value={money?.month.halfDay ?? 0} cls="text-warning" />
-          <AttStat label={t("ABSENT")} value={money?.month.absent ?? 0} cls="text-destructive" />
-          <AttStat label={t("LEAVE")} value={money?.month.leave ?? 0} cls="text-violet-600" />
-        </div>
-      </Link>
-
-      <Link href="/my/records" className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card text-sm font-semibold shadow-sm">
-        <Wallet className="size-4 text-primary" /> {t("myMoney")} <CircleCheck className="size-4 text-success" />
-      </Link>
+          <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+            {t("seeAll")} <ChevronRight className="size-4" />
+          </span>
+        </Link>
+        {home.announcements.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("noAnnouncements")}</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {home.announcements.map((a) => (
+              <li key={a.id}>
+                <Link href={`/my/announcements#a-${a.id}`} className="flex items-start gap-2 py-2">
+                  {!a.read && <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-label={t("unreadNew")} />}
+                  <span className={cn("min-w-0 flex-1 text-sm", !a.read && "font-semibold")}>
+                    {a.important && <span className="mr-1 text-destructive">●</span>}
+                    {a.title}
+                  </span>
+                  <span className="shrink-0 text-[11px] text-muted-foreground">{a.publishedAt.toLocaleDateString(staffLocale(lang), { day: "numeric", month: "short" })}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
+}
+
+/** Google Maps directions from the phone's current location to the site. */
+function directionsHref(address: string, mapLink: string | null) {
+  const coords = mapLink?.match(/(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(coords ? `${coords[1]},${coords[2]}` : address)}&travelmode=driving`;
 }
 
 function MoneyCard({ icon, emoji, label, sub, value, tone }: { icon: React.ReactNode; emoji: string; label: string; sub: string; value: string; tone: "green" | "red" }) {

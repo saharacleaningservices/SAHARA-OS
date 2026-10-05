@@ -443,7 +443,9 @@ export const ModelName = {
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
   StaffLedgerEntry: 'StaffLedgerEntry',
+  OvertimeRecord: 'OvertimeRecord',
   StaffLoanEntry: 'StaffLoanEntry',
+  AnnouncementRead: 'AnnouncementRead',
   KhataImportBatch: 'KhataImportBatch',
   KhataImportLog: 'KhataImportLog'
 } as const
@@ -461,7 +463,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "staffLoanEntry" | "khataImportBatch" | "khataImportLog"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4387,6 +4389,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OvertimeRecord: {
+      payload: Prisma.$OvertimeRecordPayload<ExtArgs>
+      fields: Prisma.OvertimeRecordFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OvertimeRecordFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OvertimeRecordFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>
+        }
+        findFirst: {
+          args: Prisma.OvertimeRecordFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OvertimeRecordFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>
+        }
+        findMany: {
+          args: Prisma.OvertimeRecordFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>[]
+        }
+        create: {
+          args: Prisma.OvertimeRecordCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>
+        }
+        createMany: {
+          args: Prisma.OvertimeRecordCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OvertimeRecordCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>[]
+        }
+        delete: {
+          args: Prisma.OvertimeRecordDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>
+        }
+        update: {
+          args: Prisma.OvertimeRecordUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>
+        }
+        deleteMany: {
+          args: Prisma.OvertimeRecordDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OvertimeRecordUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OvertimeRecordUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>[]
+        }
+        upsert: {
+          args: Prisma.OvertimeRecordUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OvertimeRecordPayload>
+        }
+        aggregate: {
+          args: Prisma.OvertimeRecordAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOvertimeRecord>
+        }
+        groupBy: {
+          args: Prisma.OvertimeRecordGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OvertimeRecordGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OvertimeRecordCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OvertimeRecordCountAggregateOutputType> | number
+        }
+      }
+    }
     StaffLoanEntry: {
       payload: Prisma.$StaffLoanEntryPayload<ExtArgs>
       fields: Prisma.StaffLoanEntryFieldRefs
@@ -4458,6 +4534,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StaffLoanEntryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StaffLoanEntryCountAggregateOutputType> | number
+        }
+      }
+    }
+    AnnouncementRead: {
+      payload: Prisma.$AnnouncementReadPayload<ExtArgs>
+      fields: Prisma.AnnouncementReadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnnouncementReadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnnouncementReadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>
+        }
+        findFirst: {
+          args: Prisma.AnnouncementReadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnnouncementReadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>
+        }
+        findMany: {
+          args: Prisma.AnnouncementReadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>[]
+        }
+        create: {
+          args: Prisma.AnnouncementReadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>
+        }
+        createMany: {
+          args: Prisma.AnnouncementReadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AnnouncementReadCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>[]
+        }
+        delete: {
+          args: Prisma.AnnouncementReadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>
+        }
+        update: {
+          args: Prisma.AnnouncementReadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnnouncementReadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnnouncementReadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AnnouncementReadUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>[]
+        }
+        upsert: {
+          args: Prisma.AnnouncementReadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnnouncementReadPayload>
+        }
+        aggregate: {
+          args: Prisma.AnnouncementReadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnnouncementRead>
+        }
+        groupBy: {
+          args: Prisma.AnnouncementReadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnnouncementReadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnnouncementReadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnnouncementReadCountAggregateOutputType> | number
         }
       }
     }
@@ -4702,6 +4852,10 @@ export const StaffScalarFieldEnum = {
   photoUrl: 'photoUrl',
   notes: 'notes',
   ledgerCutoverAt: 'ledgerCutoverAt',
+  language: 'language',
+  bankName: 'bankName',
+  bankAccountName: 'bankAccountName',
+  upiId: 'upiId',
   qrCode: 'qrCode',
   userId: 'userId',
   createdAt: 'createdAt',
@@ -5385,7 +5539,10 @@ export const AnnouncementScalarFieldEnum = {
   publishedAt: 'publishedAt',
   expiresAt: 'expiresAt',
   createdByName: 'createdByName',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  audience: 'audience',
+  staffIds: 'staffIds',
+  teamNumbers: 'teamNumbers'
 } as const
 
 export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
@@ -5612,6 +5769,11 @@ export const StaffLedgerEntryScalarFieldEnum = {
   amount: 'amount',
   signedAmount: 'signedAmount',
   description: 'description',
+  paymentMode: 'paymentMode',
+  reference: 'reference',
+  upiId: 'upiId',
+  reversalOfId: 'reversalOfId',
+  reason: 'reason',
   source: 'source',
   sourceParty: 'sourceParty',
   sourceRow: 'sourceRow',
@@ -5624,6 +5786,28 @@ export const StaffLedgerEntryScalarFieldEnum = {
 } as const
 
 export type StaffLedgerEntryScalarFieldEnum = (typeof StaffLedgerEntryScalarFieldEnum)[keyof typeof StaffLedgerEntryScalarFieldEnum]
+
+
+export const OvertimeRecordScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  date: 'date',
+  jobId: 'jobId',
+  regularHours: 'regularHours',
+  otHours: 'otHours',
+  otRate: 'otRate',
+  otAmount: 'otAmount',
+  reason: 'reason',
+  status: 'status',
+  createdByName: 'createdByName',
+  approvedByName: 'approvedByName',
+  approvedAt: 'approvedAt',
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName'
+} as const
+
+export type OvertimeRecordScalarFieldEnum = (typeof OvertimeRecordScalarFieldEnum)[keyof typeof OvertimeRecordScalarFieldEnum]
 
 
 export const StaffLoanEntryScalarFieldEnum = {
@@ -5647,6 +5831,16 @@ export const StaffLoanEntryScalarFieldEnum = {
 } as const
 
 export type StaffLoanEntryScalarFieldEnum = (typeof StaffLoanEntryScalarFieldEnum)[keyof typeof StaffLoanEntryScalarFieldEnum]
+
+
+export const AnnouncementReadScalarFieldEnum = {
+  id: 'id',
+  announcementId: 'announcementId',
+  userId: 'userId',
+  readAt: 'readAt'
+} as const
+
+export type AnnouncementReadScalarFieldEnum = (typeof AnnouncementReadScalarFieldEnum)[keyof typeof AnnouncementReadScalarFieldEnum]
 
 
 export const KhataImportBatchScalarFieldEnum = {
@@ -6052,7 +6246,9 @@ export type GlobalOmitConfig = {
   festivalOffer?: Prisma.FestivalOfferOmit
   festivalPrice?: Prisma.FestivalPriceOmit
   staffLedgerEntry?: Prisma.StaffLedgerEntryOmit
+  overtimeRecord?: Prisma.OvertimeRecordOmit
   staffLoanEntry?: Prisma.StaffLoanEntryOmit
+  announcementRead?: Prisma.AnnouncementReadOmit
   khataImportBatch?: Prisma.KhataImportBatchOmit
   khataImportLog?: Prisma.KhataImportLogOmit
 }

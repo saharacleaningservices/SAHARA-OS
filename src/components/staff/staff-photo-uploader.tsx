@@ -34,7 +34,7 @@ export function StaffPhotoUploader({
     setBusy(true);
     try {
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", await compressPhoto(file));
       fd.append("folder", "staff");
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const body = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
@@ -105,4 +105,24 @@ export function StaffPhotoUploader({
       />
     </div>
   );
+}
+
+/** Square-ish profile photo, max 512 px, JPEG ~80% — a phone photo goes from ~4 MB to ~50 KB. Falls back to the original. */
+async function compressPhoto(file: File): Promise<File> {
+  try {
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, 512 / Math.max(bmp.width, bmp.height));
+    const w = Math.round(bmp.width * scale);
+    const h = Math.round(bmp.height * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d")!.drawImage(bmp, 0, 0, w, h);
+    bmp.close();
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/jpeg", 0.8));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
 }

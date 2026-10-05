@@ -119,10 +119,15 @@ export function teamOf(job: JobForTeam, myStaffId: string): TeamMember[] {
 
 /** Jobs a staff member worked or is booked on: assigned crew OR supervisor. */
 function myJobsWhere(staffId: string, from: Date, to: Date) {
+  // Owner rule 2026-10-05: Staff never see FUTURE assignments (no planning
+  // leave around them) — today and past only, whatever range is asked for.
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+  const until = to > endOfToday ? endOfToday : to;
   return {
     deletedAt: null,
     status: { not: "CANCELLED" as const },
-    scheduledDate: { gte: from, lt: to },
+    scheduledDate: { gte: from, lt: until },
     OR: [{ assignments: { some: { staffId } } }, { supervisorId: staffId }],
   };
 }
@@ -145,7 +150,7 @@ const JOB_STAFF_SELECT = {
 
 // ── Home ──
 
-export async function getPortalHome(staff: MyStaff) {
+export async function getPortalHome(staff: MyStaff, userId: string | null = null) {
   const today = startOfToday();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -165,7 +170,7 @@ export async function getPortalHome(staff: MyStaff) {
       // Address + map are shown only for today's/upcoming work — needed to reach the site.
       select: { ...JOB_STAFF_SELECT, address: true, mapLink: true, customerName: true },
     }),
-    getActiveAnnouncements(5),
+    getActiveAnnouncements(3, { staffId: staff.id, userId }),
   ]);
 
   const todays = jobs.filter((j) => j.scheduledDate < tomorrow);
@@ -196,14 +201,34 @@ export async function getPortalHome(staff: MyStaff) {
   };
 }
 
-export async function getActiveAnnouncements(limit = 20) {
+/**
+ * Office announcements this staff member is a recipient of (ALL, or their id
+ * in the resolved recipient list), with read / unread for their login.
+ * Job assignments are NEVER announcements — they are job notifications.
+ */
+export async function getActiveAnnouncements(limit: number, viewer: { staffId: string; userId: string | null }) {
   const now = new Date();
-  return db.announcement.findMany({
+  const rows = await db.announcement.findMany({
     where: { isActive: true, publishedAt: { lte: now }, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
     orderBy: [{ important: "desc" }, { publishedAt: "desc" }],
-    take: limit,
-    select: { id: true, title: true, body: true, important: true, publishedAt: true },
+    take: 200,
+    select: { id: true, title: true, body: true, important: true, publishedAt: true, createdByName: true, audience: true, staffIds: true },
   });
+  const mine = rows
+    .filter((a) => {
+      if (a.audience === "ALL" || !a.audience) return true;
+      try {
+        return (JSON.parse(a.staffIds ?? "[]") as string[]).includes(viewer.staffId);
+      } catch {
+        return false;
+      }
+    })
+    .slice(0, limit);
+  const reads = viewer.userId
+    ? await db.announcementRead.findMany({ where: { userId: viewer.userId, announcementId: { in: mine.map((a) => a.id) } }, select: { announcementId: true } })
+    : [];
+  const readSet = new Set(reads.map((r) => r.announcementId));
+  return mine.map(({ staffIds: _s, ...a }) => ({ ...a, read: readSet.has(a.id) }));
 }
 
 // ── Calendar ──
@@ -351,7 +376,6 @@ export async function getMyDay(staffId: string, day: Date) {
         mapLink: true,
         customerName: true,
         comboServices: true,
-        notes: true,
         jobValue: true,
         priceType: true,
         festivalName: true,
@@ -392,7 +416,6 @@ export async function getMyDay(staffId: string, day: Date) {
       mapLink: j.mapLink,
       customerName: j.customerName,
       comboServices: parseList(j.comboServices),
-      notes: j.notes,
       jobAmount: j.jobValue,
       priceType: j.priceType,
       festivalName: j.festivalName,
@@ -592,4 +615,52 @@ export async function getMyNotifications(userId: string, limit = 40) {
 
 export async function countMyUnread(userId: string) {
   return db.notification.count({ where: { userId, readAt: null } });
+}
+
+// ── Staff Job Details (/my/jobs/[id]) ──
+// Own job only (crew or supervisor), today or past — never a future job.
+// Never includes customer mobile, office notes, lead source or any CRM data.
+export async function getMyJob(staffId: string, jobId: string) {
+  const job = await db.job.findFirst({
+    where: { id: jobId, ...myJobsWhere(staffId, new Date(2000, 0, 1), new Date(2100, 0, 1)) },
+    select: {
+      id: true,
+      jobNumber: true,
+      service: true,
+      serviceVariant: true,
+      packageName: true,
+      scheduledDate: true,
+      scheduledTime: true,
+      status: true,
+      area: true,
+      address: true,
+      pinCode: true,
+      mapLink: true,
+      customerName: true,
+      comboServices: true,
+      scopeOfWork: true,
+      priceType: true,
+      festivalName: true,
+      jobValue: true,
+      teamSnapshot: true,
+      supervisor: { select: { name: true, employeeCode: true } },
+      assignments: { select: { staffId: true, isLead: true, staff: { select: { name: true, employeeCode: true } } } },
+      payments: { where: { deletedAt: null }, select: { paidAmount: true } },
+    },
+  });
+  if (!job) return null;
+  const frozen = job.teamSnapshot ? (JSON.parse(job.teamSnapshot) as { staffId: string; name: string; employeeCode?: string; isLead: boolean }[]) : null;
+  const team = (frozen ?? job.assignments.map((a) => ({ staffId: a.staffId, name: a.staff.name, employeeCode: a.staff.employeeCode, isLead: a.isLead }))).map((m) => ({
+    ...m,
+    isMe: m.staffId === staffId,
+  }));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return {
+    ...job,
+    comboServices: parseList(job.comboServices),
+    team,
+    payment: jobPaymentSummary(job.jobValue, job.payments),
+    isToday: job.scheduledDate >= today,
+  };
 }

@@ -24,6 +24,8 @@ const TTL_HOURS = 48;
 const requestSchema = z
   .object({
     mobile: z.string().trim().min(10, "Enter your 10-digit mobile number").max(15),
+    // Optional extra check: employee code (SCS-001). If given it must match the mobile's staff record.
+    employeeCode: z.string().trim().max(20).optional(),
     newPin: staffPinSchema,
     confirmPin: z.string().min(1, "Enter the new PIN again"),
   })
@@ -48,6 +50,8 @@ export async function requestStaffPinReset(values: unknown) {
   });
   const staff = user?.staffProfile && !user.staffProfile.deletedAt ? { ...user.staffProfile, user } : null;
   if (!staff) return generic;
+  const code = parsed.data.employeeCode?.toUpperCase().replace(/\s+/g, "");
+  if (code && code !== staff.employeeCode.toUpperCase()) return generic;
 
   // One open request per staff member — a newer request supersedes the older one.
   await db.securityOtp.updateMany({
@@ -120,5 +124,77 @@ export async function decideStaffPinReset(requestId: string, approve: boolean) {
     })
     .catch(() => {});
   if (target.staffProfile) revalidatePath(`/staff/${target.staffProfile.id}`);
+  return { success: true as const };
+}
+
+// ── Forgot PIN by OTP (SMS to the registered mobile) ──
+// Works only when an SMS gateway is configured (Settings → Integrations).
+// Otherwise the staff member uses the office-approved request above.
+// OTP: 6 digits, bcrypt-hashed, 10 minutes, 5 attempts. The existing PIN is never shown.
+const OTP_PURPOSE = "STAFF_PIN_OTP";
+
+async function findStaffLogin(mobile: string, employeeCode?: string) {
+  const digits = mobile.replace(/\D/g, "").slice(-10);
+  if (digits.length !== 10) return null;
+  const user = await db.user.findFirst({
+    where: { phone: digits, role: "STAFF", isActive: true },
+    select: { id: true, email: true, phone: true, staffProfile: { select: { id: true, name: true, employeeCode: true, deletedAt: true } } },
+  });
+  if (!user?.staffProfile || user.staffProfile.deletedAt) return null;
+  const code = employeeCode?.toUpperCase().replace(/\s+/g, "");
+  if (code && code !== user.staffProfile.employeeCode.toUpperCase()) return null;
+  return { user, staff: user.staffProfile, digits };
+}
+
+export async function sendStaffPinOtp(values: unknown) {
+  const ip = clientIp(await headers());
+  if (!rateLimit(`staffotp:ip:${ip}`, 5, 600).allowed) return { error: "Too many requests. Try again in a few minutes." };
+  const parsed = z.object({ mobile: z.string().trim().min(10).max(15), employeeCode: z.string().trim().max(20).optional() }).safeParse(values);
+  if (!parsed.success) return { error: "Enter your 10-digit mobile number" };
+  const { isSmsReady, sendSMS } = await import("@/lib/sms");
+  if (!(await isSmsReady())) return { error: "OTP by SMS is not available yet. Use “Ask the office to reset” below.", fallback: true as const };
+  const generic = { success: true as const, message: "If this number is registered, an OTP has been sent by SMS." };
+  const found = await findStaffLogin(parsed.data.mobile, parsed.data.employeeCode);
+  if (!found || !rateLimit(`staffotp:acct:${found.digits}`, 3, 3600).allowed) return generic;
+  const { randomInt } = await import("node:crypto");
+  const otp = String(randomInt(100000, 1000000));
+  await db.securityOtp.updateMany({ where: { purpose: OTP_PURPOSE, targetUserId: found.user.id, consumedAt: null }, data: { consumedAt: new Date() } });
+  const row = await db.securityOtp.create({
+    data: {
+      purpose: OTP_PURPOSE,
+      targetUserId: found.user.id,
+      targetUserName: found.staff.name,
+      targetUserEmail: found.user.email,
+      codeHash: await hashPassword(otp),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      requestedByName: `${found.staff.name} (Staff App, ${ip})`,
+    },
+  });
+  await sendSMS({ kind: "OTHER", toNumber: found.digits, toName: found.staff.name, body: `Sahara Staff App OTP: ${otp}. Valid 10 minutes. Do not share it.`, relatedType: "SecurityOtp", relatedId: row.id });
+  await db.auditLog.create({ data: { entityType: "Security", entityId: row.id, action: "STAFF_PIN_OTP_SENT", summary: `PIN reset OTP sent to ${found.staff.employeeCode} ${found.staff.name}`, actorName: found.staff.name } }).catch(() => {});
+  return generic;
+}
+
+export async function resetStaffPinWithOtp(values: unknown) {
+  const ip = clientIp(await headers());
+  if (!rateLimit(`staffotpverify:ip:${ip}`, 10, 600).allowed) return { error: "Too many attempts. Try again later." };
+  const parsed = z
+    .object({ mobile: z.string().trim().min(10).max(15), otp: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit OTP"), newPin: staffPinSchema, confirmPin: z.string() })
+    .refine((v) => v.newPin === v.confirmPin, { message: "PINs do not match", path: ["confirmPin"] })
+    .safeParse(values);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
+  const bad = { error: "OTP is wrong or expired" };
+  const found = await findStaffLogin(parsed.data.mobile);
+  if (!found) return bad;
+  const req = await db.securityOtp.findFirst({ where: { purpose: OTP_PURPOSE, targetUserId: found.user.id, consumedAt: null, expiresAt: { gt: new Date() } }, orderBy: { createdAt: "desc" } });
+  if (!req || req.attempts >= 5) return bad;
+  const { verifyPassword } = await import("@/lib/auth");
+  if (!(await verifyPassword(parsed.data.otp, req.codeHash))) {
+    await db.securityOtp.update({ where: { id: req.id }, data: { attempts: { increment: 1 } } });
+    return bad;
+  }
+  await db.user.update({ where: { id: found.user.id }, data: { passwordHash: await hashPassword(parsed.data.newPin), mustChangePassword: false } });
+  await db.securityOtp.update({ where: { id: req.id }, data: { consumedAt: new Date(), codePlain: "USED" } });
+  await db.auditLog.create({ data: { entityType: "Security", entityId: req.id, action: "STAFF_PIN_RESET_BY_OTP", summary: `${found.staff.employeeCode} ${found.staff.name} reset their PIN by SMS OTP`, actorName: found.staff.name } }).catch(() => {});
   return { success: true as const };
 }

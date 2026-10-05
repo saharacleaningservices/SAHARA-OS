@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
-// RBAC 2026-10-05: staff editing (incl. photo) = Super Admin + Accounts (Shweta); never Francis.
+// RBAC 2026-10-05: staff editing (incl. photo) = Super Admin + Accounts; never Francis.
 const MANAGERS = new Set(["ADMIN", "ACCOUNTS"]);
 
 /** staffId is ignored for STAFF logins — they can only change their own photo. */

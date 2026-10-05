@@ -1,5 +1,7 @@
 "use server";
 
+import { getSession } from "@/lib/session";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -32,6 +34,11 @@ async function audit(action: string, summary: string, session: { name: string; e
 const replySchema = z.object({ number: z.string().min(10), text: z.string().trim().min(1).max(4000) });
 
 export async function sendInboxReply(values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await requireWhatsAppInboxUser();
   if (!session) return { error: "Not allowed" };
   const parsed = replySchema.safeParse(values);
@@ -68,6 +75,11 @@ const templateSchema = z.object({
 });
 
 export async function sendInboxTemplate(values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await requireWhatsAppInboxUser();
   if (!session) return { error: "Not allowed" };
   const parsed = templateSchema.safeParse(values);
@@ -112,6 +124,11 @@ export async function sendInboxTemplate(values: unknown) {
 
 /** Human takeover / hand back to the AI assistant for one conversation. */
 export async function setInboxConversationMode(values: unknown) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await requireWhatsAppInboxUser();
   if (!session) return { error: "Not allowed" };
   const parsed = z.object({ number: z.string().min(10), mode: z.enum(["AI", "HUMAN"]) }).safeParse(values);

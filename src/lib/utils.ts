@@ -161,3 +161,8 @@ export function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");
 }
+
+/** XXXXXX1234 — never show full bank / phone numbers in lists. */
+export function maskTail(v?: string | null): string {
+  return v ? `${"X".repeat(Math.max(0, v.length - 4))}${v.slice(-4)}` : "";
+}

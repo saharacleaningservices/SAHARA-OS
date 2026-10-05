@@ -295,6 +295,10 @@ model Staff {
   // StaffLedgerEntry; attendance/advances/fines/salary-paid dated after it
   // are added on top. Null = no imported history (native data only).
   ledgerCutoverAt DateTime?
+  language        String? // Staff App language: en | hi | mr
+  bankName        String?
+  bankAccountName String?
+  upiId           String?
   qrCode          String?           @unique // future QR check-in token
   userId          String?           @unique
   user            User?             @relation(fields: [userId], references: [id])
@@ -314,6 +318,7 @@ model Staff {
   fines           FineRecord[]
   rewards         RewardRecord[]
   ledgerEntries   StaffLedgerEntry[]
+  overtime        OvertimeRecord[]
   loanEntries     StaffLoanEntry[]
 
   @@index([availability])
@@ -1187,6 +1192,10 @@ model Announcement {
   expiresAt     DateTime?
   createdByName String?
   createdAt     DateTime  @default(now())
+  // Recipients: ALL | STAFF (staffIds) | TEAM (teamNumbers). Office messages only — never auto job alerts.
+  audience      String    @default("ALL")
+  staffIds      String? // JSON array of Staff ids
+  teamNumbers   String? // JSON array of team numbers 1-4
 
   @@index([isActive, publishedAt])
 }
@@ -1486,6 +1495,11 @@ model StaffLedgerEntry {
   amount        Float
   signedAmount  Float // + = Sahara owes the worker, − = paid / deducted
   description   String?
+  paymentMode   String? // CASH | UPI | GOOGLE_PAY | BANK_TRANSFER | OTHER
+  reference     String? // UTR / transaction id / bank reference
+  upiId         String?
+  reversalOfId  String? // correction = a reversal entry, never an edit
+  reason        String? // required for adjustments / reversals
   source        String    @default("MANUAL") // KHATABOOK | MANUAL
   sourceParty   String? // exact Khata Book party name
   sourceRow     Int? // Khata Book report S.No.
@@ -1502,6 +1516,30 @@ model StaffLedgerEntry {
 
 /** Loan ledger — separate from salary. kind: LOAN_GIVEN | LOAN_REPAID | LOAN_OPENING.
  *  fromSalary = recovery cut from salary (also reduces Salary Due). */
+/** Overtime — separate from multiple jobs. Only Super Admin / Accounts approve; only APPROVED counts as earning. */
+model OvertimeRecord {
+  id             String    @id @default(cuid())
+  staffId        String
+  staff          Staff     @relation(fields: [staffId], references: [id])
+  date           DateTime
+  jobId          String?
+  regularHours   Float     @default(8)
+  otHours        Float
+  otRate         Float // per hour
+  otAmount       Float
+  reason         String?
+  status         String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdByName  String?
+  approvedByName String?
+  approvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  deletedAt      DateTime?
+  deletedByName  String?
+
+  @@index([staffId, date])
+  @@index([status])
+}
+
 model StaffLoanEntry {
   id            String    @id @default(cuid())
   staffId       String
@@ -1524,6 +1562,16 @@ model StaffLoanEntry {
 
   @@index([staffId, date])
   @@index([batchId])
+}
+
+/** Read receipt per staff user for office announcements. */
+model AnnouncementRead {
+  id             String   @id @default(cuid())
+  announcementId String
+  userId         String
+  readAt         DateTime @default(now())
+
+  @@unique([announcementId, userId])
 }
 
 model KhataImportBatch {

@@ -38,7 +38,7 @@ self.addEventListener("push", (event) => {
       self.registration.showNotification(title, options),
       data.staffApp
         ? self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
-            for (const c of list) c.postMessage({ type: "sahara-push", critical: !!data.critical });
+            for (const c of list) c.postMessage({ type: "sahara-push", critical: !!data.critical, title, body: data.body || "", href: options.data.href, tag: options.tag });
           })
         : null,
     ])

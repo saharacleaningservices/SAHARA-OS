@@ -21,6 +21,7 @@ import Database from "better-sqlite3";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { generateEmployeeCode } from "@/lib/id-generators";
 import { getSession } from "@/lib/session";
 import { getStaffMoney } from "@/server/staff-balance";
 
@@ -258,11 +259,12 @@ export async function applyKhataImport(batchId: string) {
     const isLoanMode = e.ledgerMode === "LOAN";
     let staffId = plan.staffId;
     try {
+      const newCode = staffId ? null : await generateEmployeeCode();
       await db.$transaction(async (tx) => {
         if (!staffId) {
           const s = await tx.staff.create({
             data: {
-              employeeCode: `KB-${batch.id.slice(-6).toUpperCase()}-${String(ds.employees.indexOf(e) + 1).padStart(2, "0")}`,
+              employeeCode: newCode!,
               name: e.staffName,
               mobile: "",
               designation: e.designation,

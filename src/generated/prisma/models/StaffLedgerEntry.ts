@@ -47,6 +47,11 @@ export type StaffLedgerEntryMinAggregateOutputType = {
   amount: number | null
   signedAmount: number | null
   description: string | null
+  paymentMode: string | null
+  reference: string | null
+  upiId: string | null
+  reversalOfId: string | null
+  reason: string | null
   source: string | null
   sourceParty: string | null
   sourceRow: number | null
@@ -66,6 +71,11 @@ export type StaffLedgerEntryMaxAggregateOutputType = {
   amount: number | null
   signedAmount: number | null
   description: string | null
+  paymentMode: string | null
+  reference: string | null
+  upiId: string | null
+  reversalOfId: string | null
+  reason: string | null
   source: string | null
   sourceParty: string | null
   sourceRow: number | null
@@ -85,6 +95,11 @@ export type StaffLedgerEntryCountAggregateOutputType = {
   amount: number
   signedAmount: number
   description: number
+  paymentMode: number
+  reference: number
+  upiId: number
+  reversalOfId: number
+  reason: number
   source: number
   sourceParty: number
   sourceRow: number
@@ -118,6 +133,11 @@ export type StaffLedgerEntryMinAggregateInputType = {
   amount?: true
   signedAmount?: true
   description?: true
+  paymentMode?: true
+  reference?: true
+  upiId?: true
+  reversalOfId?: true
+  reason?: true
   source?: true
   sourceParty?: true
   sourceRow?: true
@@ -137,6 +157,11 @@ export type StaffLedgerEntryMaxAggregateInputType = {
   amount?: true
   signedAmount?: true
   description?: true
+  paymentMode?: true
+  reference?: true
+  upiId?: true
+  reversalOfId?: true
+  reason?: true
   source?: true
   sourceParty?: true
   sourceRow?: true
@@ -156,6 +181,11 @@ export type StaffLedgerEntryCountAggregateInputType = {
   amount?: true
   signedAmount?: true
   description?: true
+  paymentMode?: true
+  reference?: true
+  upiId?: true
+  reversalOfId?: true
+  reason?: true
   source?: true
   sourceParty?: true
   sourceRow?: true
@@ -262,6 +292,11 @@ export type StaffLedgerEntryGroupByOutputType = {
   amount: number
   signedAmount: number
   description: string | null
+  paymentMode: string | null
+  reference: string | null
+  upiId: string | null
+  reversalOfId: string | null
+  reason: string | null
   source: string
   sourceParty: string | null
   sourceRow: number | null
@@ -304,6 +339,11 @@ export type StaffLedgerEntryWhereInput = {
   amount?: Prisma.FloatFilter<"StaffLedgerEntry"> | number
   signedAmount?: Prisma.FloatFilter<"StaffLedgerEntry"> | number
   description?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  paymentMode?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reference?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  upiId?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reason?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
   source?: Prisma.StringFilter<"StaffLedgerEntry"> | string
   sourceParty?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
   sourceRow?: Prisma.IntNullableFilter<"StaffLedgerEntry"> | number | null
@@ -324,6 +364,11 @@ export type StaffLedgerEntryOrderByWithRelationInput = {
   amount?: Prisma.SortOrder
   signedAmount?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  reference?: Prisma.SortOrderInput | Prisma.SortOrder
+  upiId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -348,6 +393,11 @@ export type StaffLedgerEntryWhereUniqueInput = Prisma.AtLeast<{
   amount?: Prisma.FloatFilter<"StaffLedgerEntry"> | number
   signedAmount?: Prisma.FloatFilter<"StaffLedgerEntry"> | number
   description?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  paymentMode?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reference?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  upiId?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reason?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
   source?: Prisma.StringFilter<"StaffLedgerEntry"> | string
   sourceParty?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
   sourceRow?: Prisma.IntNullableFilter<"StaffLedgerEntry"> | number | null
@@ -367,6 +417,11 @@ export type StaffLedgerEntryOrderByWithAggregationInput = {
   amount?: Prisma.SortOrder
   signedAmount?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  reference?: Prisma.SortOrderInput | Prisma.SortOrder
+  upiId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -394,6 +449,11 @@ export type StaffLedgerEntryScalarWhereWithAggregatesInput = {
   amount?: Prisma.FloatWithAggregatesFilter<"StaffLedgerEntry"> | number
   signedAmount?: Prisma.FloatWithAggregatesFilter<"StaffLedgerEntry"> | number
   description?: Prisma.StringNullableWithAggregatesFilter<"StaffLedgerEntry"> | string | null
+  paymentMode?: Prisma.StringNullableWithAggregatesFilter<"StaffLedgerEntry"> | string | null
+  reference?: Prisma.StringNullableWithAggregatesFilter<"StaffLedgerEntry"> | string | null
+  upiId?: Prisma.StringNullableWithAggregatesFilter<"StaffLedgerEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableWithAggregatesFilter<"StaffLedgerEntry"> | string | null
+  reason?: Prisma.StringNullableWithAggregatesFilter<"StaffLedgerEntry"> | string | null
   source?: Prisma.StringWithAggregatesFilter<"StaffLedgerEntry"> | string
   sourceParty?: Prisma.StringNullableWithAggregatesFilter<"StaffLedgerEntry"> | string | null
   sourceRow?: Prisma.IntNullableWithAggregatesFilter<"StaffLedgerEntry"> | number | null
@@ -412,6 +472,11 @@ export type StaffLedgerEntryCreateInput = {
   amount: number
   signedAmount: number
   description?: string | null
+  paymentMode?: string | null
+  reference?: string | null
+  upiId?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -432,6 +497,11 @@ export type StaffLedgerEntryUncheckedCreateInput = {
   amount: number
   signedAmount: number
   description?: string | null
+  paymentMode?: string | null
+  reference?: string | null
+  upiId?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -450,6 +520,11 @@ export type StaffLedgerEntryUpdateInput = {
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -470,6 +545,11 @@ export type StaffLedgerEntryUncheckedUpdateInput = {
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -489,6 +569,11 @@ export type StaffLedgerEntryCreateManyInput = {
   amount: number
   signedAmount: number
   description?: string | null
+  paymentMode?: string | null
+  reference?: string | null
+  upiId?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -507,6 +592,11 @@ export type StaffLedgerEntryUpdateManyMutationInput = {
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -526,6 +616,11 @@ export type StaffLedgerEntryUncheckedUpdateManyInput = {
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -555,6 +650,11 @@ export type StaffLedgerEntryCountOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   signedAmount?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
+  upiId?: Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
@@ -580,6 +680,11 @@ export type StaffLedgerEntryMaxOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   signedAmount?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
+  upiId?: Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
@@ -599,6 +704,11 @@ export type StaffLedgerEntryMinOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   signedAmount?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  reference?: Prisma.SortOrder
+  upiId?: Prisma.SortOrder
+  reversalOfId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   source?: Prisma.SortOrder
   sourceParty?: Prisma.SortOrder
   sourceRow?: Prisma.SortOrder
@@ -665,6 +775,11 @@ export type StaffLedgerEntryCreateWithoutStaffInput = {
   amount: number
   signedAmount: number
   description?: string | null
+  paymentMode?: string | null
+  reference?: string | null
+  upiId?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -683,6 +798,11 @@ export type StaffLedgerEntryUncheckedCreateWithoutStaffInput = {
   amount: number
   signedAmount: number
   description?: string | null
+  paymentMode?: string | null
+  reference?: string | null
+  upiId?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -730,6 +850,11 @@ export type StaffLedgerEntryScalarWhereInput = {
   amount?: Prisma.FloatFilter<"StaffLedgerEntry"> | number
   signedAmount?: Prisma.FloatFilter<"StaffLedgerEntry"> | number
   description?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  paymentMode?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reference?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  upiId?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reversalOfId?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
+  reason?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
   source?: Prisma.StringFilter<"StaffLedgerEntry"> | string
   sourceParty?: Prisma.StringNullableFilter<"StaffLedgerEntry"> | string | null
   sourceRow?: Prisma.IntNullableFilter<"StaffLedgerEntry"> | number | null
@@ -748,6 +873,11 @@ export type StaffLedgerEntryCreateManyStaffInput = {
   amount: number
   signedAmount: number
   description?: string | null
+  paymentMode?: string | null
+  reference?: string | null
+  upiId?: string | null
+  reversalOfId?: string | null
+  reason?: string | null
   source?: string
   sourceParty?: string | null
   sourceRow?: number | null
@@ -766,6 +896,11 @@ export type StaffLedgerEntryUpdateWithoutStaffInput = {
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -784,6 +919,11 @@ export type StaffLedgerEntryUncheckedUpdateWithoutStaffInput = {
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -802,6 +942,11 @@ export type StaffLedgerEntryUncheckedUpdateManyWithoutStaffInput = {
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   signedAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversalOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   sourceParty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -823,6 +968,11 @@ export type StaffLedgerEntrySelect<ExtArgs extends runtime.Types.Extensions.Inte
   amount?: boolean
   signedAmount?: boolean
   description?: boolean
+  paymentMode?: boolean
+  reference?: boolean
+  upiId?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -843,6 +993,11 @@ export type StaffLedgerEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   amount?: boolean
   signedAmount?: boolean
   description?: boolean
+  paymentMode?: boolean
+  reference?: boolean
+  upiId?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -863,6 +1018,11 @@ export type StaffLedgerEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   amount?: boolean
   signedAmount?: boolean
   description?: boolean
+  paymentMode?: boolean
+  reference?: boolean
+  upiId?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -883,6 +1043,11 @@ export type StaffLedgerEntrySelectScalar = {
   amount?: boolean
   signedAmount?: boolean
   description?: boolean
+  paymentMode?: boolean
+  reference?: boolean
+  upiId?: boolean
+  reversalOfId?: boolean
+  reason?: boolean
   source?: boolean
   sourceParty?: boolean
   sourceRow?: boolean
@@ -894,7 +1059,7 @@ export type StaffLedgerEntrySelectScalar = {
   deletedByName?: boolean
 }
 
-export type StaffLedgerEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "kind" | "amount" | "signedAmount" | "description" | "source" | "sourceParty" | "sourceRow" | "sourceHash" | "batchId" | "createdByName" | "createdAt" | "deletedAt" | "deletedByName", ExtArgs["result"]["staffLedgerEntry"]>
+export type StaffLedgerEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "kind" | "amount" | "signedAmount" | "description" | "paymentMode" | "reference" | "upiId" | "reversalOfId" | "reason" | "source" | "sourceParty" | "sourceRow" | "sourceHash" | "batchId" | "createdByName" | "createdAt" | "deletedAt" | "deletedByName", ExtArgs["result"]["staffLedgerEntry"]>
 export type StaffLedgerEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
 }
@@ -918,6 +1083,11 @@ export type $StaffLedgerEntryPayload<ExtArgs extends runtime.Types.Extensions.In
     amount: number
     signedAmount: number
     description: string | null
+    paymentMode: string | null
+    reference: string | null
+    upiId: string | null
+    reversalOfId: string | null
+    reason: string | null
     source: string
     sourceParty: string | null
     sourceRow: number | null
@@ -1358,6 +1528,11 @@ export interface StaffLedgerEntryFieldRefs {
   readonly amount: Prisma.FieldRef<"StaffLedgerEntry", 'Float'>
   readonly signedAmount: Prisma.FieldRef<"StaffLedgerEntry", 'Float'>
   readonly description: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
+  readonly paymentMode: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
+  readonly reference: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
+  readonly upiId: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
+  readonly reversalOfId: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
+  readonly reason: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
   readonly source: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
   readonly sourceParty: Prisma.FieldRef<"StaffLedgerEntry", 'String'>
   readonly sourceRow: Prisma.FieldRef<"StaffLedgerEntry", 'Int'>
