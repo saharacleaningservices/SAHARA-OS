@@ -144,6 +144,8 @@ const D = {
   noAlerts: ["No alerts yet.", "अभी कोई सूचना नहीं।", "अजून सूचना नाहीत."],
   noAnnouncements: ["No announcements.", "कोई घोषणा नहीं।", "घोषणा नाहीत."],
   customerTools: ["Customer", "ग्राहक", "ग्राहक"],
+  autoFare: ["Auto fare", "ऑटो किराया", "रिक्षा भाडे"],
+  movedToLoan: ["Moved to loan", "लोन में डाला", "कर्जात टाकले"],
   previewHidden: ["Owner preview: PIN change, notifications and sign-out work only on the staff member's own phone.", "मालिक प्रीव्यू: पिन, सूचना और लॉग आउट केवल स्टाफ के फोन पर चलते हैं।", "मालक प्रिव्ह्यू: पिन, सूचना आणि लॉग आउट फक्त स्टाफच्या फोनवर चालतात."],
   scanHelp: ["Ask the customer to scan with their phone camera.", "ग्राहक से फोन कैमरे से स्कैन करवाएं।", "ग्राहकाला फोन कॅमेऱ्याने स्कॅन करायला सांगा."],
   noReviewLink: ["The office hasn't added the review link yet.", "ऑफिस ने अभी रिव्यू लिंक नहीं डाला।", "ऑफिसने अजून रिव्ह्यू लिंक टाकलेली नाही."],

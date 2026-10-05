@@ -34,6 +34,8 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 const LEDGER_GROUP: Record<string, MoneyEntry["group"]> = {
   EARNING: "work",
   OTHER_CREDIT: "work",
+  AUTO_FARE: "work",
+  TRANSFER_TO_LOAN: "opening",
   PAYMENT: "paid",
   ADVANCE: "paid",
   FINE: "paid",
@@ -109,7 +111,9 @@ export async function getStaffMoney(staffId: string, now = new Date()) {
     salaryDue: r2(total(entries)),
     loan: { given: r2(given), paid: r2(repaid), remaining: r2(given - repaid) },
     month: {
-      salary: r2(month.filter((e) => e.group === "work").reduce((s, e) => s + e.amount, 0)),
+      // Salary excludes auto fare (separate ledger line); fare is still owed and inside Salary Due.
+      salary: r2(month.filter((e) => e.group === "work" && e.kind !== "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
+      fare: r2(month.filter((e) => e.kind === "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
       paid: r2(month.filter((e) => e.group === "paid").reduce((s, e) => s + e.amount, 0)),
       present,
       halfDay,
@@ -135,7 +139,8 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
     return {
       month: m + 1,
       workDays: days.size,
-      salary: r2(rows.filter((e) => e.group === "work").reduce((s, e) => s + e.amount, 0)),
+      salary: r2(rows.filter((e) => e.group === "work" && e.kind !== "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
+      fare: r2(rows.filter((e) => e.kind === "AUTO_FARE").reduce((s, e) => s + e.amount, 0)),
       paid: r2(rows.filter((e) => e.group === "paid").reduce((s, e) => s + e.amount, 0)),
       opening: r2(rows.filter((e) => e.group === "opening").reduce((s, e) => s + e.amount, 0)),
     };

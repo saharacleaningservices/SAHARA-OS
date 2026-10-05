@@ -231,3 +231,12 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 - Keywords: "cleaning services near me" took ₹44k (~48% of spend). Search terms include competitor brand "safsafaiwala / saaf safai wala" and low-value small jobs (sofa, bathroom, kitchen, carpet, mattress, toilet, wall/floor cleaning, housekeeping) below the ₹3,999 job target. A shared negative list "Sahara Home Negative Keywords" exists.
 - Ad copy uses "Lowest Cost Guaranteed" — unsubstantiated claim; replace.
 - Brand Make manager link (898-956-9172) still linked; unlink needs the owner's passkey (not done).
+
+## 2026-10-05 — Khata Book → Staff App migration: tested, awaiting owner approval (NOT applied to production)
+
+- Engine: CRM → Khata Book Import (Super Admin). Preview → pre-import SQLite snapshot (`<db dir>/snapshots/pre-khata-import-*.db`, integrity-checked, BackupEvent row) → per-employee import → ₹0 reconciliation → automatic soft-delete rollback on any difference. Every Khata row logged (KhataImportLog) with party, row no., exact description; duplicate protection by sourceHash; batch rollback button; financial rows never hard-deleted.
+- Separate ledgers: salary (earnings / payments / fines / AUTO_FARE kept as its own line), loan (given / repaid / recovery cut from salary), owner-instructed transfers (Matin Bhagwan ₹7,400 → loan).
+- Test DB result (fresh copy, 05-Oct-2026): 20 of 20 employees MIGRATED at ₹0, independently re-verified from the tables (salary + loan totals, rows 3,387/3,387, 0 duplicate fingerprints). Also passed: duplicate import blocked, batch rollback (all rows soft-deleted, fingerprints released, created staff deactivated), re-import, planted ₹600 mismatch auto-rolled-back with exact reason, Staff App EN/HI/MR on mobile.
+- Held for owner decision: Parvin Shaikh (Khata) vs Priyansh Sheikh (owner list, no Khata account). Excluded: 16 parties incl. "Fransis advance" and "Kaleem Shaikh Advance".
+- Restore procedure: stop the app in Coolify → copy the snapshot file over the live DB path → start the app; or use the batch "Roll back" button (soft-delete) for import-only undo.
+- Dataset + reconciliation files live in `audit/` (git-ignored; contain payroll data).

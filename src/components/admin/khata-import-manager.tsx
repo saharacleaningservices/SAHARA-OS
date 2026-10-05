@@ -24,7 +24,7 @@ type Plan = {
   blocks: string[];
   notes: string[];
 };
-type Result = { staffName: string; khataName: string; status: string; khata: number | null; app: number | null; diff: number | null; loanKhata?: number | null; loanApp?: number | null; message?: string };
+type Result = { mode?: string; staffName: string; khataName: string; status: string; khata: number | null; app: number | null; diff: number | null; loanKhata?: number | null; loanApp?: number | null; message?: string };
 type Batch = { id: string; status: string; sourceName: string | null; sourceRows: number | null; createdByName: string | null; createdAt: Date; appliedAt: Date | null; rolledBackAt: Date | null; resultJson: string | null; snapshotFile: string | null };
 
 const inr = (n: number | null | undefined) => (n == null ? "—" : `₹${n.toLocaleString("en-IN")}`);
@@ -290,8 +290,8 @@ function ResultTable({ results, title, compact }: { results: Result[]; title?: s
               {r.staffName}
               <div className="text-muted-foreground">{r.khataName}</div>
             </td>
-            <td className="p-2">{bal(r.khata)}{r.loanKhata != null ? ` · loan ${inr(r.loanKhata)}` : ""}</td>
-            <td className="p-2">{bal(r.app)}{r.loanApp != null ? ` · loan ${inr(r.loanApp)}` : ""}</td>
+            <td className="p-2">{r.mode === "LOAN" ? `Loan ${inr(r.khata)}` : bal(r.khata)}{r.loanKhata != null ? ` · loan ${inr(r.loanKhata)}` : ""}</td>
+            <td className="p-2">{r.mode === "LOAN" ? `Loan ${inr(r.app)}` : bal(r.app)}{r.loanApp != null ? ` · loan ${inr(r.loanApp)}` : ""}</td>
             <td className="p-2">{r.diff == null ? "—" : inr(r.diff)}</td>
             <td className="p-2">
               <span className={`rounded px-1.5 py-0.5 font-semibold ${tone(r.status)}`}>{r.status}</span>

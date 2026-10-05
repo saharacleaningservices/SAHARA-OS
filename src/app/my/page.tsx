@@ -131,7 +131,14 @@ export default async function StaffHomePage() {
       {/* 💰 Salary · 💵 Paid · 🟢 Due */}
       <section className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
-          <MoneyCard icon={<BadgeIndianRupee className="size-5" />} emoji="💰" label={t("mySalary")} sub={t("thisMonth")} value={inr(money?.month.salary ?? 0)} tone="green" />
+          <MoneyCard
+            icon={<BadgeIndianRupee className="size-5" />}
+            emoji="💰"
+            label={t("mySalary")}
+            sub={money?.month.fare ? `${t("thisMonth")} · + ${t("autoFare")} ${inr(money.month.fare)}` : t("thisMonth")}
+            value={inr(money?.month.salary ?? 0)}
+            tone="green"
+          />
           <MoneyCard icon={<HandCoins className="size-5" />} emoji="💵" label={t("paid")} sub={t("thisMonth")} value={inr(money?.month.paid ?? 0)} tone="red" />
         </div>
         <Link
