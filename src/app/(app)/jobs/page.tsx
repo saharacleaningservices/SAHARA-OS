@@ -16,7 +16,8 @@ export default async function JobsPage() {
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
   // Francis (OPERATIONS) must never see customer mobile numbers — 2026-09-25
   // field-only policy. Call/WhatsApp buttons on the jobs table read this.
-  const canSeeCustomerContact = session.role !== "OPERATIONS" && session.role !== "STAFF";
+  // Operations' list is server-scoped to today + tomorrow (getAllJobsForList), so phone/call is shown there (owner decision 2026-10-05).
+  const canSeeCustomerContact = session.role !== "STAFF";
   const [jobs, staffOptions, stats] = await Promise.all([
     getAllJobsForList(session),
     getStaffForAssignment(),

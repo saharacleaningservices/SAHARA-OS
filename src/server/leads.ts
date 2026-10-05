@@ -33,13 +33,22 @@ export function supervisorLeadWhere() {
  * enquiry, leads assigned to or created by him, plus the same today/tomorrow
  * window as SUPERVISOR.
  */
+// Open enquiry stages. Booked leads (Confirmed / Job Scheduled / Completed)
+// carry job detail, so Operations sees them only inside the today/tomorrow
+// window — the same Today + Tomorrow rule as the job pages.
+const OPEN_LEAD_STAGES = ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"];
+
 export function operationsLeadWhere(userId: string) {
+  const now = new Date();
+  const todayStart = startOfDay(now);
+  const tomorrowEnd = endOfDay(addDays(now, 1));
   return {
     OR: [
-      ...supervisorLeadWhere().OR,
+      { serviceDate: { gte: todayStart, lte: tomorrowEnd } },
+      { followUpDate: { gte: todayStart, lte: tomorrowEnd }, stage: { in: OPEN_LEAD_STAGES as never } },
       { stage: "NEW" as never },
-      { assignedToId: userId },
-      { createdById: userId },
+      { assignedToId: userId, stage: { in: OPEN_LEAD_STAGES as never } },
+      { createdById: userId, stage: { in: OPEN_LEAD_STAGES as never } },
     ],
   };
 }
@@ -57,8 +66,13 @@ export function canAccessLead(
   lead: { followUpDate: Date | null; serviceDate: Date | null; createdAt: Date; stage: string; assignedToId?: string | null; createdById?: string | null },
 ): boolean {
   if (session.role === "OPERATIONS") {
-    if (lead.stage === "NEW" || lead.assignedToId === session.sub || lead.createdById === session.sub) return true;
-  } else if (session.role !== "SUPERVISOR") return true;
+    const now = new Date();
+    const inWin = (d: Date | null) => !!d && d >= startOfDay(now) && d <= endOfDay(addDays(now, 1));
+    if (inWin(lead.serviceDate)) return true;
+    if (!OPEN_LEAD_STAGES.includes(lead.stage)) return false;
+    return lead.stage === "NEW" || inWin(lead.followUpDate) || lead.assignedToId === session.sub || lead.createdById === session.sub;
+  }
+  if (session.role !== "SUPERVISOR") return true;
   const now = new Date();
   const todayStart = startOfDay(now);
   const tomorrowEnd = endOfDay(addDays(now, 1));
@@ -155,7 +169,7 @@ export async function getLeadDetail(id: string) {
 /** Francis's dashboard "New Leads" card: open NEW enquiries + leads assigned to him. */
 export async function getNewLeadsForDashboard(userId: string) {
   const rows = await db.lead.findMany({
-    where: { deletedAt: null, OR: [{ stage: "NEW" }, { assignedToId: userId, stage: { notIn: ["COMPLETED", "CANCELLED", "JOB_SCHEDULED"] as never } }] },
+    where: { deletedAt: null, OR: [{ stage: "NEW" }, { assignedToId: userId, stage: { in: OPEN_LEAD_STAGES as never } }] },
     orderBy: { createdAt: "desc" },
     take: 12,
     select: { id: true, leadNumber: true, name: true, service: true, area: true, stage: true, createdAt: true, serviceDate: true, timeSlot: true, assignedToId: true, packageName: true },

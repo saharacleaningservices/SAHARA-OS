@@ -38,7 +38,7 @@ export function StatusActions({ jobId, status }: { jobId: string; status: string
   function completeWithCertificate() {
     startTransition(async () => {
       const res = await completeJobWithCertificate(jobId);
-      if (res.error) {
+      if ("error" in res && res.error) {
         toast.error(res.error);
         return;
       }
