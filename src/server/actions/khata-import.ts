@@ -37,6 +37,8 @@ const employee = z.object({
   // salary +R ("moved to loan") and loan +R — the Khata total is unchanged.
   reclassToLoan: z.number().min(0).default(0),
   reclassNote: z.string().nullable().default(null),
+  // Owner review item (e.g. pay-rule mismatch, suspected duplicate). Blocks the employee until cleared.
+  hold: z.string().nullable().default(null),
   ledgerMode: z.enum(["SALARY", "LOAN"]).default("SALARY"),
   liveBalance: z.number().nullable(), // signed: + You will give, − You will get (salary ledger) / + loan outstanding (LOAN mode)
   liveSource: z.string().nullable().default(null),
@@ -85,6 +87,7 @@ type Plan = Awaited<ReturnType<typeof planEmployee>>;
 async function planEmployee(e: Emp, cutoff: Date) {
   const notes: string[] = [];
   const blocks: string[] = [];
+  if (e.hold) blocks.push(`ON HOLD: ${e.hold}`);
   const usable = e.entries.filter((r) => r.debit > 0 || r.credit > 0);
   if (usable.length !== e.entries.length) notes.push(`${e.entries.length - usable.length} zero-amount row(s) skipped`);
   const isLoanMode = e.ledgerMode === "LOAN";

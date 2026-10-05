@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
 import { AttendanceList } from "@/components/attendance/attendance-list";
+import { TodayPresentAbsent } from "@/components/attendance/today-present-absent";
 import { AttendanceMonthlySummary } from "@/components/attendance/monthly-summary";
 import { MonthlyAttendanceCalendar } from "@/components/attendance/monthly-attendance-calendar";
 import { OfficeAttendanceClock } from "@/components/attendance/office-attendance-clock";
@@ -69,7 +70,14 @@ export default async function AttendancePage({
           payroll figure at all per his 2026-09-22 policy, even his own.
           Left unchanged for every other role (a plain Staff worker's own
           pay view is a legitimate, unrelated existing feature). */}
-      {myLedger && session.role !== "SUPERVISOR" && <MyAttendanceCard ledger={myLedger} />}
+      {myLedger && !canViewTeamAttendance && <MyAttendanceCard ledger={myLedger} />}
+
+      {canViewTeamAttendance && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-foreground">Today — mark Present / Absent</h2>
+          <TodayPresentAbsent staff={staffList} today={Object.fromEntries(all.map((r) => [r.staff.id, r.status]))} />
+        </div>
+      )}
 
       {(canManage || canViewTeamAttendance) && (
         <div className="space-y-3">

@@ -68,7 +68,7 @@ export default async function StaffDetailPage({
         staffId={staff.id}
         name={staff.name}
         photoUrl={staff.photoUrl}
-        canEdit={["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(session.role)}
+        canEdit={["ADMIN", "ACCOUNTS"].includes(session.role)}
         size={72}
       />
       <PageHeader
