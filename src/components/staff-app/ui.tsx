@@ -20,10 +20,10 @@ export const JOB_STATUS_LABEL: Record<string, string> = {
   REACTIVATED: "Reactivated",
 };
 
-export function StatusChip({ status, className }: { status: string | null; className?: string }) {
-  if (!status) return <span className={cn("rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground", className)}>Not marked</span>;
+export function StatusChip({ status, className, label }: { status: string | null; className?: string; label?: string }) {
+  if (!status) return <span className={cn("rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground", className)}>{label ?? "Not marked"}</span>;
   const s = STATUS_STYLE[status];
-  return <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold", s?.cls, className)}>{s?.label ?? status}</span>;
+  return <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold", s?.cls, className)}>{label ?? s?.label ?? status}</span>;
 }
 
 export function Section({ title, action, children, id, className }: { title?: ReactNode; action?: ReactNode; children: ReactNode; id?: string; className?: string }) {

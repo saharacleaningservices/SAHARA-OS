@@ -14,6 +14,7 @@ export function StaffPhotoUploader({
   photoUrl,
   canEdit,
   size = 56,
+  labels,
 }: {
   /** Omit for the Staff App (server uses the signed-in staff member). */
   staffId?: string;
@@ -21,6 +22,7 @@ export function StaffPhotoUploader({
   photoUrl: string | null;
   canEdit: boolean;
   size?: number;
+  labels?: { add: string; change: string };
 }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
@@ -84,7 +86,7 @@ export function StaffPhotoUploader({
       {canEdit && (
         <div className="flex flex-col gap-1 text-xs">
           <button type="button" disabled={working} onClick={() => input.current?.click()} className="text-left font-medium text-primary">
-            {photoUrl ? "Change photo" : "Add photo (optional)"}
+            {photoUrl ? (labels?.change ?? "Change photo") : (labels?.add ?? "Add photo (optional)")}
           </button>
           {photoUrl && (
             <button type="button" disabled={working} onClick={remove} className="flex items-center gap-1 text-left text-muted-foreground">
