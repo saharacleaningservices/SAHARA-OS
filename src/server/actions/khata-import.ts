@@ -47,6 +47,18 @@ const employee = z.object({
   linkStaffId: z.string().nullable().default(null), // owner-chosen existing staff when names differ
   createNew: z.boolean().default(false),
   entries: z.array(row),
+  // Owner decisions on reviewed Khata rows (Khata Book itself is never edited):
+  // - dropRows: confirmed duplicates — not imported, logged as OWNER_REMOVED
+  // - kindOverrides: re-type a row (e.g. extra Rs350 = auto fare)
+  // - adjustments: signed salary corrections (e.g. fixed monthly salary rule)
+  // Reconciliation target = live Khata balance − dropped rows + adjustments.
+  ownerDecisions: z
+    .object({
+      dropRows: z.array(z.object({ row: z.number().int(), note: z.string().min(3) })).default([]),
+      kindOverrides: z.array(z.object({ row: z.number().int(), kind: z.enum(["AUTO_FARE"]), note: z.string().min(3) })).default([]),
+      adjustments: z.array(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), amount: z.number(), note: z.string().min(3) })).default([]),
+    })
+    .default({ dropRows: [], kindOverrides: [], adjustments: [] }),
   loan: z
     .object({ khataName: z.string(), liveBalance: z.number().nullable(), liveSource: z.string().nullable().default(null), openingApproved: z.boolean().default(false), entries: z.array(row) })
     .nullable()
@@ -89,10 +101,22 @@ async function planEmployee(e: Emp, cutoff: Date) {
   const notes: string[] = [];
   const blocks: string[] = [];
   if (e.hold) blocks.push(`ON HOLD: ${e.hold}`);
-  const usable = e.entries.filter((r) => r.debit > 0 || r.credit > 0);
-  if (usable.length !== e.entries.length) notes.push(`${e.entries.length - usable.length} zero-amount row(s) skipped`);
+  const nonZero = e.entries.filter((r) => r.debit > 0 || r.credit > 0);
+  if (nonZero.length !== e.entries.length) notes.push(`${e.entries.length - nonZero.length} zero-amount row(s) skipped`);
   const isLoanMode = e.ledgerMode === "LOAN";
-  const net = r2(usable.reduce((s, r) => s + (isLoanMode ? loanSigned(r) : salarySigned(r)), 0));
+  const od = e.ownerDecisions;
+  const dropSet = new Set(od.dropRows.map((d) => d.row));
+  for (const d of [...od.dropRows, ...od.kindOverrides]) if (!nonZero.some((r) => r.row === d.row)) blocks.push(`Owner decision refers to row ${d.row}, which is not in this party's Khata rows`);
+  if (isLoanMode && (od.dropRows.length || od.kindOverrides.length || od.adjustments.length)) blocks.push("Owner decisions are only supported on salary ledgers");
+  const usable = nonZero.filter((r) => !dropSet.has(r.row));
+  const dropped = nonZero.filter((r) => dropSet.has(r.row));
+  // Khata net (all rows, as Khata Book shows) drives the opening; dropped rows and adjustments move the target.
+  const net = r2(nonZero.reduce((s, r) => s + (isLoanMode ? loanSigned(r) : salarySigned(r)), 0));
+  const droppedNet = r2(dropped.reduce((s, r) => s + salarySigned(r), 0));
+  const adjTotal = r2(od.adjustments.reduce((s, a) => s + a.amount, 0));
+  for (const d of od.dropRows) notes.push(`Row ${d.row} not imported (owner): ${d.note}`);
+  for (const k of od.kindOverrides) notes.push(`Row ${k.row} imported as ${k.kind} (owner): ${k.note}`);
+  if (od.adjustments.length) notes.push(`Owner salary adjustments ₹${adjTotal} (${od.adjustments.length} entries)`);
 
   // Staff match — exact name only; never merge similar names automatically.
   let staff: { id: string; name: string; ledgerCutoverAt: Date | null } | null = null;
@@ -159,7 +183,7 @@ async function planEmployee(e: Emp, cutoff: Date) {
 
   const R = isLoanMode ? 0 : e.reclassToLoan;
   if (R > 0 && !e.reclassNote) blocks.push("Loan reclassification needs the owner's note");
-  const ledgerTotal = isLoanMode ? 0 : r2(net + opening + R);
+  const ledgerTotal = isLoanMode ? 0 : r2(net + opening + R - droppedNet + adjTotal);
   const status = blocks.length ? "BLOCKED" : "READY";
   return {
     khataName: e.khataName,
@@ -174,6 +198,8 @@ async function planEmployee(e: Emp, cutoff: Date) {
     liveBalance: e.liveBalance,
     liveSource: e.liveSource,
     expectedSalaryDue: isLoanMode ? null : ledgerTotal,
+    droppedNet,
+    adjTotal,
     reclassToLoan: R,
     loan:
       e.loan || isLoanMode || R > 0
@@ -282,13 +308,26 @@ export async function applyKhataImport(batchId: string) {
         }
         const usable = e.entries.filter((r) => r.debit > 0 || r.credit > 0);
         if (!isLoanMode) {
+          const kindOverride = new Map(e.ownerDecisions.kindOverrides.map((k) => [k.row, k] as const));
+          const usable = e.entries.filter((r) => (r.debit > 0 || r.credit > 0) && !e.ownerDecisions.dropRows.some((d) => d.row === r.row));
+          for (const d of e.ownerDecisions.dropRows) {
+            const r = e.entries.find((x) => x.row === d.row)!;
+            await tx.khataImportLog.create({ data: { batchId: batch.id, party: e.khataName, staffId, staffName: e.staffName, sourceRow: r.row, date: day(r.date), amount: r.credit || r.debit, type: "OWNER_REMOVED", description: `${r.details} — ${d.note}`, status: "SKIPPED" } });
+          }
           for (const r of usable) {
-            const kind = salaryKind(r);
+            const ko = kindOverride.get(r.row);
+            const kind = ko ? ko.kind : salaryKind(r);
             const signed = salarySigned(r);
             const created = await tx.staffLedgerEntry.create({
-              data: { staffId: staffId!, date: day(r.date), kind, amount: Math.abs(signed), signedAmount: signed, description: r.details, source: "KHATABOOK", sourceParty: e.khataName, sourceRow: r.row, sourceHash: hash(e.khataName, r, "SALARY"), batchId: batch.id, createdByName: session.name },
+              data: { staffId: staffId!, date: day(r.date), kind, amount: Math.abs(signed), signedAmount: signed, description: ko ? `${r.details} (${ko.note})` : r.details, source: "KHATABOOK", sourceParty: e.khataName, sourceRow: r.row, sourceHash: hash(e.khataName, r, "SALARY"), batchId: batch.id, createdByName: session.name },
             });
             await tx.khataImportLog.create({ data: { batchId: batch.id, party: e.khataName, staffId, staffName: e.staffName, sourceRow: r.row, date: day(r.date), amount: r.credit || r.debit, type: kind, description: r.details, destination: `StaffLedgerEntry:${created.id}`, status: "MIGRATED" } });
+          }
+          for (const a of e.ownerDecisions.adjustments) {
+            const created = await tx.staffLedgerEntry.create({
+              data: { staffId: staffId!, date: day(a.date), kind: "OWNER_ADJUSTMENT", amount: Math.abs(a.amount), signedAmount: a.amount, description: a.note, reason: a.note, source: "OWNER_DECISION", sourceParty: e.khataName, batchId: batch.id, createdByName: session.name },
+            });
+            await tx.khataImportLog.create({ data: { batchId: batch.id, party: e.khataName, staffId, staffName: e.staffName, date: day(a.date), amount: a.amount, type: "OWNER_ADJUSTMENT", description: a.note, destination: `StaffLedgerEntry:${created.id}`, status: "MIGRATED" } });
           }
           if (plan.opening !== 0) {
             const created = await tx.staffLedgerEntry.create({
@@ -335,7 +374,8 @@ export async function applyKhataImport(batchId: string) {
     const money = await getStaffMoney(staffId!);
     const R = isLoanMode ? 0 : e.reclassToLoan;
     const app = isLoanMode ? money!.loan.remaining : money!.salaryDue;
-    const diff = r2((app ?? 0) - ((e.liveBalance ?? 0) + R));
+    const target = isLoanMode ? (e.liveBalance ?? 0) : (plan.expectedSalaryDue ?? 0);
+    const diff = r2((app ?? 0) - target);
     const loanApp = !isLoanMode && (e.loan || R > 0) ? money!.loan.remaining : undefined;
     const loanDiff = loanApp !== undefined ? r2(loanApp - ((e.loan?.liveBalance ?? 0) + R)) : 0;
     if (diff !== 0 || loanDiff !== 0) {
