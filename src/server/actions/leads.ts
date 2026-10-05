@@ -127,6 +127,7 @@ export async function createLead(values: unknown) {
       serviceCategory: (data.serviceCategory as never) || null,
       serviceVariant: data.serviceVariant || null,
       packageName: data.packageName || null,
+      propertyType: data.propertyType || null,
       comboServices: data.comboServices?.length ? JSON.stringify(data.comboServices) : null,
       advanceAmount: data.advanceAmount ?? null,
       paymentMode: data.paymentMode || null,
@@ -301,6 +302,7 @@ export async function updateLead(id: string, values: unknown) {
       ...(data.serviceCategory !== undefined && { serviceCategory: (data.serviceCategory as never) || null }),
       ...(data.serviceVariant !== undefined && { serviceVariant: data.serviceVariant || null }),
       ...(data.packageName !== undefined && { packageName: data.packageName || null }),
+      ...(data.propertyType !== undefined && { propertyType: data.propertyType || null }),
       ...(data.comboServices !== undefined && {
         comboServices: data.comboServices?.length ? JSON.stringify(data.comboServices) : null,
       }),

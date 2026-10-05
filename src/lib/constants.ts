@@ -18,6 +18,13 @@ export const SERVICE_LABELS: Record<string, string> = {
   INTERIOR_PAINTING: "Interior Painting",
 };
 
+/**
+ * Categories offered for NEW enquiries/bookings. Individual Cleaning is retired
+ * (owner 2026-10-05 — itemised work is a Customized Service with Quantity + Rate);
+ * its label stays in SERVICE_CATEGORY_LABELS so existing records still display.
+ */
+export const RETIRED_SERVICE_CATEGORIES = ["INDIVIDUAL_CLEANING"];
+
 export const SERVICE_OPTIONS = Object.entries(SERVICE_LABELS).map(([value, label]) => ({
   value,
   label,
@@ -75,7 +82,7 @@ export const CATEGORIES: { value: string; label: string }[] = [
 
 // Optional package tiers per category (future pricing hooks off these).
 export const SERVICE_PACKAGES: Record<string, string[]> = {
-  HOME_DEEP_CLEANING: ["Premium", "Platinum", "Diamond"],
+  HOME_DEEP_CLEANING: ["Premium", "Platinum", "Diamond", "Unfurnished"],
   PAINTING: ["Basic", "Premium"],
   HOUSEKEEPING: ["Standard", "Professional"],
 };
@@ -238,7 +245,8 @@ export const SERVICE_RULES: Record<string, string> = {
 
 // Property type — asked once, options depend on whether the category is a
 // commercial one. Stored on Lead.propertyType / Job.propertyType.
-export const HOME_PROPERTY_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow", "Row House"] as const;
+// Owner 2026-10-05: Home Deep Cleaning "Property Type" list (CRM + booking forms).
+export const HOME_PROPERTY_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"] as const;
 export const COMMERCIAL_PROPERTY_TYPES = ["Office", "Shop", "Showroom", "Warehouse", "Factory", "Hospital / Clinic", "Restaurant", "Society / Complex"] as const;
 export const COMMERCIAL_CATEGORIES = ["COMMERCIAL_CLEANING"];
 export function propertyTypesFor(category: string): readonly string[] {

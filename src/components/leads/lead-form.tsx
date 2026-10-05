@@ -105,6 +105,7 @@ export function LeadForm({
       paymentMode: "",
       paymentStatus: "PENDING",
       mapLink: "",
+      propertyType: "",
       ...defaultValues,
     },
   });
@@ -191,10 +192,6 @@ export function LeadForm({
             <Input id="alternateMobile" {...register("alternateMobile")} placeholder="Second number" inputMode="tel" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="whatsapp">WhatsApp (if different)</Label>
-            <Input id="whatsapp" {...register("whatsapp")} placeholder="Same as mobile" inputMode="tel" />
-          </div>
-          <div className="space-y-1.5">
             <Label htmlFor="email">Email (optional)</Label>
             <Input id="email" type="email" {...register("email")} placeholder="name@example.com" />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
@@ -238,7 +235,11 @@ export function LeadForm({
                 setValue("packageName", "");
                 setValue("service", (SERVICE_CATEGORY_TO_LEGACY[v] ?? "HOME_DEEP_CLEANING") as LeadFormValues["service"]);
               }}
-              onVariantChange={(v) => setValue("serviceVariant", v)}
+              onVariantChange={(v) => {
+                setValue("serviceVariant", v);
+                // Home Deep Cleaning: the picker's second field is the Property Type.
+                if ((watch("serviceCategory") || "HOME_DEEP_CLEANING") === "HOME_DEEP_CLEANING") setValue("propertyType", v);
+              }}
               onPackageChange={(v) => setValue("packageName", v)}
             />
           </div>

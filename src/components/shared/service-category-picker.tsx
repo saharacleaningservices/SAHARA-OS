@@ -2,7 +2,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SERVICE_CATEGORY_LABELS, SERVICE_CATALOG, SERVICE_PACKAGES } from "@/lib/constants";
+import { HOME_PROPERTY_TYPES, RETIRED_SERVICE_CATEGORIES, SERVICE_CATEGORY_LABELS, SERVICE_CATALOG, SERVICE_PACKAGES } from "@/lib/constants";
 
 /** Dynamic Category → Subcategory (+ optional Package) picker. */
 export function ServiceCategoryPicker({
@@ -20,7 +20,12 @@ export function ServiceCategoryPicker({
   onVariantChange: (v: string) => void;
   onPackageChange?: (v: string) => void;
 }) {
-  const options = SERVICE_CATALOG[category] ?? [];
+  // Home Deep Cleaning: the second field is the Property Type (owner 2026-10-05).
+  const isHome = category === "HOME_DEEP_CLEANING";
+  const baseOptions: readonly string[] = isHome ? HOME_PROPERTY_TYPES : (SERVICE_CATALOG[category] ?? []);
+  // Keep an older saved value visible (e.g. "Full Home Cleaning") so editing never loses it.
+  const options = variant && !baseOptions.includes(variant) ? [variant, ...baseOptions] : baseOptions;
+  const categories = Object.entries(SERVICE_CATEGORY_LABELS).filter(([v]) => !RETIRED_SERVICE_CATEGORIES.includes(v) || v === category);
   const packages = SERVICE_PACKAGES[category] ?? [];
   const showPackage = Boolean(onPackageChange) && packages.length > 0;
 
@@ -34,7 +39,7 @@ export function ServiceCategoryPicker({
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(SERVICE_CATEGORY_LABELS).map(([value, label]) => (
+              {categories.map(([value, label]) => (
                 <SelectItem key={value} value={value}>
                   {label}
                 </SelectItem>
@@ -43,7 +48,7 @@ export function ServiceCategoryPicker({
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label>{category === "PAINTING" || category === "PEST_CONTROL" || category === "AMC" ? "Type" : "Details"}</Label>
+          <Label>{isHome ? "Property Type" : category === "PAINTING" || category === "PEST_CONTROL" || category === "AMC" ? "Type" : "Details"}</Label>
           <Select value={variant} onValueChange={onVariantChange} disabled={options.length === 0}>
             <SelectTrigger>
               <SelectValue placeholder={options.length ? "Select an option" : "Pick a category first"} />
@@ -61,7 +66,7 @@ export function ServiceCategoryPicker({
 
       {showPackage && (
         <div className="space-y-1.5">
-          <Label>Package (optional)</Label>
+          <Label>Package{isHome ? "" : " (optional)"}</Label>
           <Select value={packageName || "NONE"} onValueChange={(v) => onPackageChange?.(v === "NONE" ? "" : v)}>
             <SelectTrigger>
               <SelectValue placeholder="No package" />

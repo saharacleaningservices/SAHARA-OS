@@ -530,7 +530,7 @@ export function ServiceQuantityFields({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <QtyStepper label="Quantity" value={czQty} onChange={setCzQty} min={1} />
           <div className={fieldWrap}>
-            <Label>Unit Price (₹{CUSTOMIZER_UNIT_LABEL[variant] ? ` / ${CUSTOMIZER_UNIT_LABEL[variant]}` : ""})</Label>
+            <Label>Rate (₹{CUSTOMIZER_UNIT_LABEL[variant] ? ` / ${CUSTOMIZER_UNIT_LABEL[variant]}` : ""})</Label>
             <Input
               inputMode="numeric"
               value={czUnitPrice}
