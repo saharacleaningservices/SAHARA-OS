@@ -98,7 +98,10 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
                   {m.opening ? <span className="block text-[11px] font-normal text-muted-foreground">{t("oldBalance")}: {signed(lang, m.opening)}</span> : null}
                 </span>
                 <span className="text-right tabular-nums">{m.workDays}</span>
-                <span className="text-right font-bold tabular-nums text-success">{inr(m.salary)}</span>
+                <span className="text-right font-bold tabular-nums text-success">
+                  {inr(m.salary)}
+                  {m.fare ? <span className="block text-[10px] font-medium text-muted-foreground">+ {t("autoFare")} {inr(m.fare)}</span> : null}
+                </span>
                 <span className="text-right font-bold tabular-nums text-destructive">{inr(m.paid)}</span>
               </div>
             ))}

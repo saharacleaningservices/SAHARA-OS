@@ -30,6 +30,13 @@ const employee = z.object({
   staffName: z.string().min(1), // exact name used across Staff App
   designation: z.string().default("Housekeeping Staff"),
   dailyWage: z.number().min(0).nullable().default(null),
+  salaryType: z.enum(["DAILY", "MONTHLY"]).default("DAILY"),
+  monthlySalary: z.number().min(0).nullable().default(null),
+  // Owner instruction: part of the Khata party balance is really a loan (e.g.
+  // Matin: Rs7,400 "You will get" = loan). Imported as a visible transfer:
+  // salary +R ("moved to loan") and loan +R — the Khata total is unchanged.
+  reclassToLoan: z.number().min(0).default(0),
+  reclassNote: z.string().nullable().default(null),
   ledgerMode: z.enum(["SALARY", "LOAN"]).default("SALARY"),
   liveBalance: z.number().nullable(), // signed: + You will give, − You will get (salary ledger) / + loan outstanding (LOAN mode)
   liveSource: z.string().nullable().default(null),
@@ -59,7 +66,7 @@ const hash = (party: string, r: Row, ledger: string) => createHash("sha256").upd
 
 function salaryKind(r: Row) {
   const d = r.details.toLowerCase();
-  if (r.credit > 0) return /auto\s*fare|transfer to loan/.test(d) ? "OTHER_CREDIT" : "EARNING";
+  if (r.credit > 0) return /auto\s*fare/.test(d) ? "AUTO_FARE" : /transfer to loan/.test(d) ? "OTHER_CREDIT" : "EARNING";
   if (/fine|without intimation/.test(d)) return "FINE";
   if (/missing/.test(d)) return "DEDUCTION";
   if (/advance/.test(d)) return "ADVANCE";
@@ -146,7 +153,9 @@ async function planEmployee(e: Emp, cutoff: Date) {
     if (after && (await db.attendance.count({ where: { staffId: staff.id, date: { gt: cutoff } } })) > 0) notes.push("Has Staff App attendance after the cutover — it will be added on top");
   }
 
-  const ledgerTotal = isLoanMode ? 0 : r2(net + opening);
+  const R = isLoanMode ? 0 : e.reclassToLoan;
+  if (R > 0 && !e.reclassNote) blocks.push("Loan reclassification needs the owner's note");
+  const ledgerTotal = isLoanMode ? 0 : r2(net + opening + R);
   const status = blocks.length ? "BLOCKED" : "READY";
   return {
     khataName: e.khataName,
@@ -161,7 +170,11 @@ async function planEmployee(e: Emp, cutoff: Date) {
     liveBalance: e.liveBalance,
     liveSource: e.liveSource,
     expectedSalaryDue: isLoanMode ? null : ledgerTotal,
-    loan: e.loan || isLoanMode ? { party: e.loan?.khataName ?? e.khataName, net: isLoanMode ? net : loanNet, opening: isLoanMode ? opening : loanOpening, live: isLoanMode ? e.liveBalance : e.loan!.liveBalance } : null,
+    reclassToLoan: R,
+    loan:
+      e.loan || isLoanMode || R > 0
+        ? { party: e.loan?.khataName ?? (isLoanMode ? e.khataName : "owner reclassification"), net: isLoanMode ? net : loanNet, opening: isLoanMode ? opening : loanOpening, live: isLoanMode ? e.liveBalance : r2((e.loan?.liveBalance ?? 0) + R) }
+        : null,
     status,
     blocks,
     notes,
@@ -231,7 +244,7 @@ export async function applyKhataImport(batchId: string) {
     return { error: "Could not create the safety snapshot — nothing was changed." };
   }
 
-  const results: { staffName: string; khataName: string; status: string; khata: number | null; app: number | null; diff: number | null; loanKhata?: number | null; loanApp?: number | null; message?: string }[] = [];
+  const results: { mode?: string; staffName: string; khataName: string; status: string; khata: number | null; app: number | null; diff: number | null; loanKhata?: number | null; loanApp?: number | null; message?: string }[] = [];
   for (const e of ds.employees) {
     const plan = await planEmployee(e, cutoff); // re-check at apply time
     if (plan.status !== "READY") {
@@ -250,12 +263,17 @@ export async function applyKhataImport(batchId: string) {
               name: e.staffName,
               mobile: "",
               designation: e.designation,
-              salaryType: "DAILY",
+              salaryType: e.salaryType,
               dailyWage: e.dailyWage,
+              monthlySalary: e.monthlySalary,
               notes: `Created from Khata Book party "${e.khataName}" (import ${batch.id})`,
             },
           });
           staffId = s.id;
+        }
+        else {
+          // Owner-provided pay settings for payroll after the cutover.
+          await tx.staff.update({ where: { id: staffId }, data: { salaryType: e.salaryType, dailyWage: e.dailyWage, monthlySalary: e.monthlySalary, designation: e.designation, isActive: true } });
         }
         const usable = e.entries.filter((r) => r.debit > 0 || r.credit > 0);
         if (!isLoanMode) {
@@ -273,6 +291,16 @@ export async function applyKhataImport(batchId: string) {
             });
             await tx.khataImportLog.create({ data: { batchId: batch.id, party: e.khataName, staffId, staffName: e.staffName, amount: plan.opening, type: "OPENING_BALANCE", destination: `StaffLedgerEntry:${created.id}`, status: "MIGRATED" } });
           }
+        }
+        if (!isLoanMode && e.reclassToLoan > 0) {
+          const R = e.reclassToLoan;
+          const a = await tx.staffLedgerEntry.create({
+            data: { staffId: staffId!, date: day(ds.cutoffDate), kind: "TRANSFER_TO_LOAN", amount: R, signedAmount: R, description: `Moved to loan: ${e.reclassNote}`, source: "KHATABOOK", sourceParty: e.khataName, batchId: batch.id, createdByName: session.name },
+          });
+          const b = await tx.staffLoanEntry.create({
+            data: { staffId: staffId!, date: day(ds.cutoffDate), kind: "LOAN_GIVEN", amount: R, signedAmount: R, description: `From Khata balance: ${e.reclassNote}`, source: "KHATABOOK", sourceParty: e.khataName, batchId: batch.id, createdByName: session.name },
+          });
+          await tx.khataImportLog.create({ data: { batchId: batch.id, party: e.khataName, staffId, staffName: e.staffName, amount: R, type: "TRANSFER_TO_LOAN", description: e.reclassNote, destination: `StaffLedgerEntry:${a.id} + StaffLoanEntry:${b.id}`, status: "MIGRATED" } });
         }
         const loanParty = isLoanMode ? e.khataName : e.loan?.khataName;
         const loanRows = isLoanMode ? usable : (e.loan?.entries ?? []).filter((r) => r.debit > 0 || r.credit > 0);
@@ -300,15 +328,16 @@ export async function applyKhataImport(batchId: string) {
 
     // 2. Reconcile — Staff App must equal Khata Book to the rupee.
     const money = await getStaffMoney(staffId!);
+    const R = isLoanMode ? 0 : e.reclassToLoan;
     const app = isLoanMode ? money!.loan.remaining : money!.salaryDue;
-    const diff = r2((app ?? 0) - (e.liveBalance ?? 0));
-    const loanApp = !isLoanMode && e.loan ? money!.loan.remaining : undefined;
-    const loanDiff = loanApp !== undefined ? r2(loanApp - (e.loan!.liveBalance ?? 0)) : 0;
+    const diff = r2((app ?? 0) - ((e.liveBalance ?? 0) + R));
+    const loanApp = !isLoanMode && (e.loan || R > 0) ? money!.loan.remaining : undefined;
+    const loanDiff = loanApp !== undefined ? r2(loanApp - ((e.loan?.liveBalance ?? 0) + R)) : 0;
     if (diff !== 0 || loanDiff !== 0) {
       await compensate(batch.id, staffId!, session.name, plan.staffId == null);
-      results.push({ staffName: e.staffName, khataName: e.khataName, status: "ROLLED_BACK", khata: e.liveBalance, app, diff, loanKhata: e.loan?.liveBalance ?? null, loanApp: loanApp ?? null, message: `Difference ₹${diff}${loanDiff ? ` / loan ₹${loanDiff}` : ""} — employee rolled back` });
+      results.push({ mode: e.ledgerMode, staffName: e.staffName, khataName: e.khataName, status: "ROLLED_BACK", khata: e.liveBalance, app, diff, loanKhata: e.loan?.liveBalance ?? null, loanApp: loanApp ?? null, message: `Difference ₹${diff}${loanDiff ? ` / loan ₹${loanDiff}` : ""} — employee rolled back` });
     } else {
-      results.push({ staffName: e.staffName, khataName: e.khataName, status: "MIGRATED", khata: e.liveBalance, app, diff, loanKhata: e.loan?.liveBalance ?? null, loanApp: loanApp ?? null });
+      results.push({ mode: e.ledgerMode, staffName: e.staffName, khataName: e.khataName, status: "MIGRATED", khata: e.liveBalance, app, diff, loanKhata: e.loan?.liveBalance ?? null, loanApp: loanApp ?? null });
     }
   }
 
