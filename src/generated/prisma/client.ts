@@ -286,3 +286,18 @@ export type BusinessTarget = Prisma.BusinessTargetModel
  * 
  */
 export type MarketingSpend = Prisma.MarketingSpendModel
+/**
+ * Model PriceSetting
+ * 
+ */
+export type PriceSetting = Prisma.PriceSettingModel
+/**
+ * Model FestivalOffer
+ * 
+ */
+export type FestivalOffer = Prisma.FestivalOfferModel
+/**
+ * Model FestivalPrice
+ * 
+ */
+export type FestivalPrice = Prisma.FestivalPriceModel

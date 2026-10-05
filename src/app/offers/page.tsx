@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { HOME_FROM_PRICE } from "@/lib/pricing-master";
+import { getLivePricing } from "@/server/pricing";
 import Image from "next/image";
 import Link from "next/link";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, PackageGrid, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, ALL_SERVICES_SLIDES, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
-import { PREMIUM, PLATINUM, SMALL_SERVICES, inr } from "@/lib/marketing-content";
+import { LandingShell, FestivalSection, Hero, PackageGrid, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, ALL_SERVICES_SLIDES, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { livePkgs, liveSmallServices, inr } from "@/lib/marketing-content";
 
 // Festival campaign hub (Navratri · Dussehra · Diwali) — the WhatsApp campaign
 // lands here and customers pick a service page.
@@ -28,29 +29,33 @@ const SERVICES = [
 ];
 const FAQS = [
   { q: "Why book festival cleaning early?", a: "Navratri, Dussehra and Diwali are the busiest cleaning weeks of the year. Booking early helps you get your preferred date." },
-  { q: "Will the prices change during the festival season?", a: "The prices shown are our current package prices. Festival-season demand can lead to price revisions later in the season, so booking early is recommended." },
+  { q: "What is the difference between festival and regular prices?", a: "Festival prices apply to service dates during Navratri, Dussehra and Diwali, our busiest weeks. Regular prices apply on all other dates. The booking form shows both, and your booking keeps the price you confirmed." },
   { q: "What is the difference between Premium and Platinum?", a: "Platinum includes everything in Premium plus wall wet cleaning and ceiling dry dusting." },
   { q: "Do you clean offices and shops too?", a: "Yes — offices, workspaces and commercial premises. We visit the site and share a quote." },
   { q: "Which areas do you cover?", a: "We serve Pune and Pimpri-Chinchwad (PCMC). Standard package prices apply to our standard serviceable areas; additional charges may apply for locations outside it, depending on distance and requirements." },
 ];
 
 export default async function FestivalOffersPage() {
-  const settings = await getCompanySettings();
+  const [settings, pricing] = await Promise.all([getCompanySettings(), getLivePricing()]);
+  const PREMIUM = livePkgs(pricing.items, "PREMIUM");
+  const PLATINUM = livePkgs(pricing.items, "PLATINUM");
+  const SMALL_SERVICES = liveSmallServices(pricing.items);
   return (
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
       <Hero
         image="/marketing/hero-home.webp"
         alt="Sahara Cleaning Services team deep cleaning a living room in Pune"
         images={ALL_SERVICES_SLIDES}
-        badge="Limited-time festival pricing"
+        badge="Festival Special Home Cleaning"
         eyebrow="Navratri • Dussehra • Diwali"
         title="Get Your Home & Workplace Festival-Ready"
         subtitle="Professional cleaning, pest control and interior painting for a cleaner, happier and healthier space."
-        primaryLabel="Book Early & Lock Your Current Price"
-        note="Festival-season demand can lead to price revisions and limited preferred-date availability. Book early to secure the current listed package price."
+        primaryLabel="Book Your Preferred Date"
+        note="Limited festival slots — festival weeks are our busiest and teams fill up first on the days before each festival."
         waText={WA}
       />
       <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
+        <FestivalSection />
         <section>
           <h2 className="text-2xl font-bold">Choose your service</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -68,7 +73,8 @@ export default async function FestivalOffersPage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold">Home deep cleaning — current package prices</h2>
+          <h2 className="text-2xl font-bold">Home deep cleaning — regular package prices</h2>
+          <p className="text-sm text-[#0a2540]/70">For service dates outside the festival dates. Festival prices are shown above.</p>
           <h3 className="mt-3 font-semibold">Premium</h3>
           <PackageGrid items={PREMIUM} />
           <h3 className="mt-6 font-semibold">Platinum <span className="ml-1 rounded bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-900">⭐ WALL WET CLEANING &amp; CEILING DRY DUSTING INCLUDED</span></h3>

@@ -8,7 +8,7 @@ import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
 import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, type HomeTier } from "@/lib/service-scope";
-import { PRICING_MASTER, pricesIn, priceLabel, type PriceItem } from "@/lib/pricing-master";
+import { BOOKING_TERMS, PRICING_MASTER, festivalForDate, inGroup, priceLabel, unitPriceFor, upcomingFestivals, type LivePricing, type PriceItem, type PriceType } from "@/lib/pricing-master";
 
 // Shown once, right under the service prices.
 const PRICE_NOTE =
@@ -35,12 +35,8 @@ const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"];
 const PEST_SIZES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Commercial"];
 const PAINT_PROPERTIES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Office / Shop"];
 const PAINT_JOBS = ["Fresh Painting", "Repainting"];
-const CUSTOMISED = pricesIn("CUSTOMISED");
-const COMBOS = pricesIn("COMBO");
-const ADDON_COMBOS = COMBOS.filter((c) => c.addOnOnly);
-const PACKAGE_COMBOS = COMBOS.filter((c) => !c.addOnOnly);
-const PAINTS = pricesIn("PAINTING").filter((p) => !p.addOnOnly);
-const PUTTY = PRICING_MASTER.find((p) => p.contentId === "SCS-PUTTY") ?? null;
+const todayIST = () => new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
+const shortDay = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
 
 const card = "rounded-2xl bg-white p-4 shadow-sm sm:p-5";
 const input = "h-12 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-11 sm:text-sm";
@@ -65,6 +61,7 @@ export function BookingWizard({
   referralCode,
   prefill,
   preset,
+  pricing,
 }: {
   quote?: QuotePrefill | null;
   defaultCategory?: Category;
@@ -73,7 +70,31 @@ export function BookingWizard({
   campaignName?: string;
   referralCode?: string;
   prefill?: { name?: string; mobile?: string };
+  /** Live prices + festival offers (server/pricing.ts). Falls back to the catalogue. */
+  pricing?: LivePricing;
 }) {
+  // Live catalogue (Super Admin → Pricing & Packages).
+  const items = pricing?.items ?? PRICING_MASTER;
+  const { CUSTOMISED, COMBOS, ADDON_COMBOS, PACKAGE_COMBOS, PAINTS, PUTTY, PEST_ITEMS, COMMERCIAL_ITEMS } = useMemo(() => {
+    const combos = inGroup(items, "COMBO");
+    return {
+      CUSTOMISED: inGroup(items, "CUSTOMISED"),
+      COMBOS: combos,
+      ADDON_COMBOS: combos.filter((c) => c.addOnOnly),
+      PACKAGE_COMBOS: combos.filter((c) => !c.addOnOnly),
+      PAINTS: inGroup(items, "PAINTING").filter((p) => !p.addOnOnly),
+      PUTTY: items.find((p) => p.contentId === "SCS-PUTTY") ?? null,
+      PEST_ITEMS: inGroup(items, "PEST"),
+      COMMERCIAL_ITEMS: inGroup(items, "COMMERCIAL"),
+    };
+  }, [items]);
+  // Festival offers still bookable from today. Festival prices apply only to
+  // service dates inside a festival window; Regular to all other dates.
+  const festivals = useMemo(() => upcomingFestivals(pricing?.festivals ?? [], todayIST()), [pricing]);
+  const [priceMode, setPriceMode] = useState<PriceType | "">("");
+  useEffect(() => {
+    if (festivals.length && /[?&]price=festival/i.test(window.location.search)) setPriceMode("FESTIVAL");
+  }, [festivals.length]);
   const [category, setCategory] = useState<Category | "">(preset ? "HOME" : (defaultCategory ?? ""));
   // Home
   const [bhk, setBhk] = useState(preset?.bhk ?? "");
@@ -97,6 +118,10 @@ export function BookingWizard({
   const [date, setDate] = useState("");
   const [slots, setSlots] = useState<{ slot: string; available: boolean }[] | null>(null);
   const [slot, setSlot] = useState("");
+  // Fixed festival prices exist for home cleaning only.
+  const festivalApplies = !quote && festivals.length > 0;
+  const activeFestival = priceMode === "FESTIVAL" ? ((date ? festivalForDate(festivals, date) : null) ?? festivals[0] ?? null) : null;
+  const unit = (it: PriceItem) => unitPriceFor(it, activeFestival);
   const [name, setName] = useState(quote?.customerName ?? prefill?.name ?? "");
   const [mobile, setMobile] = useState(quote?.mobile ?? prefill?.mobile ?? "");
   const [altMobile, setAltMobile] = useState("");
@@ -151,17 +176,18 @@ export function BookingWizard({
     if (quote) return quote.services.map((s) => ({ label: s, amount: null }));
     const out: Line[] = [];
     if (category === "HOME" && homeType === "FULL" && bhk && pkg) {
-      const item = PRICING_MASTER.find((p) => p.bhk === bhk && p.variant === pkg);
-      if (item) out.push({ label: `${bhk} ${pkg} Deep Cleaning`, amount: item.price });
+      const item = items.find((p) => p.bhk === bhk && p.variant === pkg);
+      if (item) out.push({ label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item) });
     }
     if (category === "HOME" && homeType === "CUSTOM") {
       for (const it of CUSTOMISED) {
         const n = qty[it.contentId] ?? 0;
-        if (n > 0) out.push({ label: `${it.name} × ${n}`, amount: it.price == null ? null : it.price * n, note: it.price == null ? it.priceNote : undefined });
+        const u = unit(it);
+        if (n > 0) out.push({ label: `${it.name} × ${n}`, amount: u == null ? null : u * n, note: u == null ? it.priceNote : undefined });
       }
     }
     if (category === "HOME" && (homeType === "CUSTOM" || homeType === "COMBO")) {
-      for (const c of homeType === "COMBO" ? PACKAGE_COMBOS : ADDON_COMBOS) if (combos[c.contentId]) out.push({ label: c.name, amount: c.price });
+      for (const c of homeType === "COMBO" ? PACKAGE_COMBOS : ADDON_COMBOS) if (combos[c.contentId]) out.push({ label: c.name, amount: unit(c) });
     }
     if (category === "COMMERCIAL" && comType) out.push({ label: `${comType} Cleaning${area ? ` · ${area} sq ft` : ""}`, amount: null, note: "Price after inspection" });
     if (category === "PEST" && pest) out.push({ label: `${pest}${pestSize ? ` · ${pestSize}` : ""}`, amount: null, note: "Price after inspection" });
@@ -176,14 +202,17 @@ export function BookingWizard({
       });
     }
     return out;
-  }, [quote, category, homeType, bhk, pkg, qty, combos, comType, area, pest, pestSize, paint, paintProperty, paintJob, sqft, putty]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quote, category, homeType, bhk, pkg, qty, combos, comType, area, pest, pestSize, paint, paintProperty, paintJob, sqft, putty, items, activeFestival]);
 
   const pricedTotal = quote ? quote.totalAmount : lines.reduce((s, l) => s + (l.amount ?? 0), 0);
   const hasUnpriced = !quote && lines.some((l) => l.amount == null);
   const addOnOnlyAlone = !quote && lines.length > 0 && lines.every((l) => COMBOS.find((c) => c.name === l.label)?.addOnOnly);
+  const needsPriceMode = festivalApplies && category === "HOME";
   const serviceChosen = quote
     ? true
     : lines.length > 0 &&
+      (!needsPriceMode || !!priceMode) &&
       !addOnOnlyAlone &&
       (category !== "PEST" || !!pestSize) &&
       (category !== "PAINTING" || (!!paintProperty && !!paintJob && (Number(sqft) > 0 || PAINTS.find((p) => p.contentId === paint)?.price == null)));
@@ -228,6 +257,18 @@ export function BookingWizard({
     return { serviceCategory: "PAINTING", serviceVariant: item?.variant ?? "", packageName: paintJob, propertyType: paintProperty };
   }
 
+  function selectedItems() {
+    if (category !== "HOME") return [];
+    if (homeType === "FULL") {
+      const it = items.find((p) => p.bhk === bhk && p.variant === pkg);
+      return it ? [{ contentId: it.contentId, qty: 1 }] : [];
+    }
+    return [
+      ...(homeType === "CUSTOM" ? CUSTOMISED.filter((it) => (qty[it.contentId] ?? 0) > 0).map((it) => ({ contentId: it.contentId, qty: qty[it.contentId] })) : []),
+      ...(homeType === "COMBO" ? PACKAGE_COMBOS : ADDON_COMBOS).filter((c) => combos[c.contentId]).map((c) => ({ contentId: c.contentId, qty: 1 })),
+    ];
+  }
+
   function submit() {
     setError("");
     if (!ready) return setError("Please complete all steps.");
@@ -244,6 +285,9 @@ export function BookingWizard({
         mapLink,
         ...m,
         comboServices: lines.filter((l) => COMBOS.some((c) => c.name === l.label)).map((l) => l.label),
+        // Price snapshot — the server re-prices these items and freezes the amount on the lead.
+        priceType: category === "HOME" && !quote ? (priceMode === "FESTIVAL" ? "FESTIVAL" : "REGULAR") : undefined,
+        selectedItems: quote ? [] : selectedItems(),
         estimatedAmount: pricedTotal > 0 ? pricedTotal : undefined,
         serviceDate: date,
         timeSlot: slot,
@@ -296,7 +340,10 @@ export function BookingWizard({
       {category === key && <div className="space-y-4 border-t border-[#0a2540]/10 p-3.5 sm:p-4">{body}</div>}
     </div>
   );
-  const pkgPrice = (tier: HomeTier) => PRICING_MASTER.find((p) => p.bhk === bhk && p.variant === tier);
+  const pkgPrice = (tier: HomeTier) => items.find((p) => p.bhk === bhk && p.variant === tier);
+  // Festival price shown next to the regular price (first upcoming festival until a date is picked).
+  const previewFestival = (date && festivalForDate(festivals, date)) || festivals[0] || null;
+  const festivalPriceOf = (it: PriceItem) => (previewFestival ? (previewFestival.prices[it.contentId] ?? null) : null);
   const tier: HomeTier | null = category === "HOME" && homeType === "FULL" && pkg ? pkg : null;
   const pleaseNote: string[] = tier
     ? homePleaseNote(tier)
@@ -329,6 +376,23 @@ export function BookingWizard({
           <div className="mt-3 space-y-2.5">
             {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full house · Customized · Combo", (
               <>
+                {needsPriceMode && (
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Festival or regular booking?</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button type="button" onClick={() => { setPriceMode("FESTIVAL"); if (date && !festivalForDate(festivals, date)) setDate(""); }} className={`${chip(priceMode === "FESTIVAL")} text-left leading-tight`}>
+                        🪔 Festival Special
+                        <span className={`block text-[11px] font-medium ${priceMode === "FESTIVAL" ? "text-white/85" : "text-[#0a2540]/60"}`}>
+                          {festivals.map((f) => `${f.name} ${shortDay(f.start)}–${shortDay(f.end)}`).join(" · ")}
+                        </span>
+                      </button>
+                      <button type="button" onClick={() => { setPriceMode("REGULAR"); if (date && festivalForDate(festivals, date)) setDate(""); }} className={`${chip(priceMode === "REGULAR")} text-left leading-tight`}>
+                        Regular
+                        <span className={`block text-[11px] font-medium ${priceMode === "REGULAR" ? "text-white/85" : "text-[#0a2540]/60"}`}>Service on a date outside festival dates</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-3 gap-2">
                   {([
                     ["FULL", "Full House"],
@@ -356,12 +420,7 @@ export function BookingWizard({
                                   <span className="block text-base font-bold">{bhk} {t}</span>
                                   <span className="block text-[11px] font-semibold text-[#0a2540]/55">{HOME_DURATION}</span>
                                 </span>
-                                {it && (
-                                  <span className="text-right">
-                                    <span className="block text-lg font-extrabold text-primary">{inr(it.price!)}</span>
-                                    {it.mrp && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(it.mrp)}</span>}
-                                  </span>
-                                )}
+                                {it && <PackagePrice item={it} festivalPrice={festivalApplies ? festivalPriceOf(it) : null} festivalOn={priceMode === "FESTIVAL"} />}
                               </span>
                               <span className="mt-2 block space-y-0.5 text-xs text-[#0a2540]/75">
                                 {homeHighlights(t).slice(0, 3).map((h) => <span key={h} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{h}</span>)}
@@ -381,12 +440,12 @@ export function BookingWizard({
                         <div className="flex items-center justify-between gap-2">
                           <div className="min-w-0">
                             <p className="font-semibold">{it.name}</p>
-                            <p className="text-xs font-semibold text-primary">{priceLabel(it)}</p>
+                            <p className="text-xs font-semibold text-primary">{unit(it) != null && unit(it) !== it.price ? `${inr(unit(it)!)} ${it.unit ?? ""} · ${activeFestival?.name} price` : priceLabel(it)}</p>
                           </div>
                           <Stepper value={qty[it.contentId] ?? 0} min={it.minQty ?? 1} onChange={(v) => setQty((q) => ({ ...q, [it.contentId]: v }))} />
                         </div>
                         {(it.rule || it.scope) && <p className="mt-1 text-[11px] font-semibold text-amber-700">{[it.rule, it.scope].filter(Boolean).join(" · ")}</p>}
-                        {(qty[it.contentId] ?? 0) > 0 && it.price != null && <p className="mt-1 text-right text-sm font-bold">{inr(it.price * qty[it.contentId])}</p>}
+                        {(qty[it.contentId] ?? 0) > 0 && unit(it) != null && <p className="mt-1 text-right text-sm font-bold">{inr(unit(it)! * qty[it.contentId])}</p>}
                       </div>
                     ))}
                     {ADDON_COMBOS.map((c) => (
@@ -398,7 +457,7 @@ export function BookingWizard({
                             <span className="block text-[11px] font-semibold text-amber-700">{c.rule}</span>
                           </span>
                         </span>
-                        <span className="font-bold text-primary">{inr(c.price!)}</span>
+                        <span className="font-bold text-primary">{inr(unit(c)!)}</span>
                       </label>
                     ))}
                   </div>
@@ -411,7 +470,7 @@ export function BookingWizard({
                           <input type="checkbox" className="size-5" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
                           <span className="font-semibold">{c.name}</span>
                         </span>
-                        <span className="font-bold text-primary">{inr(c.price!)}</span>
+                        <span className="font-bold text-primary">{inr(unit(c)!)}</span>
                       </label>
                     ))}
                   </div>
@@ -420,7 +479,7 @@ export function BookingWizard({
             ))}
             {section("COMMERCIAL", <Building2 className="size-5" />, "Commercial Cleaning", "Office · Shop · Warehouse · Clinic", (
               <>
-                <div className="flex flex-wrap gap-2">{pricesIn("COMMERCIAL").map((c) => <button key={c.contentId} type="button" onClick={() => setComType(c.variant)} className={chip(comType === c.variant)}>{c.variant}</button>)}</div>
+                <div className="flex flex-wrap gap-2">{COMMERCIAL_ITEMS.map((c) => <button key={c.contentId} type="button" onClick={() => setComType(c.variant)} className={chip(comType === c.variant)}>{c.variant}</button>)}</div>
                 <input className={input} inputMode="numeric" placeholder="Approximate area (sq ft)" value={area} onChange={(e) => setArea(e.target.value.replace(/\D/g, ""))} />
                 <p className="text-sm font-semibold text-primary">Inspection-based pricing</p>
               </>
@@ -429,7 +488,7 @@ export function BookingWizard({
               <>
                 <div>
                   <p className="mb-2 text-sm font-semibold">Pest type</p>
-                  <div className="flex flex-wrap gap-2">{pricesIn("PEST").map((p) => <button key={p.contentId} type="button" onClick={() => setPest(p.name)} className={chip(pest === p.name)}>{p.name}</button>)}</div>
+                  <div className="flex flex-wrap gap-2">{PEST_ITEMS.map((p) => <button key={p.contentId} type="button" onClick={() => setPest(p.name)} className={chip(pest === p.name)}>{p.name}</button>)}</div>
                 </div>
                 <div>
                   <p className="mb-2 text-sm font-semibold">Property type</p>
@@ -484,6 +543,13 @@ export function BookingWizard({
             )}
             {addOnOnlyAlone && <p className="mt-1 text-xs font-semibold text-red-600">This combo is an add-on — please add another service.</p>}
           </div>
+          {needsPriceMode && priceMode && (
+            <p className="mt-2 rounded-xl bg-primary/5 px-3 py-2 text-xs font-semibold text-[#0a2540]">
+              {priceMode === "FESTIVAL"
+                ? `Festival Special price${activeFestival ? ` (${activeFestival.name})` : ""} — for service dates during the festival. Festival slots are subject to team availability.`
+                : "Regular price — for service dates outside the festival dates."}
+            </p>
+          )}
           <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-relaxed text-amber-900">{PRICE_NOTE}</p>
 
           {tier && (
@@ -548,7 +614,7 @@ export function BookingWizard({
                 <p className="font-semibold">Please arrange:</p>
                 <ul className="mt-1 list-disc space-y-0.5 pl-5">{CUSTOMER_REQUIREMENTS.map((s) => <li key={s}>{s}</li>)}</ul>
                 <p className="mt-2 font-semibold">Terms</p>
-                <ol className="mt-1 list-decimal space-y-0.5 pl-5">{TERMS.map((t) => <li key={t}>{t}</li>)}</ol>
+                <ol className="mt-1 list-decimal space-y-0.5 pl-5">{[...BOOKING_TERMS, ...TERMS.filter((t) => !BOOKING_TERMS.includes(t))].map((t) => <li key={t}>{t}</li>)}</ol>
               </div>
             </details>
           </div>
@@ -560,7 +626,25 @@ export function BookingWizard({
         {!dates ? (
           <div className="mt-3 grid grid-cols-7 gap-1">{Array.from({ length: 35 }, (_, i) => <span key={i} className="h-10 animate-pulse rounded-lg bg-[#0a2540]/5" />)}</div>
         ) : (
-          <BookingCalendar dates={dates} value={date} onChange={setDate} monthOffset={monthOffset} setMonthOffset={setMonthOffset} />
+          <>
+            {needsPriceMode && priceMode && (
+              <p className="mt-2 text-xs font-semibold text-[#0a2540]/70">
+                {priceMode === "FESTIVAL" ? "Showing festival dates only." : "Showing dates outside the festival period only."}{" "}
+                <button type="button" onClick={() => go("bk-service")} className="text-primary underline">Change</button>
+              </p>
+            )}
+            <BookingCalendar
+              dates={
+                needsPriceMode && priceMode
+                  ? dates.map((d) => ({ ...d, available: d.available && (priceMode === "FESTIVAL") === !!festivalForDate(festivals, d.date) }))
+                  : dates
+              }
+              value={date}
+              onChange={setDate}
+              monthOffset={monthOffset}
+              setMonthOffset={setMonthOffset}
+            />
+          </>
         )}
         {date && (
           !slots ? (
@@ -637,6 +721,12 @@ export function BookingWizard({
             <>
               <dt className="text-[#0a2540]/60">Scope</dt>
               <dd className="font-medium">{tier === "Platinum" ? "Wall wet cleaning + ceiling dry dusting" : "Wall dry dusting + ceiling dry dusting"} · {HOME_DURATION}</dd>
+            </>
+          )}
+          {needsPriceMode && priceMode && (
+            <>
+              <dt className="text-[#0a2540]/60">Price</dt>
+              <dd className="font-medium">{priceMode === "FESTIVAL" ? `Festival Special${activeFestival ? ` · ${activeFestival.name}` : ""}` : "Regular"}</dd>
             </>
           )}
           <dt className="text-[#0a2540]/60">Date</dt>
@@ -757,5 +847,27 @@ function BookingCalendar({
         <span className="flex items-center gap-1"><span className="size-2.5 rounded-full bg-[#0a2540]/20" /> Fully Booked</span>
       </div>
     </div>
+  );
+}
+
+/** Package card price: regular only, or Regular + Festival Special side by side. */
+function PackagePrice({ item, festivalPrice, festivalOn }: { item: PriceItem; festivalPrice: number | null; festivalOn: boolean }) {
+  if (festivalPrice == null) {
+    return (
+      <span className="text-right">
+        <span className="block text-lg font-extrabold text-primary">{inr(item.price!)}</span>
+        {item.mrp && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(item.mrp)}</span>}
+      </span>
+    );
+  }
+  return (
+    <span className="text-right text-[11px] leading-tight">
+      <span className={`block ${festivalOn ? "text-[#0a2540]/50" : "font-semibold"}`}>
+        Regular <span className={`text-sm font-extrabold ${festivalOn ? "" : "text-primary"}`}>{inr(item.price!)}</span>
+      </span>
+      <span className={`mt-0.5 block ${festivalOn ? "font-semibold text-amber-800" : "text-[#0a2540]/50"}`}>
+        Festival Special <span className={`text-sm font-extrabold ${festivalOn ? "text-amber-700" : ""}`}>{inr(festivalPrice)}</span>
+      </span>
+    </span>
   );
 }

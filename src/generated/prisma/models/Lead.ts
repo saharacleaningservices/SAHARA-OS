@@ -93,6 +93,9 @@ export type LeadMinAggregateOutputType = {
   marketingConsent: string | null
   paymentPreference: string | null
   marketingConsentAt: Date | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -158,6 +161,9 @@ export type LeadMaxAggregateOutputType = {
   marketingConsent: string | null
   paymentPreference: string | null
   marketingConsentAt: Date | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -223,6 +229,9 @@ export type LeadCountAggregateOutputType = {
   marketingConsent: number
   paymentPreference: number
   marketingConsentAt: number
+  priceType: number
+  festivalName: number
+  scopeOfWork: number
   isDemo: number
   deletedAt: number
   deletedByName: number
@@ -302,6 +311,9 @@ export type LeadMinAggregateInputType = {
   marketingConsent?: true
   paymentPreference?: true
   marketingConsentAt?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -367,6 +379,9 @@ export type LeadMaxAggregateInputType = {
   marketingConsent?: true
   paymentPreference?: true
   marketingConsentAt?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -432,6 +447,9 @@ export type LeadCountAggregateInputType = {
   marketingConsent?: true
   paymentPreference?: true
   marketingConsentAt?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -584,6 +602,9 @@ export type LeadGroupByOutputType = {
   marketingConsent: string
   paymentPreference: string | null
   marketingConsentAt: Date | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
   isDemo: boolean
   deletedAt: Date | null
   deletedByName: string | null
@@ -672,6 +693,9 @@ export type LeadWhereInput = {
   marketingConsent?: Prisma.StringFilter<"Lead"> | string
   paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -747,6 +771,9 @@ export type LeadOrderByWithRelationInput = {
   marketingConsent?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -825,6 +852,9 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   marketingConsent?: Prisma.StringFilter<"Lead"> | string
   paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -900,6 +930,9 @@ export type LeadOrderByWithAggregationInput = {
   marketingConsent?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -973,6 +1006,9 @@ export type LeadScalarWhereWithAggregatesInput = {
   marketingConsent?: Prisma.StringWithAggregatesFilter<"Lead"> | string
   paymentPreference?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -1038,6 +1074,9 @@ export type LeadCreateInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1110,6 +1149,9 @@ export type LeadUncheckedCreateInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1182,6 +1224,9 @@ export type LeadUpdateInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1254,6 +1299,9 @@ export type LeadUncheckedUpdateInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1326,6 +1374,9 @@ export type LeadCreateManyInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1391,6 +1442,9 @@ export type LeadUpdateManyMutationInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1453,6 +1507,9 @@ export type LeadUncheckedUpdateManyInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1528,6 +1585,9 @@ export type LeadCountOrderByAggregateInput = {
   marketingConsent?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1599,6 +1659,9 @@ export type LeadMaxOrderByAggregateInput = {
   marketingConsent?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1664,6 +1727,9 @@ export type LeadMinOrderByAggregateInput = {
   marketingConsent?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrder
   marketingConsentAt?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -2001,6 +2067,9 @@ export type LeadCreateWithoutCreatedByInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2072,6 +2141,9 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2152,6 +2224,9 @@ export type LeadCreateWithoutAssignedToInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2223,6 +2298,9 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2322,6 +2400,9 @@ export type LeadScalarWhereInput = {
   marketingConsent?: Prisma.StringFilter<"Lead"> | string
   paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
   marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -2403,6 +2484,9 @@ export type LeadCreateWithoutAssignedStaffInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2474,6 +2558,9 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2570,6 +2657,9 @@ export type LeadCreateWithoutQuotationsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2641,6 +2731,9 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2728,6 +2821,9 @@ export type LeadUpdateWithoutQuotationsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2799,6 +2895,9 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2870,6 +2969,9 @@ export type LeadCreateWithoutFollowUpsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2941,6 +3043,9 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3028,6 +3133,9 @@ export type LeadUpdateWithoutFollowUpsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3099,6 +3207,9 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3170,6 +3281,9 @@ export type LeadCreateWithoutTimelineInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3241,6 +3355,9 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3328,6 +3445,9 @@ export type LeadUpdateWithoutTimelineInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3399,6 +3519,9 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3470,6 +3593,9 @@ export type LeadCreateWithoutJobsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3541,6 +3667,9 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3628,6 +3757,9 @@ export type LeadUpdateWithoutJobsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3699,6 +3831,9 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3770,6 +3905,9 @@ export type LeadCreateWithoutPaymentsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3841,6 +3979,9 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3928,6 +4069,9 @@ export type LeadUpdateWithoutPaymentsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3999,6 +4143,9 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4070,6 +4217,9 @@ export type LeadCreateWithoutActivityLogsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4141,6 +4291,9 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4228,6 +4381,9 @@ export type LeadUpdateWithoutActivityLogsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4299,6 +4455,9 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4370,6 +4529,9 @@ export type LeadCreateWithoutAmcContractsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4441,6 +4603,9 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4528,6 +4693,9 @@ export type LeadUpdateWithoutAmcContractsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4599,6 +4767,9 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4670,6 +4841,9 @@ export type LeadCreateManyCreatedByInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4734,6 +4908,9 @@ export type LeadCreateManyAssignedToInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4798,6 +4975,9 @@ export type LeadUpdateWithoutCreatedByInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4869,6 +5049,9 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4940,6 +5123,9 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5004,6 +5190,9 @@ export type LeadUpdateWithoutAssignedToInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5075,6 +5264,9 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5146,6 +5338,9 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5210,6 +5405,9 @@ export type LeadCreateManyAssignedStaffInput = {
   marketingConsent?: string
   paymentPreference?: string | null
   marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -5274,6 +5472,9 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5345,6 +5546,9 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5416,6 +5620,9 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5565,6 +5772,9 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   marketingConsent?: boolean
   paymentPreference?: boolean
   marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -5641,6 +5851,9 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   marketingConsent?: boolean
   paymentPreference?: boolean
   marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -5709,6 +5922,9 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   marketingConsent?: boolean
   paymentPreference?: boolean
   marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -5777,6 +5993,9 @@ export type LeadSelectScalar = {
   marketingConsent?: boolean
   paymentPreference?: boolean
   marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -5787,7 +6006,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -5881,6 +6100,9 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     marketingConsent: string
     paymentPreference: string | null
     marketingConsentAt: Date | null
+    priceType: string | null
+    festivalName: string | null
+    scopeOfWork: string | null
     isDemo: boolean
     deletedAt: Date | null
     deletedByName: string | null
@@ -6376,6 +6598,9 @@ export interface LeadFieldRefs {
   readonly marketingConsent: Prisma.FieldRef<"Lead", 'String'>
   readonly paymentPreference: Prisma.FieldRef<"Lead", 'String'>
   readonly marketingConsentAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly priceType: Prisma.FieldRef<"Lead", 'String'>
+  readonly festivalName: Prisma.FieldRef<"Lead", 'String'>
+  readonly scopeOfWork: Prisma.FieldRef<"Lead", 'String'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly deletedByName: Prisma.FieldRef<"Lead", 'String'>

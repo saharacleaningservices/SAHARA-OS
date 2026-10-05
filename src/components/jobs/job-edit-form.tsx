@@ -167,6 +167,10 @@ export function JobEditForm({
             )}
           </div>
           <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="scopeOfWork">Scope of work (shown in the Staff App)</Label>
+            <Textarea id="scopeOfWork" rows={3} {...register("scopeOfWork")} placeholder="Exact package / rooms / items agreed with the customer" />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea id="notes" rows={3} {...register("notes")} />
           </div>

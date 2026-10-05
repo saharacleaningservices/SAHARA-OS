@@ -97,6 +97,21 @@ export function smallServiceNotes(item: { unit?: string; rule?: string; scope?: 
   return [item.unit && `Priced ${item.unit}`, item.rule, item.scope, item.priceNote].filter(Boolean) as string[];
 }
 
+/**
+ * Short Scope of Work text frozen on a lead/job at booking time — what the
+ * customer selected. Full-house packages point to the room-by-room package
+ * scope (shown from this file on the job page / Staff App); other bookings
+ * list the selected items. Office staff can edit it in the CRM.
+ */
+export function scopeSnapshot(input: { packageName?: string | null; serviceVariant?: string | null; items: { name: string; qty: number; unit?: string }[] }): string | null {
+  const tier = tierFromPackage(input.packageName, input.serviceVariant);
+  if (tier && input.items.length === 1) {
+    return `${input.packageName || tier} Home Deep Cleaning — full ${tier} room-by-room package scope (${tier === "Platinum" ? "wall wet cleaning" : "wall dry dusting"} + ceiling dry dusting). Sofa/carpet/mattress shampooing and chimney not included.`;
+  }
+  if (!input.items.length) return null;
+  return input.items.map((i) => `• ${i.name}${i.unit ? ` × ${i.qty} (${i.unit})` : i.qty > 1 ? ` × ${i.qty}` : ""}`).join("\n");
+}
+
 /** Resolve the full-house tier from a CRM package / variant string ("2 BHK Platinum"). */
 export function tierFromPackage(...values: (string | null | undefined)[]): HomeTier | null {
   const s = values.filter(Boolean).join(" ");

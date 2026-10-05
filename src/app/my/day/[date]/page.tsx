@@ -117,6 +117,17 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                     <div className={`font-semibold ${j.payment.balance > 0 ? "text-amber-700" : "text-emerald-700"}`}>{formatINR(j.payment.balance)}</div>
                   </div>
                 </div>
+                {(j.scopeOfWork || j.priceType) && (
+                  <div className="rounded-lg border border-border p-2.5 text-sm">
+                    <div className="text-xs font-semibold uppercase text-primary">Scope of work (as booked)</div>
+                    {j.priceType && (
+                      <div className="text-xs text-muted-foreground">
+                        Price: {j.priceType === "FESTIVAL" ? `Festival Special${j.festivalName ? ` · ${j.festivalName}` : ""}` : "Regular"}
+                      </div>
+                    )}
+                    {j.scopeOfWork && <p className="mt-1 whitespace-pre-line">{j.scopeOfWork}</p>}
+                  </div>
+                )}
                 <PackageScopeCard service={j.service} packageName={j.packageName} serviceVariant={j.serviceVariant} />
                 {j.comboServices.length > 0 && (
                   <div className="text-sm">

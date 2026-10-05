@@ -80,6 +80,7 @@ export const leadSchema = z.object({
   assignedStaffIds: z.array(z.string()).optional(),
   assignedToId: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
+  scopeOfWork: z.string().max(4000).optional().or(z.literal("")),
   serviceCategory: z.string().optional().or(z.literal("")),
   serviceVariant: z.string().optional().or(z.literal("")),
   packageName: z.string().optional().or(z.literal("")),
@@ -115,6 +116,7 @@ export const jobSchema = z.object({
   staffIds: z.array(z.string()).optional(),
   jobValue: z.coerce.number().min(0, "Job value can't be negative"), // no minimum — pricing master is the source of truth
   notes: z.string().optional().or(z.literal("")),
+  scopeOfWork: z.string().max(4000).optional().or(z.literal("")),
   leadId: z.string().optional().or(z.literal("")),
 });
 

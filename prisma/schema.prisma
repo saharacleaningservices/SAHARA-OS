@@ -502,6 +502,13 @@ model Lead {
   paymentPreference String?
   marketingConsentAt  DateTime?
 
+  // Price snapshot frozen at booking (2026-10-05 pricing master): REGULAR |
+  // FESTIVAL, the festival name, and the scope text the customer booked.
+  // Never recalculated from later price changes.
+  priceType    String?
+  festivalName String?
+  scopeOfWork  String?
+
   isDemo        Boolean   @default(false)
   deletedAt     DateTime?
   deletedByName String?
@@ -658,6 +665,13 @@ model Job {
   // shows the team exactly as it was on that day, even if the crew is
   // edited, a staff record is renamed or soft-deleted later.
   teamSnapshot String?
+
+  // Price snapshot frozen at booking (2026-10-05 pricing master): REGULAR |
+  // FESTIVAL, the festival name, and the scope text the customer booked.
+  // Never recalculated from later price changes.
+  priceType    String?
+  festivalName String?
+  scopeOfWork  String?
 
   mapLink   String?
   vehicleId String?
@@ -1406,4 +1420,44 @@ model MarketingSpend {
 
   @@index([month])
   @@index([channel])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Pricing & Packages (Super Admin). PRICING_MASTER in src/lib/pricing-master.ts
+// holds the catalogue (names, scope, units); these tables hold the editable
+// numbers. PriceSetting overrides an item's regular price; FestivalOffer +
+// FestivalPrice hold separate festival prices for a date window. Bookings
+// copy the price they were confirmed at, so edits never touch history.
+// ─────────────────────────────────────────────────────────────────────────
+model PriceSetting {
+  contentId     String   @id
+  price         Float?
+  mrp           Float?
+  isActive      Boolean  @default(true)
+  updatedByName String?
+  updatedAt     DateTime @updatedAt
+}
+
+model FestivalOffer {
+  id            String          @id @default(cuid())
+  name          String
+  startDate     DateTime
+  endDate       DateTime
+  isActive      Boolean         @default(true)
+  updatedByName String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  prices        FestivalPrice[]
+
+  @@index([isActive, startDate])
+}
+
+model FestivalPrice {
+  id         String        @id @default(cuid())
+  festivalId String
+  festival   FestivalOffer @relation(fields: [festivalId], references: [id], onDelete: Cascade)
+  contentId  String
+  price      Float
+
+  @@unique([festivalId, contentId])
 }

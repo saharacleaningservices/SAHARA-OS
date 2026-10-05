@@ -97,7 +97,10 @@ export const ModelName = {
   Notification: 'Notification',
   PushSubscription: 'PushSubscription',
   BusinessTarget: 'BusinessTarget',
-  MarketingSpend: 'MarketingSpend'
+  MarketingSpend: 'MarketingSpend',
+  PriceSetting: 'PriceSetting',
+  FestivalOffer: 'FestivalOffer',
+  FestivalPrice: 'FestivalPrice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -341,6 +344,9 @@ export const LeadScalarFieldEnum = {
   marketingConsent: 'marketingConsent',
   paymentPreference: 'paymentPreference',
   marketingConsentAt: 'marketingConsentAt',
+  priceType: 'priceType',
+  festivalName: 'festivalName',
+  scopeOfWork: 'scopeOfWork',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
   deletedByName: 'deletedByName',
@@ -437,6 +443,9 @@ export const JobScalarFieldEnum = {
   customerSignatureUrl: 'customerSignatureUrl',
   signedAt: 'signedAt',
   teamSnapshot: 'teamSnapshot',
+  priceType: 'priceType',
+  festivalName: 'festivalName',
+  scopeOfWork: 'scopeOfWork',
   mapLink: 'mapLink',
   vehicleId: 'vehicleId',
   isDemo: 'isDemo',
@@ -1027,6 +1036,42 @@ export const MarketingSpendScalarFieldEnum = {
 } as const
 
 export type MarketingSpendScalarFieldEnum = (typeof MarketingSpendScalarFieldEnum)[keyof typeof MarketingSpendScalarFieldEnum]
+
+
+export const PriceSettingScalarFieldEnum = {
+  contentId: 'contentId',
+  price: 'price',
+  mrp: 'mrp',
+  isActive: 'isActive',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PriceSettingScalarFieldEnum = (typeof PriceSettingScalarFieldEnum)[keyof typeof PriceSettingScalarFieldEnum]
+
+
+export const FestivalOfferScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
+  updatedByName: 'updatedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FestivalOfferScalarFieldEnum = (typeof FestivalOfferScalarFieldEnum)[keyof typeof FestivalOfferScalarFieldEnum]
+
+
+export const FestivalPriceScalarFieldEnum = {
+  id: 'id',
+  festivalId: 'festivalId',
+  contentId: 'contentId',
+  price: 'price'
+} as const
+
+export type FestivalPriceScalarFieldEnum = (typeof FestivalPriceScalarFieldEnum)[keyof typeof FestivalPriceScalarFieldEnum]
 
 
 export const SortOrder = {

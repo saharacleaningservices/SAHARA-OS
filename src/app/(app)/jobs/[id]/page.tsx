@@ -30,6 +30,7 @@ import { jobCardMessage } from "@/lib/whatsapp-templates";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
+import { BookedScopeCard } from "@/components/shared/booked-scope-card";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -248,6 +249,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </CardContent>
           </Card>
 
+          <BookedScopeCard priceType={job.priceType} festivalName={job.festivalName} scopeOfWork={job.scopeOfWork} />
           <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} />
           <Card>
             <CardHeader className="pb-2">

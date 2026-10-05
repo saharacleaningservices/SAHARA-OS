@@ -438,7 +438,10 @@ export const ModelName = {
   Notification: 'Notification',
   PushSubscription: 'PushSubscription',
   BusinessTarget: 'BusinessTarget',
-  MarketingSpend: 'MarketingSpend'
+  MarketingSpend: 'MarketingSpend',
+  PriceSetting: 'PriceSetting',
+  FestivalOffer: 'FestivalOffer',
+  FestivalPrice: 'FestivalPrice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -454,7 +457,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "priceSetting" | "festivalOffer" | "festivalPrice"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4084,6 +4087,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PriceSetting: {
+      payload: Prisma.$PriceSettingPayload<ExtArgs>
+      fields: Prisma.PriceSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PriceSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PriceSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.PriceSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PriceSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>
+        }
+        findMany: {
+          args: Prisma.PriceSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>[]
+        }
+        create: {
+          args: Prisma.PriceSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>
+        }
+        createMany: {
+          args: Prisma.PriceSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PriceSettingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>[]
+        }
+        delete: {
+          args: Prisma.PriceSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>
+        }
+        update: {
+          args: Prisma.PriceSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.PriceSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PriceSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PriceSettingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>[]
+        }
+        upsert: {
+          args: Prisma.PriceSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PriceSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.PriceSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePriceSetting>
+        }
+        groupBy: {
+          args: Prisma.PriceSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PriceSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PriceSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PriceSettingCountAggregateOutputType> | number
+        }
+      }
+    }
+    FestivalOffer: {
+      payload: Prisma.$FestivalOfferPayload<ExtArgs>
+      fields: Prisma.FestivalOfferFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FestivalOfferFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FestivalOfferFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>
+        }
+        findFirst: {
+          args: Prisma.FestivalOfferFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FestivalOfferFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>
+        }
+        findMany: {
+          args: Prisma.FestivalOfferFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>[]
+        }
+        create: {
+          args: Prisma.FestivalOfferCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>
+        }
+        createMany: {
+          args: Prisma.FestivalOfferCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FestivalOfferCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>[]
+        }
+        delete: {
+          args: Prisma.FestivalOfferDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>
+        }
+        update: {
+          args: Prisma.FestivalOfferUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>
+        }
+        deleteMany: {
+          args: Prisma.FestivalOfferDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FestivalOfferUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FestivalOfferUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>[]
+        }
+        upsert: {
+          args: Prisma.FestivalOfferUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalOfferPayload>
+        }
+        aggregate: {
+          args: Prisma.FestivalOfferAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFestivalOffer>
+        }
+        groupBy: {
+          args: Prisma.FestivalOfferGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FestivalOfferGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FestivalOfferCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FestivalOfferCountAggregateOutputType> | number
+        }
+      }
+    }
+    FestivalPrice: {
+      payload: Prisma.$FestivalPricePayload<ExtArgs>
+      fields: Prisma.FestivalPriceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FestivalPriceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FestivalPriceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>
+        }
+        findFirst: {
+          args: Prisma.FestivalPriceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FestivalPriceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>
+        }
+        findMany: {
+          args: Prisma.FestivalPriceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>[]
+        }
+        create: {
+          args: Prisma.FestivalPriceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>
+        }
+        createMany: {
+          args: Prisma.FestivalPriceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FestivalPriceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>[]
+        }
+        delete: {
+          args: Prisma.FestivalPriceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>
+        }
+        update: {
+          args: Prisma.FestivalPriceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>
+        }
+        deleteMany: {
+          args: Prisma.FestivalPriceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FestivalPriceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FestivalPriceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>[]
+        }
+        upsert: {
+          args: Prisma.FestivalPriceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FestivalPricePayload>
+        }
+        aggregate: {
+          args: Prisma.FestivalPriceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFestivalPrice>
+        }
+        groupBy: {
+          args: Prisma.FestivalPriceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FestivalPriceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FestivalPriceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FestivalPriceCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4348,6 +4573,9 @@ export const LeadScalarFieldEnum = {
   marketingConsent: 'marketingConsent',
   paymentPreference: 'paymentPreference',
   marketingConsentAt: 'marketingConsentAt',
+  priceType: 'priceType',
+  festivalName: 'festivalName',
+  scopeOfWork: 'scopeOfWork',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
   deletedByName: 'deletedByName',
@@ -4444,6 +4672,9 @@ export const JobScalarFieldEnum = {
   customerSignatureUrl: 'customerSignatureUrl',
   signedAt: 'signedAt',
   teamSnapshot: 'teamSnapshot',
+  priceType: 'priceType',
+  festivalName: 'festivalName',
+  scopeOfWork: 'scopeOfWork',
   mapLink: 'mapLink',
   vehicleId: 'vehicleId',
   isDemo: 'isDemo',
@@ -5036,6 +5267,42 @@ export const MarketingSpendScalarFieldEnum = {
 export type MarketingSpendScalarFieldEnum = (typeof MarketingSpendScalarFieldEnum)[keyof typeof MarketingSpendScalarFieldEnum]
 
 
+export const PriceSettingScalarFieldEnum = {
+  contentId: 'contentId',
+  price: 'price',
+  mrp: 'mrp',
+  isActive: 'isActive',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PriceSettingScalarFieldEnum = (typeof PriceSettingScalarFieldEnum)[keyof typeof PriceSettingScalarFieldEnum]
+
+
+export const FestivalOfferScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
+  updatedByName: 'updatedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FestivalOfferScalarFieldEnum = (typeof FestivalOfferScalarFieldEnum)[keyof typeof FestivalOfferScalarFieldEnum]
+
+
+export const FestivalPriceScalarFieldEnum = {
+  id: 'id',
+  festivalId: 'festivalId',
+  contentId: 'contentId',
+  price: 'price'
+} as const
+
+export type FestivalPriceScalarFieldEnum = (typeof FestivalPriceScalarFieldEnum)[keyof typeof FestivalPriceScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -5396,6 +5663,9 @@ export type GlobalOmitConfig = {
   pushSubscription?: Prisma.PushSubscriptionOmit
   businessTarget?: Prisma.BusinessTargetOmit
   marketingSpend?: Prisma.MarketingSpendOmit
+  priceSetting?: Prisma.PriceSettingOmit
+  festivalOffer?: Prisma.FestivalOfferOmit
+  festivalPrice?: Prisma.FestivalPriceOmit
 }
 
 /* Types for Logging */

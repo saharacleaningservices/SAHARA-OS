@@ -431,6 +431,10 @@ export function LeadForm({
             )}
           </div>
           <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="scopeOfWork">Scope of work (shown to the assigned team)</Label>
+            <Textarea id="scopeOfWork" {...register("scopeOfWork")} rows={3} placeholder="Exact package / rooms / items agreed with the customer" />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea id="notes" {...register("notes")} rows={3} />
           </div>
