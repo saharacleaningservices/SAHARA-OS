@@ -54,7 +54,7 @@ const employee = z.object({
   // Reconciliation target = live Khata balance − dropped rows + adjustments.
   ownerDecisions: z
     .object({
-      dropRows: z.array(z.object({ row: z.number().int(), note: z.string().min(3) })).default([]),
+      dropRows: z.array(z.object({ row: z.number().int(), note: z.string().min(3), alreadyRemovedInKhata: z.boolean().default(false) })).default([]),
       kindOverrides: z.array(z.object({ row: z.number().int(), kind: z.enum(["AUTO_FARE"]), note: z.string().min(3) })).default([]),
       adjustments: z.array(z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), amount: z.number(), note: z.string().min(3) })).default([]),
     })
@@ -111,8 +111,11 @@ async function planEmployee(e: Emp, cutoff: Date) {
   const usable = nonZero.filter((r) => !dropSet.has(r.row));
   const dropped = nonZero.filter((r) => dropSet.has(r.row));
   // Khata net (all rows, as Khata Book shows) drives the opening; dropped rows and adjustments move the target.
-  const net = r2(nonZero.reduce((s, r) => s + (isLoanMode ? loanSigned(r) : salarySigned(r)), 0));
-  const droppedNet = r2(dropped.reduce((s, r) => s + salarySigned(r), 0));
+  // A duplicate the owner already deleted in Khata Book is not part of the live balance:
+  // leave it out of the Khata net too (otherwise it would be subtracted twice).
+  const goneInKhata = new Set(od.dropRows.filter((d) => d.alreadyRemovedInKhata).map((d) => d.row));
+  const net = r2(nonZero.filter((r) => !goneInKhata.has(r.row)).reduce((s, r) => s + (isLoanMode ? loanSigned(r) : salarySigned(r)), 0));
+  const droppedNet = r2(dropped.filter((r) => !goneInKhata.has(r.row)).reduce((s, r) => s + salarySigned(r), 0));
   const adjTotal = r2(od.adjustments.reduce((s, a) => s + a.amount, 0));
   for (const d of od.dropRows) notes.push(`Row ${d.row} not imported (owner): ${d.note}`);
   for (const k of od.kindOverrides) notes.push(`Row ${k.row} imported as ${k.kind} (owner): ${k.note}`);
