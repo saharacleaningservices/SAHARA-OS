@@ -85,6 +85,9 @@ export const leadSchema = z.object({
   serviceVariant: z.string().optional().or(z.literal("")),
   packageName: z.string().optional().or(z.literal("")),
   propertyType: z.string().max(60).optional().or(z.literal("")),
+  // Package Calculator: JSON lines + discount (re-priced on the server).
+  serviceItems: z.string().max(20000).optional().or(z.literal("")),
+  discountAmount: z.coerce.number().min(0).max(10_000_000).optional(),
   comboServices: z.array(z.string()).optional(),
   mapLink: z.string().optional().or(z.literal("")),
   // Marketing attribution for leads entered by hand (set once, on create).

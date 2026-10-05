@@ -1499,3 +1499,16 @@ db.close();
   console.log("Staff App finalisation migration complete.");
   fDb.close();
 }
+
+// Multi-service package (Package Calculator) — additive columns on Lead + Job.
+{
+  const pDb = new Database(dbPath);
+  const cols = (t) => pDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
+  for (const t of ["Lead", "Job"]) {
+    const have = cols(t);
+    if (!have.includes("serviceItems")) pDb.exec(`ALTER TABLE "${t}" ADD COLUMN "serviceItems" TEXT`);
+    if (!have.includes("discountAmount")) pDb.exec(`ALTER TABLE "${t}" ADD COLUMN "discountAmount" REAL`);
+  }
+  console.log("Package calculator migration complete.");
+  pDb.close();
+}

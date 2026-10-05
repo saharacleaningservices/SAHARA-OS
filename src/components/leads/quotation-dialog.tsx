@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createQuotation } from "@/server/actions/leads";
+import { packageToQuoteItems, packageTotals, parsePackage } from "@/lib/package-calc";
 import { formatINR } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { PRICING_MASTER, lineTotal, type PriceItem } from "@/lib/pricing-master";
@@ -58,6 +59,8 @@ export function QuotationDialog({
   area,
   notes,
   trigger,
+  serviceItems,
+  discountAmount,
 }: {
   leadId: string;
   service: string;
@@ -65,14 +68,18 @@ export function QuotationDialog({
   area: string;
   notes?: string | null;
   trigger?: React.ReactNode;
+  /** Package Calculator lines saved on the lead — when present they become the quote lines. */
+  serviceItems?: string | null;
+  discountAmount?: number | null;
 }) {
+  const pkg = parsePackage(serviceItems, discountAmount);
   const [open, setOpen] = useState(false);
   // Live prices (Super Admin → Pricing & Packages); catalogue defaults until loaded.
   const [catalogue, setCatalogue] = useState<PriceItem[]>(PRICING_MASTER);
   useEffect(() => {
     if (open) getCatalogueForCrm().then((p) => p && setCatalogue(p.items)).catch(() => {});
   }, [open]);
-  const [items, setItems] = useState<LineItem[]>([
+  const [items, setItems] = useState<LineItem[]>(pkg.lines.length ? packageToQuoteItems(pkg) : [
     {
       name: SERVICE_LABELS[service] ?? service,
       description: `${SERVICE_LABELS[service] ?? service} at ${area}`,
@@ -85,12 +92,14 @@ export function QuotationDialog({
     })),
   ]);
   const [gstPercent, setGstPercent] = useState(0);
+  const discount = pkg.lines.length ? packageTotals(pkg).discount : 0;
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
   const subTotal = items.reduce((s, i) => s + (Number(i.amount) || 0), 0);
-  const gstAmount = Math.round((subTotal * gstPercent) / 100);
-  const total = subTotal + gstAmount;
+  const taxable = Math.max(0, subTotal - discount);
+  const gstAmount = Math.round((taxable * gstPercent) / 100);
+  const total = taxable + gstAmount;
 
   function updateItem(idx: number, patch: Partial<LineItem>) {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
@@ -98,7 +107,7 @@ export function QuotationDialog({
 
   function submit() {
     startTransition(async () => {
-      const res = await createQuotation(leadId, items, gstPercent);
+      const res = await createQuotation(leadId, items, gstPercent, discount);
       if ("error" in res && res.error) {
         toast.error(res.error);
         return;
@@ -214,6 +223,12 @@ export function QuotationDialog({
               <span className="text-muted-foreground">Subtotal</span>
               <span>{formatINR(subTotal)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Discount (package)</span>
+                <span>− {formatINR(discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">GST ({gstPercent}%)</span>
               <span>{formatINR(gstAmount)}</span>

@@ -10,6 +10,7 @@
 // queries per request (staffId + date), no N+1 loops, no polling.
 
 import { db } from "@/lib/db";
+import { packageSummary, parsePackage } from "@/lib/package-calc";
 import { jobPaymentSummary } from "@/lib/payment-status";
 import type { SessionPayload } from "@/lib/session";
 import { computeEarned, type AttendanceCode } from "@/server/attendance";
@@ -638,6 +639,7 @@ export async function getMyJob(staffId: string, jobId: string) {
       mapLink: true,
       customerName: true,
       comboServices: true,
+      serviceItems: true,
       scopeOfWork: true,
       priceType: true,
       festivalName: true,
@@ -659,6 +661,8 @@ export async function getMyJob(staffId: string, jobId: string) {
   return {
     ...job,
     comboServices: parseList(job.comboServices),
+    // Package services: names + quantity only — never prices (staff see no internal pricing).
+    packageServices: packageSummary(parsePackage(job.serviceItems)),
     team,
     payment: jobPaymentSummary(job.jobValue, job.payments),
     isToday: job.scheduledDate >= today,

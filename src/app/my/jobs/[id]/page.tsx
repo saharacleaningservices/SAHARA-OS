@@ -122,11 +122,14 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
             ))}
           </ul>
         ) : null}
+        {job.packageServices.length > 0 && (
+          <ul className="mt-1 space-y-0.5 text-sm">{job.packageServices.map((c, i) => <li key={`${c}-${i}`} className="flex items-center gap-1.5"><Check className="size-4 text-success" />{c}</li>)}</ul>
+        )}
         {job.comboServices.length > 0 && (
           <ul className="mt-1 space-y-0.5 text-sm">{job.comboServices.map((c) => <li key={c} className="flex items-center gap-1.5"><Check className="size-4 text-success" />{c}</li>)}</ul>
         )}
         {job.scopeOfWork && <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{job.scopeOfWork}</p>}
-        {!tier && !job.comboServices.length && !job.scopeOfWork && <p className="text-sm text-muted-foreground">{pkg ?? "—"}</p>}
+        {!tier && !job.comboServices.length && !job.packageServices.length && !job.scopeOfWork && <p className="text-sm text-muted-foreground">{pkg ?? "—"}</p>}
       </section>
 
       {/* Status (today, own job) */}

@@ -12,6 +12,7 @@ export function ServiceCategoryPicker({
   onCategoryChange,
   onVariantChange,
   onPackageChange,
+  hideVariant = false,
 }: {
   category: string;
   variant: string;
@@ -19,6 +20,8 @@ export function ServiceCategoryPicker({
   onCategoryChange: (v: string) => void;
   onVariantChange: (v: string) => void;
   onPackageChange?: (v: string) => void;
+  /** Customized Service uses the Package Calculator instead of a single "Details" pick. */
+  hideVariant?: boolean;
 }) {
   // Home Deep Cleaning: the second field is the Property Type (owner 2026-10-05).
   const isHome = category === "HOME_DEEP_CLEANING";
@@ -47,7 +50,7 @@ export function ServiceCategoryPicker({
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-1.5">
+        <div className={hideVariant ? "hidden" : "space-y-1.5"}>
           <Label>{isHome ? "Property Type" : category === "PAINTING" || category === "PEST_CONTROL" || category === "AMC" ? "Type" : "Details"}</Label>
           <Select value={variant} onValueChange={onVariantChange} disabled={options.length === 0}>
             <SelectTrigger>
