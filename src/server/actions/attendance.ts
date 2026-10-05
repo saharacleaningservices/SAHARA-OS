@@ -47,7 +47,10 @@ function canOperateAttendance(role?: string) {
  * him, only for canManage roles.
  */
 function canEditCalendar(role?: string) {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+  // RBAC 2026-10-05 (owner): Francis (OPERATIONS / SUPERVISOR) may ONLY mark
+  // Present / Absent for today — see markTodayPresentAbsent. Calendar
+  // backfill, other statuses, bulk and month-close are Super Admin + Accounts (Shweta).
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /**
@@ -126,6 +129,25 @@ export async function markAttendanceDay(staffId: string, dateIso: string, status
     await notifyStaffAttendance(staffId, status, new Date(dateIso));
     const [y, m, d] = dateIso.slice(0, 10).split("-").map(Number);
     await pushStaffAttendance(staffId, status, new Date(y, m - 1, d));
+  }
+  bump();
+  return { success: true as const };
+}
+
+/** Francis: Present / Absent for TODAY only (server-enforced). Super Admin + Accounts may use it too. */
+export async function markTodayPresentAbsent(staffId: string, status: "PRESENT" | "ABSENT") {
+  const session = await getSession();
+  if (!session || !canOperateAttendance(session.role)) return { error: "Not authorized" };
+  if (status !== "PRESENT" && status !== "ABSENT") return { error: "Only Present or Absent can be marked here" };
+  const staff = await db.staff.findFirst({ where: { id: staffId, isActive: true, deletedAt: null }, select: { id: true } });
+  if (!staff) return { error: "Staff not found" };
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const res = await setAttendanceForDate({ staffId, date: today, status, actorName: session.name });
+  if ("error" in res) return { error: res.error };
+  if (!("unchanged" in res)) {
+    await notifyStaffAttendance(staffId, status, new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+    await pushStaffAttendance(staffId, status, new Date(now.getFullYear(), now.getMonth(), now.getDate()));
   }
   bump();
   return { success: true as const };
