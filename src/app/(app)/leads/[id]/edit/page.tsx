@@ -58,6 +58,7 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
               : [],
           assignedToId: lead.assignedToId ?? "",
           notes: lead.notes ?? "",
+          scopeOfWork: lead.scopeOfWork ?? "",
           serviceCategory: lead.serviceCategory ?? "HOME_DEEP_CLEANING",
           serviceVariant: lead.serviceVariant ?? "",
           packageName: lead.packageName ?? "",

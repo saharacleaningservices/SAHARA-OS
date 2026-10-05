@@ -1,4 +1,4 @@
-import { pricesIn } from "@/lib/pricing-master";
+import { pricesIn, inGroup, type PriceItem } from "@/lib/pricing-master";
 
 // Customer-facing marketing content shared by the public landing pages.
 // PRICES: never defined here — PREMIUM / PLATINUM / SMALL_SERVICES / COMBOS are
@@ -20,6 +20,12 @@ export type Pkg = { bhk: string; mrp: number; price: number };
 // Prices come from the single pricing master (src/lib/pricing-master.ts).
 const toPkg = (g: "PREMIUM" | "PLATINUM"): Pkg[] => pricesIn(g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price!, price: p.price! }));
 export const PREMIUM: Pkg[] = toPkg("PREMIUM");
+/** Same as PREMIUM/PLATINUM/SMALL_SERVICES/COMBOS but from live (CRM-edited) prices — server/pricing.ts getLivePricing(). */
+export const livePkgs = (items: PriceItem[], g: "PREMIUM" | "PLATINUM"): Pkg[] =>
+  inGroup(items, g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price!, price: p.price! }));
+export const liveSmallServices = (items: PriceItem[]) =>
+  inGroup(items, "CUSTOMISED").map((p) => ({ name: p.name, price: p.price, unit: p.unit ?? "", rule: [p.rule, p.scope].filter(Boolean).join(" · "), priceNote: p.priceNote ?? "" }));
+export const liveCombos = (items: PriceItem[]) => inGroup(items, "COMBO").map((p) => ({ name: p.name, price: p.price!, note: p.addOnOnly ? p.rule ?? "Add-on only" : "" }));
 export const PLATINUM: Pkg[] = toPkg("PLATINUM");
 // Scope shared by both full-house packages; the wall treatment is the only
 // difference (Premium: wall dry dusting · Platinum: wall wet cleaning; both

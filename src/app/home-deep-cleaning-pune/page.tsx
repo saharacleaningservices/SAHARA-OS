@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { HOME_FROM_PRICE, PLATINUM_FROM_PRICE } from "@/lib/pricing-master";
+import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, PackageGrid, RoomScope, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
-import { PREMIUM, PLATINUM, SMALL_SERVICES, COMBOS, inr } from "@/lib/marketing-content";
+import { LandingShell, FestivalSection, Hero, PackageGrid, RoomScope, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { livePkgs, liveSmallServices, liveCombos, inr } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+const fromPrice = (pk: { price: number }[]) => Math.min(...pk.map((p) => p.price ?? Infinity));
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { items } = await getLivePricing();
+  const HOME_FROM_PRICE = fromPrice(livePkgs(items, "PREMIUM"));
+  const PLATINUM_FROM_PRICE = fromPrice(livePkgs(items, "PLATINUM"));
+  return {
   title: `Home Deep Cleaning in Pune – 1 BHK from ${inr(HOME_FROM_PRICE)} | Sahara Cleaning Services`,
   description: `Professional home deep cleaning across Pune & PCMC with transparent package prices: Premium 1 BHK ${inr(HOME_FROM_PRICE)}, Platinum with wall wet cleaning from ${inr(PLATINUM_FROM_PRICE)}. Sofa, bathroom, kitchen & mattress cleaning too.`,
   alternates: { canonical: `${BASE_URL}/home-deep-cleaning-pune` },
   openGraph: { title: "Home Deep Cleaning in Pune — Transparent Package Prices", description: `Premium from ${inr(HOME_FROM_PRICE)} · Platinum from ${inr(PLATINUM_FROM_PRICE)} · Since 2012.`, url: `${BASE_URL}/home-deep-cleaning-pune`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
-};
+  };
+}
 
 const WA = "Hi Sahara, I'd like to book home deep cleaning. Please share details.";
 const FAQS = [
@@ -24,7 +31,11 @@ const FAQS = [
 ];
 
 export default async function HomeDeepCleaningPage() {
-  const settings = await getCompanySettings();
+  const [settings, pricing] = await Promise.all([getCompanySettings(), getLivePricing()]);
+  const PREMIUM = livePkgs(pricing.items, "PREMIUM");
+  const PLATINUM = livePkgs(pricing.items, "PLATINUM");
+  const SMALL_SERVICES = liveSmallServices(pricing.items);
+  const COMBOS = liveCombos(pricing.items);
   return (
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd({ makesOffer: [...PREMIUM, ...PLATINUM].map((p, i) => ({ "@type": "Offer", name: `${p.bhk} ${i < 4 ? "Premium" : "Platinum"} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" })) }), faqJsonLd(FAQS)]}>
       <Hero
@@ -37,6 +48,7 @@ export default async function HomeDeepCleaningPage() {
         waText={WA}
       />
       <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
+        <FestivalSection />
         <section>
           <h2 className="text-2xl font-bold">Premium home deep cleaning</h2>
           <p className="text-sm text-[#0a2540]/70">Complete top-to-bottom cleaning of your home. Estimated 7–8 hours.</p>

@@ -12,7 +12,7 @@ export const ENTITY_LABELS: Record<EntityType, string> = {
 };
 
 export async function logAudit(input: {
-  entityType: EntityType | "Backup";
+  entityType: EntityType | "Backup" | "Pricing";
   entityId: string;
   action: string;
   summary: string;

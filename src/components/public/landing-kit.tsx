@@ -9,6 +9,7 @@ import { BookingWizard } from "@/components/public/booking-wizard";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import { CONTACT, EQUIPMENT, TERMS, inr, type Pkg } from "@/lib/marketing-content";
 import { SERVICE_AREA_NOTICE } from "@/lib/pricing-master";
+import { getLivePricing } from "@/server/pricing";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
 import { toWhatsAppLink } from "@/lib/utils";
 import { COMPANY } from "@/lib/constants";
@@ -41,12 +42,18 @@ export const CAROUSEL = {
   commercial: { src: "/marketing/hero-commercial.webp", alt: "Sahara team scrubbing floors and cleaning glass partitions in a Pune office" },
   painting: { src: "/marketing/hero-painting.webp", alt: "Sahara painter rolling fresh paint on a living-room wall in Pune" },
   pest: { src: "/marketing/hero-pest.webp", alt: "Sahara pest control technician treating kitchen cabinet edges in Pune" },
+  painting2: { src: "/marketing/hero-painting-2.webp", alt: "Two Sahara painters rolling and cutting in a bedroom wall with furniture covered" },
+  painting3: { src: "/marketing/hero-painting-3.webp", alt: "Freshly painted living room in Pune with protective sheets being cleared away" },
+  pest2: { src: "/marketing/hero-pest-2.webp", alt: "Sahara technician inspecting a wardrobe base and door frame for termites" },
+  pest3: { src: "/marketing/hero-pest-3.webp", alt: "Sahara technician applying targeted treatment along a bathroom drain and skirting" },
 };
 /** All four services — for the festival / booking hero. */
 export const ALL_SERVICES_SLIDES: CarouselImage[] = [CAROUSEL.team, CAROUSEL.commercial, CAROUSEL.painting, CAROUSEL.pest];
 function heroImages(image: string, alt: string): CarouselImage[] {
   if (image === "/marketing/hero-home.webp") return [CAROUSEL.team, CAROUSEL.equipment];
   if (image === CAROUSEL.commercial.src) return [CAROUSEL.commercial, CAROUSEL.equipment];
+  if (image === CAROUSEL.painting.src) return [{ src: image, alt }, CAROUSEL.painting2, CAROUSEL.painting3];
+  if (image === CAROUSEL.pest.src) return [{ src: image, alt }, CAROUSEL.pest2, CAROUSEL.pest3];
   return [{ src: image, alt }];
 }
 
@@ -267,12 +274,13 @@ export function ScopeLists({ included, excluded, equipment = EQUIPMENT }: { incl
 // Request), preselected for the page's service.
 const SERVICE_TO_CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { HOME_DEEP_CLEANING: "HOME", COMMERCIAL_CLEANING: "COMMERCIAL", PEST_CONTROL: "PEST", PAINTING: "PAINTING" };
 
-export function QuoteSection({ title, subtitle, campaignName, defaultService, preset }: { title: string; subtitle: string; campaignName: string; defaultService?: string; preset?: { bhk: string; pkg: HomeTier } }) {
+export async function QuoteSection({ title, subtitle, campaignName, defaultService, preset }: { title: string; subtitle: string; campaignName: string; defaultService?: string; preset?: { bhk: string; pkg: HomeTier } }) {
+  const pricing = await getLivePricing();
   return (
     <section id="quote" className="scroll-mt-20">
       <h2 className="text-center text-xl font-bold sm:text-2xl">{title}</h2>
       <p className="mb-3 text-center text-sm text-[#0a2540]/70">{subtitle}</p>
-      <BookingWizard campaignName={campaignName} defaultCategory={SERVICE_TO_CATEGORY[defaultService ?? ""]} preset={preset} />
+      <BookingWizard campaignName={campaignName} defaultCategory={SERVICE_TO_CATEGORY[defaultService ?? ""]} preset={preset} pricing={pricing} />
     </section>
   );
 }
@@ -345,6 +353,91 @@ export function FinalCta({ title, waText }: { title: string; waText: string }) {
         <a href="#quote" className="rounded-full bg-white px-6 py-3 text-sm font-bold text-primary">Book Now</a>
         <a href={`tel:+91${CONTACT.call[0]}`} className="rounded-full border border-white/70 px-5 py-3 text-sm font-bold">Call {CONTACT.call[0]}</a>
         <a href={waLink(waText)} target="_blank" rel="noreferrer" className="rounded-full bg-success px-5 py-3 text-sm font-bold">WhatsApp</a>
+      </div>
+    </section>
+  );
+}
+
+// Festival marketing section (Navratri · Dussehra · Diwali). Prices come from
+// Super Admin → Pricing & Packages; renders nothing when no festival offer is
+// upcoming. Urgency is factual only: festival weeks are the busiest and the
+// booking calendar shows live team availability — no countdowns or fake stock.
+export async function FestivalSection({ bookHref = "?price=festival#quote" }: { bookHref?: string }) {
+  const { items, festivals } = await getLivePricing();
+  const today = new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
+  const upcoming = festivals.filter((f) => f.end >= today).sort((a, b) => a.start.localeCompare(b.start));
+  if (!upcoming.length) return null;
+  const current = upcoming.find((f) => f.start <= today) ?? upcoming[0];
+  const day = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
+  const rows = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"]
+    .map((bhk) => {
+      const tier = (t: HomeTier) => {
+        const it = items.find((p) => p.bhk === bhk && p.variant === t);
+        return it ? { regular: it.price, festival: current.prices[it.contentId] ?? null } : null;
+      };
+      return { bhk, premium: tier("Premium"), platinum: tier("Platinum") };
+    })
+    .filter((r) => r.premium?.festival != null || r.platinum?.festival != null);
+  if (!rows.length) return null;
+  const cell = (v: { regular: number | null; festival: number | null } | null) =>
+    !v ? (
+      <span className="text-[#0a2540]/40">—</span>
+    ) : (
+      <>
+        <span className="block text-lg font-extrabold text-amber-700 sm:text-xl">{inr(v.festival ?? v.regular ?? 0)}</span>
+        {v.festival != null && v.regular != null && <span className="block text-[11px] text-[#0a2540]/55">Regular {inr(v.regular)} · other dates</span>}
+      </>
+    );
+
+  return (
+    <section id="festival" className="scroll-mt-20 overflow-hidden rounded-3xl bg-[#0a2540] text-white shadow-lg">
+      <div className="relative">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/marketing/festival-banner.webp" alt="Festively decorated, freshly cleaned living room with diyas and marigold garlands" className="absolute inset-0 size-full object-cover" loading="lazy" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a2540]/95 via-[#0a2540]/80 to-[#0a2540]/30" />
+        <div className="relative space-y-3 p-5 sm:p-8">
+          <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-xs font-extrabold text-[#0a2540]">🪔 {upcoming.map((f) => f.name).join(" · ")}</p>
+          <h2 className="text-2xl font-extrabold leading-tight sm:text-4xl">Festival Special Home Cleaning</h2>
+          <p className="max-w-xl text-sm text-white/85 sm:text-base">
+            Limited festival slots — book your preferred date. Festival weeks are our busiest of the year and teams fill up first on the days before each festival.
+          </p>
+          <div className="flex flex-wrap gap-2 text-xs font-semibold">
+            {upcoming.map((f) => (
+              <span key={f.id} className={`rounded-full px-3 py-1 ${f.id === current.id ? "bg-white text-[#0a2540]" : "bg-white/15"}`}>
+                {f.name}: {day(f.start)} – {day(f.end)}
+                {f.id === current.id && f.start <= today ? " · now" : ""}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="bg-white p-4 text-[#0a2540] sm:p-6">
+        <p className="text-sm font-bold">{current.name} prices — full home deep cleaning</p>
+        <div className="mt-2 overflow-hidden rounded-2xl border border-[#0a2540]/10">
+          <div className="grid grid-cols-3 bg-[#0a2540]/[0.04] px-3 py-2 text-xs font-bold uppercase tracking-wide text-[#0a2540]/70">
+            <span>Size</span>
+            <span>Premium</span>
+            <span>Platinum ⭐</span>
+          </div>
+          {rows.map((r) => (
+            <div key={r.bhk} className="grid grid-cols-3 items-center border-t border-[#0a2540]/10 px-3 py-2.5">
+              <span className="font-bold">{r.bhk}</span>
+              <span>{cell(r.premium)}</span>
+              <span>{cell(r.platinum)}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-[#0a2540]/65">
+          Festival prices apply to service dates during the festival dates above; regular prices apply on all other dates. Package price applies to the selected scope — Platinum adds wall wet cleaning. Festival slots are subject to team availability; live availability is shown in the booking calendar.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a href={bookHref} className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-amber-500 px-5 text-base font-extrabold text-[#0a2540] shadow-sm hover:bg-amber-400 sm:flex-none">
+            Book Festival Cleaning
+          </a>
+          <a href={waLink(`Hi Sahara, I'd like to book ${current.name} festival home cleaning.`)} target="_blank" rel="noreferrer" className="inline-flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-success px-4 text-sm font-bold text-success">
+            <MessageCircle className="size-4" /> WhatsApp
+          </a>
+        </div>
       </div>
     </section>
   );

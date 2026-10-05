@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,7 +19,8 @@ import { Label } from "@/components/ui/label";
 import { createQuotation } from "@/server/actions/leads";
 import { formatINR } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
-import { PRICING_MASTER, lineTotal } from "@/lib/pricing-master";
+import { PRICING_MASTER, lineTotal, type PriceItem } from "@/lib/pricing-master";
+import { getCatalogueForCrm } from "@/server/actions/pricing";
 
 type LineItem = { name: string; description: string; amount: number };
 
@@ -66,6 +67,11 @@ export function QuotationDialog({
   trigger?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  // Live prices (Super Admin → Pricing & Packages); catalogue defaults until loaded.
+  const [catalogue, setCatalogue] = useState<PriceItem[]>(PRICING_MASTER);
+  useEffect(() => {
+    if (open) getCatalogueForCrm().then((p) => p && setCatalogue(p.items)).catch(() => {});
+  }, [open]);
   const [items, setItems] = useState<LineItem[]>([
     {
       name: SERVICE_LABELS[service] ?? service,
@@ -167,7 +173,7 @@ export function QuotationDialog({
             <select
               value=""
               onChange={(e) => {
-                const p = PRICING_MASTER.find((x) => x.contentId === e.target.value);
+                const p = catalogue.find((x) => x.contentId === e.target.value);
                 if (!p) return;
                 const qty = p.minQty ?? 1;
                 setItems((prev) => [
@@ -185,7 +191,7 @@ export function QuotationDialog({
               className="h-8 rounded-md border bg-background px-2 text-xs"
             >
               <option value="">+ Add from Sahara price list…</option>
-              {PRICING_MASTER.map((p) => (
+              {catalogue.map((p) => (
                 <option key={p.contentId} value={p.contentId}>
                   {p.name} — {p.price == null ? "after inspection" : `₹${p.price.toLocaleString("en-IN")}${p.unit ? ` ${p.unit}` : ""}`}
                 </option>

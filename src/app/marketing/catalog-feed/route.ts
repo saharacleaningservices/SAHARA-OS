@@ -1,4 +1,4 @@
-import { PRICING_MASTER } from "@/lib/pricing-master";
+import { getLivePricing } from "@/server/pricing";
 import descriptions from "@/lib/catalog-descriptions.json";
 
 // WhatsApp / Meta catalogue data feed generated from the Sahara pricing
@@ -16,9 +16,10 @@ const BASE = "https://booking.saharacleaningservices.com";
 const UTM = "?utm_source=whatsapp&utm_medium=catalog&utm_campaign=sahara_catalog";
 const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
 
-export function GET() {
+export async function GET() {
+  const { items } = await getLivePricing();
   const byId = descriptions as Record<string, { description: string; image: string }>;
-  const rows = PRICING_MASTER.filter((p) => p.price != null && byId[p.contentId]).map((p) => {
+  const rows = items.filter((p) => p.price != null && byId[p.contentId]).map((p) => {
     const d = byId[p.contentId];
     const price = p.mrp ?? p.price!;
     const sale = p.mrp ? `${p.price} INR` : "";

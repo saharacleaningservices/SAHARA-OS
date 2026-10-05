@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, RoomScope, QuoteSection, Faqs, Terms, OtherServices, BASE_URL, CAROUSEL, businessJsonLd, faqJsonLd, packageSlug } from "@/components/public/landing-kit";
-import { PRICING_MASTER } from "@/lib/pricing-master";
+import type { PriceItem } from "@/lib/pricing-master";
+import { getLivePricing } from "@/server/pricing";
 import { inr } from "@/lib/marketing-content";
 import { HOME_DURATION, homeHighlights, type HomeTier } from "@/lib/service-scope";
 
@@ -16,11 +17,11 @@ export const dynamic = "force-dynamic";
 const TIERS: HomeTier[] = ["Premium", "Platinum"];
 const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"];
 
-function resolve(slug: string) {
+function resolve(slug: string, items: PriceItem[]) {
   for (const bhk of BHKS) {
     for (const tier of TIERS) {
       if (packageSlug(bhk, tier) === slug) {
-        const item = PRICING_MASTER.find((p) => p.bhk === bhk && p.variant === tier);
+        const item = items.find((p) => p.bhk === bhk && p.variant === tier);
         if (item?.price != null) return { bhk, tier, price: item.price, mrp: item.mrp ?? null };
       }
     }
@@ -29,7 +30,7 @@ function resolve(slug: string) {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ pkg: string }> }): Promise<Metadata> {
-  const p = resolve((await params).pkg);
+  const p = resolve((await params).pkg, (await getLivePricing()).items);
   if (!p) return {};
   const title = `${p.bhk} ${p.tier} Home Deep Cleaning in Pune – ${inr(p.price)} | Sahara Cleaning Services`;
   const description = `${p.bhk} ${p.tier} home deep cleaning in Pune & PCMC for ${inr(p.price)}: ${homeHighlights(p.tier).join(", ")}. Room-wise scope, terms and live available slots.`;
@@ -38,11 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ pkg: stri
 }
 
 export default async function HomePackagePage({ params }: { params: Promise<{ pkg: string }> }) {
-  const p = resolve((await params).pkg);
+  const { items } = await getLivePricing();
+  const p = resolve((await params).pkg, items);
   if (!p) notFound();
   const settings = await getCompanySettings();
   const other = p.tier === "Premium" ? "Platinum" : "Premium";
-  const otherItem = PRICING_MASTER.find((x) => x.bhk === p.bhk && x.variant === other);
+  const otherItem = items.find((x) => x.bhk === p.bhk && x.variant === other);
   const WA = `Hi Sahara, I'd like to book ${p.bhk} ${p.tier} home deep cleaning.`;
   const FAQS = [
     { q: `What is included in ${p.bhk} ${p.tier}?`, a: `Complete home cleaning — rooms, kitchen, bathrooms and balcony — with ${p.tier === "Platinum" ? "wall wet cleaning" : "wall dry dusting"} and ceiling dry dusting. See the room-wise scope above.` },

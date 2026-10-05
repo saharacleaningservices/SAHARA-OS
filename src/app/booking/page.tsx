@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, HowItWorks, Faqs, Terms, OtherServices, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, HowItWorks, Faqs, Terms, OtherServices, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, FestivalSection } from "@/components/public/landing-kit";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
+import { getLivePricing } from "@/server/pricing";
 
 // Customer booking page in the approved transparent-pricing landing design.
 // /booking                → pick a package, date, available slot, payment preference
@@ -68,7 +69,7 @@ export default async function BookingPage({
   searchParams: Promise<{ quote?: string; service?: string; ref?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
 }) {
   const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
-  const [settings, quote] = await Promise.all([getCompanySettings(), loadQuote(quoteToken)]);
+  const [settings, quote, pricing] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getLivePricing()]);
 
   return (
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
@@ -88,12 +89,14 @@ export default async function BookingPage({
         {quoteToken && !quote && (
           <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">This quotation link is no longer valid. You can still book below, or call us on 8956567130 / 7083347130.</p>
         )}
+        {!quote && <FestivalSection bookHref="?price=festival#book" />}
         <section id="book" className="scroll-mt-20">
           <BookingWizard
             quote={quote}
             defaultCategory={CATEGORY[service ?? ""]}
             referralCode={ref}
             prefill={{ name: name ?? customer, mobile: mobile ?? phone }}
+            pricing={pricing}
           />
         </section>
 

@@ -13,6 +13,9 @@ import { getSlotAvailability } from "@/server/actions/slot-availability";
 import { notify } from "@/server/notify";
 import { z } from "zod";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
+import { getLivePricing } from "@/server/pricing";
+import { festivalForDate, unitPriceFor } from "@/lib/pricing-master";
+import { scopeSnapshot } from "@/lib/service-scope";
 
 const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOGLE"] as const;
 
@@ -49,6 +52,11 @@ const publicBookingSchema = z.object({
   // token when the booking comes from a quotation (/booking?quote=<token>).
   paymentPreference: z.enum(["PAY_ADVANCE", "PAY_AFTER_SERVICE"]).optional(),
   quotationToken: z.string().max(64).optional().or(z.literal("")),
+  // Price snapshot from the booking wizard: the catalogue items picked. The
+  // server re-prices them from live pricing (festival price when the service
+  // date is inside a festival window) — the browser's total is never trusted.
+  priceType: z.enum(["REGULAR", "FESTIVAL"]).optional(),
+  selectedItems: z.array(z.object({ contentId: z.string().max(40), qty: z.number().int().min(1).max(100) })).max(30).optional(),
   // Explicit WhatsApp marketing opt-in ticked by the customer (never pre-ticked).
   marketingOptIn: z.boolean().optional(),
   // Honeypot — real visitors never fill this hidden field.
@@ -159,7 +167,40 @@ export async function publicBookLead(values: unknown) {
   const priorJobs = await db.job.count({ where: { customerMobile: data.mobile, deletedAt: null } });
   const isRepeatCustomer = priorLeads + priorJobs > 0;
 
-  const estimated = data.estimatedAmount && data.estimatedAmount > 0 ? data.estimatedAmount : null;
+  // Server-side price snapshot for catalogue bookings (see selectedItems).
+  let estimated = data.estimatedAmount && data.estimatedAmount > 0 ? data.estimatedAmount : null;
+  let priceType: "REGULAR" | "FESTIVAL" | null = null;
+  let festivalName: string | null = null;
+  let scopeOfWork: string | null = null;
+  if (data.selectedItems?.length) {
+    const pricing = await getLivePricing();
+    const festival = data.serviceDate ? festivalForDate(pricing.festivals, data.serviceDate.slice(0, 10)) : null;
+    const picked = data.selectedItems
+      .map((s) => ({ s, item: pricing.items.find((p) => p.contentId === s.contentId) }))
+      .filter((x): x is { s: { contentId: string; qty: number }; item: NonNullable<typeof x.item> } => !!x.item);
+    if (picked.length !== data.selectedItems.length) return { error: "A selected package is no longer available — please refresh the page." };
+    let total = 0;
+    let allPriced = true;
+    let usedFestival = false;
+    for (const { s, item } of picked) {
+      const unit = unitPriceFor(item, festival);
+      if (unit == null) {
+        allPriced = false;
+        continue;
+      }
+      if (festival && festival.prices[item.contentId] != null) usedFestival = true;
+      total += unit * Math.max(s.qty, item.minQty ?? 1);
+    }
+    if (total > 0) estimated = total;
+    if (!allPriced && total === 0) estimated = null;
+    priceType = usedFestival ? "FESTIVAL" : "REGULAR";
+    festivalName = usedFestival ? festival!.name : null;
+    scopeOfWork = scopeSnapshot({
+      packageName: data.packageName,
+      serviceVariant: data.serviceVariant,
+      items: picked.map(({ s, item }) => ({ name: item.name, qty: Math.max(s.qty, item.minQty ?? 1), unit: item.unit })),
+    });
+  }
   const advance = data.advancePaid && data.advanceAmount && data.advanceAmount > 0 ? data.advanceAmount : 0;
   const paymentStatus = advance > 0
     ? estimated && advance >= estimated
@@ -181,6 +222,11 @@ export async function publicBookLead(values: unknown) {
           timeSlot: existingOpen.timeSlot ?? (data.timeSlot || null),
           mapLink: existingOpen.mapLink ?? (data.mapLink || null),
           paymentPreference: data.paymentPreference ?? existingOpen.paymentPreference,
+          quoteAmount: existingOpen.quoteAmount ?? estimated,
+          packageName: existingOpen.packageName ?? (data.packageName || null),
+          priceType: existingOpen.priceType ?? priceType,
+          festivalName: existingOpen.festivalName ?? festivalName,
+          scopeOfWork: existingOpen.scopeOfWork ?? scopeOfWork,
           ...(data.marketingOptIn ? { marketingConsent: "OPTED_IN", marketingConsentAt: new Date() } : {}),
           formSubmittedAt: new Date(),
           ...latestFields,
@@ -209,6 +255,9 @@ export async function publicBookLead(values: unknown) {
       packageName: data.packageName || null,
       comboServices: combos.length ? JSON.stringify(combos) : null,
       quoteAmount: estimated,
+      priceType,
+      festivalName,
+      scopeOfWork,
       advanceAmount: advance || null,
       paymentMode: data.paymentMode || null,
       paymentStatus,

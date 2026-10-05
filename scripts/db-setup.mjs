@@ -1287,3 +1287,80 @@ db.close();
   console.log("Staff App (portal, team incentives, announcements) migration complete.");
   spDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Pricing & Packages (2026-10-05, idempotent, additive only): editable price
+// overrides, festival offers with their own prices, and the price snapshot on
+// Lead/Job. Festival offers are seeded once (only when the table is empty);
+// after that Super Admin owns them in CRM → Pricing & Packages.
+// Festival dates are date-only (stored as UTC midnight of the calendar date).
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const prDb = new Database(dbPath);
+  prDb.pragma("foreign_keys = ON");
+
+  function addCol(table, column, ddl) {
+    const cols = prDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) prDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  }
+  for (const t of ["Lead", "Job"]) {
+    addCol(t, "priceType", `"priceType" TEXT`);
+    addCol(t, "festivalName", `"festivalName" TEXT`);
+    addCol(t, "scopeOfWork", `"scopeOfWork" TEXT`);
+  }
+
+  prDb.exec(`
+    CREATE TABLE IF NOT EXISTS "PriceSetting" (
+      "contentId" TEXT NOT NULL PRIMARY KEY,
+      "price" REAL,
+      "mrp" REAL,
+      "isActive" BOOLEAN NOT NULL DEFAULT true,
+      "updatedByName" TEXT,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS "FestivalOffer" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "startDate" DATETIME NOT NULL,
+      "endDate" DATETIME NOT NULL,
+      "isActive" BOOLEAN NOT NULL DEFAULT true,
+      "updatedByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS "FestivalOffer_isActive_startDate_idx" ON "FestivalOffer"("isActive", "startDate");
+    CREATE TABLE IF NOT EXISTS "FestivalPrice" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "festivalId" TEXT NOT NULL,
+      "contentId" TEXT NOT NULL,
+      "price" REAL NOT NULL,
+      CONSTRAINT "FestivalPrice_festivalId_fkey" FOREIGN KEY ("festivalId") REFERENCES "FestivalOffer" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "FestivalPrice_festivalId_contentId_key" ON "FestivalPrice"("festivalId", "contentId");
+  `);
+
+  const { c: festivalCount } = prDb.prepare(`SELECT COUNT(*) AS c FROM "FestivalOffer"`).get();
+  if (festivalCount === 0) {
+    const now = new Date().toISOString().replace("Z", "+00:00");
+    const day = (d) => `${d}T00:00:00.000+00:00`;
+    // Owner-approved festival prices (2026-10-05): Premium / Platinum, 1–3 BHK.
+    const prices = { "SCS-01": 5000, "SCS-05": 6500, "SCS-02": 5500, "SCS-06": 7000, "SCS-03": 7000, "SCS-07": 8500 };
+    const offers = [
+      ["fest_navratri_2026", "Navratri", "2026-10-01", "2026-10-19"],
+      ["fest_dussehra_2026", "Dussehra", "2026-10-20", "2026-10-25"],
+      ["fest_diwali_2026", "Diwali", "2026-10-26", "2026-11-10"],
+    ];
+    const insOffer = prDb.prepare(`INSERT INTO "FestivalOffer" ("id","name","startDate","endDate","isActive","updatedByName","createdAt","updatedAt") VALUES (?,?,?,?,1,'System seed',?,?)`);
+    const insPrice = prDb.prepare(`INSERT INTO "FestivalPrice" ("id","festivalId","contentId","price") VALUES (?,?,?,?)`);
+    prDb.transaction(() => {
+      for (const [id, name, start, end] of offers) {
+        insOffer.run(id, name, day(start), day(end), now, now);
+        for (const [contentId, price] of Object.entries(prices)) insPrice.run(`${id}_${contentId}`, id, contentId, price);
+      }
+    })();
+    console.log("Pricing: seeded Navratri / Dussehra / Diwali festival offers.");
+  }
+
+  console.log("Pricing & Packages migration complete.");
+  prDb.close();
+}

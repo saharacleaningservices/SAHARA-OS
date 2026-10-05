@@ -146,6 +146,7 @@ export async function updateJob(id: string, values: unknown) {
       ...(d.supervisorId !== undefined && { supervisorId: d.supervisorId || null }),
       ...(d.jobValue !== undefined && { jobValue: d.jobValue }),
       ...(d.notes !== undefined && { notes: d.notes || null }),
+      ...(d.scopeOfWork !== undefined && { scopeOfWork: d.scopeOfWork || null }),
     },
   });
 

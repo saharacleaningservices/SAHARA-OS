@@ -43,6 +43,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           supervisorId: job.supervisorId ?? "",
           jobValue: job.jobValue,
           notes: job.notes ?? "",
+          scopeOfWork: job.scopeOfWork ?? "",
         }}
       />
     </div>
