@@ -140,6 +140,17 @@ export function jobScopeFor(role: string): JobScope {
 // Phase 3 — Revenue, WhatsApp & Workforce Automation
 
 /** Revenue dashboard + revenue/collections tiles. Super Admin + Accounts (Profit stays owner-only). */
+/**
+ * Per-job amount, paid and balance on the Jobs list / job page — owner
+ * request 2026-10-05 so Francis can run jobs without calling the office.
+ * Operational only: no revenue totals, profit, margin, expenses or staff cost
+ * (those stay behind canViewRevenue / canViewFinancials). Field Staff see
+ * their own jobs' amounts in the Staff App (server/staff-portal.ts).
+ */
+export function canViewJobAmount(role: string): boolean {
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
+}
+
 export function canViewRevenue(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
 }

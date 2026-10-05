@@ -158,6 +158,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                   <TableHead>Service</TableHead>
                   <TableHead>Schedule</TableHead>
                   <TableHead>Team</TableHead>
+                  {showMoney && <TableHead className="text-right">Job Amount</TableHead>}
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -209,6 +210,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                           </p>
                         )}
                       </TableCell>
+                      {showMoney && <TableCell className="text-right text-sm font-semibold">{formatINR(total)}</TableCell>}
                       <TableCell className="text-sm">
                         <div className="flex flex-wrap items-center gap-1">
                           <JobStatusBadge status={job.status} />
@@ -320,7 +322,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                       {job.assignments.length > 0 && <p>Crew: {job.assignments.map((a) => a.staff.name).join(", ")}</p>}
                       {showMoney && (
                         <p>
-                          Adv {formatINR(adv)} · Bal {formatINR(bal)}
+                          Amount <span className="font-semibold text-foreground">{formatINR(total)}</span> · Adv {formatINR(adv)} · Bal {formatINR(bal)}
                         </p>
                       )}
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">

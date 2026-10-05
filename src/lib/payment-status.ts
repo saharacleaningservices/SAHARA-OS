@@ -19,3 +19,15 @@ export function computePaymentStatus(dueDate: Date, dbStatus: string): PaymentSt
 export function pendingDays(dueDate: Date): number {
   return differenceInCalendarDays(new Date(), dueDate);
 }
+
+/**
+ * Job-level collection summary shown to Francis and the crew (Job Amount,
+ * paid so far, balance, status). Same rule as the CRM job page: paid amounts
+ * come only from recorded Payment rows.
+ */
+export function jobPaymentSummary(jobValue: number, payments: { paidAmount: number | null }[]) {
+  const paid = payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+  const balance = Math.max(jobValue - paid, 0);
+  const status = balance <= 0 && paid > 0 ? "Paid" : paid > 0 ? "Partly Paid" : "Pending";
+  return { paid, balance, status } as const;
+}

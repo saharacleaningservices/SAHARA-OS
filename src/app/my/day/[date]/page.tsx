@@ -6,6 +6,7 @@ import { getMyDay, parseIsoDay, toIsoDay } from "@/server/staff-portal";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
 import { Section, StatusChip, EmptyNote, JOB_STATUS_LABEL } from "@/components/staff-app/ui";
+import { BOOKING_TERMS } from "@/lib/pricing-master";
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
 
 export const dynamic = "force-dynamic";
@@ -102,6 +103,20 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                   <b>{j.packageName || j.serviceVariant || "As per office notes"}</b>
                   {j.packageName && j.serviceVariant ? <span className="text-muted-foreground"> · {j.serviceVariant}</span> : null}
                 </div>
+                <div className="grid grid-cols-3 gap-2 rounded-lg border border-border p-2 text-center text-sm">
+                  <div>
+                    <div className="text-[11px] text-muted-foreground">Job amount</div>
+                    <div className="font-semibold">{formatINR(j.jobAmount)}</div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-muted-foreground">Paid</div>
+                    <div className="font-semibold">{formatINR(j.payment.paid)}</div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-muted-foreground">Balance · {j.payment.status}</div>
+                    <div className={`font-semibold ${j.payment.balance > 0 ? "text-amber-700" : "text-emerald-700"}`}>{formatINR(j.payment.balance)}</div>
+                  </div>
+                </div>
                 <PackageScopeCard service={j.service} packageName={j.packageName} serviceVariant={j.serviceVariant} />
                 {j.comboServices.length > 0 && (
                   <div className="text-sm">
@@ -113,6 +128,14 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                     </ul>
                   </div>
                 )}
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-xs font-semibold uppercase text-primary">Terms &amp; conditions</summary>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted-foreground">
+                    {BOOKING_TERMS.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                  </ul>
+                </details>
                 {j.notes && (
                   <div className="text-sm">
                     <div className="text-xs font-semibold uppercase text-primary">Office notes / scope / extras</div>

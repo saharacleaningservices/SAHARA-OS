@@ -5,7 +5,7 @@ import { Section } from "@/components/staff-app/ui";
 import { PushControl } from "@/components/staff-app/push-control";
 import { StaffLogoutButton } from "@/components/staff-app/logout-button";
 import { ChangePasswordDialog } from "@/components/profile/change-password-dialog";
-import { initials } from "@/lib/utils";
+import { StaffPhotoUploader } from "@/components/staff/staff-photo-uploader";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +22,7 @@ export default async function StaffAccountPage() {
     <div className="space-y-4">
       <Section>
         <div className="flex items-center gap-3">
-          <div className="flex size-14 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-            {initials(staff.name)}
-          </div>
+          <StaffPhotoUploader name={staff.name} photoUrl={staff.photoUrl} canEdit={!preview} />
           <div>
             <div className="text-lg font-bold">{staff.name}</div>
             <div className="text-sm text-muted-foreground">{staff.designation}</div>

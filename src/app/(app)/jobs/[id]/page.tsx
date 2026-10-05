@@ -20,7 +20,8 @@ import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { JobCardActions } from "@/components/jobs/job-card-actions";
 import { EmptyState } from "@/components/shared/empty-state";
-import { canViewRevenue, canManageStaffFinancials } from "@/lib/permissions";
+import { canViewRevenue, canViewJobAmount, canManageStaffFinancials } from "@/lib/permissions";
+import { BOOKING_TERMS } from "@/lib/pricing-master";
 import { TeamIncentiveCard } from "@/components/jobs/team-incentive-card";
 import { db } from "@/lib/db";
 import { formatINR, formatDate, formatDateTime, toTelLink, toWhatsAppLink } from "@/lib/utils";
@@ -49,6 +50,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   // Job value, advance, balance, invoices — owner + Accounts only. Francis
   // and field roles get job information without any money figures.
   const showMoney = canViewRevenue(session.role);
+  // Job amount / advance / balance — also Operations & Supervisor (no payment ledger, expenses or profit).
+  const showJobAmount = canViewJobAmount(session.role);
   const canIncentive = canManageStaffFinancials(session.role);
   const [vehicles, { googleMaps }, settings, teamIncentive] = await Promise.all([
     canManage ? getVehiclesForAssignment() : Promise.resolve([]),
@@ -90,9 +93,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     supervisor: job.supervisor?.name ?? null,
     // Money only for roles that may see it — this text is sent to the client
     // as a prop, so hiding it in the UI alone would still leak it to Staff/Operations.
-    paymentStatus: showMoney ? paymentStatus : null,
-    advance: showMoney ? advance : null,
-    balance: showMoney ? balance : null,
+    paymentStatus: showJobAmount ? paymentStatus : null,
+    advance: showJobAmount ? advance : null,
+    balance: showJobAmount ? balance : null,
     notes: job.notes,
   } as const;
   const officeCardText = jobCardMessage({ ...cardBase, audience: "office" });
@@ -194,10 +197,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     {formatDate(job.scheduledDate)} · {job.scheduledTime}
                   </p>
                 </div>
-                {showMoney && (
+                {showJobAmount && (
                   <>
                 <div>
-                  <p className="text-xs text-muted-foreground">Job Value</p>
+                  <p className="text-xs text-muted-foreground">Job Amount</p>
                   <p className="font-medium text-foreground">{formatINR(job.jobValue)}</p>
                 </div>
                 <div>
@@ -246,6 +249,18 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </Card>
 
           <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} />
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Terms &amp; conditions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
+                {BOOKING_TERMS.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">

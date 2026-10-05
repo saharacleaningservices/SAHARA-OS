@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
+import { StaffPhotoUploader } from "@/components/staff/staff-photo-uploader";
 import { canViewSalary, canManageStaffFinancials, canManageAttendance } from "@/lib/permissions";
 import { getStaffLedger, getMonthMatrix } from "@/server/attendance";
 import { StaffAppAccessCard } from "@/components/staff/staff-app-access-card";
@@ -58,6 +59,13 @@ export default async function StaffDetailPage({
 
   return (
     <div className="space-y-6">
+      <StaffPhotoUploader
+        staffId={staff.id}
+        name={staff.name}
+        photoUrl={staff.photoUrl}
+        canEdit={["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(session.role)}
+        size={72}
+      />
       <PageHeader
         title={staff.name}
         description={`${staff.employeeCode} · ${staff.designation}`}

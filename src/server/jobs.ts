@@ -40,7 +40,8 @@ export async function getAllJobsForList(session?: SessionPayload) {
     include: {
       supervisor: { select: { name: true } },
       assignments: { include: { staff: { select: { name: true } } } },
-      payments: { select: { status: true, amount: true, paidAmount: true } },
+      // Trashed (soft-deleted) payments never count as paid.
+      payments: { where: { deletedAt: null }, select: { status: true, amount: true, paidAmount: true } },
       vehicle: { select: { name: true, plateNumber: true } },
     },
   });
@@ -117,7 +118,7 @@ export async function getJobDetail(id: string) {
       videos: { orderBy: { uploadedAt: "desc" } },
       materialIssues: { orderBy: { issuedAt: "desc" } },
       certificate: true,
-      payments: true,
+      payments: { where: { deletedAt: null } },
       invoice: true,
       // Expenses linked to this job (fuel, material, staff advance, vendor
       // payment, etc. tagged with jobId when recorded) — surfaced on the
