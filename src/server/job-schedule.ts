@@ -15,23 +15,35 @@ import { sendBookingChangeNotice } from "@/server/booking-messages";
 import { addTimelineEntry } from "@/server/timeline";
 
 /** Job status → lead stage. On the Way / Started keep the lead at "Job Scheduled". */
+/** @deprecated single-job mapping kept for reference; syncLeadFromJob aggregates all jobs. */
 export function leadStageForJobStatus(status: string): "JOB_SCHEDULED" | "COMPLETED" | "CANCELLED" {
   if (status === "COMPLETED") return "COMPLETED";
   if (status === "CANCELLED") return "CANCELLED";
   return "JOB_SCHEDULED";
 }
 
-/** Mirror the job's schedule + status onto its enquiry (if any). */
+/**
+ * Mirror the job(s) onto the enquiry. An enquiry can have more than one job
+ * (e.g. a second service added from Jobs → New Job), so:
+ *   stage = Job Scheduled while ANY job is still active; otherwise Completed if
+ *           any job was completed, else Cancelled;
+ *   date  = the only job's date/slot, or with several jobs the earliest
+ *           still-active job (left unchanged when none is active).
+ */
 export async function syncLeadFromJob(jobId: string, authorId?: string | null) {
-  const job = await db.job.findUnique({ where: { id: jobId }, select: { leadId: true, jobNumber: true, status: true, scheduledDate: true, scheduledTime: true } });
+  const job = await db.job.findUnique({ where: { id: jobId }, select: { leadId: true, jobNumber: true, status: true } });
   if (!job?.leadId) return;
-  const lead = await db.lead.findUnique({ where: { id: job.leadId }, select: { stage: true, serviceDate: true, timeSlot: true, followUpDate: true } });
-  if (!lead) return;
-  const stage = leadStageForJobStatus(job.status);
-  const sameDate = lead.serviceDate?.getTime() === job.scheduledDate.getTime();
+  const [lead, jobs] = await Promise.all([
+    db.lead.findUnique({ where: { id: job.leadId }, select: { stage: true, serviceDate: true, timeSlot: true } }),
+    db.job.findMany({ where: { leadId: job.leadId, deletedAt: null }, orderBy: { scheduledDate: "asc" }, select: { status: true, scheduledDate: true, scheduledTime: true } }),
+  ]);
+  if (!lead || jobs.length === 0) return;
+  const active = jobs.filter((j) => j.status !== "COMPLETED" && j.status !== "CANCELLED");
+  const stage: "JOB_SCHEDULED" | "COMPLETED" | "CANCELLED" = active.length ? "JOB_SCHEDULED" : jobs.some((j) => j.status === "COMPLETED") ? "COMPLETED" : "CANCELLED";
+  const mirror = jobs.length === 1 ? jobs[0] : active[0];
   const data = {
-    ...(!sameDate && { serviceDate: job.scheduledDate, followUpDate: job.scheduledDate }),
-    ...(lead.timeSlot !== job.scheduledTime && { timeSlot: job.scheduledTime }),
+    ...(mirror && lead.serviceDate?.getTime() !== mirror.scheduledDate.getTime() && { serviceDate: mirror.scheduledDate, followUpDate: mirror.scheduledDate }),
+    ...(mirror && lead.timeSlot !== mirror.scheduledTime && { timeSlot: mirror.scheduledTime }),
     ...(lead.stage !== stage && { stage }),
   };
   if (Object.keys(data).length === 0) return;
@@ -49,10 +61,15 @@ export async function syncLeadFromJob(jobId: string, authorId?: string | null) {
 
 /** The enquiry's active job (not deleted, not cancelled/completed), if any. */
 export async function activeJobForLead(leadId: string) {
-  return db.job.findFirst({
-    where: { leadId, deletedAt: null, status: { notIn: ["CANCELLED", "COMPLETED"] } },
+  const jobs = await db.job.findMany({
+    where: { leadId, deletedAt: null },
     select: { id: true, jobNumber: true, status: true, scheduledDate: true, scheduledTime: true, assignments: { select: { staffId: true } } },
   });
+  // Only an enquiry with exactly ONE job is rescheduled from the enquiry side;
+  // with several jobs the office reschedules each job on its own page.
+  if (jobs.length !== 1) return null;
+  const j = jobs[0];
+  return j.status === "CANCELLED" || j.status === "COMPLETED" ? null : j;
 }
 
 /**

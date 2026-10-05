@@ -12,21 +12,12 @@ function bump(staffId: string) {
   revalidatePath("/attendance");
 }
 
-export async function addAdvance(staffId: string, amount: number, reason: string) {
-  const session = await getSession();
-  if (!session || !canManageStaffFinancials(session.role)) return { error: "Not authorized" };
-  if (!amount || amount <= 0) return { error: "Enter a valid amount" };
-
-  const row = await db.advance.create({ data: { staffId, amount, reason: reason || null, givenByName: session.name } });
-  await notifyStaff([staffId], {
-    kind: "STAFF_ADVANCE",
-    title: `Advance recorded: ${formatINR(amount)}`,
-    body: reason || undefined,
-    href: dayHref(row.givenAt, `adv-${row.id}`),
-    recordId: row.id,
-  });
-  bump(staffId);
-  return { success: true as const };
+/**
+ * Retired (owner QA 05-Oct-2026): new advances are recorded only in the Khata
+ * ledger (recordStaffTransaction → Advance). Existing Advance rows stay and keep counting.
+ */
+export async function addAdvance() {
+  return { error: "Advances and loans are recorded in the Khata ledger (Staff → Khata ledger → Add payment)." };
 }
 
 export async function addFine(staffId: string, type: string, amount: number, notes: string) {

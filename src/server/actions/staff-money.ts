@@ -69,6 +69,13 @@ export async function recordStaffTransaction(values: unknown) {
   const when = new Date(`${v.date}T12:00:00+05:30`);
   const text = [LABEL[v.type], v.note].filter(Boolean).join(" · ");
   const isLoan = v.type === "LOAN" || v.type === "LOAN_RECOVERY";
+  // Double-submit guard: the same entry (staff, amount, date, description) saved again
+  // within 2 minutes is refused, so a double tap can never create two financial rows.
+  const since = new Date(Date.now() - 2 * 60 * 1000);
+  const twin = isLoan
+    ? await db.staffLoanEntry.findFirst({ where: { staffId: staff.id, amount: v.amount, date: when, source: "MANUAL", deletedAt: null, createdAt: { gte: since }, description: { startsWith: text } } })
+    : await db.staffLedgerEntry.findFirst({ where: { staffId: staff.id, amount: v.amount, date: when, kind: v.type === "SALARY" ? "SALARY_PAID" : v.type, source: "MANUAL", deletedAt: null, createdAt: { gte: since } } });
+  if (twin) return { error: "This entry was just saved — check the ledger before adding it again." };
   let createdId: string;
 
   if (isLoan) {
