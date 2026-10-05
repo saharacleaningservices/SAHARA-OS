@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { addAdvance, addFine, addReward } from "@/server/actions/staff-financial";
+import { addFine, addReward } from "@/server/actions/staff-financial";
 import { formatINR } from "@/lib/utils";
 import { FINE_TYPES, REWARD_TYPES } from "@/lib/constants";
 
@@ -51,8 +51,7 @@ export function PayrollLedgerCard({
   function submit() {
     startTransition(async () => {
       let res;
-      if (dialog === "advance") res = await addAdvance(staffId, Number(amount), reasonOrType);
-      else if (dialog === "fine") res = await addFine(staffId, reasonOrType, Number(amount), notes);
+      if (dialog === "fine") res = await addFine(staffId, reasonOrType, Number(amount), notes);
       else if (dialog === "reward") res = await addReward(staffId, reasonOrType, Number(amount), notes);
       if (res?.error) {
         toast.error(res.error);

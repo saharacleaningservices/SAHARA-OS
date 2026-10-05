@@ -11,44 +11,10 @@ import { notifyStaff } from "@/server/staff-notify";
 import { getSession } from "@/lib/session";
 import { canManageStaffFinancials } from "@/lib/permissions";
 
-const schema = z.object({
-  staffId: z.string().min(1),
-  kind: z.enum(["LOAN_GIVEN", "LOAN_REPAID"]),
-  amount: z.number().positive().max(10_000_000),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  fromSalary: z.boolean().default(false),
-  description: z.string().trim().max(300).optional(),
-});
 
-export async function addLoanEntry(values: unknown) {
-  const session = await getSession();
-  if (!session || !canManageStaffFinancials(session.role)) return { error: "Not authorized" };
-  const parsed = schema.safeParse(values);
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid loan entry" };
-  const { staffId, kind, amount, date, fromSalary, description } = parsed.data;
-  const staff = await db.staff.findUnique({ where: { id: staffId }, select: { id: true } });
-  if (!staff) return { error: "Staff not found" };
-  if (kind === "LOAN_REPAID") {
-    const out = await db.staffLoanEntry.aggregate({ where: { staffId, deletedAt: null }, _sum: { signedAmount: true } });
-    if (amount > (out._sum.signedAmount ?? 0) + 0.001) return { error: "Repayment is more than the loan remaining." };
-  }
-  await db.staffLoanEntry.create({
-    data: {
-      staffId,
-      date: new Date(`${date}T12:00:00+05:30`),
-      kind,
-      amount,
-      signedAmount: kind === "LOAN_GIVEN" ? amount : -amount,
-      fromSalary: kind === "LOAN_REPAID" ? fromSalary : false,
-      description: description || (kind === "LOAN_GIVEN" ? "Loan given" : fromSalary ? "Loan cut from salary" : "Loan repaid"),
-      source: "MANUAL",
-      createdByName: session.name,
-    },
-  });
-  revalidatePath(`/staff/${staffId}`);
-  revalidatePath("/my");
-  revalidatePath("/my/records");
-  return { ok: true };
+/** Retired (owner QA 05-Oct-2026): loans and recoveries are recorded only in the Khata ledger. */
+export async function addLoanEntry() {
+  return { error: "Advances and loans are recorded in the Khata ledger (Staff → Khata ledger → Add payment)." };
 }
 
 export async function removeLoanEntry(id: string) {
