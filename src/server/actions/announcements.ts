@@ -99,14 +99,13 @@ export async function publishAnnouncement(values: unknown) {
     recordId: row.id,
     important: Boolean(important),
   };
-  // Important → notification to every recipient. Normal → shown in the app only (owner rule).
+  // Every office announcement alerts its recipients (in-app + push with sound/vibration);
+  // Important ones are marked critical (stay on screen, stronger vibration).
   let sentTo = 0;
-  if (important) {
-    if (audience === "ALL") sentTo = await notifyAllStaffUsers(push);
-    else {
-      await notifyStaff(recipients, push);
-      sentTo = recipients.length;
-    }
+  if (audience === "ALL") sentTo = await notifyAllStaffUsers(push);
+  else {
+    await notifyStaff(recipients, push);
+    sentTo = recipients.length;
   }
   revalidatePath("/admin/announcements");
   revalidatePath("/my", "layout");

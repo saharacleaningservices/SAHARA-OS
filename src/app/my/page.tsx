@@ -54,16 +54,6 @@ export default async function StaffHomePage() {
         </div>
       </section>
 
-      {!preview && <NotifNudge label={t("turnOnAlerts")} />}
-
-      {onInitialPin && (
-        <Link href="/my/account" className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
-          <KeyRound className="size-5 shrink-0 text-warning" />
-          <span className="flex-1 font-medium">{t("makePinPrivate")}</span>
-          <ChevronRight className="size-4 text-muted-foreground" />
-        </Link>
-      )}
-
       {/* 📅 Today's Work */}
       <section className="rounded-3xl border border-border bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between gap-2">
@@ -126,6 +116,16 @@ export default async function StaffHomePage() {
           </a>
         )}
       </section>
+
+      {!preview && <NotifNudge label={t("turnOnAlerts")} />}
+
+      {onInitialPin && (
+        <Link href="/my/account" className="flex items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-3 text-sm">
+          <KeyRound className="size-5 shrink-0 text-warning" />
+          <span className="flex-1 font-medium">{t("makePinPrivate")}</span>
+          <ChevronRight className="size-4 text-muted-foreground" />
+        </Link>
+      )}
 
       {/* 📆 Attendance this month */}
       <Link href="/my/calendar" className="block rounded-3xl border border-border bg-card p-4 shadow-sm">

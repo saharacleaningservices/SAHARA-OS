@@ -170,6 +170,7 @@ export async function reverseStaffTransaction(entryId: string, reason: string) {
       meta: JSON.stringify({ reversedId: e.id, recordId: row.id }),
     },
   });
+  await notifyStaff([e.staffId], { kind: "STAFF_PAYMENT", title: `Correction: ${e.description ?? e.kind} ₹${e.amount.toLocaleString("en-IN")} reversed`, body: reason.trim(), href: "/my/records?tab=ledger", recordId: row.id });
   refresh(e.staffId);
   return { ok: true as const };
 }

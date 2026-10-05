@@ -26,7 +26,6 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
   const t = staffT(lang);
   const inr = (n: number) => inrFor(lang, n);
   const href = (k: Tab, y = year) => `/my/records?tab=${k}&year=${y}`;
-  const monthName = (m: number) => new Date(year, m - 1, 1).toLocaleDateString(staffLocale(lang), { month: "long" });
   const fmt = (d: Date) => d.toLocaleDateString(staffLocale(lang), { day: "numeric", month: "short" });
   const cut = money.cutover;
   const slipHref = (m: number) => (preview ? `/api/staff/${staff.id}/payslip/pdf?year=${year}&month=${m}` : `/api/my/payslip?year=${year}&month=${m}`);
@@ -41,7 +40,8 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
     return { ...m, due: Math.round(run * 100) / 100 };
   });
   const visibleMonths = monthRows.filter((m) => m.salary || m.paid || m.opening || m.fare || (isThisYear && m.month === now.getMonth() + 1));
-  const COLS = "grid grid-cols-[minmax(0,1fr)_2.5rem_4.75rem_4.75rem_4.75rem] gap-x-2";
+  const monthShort = (m: number) => new Date(year, m - 1, 1).toLocaleDateString(staffLocale(lang), { month: "short" });
+  const yearOpening = monthRows.reduce((s2, m) => s2 + m.opening, 0);
 
   return (
     <div className="space-y-4">
@@ -82,50 +82,69 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
 
       {tab === "salary" && (
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <div className={cn(COLS, "border-b border-border bg-muted/50 px-3 py-2 text-[11px] font-bold uppercase text-muted-foreground")}>
-            <span>{t("month")}</span>
-            <span className="text-right">{t("workDays")}</span>
-            <span className="text-right">{t("salary")}</span>
-            <span className="text-right">{t("paid")}</span>
-            <span className="text-right">{t("due")}</span>
-          </div>
-          {visibleMonths.length === 0 && <p className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</p>}
-          {visibleMonths
-            .slice()
-            .reverse()
-            .map((m) => (
-              <div key={m.month} className={cn(COLS, "items-start border-b border-border px-3 py-3 text-sm")}>
-                <span className="min-w-0 font-semibold">
-                  {monthName(m.month)}
-                  {slipOk(m.month) && (m.salary || m.paid) ? (
-                    <a href={slipHref(m.month)} target="_blank" rel="noreferrer" className="flex items-center gap-0.5 text-[11px] font-medium text-primary">
-                      <FileDown className="size-3" /> {t("salarySlip")}
-                    </a>
-                  ) : null}
-                  {m.opening ? <span className="block text-[11px] font-normal text-muted-foreground">{t("oldBalance")}: {signed(lang, m.opening)}</span> : null}
-                </span>
-                <span className="text-right tabular-nums">{m.workDays}</span>
-                <span className="text-right font-bold tabular-nums text-success">
-                  {inr(m.salary)}
-                  {m.fare ? <span className="block text-[10px] font-medium text-muted-foreground">+{t("autoFare")} {inr(m.fare)}</span> : null}
-                </span>
-                <span className="text-right font-bold tabular-nums text-destructive">{inr(m.paid)}</span>
-                <span className={cn("text-right font-extrabold tabular-nums", m.due < 0 ? "text-destructive" : "")}>{signed(lang, m.due)}</span>
-              </div>
-            ))}
-          {data.startBalance !== 0 && (
-            <div className={cn(COLS, "border-b border-border px-3 py-2 text-xs text-muted-foreground")}>
-              <span className="col-span-4">{t("oldBalance")} ({year - 1})</span>
-              <span className="text-right font-bold tabular-nums">{signed(lang, data.startBalance)}</span>
-            </div>
-          )}
-          <div className={cn(COLS, "bg-muted/50 px-3 py-2.5 text-sm font-extrabold")}>
-            <span>{t("totalDue")}</span>
-            <span className="text-right tabular-nums">{visibleMonths.reduce((s2, m) => s2 + m.workDays, 0)}</span>
-            <span className="text-right tabular-nums text-success">{inr(visibleMonths.reduce((s2, m) => s2 + m.salary + m.fare, 0))}</span>
-            <span className="text-right tabular-nums text-destructive">{inr(visibleMonths.reduce((s2, m) => s2 + m.paid, 0))}</span>
-            <span className="text-right tabular-nums">{signed(lang, data.endBalance)}</span>
-          </div>
+          {/* Fixed-width table: columns never overlap or wrap on a 360px phone. */}
+          <table className="w-full table-fixed text-[13px] tabular-nums">
+            <colgroup>
+              <col className="w-[24%]" />
+              <col className="w-[11%]" />
+              <col className="w-[22%]" />
+              <col className="w-[21%]" />
+              <col className="w-[22%]" />
+            </colgroup>
+            <thead className="bg-muted/50 text-[11px] font-bold uppercase text-muted-foreground">
+              <tr>
+                <th className="py-2 pl-3 text-left font-bold">{t("month")}</th>
+                <th className="py-2 text-right font-bold">{t("daysShort")}</th>
+                <th className="py-2 text-right font-bold">{t("salary")}</th>
+                <th className="py-2 text-right font-bold">{t("paid")}</th>
+                <th className="py-2 pr-3 text-right font-bold">{t("due")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {visibleMonths.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</td>
+                </tr>
+              )}
+              {visibleMonths
+                .slice()
+                .reverse()
+                .map((m) => (
+                  <tr key={m.month} className="align-top">
+                    <td className="py-2.5 pl-3 font-semibold">
+                      <span className="block truncate">{monthShort(m.month)}</span>
+                      {slipOk(m.month) && (m.salary || m.paid) ? (
+                        <a href={slipHref(m.month)} target="_blank" rel="noreferrer" className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] font-medium text-primary">
+                          <FileDown className="size-3" /> {t("salarySlip")}
+                        </a>
+                      ) : null}
+                    </td>
+                    <td className="py-2.5 text-right">{m.workDays}</td>
+                    <td className="whitespace-nowrap py-2.5 text-right font-bold text-success">
+                      {inr(m.salary)}
+                      {m.fare ? <span className="block text-[10px] font-medium text-muted-foreground">+{inr(m.fare)} {t("fareShort")}</span> : null}
+                    </td>
+                    <td className="whitespace-nowrap py-2.5 text-right font-bold text-destructive">{inr(m.paid)}</td>
+                    <td className={cn("whitespace-nowrap py-2.5 pr-3 text-right font-extrabold", m.due < 0 && "text-destructive")}>{signed(lang, m.due)}</td>
+                  </tr>
+                ))}
+              {data.startBalance + yearOpening !== 0 && (
+                <tr className="bg-muted/30 text-xs text-muted-foreground">
+                  <td colSpan={4} className="py-2 pl-3">{t("oldBalance")}</td>
+                  <td className="whitespace-nowrap py-2 pr-3 text-right font-bold">{signed(lang, data.startBalance + yearOpening)}</td>
+                </tr>
+              )}
+            </tbody>
+            <tfoot className="bg-muted/50 font-extrabold">
+              <tr>
+                <td className="py-2.5 pl-3">{t("totalDue")}</td>
+                <td className="py-2.5 text-right">{visibleMonths.reduce((s2, m) => s2 + m.workDays, 0)}</td>
+                <td className="whitespace-nowrap py-2.5 text-right text-success">{inr(visibleMonths.reduce((s2, m) => s2 + m.salary + m.fare, 0))}</td>
+                <td className="whitespace-nowrap py-2.5 text-right text-destructive">{inr(visibleMonths.reduce((s2, m) => s2 + m.paid, 0))}</td>
+                <td className="whitespace-nowrap py-2.5 pr-3 text-right">{signed(lang, data.endBalance)}</td>
+              </tr>
+            </tfoot>
+          </table>
         </section>
       )}
 

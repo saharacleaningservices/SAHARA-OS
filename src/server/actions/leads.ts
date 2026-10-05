@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { notifyCrewAssigned } from "@/server/job-team";
 import { getSession } from "@/lib/session";
+import { rescheduleJobFromLead, syncLeadFromJob } from "@/server/job-schedule";
 import {
   leadSchema,
   quickCaptureSchema,
@@ -38,7 +39,9 @@ import { channelForManualLead } from "@/lib/attribution";
  */
 async function assertLeadEditable(leadId: string): Promise<{ error: string } | null> {
   const session = await getSession();
-  if (!session || (session.role !== "SUPERVISOR" && session.role !== "OPERATIONS")) return null;
+  // Field Staff / signed-out callers never edit enquiries (defence in depth behind the middleware).
+  if (!session || session.role === "STAFF") return { error: "Not authorized" };
+  if (session.role !== "SUPERVISOR" && session.role !== "OPERATIONS") return null;
   const lead = await db.lead.findUnique({
     where: { id: leadId },
     select: { followUpDate: true, serviceDate: true, createdAt: true, stage: true, assignedToId: true, createdById: true },
@@ -263,6 +266,7 @@ export async function updateLead(id: string, values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
   }
   const data = parsed.data;
+  const before = await db.lead.findUnique({ where: { id }, select: { serviceDate: true, timeSlot: true } });
   await db.lead.update({
     where: { id },
     data: {
@@ -312,6 +316,22 @@ export async function updateLead(id: string, values: unknown) {
       ...(data.mapLink !== undefined && { mapLink: data.mapLink || null }),
     },
   });
+  // Booked enquiry: a date/slot the office actually changed here moves the job too
+  // (schedule, calendar, customer notice, crew). Re-saving an unchanged form never
+  // moves the job — the job stays the source of truth for the schedule.
+  const newDate = data.serviceDate ? new Date(data.serviceDate) : null;
+  const dateChanged = data.serviceDate !== undefined && (newDate?.getTime() ?? null) !== (before?.serviceDate?.getTime() ?? null);
+  const slotChanged = data.timeSlot !== undefined && (data.timeSlot || null) !== (before?.timeSlot ?? null);
+  if (dateChanged || slotChanged) {
+    const session = await getSession();
+    const jobId = await rescheduleJobFromLead(id, dateChanged ? newDate : null, slotChanged ? data.timeSlot || null : null, session?.sub);
+    if (jobId) {
+      await syncLeadFromJob(jobId, session?.sub);
+      revalidatePath("/jobs");
+      revalidatePath(`/jobs/${jobId}`);
+      revalidatePath("/dashboard");
+    }
+  }
   revalidatePath("/leads");
   revalidatePath(`/leads/${id}`);
   return { success: true, leadId: id };
@@ -350,10 +370,17 @@ export async function updateLeadStage(leadId: string, stage: LeadStage) {
   }
 
   const session = await getSession();
+  if (!session || session.role === "STAFF") return { error: "Not authorized", success: false as const };
   const current = await db.lead.findUnique({
     where: { id: leadId },
     select: { stage: true, followUpDate: true, serviceDate: true, createdAt: true, assignedToId: true, createdById: true },
   });
+  // A booked enquiry's stage follows its job — change the job status instead,
+  // so the job, schedule, staff and customer stay consistent.
+  const job = await db.job.findFirst({ where: { leadId, deletedAt: null }, select: { jobNumber: true } });
+  if (job && (stage === "JOB_SCHEDULED" || stage === "COMPLETED" || stage === "CANCELLED")) {
+    return { error: `This enquiry has job ${job.jobNumber} — update the job status (it updates the enquiry too).`, success: false as const };
+  }
   if ((session?.role === "SUPERVISOR" || session?.role === "OPERATIONS") && (!current || !canAccessLead(session, current))) {
     return { error: "You can only update today's and tomorrow's leads/bookings", success: false as const };
   }
@@ -380,6 +407,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
   }
   const data = parsed.data;
   const session = await getSession();
+  if (!session || session.role === "STAFF") return { error: "Not authorized", success: false as const };
 
   const lead = await db.lead.findUnique({ where: { id: leadId } });
   if (!lead) return { error: "Lead not found", success: false as const };
@@ -387,10 +415,14 @@ export async function confirmBooking(leadId: string, values: unknown) {
     return { error: "You can only confirm bookings for today's and tomorrow's leads", success: false as const };
   }
 
-  const existingJob = await db.job.findFirst({ where: { leadId } });
+  const existingJob = await db.job.findFirst({ where: { leadId, deletedAt: null }, select: { jobNumber: true } });
   if (existingJob) {
-    return { error: "This enquiry already has a job.", success: false as const };
+    return { error: `This enquiry already has job ${existingJob.jobNumber}.`, success: false as const };
   }
+  // Atomic claim: only one confirm can move the enquiry to "Job Scheduled", so a
+  // double click / two users can never create two jobs for the same enquiry.
+  const claimed = await db.lead.updateMany({ where: { id: leadId, stage: { notIn: ["JOB_SCHEDULED", "COMPLETED"] } }, data: { stage: "JOB_SCHEDULED" } });
+  if (claimed.count === 0) return { error: "This booking is already confirmed.", success: false as const };
 
   const scheduledDate = new Date(data.serviceDate);
   // Transparent-pricing bookings keep their real total (no minimum booking
@@ -401,7 +433,8 @@ export async function confirmBooking(leadId: string, values: unknown) {
   const teamNumber = normalizeTeam(data.teamNumber) ?? lead.teamNumber ?? null;
 
   const jobNumber = await generateJobNumber();
-  const job = await db.job.create({
+  const job = await db.job
+    .create({
     data: {
       jobNumber,
       leadId,
@@ -429,7 +462,11 @@ export async function confirmBooking(leadId: string, values: unknown) {
       jobValue,
       notes: `Auto-created from enquiry ${lead.leadNumber}`,
     },
-  });
+  })
+    .catch(async (err) => {
+      await db.lead.update({ where: { id: leadId }, data: { stage: lead.stage } }); // release the claim
+      throw err;
+    });
 
   // Carry the lead's assigned crew (multi-staff) onto the job.
   const leadStaffIds: string[] = lead.assignedStaffIds

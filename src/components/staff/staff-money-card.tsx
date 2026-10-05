@@ -3,11 +3,11 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Landmark, Loader2, Trash2 } from "lucide-react";
+import { Landmark, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { addAutoFare, addLoanEntry, removeLoanEntry } from "@/server/actions/staff-loan";
+import { addAutoFare, removeLoanEntry } from "@/server/actions/staff-loan";
 
 type Loan = { id: string; date: Date; kind: string; amount: number; signedAmount: number; fromSalary: boolean; description: string | null; source: string; createdByName: string | null };
 const inr = (n: number) => `₹${Math.abs(n).toLocaleString("en-IN")}`;
@@ -30,22 +30,7 @@ export function StaffMoneyCard({
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const [kind, setKind] = useState<"LOAN_GIVEN" | "LOAN_REPAID">("LOAN_GIVEN");
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [fromSalary, setFromSalary] = useState(true);
-  const [note, setNote] = useState("");
-
-  function save() {
-    start(async () => {
-      const res = await addLoanEntry({ staffId, kind, amount: Number(amount), date, fromSalary, description: note });
-      if ("error" in res && res.error) return void toast.error(res.error);
-      toast.success("Loan entry saved");
-      setAmount("");
-      setNote("");
-      router.refresh();
-    });
-  }
+  const [date, setDate] = useState(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }));
   const [fare, setFare] = useState("");
   const [fareNote, setFareNote] = useState("");
   function saveFare() {
@@ -95,44 +80,19 @@ export function StaffMoneyCard({
           </div>
         </div>
 
+        {canManage && <p className="text-xs text-muted-foreground">Loan given / loan recovery: use the Khata ledger → Add payment (one entry point).</p>}
+
         {canManage && (
-          <div className="grid gap-2 rounded-lg border p-3 sm:grid-cols-[9rem_7rem_9rem_1fr_auto] sm:items-end">
+          <div className="grid gap-2 rounded-lg border p-3 sm:grid-cols-[7rem_9rem_1fr_auto] sm:items-end">
             <label className="text-xs">
-              Type
-              <select value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} className="mt-0.5 h-9 w-full rounded-md border bg-background px-2 text-sm">
-                <option value="LOAN_GIVEN">Loan given</option>
-                <option value="LOAN_REPAID">Loan repaid</option>
-              </select>
-            </label>
-            <label className="text-xs">
-              Amount ₹
-              <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-0.5 h-9" />
+              Auto fare ₹
+              <Input inputMode="decimal" value={fare} onChange={(e) => setFare(e.target.value)} className="mt-0.5 h-9" />
             </label>
             <label className="text-xs">
               Date
               <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-0.5 h-9" />
             </label>
-            <div className="space-y-1">
-              {kind === "LOAN_REPAID" && (
-                <label className="flex items-center gap-1.5 text-xs">
-                  <input type="checkbox" checked={fromSalary} onChange={(e) => setFromSalary(e.target.checked)} /> Cut from salary (also reduces Salary Due)
-                </label>
-              )}
-              <Input placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} className="h-9" />
-            </div>
-            <Button onClick={save} disabled={pending || !(Number(amount) > 0)}>
-              {pending ? <Loader2 className="size-4 animate-spin" /> : null} Save
-            </Button>
-          </div>
-        )}
-
-        {canManage && (
-          <div className="grid gap-2 rounded-lg border p-3 sm:grid-cols-[7rem_1fr_auto] sm:items-end">
-            <label className="text-xs">
-              Auto fare ₹
-              <Input inputMode="decimal" value={fare} onChange={(e) => setFare(e.target.value)} className="mt-0.5 h-9" />
-            </label>
-            <Input placeholder="Site / note (date as above)" value={fareNote} onChange={(e) => setFareNote(e.target.value)} className="h-9" />
+            <Input placeholder="Site / note" value={fareNote} onChange={(e) => setFareNote(e.target.value)} className="h-9" />
             <Button variant="outline" onClick={saveFare} disabled={pending || !(Number(fare) > 0)}>
               Add auto fare
             </Button>
