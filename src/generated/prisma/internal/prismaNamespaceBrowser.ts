@@ -100,7 +100,11 @@ export const ModelName = {
   MarketingSpend: 'MarketingSpend',
   PriceSetting: 'PriceSetting',
   FestivalOffer: 'FestivalOffer',
-  FestivalPrice: 'FestivalPrice'
+  FestivalPrice: 'FestivalPrice',
+  StaffLedgerEntry: 'StaffLedgerEntry',
+  StaffLoanEntry: 'StaffLoanEntry',
+  KhataImportBatch: 'KhataImportBatch',
+  KhataImportLog: 'KhataImportLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -172,6 +176,7 @@ export const StaffScalarFieldEnum = {
   isActive: 'isActive',
   photoUrl: 'photoUrl',
   notes: 'notes',
+  ledgerCutoverAt: 'ledgerCutoverAt',
   qrCode: 'qrCode',
   userId: 'userId',
   createdAt: 'createdAt',
@@ -1072,6 +1077,90 @@ export const FestivalPriceScalarFieldEnum = {
 } as const
 
 export type FestivalPriceScalarFieldEnum = (typeof FestivalPriceScalarFieldEnum)[keyof typeof FestivalPriceScalarFieldEnum]
+
+
+export const StaffLedgerEntryScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  date: 'date',
+  kind: 'kind',
+  amount: 'amount',
+  signedAmount: 'signedAmount',
+  description: 'description',
+  source: 'source',
+  sourceParty: 'sourceParty',
+  sourceRow: 'sourceRow',
+  sourceHash: 'sourceHash',
+  batchId: 'batchId',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName'
+} as const
+
+export type StaffLedgerEntryScalarFieldEnum = (typeof StaffLedgerEntryScalarFieldEnum)[keyof typeof StaffLedgerEntryScalarFieldEnum]
+
+
+export const StaffLoanEntryScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  date: 'date',
+  kind: 'kind',
+  amount: 'amount',
+  signedAmount: 'signedAmount',
+  fromSalary: 'fromSalary',
+  description: 'description',
+  source: 'source',
+  sourceParty: 'sourceParty',
+  sourceRow: 'sourceRow',
+  sourceHash: 'sourceHash',
+  batchId: 'batchId',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt',
+  deletedByName: 'deletedByName'
+} as const
+
+export type StaffLoanEntryScalarFieldEnum = (typeof StaffLoanEntryScalarFieldEnum)[keyof typeof StaffLoanEntryScalarFieldEnum]
+
+
+export const KhataImportBatchScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  cutoffDate: 'cutoffDate',
+  sourceName: 'sourceName',
+  sourceRows: 'sourceRows',
+  datasetJson: 'datasetJson',
+  previewJson: 'previewJson',
+  resultJson: 'resultJson',
+  snapshotFile: 'snapshotFile',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  appliedAt: 'appliedAt',
+  rolledBackAt: 'rolledBackAt'
+} as const
+
+export type KhataImportBatchScalarFieldEnum = (typeof KhataImportBatchScalarFieldEnum)[keyof typeof KhataImportBatchScalarFieldEnum]
+
+
+export const KhataImportLogScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  party: 'party',
+  staffId: 'staffId',
+  staffName: 'staffName',
+  sourceRow: 'sourceRow',
+  date: 'date',
+  amount: 'amount',
+  type: 'type',
+  description: 'description',
+  destination: 'destination',
+  status: 'status',
+  message: 'message',
+  createdAt: 'createdAt'
+} as const
+
+export type KhataImportLogScalarFieldEnum = (typeof KhataImportLogScalarFieldEnum)[keyof typeof KhataImportLogScalarFieldEnum]
 
 
 export const SortOrder = {

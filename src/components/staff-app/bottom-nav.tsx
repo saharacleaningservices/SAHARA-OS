@@ -5,15 +5,16 @@ import { usePathname } from "next/navigation";
 import { Home, CalendarDays, Wallet, QrCode, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type Labels = { home: string; calendar: string; money: string; customer: string; alerts: string };
 const ITEMS = [
-  { href: "/my", label: "Home", icon: Home, match: (p: string) => p === "/my" },
-  { href: "/my/calendar", label: "Calendar", icon: CalendarDays, match: (p: string) => p.startsWith("/my/calendar") || p.startsWith("/my/day") },
-  { href: "/my/records", label: "My Records", icon: Wallet, match: (p: string) => p.startsWith("/my/records") },
-  { href: "/my/tools", label: "Customer", icon: QrCode, match: (p: string) => p.startsWith("/my/tools") },
-  { href: "/my/alerts", label: "Alerts", icon: Bell, match: (p: string) => p.startsWith("/my/alerts") || p.startsWith("/my/announcements") },
-];
+  { href: "/my", key: "home", icon: Home, match: (p: string) => p === "/my" },
+  { href: "/my/calendar", key: "calendar", icon: CalendarDays, match: (p: string) => p.startsWith("/my/calendar") || p.startsWith("/my/day") },
+  { href: "/my/records", key: "money", icon: Wallet, match: (p: string) => p.startsWith("/my/records") },
+  { href: "/my/tools", key: "customer", icon: QrCode, match: (p: string) => p.startsWith("/my/tools") },
+  { href: "/my/alerts", key: "alerts", icon: Bell, match: (p: string) => p.startsWith("/my/alerts") || p.startsWith("/my/announcements") },
+] as const;
 
-export function StaffBottomNav({ unread }: { unread: number }) {
+export function StaffBottomNav({ unread, labels }: { unread: number; labels: Labels }) {
   const pathname = usePathname();
   return (
     <nav
@@ -22,7 +23,8 @@ export function StaffBottomNav({ unread }: { unread: number }) {
       aria-label="Staff app"
     >
       <ul className="mx-auto grid max-w-md grid-cols-5">
-        {ITEMS.map(({ href, label, icon: Icon, match }) => {
+        {ITEMS.map(({ href, key, icon: Icon, match }) => {
+          const label = labels[key];
           const active = match(pathname);
           return (
             <li key={href}>

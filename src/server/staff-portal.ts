@@ -222,13 +222,24 @@ export type CalendarDay = {
 };
 
 async function rangeData(staffId: string, from: Date, to: Date) {
-  const [attendance, jobs, advances, fines, rewards] = await Promise.all([
+  const [nativeAttendance, imported, jobs, advances, fines, rewards] = await Promise.all([
     db.attendance.findMany({ where: { staffId, date: { gte: from, lt: to } }, select: { date: true, status: true, wageForDay: true } }),
+    // Khata Book work days (imported history) show as Present on the calendar where no app attendance exists.
+    db.staffLedgerEntry.findMany({ where: { staffId, deletedAt: null, kind: "EARNING", date: { gte: from, lt: to } }, select: { date: true } }),
     db.job.findMany({ where: myJobsWhere(staffId, from, to), select: { scheduledDate: true } }),
     db.advance.findMany({ where: { staffId, givenAt: { gte: from, lt: to } }, select: { givenAt: true, amount: true } }),
     db.fineRecord.findMany({ where: { staffId, date: { gte: from, lt: to } }, select: { date: true, amount: true } }),
     db.rewardRecord.findMany({ where: { staffId, date: { gte: from, lt: to } }, select: { date: true, amount: true } }),
   ]);
+  const seen = new Set(nativeAttendance.map((a) => a.date.toDateString()));
+  const attendance = [...nativeAttendance];
+  for (const i of imported) {
+    const k = i.date.toDateString();
+    if (!seen.has(k)) {
+      seen.add(k);
+      attendance.push({ date: i.date, status: "PRESENT" as AttendanceCode, wageForDay: null });
+    }
+  }
   return { attendance, jobs, advances, fines, rewards };
 }
 

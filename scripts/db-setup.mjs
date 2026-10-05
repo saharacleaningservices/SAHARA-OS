@@ -1364,3 +1364,76 @@ db.close();
   console.log("Pricing & Packages migration complete.");
   prDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff money ledgers + Khata Book import log (2026-10-05, additive only).
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const lgDb = new Database(dbPath);
+  lgDb.pragma("foreign_keys = ON");
+  const cols = lgDb.prepare(`PRAGMA table_info("Staff")`).all().map((c) => c.name);
+  if (!cols.includes("ledgerCutoverAt")) lgDb.exec(`ALTER TABLE "Staff" ADD COLUMN "ledgerCutoverAt" DATETIME`);
+  const ledgerCols = `
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "staffId" TEXT NOT NULL,
+      "date" DATETIME NOT NULL,
+      "kind" TEXT NOT NULL,
+      "amount" REAL NOT NULL,
+      "signedAmount" REAL NOT NULL,
+      "description" TEXT,
+      "source" TEXT NOT NULL DEFAULT 'MANUAL',
+      "sourceParty" TEXT,
+      "sourceRow" INTEGER,
+      "sourceHash" TEXT,
+      "batchId" TEXT,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "deletedAt" DATETIME,
+      "deletedByName" TEXT,
+      CONSTRAINT "FK_staff" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE RESTRICT ON UPDATE CASCADE`;
+  lgDb.exec(`
+    CREATE TABLE IF NOT EXISTS "StaffLedgerEntry" (${ledgerCols});
+    CREATE UNIQUE INDEX IF NOT EXISTS "StaffLedgerEntry_sourceHash_key" ON "StaffLedgerEntry"("sourceHash");
+    CREATE INDEX IF NOT EXISTS "StaffLedgerEntry_staffId_date_idx" ON "StaffLedgerEntry"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "StaffLedgerEntry_batchId_idx" ON "StaffLedgerEntry"("batchId");
+    CREATE TABLE IF NOT EXISTS "StaffLoanEntry" (${ledgerCols.replace(`"description" TEXT,`, `"fromSalary" BOOLEAN NOT NULL DEFAULT false,\n      "description" TEXT,`)});
+    CREATE UNIQUE INDEX IF NOT EXISTS "StaffLoanEntry_sourceHash_key" ON "StaffLoanEntry"("sourceHash");
+    CREATE INDEX IF NOT EXISTS "StaffLoanEntry_staffId_date_idx" ON "StaffLoanEntry"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "StaffLoanEntry_batchId_idx" ON "StaffLoanEntry"("batchId");
+    CREATE TABLE IF NOT EXISTS "KhataImportBatch" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "status" TEXT NOT NULL,
+      "cutoffDate" DATETIME NOT NULL,
+      "sourceName" TEXT,
+      "sourceRows" INTEGER,
+      "datasetJson" TEXT NOT NULL,
+      "previewJson" TEXT,
+      "resultJson" TEXT,
+      "snapshotFile" TEXT,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "appliedAt" DATETIME,
+      "rolledBackAt" DATETIME
+    );
+    CREATE TABLE IF NOT EXISTS "KhataImportLog" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "batchId" TEXT NOT NULL,
+      "party" TEXT NOT NULL,
+      "staffId" TEXT,
+      "staffName" TEXT,
+      "sourceRow" INTEGER,
+      "date" DATETIME,
+      "amount" REAL,
+      "type" TEXT,
+      "description" TEXT,
+      "destination" TEXT,
+      "status" TEXT NOT NULL,
+      "message" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "KhataImportLog_batchId_idx" ON "KhataImportLog"("batchId");
+    CREATE INDEX IF NOT EXISTS "KhataImportLog_party_idx" ON "KhataImportLog"("party");
+  `);
+  console.log("Staff ledgers + Khata import log migration complete.");
+  lgDb.close();
+}
