@@ -185,3 +185,8 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 - **New staff**: Staff → add staff → *Enable Staff App login* → hand over mobile + PIN.
 - **Monthly**: Reports → Export Center → download month; check Profit dashboard matches.
 - **Do not**: touch +91 7083347130 / WABA 108381505270532; turn on AI/auto-replies or live campaigns without owner approval; store secrets in files or chat.
+
+**Agency access audit (2026-10-05):**
+- Google Ads 892-332-3597: only user = owner (admin). Manager link **Brand Make Digital Marketing Solution (898-956-9172)**, not owner; conversions are account-owned (no cross-account tracking); Google says the account keeps serving after unlink. Unlink was blocked at a Google **passkey "Confirm it's you"** step → owner must finish: Admin → Access and security → Managers → Remove access → Unlink → passkey.
+- Meta Business 152082702561104: partner **Brand Make + Partners (980500526587392)** has full access to FB Page + Instagram, AND **owns the only ad account "Sahara Cleaning Services" (1065166308165456)**, which is shared to Sahara. Removing the partner would cut Sahara's ad access and stop ads. Nothing changed. Plan: create a Sahara-owned ad account (add payment method, connect pixel/dataset), move campaigns over, then remove Brand Make's Page/IG access and the partner.
+- WhatsApp +91 9175220270: still Pending, 2FA OFF. Needs owner to set the PIN and register (see above).
