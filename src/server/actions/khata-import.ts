@@ -97,7 +97,8 @@ async function planEmployee(e: Emp, cutoff: Date) {
       staff = exact[0];
       action = "LINK";
     } else {
-      const tokens = e.staffName.replace(/^hk\s+/i, "").split(/\s+/).filter((t) => t.length >= 3);
+      // Given name only (after an "HK" prefix) — surnames like "Shaikh" are shared by many workers.
+      const tokens = e.staffName.replace(/^hk\s+/i, "").split(/\s+/).filter((t) => t.length >= 3).slice(0, 1);
       const similar = tokens.length
         ? await db.staff.findMany({ where: { deletedAt: null, OR: tokens.map((t) => ({ name: { contains: t } })) }, select: { id: true, name: true }, take: 5 })
         : [];
@@ -111,8 +112,8 @@ async function planEmployee(e: Emp, cutoff: Date) {
   const loanRows = (e.loan?.entries ?? []).filter((r) => r.debit > 0 || r.credit > 0);
   const loanHashes = loanRows.map((r) => hash(e.loan!.khataName, r, "LOAN"));
   const [dupL, dupLoan] = await Promise.all([
-    db.staffLedgerEntry.count({ where: { sourceHash: { in: isLoanMode ? [] : hashes } } }),
-    db.staffLoanEntry.count({ where: { sourceHash: { in: [...(isLoanMode ? hashes : []), ...loanHashes] } } }),
+    db.staffLedgerEntry.count({ where: { deletedAt: null, sourceHash: { in: isLoanMode ? [] : hashes } } }),
+    db.staffLoanEntry.count({ where: { deletedAt: null, sourceHash: { in: [...(isLoanMode ? hashes : []), ...loanHashes] } } }),
   ]);
   if (dupL + dupLoan > 0) blocks.push(`${dupL + dupLoan} row(s) already imported earlier`);
 
@@ -324,6 +325,10 @@ export async function applyKhataImport(batchId: string) {
 /** Soft-delete everything one batch wrote for one staff member and clear their cutover. */
 async function compensate(batchId: string, staffId: string, by: string, createdByBatch: boolean) {
   const now = new Date();
+  // Soft-delete (rows stay for audit) and release each row's sourceHash so a
+  // corrected re-import of the same Khata transaction is possible later.
+  await db.$executeRaw`UPDATE "StaffLedgerEntry" SET "sourceHash" = "sourceHash" || ':rolledback:' || ${batchId} WHERE "batchId" = ${batchId} AND "staffId" = ${staffId} AND "deletedAt" IS NULL AND "sourceHash" IS NOT NULL`;
+  await db.$executeRaw`UPDATE "StaffLoanEntry" SET "sourceHash" = "sourceHash" || ':rolledback:' || ${batchId} WHERE "batchId" = ${batchId} AND "staffId" = ${staffId} AND "deletedAt" IS NULL AND "sourceHash" IS NOT NULL`;
   await db.$transaction([
     db.staffLedgerEntry.updateMany({ where: { batchId, staffId, deletedAt: null }, data: { deletedAt: now, deletedByName: `${by} (import rollback)` } }),
     db.staffLoanEntry.updateMany({ where: { batchId, staffId, deletedAt: null }, data: { deletedAt: now, deletedByName: `${by} (import rollback)` } }),

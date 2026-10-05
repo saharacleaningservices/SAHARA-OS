@@ -119,6 +119,36 @@ const D = {
   notLinked: ["Your login isn't linked to a staff profile yet. Please ask the office.", "आपका लॉगिन अभी स्टाफ प्रोफ़ाइल से नहीं जुड़ा। ऑफिस से बात करें।", "तुमचे लॉगिन अजून स्टाफ प्रोफाइलशी जोडलेले नाही. ऑफिसशी बोला."],
   ownerPreview: ["Owner preview · read-only", "मालिक प्रीव्यू · केवल देखना", "मालक प्रिव्ह्यू · फक्त पाहणे"],
   exitPreview: ["Exit preview", "प्रीव्यू बंद करें", "प्रिव्ह्यू बंद करा"],
+  inTime: ["In", "आए", "आले"],
+  outTime: ["Out", "गए", "गेले"],
+  markedByOffice: ["Marked by the office.", "ऑफिस ने दर्ज किया।", "ऑफिसने नोंदवले."],
+  futureDate: ["Future date.", "आने वाली तारीख।", "पुढची तारीख."],
+  notMarkedDay: ["Not marked for this day.", "इस दिन दर्ज नहीं।", "या दिवशी नोंद नाही."],
+  moneyThisDay: ["Money on this day", "इस दिन का पैसा", "या दिवशीचे पैसे"],
+  nothingDay: ["Nothing recorded for this day.", "इस दिन कुछ दर्ज नहीं।", "या दिवशी काही नोंद नाही."],
+  recordsByOffice: ["Records are entered by the office. If something looks wrong, please call the office.", "रिकॉर्ड ऑफिस भरता है। कुछ गलत लगे तो ऑफिस को कॉल करें।", "नोंदी ऑफिस करते. काही चुकीचे वाटल्यास ऑफिसला कॉल करा."],
+  backToCalendar: ["Back to calendar", "कैलेंडर पर वापस", "कॅलेंडरवर परत"],
+  siteJob: ["Site / job", "साइट / काम", "साइट / काम"],
+  asPerOffice: ["As per office notes", "ऑफिस नोट के अनुसार", "ऑफिस नोंदीनुसार"],
+  teamNotAssigned: ["Team not assigned", "टीम तय नहीं", "टीम ठरलेली नाही"],
+  supervisor: ["Supervisor", "सुपरवाइज़र", "सुपरवायझर"],
+  teamAsOnDay: ["team as on job day", "काम के दिन की टीम", "कामाच्या दिवसाची टीम"],
+  feedback: ["Customer feedback", "ग्राहक की राय", "ग्राहकाचा अभिप्राय"],
+  teamIncentive: ["Team incentive", "टीम इनाम", "टीम बक्षीस"],
+  priceRegular: ["Regular", "सामान्य", "नियमित"],
+  priceFestival: ["Festival Special", "त्योहार स्पेशल", "सण स्पेशल"],
+  price: ["Price", "कीमत", "किंमत"],
+  pinHelp: ["You sign in with your mobile number and your PIN. You can change your PIN here any time.", "आप मोबाइल नंबर और पिन से लॉगिन करते हैं। पिन यहां कभी भी बदल सकते हैं।", "तुम्ही मोबाईल नंबर आणि पिनने लॉगिन करता. पिन इथे कधीही बदलू शकता."],
+  changePin: ["Change my PIN", "मेरा पिन बदलें", "माझा पिन बदला"],
+  forgotPin: ["Forgot your PIN? Sign out and use Staff PIN reset — the office approves it.", "पिन भूल गए? लॉग आउट करके स्टाफ पिन रीसेट करें — ऑफिस मंज़ूर करेगा।", "पिन विसरलात? लॉग आउट करून स्टाफ पिन रीसेट करा — ऑफिस मंजूर करेल."],
+  noAlerts: ["No alerts yet.", "अभी कोई सूचना नहीं।", "अजून सूचना नाहीत."],
+  noAnnouncements: ["No announcements.", "कोई घोषणा नहीं।", "घोषणा नाहीत."],
+  customerTools: ["Customer", "ग्राहक", "ग्राहक"],
+  previewHidden: ["Owner preview: PIN change, notifications and sign-out work only on the staff member's own phone.", "मालिक प्रीव्यू: पिन, सूचना और लॉग आउट केवल स्टाफ के फोन पर चलते हैं।", "मालक प्रिव्ह्यू: पिन, सूचना आणि लॉग आउट फक्त स्टाफच्या फोनवर चालतात."],
+  scanHelp: ["Ask the customer to scan with their phone camera.", "ग्राहक से फोन कैमरे से स्कैन करवाएं।", "ग्राहकाला फोन कॅमेऱ्याने स्कॅन करायला सांगा."],
+  noReviewLink: ["The office hasn't added the review link yet.", "ऑफिस ने अभी रिव्यू लिंक नहीं डाला।", "ऑफिसने अजून रिव्ह्यू लिंक टाकलेली नाही."],
+  noPayDetails: ["The office hasn't added payment details yet.", "ऑफिस ने अभी पेमेंट जानकारी नहीं डाली।", "ऑफिसने अजून पेमेंट माहिती टाकलेली नाही."],
+  payHelp: ["The customer pays the amount the office confirmed. Payments are recorded by the office.", "ग्राहक ऑफिस द्वारा बताई रकम देता है। पेमेंट ऑफिस दर्ज करता है।", "ग्राहक ऑफिसने सांगितलेली रक्कम देतो. पेमेंट ऑफिस नोंदवते."],
 } as const;
 
 export type StaffKey = keyof typeof D;
@@ -130,6 +160,7 @@ export function st(lang: Lang, key: StaffKey): string {
 /** Bound translator: const t = staffT(lang); t("salary") */
 export const staffT = (lang: Lang) => (key: StaffKey) => st(lang, key);
 
-const LOCALE: Record<Lang, string> = { en: "en-IN", hi: "hi-IN", mr: "mr-IN" };
+// Latin digits in every language — big, familiar numbers (₹7,400, not ₹७,४००).
+const LOCALE: Record<Lang, string> = { en: "en-IN", hi: "hi-IN-u-nu-latn", mr: "mr-IN-u-nu-latn" };
 export const staffLocale = (lang: Lang) => LOCALE[lang];
 export const inrFor = (lang: Lang, n: number) => `₹${Math.round(Math.abs(n)).toLocaleString(LOCALE[lang])}`;

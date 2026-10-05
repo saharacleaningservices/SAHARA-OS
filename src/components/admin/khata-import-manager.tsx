@@ -169,8 +169,8 @@ export function KhataImportManager({ batches }: { batches: Batch[] }) {
                       </div>
                     </td>
                     <td className="p-2">{p.rows}</td>
-                    <td className="p-2">{bal(p.net)}</td>
-                    <td className="p-2">{p.opening ? bal(p.opening) : "—"}</td>
+                    <td className="p-2">{p.mode === "LOAN" ? `Loan ${inr(p.net)}` : bal(p.net)}</td>
+                    <td className="p-2">{p.opening ? (p.mode === "LOAN" ? `Loan ${inr(p.opening)}` : bal(p.opening)) : "—"}</td>
                     <td className="p-2">
                       <LiveInput
                         value={ds?.employees.find((e) => e.staffName === p.staffName)?.liveBalance ?? null}

@@ -18,6 +18,9 @@ import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { StaffPhotoUploader } from "@/components/staff/staff-photo-uploader";
+import { StaffMoneyCard } from "@/components/staff/staff-money-card";
+import { getStaffMoney } from "@/server/staff-balance";
+import { getLoanEntries } from "@/server/actions/staff-loan";
 import { canViewSalary, canManageStaffFinancials, canManageAttendance } from "@/lib/permissions";
 import { getStaffLedger, getMonthMatrix } from "@/server/attendance";
 import { StaffAppAccessCard } from "@/components/staff/staff-app-access-card";
@@ -50,10 +53,12 @@ export default async function StaffDetailPage({
   const calMonth = Number(mStr) || now.getMonth() + 1;
   const showSalary = canViewSalary(session.role);
   const canAttendance = canManageAttendance(session.role);
-  const [ledger, matrix, appAccess] = await Promise.all([
+  const [ledger, matrix, appAccess, money, loanEntries] = await Promise.all([
     showSalary ? getStaffLedger(staff.id, calYear, calMonth) : Promise.resolve(null),
     canAttendance ? getMonthMatrix(staff.id, calYear, calMonth) : Promise.resolve(null),
     showSalary ? getStaffAppAccess(staff.id) : Promise.resolve(null),
+    showSalary ? getStaffMoney(staff.id) : Promise.resolve(null),
+    showSalary ? getLoanEntries(staff.id) : Promise.resolve([]),
   ]);
   const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${calYear}&month=${calMonth}`;
 
@@ -131,6 +136,16 @@ export default async function StaffDetailPage({
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
+          {money && (
+            <StaffMoneyCard
+              staffId={staff.id}
+              salaryDue={money.salaryDue}
+              loan={money.loan}
+              cutover={money.cutover}
+              entries={loanEntries}
+              canManage={canManageStaffFinancials(session.role)}
+            />
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Profile</CardTitle>

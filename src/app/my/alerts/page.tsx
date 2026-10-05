@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Bell, CalendarCheck, Wallet, Ban, Award, Briefcase, RefreshCw, Megaphone, IndianRupee } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
+import { getStaffLang } from "@/server/staff-lang";
+import { staffT } from "@/lib/staff-i18n";
 import { getMyNotifications } from "@/server/staff-portal";
 import { Section, EmptyNote } from "@/components/staff-app/ui";
 import { MarkReadOnView } from "@/components/staff-app/mark-read";
@@ -31,6 +33,7 @@ function ago(d: Date) {
 
 export default async function StaffAlertsPage() {
   const { staff, preview, notifUserId } = await requireMyStaff();
+  const t = staffT(await getStaffLang());
   if (!staff) return null;
   const items = notifUserId ? await getMyNotifications(notifUserId) : [];
   const unreadIds = items.filter((n) => !n.readAt).map((n) => n.id);
@@ -38,7 +41,7 @@ export default async function StaffAlertsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Alerts</h1>
+        <h1 className="text-xl font-bold">🔔 {t("navAlerts")}</h1>
         <Link href="/my/announcements" className="flex min-h-10 items-center gap-1.5 rounded-full border border-border px-3 text-sm font-medium">
           <Megaphone className="size-4 text-primary" /> Announcements
         </Link>
@@ -46,7 +49,7 @@ export default async function StaffAlertsPage() {
       {!preview && <PushControl />}
       <Section>
         {items.length === 0 ? (
-          <EmptyNote>No alerts yet. New jobs, attendance, advances, fines, rewards and announcements will appear here.</EmptyNote>
+          <EmptyNote>{t("noAlerts")}</EmptyNote>
         ) : (
           <ul className="divide-y divide-border">
             {items.map((n) => {

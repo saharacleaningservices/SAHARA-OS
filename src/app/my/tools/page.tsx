@@ -1,6 +1,8 @@
 import QRCode from "qrcode";
 import { Star, IndianRupee, Info } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
+import { getStaffLang } from "@/server/staff-lang";
+import { staffT } from "@/lib/staff-i18n";
 import { getPortalHome } from "@/server/staff-portal";
 import { getCompanySettings } from "@/server/settings";
 import { Section, EmptyNote } from "@/components/staff-app/ui";
@@ -13,6 +15,7 @@ async function qr(text: string) {
 
 export default async function StaffToolsPage() {
   const { staff } = await requireMyStaff();
+  const t = staffT(await getStaffLang());
   if (!staff) return null;
   const [settings, home] = await Promise.all([getCompanySettings(), getPortalHome(staff)]);
 
@@ -28,7 +31,7 @@ export default async function StaffToolsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold">Customer tools</h1>
+      <h1 className="text-xl font-bold">{t("customerTools")}</h1>
       {currentJob && (
         <p className="rounded-xl bg-accent px-3 py-2 text-sm text-accent-foreground">
           Current job: <b>{currentJob.jobNumber}</b> · {currentJob.customerName}
@@ -45,13 +48,13 @@ export default async function StaffToolsPage() {
         {reviewQr ? (
           <div className="space-y-2 text-center">
             <img src={reviewQr} alt="Google review QR code" className="mx-auto w-full max-w-[280px] rounded-xl border border-border bg-white p-2" />
-            <p className="text-sm text-muted-foreground">Ask the customer to scan with their phone camera.</p>
+            <p className="text-sm text-muted-foreground">{t("scanHelp")}</p>
             <a href={settings.googleReviewUrl!} target="_blank" rel="noreferrer" className="text-sm font-medium text-primary">
               Open review link
             </a>
           </div>
         ) : (
-          <EmptyNote>The office hasn’t added the Google review link yet.</EmptyNote>
+          <EmptyNote>{t("noReviewLink")}</EmptyNote>
         )}
       </Section>
 
@@ -73,9 +76,9 @@ export default async function StaffToolsPage() {
             <p className="text-sm font-medium">{settings.upiId}</p>
           </div>
         ) : (
-          <EmptyNote>The office hasn’t added payment details yet.</EmptyNote>
+          <EmptyNote>{t("noPayDetails")}</EmptyNote>
         )}
-        <p className="mt-2 text-xs text-muted-foreground">The customer enters the amount the office confirmed. Payments are recorded by the office.</p>
+        <p className="mt-2 text-xs text-muted-foreground">{t("payHelp")}</p>
       </Section>
 
       <div className="flex gap-2 rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
