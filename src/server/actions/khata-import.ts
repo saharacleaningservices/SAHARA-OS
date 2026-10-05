@@ -46,6 +46,8 @@ const employee = z.object({
   openingApproved: z.boolean().default(false),
   linkStaffId: z.string().nullable().default(null), // owner-chosen existing staff when names differ
   createNew: z.boolean().default(false),
+  // Owner-approved permanent Employee ID for a NEW staff record (SCS-####). Linked staff keep theirs.
+  employeeCode: z.string().regex(/^SCS-\d{4}$/).nullable().default(null),
   entries: z.array(row),
   // Owner decisions on reviewed Khata rows (Khata Book itself is never edited):
   // - dropRows: confirmed duplicates — not imported, logged as OWNER_REMOVED
@@ -144,6 +146,10 @@ async function planEmployee(e: Emp, cutoff: Date) {
     }
   }
   if (staff?.ledgerCutoverAt) blocks.push("This staff member already has imported Khata history (already migrated)");
+  if (!staff && e.employeeCode) {
+    const taken = await db.staff.findFirst({ where: { employeeCode: e.employeeCode }, select: { name: true } });
+    if (taken) blocks.push(`Employee ID ${e.employeeCode} already belongs to ${taken.name}`);
+  }
 
   // Duplicate protection.
   const hashes = usable.map((r) => hash(e.khataName, r, isLoanMode ? "LOAN" : "SALARY"));
@@ -288,7 +294,7 @@ export async function applyKhataImport(batchId: string) {
     const isLoanMode = e.ledgerMode === "LOAN";
     let staffId = plan.staffId;
     try {
-      const newCode = staffId ? null : await generateEmployeeCode();
+      const newCode = staffId ? null : (e.employeeCode ?? (await generateEmployeeCode()));
       await db.$transaction(async (tx) => {
         if (!staffId) {
           const s = await tx.staff.create({

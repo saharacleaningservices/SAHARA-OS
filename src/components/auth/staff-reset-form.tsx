@@ -85,7 +85,7 @@ export function StaffResetForm() {
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="sr-code">Employee code (optional)</Label>
-        <Input id="sr-code" value={employeeCode} onChange={(e) => setEmployeeCode(e.target.value)} autoCapitalize="characters" placeholder="e.g. SCS-007" disabled={otpSent && mode === "otp"} />
+        <Input id="sr-code" value={employeeCode} onChange={(e) => setEmployeeCode(e.target.value)} autoCapitalize="characters" placeholder="e.g. SCS-0007" disabled={otpSent && mode === "otp"} />
       </div>
       {mode === "otp" && otpSent && (
         <div className="space-y-1.5">
