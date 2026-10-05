@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { syncLeadFromJob } from "@/server/job-schedule";
 import { jobSchema } from "@/lib/validation";
 import { deriveArea } from "@/lib/utils";
 import { notify } from "@/server/notify";
@@ -204,6 +205,12 @@ export async function updateJob(id: string, values: unknown) {
     ((d.scheduledDate && new Date(d.scheduledDate).getTime() !== before.scheduledDate.getTime()) ||
       (d.scheduledTime && d.scheduledTime !== before.scheduledTime));
   if (moved) await sendBookingChangeNotice(id, "RESCHEDULED").catch(() => {});
+  // The enquiry mirrors the job's schedule (dashboard, today/tomorrow access, follow-up).
+  if (moved) {
+    const actor = (await getSession())?.sub;
+    await db.activityLog.create({ data: { jobId: id, actorId: actor ?? null, action: `Rescheduled to ${d.scheduledDate ?? before!.scheduledDate.toISOString().slice(0, 10)} ${d.scheduledTime ?? before!.scheduledTime}` } });
+    await syncLeadFromJob(id, actor).catch(() => {});
+  }
 
   // Staff App — one notification per affected staff member per save.
   if (before && (crewChanged || moved)) {
@@ -317,6 +324,10 @@ export async function updateJobStatus(jobId: string, status: JobStatus) {
 async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId?: string) {
   const session = { sub: actorId };
   const now = new Date();
+  // Same status again (double tap / two people) → no duplicate log, message or alert.
+  const current = await db.job.findUnique({ where: { id: jobId }, select: { status: true } });
+  if (!current) return { error: "Job not found", success: false as const };
+  if (current.status === status) return { success: true as const, unchanged: true as const };
 
   const job = await db.job.update({
     where: { id: jobId },
@@ -341,6 +352,12 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
     const crew = await db.jobAssignment.findMany({ where: { jobId }, select: { staffId: true } });
     await notifyCrewChanged(jobId, crew.map((c) => c.staffId), "Job cancelled").catch(() => {});
   }
+  if (status === "POSTPONED" || status === "REACTIVATED") {
+    const crew = await db.jobAssignment.findMany({ where: { jobId }, select: { staffId: true } });
+    await notifyCrewChanged(jobId, crew.map((c) => c.staffId), status === "POSTPONED" ? "Job postponed" : "Job reactivated").catch(() => {});
+  }
+  // Lead stage follows the job (Completed / Cancelled / Job Scheduled).
+  await syncLeadFromJob(jobId, actorId).catch(() => {});
 
   revalidatePath("/jobs");
   revalidatePath(`/jobs/${jobId}`);

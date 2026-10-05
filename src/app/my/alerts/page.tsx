@@ -34,22 +34,48 @@ function ago(d: Date) {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
-export default async function StaffAlertsPage() {
+// Separate alert groups (one notification per real event; see server/staff-notify.ts).
+const CATS = {
+  all: { label: "allAlerts", kinds: null },
+  jobs: { label: "jobs", kinds: ["STAFF_JOB_ASSIGNED", "STAFF_JOB_CHANGED"] },
+  attendance: { label: "attendance", kinds: ["STAFF_ATTENDANCE"] },
+  money: { label: "myMoney", kinds: ["STAFF_PAYMENT", "STAFF_SALARY", "STAFF_ADVANCE", "STAFF_LOAN", "STAFF_FINE", "STAFF_REWARD", "STAFF_OVERTIME"] },
+  announcements: { label: "announcements", kinds: ["ANNOUNCEMENT"] },
+} as const;
+type Cat = keyof typeof CATS;
+
+export default async function StaffAlertsPage({ searchParams }: { searchParams: Promise<{ cat?: string }> }) {
   const { staff, preview, notifUserId } = await requireMyStaff();
   const t = staffT(await getStaffLang());
   if (!staff) return null;
-  const items = notifUserId ? await getMyNotifications(notifUserId) : [];
+  const sp = await searchParams;
+  const cat: Cat = sp.cat && sp.cat in CATS ? (sp.cat as Cat) : "all";
+  const kinds = CATS[cat].kinds as readonly string[] | null;
+  const all = notifUserId ? await getMyNotifications(notifUserId, 60) : [];
+  const items = kinds ? all.filter((n) => kinds.includes(n.kind)) : all.slice(0, 40);
   const unreadIds = items.filter((n) => !n.readAt).map((n) => n.id);
+  const unreadIn = (c: Cat) => all.filter((n) => !n.readAt && (CATS[c].kinds === null || (CATS[c].kinds as readonly string[]).includes(n.kind))).length;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">🔔 {t("navAlerts")}</h1>
         <Link href="/my/announcements" className="flex min-h-10 items-center gap-1.5 rounded-full border border-border px-3 text-sm font-medium">
-          <Megaphone className="size-4 text-primary" /> Announcements
+          <Megaphone className="size-4 text-primary" /> {t("announcements")}
         </Link>
       </div>
       {!preview && <PushControl />}
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
+        {(Object.keys(CATS) as Cat[]).map((c) => {
+          const n = unreadIn(c);
+          return (
+            <Link key={c} href={c === "all" ? "/my/alerts" : `/my/alerts?cat=${c}`} className={cn("flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold", cat === c ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card")}>
+              {t(CATS[c].label)}
+              {n > 0 && <span className={cn("rounded-full px-1.5 text-[10px]", cat === c ? "bg-white/25" : "bg-destructive text-white")}>{n}</span>}
+            </Link>
+          );
+        })}
+      </div>
       <Section>
         {items.length === 0 ? (
           <EmptyNote>{t("noAlerts")}</EmptyNote>

@@ -39,7 +39,7 @@ export function AnnouncementsManager({ rows, staff }: { rows: Row[]; staff: Staf
       const res = await publishAnnouncement({ title, body, important, expiresOn, audience, staffIds: picked, teamNumbers: teams });
       if ("error" in res && res.error) return void toast.error(res.error);
       const sent = "sentTo" in res ? res.sentTo : 0;
-      toast.success(important ? `Published — notification sent to ${sent} staff app login(s)` : "Published — visible in the Staff App (no notification)");
+      toast.success(`Published — notification sent to ${sent} staff app login(s)${important ? " (important)" : ""}`);
       setTitle("");
       setBody("");
       setImportant(false);
@@ -118,12 +118,12 @@ export function AnnouncementsManager({ rows, staff }: { rows: Row[]; staff: Staf
             <Input id="an-exp" type="date" value={expiresOn} onChange={(e) => setExpiresOn(e.target.value)} />
           </div>
           <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={important} onCheckedChange={(v) => setImportant(v === true)} /> Important — pin it and send a notification
+            <Checkbox checked={important} onCheckedChange={(v) => setImportant(v === true)} /> Important — pin it and keep the alert on screen
           </label>
           <Button className="w-full" onClick={publish} disabled={pending}>
             {pending && <Loader2 className="size-4 animate-spin" />} Publish to Staff App
           </Button>
-          <p className="text-xs text-muted-foreground">Important: one notification to each recipient. Normal: shown in the app only. Archiving is silent. Job assignments are never sent as announcements.</p>
+          <p className="text-xs text-muted-foreground">Every announcement alerts its recipients (sound + vibration when enabled). Important: pinned and stays on screen. Archiving is silent. Job assignments are never sent as announcements.</p>
         </CardContent>
       </Card>
 

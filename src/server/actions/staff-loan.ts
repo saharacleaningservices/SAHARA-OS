@@ -7,6 +7,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { notifyStaff } from "@/server/staff-notify";
 import { getSession } from "@/lib/session";
 import { canManageStaffFinancials } from "@/lib/permissions";
 
@@ -81,9 +82,10 @@ export async function addAutoFare(values: unknown) {
   const parsed = fareSchema.safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid auto fare" };
   const { staffId, amount, date, description } = parsed.data;
-  await db.staffLedgerEntry.create({
+  const fare = await db.staffLedgerEntry.create({
     data: { staffId, date: new Date(`${date}T12:00:00+05:30`), kind: "AUTO_FARE", amount, signedAmount: amount, description: description || "Auto fare", source: "MANUAL", createdByName: session.name },
   });
+  await notifyStaff([staffId], { kind: "STAFF_PAYMENT", title: `Auto fare added ₹${amount.toLocaleString("en-IN")}`, body: description || undefined, href: "/my/records?tab=ledger", recordId: fare.id });
   revalidatePath(`/staff/${staffId}`);
   revalidatePath("/my");
   return { ok: true };

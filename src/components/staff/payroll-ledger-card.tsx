@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Wallet, Plus, Minus, Award } from "lucide-react";
+import { Loader2, Wallet, Plus, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,9 +104,7 @@ export function PayrollLedgerCard({
 
         {canManage && (
           <div className="flex gap-2 pt-1">
-            <Button variant="outline" size="sm" onClick={() => setDialog("advance")}>
-              <Minus className="size-3.5" /> Advance
-            </Button>
+            {/* Advances are recorded in the Khata ledger ("Add payment" → Advance) — one entry point. */}
             <Button variant="outline" size="sm" onClick={() => setDialog("fine")}>
               <Plus className="size-3.5" /> Fine
             </Button>

@@ -17,16 +17,34 @@ import { PackageScopeCard } from "@/components/shared/package-scope-card";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Your Booking — Sahara Cleaning Services", robots: { index: false, follow: false } };
 
+// Customer-facing statuses only: Confirmed → Scheduled → Rescheduled / Cancelled (→ Completed).
+// "On the way" and "Started" are internal Staff/Operations steps and are never shown here.
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Confirmed",
-  ASSIGNED: "Confirmed",
   REACTIVATED: "Confirmed",
-  ON_THE_WAY: "Team on the way",
-  STARTED: "Service in progress",
+  ASSIGNED: "Scheduled",
+  ON_THE_WAY: "Scheduled",
+  STARTED: "Scheduled",
   COMPLETED: "Completed",
   POSTPONED: "Rescheduled",
   CANCELLED: "Cancelled",
 };
+
+/** Google Calendar "add event" link for the CURRENT date/time (re-add after a reschedule). */
+function calendarHref(job: { jobNumber: string; scheduledDate: Date; scheduledTime: string; address: string | null; area: string | null }, service: string) {
+  const ymd = new Date(job.scheduledDate.getTime() + 5.5 * 3600e3).toISOString().slice(0, 10).replace(/-/g, "");
+  const m = job.scheduledTime.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+  let dates = `${ymd}/${ymd}`;
+  if (m) {
+    let h = Number(m[1]) % 12;
+    if (/pm/i.test(m[3])) h += 12;
+    const start = `${ymd}T${String(h).padStart(2, "0")}${m[2] ?? "00"}00`;
+    const end = `${ymd}T${String(Math.min(h + 2, 23)).padStart(2, "0")}${m[2] ?? "00"}00`;
+    dates = `${start}/${end}`;
+  }
+  const q = new URLSearchParams({ action: "TEMPLATE", text: `Sahara Cleaning — ${service} (${job.jobNumber})`, dates, ctz: "Asia/Kolkata", location: job.address || job.area || "" });
+  return `https://calendar.google.com/calendar/render?${q.toString()}`;
+}
 
 export default async function BookingPage({
   params,
@@ -100,6 +118,11 @@ export default async function BookingPage({
           )}
           <p className="flex items-center gap-2"><CalendarDays className="size-4 text-primary" /> {formatDate(job.scheduledDate)}</p>
           <p className="flex items-center gap-2"><Clock className="size-4 text-primary" /> {job.scheduledTime}</p>
+          {open && (
+            <a href={calendarHref(job, SERVICE_LABELS[job.service] ?? job.service)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 px-3 py-1.5 text-xs font-semibold text-primary">
+              <CalendarDays className="size-3.5" /> Add / update in my calendar
+            </a>
+          )}
           <p className="flex items-start gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" /> {job.address || job.area}</p>
           {included.length > 0 && (
             <div>
