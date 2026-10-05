@@ -134,3 +134,49 @@ export function lineTotal(item: PriceItem, qty = 1) {
   if (item.price == null) return null;
   return item.price * Math.max(qty, item.minQty ?? 1);
 }
+
+// ── Live pricing (Super Admin → Pricing & Packages) ──────────────────────
+// The catalogue above supplies names/scope/units and default numbers; the
+// server (src/server/pricing.ts) overlays the CRM-edited regular prices and
+// festival offers and hands this shape to pages and the booking form.
+
+export type FestivalWindow = {
+  id: string;
+  name: string;
+  /** Calendar dates, inclusive, "YYYY-MM-DD". */
+  start: string;
+  end: string;
+  /** contentId → festival price. Items without an entry keep the regular price. */
+  prices: Record<string, number>;
+};
+
+export type LivePricing = { items: PriceItem[]; festivals: FestivalWindow[] };
+
+export type PriceType = "REGULAR" | "FESTIVAL";
+
+/** Festival whose window contains the given "YYYY-MM-DD" date, if any. */
+export function festivalForDate(festivals: FestivalWindow[], ymd: string): FestivalWindow | null {
+  return festivals.find((f) => ymd >= f.start && ymd <= f.end) ?? null;
+}
+
+/** Festivals still bookable on/after the given date (today), soonest first. */
+export function upcomingFestivals(festivals: FestivalWindow[], todayYmd: string): FestivalWindow[] {
+  return festivals.filter((f) => f.end >= todayYmd).sort((a, b) => a.start.localeCompare(b.start));
+}
+
+/** Unit price for an item under a festival (or regular when null / no festival price). */
+export function unitPriceFor(item: PriceItem, festival: FestivalWindow | null): number | null {
+  if (festival && festival.prices[item.contentId] != null) return festival.prices[item.contentId];
+  return item.price;
+}
+
+export const inGroup = (items: PriceItem[], group: PriceGroup) => items.filter((p) => p.group === group);
+
+/** Short customer-facing booking terms — shown on the booking form, job page and Staff App. */
+export const BOOKING_TERMS = [
+  "Package price applies to the selected scope.",
+  "Additional work is chargeable separately after customer approval.",
+  "Additional charges may apply for distant locations or urgent/same-day requirements where applicable.",
+  "Final service scope is confirmed at booking.",
+  "Festival slots are subject to team availability.",
+];

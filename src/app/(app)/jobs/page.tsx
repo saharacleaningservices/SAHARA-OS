@@ -8,7 +8,7 @@ import { NewJobDialog } from "@/components/jobs/new-job-dialog";
 import { getAllJobsForList, getJobsPageStats } from "@/server/jobs";
 import { getStaffForAssignment } from "@/server/staff";
 import { requireUser } from "@/lib/current-user";
-import { canViewRevenue } from "@/lib/permissions";
+import { canViewJobAmount } from "@/lib/permissions";
 import { formatINR } from "@/lib/utils";
 
 export default async function JobsPage() {
@@ -22,8 +22,9 @@ export default async function JobsPage() {
     getStaffForAssignment(),
     canManage ? getJobsPageStats() : Promise.resolve(null),
   ]);
-  const showRevenue = canViewRevenue(session.role);
-  // Non-finance roles never receive money figures, not even in the payload.
+  // Job amount / paid / balance per job — no revenue totals, profit or costs.
+  const showRevenue = canViewJobAmount(session.role);
+  // Roles without job-amount access never receive money figures, not even in the payload.
   const listJobs = showRevenue
     ? jobs
     : jobs.map((j) => ({ ...j, jobValue: 0, payments: j.payments.map((p) => ({ ...p, amount: 0, paidAmount: 0 })) }));

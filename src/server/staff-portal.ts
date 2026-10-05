@@ -10,6 +10,7 @@
 // queries per request (staffId + date), no N+1 loops, no polling.
 
 import { db } from "@/lib/db";
+import { jobPaymentSummary } from "@/lib/payment-status";
 import type { SessionPayload } from "@/lib/session";
 import { computeEarned, type AttendanceCode } from "@/server/attendance";
 
@@ -330,8 +331,19 @@ export async function getMyDay(staffId: string, day: Date) {
     db.job.findMany({
       where: myJobsWhere(staffId, from, to),
       orderBy: { scheduledTime: "asc" },
-      // Scope + site details for the crew. Never customerMobile / jobValue.
-      select: { ...JOB_STAFF_SELECT, address: true, mapLink: true, customerName: true, comboServices: true, notes: true },
+      // Scope, site and collection details for the crew (owner request
+      // 2026-10-05: job amount + payment status so staff needn't call the
+      // office). Never customerMobile, profit, margin or staff cost.
+      select: {
+        ...JOB_STAFF_SELECT,
+        address: true,
+        mapLink: true,
+        customerName: true,
+        comboServices: true,
+        notes: true,
+        jobValue: true,
+        payments: { where: { deletedAt: null }, select: { paidAmount: true } },
+      },
     }),
     db.advance.findMany({ where: { staffId, givenAt: { gte: from, lt: to } }, orderBy: { givenAt: "asc" }, select: { id: true, amount: true, reason: true, givenAt: true } }),
     db.fineRecord.findMany({ where: { staffId, date: { gte: from, lt: to } }, orderBy: { date: "asc" }, select: { id: true, type: true, amount: true, notes: true, date: true } }),
@@ -367,6 +379,8 @@ export async function getMyDay(staffId: string, day: Date) {
       customerName: j.customerName,
       comboServices: parseList(j.comboServices),
       notes: j.notes,
+      jobAmount: j.jobValue,
+      payment: jobPaymentSummary(j.jobValue, j.payments),
       teamNumber: j.teamNumber,
       supervisorName: j.supervisor?.name ?? null,
       team: teamOf(j, staffId),
