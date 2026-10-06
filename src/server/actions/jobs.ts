@@ -12,7 +12,8 @@ import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } f
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
-import { sendWhatsApp } from "@/lib/whatsapp";
+import { sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
@@ -318,6 +319,25 @@ async function sendJobCompletionReview(job: {
     where: { kind: "REVIEW_REQUEST", relatedType: "Job", relatedId: job.id },
   });
   if (already) return;
+
+  // WHATSAPP_REVIEW_TEMPLATE=v2 (with templates on) → approved-template review with a direct
+  // Google Review URL button (sahara_review_request_v2). Otherwise the existing message below.
+  if (process.env.WHATSAPP_USE_TEMPLATES === "on" && process.env.WHATSAPP_REVIEW_TEMPLATE === "v2") {
+    const t = templateByName("sahara_review_request_v2")!;
+    const params = [job.customerName, SERVICE_LABELS[job.service] ?? job.service];
+    await sendWhatsAppTemplate({
+      kind: "REVIEW_REQUEST",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
+    return;
+  }
 
   const settings = await db.companySettings.findUnique({ where: { id: "default" } });
   await sendWhatsApp({
