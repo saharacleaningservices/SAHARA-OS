@@ -31,8 +31,8 @@ export async function searchLeadsForPackage(q: string) {
       deletedAt: null,
       stage: { notIn: ["JOB_SCHEDULED", "COMPLETED", "CANCELLED"] },
       jobs: { none: { deletedAt: null } },
-      OR: [{ name: { contains: term } }, { leadNumber: { contains: term.toUpperCase() } }, ...(digits.length >= 4 ? [{ mobile: { contains: digits } }] : [])],
-      ...fieldLeadWhere(session),
+      // AND, not spread: the field-role scope has its own OR, which must not replace the search terms.
+      AND: [{ OR: [{ name: { contains: term } }, { leadNumber: { contains: term.toUpperCase() } }, ...(digits.length >= 4 ? [{ mobile: { contains: digits } }] : [])] }, fieldLeadWhere(session)],
     },
     orderBy: { createdAt: "desc" },
     take: 8,
