@@ -18,6 +18,9 @@ import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-temp
 // and simply queues while the API isn't connected.
 
 const templatesEnabled = () => process.env.WHATSAPP_USE_TEMPLATES === "on";
+// WHATSAPP_BOOKING_TEMPLATE=v2 → sahara_booking_confirmed_v2 (View Quotation + Payment Options
+// path routes). Anything else keeps the approved v1 sahara_booking_confirmed unchanged.
+const bookingTemplateV2 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v2";
 
 /** Returns the job's unguessable booking-page token, creating it on first use. */
 export async function ensureJobToken(jobId: string) {
@@ -84,6 +87,27 @@ export async function sendBookingConfirmation(jobId: string) {
   // as requested (unless the customer already chose to pay after service).
   if (due > 0 && !job.advanceRequestedAt && job.paymentPreference !== "PAY_AFTER_SERVICE") {
     await db.job.update({ where: { id: job.id }, data: { advanceRequestedAt: new Date() } });
+  }
+
+  if (templatesEnabled() && bookingTemplateV2()) {
+    const t = templateByName("sahara_booking_confirmed_v2")!;
+    const params = [job.customerName, job.jobNumber, service, formatDate(job.scheduledDate), job.scheduledTime, job.area];
+    return sendWhatsAppTemplate({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      // Plain token only — the template URLs are /booking/quotation/{{1}} and /booking/pay/{{1}}.
+      buttonUrlParams: [
+        { index: 0, value: token },
+        { index: 1, value: token },
+      ],
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
   }
 
   if (templatesEnabled()) {
