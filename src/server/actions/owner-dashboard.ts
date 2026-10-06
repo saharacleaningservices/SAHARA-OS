@@ -17,8 +17,9 @@ import { jobDateWindowForRole } from "@/server/jobs";
  */
 export async function fetchLeadMonthCalendar(year: number, month: number) {
   const session = await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"]);
+  // OPERATIONS (Francis): names / job no. / service / area / team / status — never phone, address or payment.
   const detailLevel: CalendarDetailLevel =
-    session.role === "ADMIN" || session.role === "ACCOUNTS" ? "full" : session.role === "SUPERVISOR" ? "supervisor" : "counts";
+    session.role === "ADMIN" || session.role === "ACCOUNTS" ? "full" : session.role === "SUPERVISOR" || session.role === "OPERATIONS" ? "supervisor" : "counts";
   // Francis (OPERATIONS): yesterday / today / tomorrow only — enforced here, not in the client.
   return getLeadMonthCalendar(year, month, detailLevel, session.role === "OPERATIONS" ? jobDateWindowForRole("OPERATIONS") : null);
 }

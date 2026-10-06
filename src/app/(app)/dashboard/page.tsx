@@ -24,7 +24,6 @@ import { getNewLeadsForDashboard } from "@/server/leads";
 import { NewLeadsCard } from "@/components/dashboard/new-leads-card";
 import { getLeadSourceStats } from "@/server/owner";
 import { getLeadMonthCalendar, type CalendarDetailLevel } from "@/server/owner-command-center";
-import { jobDateWindowForRole } from "@/server/jobs";
 import { LeadMonthCalendar } from "@/components/dashboard/owner/lead-calendar";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -42,11 +41,25 @@ import { requireUser } from "@/lib/current-user";
 import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
 import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-center";
+import { OperationsCommandCenter } from "@/components/dashboard/owner/operations-command-center";
 
 export default async function DashboardPage() {
   const session = await requireUser();
   // Field staff use the mobile Staff App, not the office dashboard.
   if (session.role === "STAFF") redirect("/my");
+
+  // Francis (OPERATIONS): Super Admin-style home with Operations data only
+  // (yesterday → tomorrow, no money) — same canonical jobs/leads/calendar.
+  if (session.role === "OPERATIONS") {
+    const newLeads = await getNewLeadsForDashboard(session.sub);
+    return (
+      <OperationsCommandCenter
+        name={session.name.split(" ")[0]}
+        userId={session.sub}
+        newLeads={newLeads ? <NewLeadsCard rows={newLeads.rows} newCount={newLeads.newCount} /> : null}
+      />
+    );
+  }
 
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
     return (
@@ -82,10 +95,9 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     getDashboardData(session.role, session.sub),
     getLeadSourceStats(3),
-    // Francis (OPERATIONS): the calendar only counts yesterday / today / tomorrow.
-    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, calendarDetailLevel, jobDateWindowForRole(session.role === "OPERATIONS" ? "OPERATIONS" : "ADMIN")),
-    // Francis (OPERATIONS): New Leads + Create New Lead, owner request 2026-10-05.
-    session.role === "OPERATIONS" ? getNewLeadsForDashboard(session.sub) : Promise.resolve(null),
+    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, calendarDetailLevel),
+    // Francis (OPERATIONS) has his own Operations Command Center above; New Leads lives there.
+    Promise.resolve(null as Awaited<ReturnType<typeof getNewLeadsForDashboard>> | null),
   ]);
 
   const firstName = session.name.split(" ")[0];
@@ -176,9 +188,6 @@ export default async function DashboardPage() {
             )}
             {showCrmGlobalStats && (
               <StatCard href="/leads" label="Monthly Leads" value={stats.monthlyLeadsCount} icon={<CalendarRange className="size-4" />} tone="blue" />
-            )}
-            {session.role === "OPERATIONS" && (
-              <StatCard href="/jobs?when=yesterday" label="Yesterday's Jobs" value={stats.yesterdaysJobsCount} icon={<ClipboardList className="size-4" />} tone="blue" />
             )}
             <StatCard href="/jobs?when=today" label="Today's Jobs" value={stats.todaysJobsCount} icon={<ClipboardList className="size-4" />} tone="blue" glow={stats.todaysJobsCount > 0} />
             <StatCard href="/jobs?when=tomorrow" label="Tomorrow's Jobs" value={stats.tomorrowsJobsCount} icon={<CalendarClock className="size-4" />} tone="blue" />

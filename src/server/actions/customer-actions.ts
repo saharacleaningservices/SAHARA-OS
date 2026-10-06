@@ -119,7 +119,8 @@ export async function bulkSendWhatsAppCampaign(
   | { success: true; sent: number; queued: number; failed: number; total: number; skipped: number }
 > {
   const session = await getSession();
-  if (!session || !canManageCustomers(session.role)) return { error: "Not authorized" };
+  // Campaign sending is Super Admin (Altaf) only — owner rule 2026-10-06.
+  if (!session || session.role !== "ADMIN") return { error: "Only the Super Admin can send WhatsApp campaigns" };
   const body = message.trim();
   if (!body) return { error: "Message is required" };
   if (recipients.length === 0) return { error: "No recipients selected" };
