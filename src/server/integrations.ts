@@ -171,6 +171,11 @@ export type IntegrationStatusForUi = {
     lastError: string | null;
     queuedCount: number;
     failedCount: number;
+    /** Outbound safety (owner rule 2026-10-06) — TEST unless WHATSAPP_OUTBOUND_MODE=live. */
+    outboundMode: "TEST" | "LIVE";
+    testNumbers: string[];
+    blockedCount: number;
+    switches: { autoReplies: boolean; aiAssistant: boolean; campaigns: boolean; templates: boolean; bookingChangeNotices: boolean };
   };
   googleMaps: {
     configured: boolean;
@@ -190,14 +195,17 @@ export type IntegrationStatusForUi = {
 };
 
 export async function getIntegrationStatusForUi(): Promise<IntegrationStatusForUi> {
-  const [resolved, row, queuedCount, failedCount, lastBackup, autoBackupCount] = await Promise.all([
+  const { whatsappOutboundMode, WHATSAPP_TEST_MODE_NUMBERS, WHATSAPP_TEST_MODE_BLOCK } = await import("@/lib/whatsapp");
+  const [resolved, row, queuedCount, failedCount, lastBackup, autoBackupCount, blockedCount] = await Promise.all([
     getResolvedIntegrations(),
     getIntegrationSettingsRow(),
-    db.whatsAppMessage.count({ where: { status: "QUEUED" } }),
-    db.whatsAppMessage.count({ where: { status: "FAILED" } }),
+    db.whatsAppMessage.count({ where: { status: "QUEUED", direction: "OUTBOUND" } }),
+    db.whatsAppMessage.count({ where: { status: "FAILED", direction: "OUTBOUND" } }),
     db.backupEvent.findFirst({ where: { status: "SUCCESS" }, orderBy: { createdAt: "desc" } }),
     db.backupEvent.count({ where: { kind: "AUTO", status: "SUCCESS" } }),
+    db.whatsAppMessage.count({ where: { status: "CANCELLED", errorMessage: WHATSAPP_TEST_MODE_BLOCK } }),
   ]);
+  const on = (k: string) => process.env[k] === "on";
 
   return {
     whatsapp: {
@@ -211,6 +219,16 @@ export async function getIntegrationStatusForUi(): Promise<IntegrationStatusForU
       lastError: resolved.whatsapp.lastError,
       queuedCount,
       failedCount,
+      outboundMode: whatsappOutboundMode(),
+      testNumbers: [...WHATSAPP_TEST_MODE_NUMBERS],
+      blockedCount,
+      switches: {
+        autoReplies: on("WHATSAPP_AUTO_REPLIES"),
+        aiAssistant: on("WHATSAPP_AI_ENABLED"),
+        campaigns: on("WHATSAPP_CAMPAIGNS"),
+        templates: on("WHATSAPP_USE_TEMPLATES"),
+        bookingChangeNotices: on("WHATSAPP_BOOKING_CHANGE_NOTICES"),
+      },
     },
     googleMaps: {
       configured: resolved.googleMaps.configured,

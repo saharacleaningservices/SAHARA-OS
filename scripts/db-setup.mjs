@@ -1524,3 +1524,14 @@ db.close();
   console.log("Money Khata corrections migration complete.");
   kDb.close();
 }
+
+// WhatsApp intake idempotency — additive nullable unique column on Lead.
+// Existing leads keep NULL (SQLite allows many NULLs under a unique index).
+{
+  const wDb = new Database(dbPath);
+  const have = wDb.prepare(`PRAGMA table_info("Lead")`).all().map((c) => c.name);
+  if (!have.includes("intakeKey")) wDb.exec(`ALTER TABLE "Lead" ADD COLUMN "intakeKey" TEXT`);
+  wDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Lead_intakeKey_key" ON "Lead"("intakeKey")`);
+  console.log("WhatsApp intake idempotency migration complete.");
+  wDb.close();
+}

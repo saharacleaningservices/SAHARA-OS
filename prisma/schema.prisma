@@ -463,6 +463,7 @@ model Lead {
   source          LeadSource
   quoteAmount     Float?
   stage           LeadStage   @default(NEW)
+  intakeKey       String?   @unique // automatic-intake idempotency key, e.g. "WA:<mobile>:<IST day>" — one WhatsApp lead per customer per day
   followUpDate    DateTime?
   serviceDate     DateTime? // customer-requested service date (from the booking form) — distinct from followUpDate
   timeSlot        String? // customer-requested slot, e.g. "10:00 AM" — carried into Job.scheduledTime on confirm

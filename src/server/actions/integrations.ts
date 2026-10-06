@@ -8,8 +8,7 @@ import Database from "better-sqlite3";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { COMPANY } from "@/lib/constants";
-import { flushWhatsAppQueue, sendWhatsApp } from "@/lib/whatsapp";
+import { isOutboundAllowed, sendWhatsApp, WHATSAPP_TEST_MODE_NUMBERS, whatsappOutboundMode } from "@/lib/whatsapp";
 import {
   ensureBackupToken,
   getResolvedIntegrations,
@@ -62,13 +61,11 @@ export async function saveWhatsAppSettings(values: unknown) {
     session
   );
 
-  // Credentials just changed — drain anything that was waiting.
-  const flush = await flushWhatsAppQueue({ includeFailed: true });
+  // Saving credentials never sends the old backlog (owner rule 2026-10-06):
+  // report what is waiting so it can be reviewed / cancelled first.
+  const pending = await db.whatsAppMessage.count({ where: { status: { in: ["QUEUED", "FAILED"] }, direction: "OUTBOUND" } });
   refresh();
-  return {
-    success: true as const,
-    flushed: flush.ok ? { sent: flush.sent, failed: flush.failed } : null,
-  };
+  return { success: true as const, pending };
 }
 
 export async function clearWhatsAppSettings() {
@@ -89,12 +86,11 @@ export async function testWhatsApp(values: unknown) {
   const parsed = z.object({ number: z.string().optional() }).safeParse(values);
   const explicit = parsed.success ? parsed.data.number?.trim() : "";
 
-  let target = explicit || "";
-  if (!target) {
-    const me = await db.user.findUnique({ where: { id: session!.sub } });
-    target = me?.phone?.trim() || COMPANY.phones[0];
+  // TEST MODE: the test message goes to the approved test number unless another number is allowed.
+  const target = explicit || WHATSAPP_TEST_MODE_NUMBERS[0];
+  if (!isOutboundAllowed(target)) {
+    return { error: `WhatsApp is in ${whatsappOutboundMode()} MODE — test messages can only go to the approved test number.` };
   }
-  if (!target) return { error: "No phone number to send the test to — add yours in your profile." };
 
   const { whatsapp } = await getResolvedIntegrations();
   if (!whatsapp.configured) return { error: "Save the WhatsApp credentials first." };

@@ -12,9 +12,9 @@
 //   /settings → Integrations, or the WHATSAPP_* env vars), it calls the
 //   real Meta Graph API and marks the row SENT/FAILED.
 // - If it is NOT configured, the row is left QUEUED and nothing is sent.
-//   No code change is needed later — the moment credentials are saved,
-//   `flushWhatsAppQueue()` runs automatically (see
-//   src/server/actions/integrations.ts) and every queued message goes out.
+//   Saving credentials does NOT send the backlog (owner rule 2026-10-06);
+//   queued rows go out only via the reminder cron's flush, and only in LIVE
+//   mode for non-test numbers — see Outbound TEST MODE below.
 //
 // Credentials are resolved through src/server/integrations.ts, which reads
 // the IntegrationSettings row first and falls back to env vars.
@@ -73,6 +73,32 @@ export function normalizeNumber(mobile: string): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// Outbound TEST MODE (owner rule 2026-10-06). TEST is the default: the ONLY
+// number that may receive any outbound WhatsApp message is the owner's
+// approved test number below — every other recipient (customers, staff,
+// admins) is blocked. LIVE needs WHATSAPP_OUTBOUND_MODE=live in the server
+// environment, set only after the owner approves go-live.
+//  - A blocked message is recorded CANCELLED with the reason at creation, so
+//    it never sits in the queue and can never be sent later.
+//  - deliverPayload() re-checks before every Meta API call (no bypass).
+//  - flushWhatsAppQueue() in TEST mode leaves other numbers' old queued rows
+//    untouched — they are reviewed / cancelled by the owner, never sent.
+// The allowlist is deliberately code, not env, so it cannot widen silently.
+// ─────────────────────────────────────────────────────────────────────────
+
+export const WHATSAPP_TEST_MODE_NUMBERS: readonly string[] = ["919921215250"];
+export const WHATSAPP_TEST_MODE_BLOCK = "Blocked — WhatsApp TEST MODE (only the approved test number may receive messages)";
+
+export function whatsappOutboundMode(): "TEST" | "LIVE" {
+  return process.env.WHATSAPP_OUTBOUND_MODE === "live" ? "LIVE" : "TEST";
+}
+
+/** True if a message may be delivered to this number right now. */
+export function isOutboundAllowed(mobile: string): boolean {
+  return whatsappOutboundMode() === "LIVE" || WHATSAPP_TEST_MODE_NUMBERS.includes(normalizeNumber(mobile));
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // Consent / opt-out tracking (Phase D). One row per phone number, checked
 // before every send. Flipped automatically by the inbound webhook when a
 // customer texts an opt-out/opt-in keyword (see
@@ -124,6 +150,8 @@ type SendConfig = {
 };
 
 async function deliverPayload(toNumber: string, body: Record<string, unknown>, cfg: SendConfig) {
+  // Last line of defence: nothing reaches Meta for a blocked number, whatever the caller.
+  if (!isOutboundAllowed(toNumber)) return { ok: false as const, error: WHATSAPP_TEST_MODE_BLOCK };
   const res = await fetch(
     `https://graph.facebook.com/${cfg.apiVersion}/${cfg.phoneNumberId}/messages`,
     {
@@ -201,6 +229,7 @@ export async function sendWhatsApp(input: {
 }) {
   const toNumber = normalizeNumber(input.toNumber);
   const optedOut = input.skipConsentCheck ? false : await isOptedOut(toNumber);
+  const blocked = !optedOut && !isOutboundAllowed(toNumber);
 
   const message = await db.whatsAppMessage.create({
     data: {
@@ -210,13 +239,16 @@ export async function sendWhatsApp(input: {
       body: input.body,
       relatedType: input.relatedType ?? null,
       relatedId: input.relatedId ?? null,
-      status: optedOut ? "FAILED" : "QUEUED",
-      errorMessage: optedOut ? WHATSAPP_OPT_OUT_ERROR : null,
+      status: optedOut ? "FAILED" : blocked ? "CANCELLED" : "QUEUED",
+      errorMessage: optedOut ? WHATSAPP_OPT_OUT_ERROR : blocked ? WHATSAPP_TEST_MODE_BLOCK : null,
     },
   });
 
   if (optedOut) {
     return { queued: false as const, sent: false as const, id: message.id, error: WHATSAPP_OPT_OUT_ERROR };
+  }
+  if (blocked) {
+    return { queued: false as const, sent: false as const, id: message.id, error: WHATSAPP_TEST_MODE_BLOCK, blocked: true as const };
   }
 
   const { whatsapp } = await getResolvedIntegrations();
@@ -272,6 +304,7 @@ export async function sendWhatsAppInteractiveList(input: {
 }) {
   const toNumber = normalizeNumber(input.toNumber);
   const optedOut = await isOptedOut(toNumber);
+  const blocked = !optedOut && !isOutboundAllowed(toNumber);
   const summary = `${input.bodyText}\n${input.rows.map((r) => `• ${r.title}`).join("\n")}`;
 
   const message = await db.whatsAppMessage.create({
@@ -282,13 +315,16 @@ export async function sendWhatsAppInteractiveList(input: {
       body: summary,
       relatedType: input.relatedType ?? null,
       relatedId: input.relatedId ?? null,
-      status: optedOut ? "FAILED" : "QUEUED",
-      errorMessage: optedOut ? WHATSAPP_OPT_OUT_ERROR : null,
+      status: optedOut ? "FAILED" : blocked ? "CANCELLED" : "QUEUED",
+      errorMessage: optedOut ? WHATSAPP_OPT_OUT_ERROR : blocked ? WHATSAPP_TEST_MODE_BLOCK : null,
     },
   });
 
   if (optedOut) {
     return { queued: false as const, sent: false as const, id: message.id, error: WHATSAPP_OPT_OUT_ERROR };
+  }
+  if (blocked) {
+    return { queued: false as const, sent: false as const, id: message.id, error: WHATSAPP_TEST_MODE_BLOCK, blocked: true as const };
   }
 
   const { whatsapp } = await getResolvedIntegrations();
@@ -326,11 +362,13 @@ export async function sendWhatsAppMany(inputs: Parameters<typeof sendWhatsApp>[0
 }
 
 /**
- * Sends every message still sitting in the queue. Called automatically right
- * after WhatsApp credentials are saved in Settings, and available as a
- * manual "Flush queue" button. Optionally also retries recently FAILED
- * messages (e.g. after fixing an expired token). Messages to a number that
- * has since opted out are marked FAILED instead of being (re)sent.
+ * Sends messages still sitting in the queue (reminder cron). NOT run when
+ * credentials are saved — an old backlog must never go out on connect.
+ * Optionally also retries recently FAILED messages (e.g. after fixing an
+ * expired token). Messages to a number that has since opted out are marked
+ * FAILED instead of being (re)sent. In TEST mode only rows for the approved
+ * test number are processed; every other row is left exactly as it is
+ * (counted as `held`) for the owner to review / cancel — never sent.
  */
 export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?: number } = {}) {
   const { includeFailed = false, limit = 300 } = opts;
@@ -361,7 +399,12 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
   let sent = 0;
   let failed = 0;
   let skippedOptedOut = 0;
+  let held = 0;
   for (const m of pending) {
+    if (!isOutboundAllowed(m.toNumber)) {
+      held += 1;
+      continue;
+    }
     if (await isOptedOut(m.toNumber)) {
       await db.whatsAppMessage.update({
         where: { id: m.id },
@@ -394,7 +437,7 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
     }
   }
 
-  return { ok: true as const, sent, failed, skippedOptedOut, processed: pending.length };
+  return { ok: true as const, sent, failed, skippedOptedOut, held, processed: pending.length };
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -468,6 +511,23 @@ export async function sendWhatsAppTemplate(input: {
   relatedId?: string;
 }) {
   const toNumber = normalizeNumber(input.toNumber);
+  if (!isOutboundAllowed(toNumber)) {
+    // Recorded for audit, never sent and never retried.
+    const blockedRow = await db.whatsAppMessage.create({
+      data: {
+        kind: input.kind,
+        toNumber,
+        toName: input.toName ?? null,
+        body: input.preview,
+        templateName: input.templateName,
+        relatedType: input.relatedType ?? null,
+        relatedId: input.relatedId ?? null,
+        status: "CANCELLED",
+        errorMessage: WHATSAPP_TEST_MODE_BLOCK,
+      },
+    });
+    return { sent: false as const, id: blockedRow.id, error: WHATSAPP_TEST_MODE_BLOCK };
+  }
   const { whatsapp } = await getResolvedIntegrations();
   if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
     return { sent: false as const, error: "WhatsApp Cloud API is not connected" };
@@ -518,15 +578,33 @@ export async function sendWhatsAppTemplate(input: {
   return result.ok ? { sent: true as const, id: message.id } : { sent: false as const, id: message.id, error: result.error };
 }
 
-/** Latest lead for a phone number (last 10 digits), newest first. */
-export async function findLeadForNumber(number: string) {
-  const mobile = number.replace(/\D/g, "").slice(-10);
-  if (mobile.length !== 10) return null;
-  return db.lead.findFirst({
-    where: { deletedAt: null, OR: [{ mobile }, { whatsapp: mobile }] },
+/** Last 10 digits of any stored phone format ("+91 75203 63157", "09730048233", …). */
+export const last10Digits = (n: string | null | undefined) => (n ?? "").replace(/\D/g, "").slice(-10);
+
+/**
+ * Every non-deleted lead whose mobile, WhatsApp or alternate number is this
+ * customer, whatever format it was stored in — newest first. Candidates are
+ * narrowed in SQL by the last 4 digits, then matched exactly on the last 10.
+ */
+export async function findLeadsForMobile(mobile10: string) {
+  if (mobile10.length !== 10) return [];
+  const tail = mobile10.slice(-4);
+  const rows = await db.lead.findMany({
+    where: { deletedAt: null, OR: [{ mobile: { contains: tail } }, { whatsapp: { contains: tail } }, { alternateMobile: { contains: tail } }] },
     orderBy: { createdAt: "desc" },
-    select: { id: true, leadNumber: true, name: true, service: true, stage: true, source: true, acquisitionCampaign: true },
+    take: 200,
+    select: {
+      id: true, leadNumber: true, name: true, service: true, stage: true, source: true, acquisitionCampaign: true,
+      createdAt: true, mobile: true, whatsapp: true, alternateMobile: true,
+    },
   });
+  return rows.filter((r) => [r.mobile, r.whatsapp, r.alternateMobile].some((n) => last10Digits(n) === mobile10));
+}
+
+/** Latest lead for a phone number (any stored format), newest first. */
+export async function findLeadForNumber(number: string) {
+  const [lead] = await findLeadsForMobile(last10Digits(number));
+  return lead ?? null;
 }
 
 /**

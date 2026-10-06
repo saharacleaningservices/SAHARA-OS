@@ -4989,6 +4989,7 @@ export const LeadScalarFieldEnum = {
   source: 'source',
   quoteAmount: 'quoteAmount',
   stage: 'stage',
+  intakeKey: 'intakeKey',
   followUpDate: 'followUpDate',
   serviceDate: 'serviceDate',
   timeSlot: 'timeSlot',
