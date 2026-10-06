@@ -325,7 +325,7 @@ export async function getLeadMonthCalendar(
         name: l.name,
         stage: l.stage,
         leadNumber: l.leadNumber,
-        service: l.service,
+        service: SERVICE_LABELS[l.service as keyof typeof SERVICE_LABELS] ?? l.service,
         teamNumber: l.teamNumber,
         area: l.area,
         statusLabel: l.postponed ? STATUS_LABEL.postponed : sb ? STATUS_LABEL[sb] : "Pending",
@@ -478,3 +478,34 @@ export async function getOwnerCommandCenterHome() {
 }
 
 export type OwnerCommandCenterData = Awaited<ReturnType<typeof getOwnerCommandCenterHome>>;
+
+/**
+ * Francis (OPERATIONS) home — the Super Admin layout with Operations data
+ * only. Same canonical sources as getOwnerCommandCenterHome (dayBreakdown,
+ * getLeadMonthCalendar), so a booking on Altaf's calendar inside the
+ * yesterday→tomorrow window is exactly the same entry here. No money: the
+ * day collection figures are dropped server-side and nothing financial is
+ * loaded (no revenue, target, payments, expenses, profit, staff cost).
+ */
+export async function getOperationsHome() {
+  const { jobDateWindowForRole } = await import("@/server/jobs");
+  const now = new Date();
+  const window = jobDateWindowForRole("OPERATIONS");
+  const opsDay = async (offset: number) => {
+    const d = addDays(now, offset);
+    const { collectionAmount: _amount, collectionCount: _count, ...rest } = await dayBreakdown(startOfDay(d), endOfDay(d));
+    void _amount;
+    void _count;
+    return rest;
+  };
+  const [yesterday, today, tomorrow, totalLeadsCount, monthlyLeadsCount, calendar] = await Promise.all([
+    opsDay(-1),
+    opsDay(0),
+    opsDay(1),
+    db.lead.count({ where: { deletedAt: null } }),
+    db.lead.count({ where: { deletedAt: null, createdAt: { gte: startOfMonth(now), lte: endOfMonth(now) } } }),
+    // Names + job/lead no. + service + area + team + status — no phone, address or payment.
+    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, "supervisor", window),
+  ]);
+  return { yesterday, today, tomorrow, totalLeadsCount, monthlyLeadsCount, calendar };
+}

@@ -29,7 +29,8 @@ export default async function CustomersPage() {
         description={`${customers.length} customers · ${formatINR(outstanding)} outstanding`}
         actions={canManage ? <CustomerImportDialog /> : null}
       />
-      <CustomersExplorer customers={customers} canCampaign={canManage} />
+      {/* WhatsApp campaigns (audience / template / sending) are Super Admin only — owner rule 2026-10-06. */}
+      <CustomersExplorer customers={customers} canCampaign={session.role === "ADMIN"} />
     </div>
   );
 }
