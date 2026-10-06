@@ -71,7 +71,7 @@ function dayBody(data: OpsDay, when: "yesterday" | "today" | "tomorrow") {
  * profit, margin, salary, loan, staff cost, revenue or payment totals.
  */
 export async function OperationsCommandCenter({ name, userId, newLeads }: { name: string; userId: string; newLeads?: ReactNode }) {
-  const [{ yesterday, today, tomorrow, totalLeadsCount, monthlyLeadsCount, calendar }, { stats }] = await Promise.all([
+  const [{ yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar }, { stats }] = await Promise.all([
     getOperationsHome(),
     // Team / vehicle / AMC counts he already uses today (counts only — no money is rendered from this).
     getDashboardData("OPERATIONS", userId),
@@ -114,20 +114,21 @@ export async function OperationsCommandCenter({ name, userId, newLeads }: { name
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <ExpandableCard trigger={tile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}>{dayBody(today, "today")}</ExpandableCard>
         <ExpandableCard trigger={tile(<CalendarClock className="size-5" />, "bg-indigo-500/15 text-indigo-600", "Tomorrow's Jobs", tomorrow.totalJobs, "Tap for the full list")}>{dayBody(tomorrow, "tomorrow")}</ExpandableCard>
-        <Link href="/leads" className="rounded-xl border border-border bg-card p-4 hover:border-primary/40">
-          {tile(<Users className="size-5" />, "bg-blue-500/15 text-blue-600", "Total Leads", totalLeadsCount, "All enquiries")}
-        </Link>
-        <Link href="/leads" className="rounded-xl border border-border bg-card p-4 hover:border-primary/40">
-          {tile(<CalendarRange className="size-5" />, "bg-teal-500/15 text-teal-600", "Monthly Leads", monthlyLeadsCount, "This month")}
-        </Link>
+        {/* Both lead tiles open the Booking Calendar below (owner rule 2026-10-06). */}
+        <a href="#booking-calendar" className="rounded-xl border border-border bg-card p-4 hover:border-primary/40">
+          {tile(<CalendarRange className="size-5" />, "bg-teal-500/15 text-teal-600", "Today Leads", todaysLeadsCount, "Tap for the booking calendar")}
+        </a>
+        <a href="#booking-calendar" className="rounded-xl border border-border bg-card p-4 hover:border-primary/40">
+          {tile(<Users className="size-5" />, "bg-blue-500/15 text-blue-600", "Total Leads", totalLeadsCount, "Tap for the booking calendar")}
+        </a>
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card id="booking-calendar" className="scroll-mt-20 lg:col-span-2">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <CalendarDays className="size-4 text-primary" /> Booking Calendar
-              <span className="text-xs font-normal text-muted-foreground">· yesterday, today &amp; tomorrow</span>
+              <span className="text-xs font-normal text-muted-foreground">· customer phone shown for yesterday, today &amp; tomorrow</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -136,7 +137,7 @@ export async function OperationsCommandCenter({ name, userId, newLeads }: { name
               initialMonth={calendar.month}
               initialDays={calendar.days}
               initialLeadsByDay={calendar.leadsByDay}
-              detailLevel="supervisor"
+              detailLevel="operations"
             />
           </CardContent>
         </Card>
