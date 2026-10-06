@@ -154,10 +154,16 @@ function bucketForStage(stage: string): "green" | "blue" | "orange" | "red" | "w
 //  - "counts" (Shoyab/OPERATIONS): no per-lead list at all, only the day's
 //    status-count breakdown (Pending/Confirmed/Postponed/Cancelled/Site
 //    Visits/Job count).
-export type CalendarDetailLevel = "full" | "supervisor" | "counts";
+//  - "operations" (Francis/OPERATIONS, owner rule 2026-10-06): every date —
+//    customer name, job/booking no., service, address, team / assigned staff,
+//    status; the customer phone ONLY for entries dated yesterday / today /
+//    tomorrow (decided here, server-side — never sent for other dates).
+export type CalendarDetailLevel = "full" | "supervisor" | "operations" | "counts";
 
 export type CalendarLead = {
   id: string;
+  bookingNo?: string;
+  assignedStaff?: string | null;
   name: string;
   stage: string;
   statusLabel?: string;
@@ -216,6 +222,8 @@ export async function getLeadMonthCalendar(
   detailLevel: CalendarDetailLevel = "full",
   /** Time-scoped roles (Francis): only days inside this window are counted. */
   window: { from: Date; to: Date } | null = null,
+  /** "operations" level: phone numbers are included only for entries inside this window. */
+  phoneWindow: { from: Date; to: Date } | null = null,
 ) {
   const monthStart = startOfMonth(new Date(year, month - 1, 1));
   const monthEnd = endOfMonth(monthStart);
@@ -264,6 +272,7 @@ export async function getLeadMonthCalendar(
         area: true,
         address: true,
         jobNumber: true,
+        assignments: { select: { staff: { select: { name: true } } } },
         lead: { select: leadSelect },
       },
       orderBy: { scheduledDate: "asc" },
@@ -272,7 +281,7 @@ export async function getLeadMonthCalendar(
   // Job status → the calendar's lead-stage vocabulary (colours / status counts).
   const jobStage = (status: string) => (status === "CANCELLED" ? "CANCELLED" : status === "COMPLETED" ? "COMPLETED" : "JOB_SCHEDULED");
   const leads = [
-    ...openLeads.map((l) => ({ ...l, day: l.followUpDate ?? l.createdAt, postponed: false })),
+    ...openLeads.map((l) => ({ ...l, day: l.followUpDate ?? l.createdAt, postponed: false, bookingNo: l.leadNumber, jobCustomer: null as string | null, jobMobile: null as string | null, staffNames: null as string | null })),
     ...jobs.map((j) => ({
       ...(j.lead ?? { name: j.customerName, mobile: j.customerMobile, leadNumber: j.jobNumber, quoteAmount: null, advanceAmount: null, paymentStatus: null }),
       id: j.id,
@@ -283,6 +292,10 @@ export async function getLeadMonthCalendar(
       address: j.address,
       day: j.scheduledDate,
       postponed: j.status === "POSTPONED",
+      bookingNo: j.jobNumber,
+      jobCustomer: j.customerName,
+      jobMobile: j.customerMobile,
+      staffNames: j.assignments.map((a) => a.staff.name).join(", ") || null,
     })),
   ];
 
@@ -317,6 +330,22 @@ export async function getLeadMonthCalendar(
         quoteAmount: l.quoteAmount,
         advanceAmount: l.advanceAmount,
         paymentStatus: l.paymentStatus,
+      });
+    } else if (detailLevel === "operations") {
+      const sb = statusBucketForStage(l.stage);
+      const phoneOk = !!phoneWindow && l.day >= phoneWindow.from && l.day <= phoneWindow.to;
+      arr.push({
+        id: l.id,
+        name: l.jobCustomer ?? l.name,
+        stage: l.stage,
+        bookingNo: l.bookingNo,
+        service: SERVICE_LABELS[l.service as keyof typeof SERVICE_LABELS] ?? l.service,
+        address: l.address,
+        area: l.area,
+        teamNumber: l.teamNumber,
+        assignedStaff: l.staffNames,
+        statusLabel: l.postponed ? STATUS_LABEL.postponed : sb ? STATUS_LABEL[sb] : "Pending",
+        ...(phoneOk ? { mobile: l.jobMobile ?? l.mobile } : {}),
       });
     } else {
       const sb = statusBucketForStage(l.stage);
@@ -498,14 +527,14 @@ export async function getOperationsHome() {
     void _count;
     return rest;
   };
-  const [yesterday, today, tomorrow, totalLeadsCount, monthlyLeadsCount, calendar] = await Promise.all([
+  const [yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar] = await Promise.all([
     opsDay(-1),
     opsDay(0),
     opsDay(1),
     db.lead.count({ where: { deletedAt: null } }),
-    db.lead.count({ where: { deletedAt: null, createdAt: { gte: startOfMonth(now), lte: endOfMonth(now) } } }),
-    // Names + job/lead no. + service + area + team + status — no phone, address or payment.
-    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, "supervisor", window),
+    db.lead.count({ where: { deletedAt: null, createdAt: { gte: startOfDay(now), lte: endOfDay(now) } } }),
+    // Every date; customer phone only for yesterday / today / tomorrow (server-side).
+    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, "operations", null, window),
   ]);
-  return { yesterday, today, tomorrow, totalLeadsCount, monthlyLeadsCount, calendar };
+  return { yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar };
 }

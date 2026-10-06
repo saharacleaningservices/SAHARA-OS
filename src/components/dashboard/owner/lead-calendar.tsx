@@ -8,9 +8,11 @@ import { LeadStageBadge } from "@/components/shared/status-badge";
 import { fetchLeadMonthCalendar } from "@/server/actions/owner-dashboard";
 import { toTelLink, cn } from "@/lib/utils";
 
-type CalendarDetailLevel = "full" | "supervisor" | "counts";
+type CalendarDetailLevel = "full" | "supervisor" | "operations" | "counts";
 type CalendarLead = {
   id: string;
+  bookingNo?: string;
+  assignedStaff?: string | null;
   name: string;
   stage: string;
   statusLabel?: string;
@@ -199,7 +201,24 @@ export function LeadMonthCalendar({
                 <p className="text-sm text-muted-foreground">No leads this day.</p>
               )}
               {selectedLeads.map((l) =>
-                detailLevel === "supervisor" ? (
+                detailLevel === "operations" ? (
+                  <div key={l.id} className="rounded-lg border border-border px-2.5 py-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-medium text-foreground">{l.name}</p>
+                      <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">{l.statusLabel}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{[l.bookingNo, l.service].filter(Boolean).join(" · ")}</p>
+                    {(l.address || l.area) && <p className="text-xs text-muted-foreground">{[l.address, l.area].filter(Boolean).join(" · ")}</p>}
+                    {(l.teamNumber || l.assignedStaff) && (
+                      <p className="text-xs text-muted-foreground">{[l.teamNumber ? `Team ${l.teamNumber}` : null, l.assignedStaff].filter(Boolean).join(" · ")}</p>
+                    )}
+                    {l.mobile && (
+                      <a href={toTelLink(l.mobile)} className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                        <Phone className="size-3" /> {l.mobile}
+                      </a>
+                    )}
+                  </div>
+                ) : detailLevel === "supervisor" ? (
                   <div key={l.id} className="rounded-lg border border-border px-2.5 py-2">
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-medium text-foreground">{l.name}</p>
