@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import {
   applyWhatsAppStatus,
   findLeadForNumber,
+  findLeadsForMobile,
+  last10Digits,
   recordInboundWhatsApp,
   sendWhatsApp as sendWhatsAppNow,
   sendWhatsAppInteractiveList as sendWhatsAppInteractiveListNow,
@@ -247,7 +249,7 @@ async function handleInboundMessages(value: MetaChangeValue) {
       m.text?.body || m.button?.text || m.interactive?.list_reply?.title || m.interactive?.button_reply?.title || `(${m.type || "message"})`;
     const inbound = await recordInboundWhatsApp({ from: m.from, providerMessageId: m.id, body: inboundText, profileName }).catch(() => undefined);
     if (inbound === null) continue;
-    await processInboundMessage({ ...m, from: m.from }, reviewUrl);
+    await processInboundMessage({ ...m, from: m.from }, reviewUrl, profileName);
     if (inbound && !inbound.relatedId) {
       // A brand-new inquiry creates its lead during processing — link it now.
       const lead = await findLeadForNumber(m.from);
@@ -257,7 +259,7 @@ async function handleInboundMessages(value: MetaChangeValue) {
 }
 
 /** The original per-message routing (opt-out/in, MORE, inquiries, quick replies). */
-async function processInboundMessage(m: MetaInboundMessage & { from: string }, reviewUrl: string) {
+async function processInboundMessage(m: MetaInboundMessage & { from: string }, reviewUrl: string, profileName: string | null = null) {
   {
     if (m.type === "text") {
       const body = (m.text?.body || "").trim();
@@ -290,7 +292,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
         // missed-call/route.ts) — same dedup logic, same auto-lead shape —
         // so a customer already mid-conversation about an open enquiry or
         // job doesn't get a duplicate Lead created for every message.
-        await handleWhatsAppInquiry(m.from, body);
+        await handleWhatsAppInquiry(m.from, body, profileName);
         await aiRespond(m.from, body);
       }
       return;
@@ -380,47 +382,93 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
   }
 }
 
-/**
- * Auto-creates a Lead from a genuine new WhatsApp inquiry, deduped exactly
- * like the missed-call webhook: if the customer already has an open-stage
- * lead or one created in the last 24 hours, this just logs a timeline
- * entry on it instead of creating a duplicate. Source is WHATSAPP (see the
- * LeadSource enum) so this is reportable the same way CALL/WEBSITE/GMB
- * sources already are.
- */
-async function handleWhatsAppInquiry(from: string, body: string) {
-  const mobile = from.replace(/\D/g, "").slice(-10);
-  if (mobile.length !== 10) return;
+/** WhatsApp profile name → safe lead name (or null): no control chars, no bare numbers, max 60 chars. */
+function cleanProfileName(name: string | null | undefined): string | null {
+  const n = (name ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+  return n && /[\p{L}]/u.test(n) ? n : null;
+}
 
-  const recent = await db.lead.findFirst({
-    where: {
-      mobile,
-      deletedAt: null,
-      OR: [{ stage: { notIn: ["COMPLETED", "CANCELLED"] } }, { createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }],
-    },
-    orderBy: { createdAt: "desc" },
-  });
+const istDay = () => new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+const isUniqueViolation = (e: unknown, field: string) => {
+  const err = e as { code?: string; meta?: { target?: unknown } };
+  return err?.code === "P2002" && String(err.meta?.target ?? "").includes(field);
+};
+
+/**
+ * WhatsApp → ONE Lead. Never confirms a booking — the lead starts at NEW for
+ * office qualification.
+ *  1. Same customer (mobile / WhatsApp / alternate number, any stored format)
+ *     with an open enquiry, or a lead created in the last 24 hours → timeline
+ *     note on that lead, no new lead.
+ *  2. Same customer with an active job (booked, not completed/cancelled) →
+ *     note on that job's lead (or the job's activity log), no new lead.
+ *  3. Otherwise create one NEW lead (source WHATSAPP) + 15-minute follow-up +
+ *     team alert. `intakeKey` (unique: WA:<mobile>:<IST day>) makes this
+ *     idempotent: if two messages race, the database lets only one insert
+ *     win and the other becomes a timeline note on the winner.
+ * Existing leads and jobs are never modified (only notes are added).
+ */
+async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null) {
+  const mobile = last10Digits(from);
+  if (mobile.length !== 10) return;
+  const note = `Inbound WhatsApp: "${body.slice(0, 300)}"`;
+
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const recent = (await findLeadsForMobile(mobile)).find((l) => !["COMPLETED", "CANCELLED"].includes(l.stage) || l.createdAt >= dayAgo);
   if (recent) {
-    await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: `Inbound WhatsApp: "${body.slice(0, 300)}"` }).catch(() => {});
+    await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: note }).catch(() => {});
     return;
   }
 
+  const tail = mobile.slice(-4);
+  const activeJob = (
+    await db.job.findMany({
+      where: { deletedAt: null, status: { notIn: ["COMPLETED", "CANCELLED"] }, OR: [{ customerMobile: { contains: tail } }, { alternateMobile: { contains: tail } }] },
+      orderBy: { scheduledDate: "asc" },
+      take: 50,
+      select: { id: true, leadId: true, customerMobile: true, alternateMobile: true },
+    })
+  ).find((j) => last10Digits(j.customerMobile) === mobile || last10Digits(j.alternateMobile) === mobile);
+  if (activeJob) {
+    if (activeJob.leadId) await addTimelineEntry({ leadId: activeJob.leadId, type: "NOTE", body: note }).catch(() => {});
+    else await db.activityLog.create({ data: { jobId: activeJob.id, action: note.slice(0, 300) } }).catch(() => {});
+    return;
+  }
+
+  const intakeKey = `WA:${mobile}:${istDay()}`;
   const existingCustomer = await db.customer.findUnique({ where: { mobile } }).catch(() => null);
-  const leadNumber = await generateLeadNumber();
-  const lead = await db.lead.create({
-    data: {
-      leadNumber,
-      name: existingCustomer?.name || `WhatsApp inquiry ${mobile}`,
-      mobile,
-      whatsapp: mobile,
-      area: existingCustomer?.area || "—",
-      address: existingCustomer?.address || null,
-      service: "HOME_DEEP_CLEANING" as never,
-      source: "WHATSAPP" as never,
-      stage: "NEW",
-      notes: `Auto-created from an inbound WhatsApp message: "${body.slice(0, 300)}"`,
-    },
-  });
+  const displayName = existingCustomer?.name || cleanProfileName(profileName);
+  let lead: { id: string; leadNumber: string } | null = null;
+  for (let attempt = 0; attempt < 3 && !lead; attempt++) {
+    try {
+      lead = await db.lead.create({
+        data: {
+          leadNumber: await generateLeadNumber(),
+          intakeKey,
+          name: displayName || `WhatsApp inquiry ${mobile}`,
+          mobile,
+          whatsapp: mobile,
+          area: existingCustomer?.area || "—",
+          address: existingCustomer?.address || null,
+          service: "HOME_DEEP_CLEANING" as never,
+          source: "WHATSAPP" as never,
+          stage: "NEW",
+          notes: `Auto-created from an inbound WhatsApp message: "${body.slice(0, 300)}"`,
+        },
+        select: { id: true, leadNumber: true },
+      });
+    } catch (e) {
+      if (isUniqueViolation(e, "intakeKey")) {
+        // Another message from this customer created the lead a moment ago.
+        const winner = await db.lead.findUnique({ where: { intakeKey }, select: { id: true } });
+        if (winner) await addTimelineEntry({ leadId: winner.id, type: "NOTE", body: note }).catch(() => {});
+        return;
+      }
+      if (!isUniqueViolation(e, "leadNumber")) throw e; // a different customer took the same LD number — retry
+    }
+  }
+  if (!lead) return;
+  const leadNumber = lead.leadNumber;
 
   await db.followUp
     .create({ data: { leadId: lead.id, dueDate: new Date(Date.now() + 15 * 60 * 1000), type: "WHATSAPP", priority: "HIGH", notes: "New WhatsApp inquiry — reply and qualify" } })
@@ -428,7 +476,7 @@ async function handleWhatsAppInquiry(from: string, body: string) {
   await addTimelineEntry({ leadId: lead.id, type: "NOTE", body: `Inbound WhatsApp — lead auto-created: "${body.slice(0, 300)}"` }).catch(() => {});
   await notify({
     kind: "NEW_INQUIRY",
-    title: `💬 WhatsApp inquiry — ${existingCustomer?.name || mobile}`,
+    title: `💬 WhatsApp inquiry — ${displayName || mobile}`,
     body: `Auto-lead ${leadNumber} · "${body.slice(0, 100)}"`,
     href: `/leads/${lead.id}`,
   }).catch(() => {});

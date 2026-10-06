@@ -80,11 +80,11 @@ function WhatsAppCard({ status }: { status: IntegrationStatusForUi["whatsapp"] }
     setSaving(false);
     if (res.error) return toast.error(res.error);
     setAccessToken("");
-    if (res.flushed && (res.flushed.sent || res.flushed.failed)) {
-      toast.success(`Saved. Queue flushed: ${res.flushed.sent} sent, ${res.flushed.failed} failed.`);
-    } else {
-      toast.success("WhatsApp settings saved.");
-    }
+    toast.success(
+      res.pending
+        ? `Saved. Nothing was sent — ${res.pending} old message${res.pending === 1 ? "" : "s"} still waiting; review them in WhatsApp Log before going live.`
+        : "WhatsApp settings saved. Nothing was sent.",
+    );
     router.refresh();
   }
 
@@ -114,6 +114,37 @@ function WhatsAppCard({ status }: { status: IntegrationStatusForUi["whatsapp"] }
         <StatusBadge configured={status.configured} source={status.source} />
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
+        {status.outboundMode === "TEST" ? (
+          <div className="rounded-lg border-2 border-amber-400 bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+            <p className="text-sm font-bold">🧪 TEST MODE — outbound WhatsApp is blocked</p>
+            <p className="mt-1">
+              Messages can be sent ONLY to the approved test number{status.testNumbers.length > 1 ? "s" : ""}{" "}
+              <span className="font-mono font-semibold">{status.testNumbers.map((n) => `+${n}`).join(", ")}</span>. Every message to a customer, staff member or any
+              other number is blocked and recorded as cancelled — it can never be sent later.
+              {status.blockedCount > 0 && ` Blocked so far: ${status.blockedCount}.`}
+            </p>
+            <p className="mt-1">Incoming messages are still received and logged. Saving credentials never sends the old queue.</p>
+          </div>
+        ) : (
+          <div className="rounded-lg border-2 border-destructive bg-destructive/10 p-3 text-xs">
+            <p className="text-sm font-bold text-destructive">LIVE MODE — WhatsApp messages go to real customers and staff</p>
+          </div>
+        )}
+        <div className="flex flex-wrap gap-1.5 text-[11px]">
+          {(
+            [
+              ["Auto-replies", status.switches.autoReplies],
+              ["AI assistant", status.switches.aiAssistant],
+              ["Campaigns", status.switches.campaigns],
+              ["Templates", status.switches.templates],
+              ["Booking-change notices", status.switches.bookingChangeNotices],
+            ] as const
+          ).map(([label, isOn]) => (
+            <span key={label} className={`rounded-full px-2 py-0.5 font-medium ${isOn ? "bg-destructive/15 text-destructive" : "bg-muted text-muted-foreground"}`}>
+              {label}: {isOn ? "ON" : "OFF"}
+            </span>
+          ))}
+        </div>
         <p className="text-xs text-muted-foreground">
           Booking confirmations, team dispatch, reminders, review requests. Get an{" "}
           <span className="font-medium">access token</span> and{" "}
