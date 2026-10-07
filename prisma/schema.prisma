@@ -1451,6 +1451,22 @@ model MarketingSpend {
 // FestivalPrice hold separate festival prices for a date window. Bookings
 // copy the price they were confirmed at, so edits never touch history.
 // ─────────────────────────────────────────────────────────────────────────
+// Manual slot-availability control (CRM → Jobs → Slot Availability). One row per
+// date + slot; slot "*" is the whole day. status OPEN | FILLING | FULL overrides
+// the automatic team-capacity calculation; teamCapacity (day row only) replaces
+// the default crew count for that date. No row = automatic.
+model BookingSlotControl {
+  id            String   @id @default(cuid())
+  date          String // YYYY-MM-DD (IST)
+  slot          String // a TIME_SLOTS label, or "*" for the whole day
+  status        String? // OPEN | FILLING | FULL
+  teamCapacity  Int?
+  updatedByName String?
+  updatedAt     DateTime @updatedAt
+
+  @@unique([date, slot])
+}
+
 model PriceSetting {
   contentId     String   @id
   price         Float?

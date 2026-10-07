@@ -439,6 +439,7 @@ export const ModelName = {
   PushSubscription: 'PushSubscription',
   BusinessTarget: 'BusinessTarget',
   MarketingSpend: 'MarketingSpend',
+  BookingSlotControl: 'BookingSlotControl',
   PriceSetting: 'PriceSetting',
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
@@ -463,7 +464,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4093,6 +4094,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BookingSlotControl: {
+      payload: Prisma.$BookingSlotControlPayload<ExtArgs>
+      fields: Prisma.BookingSlotControlFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BookingSlotControlFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BookingSlotControlFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>
+        }
+        findFirst: {
+          args: Prisma.BookingSlotControlFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BookingSlotControlFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>
+        }
+        findMany: {
+          args: Prisma.BookingSlotControlFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>[]
+        }
+        create: {
+          args: Prisma.BookingSlotControlCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>
+        }
+        createMany: {
+          args: Prisma.BookingSlotControlCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BookingSlotControlCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>[]
+        }
+        delete: {
+          args: Prisma.BookingSlotControlDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>
+        }
+        update: {
+          args: Prisma.BookingSlotControlUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>
+        }
+        deleteMany: {
+          args: Prisma.BookingSlotControlDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BookingSlotControlUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BookingSlotControlUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>[]
+        }
+        upsert: {
+          args: Prisma.BookingSlotControlUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BookingSlotControlPayload>
+        }
+        aggregate: {
+          args: Prisma.BookingSlotControlAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBookingSlotControl>
+        }
+        groupBy: {
+          args: Prisma.BookingSlotControlGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingSlotControlGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BookingSlotControlCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BookingSlotControlCountAggregateOutputType> | number
+        }
+      }
+    }
     PriceSetting: {
       payload: Prisma.$PriceSettingPayload<ExtArgs>
       fields: Prisma.PriceSettingFieldRefs
@@ -5730,6 +5805,19 @@ export const MarketingSpendScalarFieldEnum = {
 export type MarketingSpendScalarFieldEnum = (typeof MarketingSpendScalarFieldEnum)[keyof typeof MarketingSpendScalarFieldEnum]
 
 
+export const BookingSlotControlScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  slot: 'slot',
+  status: 'status',
+  teamCapacity: 'teamCapacity',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BookingSlotControlScalarFieldEnum = (typeof BookingSlotControlScalarFieldEnum)[keyof typeof BookingSlotControlScalarFieldEnum]
+
+
 export const PriceSettingScalarFieldEnum = {
   contentId: 'contentId',
   price: 'price',
@@ -6249,6 +6337,7 @@ export type GlobalOmitConfig = {
   pushSubscription?: Prisma.PushSubscriptionOmit
   businessTarget?: Prisma.BusinessTargetOmit
   marketingSpend?: Prisma.MarketingSpendOmit
+  bookingSlotControl?: Prisma.BookingSlotControlOmit
   priceSetting?: Prisma.PriceSettingOmit
   festivalOffer?: Prisma.FestivalOfferOmit
   festivalPrice?: Prisma.FestivalPriceOmit

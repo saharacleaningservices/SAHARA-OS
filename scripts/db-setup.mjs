@@ -1559,3 +1559,25 @@ db.close();
   console.log("WhatsApp intake idempotency migration complete.");
   wDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Manual slot-availability control (2026-10-07, additive only). See
+// BookingSlotControl in prisma/schema.prisma.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const sDb = new Database(dbPath);
+  sDb.exec(`
+    CREATE TABLE IF NOT EXISTS "BookingSlotControl" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "date" TEXT NOT NULL,
+      "slot" TEXT NOT NULL,
+      "status" TEXT,
+      "teamCapacity" INTEGER,
+      "updatedByName" TEXT,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "BookingSlotControl_date_slot_key" ON "BookingSlotControl"("date", "slot");
+  `);
+  console.log("Slot availability control migration complete.");
+  sDb.close();
+}

@@ -1,102 +1,20 @@
 "use server";
 
-import { db } from "@/lib/db";
-import {
-  BLOCKED_BOOKING_DATES,
-  BOOKING_JOB_DURATION_HOURS,
-  BOOKING_TEAM_COUNT,
-  DAILY_BOOKING_CAPACITY,
-  TIME_SLOTS,
-} from "@/lib/constants";
+import { computeDateAvailability, computeSlotAvailability } from "@/server/slot-capacity";
 
-// Real slot availability for the public booking forms, computed from the CRM
-// calendar: every scheduled Job (not cancelled) plus every open booking
-// request (a Lead with a service date that hasn't become a job yet) occupies
-// one team for BOOKING_JOB_DURATION_HOURS from its arrival window. A slot is
-// available while fewer than BOOKING_TEAM_COUNT bookings overlap it and the
-// day is under DAILY_BOOKING_CAPACITY. Only "available / full" is returned —
-// never teams, staff or customers. The office still confirms every request.
-
-const OPEN_REQUEST_STAGES = ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION", "CONFIRMED"];
-
-/** Start hour (24h) of a slot / job time like "8:00 – 11:00", "1:00 – 4:00" or "10:00 AM"; null = flexible/unknown. */
-function startHour(value: string | null | undefined): number | null {
-  if (!value) return null;
-  const m = value.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?/i);
-  if (!m) return null;
-  let h = Number(m[1]) + (m[2] ? Number(m[2]) / 60 : 0);
-  const ampm = m[3]?.toUpperCase();
-  if (ampm === "PM" && h < 12) h += 12;
-  else if (!ampm && h < 7) h += 12; // business windows: 1:00–3:00 starts are afternoon
-  return h;
-}
+// Public slot availability for the booking forms. The calculation (CRM calendar
+// + manual Slot Availability overrides) lives in server/slot-capacity.ts; these
+// actions return only what a customer may see — available / full per slot and
+// OPEN / FILLING / FULL per day — never booking counts, teams or capacity.
+// (DayStatus type: import it from @/server/slot-capacity — a "use server" file may
+// only export async functions.)
 
 export async function getSlotAvailability(dateStr: string) {
-  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return { ok: false as const };
-  const start = new Date(`${dateStr}T00:00:00+05:30`);
-  if (Number.isNaN(start.getTime())) return { ok: false as const };
-  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
-
-  const today = new Date(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }) + "T00:00:00+05:30");
-  const closed = start < today || (BLOCKED_BOOKING_DATES as readonly string[]).includes(dateStr);
-
-  const [jobs, requests] = closed
-    ? [[], []]
-    : await Promise.all([
-        db.job.findMany({
-          where: { scheduledDate: { gte: start, lt: end }, deletedAt: null, isDemo: false, status: { not: "CANCELLED" } },
-          select: { scheduledTime: true },
-        }),
-        db.lead.findMany({
-          where: { serviceDate: { gte: start, lt: end }, deletedAt: null, stage: { in: OPEN_REQUEST_STAGES as never } },
-          select: { timeSlot: true },
-        }),
-      ]);
-
-  const bookedStarts = [...jobs.map((j) => startHour(j.scheduledTime)), ...requests.map((r) => startHour(r.timeSlot))];
-  const dayTotal = bookedStarts.length;
-  const dayOpen = !closed && dayTotal < DAILY_BOOKING_CAPACITY;
-
-  // Today: windows whose start time has already passed can't be booked.
-  const isToday = start.getTime() === today.getTime();
-  const nowHourIst = Number(new Intl.DateTimeFormat("en-IN", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kolkata" }).format(new Date()));
-  const slots: { slot: string; available: boolean }[] = TIME_SLOTS.filter((s) => s !== "Flexible").map((slot) => {
-    const t = startHour(slot)!;
-    const overlapping = bookedStarts.filter((b) => b === null || Math.abs(b - t) < BOOKING_JOB_DURATION_HOURS).length;
-    return { slot, available: dayOpen && overlapping < BOOKING_TEAM_COUNT && !(isToday && t <= nowHourIst) };
-  });
-  const anyOpen = slots.some((s) => s.available);
-  slots.push({ slot: "Flexible", available: anyOpen });
-
-  const slotsLeft = closed ? 0 : Math.max(DAILY_BOOKING_CAPACITY - dayTotal, 0);
-  const isFull = !anyOpen;
-  const label = closed ? "Not available" : isFull ? "Full" : `${slotsLeft} Slot${slotsLeft === 1 ? "" : "s"} Left`;
-  return { ok: true as const, slotsLeft, isFull, label, slots };
+  const r = await computeSlotAvailability(dateStr);
+  if (!r.ok) return { ok: false as const };
+  return { ok: true as const, slotsLeft: r.slotsLeft, isFull: r.isFull, label: r.label, slots: r.slots };
 }
 
-export type DayStatus = "AVAILABLE" | "FILLING" | "FULL";
-
-/**
- * Status of each of the next `days` dates (IST) for the booking calendar,
- * from the same CRM team-capacity calculation as the slots: FULL when no
- * crew window is free, FILLING when half or more of the crews are already
- * booked that day, otherwise AVAILABLE.
- */
 export async function getDateAvailability(days = 21) {
-  const n = Math.min(Math.max(Math.floor(days), 1), 45);
-  const todayIst = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
-  const base = new Date(`${todayIst}T00:00:00+05:30`);
-  const dates = Array.from({ length: n }, (_, i) =>
-    new Date(base.getTime() + i * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
-  );
-  const results = await Promise.all(dates.map((d) => getSlotAvailability(d)));
-  return dates.map((date, i) => {
-    const r = results[i];
-    const available = r.ok ? !r.isFull : false;
-    // Jobs run ~8h, so every booking overlaps every window of the day —
-    // "filling fast" = half or more of the crews already booked that day.
-    const booked = r.ok ? DAILY_BOOKING_CAPACITY - r.slotsLeft : 0;
-    const status: DayStatus = !available ? "FULL" : booked >= Math.ceil(BOOKING_TEAM_COUNT / 2) ? "FILLING" : "AVAILABLE";
-    return { date, available, status };
-  });
+  return computeDateAvailability(days);
 }

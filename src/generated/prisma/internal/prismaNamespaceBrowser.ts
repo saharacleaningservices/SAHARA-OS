@@ -98,6 +98,7 @@ export const ModelName = {
   PushSubscription: 'PushSubscription',
   BusinessTarget: 'BusinessTarget',
   MarketingSpend: 'MarketingSpend',
+  BookingSlotControl: 'BookingSlotControl',
   PriceSetting: 'PriceSetting',
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
@@ -1055,6 +1056,19 @@ export const MarketingSpendScalarFieldEnum = {
 } as const
 
 export type MarketingSpendScalarFieldEnum = (typeof MarketingSpendScalarFieldEnum)[keyof typeof MarketingSpendScalarFieldEnum]
+
+
+export const BookingSlotControlScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  slot: 'slot',
+  status: 'status',
+  teamCapacity: 'teamCapacity',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BookingSlotControlScalarFieldEnum = (typeof BookingSlotControlScalarFieldEnum)[keyof typeof BookingSlotControlScalarFieldEnum]
 
 
 export const PriceSettingScalarFieldEnum = {

@@ -287,6 +287,11 @@ export type BusinessTarget = Prisma.BusinessTargetModel
  */
 export type MarketingSpend = Prisma.MarketingSpendModel
 /**
+ * Model BookingSlotControl
+ * 
+ */
+export type BookingSlotControl = Prisma.BookingSlotControlModel
+/**
  * Model PriceSetting
  * 
  */

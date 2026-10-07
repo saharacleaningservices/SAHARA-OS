@@ -31,6 +31,8 @@ import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { BookedScopeCard } from "@/components/shared/booked-scope-card";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+import { ensureJobToken } from "@/server/booking-messages";
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -103,6 +105,15 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const officeCardText = jobCardMessage({ ...cardBase, audience: "office" });
   const teamCardText = jobCardMessage({ ...cardBase, audience: "team" });
 
+  // Customer documents (secure token links) — Super Admin, Operations and Accounts.
+  // Sending opens WhatsApp with the message pre-filled; staff still press send themselves.
+  const canSendDocs = canManage && showJobAmount && !job.isDemo;
+  const docToken = canSendDocs ? (job.publicToken ?? (await ensureJobToken(job.id))) : null;
+  const quotationUrl = docToken ? `${PUBLIC_BOOKING_URL}/booking/quotation/${docToken}` : "";
+  const invoiceUrl = docToken && job.status === "COMPLETED" ? `${PUBLIC_BOOKING_URL}/booking/invoice/${docToken}` : "";
+  const docMessage = (label: string, url: string) =>
+    `Hi ${job.customerName}, here is your ${label} from Sahara Cleaning Services for booking ${job.jobNumber}:\n${url}\n\nFor any help, call or WhatsApp 7083347130 / 8956567130.`;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -162,6 +173,34 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <ExternalLink className="size-3.5" /> Customer Page
                 </a>
               </Button>
+            )}
+            {quotationUrl && (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <a href={quotationUrl} target="_blank" rel="noreferrer">
+                    <FileText className="size-3.5" /> Quotation
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <a href={toWhatsAppLink(job.customerMobile, docMessage("quotation", quotationUrl))} target="_blank" rel="noreferrer">
+                    <MessageCircle className="size-3.5" /> Send Quotation
+                  </a>
+                </Button>
+              </>
+            )}
+            {invoiceUrl && (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <a href={invoiceUrl} target="_blank" rel="noreferrer">
+                    <Receipt className="size-3.5" /> Final Invoice
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <a href={toWhatsAppLink(job.customerMobile, docMessage("final invoice", invoiceUrl))} target="_blank" rel="noreferrer">
+                    <MessageCircle className="size-3.5" /> Send Invoice
+                  </a>
+                </Button>
+              </>
             )}
           </>
         }

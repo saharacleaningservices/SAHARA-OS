@@ -7,7 +7,8 @@ import { customerPaymentStatus, PAYMENT_STATUS_LABEL } from "@/server/booking-me
 import { PayAfterServiceButton } from "@/components/public/pay-after-service-button";
 import { BookingChangeRequest } from "@/components/public/booking-change-request";
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
-import { BookingQuotationSection } from "@/components/public/booking-quotation-section";
+import { CustomerDocument } from "@/components/public/customer-document";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
 // Customer-facing booking page body, reached only through the unguessable token in
 // the WhatsApp confirmation (never by the sequential job number). Shows the
@@ -52,7 +53,7 @@ function calendarHref(job: { jobNumber: string; scheduledDate: Date; scheduledTi
  *   /booking/pay/{token}        — opens with the payment section first
  * An invalid or unknown token is always a plain 404 — nothing is revealed.
  */
-export async function BookingPageView({ token, pay, focus }: { token: string; pay?: string; focus?: "quotation" | "pay" }) {
+export async function BookingPageView({ token, pay, focus }: { token: string; pay?: string; focus?: "quotation" | "pay" | "invoice" }) {
   if (!/^[A-Za-z0-9_-]{20,40}$/.test(token)) notFound();
 
   const job = await db.job.findFirst({
@@ -74,14 +75,25 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
       advanceRequestedAt: true,
       serviceItems: true,
       discountAmount: true,
+      customerMobile: true,
+      scopeOfWork: true,
+      festivalName: true,
+      createdAt: true,
+      completedAt: true,
+      invoice: { select: { invoiceNumber: true } },
       payments: { where: { deletedAt: null }, select: { amount: true, paidAmount: true } },
     },
   });
   if (!job) notFound();
+  // The final invoice exists only once the job is completed.
+  if (focus === "invoice" && job.status !== "COMPLETED") notFound();
 
   const settings = await db.companySettings.findUnique({
     where: { id: "default" },
-    select: { googleReviewUrl: true, upiId: true, upiQrUrl: true, bankName: true, bankAccountName: true, bankAccountNumber: true, bankIfsc: true },
+    select: {
+      googleReviewUrl: true, upiId: true, upiQrUrl: true, bankName: true, bankAccountName: true, bankAccountNumber: true, bankIfsc: true,
+      name: true, phone: true, email: true, address: true, website: true, logoUrl: true,
+    },
   });
   const pmt = customerPaymentStatus(job);
   const open = job.status !== "CANCELLED" && job.status !== "COMPLETED";
@@ -138,9 +150,9 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   );
 
   return (
-    <div className="min-h-screen bg-[#f4f7fb] px-4 py-8">
-      <div className="mx-auto max-w-md space-y-4">
-        <div className="rounded-2xl bg-white p-5 text-center shadow-sm">
+    <div className="min-h-screen bg-[#f4f7fb] px-4 py-8 print:bg-white print:p-0">
+      <div className={`mx-auto space-y-4 ${focus === "quotation" || focus === "invoice" ? "max-w-3xl" : "max-w-md"}`}>
+        <div className="rounded-2xl bg-white p-5 text-center shadow-sm print:hidden">
           <CheckCircle2 className="mx-auto size-8 text-emerald-600" />
           <h1 className="mt-2 text-lg font-bold text-[#0a2540]">Hi {job.customerName}</h1>
           <p className="text-sm text-[#0a2540]/70">Booking {job.jobNumber}</p>
@@ -149,19 +161,50 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           </span>
         </div>
 
-        {focus === "quotation" && (
-          <BookingQuotationSection
-            jobNumber={job.jobNumber}
-            service={SERVICE_LABELS[job.service] ?? job.service}
-            packageName={job.packageName}
-            serviceVariant={job.serviceVariant}
-            included={included}
-            serviceItems={job.serviceItems}
-            discountAmount={job.discountAmount}
-            total={job.jobValue}
+        {(focus === "quotation" || focus === "invoice") && (
+          <CustomerDocument
+            kind={focus === "invoice" ? "INVOICE" : "QUOTATION"}
+            shareUrl={`${PUBLIC_BOOKING_URL}/booking/${focus}/${token}`}
+            company={{
+              name: settings?.name || COMPANY.name,
+              phone: settings?.phone || COMPANY.phones[0],
+              email: settings?.email || COMPANY.email,
+              address: settings?.address || COMPANY.address,
+              website: settings?.website ?? COMPANY.website,
+              logoUrl: settings?.logoUrl ?? "/brand/sahara-logo.png",
+              upiId: settings?.upiId ?? null,
+              upiQrUrl: settings?.upiQrUrl ?? null,
+              bankName: settings?.bankName ?? null,
+              bankAccountName: settings?.bankAccountName ?? null,
+              bankAccountNumber: settings?.bankAccountNumber ?? null,
+              bankIfsc: settings?.bankIfsc ?? null,
+            }}
+            job={{
+              jobNumber: job.jobNumber,
+              customerName: job.customerName,
+              customerMobile: job.customerMobile,
+              address: job.address,
+              area: job.area,
+              serviceLabel: SERVICE_LABELS[job.service] ?? job.service,
+              packageName: job.packageName,
+              serviceVariant: job.serviceVariant,
+              included,
+              serviceItems: job.serviceItems,
+              discountAmount: job.discountAmount,
+              jobValue: job.jobValue,
+              scopeOfWork: job.scopeOfWork,
+              scheduledDate: job.scheduledDate,
+              scheduledTime: job.scheduledTime,
+              createdAt: job.createdAt,
+              completedAt: job.completedAt,
+              festivalName: job.festivalName,
+              paid: pmt.paid,
+              invoiceNumber: job.invoice?.invoiceNumber ?? null,
+            }}
           />
         )}
         {focus === "pay" && paymentBlock}
+        <div className="space-y-4 print:hidden">
 
         <div className="space-y-2 rounded-2xl bg-white p-5 text-sm shadow-sm">
           <p className="font-semibold text-[#0a2540]">{SERVICE_LABELS[job.service] ?? job.service}</p>
@@ -223,6 +266,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
         </div>
 
         <p className="text-center text-xs text-[#0a2540]/60">{COMPANY.name}</p>
+        </div>
       </div>
     </div>
   );
