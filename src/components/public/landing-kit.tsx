@@ -97,16 +97,27 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
                 <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
               </span>
             ))}
-            <Link href="/booking" className="rounded-xl bg-primary px-3 py-2 text-xs font-bold text-white">Book Now</Link>
+            <Link href="/booking" className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
           </div>
         </div>
       </header>
       {children}
+      <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
       <footer className="mx-auto max-w-6xl px-4 pb-6 pt-2 sm:pb-8">
         <div className="border-t-2 border-primary/25 pt-4 text-center text-xs text-[#0a2540]/70">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-semibold">
-            <a href={`tel:+91${CONTACT.call[0]}`} className="inline-flex items-center gap-1.5 text-primary"><Phone className="size-3.5" />{CONTACT.call[0]}</a>
-            <a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-1.5 text-primary"><Mail className="size-3.5" />{CONTACT.email}</a>
+          <CompanyLogo logoUrl={logoUrl} className="mx-auto mb-3 h-9 w-auto max-w-[150px]" />
+          <div className="flex flex-wrap items-center justify-center gap-2 font-semibold">
+            {CONTACT.call.map((n) => (
+              <span key={n} className="inline-flex items-center gap-1 rounded-full bg-white py-1 pl-3 pr-1 text-primary shadow-sm">
+                {n}
+                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex size-8 items-center justify-center rounded-full hover:bg-primary/10"><Phone className="size-3.5" /></a>
+                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex size-8 items-center justify-center rounded-full text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
+              </span>
+            ))}
+          </div>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-semibold">
+            <a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-1.5 break-all text-primary"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
+            <a href={`https://${COMPANY.website}`} target="_blank" rel="noreferrer" className="text-primary">{COMPANY.website}</a>
           </div>
           <address className="mt-2 not-italic">
             <span className="inline-flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" />{CONTACT.address}</span>
@@ -153,7 +164,13 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
   const bookHref = bookHrefOverride ?? primaryHref === "#book" ? "/booking#book" : primaryHref.startsWith("#") ? "/booking" : primaryHref;
   // Trust + price proof from CRM Settings and the live price list — never hard-coded claims.
   const [settings, pricing] = await Promise.all([getCompanySettings().catch(() => null), getLivePricing()]);
-  const fromPrice = pricing.items.filter((p) => p.group === "PREMIUM" && p.price != null).reduce<number | null>((m, p) => (m == null || p.price! < m ? p.price! : m), null);
+  // Regular "from" price only outside festival periods — during a festival, prices
+  // are shown after the customer opens the packages.
+  const todayYmd = new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
+  const festivalOn = pricing.festivals.some((f) => f.end >= todayYmd);
+  const fromPrice = festivalOn
+    ? null
+    : pricing.items.filter((p) => p.group === "PREMIUM" && p.price != null).reduce<number | null>((m, p) => (m == null || p.price! < m ? p.price! : m), null);
   const trust = [
     settings?.googleRating ? `★ ${settings.googleRating} Google rating` : null,
     settings?.googleReviewCount ? `${settings.googleReviewCount} reviews` : null,
