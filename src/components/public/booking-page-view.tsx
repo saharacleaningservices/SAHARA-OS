@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { CalendarDays, CheckCircle2, Clock, MapPin, Phone, Star, Wallet } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock, FileText, MapPin, Phone, Star, Wallet } from "lucide-react";
 import { db } from "@/lib/db";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate, formatINR } from "@/lib/utils";
@@ -222,6 +222,18 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
             </a>
           )}
           <p className="flex items-start gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" /> {job.address || job.area}</p>
+          {focus !== "quotation" && focus !== "invoice" && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              <a href={`/booking/quotation/${token}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-bold text-white">
+                <FileText className="size-3.5" /> View Quotation
+              </a>
+              {job.status === "COMPLETED" && (
+                <a href={`/booking/invoice/${token}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-primary/40 px-3 text-xs font-bold text-primary">
+                  <FileText className="size-3.5" /> View Final Invoice
+                </a>
+              )}
+            </div>
+          )}
           {included.length > 0 && (
             <div>
               <p className="mt-1 text-xs font-semibold uppercase text-primary">Services included</p>
