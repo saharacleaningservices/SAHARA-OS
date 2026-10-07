@@ -40,6 +40,32 @@ const isTier = (v: string): v is HomeTier => v === "Premium" || v === "Platinum"
 const PEST_SIZES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Commercial"];
 const PAINT_PROPERTIES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Office / Shop"];
 const PAINT_JOBS = ["Fresh Painting", "Repainting"];
+const COM_FREQUENCY = ["One-time", "Weekly", "Monthly", "Annual contract"];
+// Painting scope, step by step — every line restates the approved PAINT_SCOPE
+// (marketing-content.ts); nothing here adds an inclusion beyond it.
+const PAINT_SCOPE_STEPS: [string, string][] = [
+  ["Site visit & measurement", PAINT_SCOPE[0]],
+  ["Surface preparation", "Cleaning and sanding of the surface where applicable."],
+  ["Minor crack repair", "Minor crack filling where applicable."],
+  ["Putty / primer", "Putty and sanding where included; primer where applicable."],
+  ["Coats", "Number of coats as per site condition and the selected finish."],
+  ["Masking / covering", "Basic furniture and floor protection."],
+  ["Application & finishing", "Paint application with edge / corner finishing."],
+  ["Post-paint cleaning", "Final cleaning of the painted area."],
+];
+
+/** Compact expandable detail block — keeps long scope text off the main screen. */
+function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <details className="group rounded-xl border border-[#0a2540]/10 bg-white">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-sm font-semibold">
+        {title}
+        <ChevronDown className="size-4 transition group-open:rotate-180" />
+      </summary>
+      <div className="px-3 pb-3 text-[13px]">{children}</div>
+    </details>
+  );
+}
 const todayIST = () => new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
 const shortDay = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
 
@@ -80,10 +106,13 @@ export function BookingWizard({
 }) {
   // Live catalogue (Super Admin → Pricing & Packages).
   const items = pricing?.items ?? PRICING_MASTER;
-  const { CUSTOMISED, COMBOS, ADDON_COMBOS, PACKAGE_COMBOS, PAINTS, PUTTY, PEST_ITEMS, COMMERCIAL_ITEMS } = useMemo(() => {
+  const { CUSTOMISED, ADDON_ITEMS, COMBOS, ADDON_COMBOS, PACKAGE_COMBOS, PAINTS, PUTTY, PEST_ITEMS, COMMERCIAL_ITEMS } = useMemo(() => {
     const combos = inGroup(items, "COMBO");
+    const customised = inGroup(items, "CUSTOMISED");
     return {
-      CUSTOMISED: inGroup(items, "CUSTOMISED"),
+      CUSTOMISED: customised,
+      // Add-ons offered on a full-home package — kitchen and bathrooms are already in the package.
+      ADDON_ITEMS: customised.filter((it) => it.variant !== "Kitchen Deep Cleaning" && it.variant !== "Bathroom Cleaning"),
       COMBOS: combos,
       ADDON_COMBOS: combos.filter((c) => c.addOnOnly),
       PACKAGE_COMBOS: combos.filter((c) => !c.addOnOnly),
@@ -115,8 +144,19 @@ export function BookingWizard({
   const [paint, setPaint] = useState("");
   const [paintProperty, setPaintProperty] = useState("");
   const [paintJob, setPaintJob] = useState("");
+  const [paintSide, setPaintSide] = useState<"Interior" | "Exterior" | "">("");
   const [sqft, setSqft] = useState("");
   const [putty, setPutty] = useState(false);
+  const [comFreq, setComFreq] = useState("");
+  // Landing-page service cards ("View Packages") open a service here without a reload.
+  useEffect(() => {
+    const onPick = (e: Event) => {
+      const c = (e as CustomEvent<string>).detail;
+      if (c === "HOME" || c === "COMMERCIAL" || c === "PEST" || c === "PAINTING") setCategory(c);
+    };
+    window.addEventListener("sahara:select-service", onPick);
+    return () => window.removeEventListener("sahara:select-service", onPick);
+  }, []);
   // Schedule / details
   const [dates, setDates] = useState<{ date: string; available: boolean; status: DayStatus }[] | null>(null);
   const [monthOffset, setMonthOffset] = useState(0);
@@ -184,6 +224,12 @@ export function BookingWizard({
     if (category === "HOME" && homeType === "FULL" && bhk && pkg) {
       const item = items.find((p) => p.bhk === bhk && p.variant === pkg);
       out.push(item ? { label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item) } : { label: `${bhk} ${pkg} Deep Cleaning`, amount: null, note: "Price on confirmation" });
+      // Add-ons on top of the full-home package (same priced catalogue items).
+      for (const it of ADDON_ITEMS) {
+        const n = qty[it.contentId] ?? 0;
+        const u = unit(it);
+        if (n > 0) out.push({ label: `+ ${it.name} × ${n}`, amount: u == null ? null : u * n, note: u == null ? it.priceNote : undefined });
+      }
     }
     if (category === "HOME" && homeType === "CUSTOM") {
       for (const it of CUSTOMISED) {
@@ -195,21 +241,23 @@ export function BookingWizard({
     if (category === "HOME" && (homeType === "CUSTOM" || homeType === "COMBO")) {
       for (const c of homeType === "COMBO" ? PACKAGE_COMBOS : ADDON_COMBOS) if (combos[c.contentId]) out.push({ label: c.name, amount: unit(c) });
     }
-    if (category === "COMMERCIAL" && comType) out.push({ label: `${comType} Cleaning${area ? ` · ${area} sq ft` : ""}`, amount: null, note: "Price after inspection" });
+    if (category === "COMMERCIAL" && comType) out.push({ label: `${comType} Cleaning${area ? ` · ${area} sq ft` : ""}${comFreq ? ` · ${comFreq}` : ""}`, amount: null, note: "Quote after requirement check" });
     if (category === "PEST" && pest) out.push({ label: `${pest}${pestSize ? ` · ${pestSize}` : ""}`, amount: null, note: "Price after inspection" });
-    if (category === "PAINTING" && paint) {
+    if (category === "PAINTING" && paintSide === "Exterior" && paintJob) {
+      out.push({ label: `${paintJob} · Exterior painting${paintProperty ? ` · ${paintProperty}` : ""}${Number(sqft) ? ` · ${Number(sqft)} sq ft` : ""}`, amount: null, note: "Quote after site inspection" });
+    } else if (category === "PAINTING" && paint) {
       const item = PAINTS.find((p) => p.contentId === paint)!;
       const s = Number(sqft) || 0;
       const rate = item.price == null ? null : item.price + (putty && PUTTY?.price ? PUTTY.price : 0);
       out.push({
-        label: `${paintJob ? `${paintJob} · ` : ""}${item.name}${paintProperty ? ` · ${paintProperty}` : ""}${s ? ` · ${s} sq ft` : ""}${putty ? " + putty" : ""}`,
+        label: `${paintJob ? `${paintJob} · ` : ""}Interior · ${item.name}${paintProperty ? ` · ${paintProperty}` : ""}${s ? ` · ${s} sq ft` : ""}${putty ? " + putty" : ""}`,
         amount: rate != null && s > 0 ? rate * s : null,
         note: rate == null ? "Price after inspection" : s > 0 ? "Estimate — final after site measurement" : "Enter area for an estimate",
       });
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quote, category, homeType, bhk, pkg, qty, combos, comType, area, pest, pestSize, paint, paintProperty, paintJob, sqft, putty, items, activeFestival]);
+  }, [quote, category, homeType, bhk, pkg, qty, combos, comType, area, comFreq, pest, pestSize, paint, paintProperty, paintJob, paintSide, sqft, putty, items, activeFestival]);
 
   const pricedTotal = quote ? quote.totalAmount : lines.reduce((s, l) => s + (l.amount ?? 0), 0);
   const hasUnpriced = !quote && lines.some((l) => l.amount == null);
@@ -233,7 +281,9 @@ export function BookingWizard({
       (!needsPriceMode || !!priceMode) &&
       !addOnOnlyAlone &&
       (category !== "PEST" || !!pestSize) &&
-      (category !== "PAINTING" || (!!paintProperty && !!paintJob && (Number(sqft) > 0 || PAINTS.find((p) => p.contentId === paint)?.price == null)));
+      (category !== "PAINTING" ||
+        (!!paintProperty && !!paintJob && !!paintSide &&
+          (paintSide === "Exterior" || Number(sqft) > 0 || PAINTS.find((p) => p.contentId === paint)?.price == null)));
   const altDigits = altMobile.replace(/\D/g, "");
   const detailsOk =
     quote ||
@@ -281,7 +331,8 @@ export function BookingWizard({
     if (category !== "HOME") return [];
     if (homeType === "FULL") {
       const it = items.find((p) => p.bhk === bhk && p.variant === pkg);
-      return it ? [{ contentId: it.contentId, qty: 1 }] : [];
+      const addOns = ADDON_ITEMS.filter((a) => (qty[a.contentId] ?? 0) > 0).map((a) => ({ contentId: a.contentId, qty: qty[a.contentId] }));
+      return it ? [{ contentId: it.contentId, qty: 1 }, ...addOns] : [];
     }
     return [
       ...(homeType === "CUSTOM" ? CUSTOMISED.filter((it) => (qty[it.contentId] ?? 0) > 0).map((it) => ({ contentId: it.contentId, qty: qty[it.contentId] })) : []),
@@ -306,6 +357,8 @@ export function BookingWizard({
         mapLink,
         ...m,
         comboServices: lines.filter((l) => COMBOS.some((c) => c.name === l.label)).map((l) => l.label),
+        // Full-home add-ons, so the CRM lead lists them alongside the package.
+        addOnServices: lines.filter((l) => l.label.startsWith("+ ")).map((l) => l.label.slice(2)),
         // Price snapshot — the server re-prices these items and freezes the amount on the lead.
         priceType: category === "HOME" && !quote ? (priceMode === "FESTIVAL" ? "FESTIVAL" : "REGULAR") : undefined,
         selectedItems: quote ? [] : selectedItems(),
@@ -420,7 +473,20 @@ export function BookingWizard({
                     ["CUSTOM", "Customized"],
                     ["COMBO", "Combo"],
                   ] as const).map(([v, t]) => (
-                    <button key={v} type="button" onClick={() => setHomeType(v)} className={`${chip(homeType === v)} whitespace-nowrap px-1.5 text-[13px]`}>{t}</button>
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => {
+                        if (homeType !== v) {
+                          setQty({});
+                          setCombos({});
+                        }
+                        setHomeType(v);
+                      }}
+                      className={`${chip(homeType === v)} whitespace-nowrap px-1.5 text-[13px]`}
+                    >
+                      {t}
+                    </button>
                   ))}
                 </div>
                 {homeType === "FULL" && (
@@ -454,6 +520,40 @@ export function BookingWizard({
                             </button>
                           );
                         })}
+                      </div>
+                    )}
+                    {bhk && pkg && (
+                      <div className="rounded-2xl border border-[#0a2540]/10 bg-white p-3">
+                        <p className="text-sm font-bold">Add-ons <span className="font-medium text-[#0a2540]/55">(optional)</span></p>
+                        <div className="mt-2 divide-y divide-[#0a2540]/10">
+                          {ADDON_ITEMS.map((it) => {
+                            const n = qty[it.contentId] ?? 0;
+                            const u = unit(it);
+                            return (
+                              <div key={it.contentId} className="flex items-center justify-between gap-2 py-2">
+                                <div className="min-w-0">
+                                  <p className="text-sm font-semibold">{it.name}</p>
+                                  <p className="text-[11px] text-[#0a2540]/60">
+                                    {u != null ? `${inr(u)} ${it.unit ?? ""}` : it.priceNote}
+                                    {it.minQty && it.minQty > 1 ? ` · min ${it.minQty}` : ""}
+                                  </p>
+                                </div>
+                                <Stepper value={n} min={it.minQty ?? 1} onChange={(v) => setQty((q) => ({ ...q, [it.contentId]: v }))} />
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {(() => {
+                          const pkgAmt = lines[0]?.amount ?? 0;
+                          const addAmt = lines.slice(1).reduce((s, l) => s + (l.amount ?? 0), 0);
+                          return (
+                            <div className="mt-2 space-y-0.5 rounded-xl bg-primary/5 p-2.5 text-sm">
+                              <p className="flex justify-between"><span>Package</span><span className="font-semibold">{pkgAmt ? inr(pkgAmt) : "On confirmation"}</span></p>
+                              <p className="flex justify-between"><span>Add-ons</span><span className="font-semibold">{inr(addAmt)}</span></p>
+                              <p className="flex justify-between border-t border-[#0a2540]/10 pt-1 font-extrabold text-primary"><span>Live total</span><span>{inr(pkgAmt + addAmt)}{hasUnpriced ? " +" : ""}</span></p>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </>
@@ -505,47 +605,115 @@ export function BookingWizard({
                 )}
               </>
             ))}
-            {section("COMMERCIAL", <Building2 className="size-5" />, "Commercial Cleaning", "Office · Shop · Warehouse · Clinic", (
+            {section("COMMERCIAL", <Building2 className="size-5" />, "Office / Commercial", "Office · Shop · Warehouse · Clinic", (
               <>
-                <div className="flex flex-wrap gap-2">{COMMERCIAL_ITEMS.map((c) => <button key={c.contentId} type="button" onClick={() => setComType(c.variant)} className={chip(comType === c.variant)}>{c.variant}</button>)}</div>
-                <input className={input} inputMode="numeric" placeholder="Approximate area (sq ft)" value={area} onChange={(e) => setArea(e.target.value.replace(/\D/g, ""))} />
-                <p className="text-sm font-semibold text-primary">Inspection-based pricing</p>
+                <div>
+                  <p className="mb-2 text-sm font-semibold">1. Property</p>
+                  <div className="flex flex-wrap gap-2">{COMMERCIAL_ITEMS.map((c) => <button key={c.contentId} type="button" onClick={() => setComType(c.variant)} className={chip(comType === c.variant)}>{c.variant}</button>)}</div>
+                </div>
+                {comType && (
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">2. Approximate area</p>
+                    <input className={input} inputMode="numeric" placeholder="Area in sq ft (optional)" value={area} onChange={(e) => setArea(e.target.value.replace(/\D/g, ""))} />
+                  </div>
+                )}
+                {comType && (
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">3. How often?</p>
+                    <div className="grid grid-cols-2 gap-2">{COM_FREQUENCY.map((f) => <button key={f} type="button" onClick={() => setComFreq(f)} className={chip(comFreq === f)}>{f}</button>)}</div>
+                  </div>
+                )}
+                <Accordion title="What's covered">
+                  <ul className="space-y-1">{OFFICE_SCOPE.map((s) => <li key={s} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{s}</li>)}</ul>
+                </Accordion>
+                <p className="text-xs font-semibold text-primary">Business pricing depends on area and frequency — we send a written quote.</p>
               </>
             ))}
             {section("PEST", <Bug className="size-5" />, "Pest Control", "Cockroach · Termite · Bed bug · Ant", (
               <>
                 <div>
-                  <p className="mb-2 text-sm font-semibold">Pest type</p>
+                  <p className="mb-2 text-sm font-semibold">1. Pest type</p>
                   <div className="flex flex-wrap gap-2">{PEST_ITEMS.map((p) => <button key={p.contentId} type="button" onClick={() => setPest(p.name)} className={chip(pest === p.name)}>{p.name}</button>)}</div>
                 </div>
-                <div>
-                  <p className="mb-2 text-sm font-semibold">Property type</p>
-                  <div className="flex flex-wrap gap-2">{PEST_SIZES.map((s) => <button key={s} type="button" onClick={() => setPestSize(s)} className={chip(pestSize === s)}>{s}</button>)}</div>
-                </div>
-                <p className="text-sm font-semibold text-primary">Inspection-based pricing</p>
+                {pest && (
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">2. Property type</p>
+                    <div className="flex flex-wrap gap-2">{PEST_SIZES.map((s) => <button key={s} type="button" onClick={() => setPestSize(s)} className={chip(pestSize === s)}>{s}</button>)}</div>
+                  </div>
+                )}
+                {pest && (
+                  <Accordion title={`How ${pest.toLowerCase()} works`}>
+                    <p>{PEST_SERVICES.find((p) => p.name.startsWith(pest.split(" ")[0]))?.desc ?? "Inspection first, then a targeted treatment plan."}</p>
+                  </Accordion>
+                )}
+                <p className="text-xs font-semibold text-primary">Price confirmed after a quick inspection of the affected areas.</p>
               </>
             ))}
             {section("PAINTING", <Paintbrush className="size-5" />, "Interior Painting", "Per sq ft · Asian Paints range", (
               <>
-                <div className="grid gap-2 sm:grid-cols-3">
-                  {PAINTS.map((p) => (
-                    <button key={p.contentId} type="button" onClick={() => setPaint(p.contentId)} className={`rounded-xl border p-3 text-left text-sm ${paint === p.contentId ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
-                      <span className="block font-semibold">{p.name}</span>
-                      <span className="block text-xs text-primary">{priceLabel(p)}</span>
-                    </button>
-                  ))}
-                </div>
                 <div>
-                  <p className="mb-2 text-sm font-semibold">Property</p>
-                  <div className="flex flex-wrap gap-2">{PAINT_PROPERTIES.map((s) => <button key={s} type="button" onClick={() => setPaintProperty(s)} className={chip(paintProperty === s)}>{s}</button>)}</div>
+                  <p className="mb-2 text-sm font-semibold">1. Type of job</p>
+                  <div className="grid grid-cols-2 gap-2">{PAINT_JOBS.map((s) => <button key={s} type="button" onClick={() => setPaintJob(s)} className={chip(paintJob === s)}>{s}</button>)}</div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">{PAINT_JOBS.map((s) => <button key={s} type="button" onClick={() => setPaintJob(s)} className={chip(paintJob === s)}>{s}</button>)}</div>
-                <input className={input} inputMode="numeric" placeholder="Paintable area (sq ft)" value={sqft} onChange={(e) => setSqft(e.target.value.replace(/\D/g, ""))} />
-                {PUTTY && (
-                  <label className="flex min-h-11 items-center gap-2.5 text-sm">
-                    <input type="checkbox" className="size-5" checked={putty} onChange={(e) => setPutty(e.target.checked)} /> Add putty ({priceLabel(PUTTY)})
-                  </label>
+                {paintJob && (
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">2. Where?</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["Interior", "Exterior"] as const).map((s) => (
+                        <button key={s} type="button" onClick={() => setPaintSide(s)} className={chip(paintSide === s)}>{s}</button>
+                      ))}
+                    </div>
+                  </div>
                 )}
+                {paintSide === "Interior" && (
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">3. Paint system</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {PAINTS.map((p) => (
+                        <button key={p.contentId} type="button" onClick={() => setPaint(p.contentId)} className={`rounded-xl border p-2.5 text-left text-sm ${paint === p.contentId ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
+                          <span className="block font-semibold leading-tight">{p.name.replace(/^Asian /, "")}</span>
+                          <span className="block text-xs text-primary">{priceLabel(p)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {paintSide === "Exterior" && <p className="rounded-xl bg-amber-50 p-2.5 text-xs font-semibold text-amber-900">Exterior painting is quoted after a site inspection (surface condition and access vary).</p>}
+                {(paintSide === "Exterior" || paint) && (
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">{paintSide === "Exterior" ? "3" : "4"}. Property &amp; area</p>
+                    <div className="flex flex-wrap gap-2">{PAINT_PROPERTIES.map((s) => <button key={s} type="button" onClick={() => setPaintProperty(s)} className={chip(paintProperty === s)}>{s}</button>)}</div>
+                    <input className={`${input} mt-2`} inputMode="numeric" placeholder="Paintable area (sq ft)" value={sqft} onChange={(e) => setSqft(e.target.value.replace(/\D/g, ""))} />
+                    {paintSide === "Interior" && PUTTY && (
+                      <label className="mt-1 flex min-h-11 items-center gap-2.5 text-sm">
+                        <input type="checkbox" className="size-5" checked={putty} onChange={(e) => setPutty(e.target.checked)} /> Add putty ({priceLabel(PUTTY)})
+                      </label>
+                    )}
+                  </div>
+                )}
+                {paintSide === "Interior" && paint && (() => {
+                  const item = PAINTS.find((p) => p.contentId === paint);
+                  const s = Number(sqft) || 0;
+                  const rate = item?.price == null ? null : item.price + (putty && PUTTY?.price ? PUTTY.price : 0);
+                  return rate != null ? (
+                    <div className="rounded-xl bg-primary/5 p-2.5 text-sm">
+                      <p className="flex justify-between"><span>{item!.name.replace(/^Asian /, "")}{putty ? " + putty" : ""}</span><span>{inr(rate)}/sq ft</span></p>
+                      <p className="flex justify-between"><span>× Area</span><span>{s ? `${s} sq ft` : "—"}</span></p>
+                      <p className="flex justify-between border-t border-[#0a2540]/10 pt-1 font-extrabold text-primary"><span>Estimated amount</span><span>{s ? inr(rate * s) : "Enter area"}</span></p>
+                      <p className="mt-1 text-[11px] text-[#0a2540]/60">Estimate only — final quote after site measurement and surface check.</p>
+                    </div>
+                  ) : null;
+                })()}
+                <Accordion title="View painting scope">
+                  <dl className="space-y-1.5">
+                    {PAINT_SCOPE_STEPS.map(([k, v]) => (
+                      <div key={k}>
+                        <dt className="font-semibold">{k}</dt>
+                        <dd className="text-[#0a2540]/75">{v}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </Accordion>
               </>
             ))}
           </div>
@@ -649,6 +817,7 @@ export function BookingWizard({
         </div>
       )}
 
+      {(quote || serviceChosen) && (
       <div id="bk-date" className={`${card} scroll-mt-20`}>
         {step(quote ? 2 : 3, "Preferred date & time", !!date && !!slot)}
         {!dates ? (
@@ -698,8 +867,9 @@ export function BookingWizard({
           )
         )}
       </div>
+      )}
 
-      {!quote && (
+      {!quote && !!date && !!slot && (
         <div id="bk-details" className={`${card} scroll-mt-20`}>
           {step(4, "Your details", name.trim().length >= 2 && /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)))}
           <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
@@ -711,7 +881,7 @@ export function BookingWizard({
         </div>
       )}
 
-      {!quote && (
+      {!quote && !!date && !!slot && (
         <div id="bk-address" className={`${card} scroll-mt-20`}>
           {step(5, "Service address", address.trim().length >= 5)}
           <textarea className={`${input} mt-3 h-24 py-2.5`} autoComplete="street-address" placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -727,6 +897,7 @@ export function BookingWizard({
         </div>
       )}
 
+      {(quote ? !!date && !!slot : !!date && !!slot && !!detailsOk) && (
       <div id="bk-pay" className={`${card} scroll-mt-20`}>
         {step(quote ? 3 : 6, "Payment *", !!pay)}
         <div className="mt-3 grid grid-cols-2 gap-2">
@@ -740,7 +911,9 @@ export function BookingWizard({
           ))}
         </div>
       </div>
+      )}
 
+      {(quote || serviceChosen) && (
       <div id="bk-summary" className={`${card} scroll-mt-20 border-2 border-primary/20`}>
         <h3 className="text-base font-bold sm:text-lg">Booking summary</h3>
         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
@@ -779,10 +952,11 @@ export function BookingWizard({
         <p className="mt-2 text-[11px] text-[#0a2540]/60">By confirming you agree to the scope, please-note points and terms shown above.</p>
         {error && <p className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
         <button type="button" onClick={submit} disabled={!ready || pending} className="mt-3 min-h-12 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-white disabled:opacity-50">
-          {pending ? "Sending…" : "Confirm Booking Request"}
+          {pending ? "Sending…" : !quote && pricedTotal === 0 ? "Request Quote" : "Confirm Booking Request"}
         </button>
         <p className="mt-2 text-center text-xs text-[#0a2540]/60">Your booking is confirmed only after our team verifies the slot.</p>
       </div>
+      )}
 
       {/* Mobile sticky progress bar — sits above the site's Call / WhatsApp / Book Now bar. */}
       {showSticky && (

@@ -86,7 +86,7 @@ export const PRICING_MASTER: PriceItem[] = [
 
   // Interior Painting — existing approved per-sq-ft structure (estimate; final after site measurement)
   { contentId: "SCS-20", group: "PAINTING", name: "Asian Oil Bound Distemper", category: "PAINTING", variant: "Oil Bound", price: 14, unit: "per sq ft" },
-  { contentId: "SCS-21", group: "PAINTING", name: "Asian Tractor Emulsion", category: "PAINTING", variant: "Tractor Emulsion", price: null, unit: "per sq ft", priceNote: AFTER_INSPECTION },
+  { contentId: "SCS-21", group: "PAINTING", name: "Asian Tractor Emulsion", category: "PAINTING", variant: "Tractor Emulsion", price: 10, unit: "per sq ft" },
   { contentId: "SCS-22", group: "PAINTING", name: "Asian Premium Emulsion", category: "PAINTING", variant: "Premium Emulsion", price: 18, unit: "per sq ft" },
   { contentId: "SCS-23", group: "PAINTING", name: "Asian Royale", category: "PAINTING", variant: "Royal Emulsion", price: 22, unit: "per sq ft" },
   { contentId: "SCS-24", group: "PAINTING", name: "Asian Royale Lustre", category: "PAINTING", variant: "Royal Lustre", price: 26, unit: "per sq ft" },

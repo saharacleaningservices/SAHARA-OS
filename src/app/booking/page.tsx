@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, HowItWorks, Faqs, Terms, OtherServices, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, FestivalSection } from "@/components/public/landing-kit";
+import { LandingShell, Hero, HowItWorks, Faqs, Terms, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { ServiceCards } from "@/components/public/service-cards";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getLivePricing } from "@/server/pricing";
 
@@ -80,7 +81,7 @@ export default async function BookingPage({
         eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
         badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
         title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning in Pune & PCMC"}
-        subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Transparent prices, real available slots, and pay advance or after service. Book early to get your preferred festival slot."}
+        subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Trained teams, real available slots, pay advance or after service."}
         primaryLabel="Choose Date & Slot"
         primaryHref="#book"
         waText={WA}
@@ -89,7 +90,7 @@ export default async function BookingPage({
         {quoteToken && !quote && (
           <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">This quotation link is no longer valid. You can still book below, or call us on 8956567130 / 7083347130.</p>
         )}
-        {!quote && <FestivalSection bookHref="?price=festival#book" />}
+        {!quote && <ServiceCards />}
         <section id="book" className="scroll-mt-20">
           <BookingWizard
             quote={quote}
@@ -103,7 +104,6 @@ export default async function BookingPage({
         <HowItWorks />
         <Faqs faqs={FAQS} />
         <Terms />
-        <OtherServices current="/booking" />
       </main>
     </LandingShell>
   );
