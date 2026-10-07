@@ -172,7 +172,7 @@ export type IntegrationStatusForUi = {
     queuedCount: number;
     failedCount: number;
     /** Outbound safety (owner rule 2026-10-06) — TEST unless WHATSAPP_OUTBOUND_MODE=live. */
-    outboundMode: "TEST" | "LIVE";
+    outboundMode: "TEST" | "TRANSACTIONAL" | "LIVE";
     testNumbers: string[];
     blockedCount: number;
     switches: { autoReplies: boolean; aiAssistant: boolean; campaigns: boolean; templates: boolean; bookingChangeNotices: boolean };

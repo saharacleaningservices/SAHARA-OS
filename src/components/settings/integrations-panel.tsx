@@ -125,6 +125,14 @@ function WhatsAppCard({ status }: { status: IntegrationStatusForUi["whatsapp"] }
             </p>
             <p className="mt-1">Incoming messages are still received and logged. Saving credentials never sends the old queue.</p>
           </div>
+        ) : status.outboundMode === "TRANSACTIONAL" ? (
+          <div className="rounded-lg border-2 border-emerald-500 bg-emerald-50 p-3 text-xs text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+            <p className="text-sm font-bold">TRANSACTIONAL LIVE — booking &amp; payment templates only</p>
+            <p className="mt-1">
+              Customers receive only the approved booking/payment UTILITY templates. Marketing templates, campaigns and free-text
+              messages still go only to the test number.
+            </p>
+          </div>
         ) : (
           <div className="rounded-lg border-2 border-destructive bg-destructive/10 p-3 text-xs">
             <p className="text-sm font-bold text-destructive">LIVE MODE — WhatsApp messages go to real customers and staff</p>

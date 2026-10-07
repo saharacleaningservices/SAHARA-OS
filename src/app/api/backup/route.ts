@@ -4,6 +4,7 @@ import { Readable } from "node:stream";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { uploadsRoot } from "@/lib/uploads";
 import Database from "better-sqlite3";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -87,11 +88,12 @@ export async function GET(request: NextRequest) {
     }
 
     const archive = path.join(workdir, "backup.tar.gz");
-    const uploadsDir = path.join(root, "public", "uploads");
+    // Persistent uploads folder (lib/uploads.ts); archived as "uploads/" either way.
+    const uploadsDir = fs.existsSync(uploadsRoot()) ? uploadsRoot() : path.join(root, "public", "uploads");
     // --force-local: don't treat a Windows "C:\..." path as host:path.
     const tarArgs = ["--force-local", "-czf", archive, "-C", workdir, "dev.db"];
     if (fs.existsSync(uploadsDir)) {
-      tarArgs.push("-C", path.join(root, "public"), "uploads");
+      tarArgs.push("-C", path.dirname(uploadsDir), path.basename(uploadsDir));
     }
     const tar = spawnSync("tar", tarArgs, { encoding: "utf8" });
     if (tar.status !== 0) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { uploadsRoot } from "@/lib/uploads";
 import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/session";
 import { isSameOrigin } from "@/lib/csrf";
@@ -97,7 +98,8 @@ export async function POST(request: NextRequest) {
   }
 
   const filename = `${Date.now()}-${randomUUID().slice(0, 8)}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads", folder);
+  // Persistent uploads folder (served by app/uploads/[...path]) — see lib/uploads.ts.
+  const dir = path.join(uploadsRoot(), folder);
   await mkdir(dir, { recursive: true });
 
   const buffer = Buffer.from(await file.arrayBuffer());

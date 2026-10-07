@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { uploadsRoot } from "@/lib/uploads";
 import Database from "better-sqlite3";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
     // Swap uploads, if the archive has them.
     const restoredUploads = path.join(extractDir, "uploads");
     if (fs.existsSync(restoredUploads)) {
-      const liveUploads = path.join(root, "public", "uploads");
+      const liveUploads = uploadsRoot();
       fs.rmSync(liveUploads, { recursive: true, force: true });
       fs.cpSync(restoredUploads, liveUploads, { recursive: true });
     }

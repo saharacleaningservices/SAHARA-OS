@@ -89,13 +89,39 @@ export function normalizeNumber(mobile: string): string {
 export const WHATSAPP_TEST_MODE_NUMBERS: readonly string[] = ["919921215250"];
 export const WHATSAPP_TEST_MODE_BLOCK = "Blocked — WhatsApp TEST MODE (only the approved test number may receive messages)";
 
-export function whatsappOutboundMode(): "TEST" | "LIVE" {
-  return process.env.WHATSAPP_OUTBOUND_MODE === "live" ? "LIVE" : "TEST";
+// WHATSAPP_OUTBOUND_MODE=transactional (owner 2026-10-08): customers receive ONLY the
+// approved UTILITY booking/payment templates below. Marketing templates, campaigns
+// and free-text messages (incl. admin alerts) stay limited to the test number.
+export const WHATSAPP_TRANSACTIONAL_TEMPLATES: readonly string[] = [
+  "sahara_booking_request_received",
+  "sahara_booking_confirmed",
+  "sahara_booking_rescheduled",
+  "sahara_booking_cancelled",
+  "sahara_advance_payment_request",
+  "sahara_payment_received",
+  "sahara_pay_after_service_reminder",
+  "sahara_service_reminder",
+];
+
+export function whatsappOutboundMode(): "TEST" | "TRANSACTIONAL" | "LIVE" {
+  const m = process.env.WHATSAPP_OUTBOUND_MODE;
+  return m === "live" ? "LIVE" : m === "transactional" ? "TRANSACTIONAL" : "TEST";
 }
 
-/** True if a message may be delivered to this number right now. */
-export function isOutboundAllowed(mobile: string): boolean {
-  return whatsappOutboundMode() === "LIVE" || WHATSAPP_TEST_MODE_NUMBERS.includes(normalizeNumber(mobile));
+/**
+ * True if a message may be delivered to this number right now. In TRANSACTIONAL
+ * mode a non-test number is allowed only for an approved transactional template
+ * that is not part of a campaign.
+ */
+export function isOutboundAllowed(mobile: string, msg?: { templateName?: string | null; relatedType?: string | null }): boolean {
+  const mode = whatsappOutboundMode();
+  if (mode === "LIVE" || WHATSAPP_TEST_MODE_NUMBERS.includes(normalizeNumber(mobile))) return true;
+  return (
+    mode === "TRANSACTIONAL" &&
+    !!msg?.templateName &&
+    WHATSAPP_TRANSACTIONAL_TEMPLATES.includes(msg.templateName) &&
+    msg.relatedType !== "Campaign"
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -147,11 +173,14 @@ type SendConfig = {
   accessToken: string;
   phoneNumberId: string;
   apiVersion: string;
+  /** "Campaign" sends are never transactional (see isOutboundAllowed). */
+  relatedType?: string | null;
 };
 
 async function deliverPayload(toNumber: string, body: Record<string, unknown>, cfg: SendConfig) {
   // Last line of defence: nothing reaches Meta for a blocked number, whatever the caller.
-  if (!isOutboundAllowed(toNumber)) return { ok: false as const, error: WHATSAPP_TEST_MODE_BLOCK };
+  const templateName = (body.template as { name?: string } | undefined)?.name ?? null;
+  if (!isOutboundAllowed(toNumber, { templateName, relatedType: cfg.relatedType ?? null })) return { ok: false as const, error: WHATSAPP_TEST_MODE_BLOCK };
   const res = await fetch(
     `https://graph.facebook.com/${cfg.apiVersion}/${cfg.phoneNumberId}/messages`,
     {
@@ -511,7 +540,7 @@ export async function sendWhatsAppTemplate(input: {
   relatedId?: string;
 }) {
   const toNumber = normalizeNumber(input.toNumber);
-  if (!isOutboundAllowed(toNumber)) {
+  if (!isOutboundAllowed(toNumber, { templateName: input.templateName, relatedType: input.relatedType ?? null })) {
     // Recorded for audit, never sent and never retried.
     const blockedRow = await db.whatsAppMessage.create({
       data: {
@@ -566,7 +595,7 @@ export async function sendWhatsAppTemplate(input: {
         ...(components.length ? { components } : {}),
       },
     },
-    { accessToken: whatsapp.accessToken, phoneNumberId: whatsapp.phoneNumberId, apiVersion: whatsapp.apiVersion },
+    { accessToken: whatsapp.accessToken, phoneNumberId: whatsapp.phoneNumberId, apiVersion: whatsapp.apiVersion, relatedType: input.relatedType ?? null },
   ).catch((e: unknown) => ({ ok: false as const, error: e instanceof Error ? e.message : "Network error" }));
 
   await db.whatsAppMessage.update({

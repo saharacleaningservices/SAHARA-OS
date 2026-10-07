@@ -140,14 +140,15 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <p className="text-xs text-muted-foreground sm:col-span-2">
-            Shown to customers on the booking form and used to build the &quot;Send Payment Link&quot; WhatsApp message.
+            Shown to customers on quotations, invoices and the booking page. Every field is optional — the QR works on its own.
+            After uploading a QR, press Save Settings.
           </p>
           <div className="space-y-1.5">
-            <Label htmlFor="upiId">UPI ID</Label>
+            <Label htmlFor="upiId">UPI ID <span className="font-normal text-muted-foreground">(optional)</span></Label>
             <Input id="upiId" placeholder="sahara@okhdfcbank" {...register("upiId")} />
           </div>
           <div className="space-y-1.5">
-            <Label>Payment QR image</Label>
+            <Label>Payment QR image <span className="font-normal text-muted-foreground">(optional)</span></Label>
             <div className="flex items-center gap-3">
               {upiQrUrl ? (
                 <img src={upiQrUrl} alt="QR" className="size-14 rounded border border-border object-contain" />
@@ -162,8 +163,13 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
                 onClick={() => document.getElementById("qr-file")?.click()}
               >
                 {uploading ? <Loader2 className="animate-spin" /> : <Upload className="size-4" />}
-                Upload QR
+                {upiQrUrl ? "Replace QR" : "Upload QR"}
               </Button>
+              {upiQrUrl && (
+                <Button type="button" variant="ghost" size="sm" onClick={() => setValue("upiQrUrl", "", { shouldDirty: true })}>
+                  Remove
+                </Button>
+              )}
               <input
                 id="qr-file"
                 type="file"
@@ -178,7 +184,7 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="bankAccountName">Bank Account Name</Label>
+            <Label htmlFor="bankAccountName">Bank Account Name <span className="font-normal text-muted-foreground">(optional)</span></Label>
             <Input id="bankAccountName" {...register("bankAccountName")} />
           </div>
           <div className="space-y-1.5">
