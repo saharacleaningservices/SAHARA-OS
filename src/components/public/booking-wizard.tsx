@@ -54,6 +54,25 @@ const PAINT_SCOPE_STEPS: [string, string][] = [
   ["Post-paint cleaning", "Final cleaning of the painted area."],
 ];
 
+/** Mobile-only one-line summary of a completed step, with a Change link. */
+function MobileSummaryRow({ label, onChange, children }: { label: string; onChange: () => void; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-white px-3 py-2 text-sm shadow-sm sm:hidden">
+      <Check className="size-4 shrink-0 text-emerald-600" />
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-[#0a2540]/50">{label}</p>
+        <p className="truncate font-semibold">{children}</p>
+      </div>
+      <button type="button" onClick={onChange} className="shrink-0 rounded-lg px-2 py-1.5 text-xs font-bold text-primary">Change</button>
+    </div>
+  );
+}
+
+/** Inline validation hint under a field. */
+function FieldHint({ show, children }: { show: boolean; children: React.ReactNode }) {
+  return show ? <p className="mt-1 text-xs font-medium text-red-600">{children}</p> : null;
+}
+
 /** Compact expandable detail block — keeps long scope text off the main screen. */
 function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -69,7 +88,7 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
 const todayIST = () => new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
 const shortDay = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
 
-const card = "rounded-2xl bg-white p-4 shadow-sm sm:p-5";
+const card = "rounded-2xl bg-white p-3 shadow-sm sm:p-5";
 const input = "h-12 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 sm:h-11 sm:text-sm";
 const chip = (on: boolean) =>
   `min-h-11 rounded-xl border px-3 py-2 text-sm font-semibold transition active:scale-[0.98] ${on ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white hover:border-primary/50"}`;
@@ -163,6 +182,14 @@ export function BookingWizard({
   const [date, setDate] = useState("");
   const [slots, setSlots] = useState<{ slot: string; available: boolean }[] | null>(null);
   const [slot, setSlot] = useState("");
+  // Mobile only (< sm): completed steps collapse into one-line summaries. Desktop ignores these.
+  const [svcDone, setSvcDone] = useState(false);
+  const [pkgEdit, setPkgEdit] = useState(false);
+  // Desktop keeps the full scope open; on phones it starts collapsed to save scrolling.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => setIsDesktop(window.matchMedia("(min-width: 640px)").matches), []);
+  const [dateDone, setDateDone] = useState(false);
+  useEffect(() => setDateDone(!!slot), [slot]);
   // Fixed festival prices exist for home cleaning only.
   const festivalApplies = !quote && festivals.length > 0;
   const activeFestival = priceMode === "FESTIVAL" ? ((date ? festivalForDate(festivals, date) : null) ?? festivals[0] ?? null) : null;
@@ -432,11 +459,48 @@ export function BookingWizard({
         ? ["Final price is confirmed after site measurement.", "Number of coats depends on site condition and the selected finish."]
         : ["Price is confirmed after inspection / requirement assessment.", "Additional work outside the agreed scope may be chargeable."];
   const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Mobile collapse flags (only ever applied through max-sm:/sm: classes).
+  const pkgCollapsed = category === "HOME" && homeType === "FULL" && !!bhk && !!pkg && !pkgEdit && (!needsPriceMode || !!priceMode);
+  const svcCollapsed = !quote && svcDone && serviceChosen;
+  const dateCollapsed = (quote || svcCollapsed) && dateDone && !!date && !!slot;
   const nextStep = !serviceChosen ? "bk-service" : !date || !slot ? "bk-date" : !quote && !detailsOk ? "bk-details" : !pay ? "bk-pay" : "bk-summary";
   const showSticky = !quote && lines.length > 0 && !pastSummary;
+  // What still blocks Confirm — shown above the button instead of a silent disabled state.
+  const missing: { id: string; text: string }[] = [
+    !serviceChosen && { id: "bk-service", text: category === "HOME" && needsPriceMode && !priceMode ? "Choose Festival or Regular, then a package" : "Choose a service / package" },
+    serviceChosen && (!date || !slot) && { id: "bk-date", text: "Pick a date and an arrival time" },
+    !quote && !!date && !!slot && !detailsOk && { id: "bk-details", text: "Add your name, 10-digit mobile and full address" },
+    !!date && !!slot && !!detailsOk && !pay && { id: "bk-pay", text: "Choose a payment option" },
+  ].filter(Boolean) as { id: string; text: string }[];
+  // Progress: Service → Date & time → Details → Payment.
+  const progress = quote
+    ? []
+    : [
+        { label: "Service", done: serviceChosen },
+        { label: "Date & time", done: !!date && !!slot },
+        { label: "Details", done: !!detailsOk },
+        { label: "Payment", done: !!pay },
+      ];
+  const currentStep = progress.findIndex((p) => !p.done);
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-2 sm:space-y-4">
+      {progress.length > 0 && (
+        <ol className="grid grid-cols-4 gap-1.5 sm:hidden" aria-label="Booking progress">
+          {progress.map((p, i) => {
+            const state = p.done ? "done" : i === currentStep ? "current" : "todo";
+            return (
+              <li key={p.label} className="min-w-0">
+                <span className={`block h-1.5 rounded-full ${state === "done" ? "bg-primary" : state === "current" ? "bg-primary/45" : "bg-[#0a2540]/10"}`} />
+                <span className={`mt-1 block truncate text-[11px] font-semibold sm:text-xs ${state === "todo" ? "text-[#0a2540]/45" : "text-[#0a2540]"}`} aria-current={state === "current" ? "step" : undefined}>
+                  {p.done ? "✓ " : `${i + 1}. `}
+                  {p.label}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
       {quote ? (
         <div className={card}>
           {step(1, "Your quotation", true)}
@@ -445,13 +509,18 @@ export function BookingWizard({
           <p className="mt-2 text-xl font-extrabold text-primary">{inr(quote.totalAmount)}</p>
         </div>
       ) : (
-        <div id="bk-service" className={`${card} scroll-mt-20`}>
+        <div id="bk-service" className={`${card} scroll-mt-20 ${svcCollapsed ? "max-sm:hidden" : ""}`}>
           {step(1, "Choose service & package", serviceChosen)}
           <div className="mt-3 space-y-2.5">
             {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full house · Customized · Combo", (
               <>
+                {pkgCollapsed && (
+                  <MobileSummaryRow label="Package" onChange={() => setPkgEdit(true)}>
+                    {bhk} {pkg}{priceMode ? ` · ${priceMode === "FESTIVAL" ? "Festival" : "Regular"}` : ""}{lines[0]?.amount != null ? ` · ${inr(lines[0].amount)}` : ""}
+                  </MobileSummaryRow>
+                )}
                 {needsPriceMode && (
-                  <div>
+                  <div className={pkgCollapsed ? "max-sm:hidden" : ""}>
                     <p className="mb-2 text-sm font-semibold">Festival or regular booking?</p>
                     <div className="grid grid-cols-2 gap-2">
                       <button type="button" onClick={() => { setPriceMode("FESTIVAL"); if (date && !festivalForDate(festivals, date)) setDate(""); }} className={`${chip(priceMode === "FESTIVAL")} text-left leading-tight`}>
@@ -467,7 +536,7 @@ export function BookingWizard({
                     </div>
                   </div>
                 )}
-                <div className="grid grid-cols-3 gap-2">
+                <div className={`grid grid-cols-3 gap-2 ${pkgCollapsed ? "max-sm:hidden" : ""}`}>
                   {([
                     ["FULL", "Full House"],
                     ["CUSTOM", "Customized"],
@@ -491,17 +560,17 @@ export function BookingWizard({
                 </div>
                 {homeType === "FULL" && (
                   <>
-                    <div>
+                    <div className={pkgCollapsed ? "max-sm:hidden" : ""}>
                       <p className="mb-2 text-sm font-semibold">Property type</p>
-                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} whitespace-nowrap px-1 text-[13px]`}>{b}</button>)}</div>
+                      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} px-1 text-[11px] leading-tight sm:whitespace-nowrap sm:text-[13px] sm:leading-normal`}>{b}</button>)}</div>
                     </div>
                     {bhk && (
-                      <div className="grid gap-2.5 sm:grid-cols-2">
+                      <div className={`grid gap-2.5 sm:grid-cols-2 ${pkgCollapsed ? "max-sm:hidden" : ""}`}>
                         {HOME_PACKAGES.map((t) => {
                           const it = isTier(t) ? pkgPrice(t) : undefined;
                           const on = pkg === t;
                           return (
-                            <button key={t} type="button" onClick={() => setPkg(t)} className={`rounded-2xl border p-3.5 text-left ${on ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
+                            <button key={t} type="button" onClick={() => { setPkg(t); setPkgEdit(false); }} className={`rounded-2xl border p-3.5 text-left ${on ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
                               <span className="flex items-start justify-between gap-2">
                                 <span>
                                   <span className="block text-base font-bold">{bhk} {t}</span>
@@ -513,7 +582,7 @@ export function BookingWizard({
                                   <span className="text-right text-[11px] font-semibold text-[#0a2540]/60">Price on confirmation</span>
                                 )}
                               </span>
-                              <span className="mt-2 block space-y-0.5 text-xs text-[#0a2540]/75">
+                              <span className="mt-2 block space-y-0.5 text-xs text-[#0a2540]/75 max-sm:hidden">
                                 {isTier(t) && homeHighlights(t).slice(0, 3).map((h) => <span key={h} className="flex gap-1.5"><Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />{h}</span>)}
                               </span>
                               <span className={`mt-2.5 block rounded-lg py-1.5 text-center text-xs font-bold ${on ? "bg-primary text-white" : "bg-primary/10 text-primary"}`}>{on ? "Selected" : "Select"}</span>
@@ -530,7 +599,7 @@ export function BookingWizard({
                             const n = qty[it.contentId] ?? 0;
                             const u = unit(it);
                             return (
-                              <div key={it.contentId} className="flex items-center justify-between gap-2 py-2">
+                              <div key={it.contentId} className="flex items-center justify-between gap-2 py-1.5 sm:py-2">
                                 <div className="min-w-0">
                                   <p className="text-sm font-semibold">{it.name}</p>
                                   <p className="text-[11px] text-[#0a2540]/60">
@@ -722,7 +791,7 @@ export function BookingWizard({
 
       {/* Package details: price → highlights → full scope → please note → terms */}
       {!quote && lines.length > 0 && (
-        <div className={card}>
+        <div className={`${card} ${svcCollapsed ? "max-sm:hidden" : ""}`}>
           {step(2, "Package details & scope")}
           <div className="mt-3 rounded-xl bg-[#0a2540]/[0.03] p-3 text-sm">
             {lines.map((l) => (
@@ -749,13 +818,13 @@ export function BookingWizard({
           <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-relaxed text-amber-900">{PRICE_NOTE}</p>
 
           {tier && (
-            <ul className="mt-3 grid gap-1 text-sm sm:grid-cols-2">
+            <ul className="mt-3 grid gap-1 text-sm max-sm:hidden sm:grid-cols-2">
               {homeHighlights(tier).map((h) => <li key={h} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{h}</li>)}
             </ul>
           )}
 
           <div className="mt-3 divide-y divide-[#0a2540]/10 overflow-hidden rounded-xl border border-[#0a2540]/10">
-            <details className="group bg-white" open={!!tier}>
+            <details className="group bg-white" open={!!tier && isDesktop}>
               <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-3 text-sm font-bold">
                 Full scope of work
                 <ChevronDown className="size-4 transition group-open:rotate-180" />
@@ -817,8 +886,23 @@ export function BookingWizard({
         </div>
       )}
 
+      {svcCollapsed && (
+        <MobileSummaryRow label="Service" onChange={() => { setSvcDone(false); setTimeout(() => go("bk-service"), 50); }}>
+          {lines.map((l) => l.label).join(", ")}{pricedTotal > 0 ? ` · ${inr(pricedTotal)}` : ""}
+        </MobileSummaryRow>
+      )}
+      {!quote && serviceChosen && !svcDone && (
+        <button type="button" onClick={() => { setSvcDone(true); setTimeout(() => go("bk-date"), 50); }} className="min-h-12 w-full rounded-xl bg-primary text-sm font-bold text-white sm:hidden">
+          Continue to date &amp; time
+        </button>
+      )}
+      {dateCollapsed && (
+        <MobileSummaryRow label="Date & time" onChange={() => { setDateDone(false); setTimeout(() => go("bk-date"), 50); }}>
+          {fmtDay(date)} · {slot}
+        </MobileSummaryRow>
+      )}
       {(quote || serviceChosen) && (
-      <div id="bk-date" className={`${card} scroll-mt-20`}>
+      <div id="bk-date" className={`${card} scroll-mt-20 ${(!quote && !svcDone) || dateCollapsed ? "max-sm:hidden" : ""}`}>
         {step(quote ? 2 : 3, "Preferred date & time", !!date && !!slot)}
         {!dates ? (
           <div className="mt-3 grid grid-cols-7 gap-1">{Array.from({ length: 35 }, (_, i) => <span key={i} className="h-10 animate-pulse rounded-lg bg-[#0a2540]/5" />)}</div>
@@ -870,22 +954,36 @@ export function BookingWizard({
       )}
 
       {!quote && !!date && !!slot && (
-        <div id="bk-details" className={`${card} scroll-mt-20`}>
+        <div id="bk-details" className={`${card} scroll-mt-20 ${dateCollapsed ? "" : "max-sm:hidden"}`}>
           {step(4, "Your details", name.trim().length >= 2 && /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)))}
           <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-            <input className={input} autoComplete="name" placeholder="Full name *" value={name} onChange={(e) => setName(e.target.value)} />
-            <input className={input} autoComplete="tel" type="tel" placeholder="Mobile number *" inputMode="numeric" value={mobile} onChange={(e) => setMobile(e.target.value)} />
-            <input className={input} type="tel" placeholder="Alternate mobile (optional)" inputMode="numeric" value={altMobile} onChange={(e) => setAltMobile(e.target.value)} />
-            <input className={input} autoComplete="email" placeholder="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <div>
+              <input className={input} autoComplete="name" placeholder="Full name *" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!!name && name.trim().length < 2} />
+              <FieldHint show={!!name && name.trim().length < 2}>Enter your full name</FieldHint>
+            </div>
+            <div>
+              <input className={input} autoComplete="tel" type="tel" placeholder="Mobile number *" inputMode="numeric" value={mobile} onChange={(e) => setMobile(e.target.value)} aria-invalid={!!mobile && !/^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10))} />
+              <FieldHint show={!!mobile && !/^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10))}>Enter a 10-digit mobile number</FieldHint>
+            </div>
+            <div>
+              <input className={input} type="tel" placeholder="Alternate mobile (optional)" inputMode="numeric" value={altMobile} onChange={(e) => setAltMobile(e.target.value)} />
+              <FieldHint show={!!altDigits && altDigits.length < 10}>Enter a 10-digit number, or leave it blank</FieldHint>
+            </div>
+            <div>
+              <input className={input} autoComplete="email" placeholder="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <FieldHint show={!!email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())}>Enter a valid email, or leave it blank</FieldHint>
+            </div>
           </div>
         </div>
       )}
 
       {!quote && !!date && !!slot && (
-        <div id="bk-address" className={`${card} scroll-mt-20`}>
+        <div id="bk-address" className={`${card} scroll-mt-20 ${dateCollapsed ? "" : "max-sm:hidden"}`}>
           {step(5, "Service address", address.trim().length >= 5)}
           <textarea className={`${input} mt-3 h-24 py-2.5`} autoComplete="street-address" placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
-          <input className={`${input} mt-2`} autoComplete="postal-code" placeholder="PIN code (6 digits)" inputMode="numeric" maxLength={6} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))} />
+          <FieldHint show={!!address && address.trim().length < 5}>Add flat, building / society and area</FieldHint>
+          <input className={`${input} mt-2`} autoComplete="postal-code" placeholder="PIN code (6 digits, optional)" inputMode="numeric" maxLength={6} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))} />
+          <FieldHint show={!!pinCode.trim() && !/^\d{6}$/.test(pinCode.trim())}>PIN code must be 6 digits</FieldHint>
           <button
             type="button"
             onClick={useCurrentLocation}
@@ -898,7 +996,7 @@ export function BookingWizard({
       )}
 
       {(quote ? !!date && !!slot : !!date && !!slot && !!detailsOk) && (
-      <div id="bk-pay" className={`${card} scroll-mt-20`}>
+      <div id="bk-pay" className={`${card} scroll-mt-20 ${quote || dateCollapsed ? "" : "max-sm:hidden"}`}>
         {step(quote ? 3 : 6, "Payment *", !!pay)}
         <div className="mt-3 grid grid-cols-2 gap-2">
           {([
@@ -950,7 +1048,13 @@ export function BookingWizard({
           </dd>
         </dl>
         <p className="mt-2 text-[11px] text-[#0a2540]/60">By confirming you agree to the scope, please-note points and terms shown above.</p>
-        {error && <p className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
+        {!ready && !quote && missing.length > 0 && (
+          <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <p className="font-bold">Still needed:</p>
+            <ul className="mt-0.5 list-disc pl-4">{missing.map((m) => <li key={m.text}><button type="button" onClick={() => go(m.id)} className="underline-offset-2 hover:underline">{m.text}</button></li>)}</ul>
+          </div>
+        )}
+        {error && <p className="mt-2 text-sm font-semibold text-red-600" role="alert">{error}</p>}
         <button type="button" onClick={submit} disabled={!ready || pending} className="mt-3 min-h-12 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-white disabled:opacity-50">
           {pending ? "Sending…" : !quote && pricedTotal === 0 ? "Request Quote" : "Confirm Booking Request"}
         </button>
@@ -969,8 +1073,17 @@ export function BookingWizard({
             {ready ? (
               <button type="button" onClick={submit} disabled={pending} className="shrink-0 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white">{pending ? "Sending…" : "Confirm"}</button>
             ) : (
-              <button type="button" onClick={() => go(nextStep)} className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white">
-                {nextStep === "bk-service" ? "Finish selection" : nextStep === "bk-date" ? "Pick date & time" : nextStep === "bk-details" ? "Add details" : nextStep === "bk-pay" ? "Choose payment" : "Review"}
+              <button
+                type="button"
+                onClick={() => {
+                  if (serviceChosen && !svcDone) {
+                    setSvcDone(true);
+                    setTimeout(() => go("bk-date"), 50);
+                  } else go(nextStep);
+                }}
+                className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white"
+              >
+                {serviceChosen && !svcDone ? "Continue" : nextStep === "bk-service" ? "Finish selection" : nextStep === "bk-date" ? "Pick date & time" : nextStep === "bk-details" ? "Add details" : nextStep === "bk-pay" ? "Choose payment" : "Review"}
               </button>
             )}
           </div>
