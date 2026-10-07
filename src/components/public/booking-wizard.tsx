@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Building2, Bug, Check, CheckCircle2, ChevronDown, Clock, Home, Loader2, LocateFixed, Paintbrush, Wallet, X } from "lucide-react";
 import { publicBookLead } from "@/server/actions/public-booking";
-import { getDateAvailability, getSlotAvailability, type DayStatus } from "@/server/actions/slot-availability";
+import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
+import type { DayStatus } from "@/server/slot-capacity";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
 import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";

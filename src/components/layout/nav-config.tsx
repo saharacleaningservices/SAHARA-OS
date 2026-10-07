@@ -44,6 +44,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Price List", href: "/leads/price-list", section: "leads", icon: IndianRupee },
   { label: "Jobs", href: "/jobs", section: "jobs", icon: ClipboardList },
   { label: "Team Dispatch", href: "/jobs/dispatch", section: "jobs", icon: Route },
+  { label: "Slot Availability", href: "/jobs/slots", section: "jobs", icon: CalendarCheck },
   { label: "Staff", href: "/staff", section: "staff", icon: UserCog },
   { label: "Vehicles", href: "/vehicles", section: "vehicles", icon: Truck },
   { label: "Attendance", href: "/attendance", section: "attendance", icon: CalendarCheck },

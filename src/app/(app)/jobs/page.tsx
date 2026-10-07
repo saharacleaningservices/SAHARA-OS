@@ -51,6 +51,13 @@ export default async function JobsPage() {
                 <Route className="size-4" /> Team Dispatch
               </Link>
             </Button>
+            {canManage && (
+              <Button asChild>
+                <Link href="/jobs/slots">
+                  <CalendarClock className="size-4" /> Slot Availability
+                </Link>
+              </Button>
+            )}
           </>
         }
       />
