@@ -63,20 +63,25 @@ export const PRICING_MASTER: PriceItem[] = [
   home("Platinum", 4, 9499, 8999, "SCS-08"),
 
   // Home Cleaning — Customised Cleaning (quantity based)
-  { contentId: "SCS-09", group: "CUSTOMISED", name: "Sofa Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Sofa Cleaning", price: 199, unit: "per seat", minQty: 5, rule: "Minimum 5 seats" },
-  { contentId: "SCS-10", group: "CUSTOMISED", name: "Bathroom Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Bathroom Cleaning", price: 499, unit: "per bathroom", minQty: 2, rule: "Minimum 2 bathrooms" },
-  { contentId: "SCS-12", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Without Chimney)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 1499, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included" },
+  { contentId: "SCS-09", group: "CUSTOMISED", name: "Sofa Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Sofa Cleaning", price: 249, unit: "per seat", minQty: 5, rule: "Minimum 5 seats" },
+  { contentId: "SCS-10", group: "CUSTOMISED", name: "Bathroom Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Bathroom Cleaning", price: 599, unit: "per bathroom", minQty: 2, rule: "Minimum 2 bathrooms" },
+  { contentId: "SCS-12", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Without Chimney)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 1999, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Kitchen emptied / utensils removed by client" },
+  { contentId: "SCS-33", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Utensil removal & placing back)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 2499, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Our team removes and places utensils back" },
   { contentId: "SCS-11", group: "CUSTOMISED", name: "Mattress Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Mattress Cleaning", price: 699, unit: "per mattress", minQty: 2, rule: "Minimum 2 mattresses" },
-  { contentId: "SCS-30", group: "CUSTOMISED", name: "Window Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Window Cleaning", price: 250, unit: "per window", minQty: 1 },
+  { contentId: "SCS-30", group: "CUSTOMISED", name: "Window Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Window Cleaning", price: 299, unit: "per window", minQty: 1 },
   // No approved NEW price yet — shown as "price confirmed before booking" (no legacy price used).
   { contentId: "SCS-31", group: "CUSTOMISED", name: "Curtain Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Curtain Cleaning", price: null, unit: "per curtain", minQty: 1, priceNote: ON_CONFIRMATION, scope: "Includes curtain dry cleaning" },
   { contentId: "SCS-32", group: "CUSTOMISED", name: "Fridge Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: null, unit: "per fridge", minQty: 1, priceNote: ON_CONFIRMATION },
   { contentId: "SCS-13", group: "CUSTOMISED", name: "Carpet Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Carpet Cleaning", price: null, unit: "per carpet", minQty: 1, priceNote: ON_CONFIRMATION },
 
   // Combo packages (approved catalogue prices)
-  { contentId: "SCS-26", group: "COMBO", name: "Kitchen + 2 Bathroom + Fridge", category: "COMBO_PACKAGE", variant: "Kitchen + 2 Bathroom + Fridge", price: 3499 },
-  { contentId: "SCS-27", group: "COMBO", name: "Kitchen + 3 Bathroom", category: "COMBO_PACKAGE", variant: "Kitchen + 3 Bathroom", price: 3999 },
-  { contentId: "SCS-29", group: "COMBO", name: "Sofa + Mattress + Carpet", category: "COMBO_PACKAGE", variant: "Sofa + Mattress + Carpet", price: 3999 },
+  { contentId: "SCS-26", group: "COMBO", name: "Kitchen + 2 Bathroom + Fridge", category: "COMBO_PACKAGE", variant: "Kitchen + 2 Bathroom + Fridge", price: 3499, rule: "Empty kitchen · 2 bathrooms · fridge · approx. 3 hrs, 2 workers" },
+  { contentId: "SCS-27", group: "COMBO", name: "Kitchen + 3 Bathroom", category: "COMBO_PACKAGE", variant: "Kitchen + 3 Bathroom", price: 3999, rule: "Empty kitchen · 3 bathrooms · approx. 3 hrs, 2 workers" },
+  { contentId: "SCS-29", group: "COMBO", name: "Sofa + Mattress + Carpet", category: "COMBO_PACKAGE", variant: "Sofa + Mattress + Carpet", price: 3999, rule: "5-seat sofa · 2 mattresses · small carpet · approx. 3 hrs, 2 workers" },
+  // Room / Bedroom care combos (owner-approved 2026-10-07, public booking enabled).
+  { contentId: "SCS-RC-1", group: "COMBO", name: "Master Bedroom + Balcony + Bathroom", category: "COMBO_PACKAGE", variant: "Master Bedroom + Balcony + Bathroom", price: 2799, rule: "1 master bedroom · 1 balcony · 1 bathroom · approx. 3 hrs, 2 workers" },
+  { contentId: "SCS-RC-2", group: "COMBO", name: "Bedroom + Bathroom + Balcony", category: "COMBO_PACKAGE", variant: "Bedroom + Bathroom + Balcony", price: 2199, rule: "1 bedroom · 1 bathroom · 1 balcony · approx. 3 hrs, 2 workers" },
+  { contentId: "SCS-RC-3", group: "COMBO", name: "Living Room + Balcony", category: "COMBO_PACKAGE", variant: "Living Room + Balcony", price: 1899, rule: "Living room · 1 balcony · approx. 3 hrs, 2 workers" },
   { contentId: "SCS-28", group: "COMBO", name: "Sofa + Mattress + Fridge", category: "COMBO_PACKAGE", variant: "Sofa + Mattress + Fridge", price: 1999, addOnOnly: true, rule: "Add-on only — booked with another service" },
 
   // Interior Painting — existing approved per-sq-ft structure (estimate; final after site measurement)

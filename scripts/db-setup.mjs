@@ -1361,6 +1361,25 @@ db.close();
     console.log("Pricing: seeded Navratri / Dussehra / Diwali festival offers.");
   }
 
+  // Owner-approved Excel small-job prices (2026-10-07). The catalogue in pricing-master.ts
+  // carries the new base prices; this one-time sync only replaces an older Super Admin
+  // override for the same item so production shows the Excel price. Rows already stamped
+  // with the marker (or later edited by Super Admin) are never touched again.
+  {
+    const MARK = "Excel sync 2026-10-07";
+    const target = { "SCS-09": 249, "SCS-10": 599, "SCS-12": 1999, "SCS-30": 299 };
+    const sel = prDb.prepare(`SELECT "price","updatedByName" FROM "PriceSetting" WHERE "contentId" = ?`);
+    const upd = prDb.prepare(`UPDATE "PriceSetting" SET "price" = ?, "mrp" = NULL, "updatedByName" = ?, "updatedAt" = ? WHERE "contentId" = ?`);
+    const now = new Date().toISOString().replace("Z", "+00:00");
+    for (const [cid, price] of Object.entries(target)) {
+      const row = sel.get(cid);
+      if (row && row.updatedByName !== MARK && row.price !== price) {
+        upd.run(price, MARK, now, cid);
+        console.log(`Pricing: ${cid} override ${row.price} -> ${price} (Excel sync).`);
+      }
+    }
+  }
+
   console.log("Pricing & Packages migration complete.");
   prDb.close();
 }

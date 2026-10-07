@@ -214,6 +214,18 @@ export function BookingWizard({
   const hasUnpriced = !quote && lines.some((l) => l.amount == null);
   const addOnOnlyAlone = !quote && lines.length > 0 && lines.every((l) => COMBOS.find((c) => c.name === l.label)?.addOnOnly);
   const needsPriceMode = festivalApplies && category === "HOME";
+  // Festival / Regular each allow only some dates — open the calendar on the first
+  // bookable month for the chosen mode, not an all-greyed month.
+  useEffect(() => {
+    if (!dates || !needsPriceMode || !priceMode) return;
+    const first = dates[0]?.date;
+    const target = dates.find((d) => d.available && (priceMode === "FESTIVAL") === !!festivalForDate(festivals, d.date))?.date;
+    if (!first || !target) return;
+    const [y0, m0] = first.split("-").map(Number);
+    const [y1, m1] = target.split("-").map(Number);
+    setMonthOffset((y1 - y0) * 12 + (m1 - m0));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceMode, dates, needsPriceMode]);
   const serviceChosen = quote
     ? true
     : lines.length > 0 &&
@@ -478,11 +490,14 @@ export function BookingWizard({
                   <div className="space-y-2">
                     {PACKAGE_COMBOS.map((c) => (
                       <label key={c.contentId} className="flex min-h-12 items-center justify-between gap-2 rounded-xl border border-[#0a2540]/10 bg-white p-3 text-sm">
-                        <span className="flex items-center gap-2.5">
-                          <input type="checkbox" className="size-5" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
-                          <span className="font-semibold">{c.name}</span>
+                        <span className="flex min-w-0 items-center gap-2.5">
+                          <input type="checkbox" className="size-5 shrink-0" checked={!!combos[c.contentId]} onChange={(e) => setCombos((m) => ({ ...m, [c.contentId]: e.target.checked }))} />
+                          <span className="min-w-0">
+                            <span className="font-semibold">{c.name}</span>
+                            {c.rule && <span className="block text-[11px] font-semibold text-amber-700">{c.rule}</span>}
+                          </span>
                         </span>
-                        <span className="font-bold text-primary">{inr(unit(c)!)}</span>
+                        <span className="shrink-0 font-bold text-primary">{inr(unit(c)!)}</span>
                       </label>
                     ))}
                   </div>

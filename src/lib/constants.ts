@@ -237,9 +237,9 @@ export const SERVICE_RULES: Record<string, string> = {
   "Sofa Cleaning": "Minimum 5 seats",
   "Mattress Cleaning": "Minimum 2 mattresses",
   "Carpet Cleaning": "Minimum 2 carpets",
-  "Window Cleaning": "₹250 / window · minimum 5 windows",
-  "Bathroom Cleaning": "₹1000 · minimum 2 bathrooms",
-  "Kitchen Deep Cleaning": "₹1600 onwards",
+  "Window Cleaning": "₹299 / window · minimum 5 windows",
+  "Bathroom Cleaning": "₹599 / bathroom · minimum 2 bathrooms",
+  "Kitchen Deep Cleaning": "₹1999 onwards",
   "Curtain Cleaning": "₹199 / pair · minimum 2 pairs",
 };
 
@@ -324,10 +324,10 @@ export const MATTRESS_UNIT_PRICE: Record<string, number> = { Single: 399, Double
 // Per-unit indicative price for the simple "quantity" style Home Cleaning
 // sub-services (Bathroom / Kitchen / Carpet / Window / Curtain Cleaning).
 export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
-  "Bathroom Cleaning": 500,
-  "Kitchen Deep Cleaning": 1600,
+  "Bathroom Cleaning": 599,
+  "Kitchen Deep Cleaning": 1999,
   "Carpet Cleaning": 299,
-  "Window Cleaning": 250,
+  "Window Cleaning": 299,
   "Curtain Cleaning": 199, // per pair
 };
 
@@ -353,10 +353,10 @@ export const HOME_SERVICE_UNIT_PRICE: Record<string, number> = {
 // blank and staff enter the real quoted unit price (see ServiceQuantityFields).
 export const CUSTOMIZER_FIXED_UNIT_PRICE: Record<string, number> = {
   "Carpet Cleaning": 299,
-  "Window Cleaning": 250,
-  "Bathroom Cleaning": 500,
+  "Window Cleaning": 299,
+  "Bathroom Cleaning": 599,
   "Refrigerator Cleaning": 499,
-  "Sofa Cleaning": 250,
+  "Sofa Cleaning": 249,
 };
 
 // Display-only unit noun for every Customized Service item in
