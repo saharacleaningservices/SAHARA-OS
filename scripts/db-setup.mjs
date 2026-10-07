@@ -1363,20 +1363,25 @@ db.close();
 
   // Owner-approved Excel small-job prices (2026-10-07). The catalogue in pricing-master.ts
   // carries the new base prices; this one-time sync only replaces an older Super Admin
-  // override for the same item so production shows the Excel price. Rows already stamped
-  // with the marker (or later edited by Super Admin) are never touched again.
+  // override for the same item so production shows the Excel price. It runs exactly once:
+  // a marker row in PriceSetting records that it ran, so a later Super Admin edit (which
+  // stamps the editor's own name) is never reset on a restart or redeploy.
   {
-    const MARK = "Excel sync 2026-10-07";
+    const MARKER_ID = "_migration:excel-small-job-sync-2026-10-07";
     const target = { "SCS-09": 249, "SCS-10": 599, "SCS-12": 1999, "SCS-30": 299 };
-    const sel = prDb.prepare(`SELECT "price","updatedByName" FROM "PriceSetting" WHERE "contentId" = ?`);
-    const upd = prDb.prepare(`UPDATE "PriceSetting" SET "price" = ?, "mrp" = NULL, "updatedByName" = ?, "updatedAt" = ? WHERE "contentId" = ?`);
-    const now = new Date().toISOString().replace("Z", "+00:00");
-    for (const [cid, price] of Object.entries(target)) {
-      const row = sel.get(cid);
-      if (row && row.updatedByName !== MARK && row.price !== price) {
-        upd.run(price, MARK, now, cid);
-        console.log(`Pricing: ${cid} override ${row.price} -> ${price} (Excel sync).`);
+    const done = prDb.prepare(`SELECT 1 AS x FROM "PriceSetting" WHERE "contentId" = ?`).get(MARKER_ID);
+    if (!done) {
+      const sel = prDb.prepare(`SELECT "price" FROM "PriceSetting" WHERE "contentId" = ?`);
+      const upd = prDb.prepare(`UPDATE "PriceSetting" SET "price" = ?, "mrp" = NULL, "updatedByName" = 'Excel sync 2026-10-07', "updatedAt" = ? WHERE "contentId" = ?`);
+      const now = new Date().toISOString().replace("Z", "+00:00");
+      for (const [cid, price] of Object.entries(target)) {
+        const row = sel.get(cid);
+        if (row && row.price !== price) {
+          upd.run(price, now, cid);
+          console.log(`Pricing: ${cid} override ${row.price} -> ${price} (Excel sync, one-time).`);
+        }
       }
+      prDb.prepare(`INSERT INTO "PriceSetting" ("contentId","price","mrp","isActive","updatedByName","updatedAt") VALUES (?,NULL,NULL,0,'System migration',?)`).run(MARKER_ID, now);
     }
   }
 
