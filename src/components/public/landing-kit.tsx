@@ -10,6 +10,7 @@ import { LandingHeroCarousel, type CarouselImage } from "@/components/public/lan
 import { CONTACT, EQUIPMENT, TERMS, inr, type Pkg } from "@/lib/marketing-content";
 import { SERVICE_AREA_NOTICE } from "@/lib/pricing-master";
 import { getLivePricing } from "@/server/pricing";
+import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
 import { toWhatsAppLink } from "@/lib/utils";
 import { COMPANY } from "@/lib/constants";
@@ -144,12 +145,20 @@ export const FESTIVAL_BADGE = "🎉 NAVRATRI • DUSSEHRA • DIWALI — FESTIVA
 // fully visible. Mobile — full-width photo, then badge + headline + actions
 // below it. Desktop — text column left, photo column right. `eyebrow`,
 // `note` and `primaryLabel` stay accepted for call-site compatibility.
-export function Hero({ image, alt, title, subtitle, badge, waText, primaryHref = "/booking", images, bookHrefOverride }: {
+export async function Hero({ image, alt, title, subtitle, badge, waText, primaryHref = "/booking", images, bookHrefOverride }: {
   image: string; alt: string; eyebrow?: string; title: string; subtitle: string; badge?: string; note?: string; primaryLabel: string; waText: string; primaryHref?: string; images?: CarouselImage[];
   /** Same-page anchor for Book Now (package pages scroll to their own booking form). */
   bookHrefOverride?: string;
 }) {
   const bookHref = bookHrefOverride ?? primaryHref === "#book" ? "/booking#book" : primaryHref.startsWith("#") ? "/booking" : primaryHref;
+  // Trust + price proof from CRM Settings and the live price list — never hard-coded claims.
+  const [settings, pricing] = await Promise.all([getCompanySettings().catch(() => null), getLivePricing()]);
+  const fromPrice = pricing.items.filter((p) => p.group === "PREMIUM" && p.price != null).reduce<number | null>((m, p) => (m == null || p.price! < m ? p.price! : m), null);
+  const trust = [
+    settings?.googleRating ? `★ ${settings.googleRating} Google rating` : null,
+    settings?.googleReviewCount ? `${settings.googleReviewCount} reviews` : null,
+    settings?.happyCustomers ? `${settings.happyCustomers} happy customers` : null,
+  ].filter(Boolean) as string[];
   return (
     <section className="bg-[#0a2540] text-white">
       <div className="mx-auto grid max-w-6xl md:grid-cols-[1fr_1.1fr] md:items-center md:gap-8 md:px-4 md:py-10">
@@ -162,6 +171,14 @@ export function Hero({ image, alt, title, subtitle, badge, waText, primaryHref =
           </p>
           <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl">{title}</h1>
           <p className="mt-2 max-w-md text-sm text-white/85 sm:text-base">{subtitle.split(/(?<=\.)\s/)[0]}</p>
+          {(trust.length > 0 || fromPrice != null) && (
+            <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold sm:text-xs">
+              {trust.map((t) => (
+                <span key={t} className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">{t}</span>
+              ))}
+              {fromPrice != null && <span className="rounded-full bg-amber-400/90 px-2.5 py-1 text-[#0a2540]">Full home deep cleaning from {inr(fromPrice)}</span>}
+            </div>
+          )}
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <Link href={bookHref} className="relative rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-lg">
               <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-white/50 [animation-duration:2.2s]" aria-hidden />
@@ -173,7 +190,7 @@ export function Hero({ image, alt, title, subtitle, badge, waText, primaryHref =
               </a>
             ))}
             <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="inline-flex items-center gap-1.5 rounded-full bg-success px-3 py-2 text-xs font-semibold">
-              <MessageCircle className="size-3.5" /> WhatsApp
+              <MessageCircle className="size-3.5" /> Get Quote on WhatsApp
             </a>
           </div>
           <p className="mt-4 text-[11px] font-semibold text-white/70">Since 2012 · Trained, supervised teams · Pune &amp; PCMC</p>
