@@ -25,7 +25,7 @@ export const livePkgs = (items: PriceItem[], g: "PREMIUM" | "PLATINUM"): Pkg[] =
   inGroup(items, g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price!, price: p.price! }));
 export const liveSmallServices = (items: PriceItem[]) =>
   inGroup(items, "CUSTOMISED").map((p) => ({ name: p.name, price: p.price, unit: p.unit ?? "", rule: [p.rule, p.scope].filter(Boolean).join(" · "), priceNote: p.priceNote ?? "" }));
-export const liveCombos = (items: PriceItem[]) => inGroup(items, "COMBO").map((p) => ({ name: p.name, price: p.price!, note: p.addOnOnly ? p.rule ?? "Add-on only" : "" }));
+export const liveCombos = (items: PriceItem[]) => inGroup(items, "COMBO").map((p) => ({ name: p.name, price: p.price!, note: p.addOnOnly ? p.rule ?? "Add-on only" : p.rule ?? "" }));
 export const PLATINUM: Pkg[] = toPkg("PLATINUM");
 // Scope shared by both full-house packages; the wall treatment is the only
 // difference (Premium: wall dry dusting · Platinum: wall wet cleaning; both
