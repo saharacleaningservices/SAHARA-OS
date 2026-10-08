@@ -41,9 +41,8 @@ export default async function HomeDeepCleaningPage() {
       <Hero
         image="/marketing/hero-home.webp"
         alt="Sahara team vacuuming a carpet and wiping surfaces during home deep cleaning in Pune"
-        eyebrow="Navratri • Dussehra • Diwali · Festival cleaning"
-        title="Home Deep Cleaning in Pune"
-        subtitle="Premium & Platinum packages with transparent prices, done by a trained Sahara team."
+        title="Professional Cleaning Services in Pune"
+        subtitle="Home deep cleaning — Premium & Platinum packages with transparent prices."
         primaryLabel="View Packages / Book Now"
         waText={WA}
       />

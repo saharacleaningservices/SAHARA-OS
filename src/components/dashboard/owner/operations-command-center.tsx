@@ -6,7 +6,7 @@ import { getDashboardData } from "@/server/dashboard";
 import { ExpandableCard } from "./expandable-card";
 import { LeadMonthCalendar } from "./lead-calendar";
 import { getSlotBoard } from "@/server/actions/slot-control";
-import { DashboardModules, DashboardQuickBar } from "@/components/dashboard/dashboard-modules";
+import { DashboardModules } from "@/components/dashboard/dashboard-modules";
 import { JobStatusBadge } from "@/components/shared/status-badge";
 
 type OpsDay = Awaited<ReturnType<typeof getOperationsHome>>["today"];
@@ -118,7 +118,6 @@ export async function OperationsCommandCenter({ name, userId, newLeads }: { name
       {/* Control center: quick actions + six groups (role-filtered) | compact calendar */}
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-3">
-          <DashboardQuickBar role="OPERATIONS" />
           <DashboardModules role="OPERATIONS" />
         </div>
         <section id="schedule" className="scroll-mt-20 rounded-xl border bg-card p-3">

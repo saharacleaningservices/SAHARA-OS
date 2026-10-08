@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, CalendarPlus, ChevronDown, Megaphone, MessageCircle, Star, UserPlus } from "lucide-react";
+import { ChevronDown, Megaphone, MessageCircle, Star } from "lucide-react";
 import { NAV_ITEMS } from "@/components/layout/nav-config";
 import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { canAccess } from "@/lib/constants";
@@ -89,28 +89,6 @@ export function DashboardModules({ role }: { role: string }) {
           <div className="flex flex-wrap gap-1.5 px-3 pb-3">{links(g.items)}</div>
         </details>
       ))}
-    </div>
-  );
-}
-
-/** New Lead · New Job · Package Calculator · Schedule. New Job = a lead that opens on Confirm Booking (one intake). */
-export function DashboardQuickBar({ role }: { role: string }) {
-  if (!canAccess(role, "leads")) return null;
-  const btn = "flex items-center justify-center gap-1.5 rounded-xl border bg-card px-2 py-2.5 text-xs font-semibold hover:border-primary/40";
-  return (
-    <div className="grid grid-cols-4 gap-2">
-      <Link href="/leads/new" className={btn}>
-        <UserPlus className="size-4 text-primary" /> <span className="max-sm:sr-only">New</span> Lead
-      </Link>
-      <Link href="/leads/new?book=1" className={btn}>
-        <CalendarPlus className="size-4 text-primary" /> <span className="max-sm:sr-only">New</span> Job
-      </Link>
-      <div className="[&>button]:h-full [&>button]:w-full [&>button]:justify-center [&>button]:rounded-xl [&>button]:bg-card [&>button]:px-2 [&>button]:text-xs [&>button]:font-semibold">
-        <PackageCalculatorButton label="Calculator" />
-      </div>
-      <a href="#schedule" className={btn}>
-        <CalendarDays className="size-4 text-primary" /> Schedule
-      </a>
     </div>
   );
 }

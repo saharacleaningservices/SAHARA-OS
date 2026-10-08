@@ -34,6 +34,15 @@ export function trackLead(details: { category?: string; variant?: string }) {
   if (ADS && ADS_LEAD_LABEL) g("event", "conversion", { send_to: `${ADS}/${ADS_LEAD_LABEL}` });
 }
 
+/**
+ * Booking-funnel step (view_service, select_service, select_category, select_package,
+ * select_addon, select_date, select_time, start_booking, submit_booking,
+ * booking_confirmation). Sent to the same GA4 / Ads gtag; no-op when tags are not loaded.
+ */
+export function trackFunnel(event: string, params: Record<string, string | number | undefined> = {}) {
+  gtag()?.("event", event, { ...params, page_path: typeof window !== "undefined" ? window.location.pathname : undefined });
+}
+
 /** withPixel: also load the Meta Pixel (pages other than /book, which loads its own). */
 export function MarketingTags({ withPixel = false }: { withPixel?: boolean } = {}) {
   useEffect(() => {
