@@ -6,7 +6,7 @@ import { getMyJob } from "@/server/staff-portal";
 import { getStaffLang } from "@/server/staff-lang";
 import { getCompanySettings } from "@/server/settings";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
-import { staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
+import { inrFor, staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { tierFromPackage } from "@/lib/service-scope";
 import { StaffJobStatusButtons } from "@/components/staff-app/job-status-buttons";
 import { cn, initials } from "@/lib/utils";
@@ -41,6 +41,7 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
   const [job, lang, settings] = await Promise.all([getMyJob(staff.id, id), getStaffLang(), getCompanySettings()]);
   if (!job) notFound();
   const t = staffT(lang);
+  const inr = (n: number) => inrFor(lang, n);
   const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
   const tier = job.service === "HOME_DEEP_CLEANING" ? tierFromPackage(job.packageName, job.serviceVariant) : null;
   const pkg = job.packageName || job.serviceVariant;
@@ -76,6 +77,22 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
         <a href={directionsHref(job.address, job.mapLink)} target="_blank" rel="noreferrer" className="mt-3 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary text-base font-bold text-primary-foreground">
           <Navigation className="size-5" /> {t("directions")}
         </a>
+      </section>
+
+      {/* Amount / paid / balance */}
+      <section className="grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-2xl border border-border bg-card p-2.5">
+          <div className="text-[11px] text-muted-foreground">{t("jobAmount")}</div>
+          <div className="text-lg font-extrabold tabular-nums">{inr(job.jobValue)}</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-2.5">
+          <div className="text-[11px] text-muted-foreground">{t("advancePaid")}</div>
+          <div className="text-lg font-extrabold tabular-nums text-success">{inr(job.payment.paid)}</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-2.5">
+          <div className="text-[11px] text-muted-foreground">{t("balance")}</div>
+          <div className={cn("text-lg font-extrabold tabular-nums", job.payment.balance > 0 ? "text-destructive" : "text-success")}>{inr(job.payment.balance)}</div>
+        </div>
       </section>
 
       {/* Team */}
