@@ -11,7 +11,6 @@
 
 import { db } from "@/lib/db";
 import { packageSummary, parsePackage } from "@/lib/package-calc";
-import { jobPaymentSummary } from "@/lib/payment-status";
 import type { SessionPayload } from "@/lib/session";
 import { computeEarned, type AttendanceCode } from "@/server/attendance";
 
@@ -377,11 +376,10 @@ export async function getMyDay(staffId: string, day: Date) {
         mapLink: true,
         customerName: true,
         comboServices: true,
-        jobValue: true,
+        // No job amount / payments — staff never see customer money (owner rule 2026-10-08).
         priceType: true,
         festivalName: true,
         scopeOfWork: true,
-        payments: { where: { deletedAt: null }, select: { paidAmount: true } },
       },
     }),
     db.advance.findMany({ where: { staffId, givenAt: { gte: from, lt: to } }, orderBy: { givenAt: "asc" }, select: { id: true, amount: true, reason: true, givenAt: true } }),
@@ -417,11 +415,9 @@ export async function getMyDay(staffId: string, day: Date) {
       mapLink: j.mapLink,
       customerName: j.customerName,
       comboServices: parseList(j.comboServices),
-      jobAmount: j.jobValue,
       priceType: j.priceType,
       festivalName: j.festivalName,
       scopeOfWork: j.scopeOfWork,
-      payment: jobPaymentSummary(j.jobValue, j.payments),
       teamNumber: j.teamNumber,
       supervisorName: j.supervisor?.name ?? null,
       team: teamOf(j, staffId),
@@ -643,11 +639,9 @@ export async function getMyJob(staffId: string, jobId: string) {
       scopeOfWork: true,
       priceType: true,
       festivalName: true,
-      jobValue: true,
       teamSnapshot: true,
       supervisor: { select: { name: true, employeeCode: true } },
       assignments: { select: { staffId: true, isLead: true, staff: { select: { name: true, employeeCode: true } } } },
-      payments: { where: { deletedAt: null }, select: { paidAmount: true } },
     },
   });
   if (!job) return null;
@@ -664,7 +658,6 @@ export async function getMyJob(staffId: string, jobId: string) {
     // Package services: names + quantity only — never prices (staff see no internal pricing).
     packageServices: packageSummary(parsePackage(job.serviceItems)),
     team,
-    payment: jobPaymentSummary(job.jobValue, job.payments),
     isToday: job.scheduledDate >= today,
   };
 }

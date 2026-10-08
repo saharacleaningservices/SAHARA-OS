@@ -30,6 +30,7 @@ export function StaffJobStatusButtons({ jobId, status, labels }: { jobId: string
               start(async () => {
                 const res = await staffUpdateJobStatus(jobId, s);
                 if ("error" in res && res.error) return void toast.error(res.error);
+                toast.success(label[s]);
                 router.refresh();
               })
             }
@@ -38,7 +39,7 @@ export function StaffJobStatusButtons({ jobId, status, labels }: { jobId: string
               done ? "bg-success text-white" : next ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
             )}
           >
-            {label[s]}
+            {pending && next ? "…" : label[s]}
           </button>
         );
       })}

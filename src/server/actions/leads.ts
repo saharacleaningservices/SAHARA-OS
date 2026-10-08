@@ -730,8 +730,11 @@ export async function confirmBooking(leadId: string, values: unknown) {
   // ONE WhatsApp booking confirmation, identical for every lead source and
   // for manual CRM jobs (createJob) — see src/server/booking-messages.ts,
   // which also owns the once-per-job duplicate guard.
-  await sendBookingConfirmation(job.id).catch(() => {});
-  await dispatchTeamForJob(job.id).catch(() => {});
+  // Meta round-trips run in the background (in order) so Confirm Booking returns at once.
+  void (async () => {
+    await sendBookingConfirmation(job.id).catch(() => {});
+    await dispatchTeamForJob(job.id).catch(() => {});
+  })();
 
   revalidatePath("/leads");
   revalidatePath(`/leads/${leadId}`);

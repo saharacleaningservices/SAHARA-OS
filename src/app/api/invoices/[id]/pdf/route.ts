@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       payment: true,
       job: {
         select: {
-          service: true, packageName: true, serviceVariant: true, serviceItems: true, scopeOfWork: true, completedAt: true, scheduledDate: true,
+          jobNumber: true, service: true, packageName: true, serviceVariant: true, serviceItems: true, scopeOfWork: true, completedAt: true, scheduledDate: true,
           payments: { where: { deletedAt: null }, select: { paidAmount: true } },
         },
       },
@@ -66,6 +66,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       copyLabel: "ORIGINAL FOR RECIPIENT",
       number: invoice.invoiceNumber,
       date: formatDate(invoice.createdAt),
+      extraMeta: invoice.job ? [{ label: "Job ID", value: invoice.job.jobNumber }] : [],
       billTo: { name: invoice.customerName, address: invoice.customerAddress, mobile: invoice.customerMobile },
       rows: table.rows,
       subtotalRow: table.subtotal,

@@ -58,7 +58,8 @@ async function deliver(userIds: string[], input: StaffNotifyInput) {
       meta: JSON.stringify({ recordId: input.recordId }),
     })),
   });
-  await pushToUsers(userIds, {
+  // Device push runs in the background — the in-app row above is already saved.
+  void pushToUsers(userIds, {
     title: input.title,
     body: input.body,
     href: input.href,

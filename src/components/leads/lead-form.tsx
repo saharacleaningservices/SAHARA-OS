@@ -255,8 +255,7 @@ export function LeadForm({
     }
     const autoQuote = !leadId && "quoteNumber" in res && res.quoteNumber ? res.quoteNumber : null;
     toast.success(leadId ? "Lead updated" : autoQuote ? `Lead created — quotation ${autoQuote} ready` : "Lead created");
-    router.push(leadId ? `/leads/${leadId}` : `/leads/${"leadId" in res ? res.leadId : leadId}${book ? "?confirm=1" : ""}`);
-    router.refresh();
+    router.push(leadId ? `/leads/${leadId}` : `/leads/${"leadId" in res ? res.leadId : leadId}${book ? "?confirm=1" : ""}`); // push already loads fresh data (dynamic page) — no second refresh render
   }
 
   return (

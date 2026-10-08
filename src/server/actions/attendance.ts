@@ -126,7 +126,7 @@ export async function markAttendanceDay(staffId: string, dateIso: string, status
   const res = await setAttendanceForDate({ staffId, date: dateIso, status, actorName: session.name });
   if ("error" in res) return { error: res.error };
   if (!("unchanged" in res)) {
-    await notifyStaffAttendance(staffId, status, new Date(dateIso));
+    void notifyStaffAttendance(staffId, status, new Date(dateIso)).catch(() => {});
     const [y, m, d] = dateIso.slice(0, 10).split("-").map(Number);
     await pushStaffAttendance(staffId, status, new Date(y, m - 1, d));
   }
@@ -146,7 +146,7 @@ export async function markTodayPresentAbsent(staffId: string, status: "PRESENT" 
   const res = await setAttendanceForDate({ staffId, date: today, status, actorName: session.name });
   if ("error" in res) return { error: res.error };
   if (!("unchanged" in res)) {
-    await notifyStaffAttendance(staffId, status, new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+    void notifyStaffAttendance(staffId, status, new Date(now.getFullYear(), now.getMonth(), now.getDate())).catch(() => {});
     await pushStaffAttendance(staffId, status, new Date(now.getFullYear(), now.getMonth(), now.getDate()));
   }
   bump();
@@ -159,7 +159,7 @@ export async function bulkMarkAttendance(staffId: string, from: string, to: stri
   if (!CODES.includes(status)) return { error: "Invalid status" };
   const res = await bulkSetAttendance({ staffId, from, to, status, actorName: session.name });
   if ("error" in res) return { error: res.error };
-  await notifyStaffAttendance(staffId, status, new Date(to));
+  void notifyStaffAttendance(staffId, status, new Date(to)).catch(() => {});
   if (res.applied > 0) {
     const day = (iso: string) => {
       const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
@@ -178,7 +178,7 @@ export async function officeCheckIn(staffId: string) {
   const res = await officeCheckInSrv(staffId, session.name);
   if ("error" in res) return { error: res.error };
   if (!("alreadyIn" in res)) {
-    await notifyStaffAttendance(staffId, "PRESENT", new Date());
+    void notifyStaffAttendance(staffId, "PRESENT", new Date()).catch(() => {});
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     await pushStaffAttendance(staffId, "PRESENT", today);
