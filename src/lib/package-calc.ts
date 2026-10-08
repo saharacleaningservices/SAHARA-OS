@@ -37,7 +37,7 @@ export function packageTotals(d: PackageDraft) {
 
 /** Discount presets offered in the calculator (percent of the chargeable value). */
 export const DISCOUNT_PRESETS = [5, 10, 20] as const;
-export const percentDiscount = (subtotal: number, pct: number) => Math.round((Math.max(0, subtotal) * pct) / 100);
+export const percentDiscount = (subtotal: number, pct: number) => r2((Math.max(0, subtotal) * pct) / 100); // exact to the paisa
 
 /** Category groups shown in the calculator (base home packages are chosen separately). */
 export const SERVICE_GROUPS: { group: PriceGroup; label: string }[] = [

@@ -142,7 +142,7 @@ export async function createInvoice(data: {
   const discount = data.discount ?? 0;
   const gstPercent = data.gstPercent ?? 0;
   const taxable = Math.max(subTotal - discount, 0);
-  const gstAmount = Math.round((taxable * gstPercent) / 100);
+  const gstAmount = Math.round(((taxable * gstPercent) / 100) * 100) / 100; // exact to the paisa
   const totalAmount = taxable + gstAmount;
 
   const invoiceNumber = await generateStandaloneInvoiceNumber();

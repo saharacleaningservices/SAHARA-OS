@@ -1013,7 +1013,7 @@ export async function createQuotation(
   const role = (await getSession())?.role;
   const allowed = canEditPackagePricing(role) ? subTotal : Math.min(subTotal, lead.discountAmount ?? 0);
   const disc = Math.max(0, Math.min(Number(discount) || 0, allowed));
-  const gstAmount = Math.round(((subTotal - disc) * gstPercent) / 100);
+  const gstAmount = Math.round((((subTotal - disc) * gstPercent) / 100) * 100) / 100; // exact to the paisa
   const totalAmount = subTotal - disc + gstAmount;
 
   const quoteNumber = await generateQuoteNumber();

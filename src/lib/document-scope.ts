@@ -57,8 +57,11 @@ const three = (n: number) => `${n >= 100 ? `${ONES[Math.floor(n / 100)]} Hundred
 
 /** Indian-system amount in words: 7000 → "Seven Thousand Rupees". */
 export function rupeesInWords(amount: number): string {
-  let n = Math.round(Math.max(0, amount));
-  if (n === 0) return "Zero Rupees";
+  const total = Math.round(Math.max(0, amount) * 100); // paise — exact, no whole-rupee rounding
+  let n = Math.floor(total / 100);
+  const paise = total % 100;
+  const paiseWords = paise ? ` and ${two(paise)} Paise` : "";
+  if (n === 0) return paise ? `${two(paise)} Paise` : "Zero Rupees";
   const parts: string[] = [];
   const crore = Math.floor(n / 10000000); n %= 10000000;
   const lakh = Math.floor(n / 100000); n %= 100000;
@@ -67,7 +70,7 @@ export function rupeesInWords(amount: number): string {
   if (lakh) parts.push(`${two(lakh)} Lakh`);
   if (thousand) parts.push(`${two(thousand)} Thousand`);
   if (n) parts.push(three(n));
-  return `${parts.join(" ")} Rupees`;
+  return `${parts.join(" ")} Rupees${paiseWords}`;
 }
 
 type StoredLine = { name: string; description: string; amount: number };

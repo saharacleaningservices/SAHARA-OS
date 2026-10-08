@@ -24,8 +24,11 @@ function below1000(n: number): string {
 }
 /** Indian numbering in words: 7800 → "Seven Thousand Eight Hundred Rupees". */
 export function rupeesInWords(amount: number): string {
-  let n = Math.round(Math.max(0, amount));
-  if (n === 0) return "Zero Rupees";
+  const total = Math.round(Math.max(0, amount) * 100); // paise — exact, no whole-rupee rounding
+  let n = Math.floor(total / 100);
+  const paise = total % 100;
+  const paiseWords = paise ? ` and ${below1000(paise)} Paise` : "";
+  if (n === 0) return paise ? `${below1000(paise)} Paise` : "Zero Rupees";
   const parts: string[] = [];
   const crore = Math.floor(n / 1e7); n %= 1e7;
   const lakh = Math.floor(n / 1e5); n %= 1e5;
@@ -34,7 +37,7 @@ export function rupeesInWords(amount: number): string {
   if (lakh) parts.push(`${below1000(lakh)} Lakh`);
   if (thousand) parts.push(`${below1000(thousand)} Thousand`);
   if (n) parts.push(below1000(n));
-  return `${parts.join(" ")} Rupees`;
+  return `${parts.join(" ")} Rupees${paiseWords}`;
 }
 
 export type CustomerDocJob = {
