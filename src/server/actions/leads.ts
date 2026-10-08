@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { notifyCrewAssigned } from "@/server/job-team";
 import { getSession } from "@/lib/session";
-import { enforcePricing, packageTotals, parsePackage, serializeLines, canEditPackagePricing } from "@/lib/package-calc";
+import { enforcePricing, packageTotals, packageToQuoteItems, parsePackage, serializeLines, canEditPackagePricing } from "@/lib/package-calc";
+import { HOME_DURATION, homeScopeByArea, tierFromPackage } from "@/lib/service-scope";
 import { getLivePricing } from "@/server/pricing";
 
 import { rescheduleJobFromLead, syncLeadFromJob } from "@/server/job-schedule";
@@ -26,6 +27,7 @@ import {
   FOLLOWUP_TYPE_LABELS,
   CALL_OUTCOME_LABELS,
   COMPANY,
+  SERVICE_LABELS,
 } from "@/lib/constants";
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
@@ -98,6 +100,68 @@ async function findOpenDuplicateLead(mobile: string) {
     },
     select: { leadNumber: true },
   });
+}
+
+/**
+ * New Lead → Quotation, automatically: the moment a priced enquiry is saved its
+ * quotation is created from exactly what was selected — the Package Calculator
+ * lines (with discount / complimentary items) or the chosen package at the
+ * lead's amount — with the approved scope and the standard quotation terms.
+ * No second entry, no re-pricing. Skipped when nothing is priced yet. The lead
+ * stage is not changed (the office still works it as a new enquiry).
+ */
+async function autoQuotationForLead(leadId: string, actorId?: string) {
+  const lead = await db.lead.findUnique({ where: { id: leadId } });
+  if (!lead || lead.deletedAt) return null;
+  const amount = lead.quoteAmount ?? 0;
+  if (amount <= 0) return null;
+  const existing = await db.quotation.findFirst({ where: { leadId }, select: { id: true } });
+  if (existing) return null;
+
+  const serviceLabel = SERVICE_LABELS[lead.service] ?? lead.service;
+  const tier = lead.service === "HOME_DEEP_CLEANING" ? tierFromPackage(lead.packageName, lead.serviceVariant) : null;
+  const tierScope = tier
+    ? `${tier} — ${homeScopeByArea(tier).map((a) => a.area).join(", ")} · ${tier === "Platinum" ? "wall wet cleaning" : "wall dry dusting"} + ceiling dry dusting · ${HOME_DURATION}`
+    : "";
+  const scope = (lead.scopeOfWork ?? "").trim() || tierScope;
+
+  const pkg = parsePackage(lead.serviceItems, lead.discountAmount);
+  const totals = packageTotals(pkg);
+  const usePkg = pkg.lines.length > 0 && Math.abs(totals.final - amount) < 0.01;
+  const pkgName = [lead.serviceVariant && lead.serviceVariant !== lead.packageName ? lead.serviceVariant : null, lead.packageName].filter(Boolean).join(" ");
+  const title = [serviceLabel, pkgName].filter(Boolean).join(" — ");
+  const areaText = lead.area && !/^[\d\s-]+$/.test(lead.area) ? lead.area : null;
+  const services = usePkg
+    ? packageToQuoteItems(pkg)
+    : [{ name: title, description: [lead.priceType === "FESTIVAL" && lead.festivalName ? `${lead.festivalName} price` : null, areaText].filter(Boolean).join(" · ") || serviceLabel, amount }];
+  if (scope) services[0] = { ...services[0], description: `${services[0].description} · Scope: ${scope}`.slice(0, 1500) };
+  const subTotal = services.reduce((t, x) => t + x.amount, 0);
+  const discount = usePkg ? totals.discount : 0;
+
+  const quoteNumber = await generateQuoteNumber();
+  const quotation = await db.quotation.create({
+    data: {
+      quoteNumber,
+      leadId,
+      services: JSON.stringify(services),
+      subTotal,
+      discount,
+      gstPercent: 0,
+      gstAmount: 0,
+      totalAmount: subTotal - discount,
+      terms: QUOTATION_TERMS,
+      validTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      status: "DRAFT",
+    },
+  });
+  await addTimelineEntry({
+    leadId,
+    type: "QUOTATION",
+    body: `Quotation ${quoteNumber} created automatically — ₹${(subTotal - discount).toLocaleString("en-IN")}`,
+    meta: { quotationId: quotation.id, quoteNumber, totalAmount: subTotal - discount, auto: true },
+    authorId: actorId,
+  }).catch(() => {});
+  return quotation;
 }
 
 const duplicateLeadError = (leadNumber: string) =>
@@ -175,6 +239,8 @@ export async function createLead(values: unknown) {
       paymentStatus: data.paymentStatus || (data.advanceAmount ? "PARTIAL" : "PENDING"),
       mapLink: data.mapLink || null,
       siteId: link?.siteId ?? null,
+      priceType: data.priceType || null,
+      festivalName: data.priceType === "FESTIVAL" ? data.festivalName || null : null,
       acquisitionChannel: channel,
       acquisitionCampaign: campaign,
       firstTouchSource: channel,
@@ -234,6 +300,12 @@ export async function createLead(values: unknown) {
     });
   }
 
+  // New Lead → Quotation (automatic, from the exact package / calculator values).
+  const autoQuote = await autoQuotationForLead(lead.id, session?.sub).catch((e) => {
+    console.error("[quotation] auto-create failed:", e);
+    return null;
+  });
+
   await notify({
     kind: "NEW_INQUIRY",
     title: `New enquiry — ${data.name}`,
@@ -243,7 +315,8 @@ export async function createLead(values: unknown) {
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");
-  return { success: true, leadId: lead.id };
+  revalidatePath("/quotations");
+  return { success: true, leadId: lead.id, quotationId: autoQuote?.id ?? null, quoteNumber: autoQuote?.quoteNumber ?? null };
 }
 
 /** AI Quick Capture — mobile + name + area + service, everything else later. */

@@ -94,6 +94,9 @@ export const leadSchema = z.object({
   siteId: z.string().max(40).optional().or(z.literal("")),
   contactType: z.string().max(30).optional().or(z.literal("")),
   isRepeat: z.boolean().optional(),
+  // Which approved price list the package amount came from (Festival window by service date).
+  priceType: z.enum(["REGULAR", "FESTIVAL"]).optional().or(z.literal("")),
+  festivalName: z.string().max(80).optional().or(z.literal("")),
   // Marketing attribution for leads entered by hand (set once, on create).
   acquisitionChannel: z.string().max(60).optional().or(z.literal("")),
   acquisitionCampaign: z.string().max(120).optional().or(z.literal("")),

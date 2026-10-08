@@ -416,7 +416,10 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
   const pkg = parsePackage(job.serviceItems, job.discountAmount);
   const pkgTotals = packageTotals(pkg);
   const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - job.jobValue) < 0.01;
-  const title = [serviceLabel, job.packageName || job.serviceVariant].filter(Boolean).join(" — ");
+  const pkgName = [job.serviceVariant && job.serviceVariant !== job.packageName ? job.serviceVariant : null, job.packageName].filter(Boolean).join(" ");
+  const title = [serviceLabel, pkgName].filter(Boolean).join(" — ");
+  const areaText = job.area && !/^[\d\s-]+$/.test(job.area) ? job.area : null;
+  const lineDetail = [job.priceType === "FESTIVAL" && job.festivalName ? `${job.festivalName} price` : null, areaText].filter(Boolean).join(" · ") || serviceLabel;
   const invoice = await db.invoice.create({
     data: {
       invoiceNumber,
@@ -426,7 +429,7 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
       customerName: job.customerName,
       customerMobile: job.customerMobile,
       customerAddress: job.address,
-      lineItems: JSON.stringify(usePkg ? packageToQuoteItems(pkg) : [{ name: title, description: `${title} — ${job.area}`, amount: job.jobValue }]),
+      lineItems: JSON.stringify(usePkg ? packageToQuoteItems(pkg) : [{ name: title, description: lineDetail, amount: job.jobValue }]),
       subTotal: usePkg ? pkgTotals.subtotal : job.jobValue,
       discount: usePkg ? pkgTotals.discount : 0,
       gstPercent: 0,
