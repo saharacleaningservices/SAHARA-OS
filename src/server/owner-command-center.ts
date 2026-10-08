@@ -160,6 +160,10 @@ function bucketForStage(stage: string): "green" | "blue" | "orange" | "red" | "w
 //    tomorrow (decided here, server-side — never sent for other dates).
 export type CalendarDetailLevel = "full" | "supervisor" | "operations" | "counts";
 
+/** "2 BHK Premium" — package and flat type without repeating the package name. */
+const pkgLabel = (pkg?: string | null, variant?: string | null) =>
+  (pkg && variant && variant.toLowerCase().includes(pkg.toLowerCase()) ? variant : [variant, pkg].filter(Boolean).join(" ")) || null;
+
 export type CalendarLead = {
   id: string;
   bookingNo?: string;
@@ -176,6 +180,10 @@ export type CalendarLead = {
   quoteAmount?: number | null;
   advanceAmount?: number | null;
   paymentStatus?: string | null;
+  /** Time slot (job time, else the enquiry's requested slot). */
+  time?: string | null;
+  /** Package / flat type, e.g. "Premium · 2 BHK". */
+  pkg?: string | null;
 };
 
 // Status-count buckets for the calendar's day dialog. Distinct from
@@ -241,6 +249,9 @@ export async function getLeadMonthCalendar(
     quoteAmount: true,
     advanceAmount: true,
     paymentStatus: true,
+    timeSlot: true,
+    packageName: true,
+    serviceVariant: true,
   } as const;
   // Booked enquiries are placed on their JOB's working schedule (Job.scheduledDate),
   // never on the lead's own follow-up/created date — so a reschedule shows on the
@@ -272,6 +283,9 @@ export async function getLeadMonthCalendar(
         area: true,
         address: true,
         jobNumber: true,
+        scheduledTime: true,
+        packageName: true,
+        serviceVariant: true,
         assignments: { select: { staff: { select: { name: true } } } },
         lead: { select: leadSelect },
       },
@@ -281,7 +295,7 @@ export async function getLeadMonthCalendar(
   // Job status → the calendar's lead-stage vocabulary (colours / status counts).
   const jobStage = (status: string) => (status === "CANCELLED" ? "CANCELLED" : status === "COMPLETED" ? "COMPLETED" : "JOB_SCHEDULED");
   const leads = [
-    ...openLeads.map((l) => ({ ...l, day: l.followUpDate ?? l.createdAt, postponed: false, bookingNo: l.leadNumber, jobCustomer: null as string | null, jobMobile: null as string | null, staffNames: null as string | null })),
+    ...openLeads.map((l) => ({ ...l, day: l.followUpDate ?? l.createdAt, postponed: false, bookingNo: l.leadNumber, jobCustomer: null as string | null, jobMobile: null as string | null, staffNames: null as string | null, time: l.timeSlot, pkg: pkgLabel(l.packageName, l.serviceVariant) })),
     ...jobs.map((j) => ({
       ...(j.lead ?? { name: j.customerName, mobile: j.customerMobile, leadNumber: j.jobNumber, quoteAmount: null, advanceAmount: null, paymentStatus: null }),
       id: j.id,
@@ -296,6 +310,8 @@ export async function getLeadMonthCalendar(
       jobCustomer: j.customerName,
       jobMobile: j.customerMobile,
       staffNames: j.assignments.map((a) => a.staff.name).join(", ") || null,
+      time: j.scheduledTime,
+      pkg: pkgLabel(j.packageName, j.serviceVariant),
     })),
   ];
 
@@ -330,6 +346,13 @@ export async function getLeadMonthCalendar(
         quoteAmount: l.quoteAmount,
         advanceAmount: l.advanceAmount,
         paymentStatus: l.paymentStatus,
+        // Day view: Customer | Time | Service/Package | Team status.
+        bookingNo: l.bookingNo,
+        service: SERVICE_LABELS[l.service as keyof typeof SERVICE_LABELS] ?? l.service,
+        time: l.time,
+        pkg: l.pkg,
+        teamNumber: l.teamNumber,
+        assignedStaff: l.staffNames,
       });
     } else if (detailLevel === "operations") {
       const sb = statusBucketForStage(l.stage);
