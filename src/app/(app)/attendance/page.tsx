@@ -63,7 +63,7 @@ export default async function AttendancePage({
       />
 
       {/* Office clock — Altaf / Shoaib / Francis */}
-      <OfficeAttendanceClock rows={all} staff={staffList} />
+      <OfficeAttendanceClock rows={canViewSalary(session.role) ? all : all.map((r) => ({ ...r, wageForDay: null }))} staff={staffList} />
 
       {/* "My Attendance & Salary" shows the logged-in user's own earned
           wage/balance — Francis (SUPERVISOR) must not see any salary/wage/
@@ -82,7 +82,7 @@ export default async function AttendancePage({
       {(canManage || canViewTeamAttendance) && (
         <div className="space-y-3">
           <h2 className="text-sm font-semibold text-foreground">Today — All Staff</h2>
-          <AttendanceList rows={all} canManage={canManage} />
+          <AttendanceList rows={canViewSalary(session.role) ? all : all.map((r) => ({ ...r, wageForDay: null }))} canManage={canManage} />
         </div>
       )}
 

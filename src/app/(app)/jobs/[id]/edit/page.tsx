@@ -4,7 +4,7 @@ import { JobEditForm } from "@/components/jobs/job-edit-form";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getStaffForAssignment } from "@/server/staff";
 import { requireUser } from "@/lib/current-user";
-import { canManageJobs } from "@/lib/permissions";
+import { canManageJobs, canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 
 export default async function EditJobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,11 +26,12 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
       <PageHeader title={`Edit ${job.customerName}`} description={job.jobNumber} />
       <JobEditForm
         jobId={job.id}
+        restricted={!canSeeCustomerContact(session.role) || !canViewJobAmount(session.role)}
         staffOptions={staffOptions}
         defaultStaffIds={job.assignments.map((a) => a.staffId)}
         defaultValues={{
           customerName: job.customerName,
-          customerMobile: job.customerMobile,
+          customerMobile: canSeeCustomerContact(session.role) ? job.customerMobile : "",
           address: job.address,
           area: job.area,
           pinCode: job.pinCode ?? "",
@@ -41,7 +42,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           scheduledTime: job.scheduledTime,
           teamNumber: job.teamNumber ?? "",
           supervisorId: job.supervisorId ?? "",
-          jobValue: job.jobValue,
+          jobValue: canViewJobAmount(session.role) ? job.jobValue : 0,
           notes: job.notes ?? "",
           scopeOfWork: job.scopeOfWork ?? "",
         }}

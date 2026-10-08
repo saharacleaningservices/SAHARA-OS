@@ -25,18 +25,30 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { MarketingConsentControl } from "@/components/leads/marketing-consent-control";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
+import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
+import { HIDDEN_CONTACT, maskText, redactLead } from "@/lib/redact";
 
 export default async function LeadDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirm?: string }> }) {
   const { confirm } = await searchParams;
   const { id } = await params;
   const session = await requireUser();
-  const [lead, staff, settings] = await Promise.all([getLeadDetail(id), getStaffForAssignment(), getCompanySettings()]);
-  if (!lead) notFound();
+  const [rawLead, staff, settings] = await Promise.all([getLeadDetail(id), getStaffForAssignment(), getCompanySettings()]);
+  if (!rawLead) notFound();
   // Francis (SUPERVISOR) final policy, 2026-09-21: direct-URL access to a
   // lead outside his today/tomorrow/active-enquiry window must be blocked
   // here too, not just hidden from the list — this page previously had no
   // session check at all.
-  if (!canAccessLead(session, lead)) redirect("/leads");
+  if (!canAccessLead(session, rawLead)) redirect("/leads");
+  // Owner rule 2026-10-08: customer contact + amounts only for Super Admin / Accounts.
+  const showContact = canSeeCustomerContact(session.role);
+  const showMoney = canViewJobAmount(session.role);
+  const maskDigits = (t: string) => maskText(t, { contact: showContact, money: showMoney }) ?? "";
+  const lead = {
+    ...redactLead(rawLead, session.role),
+    timeline: rawLead.timeline.map((e) => ({ ...e, body: maskDigits(e.body ?? "") })),
+    quotations: showMoney ? rawLead.quotations : [],
+    payments: showMoney ? rawLead.payments : [],
+  };
 
   const estimated = lead.quoteAmount ?? 0;
   const advance = lead.advanceAmount ?? 0;
@@ -62,11 +74,16 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
         description={`${lead.leadNumber} · ${SERVICE_LABELS[lead.service]} · ${lead.area}`}
         actions={
           <>
-            <CallButton mobile={lead.mobile} />
-            <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
-            <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} />
-            <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} kind="REVIEW" />
+            {showContact && (
+              <>
+                <CallButton mobile={lead.mobile} />
+                <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
+                <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} />
+                <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} kind="REVIEW" />
+              </>
+            )}
             <ScheduleVisitDialog leadId={lead.id} />
+            {showContact && showMoney && (
             <SendPaymentLinkButton
               mobile={lead.whatsapp || lead.mobile}
               details={paymentDetails}
@@ -81,7 +98,10 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               }}
               purpose={advance > 0 ? "BALANCE" : "ADVANCE"}
             />
-            <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} serviceItems={lead.serviceItems} discountAmount={lead.discountAmount} />
+            )}
+            {showMoney && (
+              <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} serviceItems={lead.serviceItems} discountAmount={lead.discountAmount} />
+            )}
             {canConfirm && (
               <ConfirmBookingDialog
                 leadId={lead.id}
@@ -131,15 +151,15 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
             <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
               <div>
                 <p className="text-xs text-muted-foreground">Mobile</p>
-                <p className="font-medium text-foreground">{lead.mobile}</p>
+                <p className="font-medium text-foreground">{lead.mobile || HIDDEN_CONTACT}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">WhatsApp</p>
-                <p className="font-medium text-foreground">{lead.whatsapp || "—"}</p>
+                <p className="font-medium text-foreground">{showContact ? lead.whatsapp || "—" : HIDDEN_CONTACT}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Email</p>
-                <p className="font-medium text-foreground break-all">{lead.email || "—"}</p>
+                <p className="font-medium text-foreground break-all">{showContact ? lead.email || "—" : HIDDEN_CONTACT}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Source</p>
@@ -157,10 +177,12 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
                   {lead.teamNumber ? `Team ${lead.teamNumber}` : "—"}
                 </p>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Quote Amount</p>
-                <p className="font-medium text-foreground">{lead.quoteAmount ? formatINR(lead.quoteAmount) : "—"}</p>
-              </div>
+              {showMoney && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Quote Amount</p>
+                  <p className="font-medium text-foreground">{lead.quoteAmount ? formatINR(lead.quoteAmount) : "—"}</p>
+                </div>
+              )}
               <div>
                 <p className="text-xs text-muted-foreground">Assigned Staff</p>
                 <p className="font-medium text-foreground">{lead.assignedStaff?.name ?? "—"}</p>
@@ -197,6 +219,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
             </CardContent>
           </Card>
 
+          {showMoney && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -231,6 +254,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               )}
             </CardContent>
           </Card>
+          )}
 
           <Card>
             <CardHeader>

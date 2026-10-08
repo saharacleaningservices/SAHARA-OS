@@ -19,7 +19,24 @@ export default async function StaffPage() {
 
   // Defense in depth: never send wage figures to the client for roles that
   // shouldn't see them, even though the UI also hides the column.
-  const rows = showSalary ? staff : staff.map((s) => ({ ...s, dailyWage: null, monthlySalary: null }));
+  // Also no bank / UPI details, documents, day wage, or the assigned job's customer
+  // contact and amounts (owner rule 2026-10-08) — the list needs job number + status only.
+  const rows = showSalary
+    ? staff
+    : staff.map((s) => ({
+        ...s,
+        dailyWage: null,
+        monthlySalary: null,
+        bankAccount: null,
+        bankIfsc: null,
+        bankName: null,
+        bankAccountName: null,
+        upiId: null,
+        gpayNumber: null,
+        documents: null,
+        attendance: s.attendance.map((a) => ({ ...a, wageForDay: null })),
+        jobAssignments: s.jobAssignments.map((ja) => ({ ...ja, job: { jobNumber: ja.job.jobNumber } })),
+      }));
 
   return (
     <div className="space-y-6">

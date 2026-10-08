@@ -245,7 +245,7 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
                   </div>
                 </TableCell>
                 <TableCell className="text-sm">{AMC_CATEGORY_LABELS[c.category]} · {AMC_FREQUENCY_LABELS[c.frequency]}</TableCell>
-                <TableCell className="text-sm">{formatINR(c.amount)}</TableCell>
+                <TableCell className="text-sm">{c.amount ? formatINR(c.amount) : "—"}</TableCell>
                 <TableCell className="text-sm">
                   {formatDate(c.serviceReminderDate ?? c.nextVisitDate)}
                   {(() => {

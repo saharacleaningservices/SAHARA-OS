@@ -7,6 +7,7 @@ import { getStaffForAssignment } from "@/server/staff";
 import { getUsersForAssignment } from "@/server/users";
 import { getResolvedIntegrations } from "@/server/integrations";
 import { requireUser } from "@/lib/current-user";
+import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 
 export default async function EditLeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -23,6 +24,9 @@ export default async function EditLeadPage({ params }: { params: Promise<{ id: s
   // bypassed the scope check the main detail page already enforced,
   // exposing every field of any lead in the system regardless of date.
   if (!canAccessLead(session, lead)) redirect("/leads");
+  // Owner rule 2026-10-08: the edit form carries customer contact + amounts —
+  // restricted roles work the lead from its detail page instead.
+  if (!canSeeCustomerContact(session.role) || !canViewJobAmount(session.role)) redirect(`/leads/${lead.id}`);
 
   return (
     <div className="max-w-3xl space-y-6">

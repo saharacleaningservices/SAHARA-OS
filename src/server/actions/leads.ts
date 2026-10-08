@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { notifyCrewAssigned } from "@/server/job-team";
 import { getSession } from "@/lib/session";
+import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 import { enforcePricing, packageTotals, packageToQuoteItems, parsePackage, serializeLines, canEditPackagePricing } from "@/lib/package-calc";
 import { HOME_DURATION, homeScopeByArea, tierFromPackage } from "@/lib/service-scope";
 import { getLivePricing } from "@/server/pricing";
@@ -35,7 +36,7 @@ import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendBookingConfirmation } from "@/server/booking-messages";
 import { canAccessLead } from "@/server/leads";
 import { channelForManualLead } from "@/lib/attribution";
-import { linkCustomerAndSite } from "@/server/customer-db";
+import { addressKey, linkCustomerAndSite } from "@/server/customer-db";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit allowed lead/booking
@@ -86,20 +87,36 @@ function normalizeTeam(value: number | "" | undefined): number | null {
 }
 
 /**
- * Duplicate-lead prevention: one open enquiry per mobile number. Staff update
- * the existing enquiry instead (the public booking form already does this).
+ * One customer → many leads (owner rule 2026-10-08): an existing customer or
+ * open enquiry never blocks a new enquiry — every enquiry gets its own Lead ID
+ * and the old lead is untouched. Only a likely double entry is flagged: same
+ * mobile + same service + same service date + same slot + same site. The
+ * office can still save it after confirming.
  */
-async function findOpenDuplicateLead(mobile: string) {
-  const last10 = mobile.replace(/\D/g, "").slice(-10);
-  if (last10.length !== 10) return null;
-  return db.lead.findFirst({
+async function findExactDuplicateLead(data: { mobile: string; service: string; serviceDate?: string | null; timeSlot?: string | null; siteId?: string | null; address?: string | null }) {
+  const last10 = data.mobile.replace(/\D/g, "").slice(-10);
+  if (last10.length !== 10 || !data.serviceDate) return null;
+  const day = new Date(`${data.serviceDate.slice(0, 10)}T00:00:00+05:30`);
+  if (Number.isNaN(day.getTime())) return null;
+  const candidates = await db.lead.findMany({
     where: {
       deletedAt: null,
       mobile: { endsWith: last10 },
-      stage: { in: ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] },
+      service: data.service as never,
+      stage: { not: "CANCELLED" },
+      serviceDate: { gte: day, lt: new Date(day.getTime() + 86400000) },
     },
-    select: { leadNumber: true },
+    select: { leadNumber: true, timeSlot: true, siteId: true, address: true },
+    take: 20,
   });
+  const key = addressKey(data.address);
+  return (
+    candidates.find(
+      (l) =>
+        (l.timeSlot ?? "") === (data.timeSlot ?? "") &&
+        (data.siteId ? l.siteId === data.siteId : !key || !l.address || addressKey(l.address) === key),
+    ) ?? null
+  );
 }
 
 /**
@@ -164,10 +181,11 @@ async function autoQuotationForLead(leadId: string, actorId?: string) {
   return quotation;
 }
 
-const duplicateLeadError = (leadNumber: string) =>
-  `An open enquiry ${leadNumber} already exists for this mobile number — open and update it instead.`;
+const duplicateLeadWarning = (leadNumber: string) =>
+  `${leadNumber} already has this service for the same customer, date, time and site. Save as a new enquiry anyway?`;
 
-export async function createLead(values: unknown) {
+/** opts.allowDuplicate: the office confirmed a flagged same-service/date/slot/site repeat. */
+export async function createLead(values: unknown, opts: { allowDuplicate?: boolean } = {}) {
   // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
   {
     const __s = await getSession();
@@ -180,8 +198,10 @@ export async function createLead(values: unknown) {
   const session = await getSession();
   const data = parsed.data;
 
-  const openDuplicate = await findOpenDuplicateLead(data.mobile);
-  if (openDuplicate) return { error: duplicateLeadError(openDuplicate.leadNumber) };
+  if (!opts.allowDuplicate) {
+    const dup = await findExactDuplicateLead(data);
+    if (dup) return { duplicateWarning: duplicateLeadWarning(dup.leadNumber), duplicateLeadNumber: dup.leadNumber };
+  }
 
   const channel = channelForManualLead(data.source, data.acquisitionChannel);
   const campaign = data.acquisitionCampaign?.trim() || null;
@@ -333,10 +353,9 @@ export async function quickCaptureLead(values: unknown) {
   const session = await getSession();
   const data = parsed.data;
 
-  const openDuplicate = await findOpenDuplicateLead(data.mobile);
-  if (openDuplicate) return { error: duplicateLeadError(openDuplicate.leadNumber) };
-
   const now = new Date();
+  // Same customer record for this mobile (created only if new) — no address yet, so no site.
+  await linkCustomerAndSite({ mobile: data.mobile, name: data.name, area: deriveArea(data), pinCode: data.pinCode, source: "CALL" });
   const leadNumber = await generateLeadNumber();
   const lead = await db.lead.create({
     data: {
@@ -384,6 +403,22 @@ export async function updateLead(id: string, values: unknown, scheduleBase?: { s
     return { error: parsed.error.issues[0]?.message ?? "Invalid data" };
   }
   const data = parsed.data;
+  // Owner rule 2026-10-08: roles that never see contact / amounts can't overwrite them.
+  const editor = await getSession();
+  if (!editor || !canSeeCustomerContact(editor.role)) {
+    delete data.mobile;
+    delete data.alternateMobile;
+    delete data.whatsapp;
+    delete data.email;
+  }
+  if (!editor || !canViewJobAmount(editor.role)) {
+    delete data.quoteAmount;
+    delete data.advanceAmount;
+    delete data.paymentMode;
+    delete data.paymentStatus;
+    delete data.serviceItems;
+    delete data.discountAmount;
+  }
   const before = await db.lead.findUnique({ where: { id }, select: { serviceDate: true, timeSlot: true } });
   const booked = await db.job.findFirst({ where: { leadId: id, deletedAt: null }, select: { id: true } });
   if (booked) {

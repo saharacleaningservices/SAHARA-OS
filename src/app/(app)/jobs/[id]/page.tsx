@@ -13,7 +13,7 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
-import { canViewRevenue, canViewJobAmount } from "@/lib/permissions";
+import { canViewRevenue, canViewJobAmount, canSeeCustomerContact as canSeeContact } from "@/lib/permissions";
 import { formatINR, formatDate, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
@@ -49,14 +49,12 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     redirect("/jobs");
   }
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
-  // Customer phone + click-to-call. Francis (OPERATIONS) — owner decision
-  // 2026-10-05: full detail incl. phone for TODAY + TOMORROW only; canAccessJob
-  // above already redirects him away from any other date.
-  // Field Staff never see customer phone numbers (Staff App rule).
-  const canSeeCustomerContact = session.role !== "STAFF";
+  // Customer phone + click-to-call: Super Admin + Accounts only (owner rule
+  // 2026-10-08 — Operations sees the job, address and Maps, never the number).
+  const canSeeCustomerContact = canSeeContact(session.role);
   // Payment ledger / expenses — owner + Accounts only.
   const showMoney = canViewRevenue(session.role);
-  // Job amount / advance / balance — also Operations (no payment ledger, expenses or profit).
+  // Job amount / advance / balance — Super Admin + Accounts only.
   const showJobAmount = canViewJobAmount(session.role);
   const settings = await getCompanySettings();
   const paymentDetails = {
@@ -283,7 +281,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                       purpose="BALANCE"
                     />
                   )}
-                  {completed && <SendBookingFormButton name={job.customerName} mobile={job.customerMobile} jobId={job.id} kind="REVIEW" />}
+                  {completed && canSeeCustomerContact && <SendBookingFormButton name={job.customerName} mobile={job.customerMobile} jobId={job.id} kind="REVIEW" />}
                   {job.certificate && (
                     <Button variant="outline" size="sm" asChild>
                       <a href={`/api/certificates/${job.certificate.id}/pdf`} target="_blank" rel="noreferrer">

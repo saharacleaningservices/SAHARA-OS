@@ -18,7 +18,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params;
   const session = await getSession();
   if (!session) return new NextResponse("Unauthorized", { status: 401 });
-  if (!["ADMIN", "ACCOUNTS", "OPERATIONS"].includes(session.role)) {
+  // Customer mobile + amounts — Super Admin + Accounts only (owner rule 2026-10-08).
+  if (!["ADMIN", "ACCOUNTS"].includes(session.role)) {
     return new NextResponse("Forbidden", { status: 403 });
   }
 

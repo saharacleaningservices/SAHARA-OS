@@ -5,7 +5,6 @@ import { SaharaBillDocument } from "@/lib/pdf/sahara-bill-document";
 import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, rupeesInWords } from "@/lib/document-scope";
 import { getSession } from "@/lib/session";
-import { canAccessLead } from "@/server/leads";
 import { formatDate } from "@/lib/utils";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -26,9 +25,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "Quotation not found" }, { status: 404 });
   }
 
-  const allowed =
-    ["ADMIN", "ACCOUNTS", "OPERATIONS"].includes(session.role) ||
-    (session.role === "SUPERVISOR" && canAccessLead(session, quotation.lead));
+  // Quotations carry the customer mobile and amounts — Super Admin + Accounts only (owner rule 2026-10-08).
+  const allowed = ["ADMIN", "ACCOUNTS"].includes(session.role);
   if (!allowed) return new NextResponse("Forbidden", { status: 403 });
 
   const services = JSON.parse(quotation.services) as { name: string; description: string; amount: number }[];

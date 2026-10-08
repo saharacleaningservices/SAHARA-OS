@@ -8,6 +8,7 @@ import { JobCardDocument } from "@/lib/pdf/job-card-document";
 import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
+import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 
 export const runtime = "nodejs";
 
@@ -39,7 +40,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partly Paid" : "Pending";
 
   // Field crew always get the team copy (no customer phone / payment figures).
-  const fieldRole = session.role === "SUPERVISOR" || session.role === "STAFF";
+  // Operations too (owner rule 2026-10-08): no customer phone / job amounts.
+  const fieldRole = !canSeeCustomerContact(session.role) || !canViewJobAmount(session.role);
   const audience: "team" | "office" =
     fieldRole || _request.nextUrl.searchParams.get("team") === "1" ? "team" : "office";
 

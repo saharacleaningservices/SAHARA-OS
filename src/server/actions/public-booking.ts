@@ -133,14 +133,25 @@ export async function publicBookLead(values: unknown) {
     firstTouchAt: touchDate(firstTouch),
   };
 
-  // Duplicate protection: an open enquiry on the same mobile (e.g. customer
-  // called first, then staff sent them the form) is updated, not duplicated.
+  // One customer → many leads (owner rule 2026-10-08). The same enquiry is
+  // updated, not duplicated: an open lead on this mobile for the SAME service
+  // that has no service date yet (customer called, staff sent the form) or
+  // the same service date (a repeat submission). A different service, or the
+  // same service on another date, is a new enquiry with its own Lead ID —
+  // linked to the same customer record below.
   const last10 = data.mobile.replace(/\D/g, "").slice(-10);
+  const reqDay = data.serviceDate ? data.serviceDate.slice(0, 10) : null;
   const existingOpen = last10.length === 10
-    ? await db.lead.findFirst({
-        where: { deletedAt: null, stage: { in: [...OPEN_STAGES] as never }, OR: [{ mobile: { endsWith: last10 } }, { whatsapp: { endsWith: last10 } }] },
+    ? ((await db.lead.findMany({
+        where: {
+          deletedAt: null,
+          stage: { in: [...OPEN_STAGES] as never },
+          service: legacyService as never,
+          OR: [{ mobile: { endsWith: last10 } }, { whatsapp: { endsWith: last10 } }],
+        },
         orderBy: { createdAt: "desc" },
-      })
+        take: 10,
+      })).find((l) => !l.serviceDate || !reqDay || l.serviceDate.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }) === reqDay) ?? null)
     : null;
   const leadNumber = existingOpen?.leadNumber ?? (await generateLeadNumber());
 
@@ -231,7 +242,8 @@ export async function publicBookLead(values: unknown) {
           scopeOfWork: existingOpen.scopeOfWork ?? scopeOfWork,
           ...(data.marketingOptIn ? { marketingConsent: "OPTED_IN", marketingConsentAt: new Date() } : {}),
           formSubmittedAt: new Date(),
-          ...latestFields,
+          // A repeat submission without a tracked visit keeps the existing latest touch.
+          ...(latestTouch ? latestFields : {}),
           ...(existingOpen.acquisitionChannel ? {} : originalFields),
         },
       })

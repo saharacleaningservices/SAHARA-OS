@@ -9,6 +9,7 @@ import { getAllLeadsForList, getLeadsPageStats } from "@/server/leads";
 import { getUsersForAssignment } from "@/server/users";
 import { requireUser } from "@/lib/current-user";
 import { canViewRevenue } from "@/lib/permissions";
+import { redactLead } from "@/lib/redact";
 import { formatINR } from "@/lib/utils";
 
 export default async function LeadsPage() {
@@ -79,7 +80,7 @@ export default async function LeadsPage() {
         )}
       </div>
 
-      <LeadsExplorer leads={leads} />
+      <LeadsExplorer leads={leads.map((l) => redactLead(l, session.role))} />
     </div>
   );
 }
