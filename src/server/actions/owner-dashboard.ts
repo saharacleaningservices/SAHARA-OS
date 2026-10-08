@@ -2,7 +2,6 @@
 
 import { requireRole } from "@/lib/current-user";
 import { getLeadMonthCalendar, type CalendarDetailLevel } from "@/server/owner-command-center";
-import { jobDateWindowForRole } from "@/server/jobs";
 
 /**
  * Client-callable month navigation for the calendar widget, now shown to
@@ -21,5 +20,5 @@ export async function fetchLeadMonthCalendar(year: number, month: number) {
   const detailLevel: CalendarDetailLevel =
     session.role === "ADMIN" || session.role === "ACCOUNTS" ? "full" : session.role === "OPERATIONS" ? "operations" : session.role === "SUPERVISOR" ? "supervisor" : "counts";
   // Francis (OPERATIONS): every month; customer phone only for yesterday / today / tomorrow — enforced here, not in the client.
-  return getLeadMonthCalendar(year, month, detailLevel, null, session.role === "OPERATIONS" ? jobDateWindowForRole("OPERATIONS") : null);
+  return getLeadMonthCalendar(year, month, detailLevel, null);
 }

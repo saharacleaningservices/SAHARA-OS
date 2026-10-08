@@ -1,4 +1,5 @@
 "use server";
+import { canSeeCustomerContact } from "@/lib/permissions";
 
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
@@ -21,7 +22,8 @@ import { filterToMarketingOptIn } from "@/server/whatsapp-audience";
  */
 export async function searchCustomersQuick(q: string) {
   const session = await getSession();
-  if (!session || session.role === "SUPERVISOR") return [];
+  // Returns customer names + mobiles from the whole database — contact roles only (owner rule 2026-10-08).
+  if (!session || !canSeeCustomerContact(session.role)) return [];
   const term = q.trim();
   const digits = term.replace(/\D/g, "");
 
@@ -243,8 +245,9 @@ export async function getRepeatCustomerSummary(mobile: string) {
         // last service, sites) to recognise a returning customer.
         totalRevenue: session.role === "ADMIN" || session.role === "ACCOUNTS" ? totalRevenue : null,
         // Customer database (2026-10-08): contact profile + saved service sites.
-        alternateMobile: master?.alternateMobile ?? leads[0]?.alternateMobile ?? null,
-        email: master?.email ?? leads[0]?.email ?? null,
+        // Contact details only for Super Admin / Accounts (owner rule 2026-10-08).
+        alternateMobile: canSeeCustomerContact(session.role) ? (master?.alternateMobile ?? leads[0]?.alternateMobile ?? null) : null,
+        email: canSeeCustomerContact(session.role) ? (master?.email ?? leads[0]?.email ?? null) : null,
         contactType: master?.contactType ?? "CUSTOMER",
         isRepeat: !!master?.isRepeat || jobs.length >= 2,
         sites,

@@ -230,8 +230,6 @@ export async function getLeadMonthCalendar(
   detailLevel: CalendarDetailLevel = "full",
   /** Time-scoped roles (Francis): only days inside this window are counted. */
   window: { from: Date; to: Date } | null = null,
-  /** "operations" level: phone numbers are included only for entries inside this window. */
-  phoneWindow: { from: Date; to: Date } | null = null,
 ) {
   const monthStart = startOfMonth(new Date(year, month - 1, 1));
   const monthEnd = endOfMonth(monthStart);
@@ -356,7 +354,6 @@ export async function getLeadMonthCalendar(
       });
     } else if (detailLevel === "operations") {
       const sb = statusBucketForStage(l.stage);
-      const phoneOk = !!phoneWindow && l.day >= phoneWindow.from && l.day <= phoneWindow.to;
       arr.push({
         id: l.id,
         name: l.jobCustomer ?? l.name,
@@ -368,7 +365,9 @@ export async function getLeadMonthCalendar(
         teamNumber: l.teamNumber,
         assignedStaff: l.staffNames,
         statusLabel: l.postponed ? STATUS_LABEL.postponed : sb ? STATUS_LABEL[sb] : "Pending",
-        ...(phoneOk ? { mobile: l.jobMobile ?? l.mobile } : {}),
+        // Owner rule 2026-10-08: Operations gets time + package, never the customer number.
+        time: l.time,
+        pkg: l.pkg,
       });
     } else {
       const sb = statusBucketForStage(l.stage);
@@ -540,9 +539,7 @@ export type OwnerCommandCenterData = Awaited<ReturnType<typeof getOwnerCommandCe
  * loaded (no revenue, target, payments, expenses, profit, staff cost).
  */
 export async function getOperationsHome() {
-  const { jobDateWindowForRole } = await import("@/server/jobs");
   const now = new Date();
-  const window = jobDateWindowForRole("OPERATIONS");
   const opsDay = async (offset: number) => {
     const d = addDays(now, offset);
     const { collectionAmount: _amount, collectionCount: _count, ...rest } = await dayBreakdown(startOfDay(d), endOfDay(d));
@@ -557,7 +554,7 @@ export async function getOperationsHome() {
     db.lead.count({ where: { deletedAt: null } }),
     db.lead.count({ where: { deletedAt: null, createdAt: { gte: startOfDay(now), lte: endOfDay(now) } } }),
     // Every date; customer phone only for yesterday / today / tomorrow (server-side).
-    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, "operations", null, window),
+    getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, "operations", null),
   ]);
   return { yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar };
 }

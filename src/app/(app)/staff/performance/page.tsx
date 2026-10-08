@@ -33,7 +33,8 @@ export default async function StaffPerformancePage({
   // SUPERVISOR (Francis) removed 2026-09-21 — this report exposes
   // per-staff revenue/earned/net-balance figures, financial-adjacent data
   // outside his narrowed module list.
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  // Operations removed 2026-10-08: per-staff revenue, wages, incentives and fines.
+  await requireRole(["ADMIN", "ACCOUNTS"]);
 
   const params = await searchParams;
   const now = new Date();

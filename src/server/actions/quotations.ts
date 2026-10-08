@@ -6,7 +6,8 @@ import { getSession } from "@/lib/session";
 import { generateStandaloneInvoiceNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 
-const BILLING_ROLES = ["ADMIN", "ACCOUNTS", "OPERATIONS"];
+// Quotations / invoices carry customer contact + amounts — Super Admin + Accounts (owner rule 2026-10-08).
+const BILLING_ROLES = ["ADMIN", "ACCOUNTS"];
 
 async function requireBillingAccess() {
   const session = await getSession();

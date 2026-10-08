@@ -237,9 +237,17 @@ export function LeadForm({
     // selected is lost even though Lead has no dedicated columns for them.
     const mergedNotes = [values.notes?.trim(), isCustomized ? "" : selectionNotesLines.join("\n")].filter(Boolean).join("\n\n");
     const finalValues = { ...values, notes: mergedNotes };
-    const res = leadId
+    let res = leadId
       ? await updateLead(leadId, finalValues, { serviceDate: defaultValues?.serviceDate ?? "", timeSlot: defaultValues?.timeSlot ?? "" })
       : await createLead(finalValues);
+    // Same customer + service + date + slot + site → confirm before saving a second enquiry.
+    if (!leadId && "duplicateWarning" in res && res.duplicateWarning) {
+      if (!window.confirm(res.duplicateWarning)) {
+        setSubmitting(false);
+        return;
+      }
+      res = await createLead(finalValues, { allowDuplicate: true });
+    }
     setSubmitting(false);
     if ("error" in res && res.error) {
       toast.error(res.error);

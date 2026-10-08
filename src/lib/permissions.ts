@@ -149,7 +149,19 @@ export function jobScopeFor(role: string): JobScope {
  * their own jobs' amounts in the Staff App (server/staff-portal.ts).
  */
 export function canViewJobAmount(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS" || role === "SUPERVISOR";
+  // Owner rule 2026-10-08 (supersedes 2026-10-05): Operations (Francis) sees no
+  // job amount / advance / balance — operational data only.
+  return role === "ADMIN" || role === "ACCOUNTS";
+}
+
+/**
+ * Customer mobile / alternate mobile / WhatsApp number / email. Owner rule
+ * 2026-10-08: Super Admin + Accounts only — never Operations (Francis), the
+ * Field Coordinator or Field Staff, in any view, payload, PDF or notification.
+ * Data stays in the database; this is role-based visibility only.
+ */
+export function canSeeCustomerContact(role: string): boolean {
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 export function canViewRevenue(role: string): boolean {

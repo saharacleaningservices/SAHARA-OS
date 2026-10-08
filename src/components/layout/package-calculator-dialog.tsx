@@ -108,7 +108,7 @@ export function PackageCalculatorButton({ prefill, variant = "chip", label = "Pa
   function saveLead(confirm = false) {
     if (!canSave) return void toast.error(!ready ? "Add at least one service" : "Enter the customer's 10-digit mobile and name");
     start(async () => {
-      const res = await createLead({
+      const values = {
         name: name.trim(),
         mobile: digits,
         address: site ? site.address : address.trim(),
@@ -126,15 +126,18 @@ export function PackageCalculatorButton({ prefill, variant = "chip", label = "Pa
         followUpDate,
         source,
         notes: notes.trim(),
-      });
-      if ("error" in res && res.error) {
-        // One open enquiry per mobile: offer to attach to it instead of a duplicate.
-        if (/already exists/i.test(res.error)) {
+      };
+      let res = await createLead(values);
+      // Same customer + service + date + slot + site: confirm, or attach to that enquiry instead.
+      if ("duplicateWarning" in res && res.duplicateWarning) {
+        if (!window.confirm(res.duplicateWarning)) {
           setShowAttach(true);
           setQ(digits);
+          return;
         }
-        return void toast.error(res.error);
+        res = await createLead(values, { allowDuplicate: true });
       }
+      if ("error" in res && res.error) return void toast.error(res.error);
       const qn = "quoteNumber" in res && res.quoteNumber ? ` — quotation ${res.quoteNumber} created` : "";
       toast.success(confirm ? `Lead saved${qn}. Set the date & slot to confirm the booking.` : `Lead saved${qn}. Follow up or confirm from the lead.`);
       setOpen(false);

@@ -84,6 +84,7 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
           mobile={lead.mobile}
           message={`Hi ${lead.name}, this is Sahara Cleaning Services regarding your ${SERVICE_LABELS[lead.service]} enquiry.`}
         />
+        {lead.mobile && (
         <QuotationDialog
           leadId={lead.id}
           service={lead.service}
@@ -95,6 +96,7 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
             </button>
           }
         />
+        )}
         <ScheduleVisitDialog
           leadId={lead.id}
           trigger={

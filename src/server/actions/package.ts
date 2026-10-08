@@ -1,4 +1,5 @@
 "use server";
+import { canSeeCustomerContact } from "@/lib/permissions";
 
 // Header "Package Calculator" → Save/Attach to Lead. Reuses updateLead, so the
 // same pricing guard (only Super Admin / Accounts may change prices/discount),
@@ -64,7 +65,8 @@ export async function attachPackageToLead(leadId: string, serviceItems: string, 
  */
 export async function searchCustomersForCalculator(q: string) {
   const session = await getSession();
-  if (!session || !OFFICE.includes(session.role)) return [];
+  // Results carry customer mobiles — contact roles only (owner rule 2026-10-08).
+  if (!session || !OFFICE.includes(session.role) || !canSeeCustomerContact(session.role)) return [];
   const term = q.trim();
   if (term.length < 3) return [];
   const digits = term.replace(/\D/g, "");

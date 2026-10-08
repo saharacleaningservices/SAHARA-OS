@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,11 +26,14 @@ export function JobEditForm({
   staffOptions,
   defaultValues,
   defaultStaffIds = [],
+  restricted = false,
 }: {
   jobId: string;
   staffOptions: StaffOption[];
   defaultValues: JobFormValues;
   defaultStaffIds?: string[];
+  /** Operations: no customer mobile / job value fields (never sent, never saved). */
+  restricted?: boolean;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -41,13 +45,17 @@ export function JobEditForm({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<JobFormValues>({ resolver: zodResolver(jobSchema), defaultValues });
+  } = useForm<JobFormValues>({
+    resolver: zodResolver(restricted ? jobSchema.extend({ customerMobile: z.string().optional().or(z.literal("")), jobValue: z.coerce.number().optional() }) : jobSchema) as never,
+    defaultValues,
+  });
 
   const supervisors = staffOptions.filter((s) => s.designation === "Supervisor");
 
   async function onSubmit(values: JobFormValues) {
     setSubmitting(true);
-    const res = await updateJob(jobId, { ...values, staffIds: selectedStaff });
+    const { customerMobile, jobValue, ...rest } = values;
+    const res = await updateJob(jobId, restricted ? { ...rest, staffIds: selectedStaff } : { ...rest, customerMobile, jobValue, staffIds: selectedStaff });
     setSubmitting(false);
     if ("error" in res && res.error) {
       toast.error(res.error);
@@ -70,11 +78,13 @@ export function JobEditForm({
             <Input id="customerName" {...register("customerName")} />
             {errors.customerName && <p className="text-xs text-destructive">{errors.customerName.message}</p>}
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="customerMobile">Mobile</Label>
-            <Input id="customerMobile" {...register("customerMobile")} />
-            {errors.customerMobile && <p className="text-xs text-destructive">{errors.customerMobile.message}</p>}
-          </div>
+          {!restricted && (
+            <div className="space-y-1.5">
+              <Label htmlFor="customerMobile">Mobile</Label>
+              <Input id="customerMobile" {...register("customerMobile")} />
+              {errors.customerMobile && <p className="text-xs text-destructive">{errors.customerMobile.message}</p>}
+            </div>
+          )}
           <div className="space-y-1.5">
             <Label htmlFor="pinCode">PIN Code</Label>
             <Input id="pinCode" {...register("pinCode")} inputMode="numeric" maxLength={6} placeholder="411028" />
@@ -118,11 +128,13 @@ export function JobEditForm({
             <Input id="scheduledTime" type="time" {...register("scheduledTime")} />
             {errors.scheduledTime && <p className="text-xs text-destructive">{errors.scheduledTime.message}</p>}
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="jobValue">Job Value (₹)</Label>
-            <Input id="jobValue" type="number" {...register("jobValue")} />
-            {errors.jobValue && <p className="text-xs text-destructive">{errors.jobValue.message}</p>}
-          </div>
+          {!restricted && (
+            <div className="space-y-1.5">
+              <Label htmlFor="jobValue">Job Value (₹)</Label>
+              <Input id="jobValue" type="number" {...register("jobValue")} />
+              {errors.jobValue && <p className="text-xs text-destructive">{errors.jobValue.message}</p>}
+            </div>
+          )}
           <TeamSelect value={watch("teamNumber")} onChange={(v) => setValue("teamNumber", v)} />
           <div className="space-y-1.5">
             <Label>Supervisor</Label>

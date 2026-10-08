@@ -16,6 +16,10 @@
 import { db } from "@/lib/db";
 import { pushToUsers } from "@/lib/webpush";
 import { sendWhatsApp } from "@/lib/whatsapp";
+import { canSeeCustomerContact } from "@/lib/permissions";
+
+/** Customer numbers are withheld from roles without contact access (owner rule 2026-10-08). */
+const maskPhones = (t: string | null | undefined) => (t ? t.replace(/(\+?91[\s-]?)?\b\d{10}\b/g, "(number hidden)") : t);
 
 export type NotifKind =
   | "NEW_BOOKING"
@@ -37,7 +41,7 @@ type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 const KIND_ROLES: Record<NotifKind, Role[]> = {
   NEW_BOOKING: ["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"],
   NEW_INQUIRY: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
-  PAYMENT_RECEIVED: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
+  PAYMENT_RECEIVED: ["ADMIN", "ACCOUNTS"], // amounts — not Operations (owner rule 2026-10-08)
   FOLLOWUP_DUE: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
   STALE_LEAD: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
   SITE_VISIT: ["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR"],
@@ -77,30 +81,30 @@ export async function notify(input: NotifyInput): Promise<void> {
         isActive: true,
         OR: [{ role: { in: roles } }, ...(input.extraUserIds?.length ? [{ id: { in: input.extraUserIds } }] : [])],
       },
-      select: { id: true },
+      select: { id: true, role: true },
     });
     const userIds = [...new Set(recipients.map((r) => r.id))];
     if (userIds.length === 0) return;
+    const restricted = new Set(recipients.filter((r) => !canSeeCustomerContact(r.role)).map((r) => r.id));
+    const textFor = (userId: string) =>
+      restricted.has(userId) ? { title: maskPhones(input.title) ?? "", body: maskPhones(input.body) ?? null } : { title: input.title, body: input.body ?? null };
 
     await db.notification.createMany({
       data: userIds.map((userId) => ({
         userId,
         kind: input.kind,
-        title: input.title,
-        body: input.body ?? null,
+        ...textFor(userId),
         href: input.href ?? null,
         critical,
         meta: input.meta ? JSON.stringify(input.meta) : null,
       })),
     });
 
-    await pushToUsers(userIds, {
-      title: input.title,
-      body: input.body,
-      href: input.href,
-      critical,
-      tag: input.kind,
-    }).catch(() => {});
+    const full = userIds.filter((id) => !restricted.has(id));
+    const masked = userIds.filter((id) => restricted.has(id));
+    const push = (ids: string[], t: { title: string; body: string | null }) =>
+      ids.length ? pushToUsers(ids, { title: t.title, body: t.body ?? undefined, href: input.href, critical, tag: input.kind }).catch(() => {}) : null;
+    await Promise.all([push(full, { title: input.title, body: input.body ?? null }), push(masked, { title: maskPhones(input.title) ?? "", body: maskPhones(input.body) ?? null })]);
 
     if (input.whatsappToAdmin || critical) {
       const admin = await db.user.findFirst({

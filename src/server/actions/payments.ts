@@ -19,7 +19,7 @@ import { notify } from "@/server/notify";
  * (Francis) and STAFF are excluded — same as everyone without page access.
  */
 function canAccessPayments(role: string | undefined): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS"; // owner rule 2026-10-08: not Operations
 }
 
 export async function createPayment(values: unknown) {

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 import { syncLeadFromJob } from "@/server/job-schedule";
 import { packageToQuoteItems, packageTotals, parsePackage } from "@/lib/package-calc";
 import { jobSchema } from "@/lib/validation";
@@ -141,6 +142,13 @@ export async function updateJob(id: string, values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const d = parsed.data;
+  // Restricted roles never see these fields, so never let them overwrite them.
+  const editor = await getSession();
+  if (!editor || !canSeeCustomerContact(editor.role)) {
+    delete d.customerMobile;
+    delete d.alternateMobile;
+  }
+  if (!editor || !canViewJobAmount(editor.role)) delete d.jobValue;
   const before = await db.job.findUnique({
     where: { id },
     select: { scheduledDate: true, scheduledTime: true, status: true, assignments: { select: { staffId: true, isLead: true } } },

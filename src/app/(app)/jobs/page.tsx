@@ -6,29 +6,23 @@ import { Button } from "@/components/ui/button";
 import { JobsExplorer } from "@/components/jobs/jobs-explorer";
 import { getAllJobsForList, getJobsPageStats, jobDateWindowForRole } from "@/server/jobs";
 import { requireUser } from "@/lib/current-user";
-import { canViewJobAmount, canViewRevenue } from "@/lib/permissions";
+import { canSeeCustomerContact as canSeeContact, canViewJobAmount, canViewRevenue } from "@/lib/permissions";
+import { redactJob } from "@/lib/redact";
 import { formatINR } from "@/lib/utils";
 
 export default async function JobsPage() {
   const session = await requireUser();
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
-  // Francis (OPERATIONS) must never see customer mobile numbers — 2026-09-25
-  // field-only policy. Call/WhatsApp buttons on the jobs table read this.
-  // Operations' list is server-scoped to today + tomorrow (getAllJobsForList), so phone/call is shown there (owner decision 2026-10-05).
-  const canSeeCustomerContact = session.role !== "STAFF";
+  // Customer phone / Call / WhatsApp: Super Admin + Accounts only (owner rule 2026-10-08).
+  const canSeeCustomerContact = canSeeContact(session.role);
   // Jobs are created only from Leads → Confirm Booking (single intake), so no staff list is needed here.
   // Time-scoped roles (Francis) get counts for their own window only — never all-time numbers.
   const jobWindow = jobDateWindowForRole(session.role);
   const [jobs, stats] = await Promise.all([getAllJobsForList(session), canManage ? getJobsPageStats(jobWindow) : Promise.resolve(null)]);
   // Job amount / paid / balance per job — no revenue totals, profit or costs.
   const showRevenue = canViewJobAmount(session.role);
-  // Roles without job-amount access never receive money figures, not even in the payload.
-  const listJobs = showRevenue
-    ? jobs
-    : jobs.map((j) => ({ ...j, jobValue: 0, payments: j.payments.map((p) => ({ ...p, amount: 0, paidAmount: 0 })) }));
-  // Field Staff never receive customer phone numbers (Staff App rule), not even in the payload.
-  const visibleJobs =
-    session.role === "STAFF" ? listJobs.map((j) => ({ ...j, customerMobile: "", alternateMobile: null })) : listJobs;
+  // Restricted roles never receive customer contact or money figures, not even in the payload.
+  const visibleJobs = jobs.map((j) => redactJob(j, session.role));
 
   const scopeNote =
     session.role === "OPERATIONS"
