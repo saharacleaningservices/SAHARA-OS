@@ -71,8 +71,8 @@ const s = StyleSheet.create({
   bankV: { fontSize: 8, color: MUTED, flexShrink: 1 },
 });
 
-const rs = (n: number) => `Rs. ${Math.round(n).toLocaleString("en-IN")}`;
-const num = (n: number) => Math.round(n).toLocaleString("en-IN");
+const rs = (n: number) => `Rs. ${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — never rounded
+const num = (n: number) => n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
 export type BillRow = { name: string; detail?: string; qty: number; rate: number; disc: number; total: number };
 export type BillDocumentProps = {

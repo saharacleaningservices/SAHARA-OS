@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
 });
 
 function inr(n: number) {
-  return `Rs. ${Math.round(n).toLocaleString("en-IN")}`;
+  return `Rs. ${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — never rounded
 }
 
 export type JobCardPdfProps = {

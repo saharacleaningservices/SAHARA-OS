@@ -28,7 +28,7 @@ export async function billChrome(
     resolveBrandLogoDataUrl(settings.logoUrl),
     upiId
       ? QRCode.toDataURL(
-          `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(company.name)}&am=${Math.max(0, Math.round(amountDue))}&cu=INR&tn=${encodeURIComponent(ref)}`,
+          `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(company.name)}${amountDue > 0 ? `&am=${Number.isInteger(amountDue) ? amountDue : amountDue.toFixed(2)}` : ""}&cu=INR&tn=${encodeURIComponent(ref)}`,
           { margin: 1, width: 240 },
         )
       : settings.upiQrUrl

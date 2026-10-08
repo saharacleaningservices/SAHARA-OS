@@ -10,7 +10,8 @@ export function formatINR(amount: number | null | undefined): string {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2, // exact amounts — paise shown only when present, never rounded
   }).format(value);
 }
 
