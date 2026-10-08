@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { ChevronDown, FileText, Pencil, Phone, MessageCircle, Navigation, Receipt, MapPin } from "lucide-react";
+import { FileText, Pencil, Phone, MessageCircle, Navigation, Receipt, MapPin } from "lucide-react";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
-import { getVehiclesForAssignment } from "@/server/vehicles";
-import { getResolvedIntegrations } from "@/server/integrations";
 import { getCompanySettings } from "@/server/settings";
 import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
 import { SendBookingFormButton } from "@/components/shared/send-booking-form-button";
@@ -13,15 +11,11 @@ import { Button } from "@/components/ui/button";
 import { JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
-import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
-import { canViewRevenue, canViewJobAmount, canManageStaffFinancials } from "@/lib/permissions";
-import { BOOKING_TERMS } from "@/lib/pricing-master";
-import { TeamIncentiveCard } from "@/components/jobs/team-incentive-card";
-import { db } from "@/lib/db";
+import { canViewRevenue, canViewJobAmount } from "@/lib/permissions";
 import { formatINR, formatDate, toTelLink, toWhatsAppLink } from "@/lib/utils";
-import { SERVICE_LABELS, TEAM_INCENTIVE_AMOUNT } from "@/lib/constants";
+import { SERVICE_LABELS } from "@/lib/constants";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
@@ -37,18 +31,6 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** Collapsible section inside the workspace — closed by default to keep the page short. */
-function Fold({ title, hint, children, open = false }: { title: string; hint?: ReactNode; children: ReactNode; open?: boolean }) {
-  return (
-    <details open={open} className="group border-t first:border-t-0">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 py-2.5 text-sm font-semibold">
-        <span className="min-w-0 truncate">{title}{hint ? <span className="ml-1.5 text-xs font-normal text-muted-foreground">{hint}</span> : null}</span>
-        <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-      </summary>
-      <div className="pb-3">{children}</div>
-    </details>
-  );
-}
 
 const PAY_TONE: Record<string, string> = {
   Paid: "bg-emerald-100 text-emerald-800",
@@ -76,13 +58,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const showMoney = canViewRevenue(session.role);
   // Job amount / advance / balance — also Operations (no payment ledger, expenses or profit).
   const showJobAmount = canViewJobAmount(session.role);
-  const canIncentive = canManageStaffFinancials(session.role);
-  const [vehicles, { googleMaps }, settings, teamIncentive] = await Promise.all([
-    canManage ? getVehiclesForAssignment() : Promise.resolve([]),
-    getResolvedIntegrations(),
-    getCompanySettings(),
-    canIncentive ? db.teamIncentive.findUnique({ where: { jobId: job.id } }) : Promise.resolve(null),
-  ]);
+  const settings = await getCompanySettings();
   const paymentDetails = {
     upiId: settings.upiId ?? null,
     upiQrUrl: settings.upiQrUrl ?? null,
@@ -95,7 +71,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const advance = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
   const balance = Math.max(job.jobValue - advance, 0);
   const paymentStatus = balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partial" : "Unpaid";
-  const totalExpenses = job.expenses.reduce((s, e) => s + e.amount, 0);
   const completed = job.status === "COMPLETED";
   const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
   const packageLabel = job.packageName || null;
@@ -321,64 +296,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </div>
           )}
 
-          {/* Compact options — inside Job Status, closed by default. */}
-          <div className="mt-3 border-t">
-          <Fold title="Location & Materials" hint={job.vehicle?.name ?? undefined}>
-            <JobLogisticsCard
-              jobId={job.id}
-              mapLink={job.mapLink}
-              vehicleId={job.vehicleId}
-              vehicleName={job.vehicle?.name ?? null}
-              vehicles={vehicles}
-              materials={job.materialIssues}
-              canEdit={canManage}
-              mapsApiKey={googleMaps.apiKey}
-              embedded
-            />
-          </Fold>
-          {canIncentive && (
-            <Fold title="Team Incentive" hint={teamIncentive ? "recorded" : completed ? "not recorded" : undefined}>
-              <TeamIncentiveCard
-                jobId={job.id}
-                completed={completed}
-                teamSize={job.assignments.length}
-                amount={TEAM_INCENTIVE_AMOUNT}
-                canReverse={session.role === "ADMIN"}
-                embedded
-                incentive={
-                  teamIncentive
-                    ? {
-                        amount: teamIncentive.amount,
-                        date: teamIncentive.date,
-                        recordedByName: teamIncentive.recordedByName,
-                        team: JSON.parse(teamIncentive.teamSnapshot) as { name: string }[],
-                      }
-                    : null
-                }
-              />
-            </Fold>
-          )}
-          {/* Job expenses carry cost amounts — Super Admin / Accounts only. */}
-          {showMoney && job.expenses.length > 0 && (
-            <Fold title="Job Expenses" hint={formatINR(totalExpenses)}>
-              <div className="space-y-1.5">
-                {job.expenses.map((e) => (
-                  <div key={e.id} className="flex items-center justify-between gap-2 text-sm">
-                    <span className="min-w-0 truncate">{e.description} <span className="text-xs text-muted-foreground">· {formatDate(e.date)}</span></span>
-                    <span className="shrink-0 font-semibold">{formatINR(e.amount)}</span>
-                  </div>
-                ))}
-              </div>
-            </Fold>
-          )}
-          <Fold title="Terms & Conditions">
-            <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
-              {BOOKING_TERMS.map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
-          </Fold>
-          </div>
           </div>
           </div>
         </section>
