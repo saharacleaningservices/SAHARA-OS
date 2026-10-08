@@ -1,8 +1,5 @@
 import Link from "next/link";
 import {
-  ClipboardList,
-  CalendarClock,
-  Users,
   BellRing,
   CheckCircle2,
   UserX,
@@ -21,80 +18,16 @@ import { getOwnerCommandCenterHome } from "@/server/owner-command-center";
 import { getOwnerSnapshot } from "@/server/owner";
 import { getCompanySettings } from "@/server/settings";
 import { getDashboardData } from "@/server/dashboard";
-import { ExpandableCard } from "./expandable-card";
 import { LeadMonthCalendar } from "./lead-calendar";
 import { BusinessTargetCard } from "./business-target-card";
 import { RevenueIntelligence } from "./revenue-intelligence";
 import { QuickDispatch } from "./quick-dispatch";
-import { DashboardModules } from "@/components/dashboard/dashboard-modules";
+import { DashboardModules, DashboardQuickBar } from "@/components/dashboard/dashboard-modules";
+import { SchedulePanel, type ScheduleDay } from "@/components/dashboard/schedule-panel";
+import { getSlotBoard } from "@/server/actions/slot-control";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { JobStatusBadge } from "@/components/shared/status-badge";
 import { formatINR, formatDate } from "@/lib/utils";
-
-type DayData = {
-  totalJobs: number;
-  categories: { service: string; label: string; count: number }[];
-  followUps: number;
-  siteVisits: number;
-  collectionCount: number;
-  collectionAmount: number;
-  jobs: { id: string; customerName: string; scheduledTime: string; area: string; status: string; teamNumber: number | null }[];
-};
-
-function dayCardBody(data: DayData, when: "today" | "tomorrow") {
-  return (
-    <div className="space-y-3 pt-3">
-      {data.jobs.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No jobs scheduled.</p>
-      ) : (
-        <div className="space-y-1.5">
-          {data.jobs.map((j) => (
-            <Link
-              key={j.id}
-              href={`/jobs/${j.id}`}
-              className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-primary/40"
-            >
-              <span className="min-w-0">
-                <span className="block truncate font-medium text-foreground">{j.customerName}</span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {j.scheduledTime} · {j.area}
-                  {j.teamNumber ? ` · T${j.teamNumber}` : ""}
-                </span>
-              </span>
-              <JobStatusBadge status={j.status} />
-            </Link>
-          ))}
-        </div>
-      )}
-      <Link href={`/jobs?when=${when}`} className="block text-center text-xs font-medium text-primary">
-        Open {when === "today" ? "today's" : "tomorrow's"} job list →
-      </Link>
-      <div className="space-y-1.5 border-t border-border pt-3">
-        {data.categories.map((c) => (
-          <div key={c.service} className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">{c.label}</span>
-            <span className="font-medium text-foreground">{c.count}</span>
-          </div>
-        ))}
-      </div>
-      <div className="grid grid-cols-3 gap-2 border-t border-border pt-3 text-center">
-        <div>
-          <p className="text-sm font-semibold text-foreground">{data.followUps}</p>
-          <p className="text-[10px] text-muted-foreground">Follow-ups</p>
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-foreground">{data.siteVisits}</p>
-          <p className="text-[10px] text-muted-foreground">Site Visits</p>
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-foreground">{formatINR(data.collectionAmount)}</p>
-          <p className="text-[10px] text-muted-foreground">Collected ({data.collectionCount})</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /** Collapsible dashboard section — keeps the home screen to 1–2 scrolls on a phone. */
 function Fold({ title, badge, open = false, children }: { title: ReactNode; badge?: ReactNode; open?: boolean; children: ReactNode }) {
@@ -150,14 +83,15 @@ export async function OwnerCommandCenter({
   showProfit: boolean;
   showBusinessTarget?: boolean;
 }) {
-  const [home, snapshot, settings, dashboard] = await Promise.all([
+  const [home, snapshot, settings, dashboard, board] = await Promise.all([
     getOwnerCommandCenterHome(),
     getOwnerSnapshot(),
     getCompanySettings(),
     getDashboardData(),
+    getSlotBoard(10),
   ]);
 
-  const { today, tomorrow, totalLeadsCount, businessTarget, revenue, staffList, vehicleList, alerts, calendar, followUpsToday, siteVisitsToday } =
+  const { today, tomorrow, businessTarget, revenue, staffList, vehicleList, alerts, calendar, followUpsToday, siteVisitsToday } =
     home;
   const attentionCount = alerts.totalCount + followUpsToday.length + siteVisitsToday.length;
 
@@ -168,17 +102,21 @@ export async function OwnerCommandCenter({
     { href: "/payments?filter=pending", label: "overdue payments", count: alerts.overduePayments.length },
     { href: "/jobs?when=today", label: "jobs without staff", count: alerts.unassignedJobsToday.length },
   ];
-  const bigTile = (icon: ReactNode, tint: string, label: string, value: number, sub: string) => (
-    <div className="flex items-center gap-3">
-      <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg sm:size-10 ${tint}`}>{icon}</div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-xl font-bold leading-tight text-foreground sm:text-2xl">{value}</p>
-        <p className="truncate text-[11px] text-muted-foreground max-sm:hidden">{sub}</p>
-      </div>
-    </div>
+  // Schedule: what customers see per day (same rule as Slot Availability) + the office setting.
+  const scheduleDays: ScheduleDay[] = (board ?? []).map((d) => ({
+    date: d.date,
+    booked: d.booked,
+    teams: d.teams,
+    dailyCapacity: d.dailyCapacity,
+    status: d.isFull ? "FULL" : d.dayStatus === "FILLING" ? "FILLING" : d.dayStatus === "OPEN" ? "OPEN" : d.booked >= Math.ceil(d.teams / 2) ? "FILLING" : "OPEN",
+    control: d.dayStatus,
+    slots: d.slots.filter((x) => x.slot !== "Flexible"),
+  }));
+  const todaySlot = scheduleDays[0];
+  if (todaySlot) chips.push({ href: "/jobs/slots", label: `teams · ${todaySlot.booked}/${todaySlot.dailyCapacity} booked today`, count: todaySlot.teams });
+  const scheduleJobs = Object.fromEntries(
+    [scheduleDays[0], scheduleDays[1]].map((d, i) => [d?.date ?? `_${i}`, (i === 0 ? today : tomorrow).jobs]),
   );
-
   const collectionPercent =
     snapshot.collected + snapshot.pendingCollections > 0
       ? Math.round((snapshot.collected / (snapshot.collected + snapshot.pendingCollections)) * 100)
@@ -210,34 +148,20 @@ export async function OwnerCommandCenter({
         </div>
       </div>
 
-      {/* Every module, grouped — role-filtered (same rule as the sidebar) */}
+      {/* New Lead · New Job · Package Calculator · Schedule */}
+      <DashboardQuickBar role={role} />
+
+      {/* The six groups — role-filtered (same rule as the sidebar) */}
       <DashboardModules role={role} />
 
-      {/* Today / Tomorrow / Total Leads — the three numbers checked first */}
-      <div className="grid grid-cols-1 gap-2 sm:gap-3 md:grid-cols-3">
-        <ExpandableCard
-          trigger={bigTile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}
-        >
-          {dayCardBody(today, "today")}
-        </ExpandableCard>
-        <ExpandableCard
-          trigger={bigTile(<CalendarClock className="size-5" />, "bg-indigo-500/15 text-indigo-600", "Tomorrow's Jobs", tomorrow.totalJobs, "Tap for the full list")}
-        >
-          {dayCardBody(tomorrow, "tomorrow")}
-        </ExpandableCard>
-        <ExpandableCard
-          trigger={bigTile(<Users className="size-5" />, "bg-blue-500/15 text-blue-600", "Total Leads", totalLeadsCount, "Tap for the booking calendar")}
-        >
-          <div className="pt-3">
-            <LeadMonthCalendar
-              initialYear={calendar.year}
-              initialMonth={calendar.month}
-              initialDays={calendar.days}
-              initialLeadsByDay={calendar.leadsByDay}
-            />
-          </div>
-        </ExpandableCard>
-      </div>
+      {/* Central schedule: date → jobs, teams, slots, status */}
+      <SchedulePanel
+        days={scheduleDays}
+        jobs={scheduleJobs}
+        monthView={
+          <LeadMonthCalendar initialYear={calendar.year} initialMonth={calendar.month} initialDays={calendar.days} initialLeadsByDay={calendar.leadsByDay} />
+        }
+      />
 
       {showBusinessTarget && <BusinessTargetCard businessTarget={businessTarget} />}
 

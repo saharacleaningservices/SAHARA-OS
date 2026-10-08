@@ -29,7 +29,7 @@ const NEW_SITE = "__new";
  * then run from the lead page, so the package, discount and complimentary
  * items stay on the lead → job → quotation/invoice.
  */
-export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill?: { mobile?: string; name?: string }; variant?: "chip" | "button" }) {
+export function PackageCalculatorButton({ prefill, variant = "chip", label = "Package Calculator" }: { prefill?: { mobile?: string; name?: string }; variant?: "chip" | "button"; label?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [access, setAccess] = useState<{ canEditPrice: boolean } | null>(null);
@@ -188,11 +188,11 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
           onClick={() => setOpen(true)}
           className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
         >
-          <Calculator className="size-3.5 text-primary" /> Package Calculator
+          <Calculator className="size-3.5 text-primary" /> {label}
         </button>
       ) : (
         <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
-          <Calculator className="size-3.5" /> Package Calculator
+          <Calculator className="size-3.5" /> {label}
         </Button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
