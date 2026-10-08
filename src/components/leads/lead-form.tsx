@@ -57,6 +57,7 @@ export function LeadForm({
   leadId,
   mapsApiKey = null,
   canEditPricing = false,
+  book = false,
 }: {
   staffOptions: StaffOption[];
   userOptions: UserOption[];
@@ -65,6 +66,8 @@ export function LeadForm({
   mapsApiKey?: string | null;
   /** Super Admin / Accounts: may edit unit price, discount and final amount (server re-checks). */
   canEditPricing?: boolean;
+  /** Dashboard "New Job": after saving, open the lead on Confirm Booking. */
+  book?: boolean;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -244,7 +247,7 @@ export function LeadForm({
     }
     const autoQuote = !leadId && "quoteNumber" in res && res.quoteNumber ? res.quoteNumber : null;
     toast.success(leadId ? "Lead updated" : autoQuote ? `Lead created — quotation ${autoQuote} ready` : "Lead created");
-    router.push(leadId ? `/leads/${leadId}` : `/leads/${"leadId" in res ? res.leadId : leadId}`);
+    router.push(leadId ? `/leads/${leadId}` : `/leads/${"leadId" in res ? res.leadId : leadId}${book ? "?confirm=1" : ""}`);
     router.refresh();
   }
 
@@ -627,7 +630,7 @@ export function LeadForm({
         </Button>
         <Button type="submit" disabled={submitting}>
           {submitting && <Loader2 className="animate-spin" />}
-          {leadId ? "Save changes" : "Create lead"}
+          {leadId ? "Save changes" : book ? "Save & confirm booking" : "Create lead"}
         </Button>
       </div>
     </form>
