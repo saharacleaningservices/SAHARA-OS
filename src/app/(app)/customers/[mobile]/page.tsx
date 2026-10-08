@@ -10,6 +10,7 @@ import { RepeatBookingButton } from "@/components/customers/repeat-booking-butto
 import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog";
 import { ContactMetaDialog } from "@/components/customers/contact-meta-dialog";
 import { CustomerSitesCard } from "@/components/customers/customer-sites-card";
+import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
 import { getCustomerHistory } from "@/server/customers";
 import { requireRole } from "@/lib/current-user";
@@ -57,6 +58,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <Button asChild size="sm">
               <Link href={`/leads/new?mobile=${digits}&name=${encodeURIComponent(name)}`}><Plus className="size-3.5" /> New Lead</Link>
             </Button>
+            <PackageCalculatorButton variant="button" prefill={{ mobile: digits, name }} />
             {(jobs.length > 0 || master) && <RepeatBookingButton mobile={digits} />}
             {canEdit && <ContactMetaDialog mobile={digits} initial={{ name, email, contactType, isRepeat: !!master?.isRepeat }} />}
             <SendBookingFormButton name={name} mobile={digits} leadId={leads[0]?.id} />

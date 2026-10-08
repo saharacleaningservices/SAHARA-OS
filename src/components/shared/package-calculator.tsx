@@ -2,24 +2,38 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Gift, Minus, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { getCatalogueForCrm } from "@/server/actions/pricing";
-import { PRICING_MASTER, type PriceItem } from "@/lib/pricing-master";
-import { BASE_GROUPS, SERVICE_GROUPS, isDuplicateLine, lineAmount, newLineFromItem, packageTotals, type PackageDraft, type PackageLine } from "@/lib/package-calc";
+import { PRICING_MASTER, unitPriceFor, upcomingFestivals, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
+import {
+  BASE_GROUPS,
+  DISCOUNT_PRESETS,
+  SERVICE_GROUPS,
+  isDuplicateLine,
+  lineAmount,
+  newLineFromItem,
+  packageTotals,
+  percentDiscount,
+  type PackageDraft,
+  type PackageLine,
+} from "@/lib/package-calc";
+import { cn } from "@/lib/utils";
 
-const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-const sel = "h-9 w-full min-w-0 rounded-md border bg-background px-2 text-sm";
+const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+const sel = "h-10 w-full min-w-0 rounded-md border bg-background px-2 text-sm";
+const chip = "h-8 rounded-full border px-3 text-xs font-semibold transition-colors";
 let seq = 0;
 const nid = () => `l${Date.now().toString(36)}${(seq++).toString(36)}`;
+const todayYmd = () => new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);
+const isBase = (l: PackageLine) => BASE_GROUPS.includes(l.group as never);
 
 /**
- * Package Calculator — the same component in the header utility and in
- * New Lead → Customized Service. Base package (optional) + any number of
- * service rows (Category → Service → Qty → Unit Price → Amount), subtotal,
- * discount and final amount. Unit price / discount / final are editable only
- * when canEditPrice (Super Admin / Accounts); the server re-checks this.
+ * Package Calculator — header/Customers dialog and New Lead → Customized Service.
+ * Master prices only (Regular or an approved Festival price). Actual Value
+ * (chargeable lines) − Discount = Final Payable; complimentary lines are shown
+ * with their value but never charged or discounted. Discount and complimentary
+ * are Super Admin / Accounts only (canEditPrice) — the server re-checks both.
  */
 export function PackageCalculator({
   value,
@@ -33,157 +47,219 @@ export function PackageCalculator({
   showBase?: boolean;
 }) {
   const [items, setItems] = useState<PriceItem[]>(PRICING_MASTER);
+  const [festivals, setFestivals] = useState<FestivalWindow[]>([]);
+  const [festivalId, setFestivalId] = useState("");
   useEffect(() => {
-    getCatalogueForCrm().then((p) => p && setItems(p.items)).catch(() => {});
+    getCatalogueForCrm()
+      .then((p) => {
+        if (!p) return;
+        setItems(p.items);
+        setFestivals(upcomingFestivals(p.festivals, todayYmd()));
+      })
+      .catch(() => {});
   }, []);
-  // Rows being filled in (category chosen, service not yet) — not part of the package until a service is picked.
-  const [pendingRows, setPendingRows] = useState<{ id: string; group: string }[]>([]);
+  const festival = festivals.find((f) => f.id === festivalId) ?? null;
+  const priceOf = (i: PriceItem) => unitPriceFor(i, festival);
+
+  const [addGroup, setAddGroup] = useState<string>("CUSTOMISED");
+  const [customOpen, setCustomOpen] = useState(false);
 
   const baseItems = useMemo(() => items.filter((i) => BASE_GROUPS.includes(i.group) && i.price != null), [items]);
   const byGroup = (g: string) => items.filter((i) => i.group === g);
-  const baseLine = value.lines.find((l) => BASE_GROUPS.includes(l.group as never));
-  const serviceLines = value.lines.filter((l) => !BASE_GROUPS.includes(l.group as never));
+  const baseLine = value.lines.find(isBase);
+  const serviceLines = value.lines.filter((l) => !isBase(l));
   const t = packageTotals(value);
+  const pct = t.subtotal > 0 ? Math.round((t.discount / t.subtotal) * 1000) / 10 : 0;
 
-  const set = (lines: PackageLine[], discount = value.discount) => onChange({ lines, discount });
+  // Discount is a fixed ₹ amount; a preset % is re-applied when lines change so it stays consistent.
+  const [presetPct, setPresetPct] = useState<number | null>(null);
+  const emit = (lines: PackageLine[], discount = value.discount, preset = presetPct) => {
+    const sub = packageTotals({ lines, discount: 0 }).subtotal;
+    onChange({ lines, discount: preset != null ? percentDiscount(sub, preset) : Math.min(discount, sub) });
+  };
 
-  function setBase(contentId: string) {
-    const rest = value.lines.filter((l) => !BASE_GROUPS.includes(l.group as never));
-    const item = baseItems.find((i) => i.contentId === contentId);
-    set(item ? [{ ...newLineFromItem(item, nid()), qty: 1 }, ...rest] : rest);
+  function line(item: PriceItem, id: string, qty?: number): PackageLine {
+    return { ...newLineFromItem(item, id), unitPrice: priceOf(item) ?? 0, ...(qty ? { qty } : {}) };
   }
-  function pickService(rowId: string, contentId: string, existing?: PackageLine) {
+  function switchFestival(id: string) {
+    setFestivalId(id);
+    const f = festivals.find((x) => x.id === id) ?? null;
+    const byId = new Map(items.map((i) => [i.contentId, i]));
+    emit(value.lines.map((l) => {
+      const it = l.contentId ? byId.get(l.contentId) : undefined;
+      const p = it ? unitPriceFor(it, f) : null;
+      return p != null ? { ...l, unitPrice: p } : l;
+    }));
+  }
+  function setBase(contentId: string) {
+    const item = baseItems.find((i) => i.contentId === contentId);
+    emit(item ? [{ ...line(item, nid()), qty: 1 }, ...serviceLines] : serviceLines);
+  }
+  function addService(contentId: string) {
     const item = items.find((i) => i.contentId === contentId);
     if (!item) return;
-    const line = { ...newLineFromItem(item, existing?.id ?? rowId), qty: existing ? existing.qty : Math.max(1, item.minQty ?? 1) };
-    if (isDuplicateLine(value.lines, line, existing?.id)) return void toast.warning(`${item.name} with the same quantity is already added — change the quantity instead.`);
-    if (existing) set(value.lines.map((l) => (l.id === existing.id ? line : l)));
-    else {
-      set([...value.lines, line]);
-      setPendingRows((p) => p.filter((r) => r.id !== rowId));
-    }
+    const l = line(item, nid());
+    if (isDuplicateLine(value.lines, l)) return void toast.warning(`${item.name} is already added — change its quantity instead.`);
+    emit([...value.lines, l]);
   }
   function patch(id: string, p: Partial<PackageLine>) {
     const cur = value.lines.find((l) => l.id === id);
     if (!cur) return;
     const next = { ...cur, ...p };
-    if ((p.qty !== undefined || p.unitPrice !== undefined) && isDuplicateLine(value.lines, next, id)) return void toast.warning("That would duplicate an existing row — adjust this row instead.");
-    set(value.lines.map((l) => (l.id === id ? next : l)));
+    if (p.qty !== undefined && isDuplicateLine(value.lines, next, id)) return void toast.warning("That would duplicate an existing row.");
+    emit(value.lines.map((l) => (l.id === id ? next : l)));
   }
-  const remove = (id: string) => set(value.lines.filter((l) => l.id !== id));
+  const remove = (id: string) => emit(value.lines.filter((l) => l.id !== id));
+  function preset(p: number | null) {
+    setCustomOpen(false);
+    setPresetPct(p);
+    emit(value.lines, 0, p);
+  }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-3">
+    <div className="space-y-3">
+      {festivals.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5" role="radiogroup" aria-label="Price list">
+          <button type="button" onClick={() => switchFestival("")} className={cn(chip, !festival ? "border-primary bg-primary text-primary-foreground" : "bg-background")}>Regular</button>
+          {festivals.map((f) => (
+            <button key={f.id} type="button" onClick={() => switchFestival(f.id)} className={cn(chip, festival?.id === f.id ? "border-amber-500 bg-amber-500 text-white" : "bg-background")}>
+              🎉 {f.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {showBase && (
-        <label className="block text-xs font-medium">
-          Base package (optional)
-          <select value={baseLine?.contentId ?? ""} onChange={(e) => setBase(e.target.value)} className={`${sel} mt-1`}>
-            <option value="">No base package</option>
+        <label className="block text-xs font-medium text-muted-foreground">
+          Package
+          <select value={baseLine?.contentId ?? ""} onChange={(e) => setBase(e.target.value)} className={`${sel} mt-1 text-foreground`}>
+            <option value="">No base package (services only)</option>
             {baseItems.map((i) => (
               <option key={i.contentId} value={i.contentId}>
-                {i.name} — {inr(i.price!)}
+                {i.name} — {inr(priceOf(i) ?? 0)}
               </option>
             ))}
           </select>
         </label>
       )}
 
-      <div className="space-y-2">
-        {serviceLines.map((l) => (
-          <div key={l.id} className="grid grid-cols-[1fr_auto] gap-2 rounded-md border border-border bg-background p-2 sm:grid-cols-[9rem_1fr_4.5rem_6rem_5.5rem_auto] sm:items-center">
-            <span className="hidden truncate text-xs text-muted-foreground sm:block">{SERVICE_GROUPS.find((g) => g.group === l.group)?.label ?? "Other"}</span>
-            <select value={l.contentId ?? ""} onChange={(e) => pickService(l.id, e.target.value, l)} className={sel} aria-label="Service">
-              {byGroup(l.group).map((i) => (
-                <option key={i.contentId} value={i.contentId}>{i.name}</option>
-              ))}
-              {!l.contentId && <option value="">{l.name}</option>}
-            </select>
-            <button type="button" onClick={() => remove(l.id)} className="self-center text-muted-foreground hover:text-destructive sm:order-last" aria-label={`Remove ${l.name}`}>
-              <Trash2 className="size-4" />
-            </button>
-            <div className="col-span-2 grid grid-cols-3 gap-2 sm:col-span-1 sm:contents">
-              <label className="text-[11px] text-muted-foreground sm:text-sm">
-                <span className="sm:hidden">Qty</span>
-                <Input type="number" min={1} inputMode="numeric" value={l.qty} onChange={(e) => patch(l.id, { qty: Math.max(1, Number(e.target.value) || 1) })} className="h-9" aria-label="Quantity" />
-              </label>
-              <label className="text-[11px] text-muted-foreground sm:text-sm">
-                <span className="sm:hidden">Unit ₹{l.unit ? ` ${l.unit}` : ""}</span>
-                {canEditPrice ? (
-                  <Input type="number" min={0} inputMode="decimal" value={l.unitPrice} onChange={(e) => patch(l.id, { unitPrice: Math.max(0, Number(e.target.value) || 0) })} className="h-9" aria-label="Unit price" />
-                ) : (
-                  <span className="flex h-9 items-center text-sm text-foreground">{inr(l.unitPrice)}</span>
-                )}
-              </label>
-              <div className="text-[11px] text-muted-foreground sm:text-right sm:text-sm">
-                <span className="sm:hidden">Amount</span>
-                <span className="flex h-9 items-center justify-end font-semibold text-foreground tabular-nums">{inr(lineAmount(l))}</span>
+      {/* Selected services — one compact row each */}
+      {serviceLines.length > 0 && (
+        <ul className="divide-y rounded-lg border bg-background">
+          {serviceLines.map((l) => (
+            <li key={l.id} className={cn("px-2.5 py-2", l.complimentary && "bg-emerald-50 dark:bg-emerald-950/30")}>
+              <div className="flex items-start justify-between gap-2">
+                <p className="min-w-0 text-sm font-medium leading-snug">{l.name}</p>
+                <span className={cn("shrink-0 text-sm font-semibold tabular-nums", l.complimentary && "text-emerald-700 line-through decoration-1 dark:text-emerald-400")}>{inr(lineAmount(l))}</span>
               </div>
+              <div className="mt-1 flex items-center gap-1.5">
+                <p className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground tabular-nums">
+                  {inr(l.unitPrice)}{l.unit ? ` ${l.unit}` : ""}
+                  {l.complimentary && <span className="ml-1 font-semibold text-emerald-700 dark:text-emerald-400">· Complimentary</span>}
+                </p>
+                <div className="flex shrink-0 items-center rounded-md border bg-background">
+                  <button type="button" className="grid size-8 place-items-center text-muted-foreground" aria-label="Decrease quantity" onClick={() => patch(l.id, { qty: Math.max(1, l.qty - 1) })}><Minus className="size-3.5" /></button>
+                  <input
+                    type="number"
+                    min={1}
+                    inputMode="numeric"
+                    value={l.qty}
+                    onChange={(e) => patch(l.id, { qty: Math.max(1, Number(e.target.value) || 1) })}
+                    className="h-8 w-10 border-x bg-transparent text-center text-sm tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                    aria-label={`${l.name} quantity`}
+                  />
+                  <button type="button" className="grid size-8 place-items-center text-muted-foreground" aria-label="Increase quantity" onClick={() => patch(l.id, { qty: l.qty + 1 })}><Plus className="size-3.5" /></button>
+                </div>
+                {canEditPrice && (
+                  <button
+                    type="button"
+                    onClick={() => patch(l.id, { complimentary: !l.complimentary })}
+                    className={cn("grid size-8 shrink-0 place-items-center rounded-md border", l.complimentary ? "border-emerald-600 bg-emerald-600 text-white" : "text-muted-foreground hover:text-emerald-700")}
+                    aria-label={l.complimentary ? `Charge ${l.name}` : `Make ${l.name} complimentary`}
+                    aria-pressed={!!l.complimentary}
+                    title="Complimentary (free, value shown)"
+                  >
+                    <Gift className="size-4" />
+                  </button>
+                )}
+                <button type="button" onClick={() => remove(l.id)} className="grid size-8 shrink-0 place-items-center text-muted-foreground hover:text-destructive" aria-label={`Remove ${l.name}`}>
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Add a service: category → service (adds immediately) */}
+      <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-2">
+        <select value={addGroup} onChange={(e) => setAddGroup(e.target.value)} className={sel} aria-label="Category">
+          {SERVICE_GROUPS.map((g) => (
+            <option key={g.group} value={g.group}>{g.label}</option>
+          ))}
+        </select>
+        <select value="" onChange={(e) => addService(e.target.value)} className={sel} aria-label="Add service">
+          <option value="">+ Add service…</option>
+          {byGroup(addGroup).map((i) => {
+            const p = priceOf(i);
+            return (
+              <option key={i.contentId} value={i.contentId} disabled={p == null}>
+                {i.name} {p != null ? `— ${inr(p)}${i.unit ? ` ${i.unit}` : ""}` : "— price on confirmation"}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+
+      {/* Totals */}
+      <div className="space-y-1.5 rounded-lg border bg-muted/30 p-3 text-sm">
+        <Row label={`Actual Value (${value.lines.filter((l) => !l.complimentary).length} item${value.lines.filter((l) => !l.complimentary).length === 1 ? "" : "s"})`} value={inr(t.subtotal)} />
+        {canEditPrice ? (
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="mr-auto text-muted-foreground">Discount</span>
+              <button type="button" onClick={() => preset(null)} className={cn(chip, t.discount === 0 && !customOpen ? "border-primary bg-primary/10 text-primary" : "bg-background")}>None</button>
+              {DISCOUNT_PRESETS.map((p) => (
+                <button key={p} type="button" onClick={() => preset(p)} className={cn(chip, presetPct === p ? "border-primary bg-primary/10 text-primary" : "bg-background")}>{p}%</button>
+              ))}
+              <button type="button" onClick={() => { setPresetPct(null); setCustomOpen(true); }} className={cn(chip, customOpen || (t.discount > 0 && presetPct == null) ? "border-primary bg-primary/10 text-primary" : "bg-background")}>Custom</button>
             </div>
+            {(customOpen || (t.discount > 0 && presetPct == null)) && (
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-xs text-muted-foreground">₹</span>
+                <Input
+                  type="number"
+                  min={0}
+                  inputMode="decimal"
+                  value={value.discount || ""}
+                  placeholder="0"
+                  onChange={(e) => emit(value.lines, Math.max(0, Number(e.target.value) || 0), null)}
+                  className="h-9 w-28 text-right"
+                  aria-label="Custom discount amount"
+                />
+              </div>
+            )}
           </div>
-        ))}
-
-        {pendingRows.map((r) => (
-          <div key={r.id} className="grid grid-cols-[1fr_1fr_auto] gap-2 rounded-md border border-dashed border-primary/40 bg-background p-2">
-            <select value={r.group} onChange={(e) => setPendingRows((p) => p.map((x) => (x.id === r.id ? { ...x, group: e.target.value } : x)))} className={sel} aria-label="Category">
-              {SERVICE_GROUPS.map((g) => (
-                <option key={g.group} value={g.group}>{g.label}</option>
-              ))}
-            </select>
-            <select value="" onChange={(e) => pickService(r.id, e.target.value)} className={sel} aria-label="Service">
-              <option value="">Select service…</option>
-              {byGroup(r.group).map((i) => (
-                <option key={i.contentId} value={i.contentId} disabled={i.price == null && !canEditPrice}>
-                  {i.name} {i.price != null ? `— ${inr(i.price)}${i.unit ? ` ${i.unit}` : ""}` : "— price on confirmation"}
-                </option>
-              ))}
-            </select>
-            <button type="button" onClick={() => setPendingRows((p) => p.filter((x) => x.id !== r.id))} className="text-muted-foreground hover:text-destructive" aria-label="Remove row">
-              <Trash2 className="size-4" />
-            </button>
-          </div>
-        ))}
-
-        <Button type="button" size="sm" variant="outline" onClick={() => setPendingRows((p) => [...p, { id: nid(), group: "CUSTOMISED" }])}>
-          <Plus className="size-3.5" /> Add Service
-        </Button>
+        ) : null}
+        {t.discount > 0 && <Row label={`Discount${pct ? ` (${pct}%)` : ""}`} value={`− ${inr(t.discount)}`} />}
+        {t.complimentary > 0 && <Row label="Complimentary (free)" value={inr(t.complimentary)} tone="text-emerald-700 dark:text-emerald-400" />}
+        <div className="flex items-center justify-between border-t pt-1.5 text-base font-bold">
+          <span>Final Payable</span>
+          <span className="tabular-nums">{inr(t.final)}</span>
+        </div>
+        {t.discount + t.complimentary > 0 && <p className="text-right text-xs font-semibold text-emerald-700 dark:text-emerald-400">Customer saves {inr(t.discount + t.complimentary)}</p>}
+        {t.final > 0 && t.final < 3999 && <p className="text-xs text-amber-700 dark:text-amber-400">Below the ₹3,999 minimum service value.</p>}
+        {festival && <p className="text-[11px] text-muted-foreground">{festival.name} prices ({festival.start} → {festival.end}).</p>}
       </div>
+    </div>
+  );
+}
 
-      <div className="space-y-1.5 border-t border-border pt-2 text-sm">
-        {baseLine && (
-          <div className="flex justify-between gap-2 text-muted-foreground">
-            <span className="truncate">{baseLine.name}</span>
-            <span className="tabular-nums">{inr(lineAmount(baseLine))}</span>
-          </div>
-        )}
-        <div className="flex justify-between gap-2">
-          <span>Subtotal ({value.lines.length} item{value.lines.length === 1 ? "" : "s"})</span>
-          <span className="font-semibold tabular-nums">{inr(t.subtotal)}</span>
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <span>Discount</span>
-          {canEditPrice ? (
-            <Input type="number" min={0} inputMode="decimal" value={value.discount || ""} placeholder="0" onChange={(e) => set(value.lines, Math.max(0, Number(e.target.value) || 0))} className="h-8 w-28 text-right" aria-label="Discount" />
-          ) : (
-            <span className="tabular-nums">{inr(t.discount)}</span>
-          )}
-        </div>
-        <div className="flex items-center justify-between gap-2 text-base font-bold">
-          <span>Final Amount</span>
-          {canEditPrice ? (
-            <Input
-              type="number"
-              min={0}
-              inputMode="decimal"
-              value={t.final}
-              onChange={(e) => set(value.lines, Math.max(0, t.subtotal - (Number(e.target.value) || 0)))}
-              className="h-9 w-32 text-right font-bold"
-              aria-label="Final amount"
-            />
-          ) : (
-            <span className="tabular-nums">{inr(t.final)}</span>
-          )}
-        </div>
-      </div>
+function Row({ label, value, tone }: { label: string; value: string; tone?: string }) {
+  return (
+    <div className={cn("flex justify-between gap-2", tone)}>
+      <span className={tone ? "" : "text-muted-foreground"}>{label}</span>
+      <span className="font-semibold tabular-nums">{value}</span>
     </div>
   );
 }

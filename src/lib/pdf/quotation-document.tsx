@@ -97,6 +97,10 @@ function inr(n: number) {
 }
 
 export function QuotationDocument(props: QuotationPdfProps) {
+  // Complimentary lines are stored at ₹0 with their value in the description (package-calc).
+  const complimentary = props.services
+    .filter((s) => s.name.endsWith("(Complimentary)"))
+    .reduce((t, s) => t + (Number(/value ₹([\d,]+)/.exec(s.description)?.[1]?.replace(/,/g, "")) || 0), 0);
   return (
     <Document title={`Quotation ${props.quoteNumber}`}>
       <Page size="A4" style={styles.page}>
@@ -156,13 +160,19 @@ export function QuotationDocument(props: QuotationPdfProps) {
 
         <View style={styles.totalsBlock}>
           <View style={styles.totalsRow}>
-            <Text style={styles.totalsLabel}>Subtotal</Text>
+            <Text style={styles.totalsLabel}>{complimentary > 0 || props.discount ? "Actual Value" : "Subtotal"}</Text>
             <Text style={styles.totalsValue}>{inr(props.subTotal)}</Text>
           </View>
           {props.discount ? (
             <View style={styles.totalsRow}>
               <Text style={styles.totalsLabel}>Discount</Text>
               <Text style={styles.totalsValue}>- {inr(props.discount)}</Text>
+            </View>
+          ) : null}
+          {complimentary > 0 ? (
+            <View style={styles.totalsRow}>
+              <Text style={styles.totalsLabel}>Complimentary (free)</Text>
+              <Text style={styles.totalsValue}>{inr(complimentary)}</Text>
             </View>
           ) : null}
           <View style={styles.totalsRow}>

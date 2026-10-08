@@ -93,6 +93,7 @@ export function QuotationDialog({
   ]);
   const [gstPercent, setGstPercent] = useState(0);
   const discount = pkg.lines.length ? packageTotals(pkg).discount : 0;
+  const complimentary = pkg.lines.length ? packageTotals(pkg).complimentary : 0;
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -220,13 +221,19 @@ export function QuotationDialog({
 
           <div className="space-y-1 rounded-lg bg-muted/50 p-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">{complimentary > 0 || discount > 0 ? "Actual Value" : "Subtotal"}</span>
               <span>{formatINR(subTotal)}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Discount (package)</span>
                 <span>− {formatINR(discount)}</span>
+              </div>
+            )}
+            {complimentary > 0 && (
+              <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
+                <span>Complimentary (free)</span>
+                <span>{formatINR(complimentary)}</span>
               </div>
             )}
             <div className="flex justify-between">

@@ -85,11 +85,16 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
   const comboTitle = !packageLabel && job.included.length > 0 ? job.included.join(" · ") : "";
   const rows =
     pkg.lines.length > 0
-      ? pkg.lines.map((l) => ({ name: l.name, detail: l.unit ?? "", qty: l.qty, rate: l.unitPrice, disc: 0, total: lineAmount(l) }))
+      ? pkg.lines.map((l) =>
+          l.complimentary
+            ? { name: `${l.name} (Complimentary)`, detail: `Free · value ${inr(lineAmount(l))}`, qty: l.qty, rate: l.unitPrice, disc: lineAmount(l), total: 0 }
+            : { name: l.name, detail: l.unit ?? "", qty: l.qty, rate: l.unitPrice, disc: 0, total: lineAmount(l) },
+        )
       : [{ name: comboTitle || job.serviceLabel, detail: comboTitle ? `${job.serviceLabel} · package` : packageLabel, qty: 1, rate: job.jobValue + discount, disc: discount, total: job.jobValue }];
   const showIncludes = !comboTitle;
   const itemsDiscount = pkg.lines.length > 0 ? discount : 0;
   const subtotal = rows.reduce((s, r) => s + r.total, 0);
+  const complimentary = pkg.lines.filter((l) => l.complimentary).reduce((s, l) => s + lineAmount(l), 0);
   const total = job.jobValue > 0 ? job.jobValue : Math.max(0, subtotal - itemsDiscount);
   const balance = Math.max(0, total - job.paid);
   const docNo = isInvoice ? job.invoiceNumber || `INV-${job.jobNumber}` : `QO-${job.jobNumber}`;
@@ -169,8 +174,9 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
 
         {/* Totals */}
         <div className="mt-2 space-y-1 border-t border-[#0a2540]/15 pt-3 sm:ml-auto sm:max-w-xs">
-          <p className="flex justify-between"><span className="text-[#0a2540]/70">Subtotal</span><span className="tabular-nums">{inr(subtotal)}</span></p>
+          <p className="flex justify-between"><span className="text-[#0a2540]/70">{complimentary > 0 || itemsDiscount > 0 ? "Actual Value" : "Subtotal"}</span><span className="tabular-nums">{inr(subtotal)}</span></p>
           {itemsDiscount > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Discount</span><span className="tabular-nums">− {inr(itemsDiscount)}</span></p>}
+          {complimentary > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Complimentary (free)</span><span className="tabular-nums">{inr(complimentary)}</span></p>}
           <p className="flex justify-between rounded-lg bg-primary/10 px-2 py-1.5 text-base font-extrabold"><span>{isInvoice ? "Total Amount" : "Final Payable"}</span><span className="tabular-nums">{inr(total)}</span></p>
           {isInvoice && (
             <>

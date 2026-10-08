@@ -65,8 +65,8 @@ async function assertLeadEditable(leadId: string): Promise<{ error: string } | n
 async function packageFields(serviceItems: string | undefined, discountAmount: number | undefined, role?: string) {
   if (serviceItems === undefined) return null;
   if (!serviceItems) return { serviceItems: null, discountAmount: null } as const;
-  const { items } = await getLivePricing();
-  const draft = enforcePricing(parsePackage(serviceItems, discountAmount ?? 0), items, canEditPackagePricing(role));
+  const { items, festivals } = await getLivePricing();
+  const draft = enforcePricing(parsePackage(serviceItems, discountAmount ?? 0), items, canEditPackagePricing(role), festivals);
   if (draft.lines.length === 0) return { serviceItems: null, discountAmount: null } as const;
   const t = packageTotals(draft);
   return { serviceItems: serializeLines(draft), discountAmount: t.discount, quoteAmount: t.final } as const;
@@ -329,7 +329,19 @@ export async function updateLead(id: string, values: unknown, scheduleBase?: { s
     // Follow-up date of a booked enquiry always mirrors the job (syncLeadFromJob below).
     delete data.followUpDate;
   }
-  const pkg = await packageFields(data.serviceItems, data.discountAmount, (await getSession())?.role);
+  const role = (await getSession())?.role;
+  let pkg = await packageFields(data.serviceItems, data.discountAmount, role);
+  let keptPkg = false;
+  // Operations re-saving a lead with the same services must not wipe the discount /
+  // complimentary items Super Admin or Accounts approved on it.
+  if (pkg && data.serviceItems && !canEditPackagePricing(role)) {
+    const saved = await db.lead.findUnique({ where: { id }, select: { serviceItems: true } });
+    const sig = (raw?: string | null) => parsePackage(raw).lines.map((l) => `${l.contentId ?? l.name}×${l.qty}`).sort().join("|");
+    if (saved?.serviceItems && sig(saved.serviceItems) === sig(data.serviceItems)) {
+      pkg = null;
+      keptPkg = true;
+    }
+  }
   await db.lead.update({
     where: { id },
     data: {
@@ -347,7 +359,7 @@ export async function updateLead(id: string, values: unknown, scheduleBase?: { s
       }),
       ...(data.service && { service: data.service }),
       ...(data.source && { source: data.source }),
-      ...(data.quoteAmount !== undefined && !(pkg && "quoteAmount" in pkg) && { quoteAmount: data.quoteAmount }),
+      ...(data.quoteAmount !== undefined && !keptPkg && !(pkg && "quoteAmount" in pkg) && { quoteAmount: data.quoteAmount }),
       ...(data.followUpDate !== undefined && {
         followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       }),
