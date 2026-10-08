@@ -246,10 +246,11 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
 
         {focus !== "pay" && paymentBlock}
 
-        {job.status === "COMPLETED" && settings?.googleReviewUrl && (
+        {/* Quotation · Payment · Google Review — all three reachable from the one booking link. */}
+        {job.status !== "CANCELLED" && settings?.googleReviewUrl && (
           <a href={settings.googleReviewUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-2xl bg-white p-5 text-sm shadow-sm">
-            <span className="flex items-center gap-2 font-semibold"><Star className="size-4 text-amber-500" /> Rate us on Google</span>
-            <span className="text-primary">Review →</span>
+            <span className="flex items-center gap-2 font-semibold"><Star className="size-4 text-amber-500" /> {job.status === "COMPLETED" ? "Rate us on Google" : "Sahara on Google — reviews"}</span>
+            <span className="text-primary">{job.status === "COMPLETED" ? "Review →" : "Open →"}</span>
           </a>
         )}
 

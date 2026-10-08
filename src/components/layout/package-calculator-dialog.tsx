@@ -127,7 +127,7 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
         }
         return void toast.error(res.error);
       }
-      toast.success("Lead saved — Generate Quote or Confirm Booking from the lead");
+      toast.success("quoteNumber" in res && res.quoteNumber ? `Lead saved — quotation ${res.quoteNumber} created. Confirm Booking from the lead.` : "Lead saved — Confirm Booking from the lead");
       setOpen(false);
       reset();
       if ("leadId" in res && res.leadId) router.push(`/leads/${res.leadId}`);

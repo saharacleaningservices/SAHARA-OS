@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Check, Loader2, MapPin, Plus } from "lucide-react";
+import { Check, ChevronDown, Loader2, MapPin, Plus } from "lucide-react";
 import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,9 +28,27 @@ import { TeamSelect } from "@/components/shared/team-select";
 import { ACQUISITION_CHANNELS } from "@/lib/attribution";
 import { PackageCalculator } from "@/components/shared/package-calculator";
 import { packageTotals, parsePackage, serializeLines, type PackageDraft } from "@/lib/package-calc";
+import { getCatalogueForCrm } from "@/server/actions/pricing";
+import { festivalForDate, unitPriceFor, type LivePricing } from "@/lib/pricing-master";
 
 type StaffOption = { id: string; name: string; designation: string };
 type UserOption = { id: string; name: string; role: string };
+
+/** Optional part of the form, folded on phones to keep New Lead to 1–2 scrolls. */
+function More({ title, hint, children, open = false }: { title: string; hint?: string; children: React.ReactNode; open?: boolean }) {
+  return (
+    <details open={open} className="group rounded-lg border sm:col-span-2">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold">
+        <span>
+          {title}
+          {hint ? <span className="ml-1.5 text-xs font-normal text-muted-foreground">{hint}</span> : null}
+        </span>
+        <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="grid grid-cols-1 gap-3 px-3 pb-3 sm:grid-cols-2">{children}</div>
+    </details>
+  );
+}
 
 export function LeadForm({
   staffOptions,
@@ -170,6 +188,37 @@ export function LeadForm({
 
   const quoteAmountField = register("quoteAmount");
 
+  // Full-home package (e.g. 2 BHK + Premium) → its approved amount from the live price list:
+  // the Festival price when the requested date is inside an approved festival window, else Regular.
+  // Runs only when the office changes the selection (a saved lead keeps its amount) and never
+  // overrides an amount typed by hand.
+  const [livePricing, setLivePricing] = useState<LivePricing | null>(null);
+  useEffect(() => {
+    getCatalogueForCrm().then((p) => p && setLivePricing(p)).catch(() => {});
+  }, []);
+  const homeVariant = watch("serviceVariant") || "";
+  const homePackage = watch("packageName") || "";
+  const homeDate = watch("serviceDate") || "";
+  const homeCategory = watch("serviceCategory") || "HOME_DEEP_CLEANING";
+  const [initialPkgKey] = useState(() => `${defaultValues?.serviceCategory ?? ""}|${defaultValues?.serviceVariant ?? ""}|${defaultValues?.packageName ?? ""}`);
+  const [pkgPriceNote, setPkgPriceNote] = useState("");
+  useEffect(() => {
+    if (!livePricing || homeCategory !== "HOME_DEEP_CLEANING" || !homeVariant || !homePackage) return setPkgPriceNote("");
+    if (leadId && `${homeCategory}|${homeVariant}|${homePackage}` === initialPkgKey) return;
+    const want = homeVariant.replace(/\s+/g, "").toLowerCase();
+    const item = livePricing.items.find((i) => i.group === homePackage.toUpperCase() && i.name.replace(/\s+/g, "").toLowerCase().startsWith(want));
+    if (!item) return setPkgPriceNote("");
+    const festival = homeDate ? festivalForDate(livePricing.festivals, homeDate) : null;
+    const price = unitPriceFor(item, festival);
+    if (price == null) return setPkgPriceNote("");
+    const isFestival = !!festival && festival.prices[item.contentId] != null;
+    setValue("priceType", isFestival ? "FESTIVAL" : "REGULAR");
+    setValue("festivalName", isFestival ? festival!.name : "");
+    setPkgPriceNote(`${item.name} — ${isFestival ? `${festival!.name} price` : "Regular price"} ${formatINR(price)}`);
+    if (!estimateTouched) setValue("quoteAmount", price, { shouldDirty: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [livePricing, homeCategory, homeVariant, homePackage, homeDate]);
+
   // Opened from a customer page (+ New Lead): look the contact up straight away.
   useEffect(() => {
     if (!leadId && defaultValues?.mobile) handleMobileBlur(defaultValues.mobile);
@@ -193,18 +242,19 @@ export function LeadForm({
       toast.error(res.error);
       return;
     }
-    toast.success(leadId ? "Lead updated" : "Lead created");
+    const autoQuote = !leadId && "quoteNumber" in res && res.quoteNumber ? res.quoteNumber : null;
+    toast.success(leadId ? "Lead updated" : autoQuote ? `Lead created — quotation ${autoQuote} ready` : "Lead created");
     router.push(leadId ? `/leads/${leadId}` : `/leads/${"leadId" in res ? res.leadId : leadId}`);
     router.refresh();
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <Card>
-        <CardHeader>
-          <CardTitle>Customer Details</CardTitle>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+      <Card className="gap-3 py-4">
+        <CardHeader className="px-4">
+          <CardTitle className="text-base">Customer Details</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <CardContent className="grid grid-cols-1 gap-3 px-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="name">Customer Name</Label>
             <Input id="name" {...register("name")} />
@@ -245,6 +295,7 @@ export function LeadForm({
               </div>
             )}
           </div>
+          <More title="More customer details" hint="alternate no. · email · contact type" open={!!(defaultValues?.alternateMobile || defaultValues?.email)}>
           <div className="space-y-1.5">
             <Label htmlFor="alternateMobile">Alternate Mobile (optional)</Label>
             <Input id="alternateMobile" {...register("alternateMobile")} placeholder="Second number" inputMode="tel" />
@@ -278,6 +329,7 @@ export function LeadForm({
               </label>
             </div>
           )}
+          </More>
           {!leadId && repeatCustomer?.sites && repeatCustomer.sites.length > 0 && (
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Service Site</Label>
@@ -329,11 +381,11 @@ export function LeadForm({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Enquiry Details</CardTitle>
+      <Card className="gap-3 py-4">
+        <CardHeader className="px-4">
+          <CardTitle className="text-base">Service, Package &amp; Schedule</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <CardContent className="grid grid-cols-1 gap-3 px-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <ServiceCategoryPicker
               category={watch("serviceCategory") || "HOME_DEEP_CLEANING"}
@@ -375,6 +427,7 @@ export function LeadForm({
             />
           </div>
           )}
+          <More title="Lead source & marketing" hint={LEAD_SOURCE_OPTIONS.find((o) => o.value === watch("source"))?.label}>
           <div className="space-y-1.5">
             <Label>Lead Source</Label>
             <Select value={watch("source")} onValueChange={(v) => setValue("source", v as LeadFormValues["source"])}>
@@ -414,6 +467,7 @@ export function LeadForm({
               </div>
             </>
           )}
+          </More>
           <div className="space-y-1.5">
             <Label htmlFor="quoteAmount">Estimated Amount (₹)</Label>
             <Input
@@ -426,10 +480,11 @@ export function LeadForm({
               }}
               placeholder="As per pricing master"
             />
+            {pkgPriceNote && <p className="text-xs text-muted-foreground">{pkgPriceNote}{estimateTouched ? " · amount edited by hand" : ""}</p>}
           </div>
 
-          <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3 sm:col-span-2">
-            <p className="text-sm font-semibold text-foreground">Payment</p>
+          <More title="Advance / payment" hint={advReceived > 0 ? `advance ${formatINR(advReceived)}` : "none recorded"} open={advReceived > 0}>
+          <div className="space-y-2 sm:col-span-2">
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label className="text-xs">Advance Received (₹)</Label>
@@ -472,6 +527,7 @@ export function LeadForm({
               </Select>
             </div>
           </div>
+          </More>
           <div className="grid grid-cols-2 gap-3 sm:col-span-2">
             <div className="space-y-1.5">
               <Label htmlFor="serviceDate">Requested Service Date</Label>
@@ -501,9 +557,6 @@ export function LeadForm({
               </Select>
             </div>
           </div>
-          <p className="-mt-2 text-xs text-muted-foreground sm:col-span-2">
-            Requested date/slot are what the customer asked for — separate from the follow-up date below.
-          </p>
           <div className="space-y-1.5">
             <Label htmlFor="followUpDate">Follow-up Date</Label>
             <DateInput id="followUpDate" {...register("followUpDate")} />
@@ -512,6 +565,11 @@ export function LeadForm({
             value={watch("teamNumber")}
             onChange={(v) => setValue("teamNumber", v)}
           />
+          <More
+            title="Assignment, scope & notes"
+            hint={[assignedStaffIds.length ? `${assignedStaffIds.length} staff` : "", watch("scopeOfWork") ? "scope" : "", watch("notes") ? "notes" : ""].filter(Boolean).join(" · ") || undefined}
+            open={!!(defaultValues?.scopeOfWork || defaultValues?.notes)}
+          >
           <div className="space-y-1.5">
             <Label>Assigned To</Label>
             <Select
@@ -559,10 +617,11 @@ export function LeadForm({
             <Label htmlFor="notes">Notes</Label>
             <Textarea id="notes" {...register("notes")} rows={3} />
           </div>
+          </More>
         </CardContent>
       </Card>
 
-      <div className="flex justify-end gap-2">
+      <div className="sticky bottom-0 z-10 -mx-4 flex justify-end gap-2 border-t bg-background/95 px-4 py-2.5 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0">
         <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
         </Button>

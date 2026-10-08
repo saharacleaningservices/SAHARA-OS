@@ -16,6 +16,7 @@ import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-b
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StageSelect } from "@/components/leads/stage-select";
 import { QuotationDialog } from "@/components/leads/quotation-dialog";
+import { SendQuotationButton } from "@/components/leads/send-quotation-button";
 import { ScheduleVisitDialog } from "@/components/leads/schedule-visit-dialog";
 import { ConfirmBookingDialog } from "@/components/leads/confirm-booking-dialog";
 import { ConversationTimeline } from "@/components/leads/conversation-timeline";
@@ -210,16 +211,17 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                       <div>
                         <p className="text-sm font-medium text-foreground">{q.quoteNumber}</p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDate(q.createdAt)} · Valid till {formatDate(q.validTill)}
+                          {formatDate(q.createdAt)} · Valid till {formatDate(q.validTill)} · {q.status.charAt(0) + q.status.slice(1).toLowerCase()}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
                         <span className="text-sm font-semibold text-foreground">{formatINR(q.totalAmount)}</span>
                         <Button variant="outline" size="sm" asChild>
                           <a href={`/api/quotations/${q.id}/pdf`} target="_blank" rel="noreferrer">
                             View PDF
                           </a>
                         </Button>
+                        <SendQuotationButton quotationId={q.id} quoteNumber={q.quoteNumber} status={q.status} name={lead.name} mobile={lead.mobile} />
                       </div>
                     </div>
                   ))}

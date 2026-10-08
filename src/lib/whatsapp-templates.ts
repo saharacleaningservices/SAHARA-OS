@@ -125,7 +125,9 @@ export function premiumBookingConfirmationMessage(input: {
     ``,
     `— — — — — — — — — —`,
     `📄 View Booking: ${trackingUrl}`,
+    input.bookingUrl ? `🧾 View Quotation: ${input.bookingUrl.replace("/booking/", "/booking/quotation/")}` : null,
     paymentLine,
+    input.googleReviewUrl ? `⭐ Google Review: ${input.googleReviewUrl}` : null,
     // Owner instruction 2026-09-21 (Phase 5 WhatsApp readiness): the
     // confirmation message itself must carry no visible phone number.
     // Reschedule/pay-after-service/calendar/review/photos/call/WhatsApp
