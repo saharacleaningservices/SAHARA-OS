@@ -56,3 +56,43 @@ export async function attachPackageToLead(leadId: string, serviceItems: string, 
   await addTimelineEntry({ leadId, type: "NOTE", body: `Package attached from Package Calculator — ${parsePackage(saved?.serviceItems).lines.length} service(s), final ₹${t.final.toLocaleString("en-IN")}`, authorId: session.sub }).catch(() => {});
   return { success: true as const, leadNumber: lead.leadNumber, final: t.final };
 }
+
+/**
+ * Package Calculator customer search by name (or part of a mobile number).
+ * Super Admin / Accounts search the customer database; Operations only the
+ * enquiries already in his own lead scope. Returns name, mobile and area only.
+ */
+export async function searchCustomersForCalculator(q: string) {
+  const session = await getSession();
+  if (!session || !OFFICE.includes(session.role)) return [];
+  const term = q.trim();
+  if (term.length < 3) return [];
+  const digits = term.replace(/\D/g, "");
+  const byMobile = new Map<string, { name: string; mobile: string; area: string | null }>();
+  const add = (name: string, mobile: string | null, area: string | null) => {
+    const key = (mobile ?? "").replace(/\D/g, "").slice(-10);
+    if (key.length === 10 && !byMobile.has(key)) byMobile.set(key, { name, mobile: key, area });
+  };
+  if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
+    const masters = await db.customer.findMany({
+      where: { OR: [{ name: { contains: term } }, ...(digits.length >= 4 ? [{ mobile: { contains: digits } }] : [])] },
+      orderBy: { updatedAt: "desc" },
+      take: 8,
+      select: { name: true, mobile: true, area: true },
+    });
+    masters.forEach((c) => add(c.name, c.mobile, c.area));
+  }
+  if (byMobile.size < 8) {
+    const leads = await db.lead.findMany({
+      where: {
+        deletedAt: null,
+        AND: [{ OR: [{ name: { contains: term } }, ...(digits.length >= 4 ? [{ mobile: { contains: digits } }] : [])] }, fieldLeadWhere(session)],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      select: { name: true, mobile: true, area: true },
+    });
+    leads.forEach((l) => add(l.name, l.mobile, l.area));
+  }
+  return Array.from(byMobile.values()).slice(0, 8);
+}

@@ -3,14 +3,14 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Calculator, ChevronDown, Link2, Loader2, MessageCircle, Save, Search, UserPlus } from "lucide-react";
+import { CalendarCheck, Calculator, ChevronDown, Link2, Loader2, MessageCircle, Save, Search, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PackageCalculator } from "@/components/shared/package-calculator";
 import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
 import { EMPTY_PACKAGE, lineAmount, packageTotals, serializeLines, type PackageDraft } from "@/lib/package-calc";
-import { attachPackageToLead, getPackageCalculatorAccess, searchLeadsForPackage } from "@/server/actions/package";
+import { attachPackageToLead, getPackageCalculatorAccess, searchCustomersForCalculator, searchLeadsForPackage } from "@/server/actions/package";
 import { getRepeatCustomerSummary } from "@/server/actions/customer-actions";
 import { createLead } from "@/server/actions/leads";
 import { LEAD_SOURCES } from "@/lib/validation";
@@ -47,6 +47,7 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
   const [notes, setNotes] = useState("");
   const [showAttach, setShowAttach] = useState(false);
   const [q, setQ] = useState("");
+  const [matches, setMatches] = useState<{ name: string; mobile: string; area: string | null }[]>([]);
   const [results, setResults] = useState<{ id: string; leadNumber: string; name: string; area: string; stage: string }[]>([]);
   const [pending, start] = useTransition();
 
@@ -76,6 +77,13 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
     return () => clearTimeout(t);
   }, [q, showAttach]);
 
+  // Customer search by name (or part of a number) until a full mobile is known.
+  useEffect(() => {
+    if (!open || digits.length === 10 || name.trim().length < 3 || customer) return void setMatches([]);
+    const t = setTimeout(() => searchCustomersForCalculator(name).then(setMatches).catch(() => setMatches([])), 350);
+    return () => clearTimeout(t);
+  }, [open, name, digits, customer]);
+
   const total = packageTotals(pkg);
   const ready = pkg.lines.length > 0;
   const site = customer?.sites.find((s) => s.id === siteId);
@@ -97,7 +105,7 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
     setQ("");
   }
 
-  function saveLead() {
+  function saveLead(confirm = false) {
     if (!canSave) return void toast.error(!ready ? "Add at least one service" : "Enter the customer's 10-digit mobile and name");
     start(async () => {
       const res = await createLead({
@@ -127,10 +135,12 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
         }
         return void toast.error(res.error);
       }
-      toast.success("quoteNumber" in res && res.quoteNumber ? `Lead saved — quotation ${res.quoteNumber} created. Confirm Booking from the lead.` : "Lead saved — Confirm Booking from the lead");
+      const qn = "quoteNumber" in res && res.quoteNumber ? ` — quotation ${res.quoteNumber} created` : "";
+      toast.success(confirm ? `Lead saved${qn}. Set the date & slot to confirm the booking.` : `Lead saved${qn}. Follow up or confirm from the lead.`);
       setOpen(false);
       reset();
-      if ("leadId" in res && res.leadId) router.push(`/leads/${res.leadId}`);
+      // Confirmed → the lead opens on Confirm Booking (date, slot, team) → the job keeps these exact values.
+      if ("leadId" in res && res.leadId) router.push(`/leads/${res.leadId}${confirm ? "?confirm=1" : ""}`);
     });
   }
 
@@ -201,6 +211,26 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
                     <Input type="tel" inputMode="numeric" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="Mobile" aria-label="Customer mobile" className="h-10" />
                     <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Customer name" aria-label="Customer name" className="h-10" />
                   </div>
+                  {matches.length > 0 && (
+                    <ul className="divide-y rounded-md border text-sm">
+                      {matches.map((m) => (
+                        <li key={m.mobile}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMobile(m.mobile);
+                              setName(m.name);
+                              setMatches([]);
+                            }}
+                            className="flex w-full items-center justify-between gap-2 px-2.5 py-2 text-left hover:bg-muted/50"
+                          >
+                            <span className="min-w-0 truncate font-medium">{m.name}</span>
+                            <span className="shrink-0 text-xs text-muted-foreground">{m.mobile}{m.area ? ` · ${m.area}` : ""}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   {customer && (
                     <div className="flex flex-wrap items-center gap-1.5 rounded-md bg-primary/5 px-2.5 py-1.5 text-xs">
                       <span className="font-semibold">Existing customer</span>
@@ -278,9 +308,12 @@ export function PackageCalculatorButton({ prefill, variant = "chip" }: { prefill
                   <span className="text-muted-foreground">Final Payable</span>
                   <span className="text-lg font-extrabold tabular-nums">{inr(total.final)}</span>
                 </div>
-                <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2">
-                  <Button type="button" onClick={saveLead} disabled={pending || !ready} className="h-10">
-                    {pending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save as Lead
+                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto] gap-2">
+                  <Button type="button" variant="outline" onClick={() => saveLead(false)} disabled={pending || !ready} className="h-10 px-2">
+                    {pending ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />} Save Lead
+                  </Button>
+                  <Button type="button" onClick={() => saveLead(true)} disabled={pending || !ready} className="h-10 px-2" title="Save the lead with its quotation, then confirm the booking">
+                    <CalendarCheck className="size-4" /> Save &amp; Book
                   </Button>
                   <Button type="button" variant="outline" onClick={whatsapp} disabled={!ready} className="h-10" aria-label="Send summary on WhatsApp">
                     <MessageCircle className="size-4" /><span className="max-sm:hidden">WhatsApp</span>
