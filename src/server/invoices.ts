@@ -9,7 +9,7 @@ export async function getInvoiceList() {
     orderBy: { createdAt: "desc" },
     take: 200,
     include: {
-      job: { select: { jobNumber: true } },
+      job: { select: { jobNumber: true, publicToken: true, status: true } },
       quotation: { select: { quoteNumber: true, leadId: true } },
     },
   });

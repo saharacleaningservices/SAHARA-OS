@@ -313,7 +313,35 @@ return (
 <EmptyState title="No payments found" description="Try adjusting your search or filters." />
 ) : (
 <>
-<div className="overflow-x-auto">
+{/* Phone: compact cards — amount, advance, balance and status first; no sideways scrolling. */}
+<div className="space-y-2 sm:hidden">
+{pageItems.map((p) => {
+const st = derivedStatus(p);
+const balance = Math.max(p.amount - p.paidAmount, 0);
+const days = pendingDays(p.dueDate);
+return (
+<div key={p.id} className={cn("space-y-2 rounded-xl border bg-card p-3", st === "OVERDUE" && "border-destructive/40 bg-destructive/5")}>
+<div className="flex items-start justify-between gap-2">
+<div className="min-w-0">
+<p className="truncate text-sm font-semibold">{p.clientName}</p>
+<p className="truncate text-xs text-muted-foreground">{[p.refNumber, p.serviceLabel, p.packageName].filter(Boolean).join(" · ")}</p>
+</div>
+<Badge variant={STATUS_BADGE[st] ?? "muted"}>{STATUS_LABEL[st] ?? st}</Badge>
+</div>
+<div className="grid grid-cols-3 divide-x rounded-lg border text-center text-xs">
+<div className="py-1"><p className="text-[10px] text-muted-foreground">Quote</p><p className="font-semibold">{formatINR(p.amount)}</p></div>
+<div className="py-1"><p className="text-[10px] text-muted-foreground">Received</p><p className="font-semibold text-success">{formatINR(p.paidAmount)}</p></div>
+<div className="py-1"><p className="text-[10px] text-muted-foreground">Balance</p><p className="font-semibold">{formatINR(balance)}</p></div>
+</div>
+<div className="flex items-center justify-between gap-2">
+<span className="text-xs text-muted-foreground">Due {formatDate(p.dueDate)}{st !== "PAID" && days > 0 ? <span className="text-destructive"> · {days}d overdue</span> : null}</span>
+<RowActions p={p} details={paymentDetails} />
+</div>
+</div>
+);
+})}
+</div>
+<div className="overflow-x-auto max-sm:hidden">
 <Table>
 <TableHeader>
 <TableRow>

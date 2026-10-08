@@ -40,9 +40,9 @@ export function AttendanceList({ rows, canManage }: { rows: Row[]; canManage: bo
         <TableRow>
           <TableHead>Staff</TableHead>
           <TableHead>Check In</TableHead>
-          <TableHead>Check Out</TableHead>
-          <TableHead>Method</TableHead>
-          <TableHead>Status</TableHead>
+          <TableHead className="max-sm:hidden">Check Out</TableHead>
+          <TableHead className="max-sm:hidden">Method</TableHead>
+          <TableHead className={canManage ? "max-sm:hidden" : undefined}>Status</TableHead>
           {canManage && <TableHead className="text-right">Correct</TableHead>}
         </TableRow>
       </TableHeader>
@@ -53,13 +53,13 @@ export function AttendanceList({ rows, canManage }: { rows: Row[]; canManage: bo
               {r.staff.name} <span className="text-xs text-muted-foreground">· {r.staff.employeeCode}</span>
             </TableCell>
             <TableCell className="text-sm">{r.checkInTime ? formatDateTime(r.checkInTime) : "—"}</TableCell>
-            <TableCell className="text-sm">{r.checkOutTime ? formatDateTime(r.checkOutTime) : "—"}</TableCell>
-            <TableCell className="text-sm">{r.method}</TableCell>
-            <TableCell><AttendanceBadge status={r.status} /></TableCell>
+            <TableCell className="text-sm max-sm:hidden">{r.checkOutTime ? formatDateTime(r.checkOutTime) : "—"}</TableCell>
+            <TableCell className="text-sm max-sm:hidden">{r.method}</TableCell>
+            <TableCell className={canManage ? "max-sm:hidden" : undefined}><AttendanceBadge status={r.status} /></TableCell>
             {canManage && (
               <TableCell className="text-right">
                 <Select value={r.status} onValueChange={(v) => change(r.staff.id, v)} disabled={pending}>
-                  <SelectTrigger size="sm" className="w-32 ml-auto"><SelectValue /></SelectTrigger>
+                  <SelectTrigger size="sm" className="ml-auto w-28 sm:w-32"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(ATTENDANCE_STATUS_LABELS).map(([v, l]) => (
                       <SelectItem key={v} value={v}>{l}</SelectItem>

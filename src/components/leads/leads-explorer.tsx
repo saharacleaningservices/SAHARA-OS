@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -175,8 +175,14 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
     </div>
   );
 
+  // Phones open on the compact list (cards); the 8-column pipeline board is one tap away.
+  const [view, setView] = useState(dueParam ? "table" : "pipeline");
+  useEffect(() => {
+    if (!dueParam && window.matchMedia("(max-width: 639px)").matches) setView("table");
+  }, [dueParam]);
+
   return (
-    <Tabs defaultValue={dueParam ? "table" : "pipeline"}>
+    <Tabs value={view} onValueChange={setView}>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>

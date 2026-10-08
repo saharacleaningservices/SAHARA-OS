@@ -93,9 +93,7 @@ export function AssistantExplorer({
           <EmptyState icon={<FileText className="size-6" />} title="No leads waiting on a quote" description="New, site-visited or negotiating leads will show up here." />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
-            {quotableLeads.map((lead) => (
-              <QuotationCard key={lead.id} lead={lead} />
-            ))}
+            <Capped items={quotableLeads} render={(lead) => <QuotationCard key={lead.id} lead={lead} />} />
           </div>
         )}
       </TabsContent>
@@ -105,9 +103,7 @@ export function AssistantExplorer({
           <EmptyState icon={<Mail className="size-6" />} title="Nothing pending" description="Every invoice is paid up." />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
-            {duePayments.map((payment) => (
-              <ReminderCard key={payment.id} payment={payment} />
-            ))}
+            <Capped items={duePayments} render={(payment) => <ReminderCard key={payment.id} payment={payment} />} />
           </div>
         )}
       </TabsContent>
@@ -127,9 +123,7 @@ export function AssistantExplorer({
             <EmptyState icon={<CalendarClock className="size-6" />} title="No follow-ups due" />
           ) : (
             <div className="grid gap-3 lg:grid-cols-2">
-              {dueFollowUps.map((f) => (
-                <FollowUpCard key={f.id} lead={f.lead} followUpId={f.id} dueDate={f.dueDate} notes={f.notes} />
-              ))}
+              <Capped items={dueFollowUps} render={(f) => <FollowUpCard key={f.id} lead={f.lead} followUpId={f.id} dueDate={f.dueDate} notes={f.notes} />} />
             </div>
           )}
         </div>
@@ -139,9 +133,7 @@ export function AssistantExplorer({
             <EmptyState icon={<Users className="size-6" />} title="No stale leads" description="Every open lead has had recent activity." />
           ) : (
             <div className="grid gap-3 lg:grid-cols-2">
-              {staleLeads.map((lead) => (
-                <FollowUpCard key={lead.id} lead={lead} />
-              ))}
+              <Capped items={staleLeads} render={(lead) => <FollowUpCard key={lead.id} lead={lead} />} />
             </div>
           )}
         </div>
@@ -487,5 +479,20 @@ function FollowUpCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+/** First few suggestions, the rest on request — keeps each tab short on a phone. */
+function Capped<T>({ items, render, cap = 4 }: { items: T[]; render: (item: T) => React.ReactNode; cap?: number }) {
+  const [all, setAll] = useState(false);
+  return (
+    <>
+      {(all ? items : items.slice(0, cap)).map(render)}
+      {items.length > cap && !all && (
+        <Button type="button" variant="outline" size="sm" className="lg:col-span-2" onClick={() => setAll(true)}>
+          Show all {items.length}
+        </Button>
+      )}
+    </>
   );
 }

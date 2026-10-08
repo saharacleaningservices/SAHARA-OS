@@ -59,7 +59,7 @@ export default async function MessageLogPage() {
   ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader title="Message Log" description="Every automated WhatsApp, SMS & email message the CRM has sent or queued" />
 
       {(!waReady || !smsReady || !emailReady) && (
@@ -85,6 +85,40 @@ export default async function MessageLogPage() {
       {rows.length === 0 ? (
         <EmptyState title="No messages yet" />
       ) : (
+        <>
+        {/* Phone: one compact row per message — no sideways scrolling. */}
+        <div className="space-y-2 sm:hidden">
+        <ul className="divide-y rounded-xl border bg-card">
+          {rows.slice(0, 30).map((m) => (
+            <li key={`${m.channel}-${m.id}`} className="space-y-0.5 px-3 py-2">
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="min-w-0 truncate font-semibold">{m.kind.replaceAll("_", " ")} · {m.to}</span>
+                <Badge variant={m.status === "SENT" ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>{m.status}</Badge>
+              </div>
+              <p className="line-clamp-1 text-xs text-muted-foreground" title={m.body}>{m.body}</p>
+              <p className="line-clamp-2 text-[11px] text-muted-foreground">{m.channel} · {formatDateTime(m.createdAt)}{m.error ? <span className="text-destructive"> · {m.error}</span> : null}</p>
+            </li>
+          ))}
+        </ul>
+        {rows.length > 30 && (
+          <details className="rounded-xl border bg-card">
+            <summary className="cursor-pointer list-none px-3 py-2.5 text-sm font-semibold">Show {rows.length - 30} older messages</summary>
+        <ul className="divide-y border-t">
+          {rows.slice(30).map((m) => (
+            <li key={`${m.channel}-${m.id}`} className="space-y-0.5 px-3 py-2">
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="min-w-0 truncate font-semibold">{m.kind.replaceAll("_", " ")} · {m.to}</span>
+                <Badge variant={m.status === "SENT" ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>{m.status}</Badge>
+              </div>
+              <p className="line-clamp-1 text-xs text-muted-foreground" title={m.body}>{m.body}</p>
+              <p className="line-clamp-2 text-[11px] text-muted-foreground">{m.channel} · {formatDateTime(m.createdAt)}{m.error ? <span className="text-destructive"> · {m.error}</span> : null}</p>
+            </li>
+          ))}
+        </ul>
+          </details>
+        )}
+        </div>
+        <div className="max-sm:hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -118,6 +152,8 @@ export default async function MessageLogPage() {
             ))}
           </TableBody>
         </Table>
+        </div>
+        </>
       )}
     </div>
   );

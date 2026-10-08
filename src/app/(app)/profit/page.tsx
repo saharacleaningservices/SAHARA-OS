@@ -1,3 +1,4 @@
+import { ResponsiveFold } from "@/components/shared/responsive-fold";
 import { getProfitData } from "@/server/profit";
 import { getOwnerSnapshot } from "@/server/owner";
 import { PageHeader } from "@/components/shared/page-header";
@@ -30,7 +31,7 @@ export default async function ProfitDashboardPage() {
   const totalExpenses30 = data.dailyRevenue.reduce((s, d) => s + d.expenses, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader title="Profit Dashboard" description="Revenue, expenses and profit at a glance." />
       <a href="/profit/marketing" className="inline-block rounded-lg border px-3 py-1.5 text-sm font-semibold text-primary">Marketing Dashboard (sources, campaigns, WhatsApp, ROI) →</a>
 
@@ -40,7 +41,7 @@ export default async function ProfitDashboardPage() {
             <CardTitle className="text-base">Owner Dashboard — this month</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
               <StatCard label="Net Profit" value={formatINR(owner.netProfit)} icon={<TrendingUp className="size-4" />} tone={owner.netProfit >= 0 ? "green" : "red"} />
               <StatCard label="Cash Flow" value={formatINR(owner.cashFlow)} icon={<TrendingUp className="size-4" />} tone={owner.cashFlow >= 0 ? "green" : "red"} />
               <StatCard label="Pending Collections" value={formatINR(owner.pendingCollections)} icon={<Percent className="size-4" />} tone="orange" />
@@ -74,6 +75,7 @@ export default async function ProfitDashboardPage() {
         <StatCard label="Lead → Paid Conversion" value={`${data.conversionRate}%`} icon={<Percent className="size-4" />} />
       </div>
 
+      <ResponsiveFold title="Charts & trends" hint="revenue · profit · conversion · staff" className="border-0 bg-transparent sm:border-0">
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <ChartCard title="Daily Revenue" description="Last 30 days — revenue vs expenses">
           <DailyRevenueChart data={data.dailyRevenue} />
@@ -92,6 +94,7 @@ export default async function ProfitDashboardPage() {
       <ChartCard title="Staff Availability" description="Current availability across the team" className="xl:max-w-md">
         <AvailabilityPieChart data={data.availabilityBreakdown} />
       </ChartCard>
+      </ResponsiveFold>
     </div>
   );
 }

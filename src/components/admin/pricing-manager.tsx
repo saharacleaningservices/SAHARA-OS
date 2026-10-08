@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Plus, Save } from "lucide-react";
+import { ChevronDown, Loader2, Plus, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,7 @@ const num = (v: string) => (v.trim() === "" ? null : Number(v));
 
 export function PricingManager({ settings, festivals }: { settings: Setting[]; festivals: Festival[] }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Festival offers</CardTitle>
@@ -47,16 +47,23 @@ export function PricingManager({ settings, festivals }: { settings: Setting[]; f
             Empty price = &quot;price after inspection / confirmed before booking&quot;.
           </p>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
+          {/* One collapsible per price group — open only what you are editing (unsaved edits stay while closed). */}
           {GROUPS.map((g) => (
-            <div key={g}>
-              <h3 className="mb-2 text-sm font-semibold">{PRICE_GROUP_LABEL[g]}</h3>
-              <div className="divide-y rounded-lg border">
+            <details key={g} className="group rounded-lg border">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-semibold">
+                <span>
+                  {PRICE_GROUP_LABEL[g]}
+                  <span className="ml-1.5 text-xs font-normal text-muted-foreground">{PRICING_MASTER.filter((p) => p.group === g).length} items</span>
+                </span>
+                <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="divide-y border-t">
                 {PRICING_MASTER.filter((p) => p.group === g).map((p) => (
                   <PriceRow key={p.contentId} contentId={p.contentId} setting={settings.find((s) => s.contentId === p.contentId) ?? null} />
                 ))}
               </div>
-            </div>
+            </details>
           ))}
         </CardContent>
       </Card>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ResponsiveFold } from "@/components/shared/responsive-fold";
 import { useState } from "react";
 import { FileSpreadsheet, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +36,7 @@ export function ExportCenter({ years }: { years: number[] }) {
   const label = month === "all" ? `Year ${year}` : `${MONTHS[Number(month) - 1]} ${year}`;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,380px)_1fr]">
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,380px)_1fr]">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -84,6 +85,7 @@ export function ExportCenter({ years }: { years: number[] }) {
           <p className="text-xs text-muted-foreground">Built live from the CRM (single source of truth). Demo and deleted records are excluded. Each download is logged.</p>
         </CardContent>
       </Card>
+      <ResponsiveFold title="Sheets in the workbook">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Sheets in the workbook</CardTitle>
@@ -103,6 +105,7 @@ export function ExportCenter({ years }: { years: number[] }) {
           </p>
         </CardContent>
       </Card>
+      </ResponsiveFold>
     </div>
   );
 }

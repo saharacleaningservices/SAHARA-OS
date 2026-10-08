@@ -1,5 +1,6 @@
+import { ResponsiveFold } from "@/components/shared/responsive-fold";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { requireRole } from "@/lib/current-user";
 import { getMarketingRoi, getWhatsAppCampaignStats, listKnownCampaigns, listMarketingSpend, NOT_TRACKED } from "@/server/marketing-roi";
 import { addMarketingSpend } from "@/server/actions/marketing";
@@ -116,10 +117,10 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
         <button className="rounded bg-primary px-3 py-1.5 font-semibold text-primary-foreground">Apply</button>
       </form>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
         {funnel.map((f) => (
-          <Card key={f.label}>
-            <CardContent className="p-3">
+          <Card key={f.label} className="gap-0 py-0">
+            <CardContent className="p-2 sm:p-3">
               <p className="text-xs text-muted-foreground">{f.label}</p>
               <p className="text-xl font-bold">{f.value}</p>
               {f.sub && <p className="text-xs text-muted-foreground">{f.sub}</p>}
@@ -128,6 +129,7 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
         ))}
       </div>
 
+      <ResponsiveFold title="Sources & campaigns" hint="leads → bookings → revenue · ROI">
       <Card>
         <CardContent className="overflow-x-auto p-0">
           <table className="w-full min-w-[980px] text-sm">
@@ -165,10 +167,11 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
         Interested = moved past New. Quotation = quoted or later. Booking = confirmed / job created. Revenue = value of completed jobs. One open enquiry per mobile —
         repeat enquiries update the existing lead. Leads created before 29 Sep 2026 show as &quot;{NOT_TRACKED}&quot;.
       </p>
+      </ResponsiveFold>
 
-      <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-base">WhatsApp marketing (9175220270)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+      <ResponsiveFold title="WhatsApp marketing (9175220270)">
+      <Card className="gap-0 border-0 py-0 shadow-none">
+        <CardContent className="px-0 space-y-4">
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <div><p className="text-xs text-muted-foreground">Existing contacts</p><p className="text-lg font-bold">{audience.totalContacts}</p></div>
             <div><p className="text-xs text-muted-foreground">Opted in (can receive offers)</p><p className="text-lg font-bold text-emerald-700">{audience.optIn}</p></div>
@@ -202,10 +205,11 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
           </div>
         </CardContent>
       </Card>
+      </ResponsiveFold>
 
-      <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-base">Tracking setup — Google Ads, Meta Ads, Google Business Profile</CardTitle></CardHeader>
-        <CardContent className="space-y-4 text-sm">
+      <ResponsiveFold title="Tracking setup — Google Ads, Meta Ads, Google Business Profile">
+      <Card className="gap-0 border-0 py-0 shadow-none">
+        <CardContent className="px-0 space-y-4 text-sm">
           <div className="flex flex-wrap gap-2">
             {tags.map((t) => (
               <span key={t.name} title={t.env} className={`rounded-full px-2 py-0.5 text-xs font-semibold ${t.ok ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
@@ -233,10 +237,11 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
           </p>
         </CardContent>
       </Card>
+      </ResponsiveFold>
 
-      <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-base">Add ad spend (from the ad platform invoice)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+      <ResponsiveFold title="Add ad spend (from the ad platform invoice)">
+      <Card className="gap-0 border-0 py-0 shadow-none">
+        <CardContent className="px-0 space-y-4">
           <form action={addMarketingSpend} className="grid gap-2 text-sm sm:grid-cols-5">
             <input name="month" type="month" required className="rounded border px-2 py-1" />
             <select name="channel" required className="rounded border px-2 py-1">
@@ -257,6 +262,7 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
           </table>
         </CardContent>
       </Card>
+      </ResponsiveFold>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export default async function LeadsPage() {
   const showRevenue = canViewRevenue(session.role);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader
         title="Lead CRM"
         description={
@@ -48,7 +48,21 @@ export default async function LeadsPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* Phone: one compact strip instead of four tall cards. */}
+      <div className="grid grid-cols-4 divide-x rounded-xl border bg-card text-center sm:hidden">
+        {[
+          ["/jobs?when=today", "Jobs today", String(stats.todayJobs)],
+          ["/leads?due=today", "Follow-ups", String(stats.todayFollowUps)],
+          ["/leads?due=overdue", "Overdue", String(stats.overdueFollowUps)],
+          ...(showRevenue ? [["/payments", "Revenue", formatINR(stats.todayRevenue)]] : []),
+        ].map(([href, label, value]) => (
+          <Link key={label} href={href} className="px-1 py-2">
+            <p className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+            <p className="truncate text-sm font-bold">{value}</p>
+          </Link>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-3 max-sm:hidden sm:grid-cols-4">
         <Link href="/jobs?when=today">
           <StatCard label="Today Jobs" value={stats.todayJobs} icon={<ClipboardList className="size-4" />} tone="primary" />
         </Link>

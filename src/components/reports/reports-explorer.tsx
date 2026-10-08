@@ -48,18 +48,21 @@ export function ReportsExplorer({
   payments,
   certificates,
   reviews,
+  initialTab,
 }: {
   jobs: Job[];
   photos: Photo[];
   payments: Payment[];
   certificates: Certificate[];
   reviews: Review[];
+  /** Opened from the dashboard "Reviews" link → ?tab=reviews */
+  initialTab?: string;
 }) {
   const paidPayments = payments.filter((p) => p.status === "PAID");
   const pendingReplyCount = reviews.filter((r) => !r.replied).length;
 
   return (
-    <Tabs defaultValue="jobs">
+    <Tabs defaultValue={["jobs", "photos", "invoices", "paymenthistory", "certificates", "reviews"].includes(initialTab ?? "") ? initialTab : "jobs"}>
       <TabsList className="flex-wrap h-auto">
         <TabsTrigger value="jobs">Job History</TabsTrigger>
         <TabsTrigger value="photos">Before/After Photos</TabsTrigger>
@@ -102,9 +105,9 @@ export function ReportsExplorer({
               <TableRow>
                 <TableHead>Job #</TableHead>
                 <TableHead>Customer</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Completed</TableHead>
-                <TableHead>Crew</TableHead>
+                <TableHead className="max-sm:hidden">Service</TableHead>
+                <TableHead className="max-sm:hidden">Completed</TableHead>
+                <TableHead className="max-sm:hidden">Crew</TableHead>
                 <TableHead className="text-right">Value</TableHead>
               </TableRow>
             </TableHeader>
@@ -113,9 +116,9 @@ export function ReportsExplorer({
                 <TableRow key={j.id}>
                   <TableCell className="text-sm font-medium">{j.jobNumber}</TableCell>
                   <TableCell className="text-sm">{j.customerName}</TableCell>
-                  <TableCell className="text-sm">{SERVICE_LABELS[j.service]}</TableCell>
-                  <TableCell className="text-sm">{j.completedAt ? formatDate(j.completedAt) : "—"}</TableCell>
-                  <TableCell className="text-sm">{j.assignments.map((a) => a.staff.name).join(", ") || "—"}</TableCell>
+                  <TableCell className="text-sm max-sm:hidden">{SERVICE_LABELS[j.service]}</TableCell>
+                  <TableCell className="text-sm max-sm:hidden">{j.completedAt ? formatDate(j.completedAt) : "—"}</TableCell>
+                  <TableCell className="text-sm max-sm:hidden">{j.assignments.map((a) => a.staff.name).join(", ") || "—"}</TableCell>
                   <TableCell className="text-right text-sm font-medium">{formatINR(j.jobValue)}</TableCell>
                 </TableRow>
               ))}
