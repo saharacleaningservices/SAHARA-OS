@@ -7,19 +7,17 @@ import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homePleaseNote, homeScopeByArea, 
  * from the same source the customer saw on the booking page — so office and
  * crew work to exactly what was booked. Renders nothing for other services.
  */
-export function PackageScopeCard({ service, packageName, serviceVariant }: { service: string; packageName?: string | null; serviceVariant?: string | null }) {
+export function PackageScopeCard({ service, packageName, serviceVariant, embedded = false }: { service: string; packageName?: string | null; serviceVariant?: string | null; embedded?: boolean }) {
   if (service !== "HOME_DEEP_CLEANING") return null;
   const tier = tierFromPackage(packageName, serviceVariant);
   if (!tier) return null;
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base">Package scope — {packageName || tier}</CardTitle>
-        <p className="text-xs text-muted-foreground">
-          {tier === "Platinum" ? "Wall wet cleaning + ceiling dry dusting" : "Wall dry dusting + ceiling dry dusting"} · {HOME_DURATION}
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-3 text-sm">
+  const subtitle = (
+    <p className="text-xs text-muted-foreground">
+      {tier === "Platinum" ? "Wall wet cleaning + ceiling dry dusting" : "Wall dry dusting + ceiling dry dusting"} · {HOME_DURATION}
+    </p>
+  );
+  const body = (
+      <div className="space-y-3 text-sm">
         <div className="grid gap-3 sm:grid-cols-2">
           {homeScopeByArea(tier).map((a) => (
             <div key={a.area}>
@@ -42,7 +40,16 @@ export function PackageScopeCard({ service, packageName, serviceVariant }: { ser
           </ul>
         </div>
         <p className="text-xs text-muted-foreground"><span className="font-medium text-foreground">Customer arranges:</span> {CUSTOMER_REQUIREMENTS.join(" · ")}</p>
-      </CardContent>
+      </div>
+  );
+  if (embedded) return <div className="space-y-2">{subtitle}{body}</div>;
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">Package scope — {packageName || tier}</CardTitle>
+        {subtitle}
+      </CardHeader>
+      <CardContent>{body}</CardContent>
     </Card>
   );
 }

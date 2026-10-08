@@ -133,12 +133,11 @@ export async function getJobDetail(id: string) {
   return db.job.findFirst({
     where: { id, deletedAt: null },
     include: {
-      lead: true,
+      // Latest quotation of the enquiry — the Job Status workspace shows its number/status.
+      lead: { include: { quotations: { orderBy: { createdAt: "desc" }, take: 1, select: { id: true, quoteNumber: true, status: true, totalAmount: true } } } },
       supervisor: true,
       vehicle: true,
       assignments: { include: { staff: true } },
-      photos: { orderBy: { uploadedAt: "desc" } },
-      videos: { orderBy: { uploadedAt: "desc" } },
       materialIssues: { orderBy: { issuedAt: "desc" } },
       certificate: true,
       payments: { where: { deletedAt: null } },
@@ -147,7 +146,6 @@ export async function getJobDetail(id: string) {
       // payment, etc. tagged with jobId when recorded) — surfaced on the
       // Job Detail page so cost-per-job is visible without leaving the job.
       expenses: { where: { deletedAt: null }, orderBy: { date: "desc" } },
-      activityLogs: { orderBy: { createdAt: "desc" }, include: { actor: { select: { name: true } } } },
     },
   });
 }

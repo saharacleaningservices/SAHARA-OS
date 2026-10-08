@@ -355,6 +355,109 @@ async function sendJobCompletionReview(job: {
   });
 }
 
+/**
+ * The job's Final Invoice — created once, the moment the job is COMPLETED, from
+ * the job's own data (package lines / discount / complimentary, job value) and
+ * linked to its payment record and the lead's quotation. Idempotent: a job that
+ * already has an invoice is left untouched. Advance / balance / payment status
+ * are read live from the job's payments wherever the invoice is shown.
+ */
+async function createFinalInvoice(jobId: string, actorId?: string) {
+  const job = await db.job.findUnique({ where: { id: jobId } });
+  if (!job || job.status !== "COMPLETED" || job.deletedAt) return null;
+  const existing = await db.invoice.findUnique({ where: { jobId } });
+  if (existing) return existing;
+
+  const now = new Date();
+  let payment = await db.payment.findFirst({ where: { jobId, deletedAt: null }, orderBy: { createdAt: "asc" } });
+  if (!payment) {
+    const invoiceNumber = await generateInvoiceNumber();
+    const dueDate = new Date(now);
+    dueDate.setDate(dueDate.getDate() + 7);
+    payment = await db.payment.create({
+      data: {
+        invoiceNumber,
+        jobId,
+        leadId: job.leadId,
+        clientName: job.customerName,
+        clientMobile: job.customerMobile,
+        amount: job.jobValue,
+        dueDate,
+        status: "PENDING",
+        recordedById: actorId,
+      },
+    });
+    if (job.leadId) {
+      await addTimelineEntry({
+        leadId: job.leadId,
+        type: "PAYMENT",
+        body: `Invoice ${invoiceNumber} raised — ₹${job.jobValue.toLocaleString("en-IN")} due ${dueDate.toLocaleDateString("en-IN")}`,
+        meta: { invoiceNumber, amount: job.jobValue },
+        authorId: actorId,
+      }).catch(() => {});
+    }
+  }
+  // Invoice numbers are unique — an advance payment's number may already be taken by another invoice.
+  const numberTaken = await db.invoice.findUnique({ where: { invoiceNumber: payment.invoiceNumber }, select: { id: true } });
+  const paymentTaken = await db.invoice.findUnique({ where: { paymentId: payment.id }, select: { id: true } });
+  const invoiceNumber = numberTaken ? await generateInvoiceNumber() : payment.invoiceNumber;
+
+  // Customer → Lead → Quotation → Job → Invoice: link the lead's latest live quotation.
+  const quotation = job.leadId
+    ? await db.quotation.findFirst({
+        where: { leadId: job.leadId, status: { notIn: ["REJECTED", "EXPIRED"] }, invoice: null },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, terms: true },
+      })
+    : null;
+
+  const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
+  // Multi-service package → one invoice line per service + the discount; else one line.
+  const pkg = parsePackage(job.serviceItems, job.discountAmount);
+  const pkgTotals = packageTotals(pkg);
+  const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - job.jobValue) < 0.01;
+  const title = [serviceLabel, job.packageName || job.serviceVariant].filter(Boolean).join(" — ");
+  const invoice = await db.invoice.create({
+    data: {
+      invoiceNumber,
+      jobId,
+      paymentId: paymentTaken ? null : payment.id,
+      quotationId: quotation?.id ?? null,
+      customerName: job.customerName,
+      customerMobile: job.customerMobile,
+      customerAddress: job.address,
+      lineItems: JSON.stringify(usePkg ? packageToQuoteItems(pkg) : [{ name: title, description: `${title} — ${job.area}`, amount: job.jobValue }]),
+      subTotal: usePkg ? pkgTotals.subtotal : job.jobValue,
+      discount: usePkg ? pkgTotals.discount : 0,
+      gstPercent: 0,
+      gstAmount: 0,
+      totalAmount: job.jobValue,
+      notes: job.scopeOfWork || null,
+      terms: quotation?.terms ?? null,
+      status: "ISSUED",
+    },
+  });
+  await db.activityLog.create({ data: { jobId, actorId, action: `Final invoice ${invoiceNumber} generated` } }).catch(() => {});
+  revalidatePath("/invoices");
+  revalidatePath("/payments");
+  return invoice;
+}
+
+/** Office: generate the Final Invoice for a completed job that has none (jobs completed before auto-invoicing). */
+export async function generateFinalInvoice(jobId: string) {
+  const session = await getSession();
+  if (!session || !["ADMIN", "ACCOUNTS", "OPERATIONS"].includes(session.role)) return { error: "Not authorized", success: false as const };
+  const scopeError = await assertJobEditable(jobId);
+  if (scopeError) return scopeError;
+  const job = await db.job.findUnique({ where: { id: jobId }, select: { status: true } });
+  if (!job) return { error: "Job not found", success: false as const };
+  if (job.status !== "COMPLETED") return { error: "The final invoice is available once the job is completed.", success: false as const };
+  const invoice = await createFinalInvoice(jobId, session.sub);
+  if (!invoice) return { error: "Could not generate the invoice", success: false as const };
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true as const, invoiceNumber: invoice.invoiceNumber };
+}
+
 export async function updateJobStatus(jobId: string, status: JobStatus) {
   if (!ALL_STATUSES.includes(status)) return { error: "Invalid status", success: false as const };
   const scopeError = await assertJobEditable(jobId);
@@ -387,6 +490,8 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
 
   if (status === "COMPLETED") {
     await freezeJobTeam(jobId).catch(() => {});
+    // Final invoice is generated + stored automatically on completion (any completion path).
+    await createFinalInvoice(jobId, actorId).catch((e) => console.error("[invoice] auto-generate failed:", e));
     await sendJobCompletionReview(job).catch(() => {});
   }
   if (status === "CANCELLED") {
@@ -478,72 +583,14 @@ export async function completeJobWithCertificate(jobId: string) {
     certificateId = certificate.id;
   }
 
-  let payment = await db.payment.findFirst({ where: { jobId } });
-  if (!payment) {
-    const invoiceNumber = await generateInvoiceNumber();
-    const dueDate = new Date(now);
-    dueDate.setDate(dueDate.getDate() + 7);
-    payment = await db.payment.create({
-      data: {
-        invoiceNumber,
-        jobId,
-        leadId: job.leadId,
-        clientName: job.customerName,
-        clientMobile: job.customerMobile,
-        amount: job.jobValue,
-        dueDate,
-        status: "PENDING",
-        recordedById: session?.sub,
-      },
-    });
-    if (job.leadId) {
-      await addTimelineEntry({
-        leadId: job.leadId,
-        type: "PAYMENT",
-        body: `Invoice ${invoiceNumber} raised — ₹${job.jobValue.toLocaleString("en-IN")} due ${dueDate.toLocaleDateString("en-IN")}`,
-        meta: { invoiceNumber, amount: job.jobValue },
-        authorId: session?.sub,
-      }).catch(() => {});
-    }
-  }
-
-  // Generate + save a CRM-native invoice document (line items + PDF at
-  // /api/invoices/[id]/pdf) the moment a job completes and its payment
-  // record exists.
-  const existingInvoice = await db.invoice.findUnique({ where: { jobId } });
-  if (!existingInvoice) {
-    const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
-    // Multi-service package → one invoice line per service + the discount; else one line.
-    const pkg = parsePackage(job.serviceItems, job.discountAmount);
-    const pkgTotals = packageTotals(pkg);
-    const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - job.jobValue) < 0.01;
-    await db.invoice.create({
-      data: {
-        invoiceNumber: payment.invoiceNumber,
-        jobId,
-        paymentId: payment.id,
-        customerName: job.customerName,
-        customerMobile: job.customerMobile,
-        customerAddress: job.address,
-        lineItems: JSON.stringify(
-          usePkg ? packageToQuoteItems(pkg) : [{ name: serviceLabel, description: `${serviceLabel} — ${job.area}`, amount: job.jobValue }],
-        ),
-        subTotal: usePkg ? pkgTotals.subtotal : job.jobValue,
-        discount: usePkg ? pkgTotals.discount : 0,
-        gstPercent: 0,
-        gstAmount: 0,
-        totalAmount: job.jobValue,
-        status: "ISSUED",
-      },
-    });
-  }
+  await createFinalInvoice(jobId, session?.sub).catch((e) => console.error("[invoice] auto-generate failed:", e));
 
   // Review request — sent once, right after completion (shared helper also
   // covers the plain "Mark Completed" status-button path in updateJobStatus).
   await sendJobCompletionReview(job).catch(() => {});
 
   await db.activityLog.create({
-    data: { jobId, actorId: session?.sub, action: "Job marked complete — certificate & invoice generated" },
+    data: { jobId, actorId: session?.sub, action: "Job marked complete — certificate generated" },
   });
 
   revalidatePath(`/jobs/${jobId}`);
