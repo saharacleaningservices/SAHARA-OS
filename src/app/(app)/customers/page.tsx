@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { CustomerImportDialog } from "@/components/customers/customer-import-dialog";
 import { CustomersExplorer } from "@/components/customers/customers-explorer";
+import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { getCustomersPage } from "@/server/customers";
 import { requireRole } from "@/lib/current-user";
 import { canExportCustomers } from "@/lib/permissions";
@@ -28,7 +29,12 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
       <PageHeader
         title="Customers"
         description={`${data.allCount} contacts · ${formatINR(data.outstanding)} outstanding`}
-        actions={canManage ? <CustomerImportDialog /> : null}
+        actions={
+          <>
+            <PackageCalculatorButton variant="button" />
+            {canManage && <CustomerImportDialog />}
+          </>
+        }
       />
       {/* WhatsApp campaigns (audience / template / sending) are Super Admin only — owner rule 2026-10-06. */}
       <CustomersExplorer
