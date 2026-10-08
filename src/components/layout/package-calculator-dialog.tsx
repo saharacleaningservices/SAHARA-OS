@@ -188,11 +188,11 @@ export function PackageCalculatorButton({ prefill, variant = "chip", label = "Pa
           onClick={() => setOpen(true)}
           className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
         >
-          <Calculator className="size-3.5 text-primary" /> {label}
+          <Calculator className="size-3.5 text-primary" /> <span>{label}</span>
         </button>
       ) : (
         <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
-          <Calculator className="size-3.5" /> {label}
+          <Calculator className="size-3.5" /> <span>{label}</span>
         </Button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
