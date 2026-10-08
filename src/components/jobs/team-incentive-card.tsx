@@ -18,6 +18,7 @@ export function TeamIncentiveCard({
   amount,
   incentive,
   canReverse,
+  embedded = false,
 }: {
   jobId: string;
   completed: boolean;
@@ -25,6 +26,8 @@ export function TeamIncentiveCard({
   amount: number;
   incentive: Incentive;
   canReverse: boolean;
+  /** Inside the Job Status workspace: content only, no card chrome. */
+  embedded?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -36,14 +39,8 @@ export function TeamIncentiveCard({
       router.refresh();
     });
 
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Award className="size-4 text-success" /> Team incentive
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3 text-sm">
+  const body = (
+      <div className="space-y-3 text-sm">
         {incentive ? (
           <>
             <div className="font-semibold">
@@ -73,7 +70,17 @@ export function TeamIncentiveCard({
             {!completed && <p className="text-xs text-muted-foreground">Available once the job is completed.</p>}
           </>
         )}
-      </CardContent>
+      </div>
+  );
+  if (embedded) return body;
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Award className="size-4 text-success" /> Team incentive
+        </CardTitle>
+      </CardHeader>
+      <CardContent>{body}</CardContent>
     </Card>
   );
 }

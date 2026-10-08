@@ -25,6 +25,7 @@ export function JobLogisticsCard({
   materials,
   canEdit,
   mapsApiKey = null,
+  embedded = false,
 }: {
   jobId: string;
   mapLink: string | null;
@@ -34,6 +35,8 @@ export function JobLogisticsCard({
   materials: MaterialRow[];
   canEdit: boolean;
   mapsApiKey?: string | null;
+  /** Inside the Job Status workspace: content only, no card chrome. */
+  embedded?: boolean;
 }) {
   const [item, setItem] = useState("");
   const [qty, setQty] = useState("");
@@ -64,14 +67,8 @@ export function JobLogisticsCard({
     });
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Truck className="size-4" /> Logistics
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+  const body = (
+      <div className="space-y-4">
         <div>
           <p className="mb-1 text-xs text-muted-foreground">Vehicle</p>
           {canEdit ? (
@@ -168,7 +165,17 @@ export function JobLogisticsCard({
             </div>
           )}
         </div>
-      </CardContent>
+      </div>
+  );
+  if (embedded) return body;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Truck className="size-4" /> Logistics
+        </CardTitle>
+      </CardHeader>
+      <CardContent>{body}</CardContent>
     </Card>
   );
 }
