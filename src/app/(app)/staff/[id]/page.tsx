@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { ChevronDown, Pencil } from "lucide-react";
 import { getStaffDetail } from "@/server/staff";
 import { jobDateWindowForRole } from "@/server/jobs";
 import { PageHeader } from "@/components/shared/page-header";
@@ -27,15 +27,31 @@ import { getStaffAppAccess } from "@/server/actions/staff-app-access";
 import { startStaffPreview } from "@/server/actions/staff-preview";
 import { Smartphone } from "lucide-react";
 
+/** Collapsible section — keeps the staff page to 1–2 scrolls on a phone. */
+function Fold({ title, hint, children, open = false }: { title: string; hint?: string; children: React.ReactNode; open?: boolean }) {
+  return (
+    <details open={open} className="group border-t first:border-t-0">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold">
+        <span className="min-w-0 truncate">
+          {title}
+          {hint ? <span className="ml-1.5 text-xs font-normal text-muted-foreground">{hint}</span> : null}
+        </span>
+        <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="pb-3">{children}</div>
+    </details>
+  );
+}
+
 export default async function StaffDetailPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ year?: string; month?: string; tab?: string }>;
+  searchParams: Promise<{ year?: string; month?: string }>;
 }) {
   const { id } = await params;
-  const { year: yStr, month: mStr, tab: tabParam } = await searchParams;
+  const { year: yStr, month: mStr } = await searchParams;
   const session = await requireUser();
   const staff = await getStaffDetail(id);
   if (!staff) notFound();
@@ -60,24 +76,6 @@ export default async function StaffDetailPage({
     canFin ? getStaffMoneyAudit(staff.id) : Promise.resolve([]),
   ]);
   const payslipHref = `/api/staff/${staff.id}/payslip/pdf?year=${calYear}&month=${calMonth}`;
-
-  // Tabs (URL-driven, server-rendered): each section loads only what the role may see.
-  const tabs = [
-    { key: "overview", label: "Overview" },
-    ...(money && moneyYear ? [{ key: "khata", label: "Money Khata" }] : []),
-    { key: "jobs", label: "Jobs" },
-    { key: "attendance", label: "Attendance" },
-    { key: "profile", label: "Profile" },
-  ];
-  const tab = tabs.some((t) => t.key === tabParam) ? tabParam! : "overview";
-  const tabHref = (key: string) => {
-    const q = new URLSearchParams();
-    if (key !== "overview") q.set("tab", key);
-    if (yStr) q.set("year", yStr);
-    if (mStr) q.set("month", mStr);
-    const qs = q.toString();
-    return qs ? `?${qs}` : `/staff/${staff.id}`;
-  };
 
   const s0 = new Date(now); s0.setHours(0, 0, 0, 0);
   const s1 = new Date(s0); s1.setDate(s1.getDate() + 1);
@@ -126,7 +124,7 @@ export default async function StaffDetailPage({
         name={staff.name}
         photoUrl={staff.photoUrl}
         canEdit={["ADMIN", "ACCOUNTS"].includes(session.role)}
-        size={72}
+        size={56}
       />
       <PageHeader
         title={staff.name}
@@ -191,62 +189,26 @@ export default async function StaffDetailPage({
         }
       />
 
-      {/* Tabs — one section at a time keeps the page to 1–2 scrolls on a phone */}
-      <nav className="grid gap-1 rounded-xl border bg-muted/40 p-1 text-center text-xs font-semibold sm:flex sm:w-fit sm:text-sm" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }} aria-label="Staff sections">
-        {tabs.map((t) => (
-          <Link
-            key={t.key}
-            href={tabHref(t.key)}
-            scroll={false}
-            aria-current={tab === t.key ? "page" : undefined}
-            className={`rounded-lg px-1 py-2 leading-tight sm:px-4 ${tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            {t.label}
-          </Link>
-        ))}
-      </nav>
-
-      {tab === "overview" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-4 divide-x rounded-xl border bg-card text-center">
-            <div className="flex flex-col items-center justify-center gap-1 px-1 py-2">
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">Status</p>
-              <AvailabilityBadge status={staff.availability} />
-            </div>
-            {[
-              ["Present 30d", String(presentDays)],
-              ["Absent 30d", String(absentDays)],
-              ["Jobs today", String(todayJobs.length)],
-            ].map(([k, v]) => (
-              <div key={k} className="px-1 py-2">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">{k}</p>
-                <p className="text-sm font-bold sm:text-base">{v}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <Card className="gap-0 py-4 lg:col-span-2">
-              <CardContent className="space-y-4">
-                <JobList title="Today" list={todayJobs} limit={4} />
-                <JobList title="Upcoming" list={upcomingJobs} limit={3} />
-                {jobs.length > 0 && (
-                  <Link href={tabHref("jobs")} scroll={false} className="block text-right text-xs font-medium text-primary">All jobs →</Link>
-                )}
-              </CardContent>
-            </Card>
-            {appAccess && (
-              <StaffAppAccessCard
-                staffId={staff.id}
-                access={appAccess}
-                canManage={session.role === "ADMIN"}
-                canApproveReset={session.role === "ADMIN" || session.role === "ACCOUNTS"}
-              />
-            )}
-          </div>
+      {/* Status at a glance */}
+      <div className="grid grid-cols-4 divide-x rounded-xl border bg-card text-center">
+        <div className="flex flex-col items-center justify-center gap-1 px-1 py-2">
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">Status</p>
+          <AvailabilityBadge status={staff.availability} />
         </div>
-      )}
+        {[
+          ["Present 30d", String(presentDays)],
+          ["Absent 30d", String(absentDays)],
+          ["Jobs today", String(todayJobs.length)],
+        ].map(([k, v]) => (
+          <div key={k} className="px-1 py-2">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">{k}</p>
+            <p className="text-sm font-bold sm:text-base">{v}</p>
+          </div>
+        ))}
+      </div>
 
-      {tab === "khata" && money && moneyYear && (
+      {/* Money Khata — Super Admin / Accounts only (summary + Summary · Ledger · Add Entry · Overtime · Payment · Audit) */}
+      {money && moneyYear && (
         <StaffKhataCard
           staffId={staff.id}
           summary={money.summary}
@@ -261,24 +223,20 @@ export default async function StaffDetailPage({
         />
       )}
 
-      {tab === "jobs" && (
-        <Card className="gap-0 py-4">
-          <CardContent className="space-y-4">
-            {jobs.length === 0 ? (
-              <EmptyState title="No jobs assigned yet" />
-            ) : (
-              <>
-                <JobList title="Today" list={todayJobs} />
-                <JobList title="Upcoming" list={upcomingJobs} limit={20} />
-                <JobList title="Completed" list={completedJobs} limit={20} />
-              </>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {tab === "attendance" &&
-        (matrix ? (
+      <div className="rounded-xl border bg-card px-3 sm:px-4">
+        <Fold title="Job History" hint={`${todayJobs.length} today · ${upcomingJobs.length} upcoming · ${completedJobs.length} done`}>
+          {jobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No jobs assigned yet.</p>
+          ) : (
+            <div className="space-y-4">
+              <JobList title="Today" list={todayJobs} />
+              <JobList title="Upcoming" list={upcomingJobs} limit={10} />
+              <JobList title="Completed" list={completedJobs} limit={10} />
+            </div>
+          )}
+        </Fold>
+        <Fold title="Attendance" hint={`${presentDays} present · ${absentDays} absent (30 days)`} open={!!(yStr || mStr)}>
+          {(matrix ? (
           <MonthlyAttendanceCalendar
             staffId={staff.id}
             year={matrix.year}
@@ -323,13 +281,19 @@ export default async function StaffDetailPage({
         ) : (
           <EmptyState title="No attendance in the last 30 days" />
         ))}
-
-      {tab === "profile" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+        </Fold>
+        {appAccess && (
+          <Fold title="Staff App access">
+            <StaffAppAccessCard
+              staffId={staff.id}
+              access={appAccess}
+              canManage={session.role === "ADMIN"}
+              canApproveReset={session.role === "ADMIN" || session.role === "ACCOUNTS"}
+            />
+          </Fold>
+        )}
+        <Fold title="Profile" hint={staff.designation}>
+          <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
             <div>
               <p className="text-xs text-muted-foreground">Mobile</p>
               <p className="font-medium text-foreground">{staff.mobile}</p>
@@ -397,9 +361,9 @@ export default async function StaffDetailPage({
                 <p className="font-medium text-foreground">{staff.notes}</p>
               </div>
             )}
-          </CardContent>
-        </Card>
-      )}
+</div>
+        </Fold>
+      </div>
     </div>
   );
 }

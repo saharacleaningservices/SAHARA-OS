@@ -200,6 +200,22 @@ export function StaffKhataCard({
             {loan.remaining ? <span className="ml-2 text-indigo-700 dark:text-indigo-300">· Loan {inr(loan.remaining)}</span> : null}
           </span>
         </CardTitle>
+        {/* Always-visible summary: the six numbers checked first. */}
+        <div className="grid grid-cols-3 gap-1.5 pt-1 text-center sm:grid-cols-6">
+          {([
+            ["Earned", summary.earned, ""],
+            ["Salary paid", summary.salaryPaid, ""],
+            ["Advance", summary.advance, ""],
+            ["Deductions", summary.deductions, ""],
+            [summary.salaryDue >= 0 ? "Salary due" : "Adv. outstanding", Math.abs(summary.salaryDue), summary.salaryDue >= 0 ? "text-success" : "text-destructive"],
+            ["Loan", loan.remaining, loan.remaining ? "text-indigo-700 dark:text-indigo-300" : ""],
+          ] as [string, number, string][]).map(([k, v, tone]) => (
+            <div key={k} className="rounded-md border px-1 py-1.5">
+              <p className="truncate text-[10px] font-normal uppercase tracking-wide text-muted-foreground">{k}</p>
+              <p className={`text-sm font-bold tabular-nums ${tone}`}>{inr(v)}</p>
+            </div>
+          ))}
+        </div>
         <div className="flex flex-wrap gap-1.5 pt-1">
           <TabBtn id="summary" label="Summary" />
           <TabBtn id="ledger" label="Ledger" />
