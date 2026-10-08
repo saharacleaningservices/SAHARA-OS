@@ -32,6 +32,7 @@ export function ConfirmBookingDialog({
   trigger,
   open: controlledOpen,
   onOpenChange,
+  defaultOpen = false,
 }: {
   leadId: string;
   supervisors?: SupervisorOption[];
@@ -41,8 +42,10 @@ export function ConfirmBookingDialog({
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Opened straight away (Package Calculator → Save & Confirm Booking). */
+  defaultOpen?: boolean;
 }) {
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = onOpenChange ?? setUncontrolledOpen;
 

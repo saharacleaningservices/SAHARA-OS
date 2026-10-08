@@ -26,7 +26,8 @@ import { MarketingConsentControl } from "@/components/leads/marketing-consent-co
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 
-export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function LeadDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirm?: string }> }) {
+  const { confirm } = await searchParams;
   const { id } = await params;
   const session = await requireUser();
   const [lead, staff, settings] = await Promise.all([getLeadDetail(id), getStaffForAssignment(), getCompanySettings()]);
@@ -88,6 +89,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 defaultServiceDate={requestedServiceDate}
                 defaultTimeSlot={requestedTimeSlot}
                 defaultTeam={lead.teamNumber}
+                defaultOpen={confirm === "1" && lead.jobs.length === 0}
               />
             )}
             <Button variant="outline" asChild>
