@@ -14,6 +14,7 @@ import {
   XCircle,
   PauseCircle,
   MapPin,
+  ChevronDown,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { getOwnerCommandCenterHome } from "@/server/owner-command-center";
@@ -25,6 +26,7 @@ import { LeadMonthCalendar } from "./lead-calendar";
 import { BusinessTargetCard } from "./business-target-card";
 import { RevenueIntelligence } from "./revenue-intelligence";
 import { QuickDispatch } from "./quick-dispatch";
+import { DashboardModules } from "@/components/dashboard/dashboard-modules";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { JobStatusBadge } from "@/components/shared/status-badge";
@@ -94,6 +96,31 @@ function dayCardBody(data: DayData, when: "today" | "tomorrow") {
   );
 }
 
+/** Collapsible dashboard section — keeps the home screen to 1–2 scrolls on a phone. */
+function Fold({ title, badge, open = false, children }: { title: ReactNode; badge?: ReactNode; open?: boolean; children: ReactNode }) {
+  return (
+    <details open={open} className="group rounded-xl border bg-card text-card-foreground">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3">
+        <span className="flex min-w-0 items-center gap-2 text-sm font-semibold sm:text-base">{title}</span>
+        <span className="flex shrink-0 items-center gap-2">
+          {badge}
+          <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+        </span>
+      </summary>
+      <div className="px-4 pb-4">{children}</div>
+    </details>
+  );
+}
+
+const CAP = 5;
+function More({ count, href }: { count: number; href: string }) {
+  return count > CAP ? (
+    <Link href={href} className="block text-right text-xs font-medium text-primary">
+      +{count - CAP} more →
+    </Link>
+  ) : null;
+}
+
 // Always India time — the server itself may run in UTC.
 function getGreeting(date: Date = new Date()): string {
   const hour = Number(
@@ -113,10 +140,12 @@ function getGreeting(date: Date = new Date()): string {
  * Business Target tile for Accounts only — every other card is identical.
  */
 export async function OwnerCommandCenter({
+  role,
   ownerName,
   showProfit,
   showBusinessTarget = true,
 }: {
+  role: string;
   ownerName: string;
   showProfit: boolean;
   showBusinessTarget?: boolean;
@@ -141,11 +170,11 @@ export async function OwnerCommandCenter({
   ];
   const bigTile = (icon: ReactNode, tint: string, label: string, value: number, sub: string) => (
     <div className="flex items-center gap-3">
-      <div className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${tint}`}>{icon}</div>
+      <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg sm:size-10 ${tint}`}>{icon}</div>
       <div className="min-w-0">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-2xl font-bold leading-tight text-foreground">{value}</p>
-        <p className="truncate text-[11px] text-muted-foreground">{sub}</p>
+        <p className="text-xl font-bold leading-tight text-foreground sm:text-2xl">{value}</p>
+        <p className="truncate text-[11px] text-muted-foreground max-sm:hidden">{sub}</p>
       </div>
     </div>
   );
@@ -165,7 +194,7 @@ export async function OwnerCommandCenter({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="sahara-gradient rounded-xl p-4 text-white sm:p-5">
         <h1 className="text-xl font-semibold text-white sm:text-2xl">{getGreeting()}, {ownerName}</h1>
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -181,8 +210,11 @@ export async function OwnerCommandCenter({
         </div>
       </div>
 
+      {/* Every module, grouped — role-filtered (same rule as the sidebar) */}
+      <DashboardModules role={role} />
+
       {/* Today / Tomorrow / Total Leads — the three numbers checked first */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 sm:gap-3 md:grid-cols-3">
         <ExpandableCard
           trigger={bigTile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}
         >
@@ -221,18 +253,20 @@ export async function OwnerCommandCenter({
       />
 
       {/* Owner Alert Center — always visible, real signals only */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <BellRing className="size-4 text-primary" /> Owner Alert Center
-          </CardTitle>
-          {attentionCount > 0 && (
+      <Fold
+        open={attentionCount > 0}
+        title={<><BellRing className="size-4 text-primary" /> Owner Alert Center</>}
+        badge={
+          attentionCount > 0 ? (
             <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive">
               {attentionCount} need{attentionCount === 1 ? "s" : ""} attention
             </span>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4">
+          ) : (
+            <span className="text-xs font-medium text-success">All clear</span>
+          )
+        }
+      >
+        <div className="space-y-4">
           {attentionCount === 0 ? (
             <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-3 text-sm font-medium text-success">
               <CheckCircle2 className="size-4" /> All clear — nothing needs your attention right now.
@@ -244,7 +278,7 @@ export async function OwnerCommandCenter({
                   <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                     <BellRing className="size-3.5 text-primary" /> Follow-ups Today ({followUpsToday.length})
                   </p>
-                  {followUpsToday.map((f) => (
+                  {followUpsToday.slice(0, CAP).map((f) => (
                     <Link
                       key={f.id}
                       href={`/leads/${f.lead.id}`}
@@ -256,6 +290,7 @@ export async function OwnerCommandCenter({
                       </span>
                     </Link>
                   ))}
+                  <More count={followUpsToday.length} href="/leads?due=today" />
                 </div>
               )}
               {siteVisitsToday.length > 0 && (
@@ -263,7 +298,7 @@ export async function OwnerCommandCenter({
                   <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                     <MapPin className="size-3.5 text-indigo-600" /> Site Visits Today ({siteVisitsToday.length})
                   </p>
-                  {siteVisitsToday.map((l) => (
+                  {siteVisitsToday.slice(0, CAP).map((l) => (
                     <Link
                       key={l.id}
                       href={`/leads/${l.id}`}
@@ -273,6 +308,7 @@ export async function OwnerCommandCenter({
                       <span className="shrink-0 text-xs text-muted-foreground">{l.timeSlot ?? l.area}</span>
                     </Link>
                   ))}
+                  <More count={siteVisitsToday.length} href="/leads?stage=SITE_VISIT" />
                 </div>
               )}
               {alerts.overduePayments.length > 0 && (
@@ -281,7 +317,7 @@ export async function OwnerCommandCenter({
                     <Wallet className="size-3.5 text-destructive" /> Overdue Payments (
                     {alerts.overduePayments.length})
                   </p>
-                  {alerts.overduePayments.map((p) => (
+                  {alerts.overduePayments.slice(0, CAP).map((p) => (
                     <div
                       key={p.id}
                       className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm"
@@ -290,6 +326,7 @@ export async function OwnerCommandCenter({
                       <span className="shrink-0 font-medium text-destructive">{formatINR(p.outstanding)}</span>
                     </div>
                   ))}
+                  <More count={alerts.overduePayments.length} href="/payments?filter=pending" />
                 </div>
               )}
               {alerts.staleLeads.length > 0 && (
@@ -298,7 +335,7 @@ export async function OwnerCommandCenter({
                     <Clock className="size-3.5 text-warning" /> Stale Leads — no update in 5+ days (
                     {alerts.staleLeads.length})
                   </p>
-                  {alerts.staleLeads.map((l) => (
+                  {alerts.staleLeads.slice(0, CAP).map((l) => (
                     <Link
                       key={l.id}
                       href={`/leads/${l.id}`}
@@ -308,6 +345,7 @@ export async function OwnerCommandCenter({
                       <span className="shrink-0 text-xs text-muted-foreground">{formatDate(l.updatedAt)}</span>
                     </Link>
                   ))}
+                  <More count={alerts.staleLeads.length} href="/leads" />
                 </div>
               )}
               {alerts.unassignedJobsToday.length > 0 && (
@@ -316,7 +354,7 @@ export async function OwnerCommandCenter({
                     <UserX className="size-3.5 text-destructive" /> Jobs Today With No Staff (
                     {alerts.unassignedJobsToday.length})
                   </p>
-                  {alerts.unassignedJobsToday.map((j) => (
+                  {alerts.unassignedJobsToday.slice(0, CAP).map((j) => (
                     <Link
                       key={j.id}
                       href={`/jobs/${j.id}`}
@@ -326,6 +364,7 @@ export async function OwnerCommandCenter({
                       <span className="shrink-0 text-xs text-muted-foreground">{j.scheduledTime}</span>
                     </Link>
                   ))}
+                  <More count={alerts.unassignedJobsToday.length} href="/jobs?when=today" />
                 </div>
               )}
               {alerts.cancelledJobs.length > 0 && (
@@ -334,7 +373,7 @@ export async function OwnerCommandCenter({
                     <XCircle className="size-3.5 text-destructive" /> Cancelled Jobs — last 3 days (
                     {alerts.cancelledJobs.length})
                   </p>
-                  {alerts.cancelledJobs.map((j) => (
+                  {alerts.cancelledJobs.slice(0, CAP).map((j) => (
                     <Link
                       key={j.id}
                       href={`/jobs/${j.id}`}
@@ -344,6 +383,7 @@ export async function OwnerCommandCenter({
                       <span className="shrink-0 text-xs text-muted-foreground">{formatDate(j.scheduledDate)}</span>
                     </Link>
                   ))}
+                  <More count={alerts.cancelledJobs.length} href="/jobs" />
                 </div>
               )}
               {alerts.postponedJobs.length > 0 && (
@@ -352,7 +392,7 @@ export async function OwnerCommandCenter({
                     <PauseCircle className="size-3.5 text-warning" /> Postponed Jobs — last 3 days (
                     {alerts.postponedJobs.length})
                   </p>
-                  {alerts.postponedJobs.map((j) => (
+                  {alerts.postponedJobs.slice(0, CAP).map((j) => (
                     <Link
                       key={j.id}
                       href={`/jobs/${j.id}`}
@@ -362,23 +402,24 @@ export async function OwnerCommandCenter({
                       <span className="shrink-0 text-xs text-muted-foreground">{formatDate(j.scheduledDate)}</span>
                     </Link>
                   ))}
+                  <More count={alerts.postponedJobs.length} href="/jobs" />
                 </div>
               )}
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </Fold>
 
       {/* Quick Dispatch */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Quick Dispatch</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <QuickDispatch jobs={dashboard.todaysJobs} staffList={staffList} vehicleList={vehicleList} />
-        </CardContent>
-      </Card>
+      <Fold
+        open={alerts.unassignedJobsToday.length > 0}
+        title="Quick Dispatch"
+        badge={<span className="text-xs text-muted-foreground">{dashboard.todaysJobs.length} job{dashboard.todaysJobs.length === 1 ? "" : "s"} today</span>}
+      >
+        <QuickDispatch jobs={dashboard.todaysJobs} staffList={staffList} vehicleList={vehicleList} />
+      </Fold>
 
+      <Fold title={<><BarChart3 className="size-4 text-primary" /> Service performance &amp; cash flow</>}>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Service Performance */}
         <Card>
@@ -455,16 +496,15 @@ export async function OwnerCommandCenter({
           </CardContent>
         </Card>
       </div>
+      </Fold>
 
       {/* Google Reviews — honest: real owner-set values, or an honest
           "not available yet" placeholder. Never fabricated. */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Star className="size-4 text-amber-500" /> Google Reviews
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Fold
+        title={<><Star className="size-4 text-amber-500" /> Google Reviews</>}
+        badge={settings.googleRating ? <span className="text-xs font-semibold">{settings.googleRating}★</span> : undefined}
+      >
+        <div>
           {settings.googleReviewUrl ? (
             <div className="space-y-3">
               <div className="flex items-center gap-4">
@@ -499,8 +539,8 @@ export async function OwnerCommandCenter({
               review count here.
             </p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </Fold>
     </div>
   );
 }

@@ -64,6 +64,7 @@ export default async function DashboardPage() {
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
     return (
     <OwnerCommandCenter
+      role={session.role}
       ownerName={session.name.split(" ")[0]}
       showProfit={session.role === "ADMIN"}
       showBusinessTarget={session.role === "ADMIN"}
