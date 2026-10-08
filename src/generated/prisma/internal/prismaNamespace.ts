@@ -397,6 +397,7 @@ export const ModelName = {
   AttendanceAudit: 'AttendanceAudit',
   GalleryItem: 'GalleryItem',
   Customer: 'Customer',
+  CustomerSite: 'CustomerSite',
   BookingLink: 'BookingLink',
   MonthClose: 'MonthClose',
   Lead: 'Lead',
@@ -464,7 +465,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -983,6 +984,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerSite: {
+      payload: Prisma.$CustomerSitePayload<ExtArgs>
+      fields: Prisma.CustomerSiteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerSiteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerSiteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerSiteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerSiteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerSiteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerSiteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerSiteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerSiteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerSiteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>
+        }
+        update: {
+          args: Prisma.CustomerSiteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerSiteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerSiteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerSiteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerSiteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerSitePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerSiteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerSite>
+        }
+        groupBy: {
+          args: Prisma.CustomerSiteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerSiteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerSiteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerSiteCountAggregateOutputType> | number
         }
       }
     }
@@ -5010,11 +5085,30 @@ export const CustomerScalarFieldEnum = {
   source: 'source',
   notes: 'notes',
   importBatchId: 'importBatchId',
+  email: 'email',
+  contactType: 'contactType',
+  isRepeat: 'isRepeat',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const CustomerSiteScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  label: 'label',
+  address: 'address',
+  pinCode: 'pinCode',
+  area: 'area',
+  mapLink: 'mapLink',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerSiteScalarFieldEnum = (typeof CustomerSiteScalarFieldEnum)[keyof typeof CustomerSiteScalarFieldEnum]
 
 
 export const BookingLinkScalarFieldEnum = {
@@ -5080,6 +5174,7 @@ export const LeadScalarFieldEnum = {
   paymentMode: 'paymentMode',
   paymentStatus: 'paymentStatus',
   mapLink: 'mapLink',
+  siteId: 'siteId',
   referralCode: 'referralCode',
   acquisitionChannel: 'acquisitionChannel',
   acquisitionCampaign: 'acquisitionCampaign',
@@ -5211,6 +5306,7 @@ export const JobScalarFieldEnum = {
   festivalName: 'festivalName',
   scopeOfWork: 'scopeOfWork',
   mapLink: 'mapLink',
+  siteId: 'siteId',
   vehicleId: 'vehicleId',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
@@ -6295,6 +6391,7 @@ export type GlobalOmitConfig = {
   attendanceAudit?: Prisma.AttendanceAuditOmit
   galleryItem?: Prisma.GalleryItemOmit
   customer?: Prisma.CustomerOmit
+  customerSite?: Prisma.CustomerSiteOmit
   bookingLink?: Prisma.BookingLinkOmit
   monthClose?: Prisma.MonthCloseOmit
   lead?: Prisma.LeadOmit

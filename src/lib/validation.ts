@@ -90,6 +90,10 @@ export const leadSchema = z.object({
   discountAmount: z.coerce.number().min(0).max(10_000_000).optional(),
   comboServices: z.array(z.string()).optional(),
   mapLink: z.string().optional().or(z.literal("")),
+  // Customer database (2026-10-08): chosen existing site, contact type, repeat flag.
+  siteId: z.string().max(40).optional().or(z.literal("")),
+  contactType: z.string().max(30).optional().or(z.literal("")),
+  isRepeat: z.boolean().optional(),
   // Marketing attribution for leads entered by hand (set once, on create).
   acquisitionChannel: z.string().max(60).optional().or(z.literal("")),
   acquisitionCampaign: z.string().max(120).optional().or(z.literal("")),

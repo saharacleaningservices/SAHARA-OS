@@ -56,6 +56,7 @@ export const ModelName = {
   AttendanceAudit: 'AttendanceAudit',
   GalleryItem: 'GalleryItem',
   Customer: 'Customer',
+  CustomerSite: 'CustomerSite',
   BookingLink: 'BookingLink',
   MonthClose: 'MonthClose',
   Lead: 'Lead',
@@ -263,11 +264,30 @@ export const CustomerScalarFieldEnum = {
   source: 'source',
   notes: 'notes',
   importBatchId: 'importBatchId',
+  email: 'email',
+  contactType: 'contactType',
+  isRepeat: 'isRepeat',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const CustomerSiteScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  label: 'label',
+  address: 'address',
+  pinCode: 'pinCode',
+  area: 'area',
+  mapLink: 'mapLink',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerSiteScalarFieldEnum = (typeof CustomerSiteScalarFieldEnum)[keyof typeof CustomerSiteScalarFieldEnum]
 
 
 export const BookingLinkScalarFieldEnum = {
@@ -333,6 +353,7 @@ export const LeadScalarFieldEnum = {
   paymentMode: 'paymentMode',
   paymentStatus: 'paymentStatus',
   mapLink: 'mapLink',
+  siteId: 'siteId',
   referralCode: 'referralCode',
   acquisitionChannel: 'acquisitionChannel',
   acquisitionCampaign: 'acquisitionCampaign',
@@ -464,6 +485,7 @@ export const JobScalarFieldEnum = {
   festivalName: 'festivalName',
   scopeOfWork: 'scopeOfWork',
   mapLink: 'mapLink',
+  siteId: 'siteId',
   vehicleId: 'vehicleId',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',

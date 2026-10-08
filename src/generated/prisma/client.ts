@@ -77,6 +77,11 @@ export type GalleryItem = Prisma.GalleryItemModel
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model CustomerSite
+ * 
+ */
+export type CustomerSite = Prisma.CustomerSiteModel
+/**
  * Model BookingLink
  * 
  */

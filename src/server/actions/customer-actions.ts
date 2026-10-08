@@ -225,16 +225,28 @@ export async function getRepeatCustomerSummary(mobile: string) {
   const totalRevenue = payments.filter((p) => p.status === "PAID").reduce((s, p) => s + p.paidAmount, 0);
     const name = master?.name || leads[0]?.name || jobs[0]?.customerName || null;
     const lastServiceDate = jobs[0]?.scheduledDate ?? master?.lastServiceDate ?? null;
+  const sites = master
+    ? await db.customerSite.findMany({
+        where: { customerId: master.id },
+        orderBy: { updatedAt: "desc" },
+        select: { id: true, label: true, address: true, pinCode: true, area: true, mapLink: true },
+      })
+    : [];
 
   return {
         name,
         jobCount: jobs.length,
         leadCount: leads.length,
         lastServiceDate,
-        // Revenue is a financial figure — Francis (SUPERVISOR) only gets
-        // the operational repeat-customer context (job/lead count, last
-        // service date) needed to recognize a returning customer while
-        // creating/editing a lead, never their lifetime revenue.
-        totalRevenue: session.role === "SUPERVISOR" ? null : totalRevenue,
+        // Revenue is a financial figure — only Super Admin and Accounts see
+        // it. Operations (Francis) gets the operational context only (jobs,
+        // last service, sites) to recognise a returning customer.
+        totalRevenue: session.role === "ADMIN" || session.role === "ACCOUNTS" ? totalRevenue : null,
+        // Customer database (2026-10-08): contact profile + saved service sites.
+        alternateMobile: master?.alternateMobile ?? leads[0]?.alternateMobile ?? null,
+        email: master?.email ?? leads[0]?.email ?? null,
+        contactType: master?.contactType ?? "CUSTOMER",
+        isRepeat: !!master?.isRepeat || jobs.length >= 2,
+        sites,
   };
 }

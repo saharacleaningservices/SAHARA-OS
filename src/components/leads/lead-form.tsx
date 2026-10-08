@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2, MapPin, Plus } from "lucide-react";
+import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,7 +75,32 @@ export function LeadForm({
           const summary = await getRepeatCustomerSummary(digits).catch(() => null);
           setCheckingRepeat(false);
           setRepeatCustomer(summary);
+          setSiteChoice(summary?.sites?.length ? "" : "NEW");
     }
+
+  // Customer database (2026-10-08): reuse an existing contact and pick one of
+  // its saved service sites, or add a new site — never re-type the profile.
+  const [siteChoice, setSiteChoice] = useState<string>("NEW");
+  function applyExistingCustomer() {
+    if (!repeatCustomer) return;
+    if (repeatCustomer.name) setValue("name", repeatCustomer.name, { shouldDirty: true });
+    if (repeatCustomer.alternateMobile) setValue("alternateMobile", repeatCustomer.alternateMobile, { shouldDirty: true });
+    if (repeatCustomer.email) setValue("email", repeatCustomer.email, { shouldDirty: true });
+    setValue("contactType", repeatCustomer.contactType, { shouldDirty: true });
+    setValue("isRepeat", true, { shouldDirty: true });
+    toast.success("Customer details filled — choose a site below");
+  }
+  function chooseSite(id: string) {
+    setSiteChoice(id);
+    const site = repeatCustomer?.sites?.find((x) => x.id === id);
+    setValue("siteId", site ? site.id : "", { shouldDirty: true });
+    if (site) {
+      setValue("address", site.address, { shouldDirty: true });
+      setValue("pinCode", site.pinCode ?? "", { shouldDirty: true });
+      if (site.area) setValue("area", site.area, { shouldDirty: true });
+      setValue("mapLink", site.mapLink ?? "", { shouldDirty: true });
+    }
+  }
 
   const {
     register,
@@ -144,6 +170,12 @@ export function LeadForm({
 
   const quoteAmountField = register("quoteAmount");
 
+  // Opened from a customer page (+ New Lead): look the contact up straight away.
+  useEffect(() => {
+    if (!leadId && defaultValues?.mobile) handleMobileBlur(defaultValues.mobile);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function onSubmit(values: LeadFormValues) {
     setSubmitting(true);
     // Fold the dynamic quantity/size selections (Sofa seats, Mattress size,
@@ -193,20 +225,25 @@ export function LeadForm({
             {errors.mobile && <p className="text-xs text-destructive">{errors.mobile.message}</p>}
             {checkingRepeat && <p className="text-xs text-muted-foreground">Checking customer history…</p>}
             {repeatCustomer && (
-                <div className="rounded-md border border-primary/30 bg-primary/5 p-2.5">
-                            <p className="text-xs font-semibold text-primary">
-                                          Repeat Customer{repeatCustomer.name ? ` — ${repeatCustomer.name}` : ""}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {repeatCustomer.jobCount} previous job{repeatCustomer.jobCount === 1 ? "" : "s"}
-                              {repeatCustomer.lastServiceDate ? ` · Last service: ${formatDate(repeatCustomer.lastServiceDate)}` : ""}
-                              {/* Revenue is a financial figure — omitted entirely (not just
-                                  zeroed) for roles that shouldn't see it; see
-                                  getRepeatCustomerSummary in customer-actions.ts. */}
-                              {repeatCustomer.totalRevenue !== null ? ` · Total revenue: ${formatINR(repeatCustomer.totalRevenue)}` : ""}
-                            </p>
-                </div>
-                  )}
+              <div className="space-y-1.5 rounded-md border border-primary/30 bg-primary/5 p-2.5">
+                <p className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-primary">
+                  Existing customer{repeatCustomer.name ? ` — ${repeatCustomer.name}` : ""}
+                  <ContactTypeBadge type={repeatCustomer.contactType} />
+                  {repeatCustomer.isRepeat && <RepeatBadge partner={repeatCustomer.contactType !== "CUSTOMER"} />}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {repeatCustomer.jobCount} previous job{repeatCustomer.jobCount === 1 ? "" : "s"}
+                  {repeatCustomer.lastServiceDate ? ` · Last service: ${formatDate(repeatCustomer.lastServiceDate)}` : ""}
+                  {/* Revenue only for Super Admin / Accounts — see getRepeatCustomerSummary. */}
+                  {repeatCustomer.totalRevenue !== null ? ` · Lifetime value: ${formatINR(repeatCustomer.totalRevenue)}` : ""}
+                </p>
+                {!leadId && (
+                  <Button type="button" size="sm" variant="outline" className="h-8" onClick={applyExistingCustomer}>
+                    <Check className="size-3.5" /> Use customer
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="alternateMobile">Alternate Mobile (optional)</Label>
@@ -217,6 +254,58 @@ export function LeadForm({
             <Input id="email" type="email" {...register("email")} placeholder="name@example.com" />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
+          {!leadId && (
+            <div className="flex flex-wrap items-end gap-3 sm:col-span-2">
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <Label htmlFor="contactType">Contact Type</Label>
+                <select
+                  id="contactType"
+                  value={watch("contactType") || "CUSTOMER"}
+                  onChange={(e) => setValue("contactType", e.target.value, { shouldDirty: true })}
+                  className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                >
+                  <option value="CUSTOMER">Customer</option>
+                  <option value="BROKER">Broker</option>
+                  <option value="ARCHITECT">Architect</option>
+                  <option value="INTERIOR_DESIGNER">Interior Designer</option>
+                  <option value="SOCIETY">Society / Facility</option>
+                  <option value="CORPORATE">Corporate / Other</option>
+                </select>
+              </div>
+              <label className="flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-medium">
+                <Checkbox checked={!!watch("isRepeat")} onCheckedChange={(v) => setValue("isRepeat", !!v, { shouldDirty: true })} />
+                Repeat customer
+              </label>
+            </div>
+          )}
+          {!leadId && repeatCustomer?.sites && repeatCustomer.sites.length > 0 && (
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Service Site</Label>
+              <div className="grid gap-1.5 sm:grid-cols-2">
+                {repeatCustomer.sites.map((site) => (
+                  <button
+                    key={site.id}
+                    type="button"
+                    onClick={() => chooseSite(site.id)}
+                    className={`flex items-start gap-2 rounded-md border p-2 text-left text-xs ${siteChoice === site.id ? "border-primary bg-primary/5 ring-1 ring-primary/40" : "hover:border-primary/40"}`}
+                  >
+                    <MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />
+                    <span className="min-w-0">
+                      <span className="block font-semibold">{site.label || "Site"}{site.area ? ` · ${site.area}` : ""}</span>
+                      <span className="line-clamp-2 text-muted-foreground">{site.address}</span>
+                    </span>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => chooseSite("NEW")}
+                  className={`flex items-center justify-center gap-1.5 rounded-md border border-dashed p-2 text-xs font-semibold ${siteChoice === "NEW" ? "border-primary text-primary" : "text-muted-foreground"}`}
+                >
+                  <Plus className="size-3.5" /> New site (enter address below)
+                </button>
+              </div>
+            </div>
+          )}
           <div className="space-y-1.5">
             <Label htmlFor="pinCode">PIN Code</Label>
             <Input id="pinCode" {...register("pinCode")} placeholder="411028" inputMode="numeric" maxLength={6} />
@@ -491,7 +580,7 @@ export function LeadForm({
  * Package Calculator ("New lead with this package") and starts the form as a
  * Customized Service with those services. Read once after mount (no SSR mismatch).
  */
-export function NewLeadForm(props: Omit<Parameters<typeof LeadForm>[0], "defaultValues" | "leadId">) {
+export function NewLeadForm({ prefill, ...props }: Omit<Parameters<typeof LeadForm>[0], "defaultValues" | "leadId"> & { prefill?: { name?: string; mobile?: string } }) {
   const [draft, setDraft] = useState<PackageDraft | null>(null);
   useEffect(() => {
     try {
@@ -504,7 +593,7 @@ export function NewLeadForm(props: Omit<Parameters<typeof LeadForm>[0], "default
       /* storage unavailable */
     }
   }, []);
-  if (!draft) return <LeadForm {...props} />;
+  if (!draft) return <LeadForm {...props} defaultValues={prefill?.mobile ? { name: prefill.name ?? "", mobile: prefill.mobile } : undefined} />;
   const t = packageTotals(draft);
   return (
     <LeadForm
