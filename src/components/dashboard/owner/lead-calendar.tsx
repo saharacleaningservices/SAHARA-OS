@@ -25,6 +25,8 @@ type CalendarLead = {
   quoteAmount?: number | null;
   advanceAmount?: number | null;
   paymentStatus?: string | null;
+  time?: string | null;
+  pkg?: string | null;
 };
 type DayColor = "green" | "blue" | "orange" | "red" | "white";
 type DayStatusCounts = { pending: number; confirmed: number; postponed: number; cancelled: number; siteVisits: number; total: number };
@@ -237,6 +239,13 @@ export function LeadMonthCalendar({
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">{l.name}</p>
+                      <p className="text-xs font-medium text-foreground">
+                        {[l.time, [l.service, l.pkg].filter(Boolean).join(" — ")].filter(Boolean).join(" · ")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {l.teamNumber ? `Team ${l.teamNumber}` : "No team"}
+                        {l.assignedStaff ? ` · ${l.assignedStaff}` : ""}
+                      </p>
                       <p className="text-xs text-muted-foreground">{l.mobile}</p>
                       {(l.area || l.address) && (
                         <p className="truncate text-xs text-muted-foreground">{[l.area, l.address].filter(Boolean).join(" · ")}</p>

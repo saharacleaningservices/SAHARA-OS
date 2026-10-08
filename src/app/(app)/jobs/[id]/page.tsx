@@ -13,10 +13,8 @@ import { Button } from "@/components/ui/button";
 import { JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
-import { JobNotesEditor } from "@/components/jobs/job-notes-editor";
 import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
-import { JobCardActions } from "@/components/jobs/job-card-actions";
 import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
 import { canViewRevenue, canViewJobAmount, canManageStaffFinancials } from "@/lib/permissions";
 import { BOOKING_TERMS } from "@/lib/pricing-master";
@@ -24,10 +22,8 @@ import { TeamIncentiveCard } from "@/components/jobs/team-incentive-card";
 import { db } from "@/lib/db";
 import { formatINR, formatDate, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS, TEAM_INCENTIVE_AMOUNT } from "@/lib/constants";
-import { jobCardMessage } from "@/lib/whatsapp-templates";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
-import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { ensureJobToken } from "@/server/booking-messages";
 
@@ -105,30 +101,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const packageLabel = job.packageName || null;
   const crew = job.assignments.map((a) => ({ id: a.id, name: a.staff.name, lead: a.isLead }));
 
-  const cardBase = {
-    jobNumber: job.jobNumber,
-    customerName: job.customerName,
-    mobile: job.customerMobile,
-    alternateMobile: job.alternateMobile,
-    address: job.address,
-    mapLink: job.mapLink,
-    date: job.scheduledDate,
-    timeSlot: job.scheduledTime,
-    service: serviceLabel,
-    flatType: job.serviceVariant,
-    packageName: job.packageName,
-    team: job.teamNumber,
-    crew: crew.map((c) => c.name),
-    supervisor: null,
-    // Money only for roles that may see it — this text is sent to the client
-    // as a prop, so hiding it in the UI alone would still leak it to Staff.
-    paymentStatus: showJobAmount ? paymentStatus : null,
-    advance: showJobAmount ? advance : null,
-    balance: showJobAmount ? balance : null,
-    notes: job.notes,
-  } as const;
-  const officeCardText = jobCardMessage({ ...cardBase, audience: "office" });
-  const teamCardText = jobCardMessage({ ...cardBase, audience: "team" });
 
   // Customer documents (secure token links) — Super Admin, Operations and Accounts.
   // Sending opens WhatsApp with the message pre-filled; staff still press send themselves.
@@ -182,9 +154,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         }
       />
 
-      <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-3">
+      <div className="max-w-3xl">
         {/* ── JOB STATUS workspace ─────────────────────────────── */}
-        <section className="rounded-xl border bg-card p-3 sm:p-4 lg:col-span-2">
+        <section className="rounded-xl border bg-card p-3 sm:p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Job Status</h2>
             <div className="flex items-center gap-2 text-sm">
@@ -343,37 +315,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               )}
             </div>
           )}
-        </section>
 
-        {/* ── Details: collapsed by default ───────────────────── */}
-        <section className="rounded-xl border bg-card px-3 sm:px-4">
-          <Fold title="Scope of Work" hint={job.priceType === "FESTIVAL" ? `Festival${job.festivalName ? ` · ${job.festivalName}` : ""}` : job.priceType ? "Regular price" : undefined}>
-            <div className="space-y-2">
-              {job.scopeOfWork && <p className="whitespace-pre-line text-sm">{job.scopeOfWork}</p>}
-              <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} embedded />
-              {!job.scopeOfWork && job.service !== "HOME_DEEP_CLEANING" && <p className="text-xs text-muted-foreground">As per booking / quotation.</p>}
-            </div>
-          </Fold>
-          <Fold title="Terms & Conditions">
-            <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
-              {BOOKING_TERMS.map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
-          </Fold>
-          <Fold title="Notes / Remarks" hint={job.notes ? "1 note" : undefined}>
-            <JobNotesEditor jobId={job.id} notes={job.notes} />
-          </Fold>
-          <Fold title="Job Card" hint="PDF · share to team">
-            <JobCardActions
-              jobId={job.id}
-              jobNumber={job.jobNumber}
-              officeShareText={canSeeCustomerContact ? officeCardText : teamCardText}
-              teamShareText={teamCardText}
-              canSeeContact={canSeeCustomerContact}
-            />
-          </Fold>
-          <Fold title="Location, Vehicle & Materials" hint={job.vehicle?.name ?? undefined}>
+          {/* Compact options — inside Job Status, closed by default. */}
+          <div className="mt-3 border-t">
+          <Fold title="Location & Materials" hint={job.vehicle?.name ?? undefined}>
             <JobLogisticsCard
               jobId={job.id}
               mapLink={job.mapLink}
@@ -421,7 +366,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               </div>
             </Fold>
           )}
+          <Fold title="Terms & Conditions">
+            <ul className="list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
+              {BOOKING_TERMS.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          </Fold>
+          </div>
         </section>
+
       </div>
 
       {/* Mobile sticky action bar — the field's core actions. */}

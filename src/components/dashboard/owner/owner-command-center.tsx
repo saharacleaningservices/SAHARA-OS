@@ -23,7 +23,6 @@ import { BusinessTargetCard } from "./business-target-card";
 import { RevenueIntelligence } from "./revenue-intelligence";
 import { QuickDispatch } from "./quick-dispatch";
 import { DashboardModules, DashboardQuickBar } from "@/components/dashboard/dashboard-modules";
-import { SchedulePanel, type ScheduleDay } from "@/components/dashboard/schedule-panel";
 import { getSlotBoard } from "@/server/actions/slot-control";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -88,10 +87,10 @@ export async function OwnerCommandCenter({
     getOwnerSnapshot(),
     getCompanySettings(),
     getDashboardData(),
-    getSlotBoard(10),
+    getSlotBoard(1),
   ]);
 
-  const { today, tomorrow, businessTarget, revenue, staffList, vehicleList, alerts, calendar, followUpsToday, siteVisitsToday } =
+  const { today, businessTarget, revenue, staffList, vehicleList, alerts, calendar, followUpsToday, siteVisitsToday } =
     home;
   const attentionCount = alerts.totalCount + followUpsToday.length + siteVisitsToday.length;
 
@@ -103,20 +102,9 @@ export async function OwnerCommandCenter({
     { href: "/jobs?when=today", label: "jobs without staff", count: alerts.unassignedJobsToday.length },
   ];
   // Schedule: what customers see per day (same rule as Slot Availability) + the office setting.
-  const scheduleDays: ScheduleDay[] = (board ?? []).map((d) => ({
-    date: d.date,
-    booked: d.booked,
-    teams: d.teams,
-    dailyCapacity: d.dailyCapacity,
-    status: d.isFull ? "FULL" : d.dayStatus === "FILLING" ? "FILLING" : d.dayStatus === "OPEN" ? "OPEN" : d.booked >= Math.ceil(d.teams / 2) ? "FILLING" : "OPEN",
-    control: d.dayStatus,
-    slots: d.slots.filter((x) => x.slot !== "Flexible"),
-  }));
-  const todaySlot = scheduleDays[0];
+  // Team capacity today (same numbers as Slot Availability).
+  const todaySlot = board?.[0];
   if (todaySlot) chips.push({ href: "/jobs/slots", label: `teams · ${todaySlot.booked}/${todaySlot.dailyCapacity} booked today`, count: todaySlot.teams });
-  const scheduleJobs = Object.fromEntries(
-    [scheduleDays[0], scheduleDays[1]].map((d, i) => [d?.date ?? `_${i}`, (i === 0 ? today : tomorrow).jobs]),
-  );
   const collectionPercent =
     snapshot.collected + snapshot.pendingCollections > 0
       ? Math.round((snapshot.collected / (snapshot.collected + snapshot.pendingCollections)) * 100)
@@ -155,14 +143,21 @@ export async function OwnerCommandCenter({
       <DashboardModules role={role} />
 
       {/* Central schedule: date → jobs, teams, slots, status */}
-      <SchedulePanel
-        days={scheduleDays}
-        jobs={scheduleJobs}
-        monthView={
-          <LeadMonthCalendar initialYear={calendar.year} initialMonth={calendar.month} initialDays={calendar.days} initialLeadsByDay={calendar.leadsByDay} />
-        }
-      />
+      <section id="schedule" className="scroll-mt-20 rounded-xl border bg-card p-3 sm:p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold">Calendar</h2>
+          <Link href="/jobs/slots" className="text-xs font-medium text-primary">Slot Availability →</Link>
+        </div>
+        <LeadMonthCalendar initialYear={calendar.year} initialMonth={calendar.month} initialDays={calendar.days} initialLeadsByDay={calendar.leadsByDay} />
+      </section>
 
+      {/* Analytics & alerts stay one tap away, not on the main view. */}
+      <details className="group rounded-xl border bg-card">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold">
+          Business overview <span className="text-xs font-normal text-muted-foreground">target · revenue · alerts · dispatch · reviews</span>
+          <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="space-y-3 px-3 pb-3">
       {showBusinessTarget && <BusinessTargetCard businessTarget={businessTarget} />}
 
       {/* Revenue Intelligence */}
@@ -465,6 +460,8 @@ export async function OwnerCommandCenter({
           )}
         </div>
       </Fold>
+        </div>
+      </details>
     </div>
   );
 }
