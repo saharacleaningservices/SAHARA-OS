@@ -235,11 +235,11 @@ className="flex items-center justify-between rounded-md px-2 py-1.5 text-left te
 </div>
 
 {editable && (
-<div className="rounded-lg border border-dashed border-border p-3">
-<p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-foreground">
+<details className="rounded-lg border border-dashed border-border">
+<summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2 text-xs font-semibold text-foreground">
 <CalendarRange className="size-3.5" /> Bulk mark a date range
-</p>
-<div className="flex flex-wrap items-end gap-2">
+</summary>
+<div className="flex flex-wrap items-end gap-2 px-3 pb-3">
 <label className="text-xs">
 <span className="mb-1 block text-muted-foreground">From</span>
 <input type="date" value={bulk.from} onChange={(e) => setBulk((b) => ({ ...b, from: e.target.value }))} className="rounded-md border border-border bg-card px-2 py-1.5 text-sm" />
@@ -258,7 +258,7 @@ className="flex items-center justify-between rounded-md px-2 py-1.5 text-left te
 {pending && <Loader2 className="size-3.5 animate-spin" />} Apply
 </Button>
 </div>
-</div>
+</details>
 )}
 
 {(canEdit || canReopen) && (
