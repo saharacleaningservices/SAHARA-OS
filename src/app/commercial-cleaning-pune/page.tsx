@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
 import { OFFICE_SCOPE } from "@/lib/marketing-content";
-import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, QuoteSection, Faqs, Terms, OtherServices, ScopeLists, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 
 // Reads company settings from the DB, which is not available at image build time.
 export const dynamic = "force-dynamic";
@@ -25,17 +26,27 @@ const FAQS = [
 export default async function CommercialCleaningPage() {
   const settings = await getCompanySettings();
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
-      <Hero
+    <LandingShell
+      logoUrl={settings.logoUrl}
+      waText={WA}
+      jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}
+      bookHref="#quote"
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+      mobileBar={<CampaignBar label="Office & Commercial Cleaning" priceNote="Quote after site visit" cta="Book Site Visit →" />}
+    >
+      <CampaignStyles />
+      <CampaignHero
         image="/marketing/hero-commercial.webp"
         alt="Sahara cleaning team scrubbing floors and cleaning glass partitions in a Pune office"
-        eyebrow="Offices · Workspaces · Commercial premises"
         title="Office & Commercial Cleaning in Pune"
         subtitle="Trained team, professional equipment and flexible scheduling — quoted after a site visit."
-        primaryLabel="Get Site Visit & Quote"
+        service="COMMERCIAL_CLEANING"
+        serviceLabel="Office & Commercial Cleaning"
+        campaignName="Commercial Cleaning Pune"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
+        <QuoteSection title="Request a site visit" subtitle="Tell us your location and the size of the space — we'll schedule a visit and share a quote." campaignName="Commercial Cleaning Pune" defaultService="COMMERCIAL_CLEANING" />
         <section>
           <h2 className="text-2xl font-bold">Office deep cleaning</h2>
           <p className="text-sm text-[#0a2540]/70">Inspection on call — price shared after the site visit.</p>
@@ -46,13 +57,9 @@ export default async function CommercialCleaningPage() {
           <p className="text-sm text-[#0a2540]/70">Site visit required — price shared after inspection.</p>
           <ScopeLists included={VILLA_SCOPE} />
         </section>
-        <QuoteSection title="Request a site visit" subtitle="Tell us your location and the size of the space — we'll schedule a visit and share a quote." campaignName="Commercial Cleaning Pune" defaultService="COMMERCIAL_CLEANING" />
-        <HowItWorks />
-        <Areas />
-        <Faqs faqs={FAQS} />
+        <Accordion title="Frequently asked questions"><Faqs faqs={FAQS} /></Accordion>
         <Terms />
         <OtherServices current="/commercial-cleaning-pune" />
-        <FinalCta title="Get a cleaner, healthier workplace" waText={WA} />
       </main>
     </LandingShell>
   );

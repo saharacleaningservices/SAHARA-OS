@@ -22,7 +22,7 @@ export const BASE_URL = "https://booking.saharacleaningservices.com";
 const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAppLink(number)}?text=${encodeURIComponent(text)}`;
 
 // Verified public profiles (checked 30 Sep 2026) — only these are linked.
-const SOCIAL = [
+export const SOCIAL = [
   { href: "https://www.facebook.com/saharacleaningservices", label: "Facebook", icon: FaFacebookF },
   { href: "https://www.instagram.com/saharacleaningservices.pune/", label: "Instagram", icon: FaInstagram },
   { href: "https://www.youtube.com/channel/UCHfIf88WCd5HE0L1CU5iBXA", label: "YouTube", icon: FaYoutube },
@@ -79,7 +79,8 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
   return { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
 }
 
-export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode }) {
+/** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). */
+export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
   return (
     <div className="min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
@@ -98,12 +99,13 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
                 <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
               </span>
             ))}
-            <Link href="/booking?service=home#book" className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
+            <Link href={bookHref} className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
           </div>
         </div>
       </header>
       {children}
       <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
+      {footer ?? (
       <footer className="mt-6 border-t-2 border-primary bg-white">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 text-sm text-[#0a2540]/80 sm:grid-cols-[1.1fr_1.4fr_1fr] sm:py-8">
           {/* Brand + contact */}
@@ -172,12 +174,15 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
           </p>
         </div>
       </footer>
+      )}
       {/* Mobile bottom bar — one primary number only. */}
+      {mobileBar ?? (
       <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-border bg-white text-center text-xs font-bold sm:hidden">
         <a href={`tel:+91${CONTACT.call[0]}`} className="flex items-center justify-center gap-1 py-3 text-primary"><Phone className="size-3.5" /> Call</a>
         <a href={waLink(waText)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
         <Link href="/booking?service=home#book" className="bg-primary py-3 text-white">Book Now</Link>
       </div>
+      )}
     </div>
   );
 }
@@ -261,7 +266,7 @@ export function PackageGrid({ items, accent, tier }: { items: Pkg[]; accent?: bo
           <>
             <p className="font-bold">{p.bhk}</p>
             <p className="mt-0.5"><span className="text-xl font-extrabold text-primary sm:text-2xl">{inr(p.price)}</span></p>
-            <p className="text-xs text-[#0a2540]/50">MRP <span className="line-through">{inr(p.mrp)}</span></p>
+            {p.mrp > p.price && <p className="text-xs text-[#0a2540]/50">MRP <span className="line-through">{inr(p.mrp)}</span> · Save {inr(p.mrp - p.price)}</p>}
             {tier && <p className="mt-2 rounded-lg bg-primary/10 py-1.5 text-xs font-bold text-primary">View scope &amp; book</p>}
           </>
         );

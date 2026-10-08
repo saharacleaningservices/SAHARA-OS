@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, ScopeLists, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, QuoteSection, Faqs, Terms, OtherServices, ScopeLists, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 import { PAINT_OPTIONS, PAINT_SCOPE } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
@@ -24,17 +25,27 @@ const FAQS = [
 export default async function InteriorPaintingPage() {
   const settings = await getCompanySettings();
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
-      <Hero
+    <LandingShell
+      logoUrl={settings.logoUrl}
+      waText={WA}
+      jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}
+      bookHref="#quote"
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+      mobileBar={<CampaignBar label="Interior Painting · Asian Paints" priceNote="Quote after site measurement" cta="Book Site Visit →" />}
+    >
+      <CampaignStyles />
+      <CampaignHero
         image="/marketing/hero-painting.webp"
         alt="Sahara painter rolling fresh paint on a living-room wall in Pune"
-        eyebrow="New painting · Repainting · Texture"
         title="Interior Painting in Pune"
         subtitle="Neat preparation, the right paint for every room and a clean professional finish."
-        primaryLabel="Get Painting Quote"
+        service="PAINTING"
+        serviceLabel="Interior Painting"
+        campaignName="Interior Painting Pune"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
+        <QuoteSection title="Get your painting quote" subtitle="Tell us your home size and rooms — we'll schedule a site visit and measurement." campaignName="Interior Painting Pune" defaultService="PAINTING" />
         <section>
           <h2 className="text-2xl font-bold">Paint options</h2>
           <p className="text-sm text-[#0a2540]/70">Site visit / measurement required — price shared after measurement.</p>
@@ -46,13 +57,9 @@ export default async function InteriorPaintingPage() {
           <h2 className="text-2xl font-bold">Painting process</h2>
           <ScopeLists included={PAINT_SCOPE} equipment={null} />
         </section>
-        <QuoteSection title="Get your painting quote" subtitle="Tell us your home size and rooms — we'll schedule a site visit and measurement." campaignName="Interior Painting Pune" defaultService="PAINTING" />
-        <HowItWorks />
-        <Areas />
-        <Faqs faqs={FAQS} />
+        <Accordion title="Frequently asked questions"><Faqs faqs={FAQS} /></Accordion>
         <Terms />
         <OtherServices current="/interior-painting-pune" />
-        <FinalCta title="Give your home a fresh new look" waText={WA} />
       </main>
     </LandingShell>
   );
