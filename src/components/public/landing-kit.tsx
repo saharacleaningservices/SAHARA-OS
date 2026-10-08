@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Phone, MapPin, Check, X, MessageCircle, Mail } from "lucide-react";
-import { FaFacebookF, FaGoogle, FaInstagram } from "react-icons/fa";
+import { FaFacebookF, FaGoogle, FaInstagram, FaYoutube } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
@@ -25,6 +25,7 @@ const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAp
 const SOCIAL = [
   { href: "https://www.facebook.com/saharacleaningservices", label: "Facebook", icon: FaFacebookF },
   { href: "https://www.instagram.com/saharacleaningservices.pune/", label: "Instagram", icon: FaInstagram },
+  { href: "https://www.youtube.com/channel/UCHfIf88WCd5HE0L1CU5iBXA", label: "YouTube", icon: FaYoutube },
 ];
 
 // Service pages, for internal linking between the campaign landings.
