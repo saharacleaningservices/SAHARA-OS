@@ -17,6 +17,7 @@ import { getLivePricing } from "@/server/pricing";
 import { festivalForDate, unitPriceFor } from "@/lib/pricing-master";
 import { scopeSnapshot } from "@/lib/service-scope";
 import { linkCustomerAndSite } from "@/server/customer-db";
+import { copyLeadToSheet } from "@/server/lead-sheet";
 
 const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOGLE"] as const;
 
@@ -445,6 +446,20 @@ export async function publicBookLead(values: unknown) {
       })
       .catch(() => {});
   }
+
+  // Optional Google Sheet copy (off unless the owner set the webhook env vars).
+  void copyLeadToSheet({
+    timestamp: new Date().toISOString(),
+    name: data.name,
+    phone: data.mobile,
+    locality: data.area || data.pinCode || "",
+    service: svc,
+    package: [data.propertyType, data.packageName || data.serviceVariant].filter(Boolean).join(" "),
+    actual_price: estimated,
+    page_source: latestTouch?.landingPage ?? firstTouch?.landingPage ?? "",
+    utm_source: latestTouch?.source ?? firstTouch?.source ?? "",
+    utm_campaign: latestTouch?.campaign ?? firstTouch?.campaign ?? "",
+  });
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");

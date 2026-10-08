@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, FestivalSection, Hero, PackageGrid, RoomScope, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, FestivalSection, PackageGrid, RoomScope, QuoteSection, Faqs, Terms, OtherServices, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 import { livePkgs, liveSmallServices, liveCombos, inr } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
@@ -36,62 +37,64 @@ export default async function HomeDeepCleaningPage() {
   const PLATINUM = livePkgs(pricing.items, "PLATINUM");
   const SMALL_SERVICES = liveSmallServices(pricing.items);
   const COMBOS = liveCombos(pricing.items);
+  // Sticky-bar default: the most-booked package (genuine MRP shown only if the owner set one).
+  const popular = PREMIUM.find((p) => p.bhk === "2 BHK") ?? PREMIUM[0];
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd({ makesOffer: [...PREMIUM, ...PLATINUM].map((p, i) => ({ "@type": "Offer", name: `${p.bhk} ${i < 4 ? "Premium" : "Platinum"} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" })) }), faqJsonLd(FAQS)]}>
-      <Hero
+    <LandingShell
+      logoUrl={settings.logoUrl}
+      waText={WA}
+      jsonLd={[businessJsonLd({ makesOffer: [...PREMIUM, ...PLATINUM].map((p, i) => ({ "@type": "Offer", name: `${p.bhk} ${i < 4 ? "Premium" : "Platinum"} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" })) }), faqJsonLd(FAQS)]}
+      bookHref="#quote"
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+      mobileBar={popular ? <CampaignBar label={`${popular.bhk} Premium · Home Deep Cleaning`} price={popular.price} mrp={popular.mrp} /> : undefined}
+    >
+      <CampaignStyles />
+      <CampaignHero
         image="/marketing/hero-home.webp"
         alt="Sahara team vacuuming a carpet and wiping surfaces during home deep cleaning in Pune"
-        title="Professional Cleaning Services in Pune"
-        subtitle="Home deep cleaning — Premium & Platinum packages with transparent prices."
-        primaryLabel="View Packages / Book Now"
+        title="Home Deep Cleaning in Pune"
+        subtitle="Premium & Platinum packages with transparent prices — pick a live slot, pay after service."
+        service="HOME_DEEP_CLEANING"
+        serviceLabel="Home Deep Cleaning"
+        campaignName="Home Deep Cleaning Pune"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
+        <QuoteSection title="Book home deep cleaning" subtitle="Pick your home size, date and time — we confirm on WhatsApp." campaignName="Home Deep Cleaning Pune" defaultService="HOME_DEEP_CLEANING" />
         <FestivalSection />
         <section>
-          <h2 className="text-2xl font-bold">Premium home deep cleaning</h2>
+          <h2 className="text-xl font-bold sm:text-2xl">Premium home deep cleaning</h2>
           <p className="text-sm text-[#0a2540]/70">Complete top-to-bottom cleaning of your home. Estimated 7–8 hours.</p>
           <PackageGrid items={PREMIUM} tier="Premium" />
-          <RoomScope tier="Premium" />
+          <div className="mt-3"><Accordion title="View Full Cleaning Scope — Premium"><RoomScope tier="Premium" compact /></Accordion></div>
         </section>
         <section>
-          <h2 className="text-2xl font-bold">Platinum home deep cleaning</h2>
+          <h2 className="text-xl font-bold sm:text-2xl">Platinum home deep cleaning</h2>
           <p className="mt-1 inline-block rounded-lg bg-amber-100 px-3 py-1 text-sm font-bold text-amber-900">⭐ WALL WET CLEANING &amp; CEILING DRY DUSTING INCLUDED</p>
-          <p className="mt-1 text-sm text-[#0a2540]/70">The same complete scope as Premium, with wall wet cleaning instead of wall dry dusting.</p>
           <PackageGrid items={PLATINUM} accent tier="Platinum" />
-          <details className="mt-3 rounded-2xl bg-white shadow-sm"><summary className="cursor-pointer p-4 text-sm font-bold text-primary">View Platinum room-wise scope</summary><div className="px-1 pb-1"><RoomScope tier="Platinum" compact /></div></details>
+          <div className="mt-3"><Accordion title="View Full Cleaning Scope — Platinum"><RoomScope tier="Platinum" compact /></Accordion></div>
         </section>
-        <section>
-          <h2 className="text-2xl font-bold">Individual cleaning services</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <Accordion title="Individual cleaning services & combo packages">
+          <div className="grid gap-3 sm:grid-cols-2">
             {SMALL_SERVICES.map((s) => (
-              <div key={s.name} className="rounded-2xl bg-white p-4 shadow-sm">
+              <div key={s.name} className="rounded-xl bg-[#0a2540]/[0.03] p-3">
                 <h3 className="font-bold">{s.name}</h3>
-                <p className="text-2xl font-extrabold text-primary">{s.price == null ? <span className="text-sm font-semibold">{s.priceNote}</span> : <>{inr(s.price)} <span className="text-sm font-medium text-[#0a2540]/70">{s.unit}</span></>}</p>
+                <p className="text-lg font-extrabold text-primary">{s.price == null ? <span className="text-sm font-semibold">{s.priceNote}</span> : <>{inr(s.price)} <span className="text-sm font-medium text-[#0a2540]/70">{s.unit}</span></>}</p>
                 <p className="text-xs font-bold uppercase text-amber-700">{s.rule}</p>
               </div>
             ))}
-          </div>
-        </section>
-        <section>
-          <h2 className="text-2xl font-bold">Combo packages</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {COMBOS.map((c) => (
-              <div key={c.name} className="rounded-2xl bg-white p-4 shadow-sm">
+              <div key={c.name} className="rounded-xl bg-[#0a2540]/[0.03] p-3">
                 <h3 className="font-bold">{c.name}</h3>
-                <p className="text-2xl font-extrabold text-primary">{inr(c.price)}</p>
+                <p className="text-lg font-extrabold text-primary">{inr(c.price)}</p>
                 {c.note && <p className="text-xs font-semibold text-amber-700">{c.note}</p>}
               </div>
             ))}
           </div>
-        </section>
-        <QuoteSection title="Book home deep cleaning" subtitle="Tell us your home size and preferred date — we’ll confirm the price and slot." campaignName="Home Deep Cleaning Pune" defaultService="HOME_DEEP_CLEANING" />
-        <HowItWorks />
-        <Areas />
-        <Faqs faqs={FAQS} />
+        </Accordion>
+        <Accordion title="Frequently asked questions"><Faqs faqs={FAQS} /></Accordion>
         <Terms />
         <OtherServices current="/home-deep-cleaning-pune" />
-        <FinalCta title="Get your home deep cleaned by Sahara" waText={WA} />
       </main>
     </LandingShell>
   );

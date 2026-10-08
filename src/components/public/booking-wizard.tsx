@@ -631,6 +631,8 @@ export function BookingWizard({
                                     return (
                                       <span className="shrink-0 text-right leading-tight">
                                         <span className="block text-[10px] font-semibold text-[#0a2540]/55">{fest != null ? "Festival price" : "Price"}</span>
+                                        {/* Struck-through MRP only when the owner set one above the price (Settings → Pricing). */}
+                                        {fest == null && it.mrp != null && it.mrp > it.price! && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(it.mrp)}</span>}
                                         <span className="block text-base font-extrabold text-primary">{inr(fest ?? it.price!)}</span>
                                       </span>
                                     );

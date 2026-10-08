@@ -105,3 +105,9 @@ export const EAST_PUNE_AREAS = [
   "Mohammadwadi", "Manjri", "Phursungi", "Camp", "Fatima Nagar",
 ];
 export const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+
+/** Pune localities for the campaign quick-quote form and footer area list. */
+export const LOCALITIES = [
+  "Hadapsar", "Magarpatta", "Kharadi", "Viman Nagar", "Wagholi", "Kalyani Nagar", "Koregaon Park", "Kondhwa", "Undri",
+  "Baner", "Aundh", "Wakad", "Hinjewadi", "Pimple Saudagar", "Kothrud", "Bavdhan", "Warje", "Shivajinagar", "PCMC", "Other",
+] as const;

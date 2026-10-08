@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, QuoteSection, HowItWorks, Areas, Faqs, Terms, FinalCta, OtherServices, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, QuoteSection, Faqs, Terms, OtherServices, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 import { PEST_SERVICES } from "@/lib/marketing-content";
 
 // Reads company settings from the DB, which is not available at image build time.
@@ -24,17 +25,27 @@ const FAQS = [
 export default async function PestControlPage() {
   const settings = await getCompanySettings();
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
-      <Hero
+    <LandingShell
+      logoUrl={settings.logoUrl}
+      waText={WA}
+      jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}
+      bookHref="#quote"
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+      mobileBar={<CampaignBar label="Pest Control · inspection-based quote" priceNote="Price after inspection" cta="Book Inspection →" />}
+    >
+      <CampaignStyles />
+      <CampaignHero
         image="/marketing/hero-pest.webp"
         alt="Sahara pest control technician treating kitchen skirting in a Pune apartment"
-        eyebrow="Cockroach · Termite · Bed bug · Ant"
         title="Pest Control in Pune"
         subtitle="Inspection first, then a targeted treatment plan by a trained team."
-        primaryLabel="Book Inspection"
+        service="PEST_CONTROL"
+        serviceLabel="Pest Control"
+        campaignName="Pest Control Pune"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-8">
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
+        <QuoteSection title="Book a pest inspection" subtitle="Tell us the pest problem and your location — we'll schedule an inspection." campaignName="Pest Control Pune" defaultService="PEST_CONTROL" />
         <section>
           <h2 className="text-2xl font-bold">Pest control services</h2>
           <p className="text-sm text-[#0a2540]/70">Inspection / site assessment required — quote shared after inspection.</p>
@@ -47,13 +58,9 @@ export default async function PestControlPage() {
             ))}
           </div>
         </section>
-        <QuoteSection title="Book a pest inspection" subtitle="Tell us the pest problem and your location — we'll schedule an inspection." campaignName="Pest Control Pune" defaultService="PEST_CONTROL" />
-        <HowItWorks />
-        <Areas />
-        <Faqs faqs={FAQS} />
+        <Accordion title="Frequently asked questions"><Faqs faqs={FAQS} /></Accordion>
         <Terms />
         <OtherServices current="/pest-control-pune" />
-        <FinalCta title="Book your pest control inspection" waText={WA} />
       </main>
     </LandingShell>
   );
