@@ -71,19 +71,19 @@ export function AttendanceMonthlySummary({
           </Select>
         </div>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
+      <CardContent className="overflow-x-auto max-sm:px-2">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Staff</TableHead>
               <TableHead className="text-center">Present</TableHead>
               <TableHead className="text-center">Absent</TableHead>
-              <TableHead className="text-center">Off</TableHead>
-              {canViewSalary && <TableHead className="text-right">Advance</TableHead>}
-              {canViewSalary && <TableHead className="text-right">Fine</TableHead>}
-              {canViewSalary && <TableHead className="text-right">Reward</TableHead>}
+              <TableHead className="text-center max-sm:hidden">Off</TableHead>
+              {canViewSalary && <TableHead className="text-right max-sm:hidden">Advance</TableHead>}
+              {canViewSalary && <TableHead className="text-right max-sm:hidden">Fine</TableHead>}
+              {canViewSalary && <TableHead className="text-right max-sm:hidden">Reward</TableHead>}
               {canViewSalary && <TableHead className="text-right">Net Payable</TableHead>}
-              {canViewSalary && <TableHead className="text-right">Slip</TableHead>}
+              {canViewSalary && <TableHead className="text-right max-sm:hidden">Slip</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -91,17 +91,17 @@ export function AttendanceMonthlySummary({
               <TableRow key={r.id}>
                 <TableCell>
                   <p className="text-sm font-medium text-foreground">{r.name}</p>
-                  <p className="text-xs text-muted-foreground">{r.employeeCode} · {r.wageType}</p>
+                  <p className="text-xs text-muted-foreground max-sm:hidden">{r.employeeCode} · {r.wageType}</p>
                 </TableCell>
                 <TableCell className="text-center text-sm">{r.presentDays}{r.halfDays ? ` +${r.halfDays}½` : ""}</TableCell>
                 <TableCell className="text-center text-sm">{r.absentDays}</TableCell>
-                <TableCell className="text-center text-sm">{r.offDays}</TableCell>
-                {canViewSalary && <TableCell className="text-right text-sm">{formatINR(r.advanceTotal)}</TableCell>}
-                {canViewSalary && <TableCell className="text-right text-sm">{formatINR(r.fineTotal)}</TableCell>}
-                {canViewSalary && <TableCell className="text-right text-sm">{formatINR(r.rewardTotal)}</TableCell>}
+                <TableCell className="text-center text-sm max-sm:hidden">{r.offDays}</TableCell>
+                {canViewSalary && <TableCell className="text-right text-sm max-sm:hidden">{formatINR(r.advanceTotal)}</TableCell>}
+                {canViewSalary && <TableCell className="text-right text-sm max-sm:hidden">{formatINR(r.fineTotal)}</TableCell>}
+                {canViewSalary && <TableCell className="text-right text-sm max-sm:hidden">{formatINR(r.rewardTotal)}</TableCell>}
                 {canViewSalary && <TableCell className="text-right text-sm font-semibold">{formatINR(r.netBalance)}</TableCell>}
                 {canViewSalary && (
-                  <TableCell className="text-right">
+                  <TableCell className="text-right max-sm:hidden">
                     <Button variant="outline" size="icon" className="size-8" asChild>
                       <a href={`/api/staff/${r.id}/payslip/pdf?year=${year}&month=${month}`} target="_blank" rel="noreferrer" title="Salary slip">
                         <FileDown className="size-3.5" />

@@ -1,5 +1,6 @@
 "use client";
 
+import { ResponsiveFold } from "@/components/shared/responsive-fold";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -89,7 +90,7 @@ export function KhataImportManager({ batches }: { batches: Batch[] }) {
 
   const ready = preview?.plans.filter((p) => p.status === "READY").length ?? 0;
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -240,11 +241,8 @@ export function KhataImportManager({ batches }: { batches: Batch[] }) {
 
       {results && <ResultTable results={results} title="3 · Final reconciliation" />}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Import history</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
+      <ResponsiveFold title="Import history">
+        <div className="space-y-3 text-sm">
           {batches.length === 0 && <p className="text-muted-foreground">No imports yet.</p>}
           {batches
             .filter((b) => b.status !== "PREVIEW")
@@ -265,8 +263,8 @@ export function KhataImportManager({ batches }: { batches: Batch[] }) {
                 {b.resultJson && b.status !== "FAILED" && <ResultTable results={JSON.parse(b.resultJson) as Result[]} compact />}
               </div>
             ))}
-        </CardContent>
-      </Card>
+        </div>
+      </ResponsiveFold>
     </div>
   );
 }

@@ -37,7 +37,7 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
       : [];
 
   return (
-    <div className={`space-y-2.5 rounded-lg border bg-card p-3 sahara-shadow ${isTodayJob ? "border-success ring-1 ring-success/40" : "border-border"}`}>
+    <div className={`space-y-1.5 rounded-lg border bg-card p-2.5 sahara-shadow ${isTodayJob ? "border-success ring-1 ring-success/40" : "border-border"}`}>
       <div className="flex items-start justify-between gap-2">
         <Link href={`/leads/${lead.id}`} className="min-w-0 hover:underline">
           <p className="truncate text-sm font-semibold text-foreground">{lead.name}</p>
@@ -47,10 +47,9 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
         </Badge>
       </div>
 
-      <p className="flex items-center gap-1 text-xs text-muted-foreground">
-        <MapPin className="size-3" /> {lead.area}
+      <p className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+        <MapPin className="size-3 shrink-0" /> <span className="truncate">{lead.area} · {SERVICE_LABELS[lead.service]}</span>
       </p>
-      <p className="text-xs text-muted-foreground">{SERVICE_LABELS[lead.service]}</p>
 
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-semibold text-foreground">
@@ -76,9 +75,10 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
         </p>
       )}
 
-      <StageSelect leadId={lead.id} stage={lead.stage} />
-
-      <div className="flex items-center gap-1.5 pt-1">
+      <div className="flex items-center gap-1.5">
+        <div className="min-w-0 flex-1">
+          <StageSelect leadId={lead.id} stage={lead.stage} />
+        </div>
         <CallButton mobile={lead.mobile} />
         <WhatsAppButton
           mobile={lead.mobile}
