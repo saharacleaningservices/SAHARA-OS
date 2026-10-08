@@ -46,8 +46,9 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
   const lead = {
     ...redactLead(rawLead, session.role),
     timeline: rawLead.timeline.map((e) => ({ ...e, body: maskDigits(e.body ?? "") })),
-    quotations: showMoney ? rawLead.quotations : [],
-    payments: showMoney ? rawLead.payments : [],
+    // Quotation / payment records + PDFs carry the customer number — Super Admin / Accounts only.
+    quotations: showContact && showMoney ? rawLead.quotations : [],
+    payments: showContact && showMoney ? rawLead.payments : [],
   };
 
   const estimated = lead.quoteAmount ?? 0;
@@ -99,7 +100,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               purpose={advance > 0 ? "BALANCE" : "ADVANCE"}
             />
             )}
-            {showMoney && (
+            {showContact && showMoney && (
               <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} serviceItems={lead.serviceItems} discountAmount={lead.discountAmount} />
             )}
             {canConfirm && (
@@ -219,7 +220,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
             </CardContent>
           </Card>
 
-          {showMoney && (
+          {showContact && showMoney && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

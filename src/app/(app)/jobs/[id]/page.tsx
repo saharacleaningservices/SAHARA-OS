@@ -54,7 +54,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const canSeeCustomerContact = canSeeContact(session.role);
   // Payment ledger / expenses — owner + Accounts only.
   const showMoney = canViewRevenue(session.role);
-  // Job amount / advance / balance — Super Admin + Accounts only.
+  // Job amount / advance / balance — Super Admin, Accounts, Operations.
   const showJobAmount = canViewJobAmount(session.role);
   const settings = await getCompanySettings();
   const paymentDetails = {
@@ -77,7 +77,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
   // Customer documents (secure token links) — Super Admin, Operations and Accounts.
   // Sending opens WhatsApp with the message pre-filled; staff still press send themselves.
-  const canSendDocs = canManage && showJobAmount && !job.isDemo;
+  // Sending opens WhatsApp to the customer's number — contact roles only.
+  const canSendDocs = canManage && showJobAmount && canSeeCustomerContact && !job.isDemo;
   const docToken = canSendDocs ? (job.publicToken ?? (await ensureJobToken(job.id))) : null;
   const quotationUrl = docToken ? `${PUBLIC_BOOKING_URL}/booking/quotation/${docToken}` : "";
   // The final invoice exists only once the job is completed (the public route 404s before that too).

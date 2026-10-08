@@ -149,9 +149,10 @@ export function jobScopeFor(role: string): JobScope {
  * their own jobs' amounts in the Staff App (server/staff-portal.ts).
  */
 export function canViewJobAmount(role: string): boolean {
-  // Owner rule 2026-10-08 (supersedes 2026-10-05): Operations (Francis) sees no
-  // job amount / advance / balance — operational data only.
-  return role === "ADMIN" || role === "ACCOUNTS";
+  // Owner rule 2026-10-08 (final): Operations (Francis) sees job amount /
+  // advance / balance — never the customer mobile (canSeeCustomerContact) and
+  // never cost, margin, wages or profit (canViewFinancials / canViewSalary).
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
 }
 
 /**
