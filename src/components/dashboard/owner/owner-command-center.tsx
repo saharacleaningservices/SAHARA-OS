@@ -136,20 +136,20 @@ export async function OwnerCommandCenter({
         </div>
       </div>
 
-      {/* New Lead · New Job · Package Calculator · Schedule */}
-      <DashboardQuickBar role={role} />
-
-      {/* The six groups — role-filtered (same rule as the sidebar) */}
-      <DashboardModules role={role} />
-
-      {/* Central schedule: date → jobs, teams, slots, status */}
-      <section id="schedule" className="scroll-mt-20 rounded-xl border bg-card p-3 sm:p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold">Calendar</h2>
-          <Link href="/jobs/slots" className="text-xs font-medium text-primary">Slot Availability →</Link>
+      {/* Control center: quick actions + six groups | compact calendar (side by side on desktop) */}
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="space-y-3">
+          <DashboardQuickBar role={role} />
+          <DashboardModules role={role} />
         </div>
-        <LeadMonthCalendar initialYear={calendar.year} initialMonth={calendar.month} initialDays={calendar.days} initialLeadsByDay={calendar.leadsByDay} />
-      </section>
+        <section id="schedule" className="scroll-mt-20 rounded-xl border bg-card p-3">
+          <div className="mb-1 flex items-center justify-between">
+            <h2 className="text-sm font-semibold">Calendar</h2>
+            <Link href="/jobs/slots" className="text-xs font-medium text-primary">Slot Availability →</Link>
+          </div>
+          <LeadMonthCalendar initialYear={calendar.year} initialMonth={calendar.month} initialDays={calendar.days} initialLeadsByDay={calendar.leadsByDay} compact />
+        </section>
+      </div>
 
       {/* Analytics & alerts stay one tap away, not on the main view. */}
       <details className="group rounded-xl border bg-card">

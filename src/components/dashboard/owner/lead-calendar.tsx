@@ -68,6 +68,7 @@ export function LeadMonthCalendar({
   initialDays,
   initialLeadsByDay,
   detailLevel = "full",
+  compact = false,
 }: {
   initialYear: number;
   initialMonth: number;
@@ -82,6 +83,8 @@ export function LeadMonthCalendar({
    * The server already enforces this by never sending the omitted fields —
    * this prop only decides how to render what actually arrived. */
   detailLevel?: CalendarDetailLevel;
+  /** Dashboard: short date cells so the month grid stays small. */
+  compact?: boolean;
 }) {
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
@@ -141,7 +144,8 @@ export function LeadMonthCalendar({
             disabled={pending || d.count === 0}
             onClick={() => setSelectedDay(d.iso)}
             className={cn(
-              "flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md border text-xs transition-colors",
+              "flex flex-col items-center justify-center rounded-md border text-xs transition-colors",
+              compact ? "h-9 leading-tight" : "aspect-square gap-0.5",
               COLOR_CELL[d.color],
               d.count > 0 && "cursor-pointer hover:border-primary/50",
             )}
