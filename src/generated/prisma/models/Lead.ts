@@ -72,6 +72,7 @@ export type LeadMinAggregateOutputType = {
   paymentMode: string | null
   paymentStatus: string | null
   mapLink: string | null
+  siteId: string | null
   referralCode: string | null
   acquisitionChannel: string | null
   acquisitionCampaign: string | null
@@ -143,6 +144,7 @@ export type LeadMaxAggregateOutputType = {
   paymentMode: string | null
   paymentStatus: string | null
   mapLink: string | null
+  siteId: string | null
   referralCode: string | null
   acquisitionChannel: string | null
   acquisitionCampaign: string | null
@@ -214,6 +216,7 @@ export type LeadCountAggregateOutputType = {
   paymentMode: number
   paymentStatus: number
   mapLink: number
+  siteId: number
   referralCode: number
   acquisitionChannel: number
   acquisitionCampaign: number
@@ -301,6 +304,7 @@ export type LeadMinAggregateInputType = {
   paymentMode?: true
   paymentStatus?: true
   mapLink?: true
+  siteId?: true
   referralCode?: true
   acquisitionChannel?: true
   acquisitionCampaign?: true
@@ -372,6 +376,7 @@ export type LeadMaxAggregateInputType = {
   paymentMode?: true
   paymentStatus?: true
   mapLink?: true
+  siteId?: true
   referralCode?: true
   acquisitionChannel?: true
   acquisitionCampaign?: true
@@ -443,6 +448,7 @@ export type LeadCountAggregateInputType = {
   paymentMode?: true
   paymentStatus?: true
   mapLink?: true
+  siteId?: true
   referralCode?: true
   acquisitionChannel?: true
   acquisitionCampaign?: true
@@ -601,6 +607,7 @@ export type LeadGroupByOutputType = {
   paymentMode: string | null
   paymentStatus: string | null
   mapLink: string | null
+  siteId: string | null
   referralCode: string | null
   acquisitionChannel: string | null
   acquisitionCampaign: string | null
@@ -695,6 +702,7 @@ export type LeadWhereInput = {
   paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
   paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
   acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -776,6 +784,7 @@ export type LeadOrderByWithRelationInput = {
   paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionChannel?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -860,6 +869,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
   paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
   acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -941,6 +951,7 @@ export type LeadOrderByWithAggregationInput = {
   paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionChannel?: Prisma.SortOrderInput | Prisma.SortOrder
   acquisitionCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -1020,6 +1031,7 @@ export type LeadScalarWhereWithAggregatesInput = {
   paymentMode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   paymentStatus?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   acquisitionChannel?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   acquisitionCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -1091,6 +1103,7 @@ export type LeadCreateInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -1169,6 +1182,7 @@ export type LeadUncheckedCreateInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -1247,6 +1261,7 @@ export type LeadUpdateInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1325,6 +1340,7 @@ export type LeadUncheckedUpdateInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1403,6 +1419,7 @@ export type LeadCreateManyInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -1474,6 +1491,7 @@ export type LeadUpdateManyMutationInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1542,6 +1560,7 @@ export type LeadUncheckedUpdateManyInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1623,6 +1642,7 @@ export type LeadCountOrderByAggregateInput = {
   paymentMode?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   acquisitionChannel?: Prisma.SortOrder
   acquisitionCampaign?: Prisma.SortOrder
@@ -1701,6 +1721,7 @@ export type LeadMaxOrderByAggregateInput = {
   paymentMode?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   acquisitionChannel?: Prisma.SortOrder
   acquisitionCampaign?: Prisma.SortOrder
@@ -1772,6 +1793,7 @@ export type LeadMinOrderByAggregateInput = {
   paymentMode?: Prisma.SortOrder
   paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
   acquisitionChannel?: Prisma.SortOrder
   acquisitionCampaign?: Prisma.SortOrder
@@ -2116,6 +2138,7 @@ export type LeadCreateWithoutCreatedByInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2193,6 +2216,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2279,6 +2303,7 @@ export type LeadCreateWithoutAssignedToInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2356,6 +2381,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2461,6 +2487,7 @@ export type LeadScalarWhereInput = {
   paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
   paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
   acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
   acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -2548,6 +2575,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2625,6 +2653,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2727,6 +2756,7 @@ export type LeadCreateWithoutQuotationsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2804,6 +2834,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -2897,6 +2928,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2974,6 +3006,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3051,6 +3084,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -3128,6 +3162,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -3221,6 +3256,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3298,6 +3334,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3375,6 +3412,7 @@ export type LeadCreateWithoutTimelineInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -3452,6 +3490,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -3545,6 +3584,7 @@ export type LeadUpdateWithoutTimelineInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3622,6 +3662,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3699,6 +3740,7 @@ export type LeadCreateWithoutJobsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -3776,6 +3818,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -3869,6 +3912,7 @@ export type LeadUpdateWithoutJobsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3946,6 +3990,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4023,6 +4068,7 @@ export type LeadCreateWithoutPaymentsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -4100,6 +4146,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -4193,6 +4240,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4270,6 +4318,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4347,6 +4396,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -4424,6 +4474,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -4517,6 +4568,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4594,6 +4646,7 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4671,6 +4724,7 @@ export type LeadCreateWithoutAmcContractsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -4748,6 +4802,7 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -4841,6 +4896,7 @@ export type LeadUpdateWithoutAmcContractsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4918,6 +4974,7 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4995,6 +5052,7 @@ export type LeadCreateManyCreatedByInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -5065,6 +5123,7 @@ export type LeadCreateManyAssignedToInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -5135,6 +5194,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5212,6 +5272,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5289,6 +5350,7 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5359,6 +5421,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5436,6 +5499,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5513,6 +5577,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5583,6 +5648,7 @@ export type LeadCreateManyAssignedStaffInput = {
   paymentMode?: string | null
   paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
   acquisitionChannel?: string | null
   acquisitionCampaign?: string | null
@@ -5653,6 +5719,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5730,6 +5797,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5807,6 +5875,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5962,6 +6031,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   paymentMode?: boolean
   paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
   acquisitionChannel?: boolean
   acquisitionCampaign?: boolean
@@ -6044,6 +6114,7 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   paymentMode?: boolean
   paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
   acquisitionChannel?: boolean
   acquisitionCampaign?: boolean
@@ -6118,6 +6189,7 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   paymentMode?: boolean
   paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
   acquisitionChannel?: boolean
   acquisitionCampaign?: boolean
@@ -6192,6 +6264,7 @@ export type LeadSelectScalar = {
   paymentMode?: boolean
   paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
   acquisitionChannel?: boolean
   acquisitionCampaign?: boolean
@@ -6231,7 +6304,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "intakeKey" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "intakeKey" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "siteId" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -6302,6 +6375,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     paymentMode: string | null
     paymentStatus: string | null
     mapLink: string | null
+    siteId: string | null
     referralCode: string | null
     acquisitionChannel: string | null
     acquisitionCampaign: string | null
@@ -6803,6 +6877,7 @@ export interface LeadFieldRefs {
   readonly paymentMode: Prisma.FieldRef<"Lead", 'String'>
   readonly paymentStatus: Prisma.FieldRef<"Lead", 'String'>
   readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
+  readonly siteId: Prisma.FieldRef<"Lead", 'String'>
   readonly referralCode: Prisma.FieldRef<"Lead", 'String'>
   readonly acquisitionChannel: Prisma.FieldRef<"Lead", 'String'>
   readonly acquisitionCampaign: Prisma.FieldRef<"Lead", 'String'>

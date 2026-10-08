@@ -75,6 +75,7 @@ export type JobMinAggregateOutputType = {
   festivalName: string | null
   scopeOfWork: string | null
   mapLink: string | null
+  siteId: string | null
   vehicleId: string | null
   isDemo: boolean | null
   deletedAt: Date | null
@@ -120,6 +121,7 @@ export type JobMaxAggregateOutputType = {
   festivalName: string | null
   scopeOfWork: string | null
   mapLink: string | null
+  siteId: string | null
   vehicleId: string | null
   isDemo: boolean | null
   deletedAt: Date | null
@@ -165,6 +167,7 @@ export type JobCountAggregateOutputType = {
   festivalName: number
   scopeOfWork: number
   mapLink: number
+  siteId: number
   vehicleId: number
   isDemo: number
   deletedAt: number
@@ -224,6 +227,7 @@ export type JobMinAggregateInputType = {
   festivalName?: true
   scopeOfWork?: true
   mapLink?: true
+  siteId?: true
   vehicleId?: true
   isDemo?: true
   deletedAt?: true
@@ -269,6 +273,7 @@ export type JobMaxAggregateInputType = {
   festivalName?: true
   scopeOfWork?: true
   mapLink?: true
+  siteId?: true
   vehicleId?: true
   isDemo?: true
   deletedAt?: true
@@ -314,6 +319,7 @@ export type JobCountAggregateInputType = {
   festivalName?: true
   scopeOfWork?: true
   mapLink?: true
+  siteId?: true
   vehicleId?: true
   isDemo?: true
   deletedAt?: true
@@ -446,6 +452,7 @@ export type JobGroupByOutputType = {
   festivalName: string | null
   scopeOfWork: string | null
   mapLink: string | null
+  siteId: string | null
   vehicleId: string | null
   isDemo: boolean
   deletedAt: Date | null
@@ -514,6 +521,7 @@ export type JobWhereInput = {
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -571,6 +579,7 @@ export type JobOrderByWithRelationInput = {
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -631,6 +640,7 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -688,6 +698,7 @@ export type JobOrderByWithAggregationInput = {
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -741,6 +752,7 @@ export type JobScalarWhereWithAggregatesInput = {
   festivalName?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
@@ -784,6 +796,7 @@ export type JobCreateInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -840,6 +853,7 @@ export type JobUncheckedCreateInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -892,6 +906,7 @@ export type JobUpdateInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -948,6 +963,7 @@ export type JobUncheckedUpdateInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1002,6 +1018,7 @@ export type JobCreateManyInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1045,6 +1062,7 @@ export type JobUpdateManyMutationInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1089,6 +1107,7 @@ export type JobUncheckedUpdateManyInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1144,6 +1163,7 @@ export type JobCountOrderByAggregateInput = {
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1195,6 +1215,7 @@ export type JobMaxOrderByAggregateInput = {
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1240,6 +1261,7 @@ export type JobMinOrderByAggregateInput = {
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1563,6 +1585,7 @@ export type JobCreateWithoutSupervisorInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1617,6 +1640,7 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1699,6 +1723,7 @@ export type JobScalarWhereInput = {
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -1742,6 +1767,7 @@ export type JobCreateWithoutLeadInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1796,6 +1822,7 @@ export type JobUncheckedCreateWithoutLeadInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1873,6 +1900,7 @@ export type JobCreateWithoutAssignmentsInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1928,6 +1956,7 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1995,6 +2024,7 @@ export type JobUpdateWithoutAssignmentsInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2050,6 +2080,7 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2101,6 +2132,7 @@ export type JobCreateWithoutPhotosInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2156,6 +2188,7 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2223,6 +2256,7 @@ export type JobUpdateWithoutPhotosInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2278,6 +2312,7 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2329,6 +2364,7 @@ export type JobCreateWithoutCertificateInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2384,6 +2420,7 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2451,6 +2488,7 @@ export type JobUpdateWithoutCertificateInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2506,6 +2544,7 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2557,6 +2596,7 @@ export type JobCreateWithoutPaymentsInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2612,6 +2652,7 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2679,6 +2720,7 @@ export type JobUpdateWithoutPaymentsInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2734,6 +2776,7 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2785,6 +2828,7 @@ export type JobCreateWithoutExpensesInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2840,6 +2884,7 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2907,6 +2952,7 @@ export type JobUpdateWithoutExpensesInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2962,6 +3008,7 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3013,6 +3060,7 @@ export type JobCreateWithoutActivityLogsInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3068,6 +3116,7 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3135,6 +3184,7 @@ export type JobUpdateWithoutActivityLogsInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3190,6 +3240,7 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3241,6 +3292,7 @@ export type JobCreateWithoutVehicleInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3296,6 +3348,7 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3372,6 +3425,7 @@ export type JobCreateWithoutMaterialIssuesInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3427,6 +3481,7 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3494,6 +3549,7 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3549,6 +3605,7 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3600,6 +3657,7 @@ export type JobCreateWithoutInvoiceInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3655,6 +3713,7 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3722,6 +3781,7 @@ export type JobUpdateWithoutInvoiceInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3777,6 +3837,7 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3828,6 +3889,7 @@ export type JobCreateWithoutVideosInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3883,6 +3945,7 @@ export type JobUncheckedCreateWithoutVideosInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3950,6 +4013,7 @@ export type JobUpdateWithoutVideosInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4005,6 +4069,7 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4057,6 +4122,7 @@ export type JobCreateManySupervisorInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4100,6 +4166,7 @@ export type JobUpdateWithoutSupervisorInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4154,6 +4221,7 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4207,6 +4275,7 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4251,6 +4320,7 @@ export type JobCreateManyLeadInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -4294,6 +4364,7 @@ export type JobUpdateWithoutLeadInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4348,6 +4419,7 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4401,6 +4473,7 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4446,6 +4519,7 @@ export type JobCreateManyVehicleInput = {
   festivalName?: string | null
   scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -4488,6 +4562,7 @@ export type JobUpdateWithoutVehicleInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4543,6 +4618,7 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4596,6 +4672,7 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4725,6 +4802,7 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   festivalName?: boolean
   scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -4783,6 +4861,7 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   festivalName?: boolean
   scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -4831,6 +4910,7 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   festivalName?: boolean
   scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -4879,6 +4959,7 @@ export type JobSelectScalar = {
   festivalName?: boolean
   scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -4887,7 +4968,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -4967,6 +5048,7 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     festivalName: string | null
     scopeOfWork: string | null
     mapLink: string | null
+    siteId: string | null
     vehicleId: string | null
     isDemo: boolean
     deletedAt: Date | null
@@ -5444,6 +5526,7 @@ export interface JobFieldRefs {
   readonly festivalName: Prisma.FieldRef<"Job", 'String'>
   readonly scopeOfWork: Prisma.FieldRef<"Job", 'String'>
   readonly mapLink: Prisma.FieldRef<"Job", 'String'>
+  readonly siteId: Prisma.FieldRef<"Job", 'String'>
   readonly vehicleId: Prisma.FieldRef<"Job", 'String'>
   readonly isDemo: Prisma.FieldRef<"Job", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Job", 'DateTime'>

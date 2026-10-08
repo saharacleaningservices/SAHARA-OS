@@ -403,11 +403,36 @@ model Customer {
   source             String?
   notes              String?
   importBatchId      String?
+  // Customer CRM (2026-10-08, additive): one contact per mobile, many sites.
+  email              String?
+  contactType        String    @default("CUSTOMER") // CUSTOMER | BROKER | ARCHITECT | INTERIOR_DESIGNER | SOCIETY | CORPORATE
+  isRepeat           Boolean   @default(false)
+  sites              CustomerSite[]
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
   @@index([area])
   @@index([lastServiceDate])
+  @@index([contactType])
+}
+
+// A service address under one contact — a repeat customer's homes, or the
+// many client sites a broker / architect brings. Leads and Jobs point to it by
+// siteId (optional); their own address fields stay the booking-time snapshot.
+model CustomerSite {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  label      String?
+  address    String
+  pinCode    String?
+  area       String?
+  mapLink    String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([customerId])
 }
 
 // A personalized customer link (booking form / follow-up / review request)
@@ -483,6 +508,7 @@ model Lead {
   paymentMode   String? // UPI | QR | BANK | CASH
   paymentStatus String? // PENDING | PARTIAL | PAID | PENDING_ADVANCE
   mapLink       String?
+   siteId        String? // CustomerSite this enquiry is for (additive, 2026-10-08)
   referralCode  String?
 
   // Marketing attribution (2026-09-29 independent marketing system).
@@ -692,6 +718,7 @@ model Job {
   scopeOfWork  String?
 
   mapLink   String?
+  siteId    String? // CustomerSite this job is for (additive, 2026-10-08)
   vehicleId String?
   vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
 

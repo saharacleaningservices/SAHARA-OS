@@ -1581,3 +1581,38 @@ db.close();
   console.log("Slot availability control migration complete.");
   sDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Customer CRM (2026-10-08, additive only): contact type / repeat flag / email
+// on Customer, a CustomerSite table (many service addresses per contact), and
+// an optional siteId on Lead and Job. Existing rows are never modified.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const cDb = new Database(dbPath);
+  const cols = (t) => cDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
+  const add = (t, col, ddl) => { if (!cols(t).includes(col)) cDb.exec(`ALTER TABLE "${t}" ADD COLUMN ${ddl}`); };
+  add("Customer", "email", `"email" TEXT`);
+  add("Customer", "contactType", `"contactType" TEXT NOT NULL DEFAULT 'CUSTOMER'`);
+  add("Customer", "isRepeat", `"isRepeat" BOOLEAN NOT NULL DEFAULT false`);
+  add("Lead", "siteId", `"siteId" TEXT`);
+  add("Job", "siteId", `"siteId" TEXT`);
+  cDb.exec(`
+    CREATE INDEX IF NOT EXISTS "Customer_contactType_idx" ON "Customer"("contactType");
+    CREATE TABLE IF NOT EXISTS "CustomerSite" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "customerId" TEXT NOT NULL,
+      "label" TEXT,
+      "address" TEXT NOT NULL,
+      "pinCode" TEXT,
+      "area" TEXT,
+      "mapLink" TEXT,
+      "notes" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL,
+      CONSTRAINT "CustomerSite_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS "CustomerSite_customerId_idx" ON "CustomerSite"("customerId");
+  `);
+  console.log("Customer CRM (contact type, repeat, sites) migration complete.");
+  cDb.close();
+}

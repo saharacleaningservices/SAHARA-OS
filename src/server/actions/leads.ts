@@ -33,6 +33,7 @@ import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendBookingConfirmation } from "@/server/booking-messages";
 import { canAccessLead } from "@/server/leads";
 import { channelForManualLead } from "@/lib/attribution";
+import { linkCustomerAndSite } from "@/server/customer-db";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit allowed lead/booking
@@ -123,6 +124,22 @@ export async function createLead(values: unknown) {
   const now = new Date();
 
   const pkg = await packageFields(data.serviceItems, data.discountAmount, session?.role);
+  // One customer database: reuse the contact for this mobile and the chosen /
+  // matching service site, or add the new address as a site (never a duplicate contact).
+  const link = await linkCustomerAndSite({
+    mobile: data.mobile,
+    name: data.name,
+    alternateMobile: data.alternateMobile,
+    email: data.email,
+    address: data.address,
+    pinCode: data.pinCode,
+    area: deriveArea(data),
+    mapLink: data.mapLink,
+    contactType: data.contactType || null,
+    isRepeat: data.isRepeat ?? null,
+    siteId: data.siteId || null,
+    source: data.source,
+  });
   const leadNumber = await generateLeadNumber();
   const lead = await db.lead.create({
     data: {
@@ -157,6 +174,7 @@ export async function createLead(values: unknown) {
       paymentMode: data.paymentMode || null,
       paymentStatus: data.paymentStatus || (data.advanceAmount ? "PARTIAL" : "PENDING"),
       mapLink: data.mapLink || null,
+      siteId: link?.siteId ?? null,
       acquisitionChannel: channel,
       acquisitionCampaign: campaign,
       firstTouchSource: channel,
@@ -504,6 +522,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
       scopeOfWork: lead.scopeOfWork,
       pinCode: lead.pinCode,
       mapLink: lead.mapLink,
+      siteId: lead.siteId,
       scheduledDate,
       scheduledTime: data.timeSlot,
       teamNumber,

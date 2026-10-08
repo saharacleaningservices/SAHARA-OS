@@ -47,6 +47,9 @@ export type CustomerMinAggregateOutputType = {
   source: string | null
   notes: string | null
   importBatchId: string | null
+  email: string | null
+  contactType: string | null
+  isRepeat: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -64,6 +67,9 @@ export type CustomerMaxAggregateOutputType = {
   source: string | null
   notes: string | null
   importBatchId: string | null
+  email: string | null
+  contactType: string | null
+  isRepeat: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -81,6 +87,9 @@ export type CustomerCountAggregateOutputType = {
   source: number
   notes: number
   importBatchId: number
+  email: number
+  contactType: number
+  isRepeat: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -108,6 +117,9 @@ export type CustomerMinAggregateInputType = {
   source?: true
   notes?: true
   importBatchId?: true
+  email?: true
+  contactType?: true
+  isRepeat?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -125,6 +137,9 @@ export type CustomerMaxAggregateInputType = {
   source?: true
   notes?: true
   importBatchId?: true
+  email?: true
+  contactType?: true
+  isRepeat?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -142,6 +157,9 @@ export type CustomerCountAggregateInputType = {
   source?: true
   notes?: true
   importBatchId?: true
+  email?: true
+  contactType?: true
+  isRepeat?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -246,6 +264,9 @@ export type CustomerGroupByOutputType = {
   source: string | null
   notes: string | null
   importBatchId: string | null
+  email: string | null
+  contactType: string
+  isRepeat: boolean
   createdAt: Date
   updatedAt: Date
   _count: CustomerCountAggregateOutputType | null
@@ -286,8 +307,12 @@ export type CustomerWhereInput = {
   source?: Prisma.StringNullableFilter<"Customer"> | string | null
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
   importBatchId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  email?: Prisma.StringNullableFilter<"Customer"> | string | null
+  contactType?: Prisma.StringFilter<"Customer"> | string
+  isRepeat?: Prisma.BoolFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  sites?: Prisma.CustomerSiteListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
@@ -303,8 +328,12 @@ export type CustomerOrderByWithRelationInput = {
   source?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   importBatchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactType?: Prisma.SortOrder
+  isRepeat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  sites?: Prisma.CustomerSiteOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -323,8 +352,12 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.StringNullableFilter<"Customer"> | string | null
   notes?: Prisma.StringNullableFilter<"Customer"> | string | null
   importBatchId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  email?: Prisma.StringNullableFilter<"Customer"> | string | null
+  contactType?: Prisma.StringFilter<"Customer"> | string
+  isRepeat?: Prisma.BoolFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  sites?: Prisma.CustomerSiteListRelationFilter
 }, "id" | "mobile">
 
 export type CustomerOrderByWithAggregationInput = {
@@ -340,6 +373,9 @@ export type CustomerOrderByWithAggregationInput = {
   source?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   importBatchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  contactType?: Prisma.SortOrder
+  isRepeat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerCountOrderByAggregateInput
@@ -365,6 +401,9 @@ export type CustomerScalarWhereWithAggregatesInput = {
   source?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   importBatchId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  contactType?: Prisma.StringWithAggregatesFilter<"Customer"> | string
+  isRepeat?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
 }
@@ -382,8 +421,12 @@ export type CustomerCreateInput = {
   source?: string | null
   notes?: string | null
   importBatchId?: string | null
+  email?: string | null
+  contactType?: string
+  isRepeat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sites?: Prisma.CustomerSiteCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateInput = {
@@ -399,8 +442,12 @@ export type CustomerUncheckedCreateInput = {
   source?: string | null
   notes?: string | null
   importBatchId?: string | null
+  email?: string | null
+  contactType?: string
+  isRepeat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sites?: Prisma.CustomerSiteUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUpdateInput = {
@@ -416,8 +463,12 @@ export type CustomerUpdateInput = {
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sites?: Prisma.CustomerSiteUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
@@ -433,8 +484,12 @@ export type CustomerUncheckedUpdateInput = {
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sites?: Prisma.CustomerSiteUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyInput = {
@@ -450,6 +505,9 @@ export type CustomerCreateManyInput = {
   source?: string | null
   notes?: string | null
   importBatchId?: string | null
+  email?: string | null
+  contactType?: string
+  isRepeat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -467,6 +525,9 @@ export type CustomerUpdateManyMutationInput = {
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -484,6 +545,9 @@ export type CustomerUncheckedUpdateManyInput = {
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -501,6 +565,9 @@ export type CustomerCountOrderByAggregateInput = {
   source?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   importBatchId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  contactType?: Prisma.SortOrder
+  isRepeat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -522,6 +589,9 @@ export type CustomerMaxOrderByAggregateInput = {
   source?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   importBatchId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  contactType?: Prisma.SortOrder
+  isRepeat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -539,12 +609,20 @@ export type CustomerMinOrderByAggregateInput = {
   source?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   importBatchId?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  contactType?: Prisma.SortOrder
+  isRepeat?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerSumOrderByAggregateInput = {
   outstandingBalance?: Prisma.SortOrder
+}
+
+export type CustomerScalarRelationFilter = {
+  is?: Prisma.CustomerWhereInput
+  isNot?: Prisma.CustomerWhereInput
 }
 
 export type FloatFieldUpdateOperationsInput = {
@@ -555,6 +633,145 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type CustomerCreateNestedOneWithoutSitesInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutSitesInput, Prisma.CustomerUncheckedCreateWithoutSitesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutSitesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutSitesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutSitesInput, Prisma.CustomerUncheckedCreateWithoutSitesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutSitesInput
+  upsert?: Prisma.CustomerUpsertWithoutSitesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutSitesInput, Prisma.CustomerUpdateWithoutSitesInput>, Prisma.CustomerUncheckedUpdateWithoutSitesInput>
+}
+
+export type CustomerCreateWithoutSitesInput = {
+  id?: string
+  name: string
+  mobile: string
+  alternateMobile?: string | null
+  address?: string | null
+  area?: string | null
+  serviceHistory?: string | null
+  lastServiceDate?: Date | string | null
+  outstandingBalance?: number
+  source?: string | null
+  notes?: string | null
+  importBatchId?: string | null
+  email?: string | null
+  contactType?: string
+  isRepeat?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerUncheckedCreateWithoutSitesInput = {
+  id?: string
+  name: string
+  mobile: string
+  alternateMobile?: string | null
+  address?: string | null
+  area?: string | null
+  serviceHistory?: string | null
+  lastServiceDate?: Date | string | null
+  outstandingBalance?: number
+  source?: string | null
+  notes?: string | null
+  importBatchId?: string | null
+  email?: string | null
+  contactType?: string
+  isRepeat?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerCreateOrConnectWithoutSitesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutSitesInput, Prisma.CustomerUncheckedCreateWithoutSitesInput>
+}
+
+export type CustomerUpsertWithoutSitesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutSitesInput, Prisma.CustomerUncheckedUpdateWithoutSitesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutSitesInput, Prisma.CustomerUncheckedCreateWithoutSitesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutSitesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutSitesInput, Prisma.CustomerUncheckedUpdateWithoutSitesInput>
+}
+
+export type CustomerUpdateWithoutSitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceHistory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  outstandingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerUncheckedUpdateWithoutSitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceHistory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  outstandingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type CustomerCountOutputType
+ */
+
+export type CustomerCountOutputType = {
+  sites: number
+}
+
+export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  sites?: boolean | CustomerCountOutputTypeCountSitesArgs
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerCountOutputType
+   */
+  select?: Prisma.CustomerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountSitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerSiteWhereInput
+}
 
 
 export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -570,8 +787,13 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   source?: boolean
   notes?: boolean
   importBatchId?: boolean
+  email?: boolean
+  contactType?: boolean
+  isRepeat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  sites?: boolean | Prisma.Customer$sitesArgs<ExtArgs>
+  _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
 export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -587,6 +809,9 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   source?: boolean
   notes?: boolean
   importBatchId?: boolean
+  email?: boolean
+  contactType?: boolean
+  isRepeat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["customer"]>
@@ -604,6 +829,9 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   source?: boolean
   notes?: boolean
   importBatchId?: boolean
+  email?: boolean
+  contactType?: boolean
+  isRepeat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["customer"]>
@@ -621,15 +849,26 @@ export type CustomerSelectScalar = {
   source?: boolean
   notes?: boolean
   importBatchId?: boolean
+  email?: boolean
+  contactType?: boolean
+  isRepeat?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "mobile" | "alternateMobile" | "address" | "area" | "serviceHistory" | "lastServiceDate" | "outstandingBalance" | "source" | "notes" | "importBatchId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "mobile" | "alternateMobile" | "address" | "area" | "serviceHistory" | "lastServiceDate" | "outstandingBalance" | "source" | "notes" | "importBatchId" | "email" | "contactType" | "isRepeat" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  sites?: boolean | Prisma.Customer$sitesArgs<ExtArgs>
+  _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Customer"
-  objects: {}
+  objects: {
+    sites: Prisma.$CustomerSitePayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
@@ -643,6 +882,9 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     source: string | null
     notes: string | null
     importBatchId: string | null
+    email: string | null
+    contactType: string
+    isRepeat: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["customer"]>
@@ -1039,6 +1281,7 @@ readonly fields: CustomerFieldRefs;
  */
 export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  sites<T extends Prisma.Customer$sitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$sitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerSitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1080,6 +1323,9 @@ export interface CustomerFieldRefs {
   readonly source: Prisma.FieldRef<"Customer", 'String'>
   readonly notes: Prisma.FieldRef<"Customer", 'String'>
   readonly importBatchId: Prisma.FieldRef<"Customer", 'String'>
+  readonly email: Prisma.FieldRef<"Customer", 'String'>
+  readonly contactType: Prisma.FieldRef<"Customer", 'String'>
+  readonly isRepeat: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Customer", 'DateTime'>
 }
@@ -1099,6 +1345,10 @@ export type CustomerFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  /**
    * Filter, which Customer to fetch.
    */
   where: Prisma.CustomerWhereUniqueInput
@@ -1117,6 +1367,10 @@ export type CustomerFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  /**
    * Filter, which Customer to fetch.
    */
   where: Prisma.CustomerWhereUniqueInput
@@ -1134,6 +1388,10 @@ export type CustomerFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Customer
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
   /**
    * Filter, which Customer to fetch.
    */
@@ -1183,6 +1441,10 @@ export type CustomerFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  /**
    * Filter, which Customer to fetch.
    */
   where?: Prisma.CustomerWhereInput
@@ -1231,6 +1493,10 @@ export type CustomerFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  /**
    * Filter, which Customers to fetch.
    */
   where?: Prisma.CustomerWhereInput
@@ -1273,6 +1539,10 @@ export type CustomerCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Customer
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
   /**
    * The data needed to create a Customer.
    */
@@ -1319,6 +1589,10 @@ export type CustomerUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Customer
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
   /**
    * The data needed to update a Customer.
    */
@@ -1386,6 +1660,10 @@ export type CustomerUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  /**
    * The filter to search for the Customer to update in case it exists.
    */
   where: Prisma.CustomerWhereUniqueInput
@@ -1412,6 +1690,10 @@ export type CustomerDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  /**
    * Filter which Customer to delete.
    */
   where: Prisma.CustomerWhereUniqueInput
@@ -1432,6 +1714,30 @@ export type CustomerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * Customer.sites
+ */
+export type Customer$sitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerSite
+   */
+  select?: Prisma.CustomerSiteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerSite
+   */
+  omit?: Prisma.CustomerSiteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerSiteInclude<ExtArgs> | null
+  where?: Prisma.CustomerSiteWhereInput
+  orderBy?: Prisma.CustomerSiteOrderByWithRelationInput | Prisma.CustomerSiteOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerSiteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerSiteScalarFieldEnum | Prisma.CustomerSiteScalarFieldEnum[]
+}
+
+/**
  * Customer without action
  */
 export type CustomerDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1443,4 +1749,8 @@ export type CustomerDefaultArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Customer
    */
   omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
 }

@@ -16,6 +16,7 @@ import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
 import { getLivePricing } from "@/server/pricing";
 import { festivalForDate, unitPriceFor } from "@/lib/pricing-master";
 import { scopeSnapshot } from "@/lib/service-scope";
+import { linkCustomerAndSite } from "@/server/customer-db";
 
 const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOGLE"] as const;
 
@@ -271,6 +272,23 @@ export async function publicBookLead(values: unknown) {
       ...(data.marketingOptIn ? { marketingConsent: "OPTED_IN", marketingConsentAt: new Date() } : {}),
     },
   });
+
+  // One customer database: reuse the contact for this mobile (never a
+  // duplicate) and the matching service site, or add the new address as a site.
+  const link = await linkCustomerAndSite({
+    mobile: data.mobile,
+    name: data.name,
+    alternateMobile: data.alternateMobile,
+    email: data.email,
+    address: data.address,
+    pinCode: data.pinCode,
+    area,
+    mapLink: data.mapLink,
+    source: "WEBSITE",
+  });
+  if (link?.siteId && !lead.siteId) {
+    await db.lead.update({ where: { id: lead.id }, data: { siteId: link.siteId } }).catch(() => {});
+  }
 
   // Customer-declared advance → a Payment row so it flows into the Payments
   // module + revenue (marked from the booking form, unverified like the
