@@ -101,7 +101,7 @@ export async function createJob(values: unknown) {
     await db.jobAssignment.createMany({
       data: data.staffIds.map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
     });
-    await dispatchTeamForJob(job.id).catch(() => {});
+    void dispatchTeamForJob(job.id).catch(() => {}); // WhatsApp round-trip in the background
     const crew = await db.staff.findMany({ where: { id: { in: data.staffIds } }, select: { name: true } });
     await notify({
       kind: "CREW_UPDATE",
@@ -127,7 +127,7 @@ export async function createJob(values: unknown) {
 
   // A job saved manually in the CRM is a confirmed booking — same customer
   // confirmation as an online request confirmed via confirmBooking().
-  await sendBookingConfirmation(job.id).catch(() => {});
+  void sendBookingConfirmation(job.id).catch(() => {}); // background — the save returns at once
 
   revalidatePath("/jobs");
   revalidatePath("/dashboard");
@@ -196,7 +196,7 @@ export async function updateJob(id: string, values: unknown) {
       await db.jobAssignment.createMany({
         data: staffIds.map((staffId, i) => ({ jobId: id, staffId, isLead: i === 0 })),
       });
-      await dispatchTeamForJob(id).catch(() => {});
+      void dispatchTeamForJob(id).catch(() => {}); // background WhatsApp round-trip
       const [job, crew] = await Promise.all([
         db.job.findUnique({ where: { id }, select: { jobNumber: true, customerName: true } }),
         db.staff.findMany({ where: { id: { in: staffIds } }, select: { name: true } }),
@@ -214,7 +214,7 @@ export async function updateJob(id: string, values: unknown) {
     before &&
     ((d.scheduledDate && new Date(d.scheduledDate).getTime() !== before.scheduledDate.getTime()) ||
       (d.scheduledTime && d.scheduledTime !== before.scheduledTime));
-  if (moved) await sendBookingChangeNotice(id, "RESCHEDULED").catch(() => {});
+  if (moved) void sendBookingChangeNotice(id, "RESCHEDULED").catch(() => {}); // background
   // The enquiry mirrors the job's schedule (dashboard, today/tomorrow access, follow-up).
   if (moved) {
     const actor = (await getSession())?.sub;
@@ -503,10 +503,10 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
     await freezeJobTeam(jobId).catch(() => {});
     // Final invoice is generated + stored automatically on completion (any completion path).
     await createFinalInvoice(jobId, actorId).catch((e) => console.error("[invoice] auto-generate failed:", e));
-    await sendJobCompletionReview(job).catch(() => {});
+    void sendJobCompletionReview(job).catch(() => {}); // background — once-per-job guard inside
   }
   if (status === "CANCELLED") {
-    await sendBookingChangeNotice(jobId, "CANCELLED").catch(() => {});
+    void sendBookingChangeNotice(jobId, "CANCELLED").catch(() => {}); // background
     const crew = await db.jobAssignment.findMany({ where: { jobId }, select: { staffId: true } });
     await notifyCrewChanged(jobId, crew.map((c) => c.staffId), "Job cancelled").catch(() => {});
   }
@@ -598,7 +598,7 @@ export async function completeJobWithCertificate(jobId: string) {
 
   // Review request — sent once, right after completion (shared helper also
   // covers the plain "Mark Completed" status-button path in updateJobStatus).
-  await sendJobCompletionReview(job).catch(() => {});
+  void sendJobCompletionReview(job).catch(() => {}); // background — once-per-job guard inside
 
   await db.activityLog.create({
     data: { jobId, actorId: session?.sub, action: "Job marked complete — certificate generated" },

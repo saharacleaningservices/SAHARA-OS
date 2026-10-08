@@ -65,8 +65,7 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
     setOpen(false);
     reset();
     setSelectedStaff([]);
-    router.push(`/jobs/${res.jobId}`);
-    router.refresh();
+    router.push(`/jobs/${res.jobId}`); // push already loads fresh data (dynamic page) — no second refresh render
   }
 
   return (

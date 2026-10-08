@@ -104,22 +104,28 @@ export async function notify(input: NotifyInput): Promise<void> {
     const masked = userIds.filter((id) => restricted.has(id));
     const push = (ids: string[], t: { title: string; body: string | null }) =>
       ids.length ? pushToUsers(ids, { title: t.title, body: t.body ?? undefined, href: input.href, critical, tag: input.kind }).catch(() => {}) : null;
-    await Promise.all([push(full, { title: input.title, body: input.body ?? null }), push(masked, { title: maskPhones(input.title) ?? "", body: maskPhones(input.body) ?? null })]);
-
-    if (input.whatsappToAdmin || critical) {
-      const admin = await db.user.findFirst({
-        where: { role: "ADMIN", isActive: true },
-        orderBy: { createdAt: "asc" },
-      });
-      if (admin?.phone) {
-        await sendWhatsApp({
-          kind: "OTHER",
-          toNumber: admin.phone,
-          toName: admin.name,
-          body: `${input.title}${input.body ? `\n${input.body}` : ""}`,
-        }).catch(() => {});
+    // Device push + the admin's WhatsApp copy are network round-trips to push
+    // services / Meta — run them in the background so the user's save returns
+    // immediately (the in-app notification row above is already saved). The
+    // app runs as a long-lived Node server, so these still complete.
+    const background = async () => {
+      await Promise.all([push(full, { title: input.title, body: input.body ?? null }), push(masked, { title: maskPhones(input.title) ?? "", body: maskPhones(input.body) ?? null })]);
+      if (input.whatsappToAdmin || critical) {
+        const admin = await db.user.findFirst({
+          where: { role: "ADMIN", isActive: true },
+          orderBy: { createdAt: "asc" },
+        });
+        if (admin?.phone) {
+          await sendWhatsApp({
+            kind: "OTHER",
+            toNumber: admin.phone,
+            toName: admin.name,
+            body: `${input.title}${input.body ? `\n${input.body}` : ""}`,
+          }).catch(() => {});
+        }
       }
-    }
+    };
+    void background().catch(() => {});
   } catch {
     // swallow — see doc comment
   }

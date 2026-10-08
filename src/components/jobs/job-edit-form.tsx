@@ -62,8 +62,7 @@ export function JobEditForm({
       return;
     }
     toast.success("Job updated");
-    router.push(`/jobs/${jobId}`);
-    router.refresh();
+    router.push(`/jobs/${jobId}`); // push already loads fresh data (dynamic page) — no second refresh render
   }
 
   return (
