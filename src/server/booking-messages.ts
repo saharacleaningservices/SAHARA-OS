@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { formatDate } from "@/lib/utils";
-import { sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { WHATSAPP_TRANSACTIONAL_TEMPLATES, sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 
@@ -20,7 +20,12 @@ import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-temp
 const templatesEnabled = () => process.env.WHATSAPP_USE_TEMPLATES === "on";
 // WHATSAPP_BOOKING_TEMPLATE=v2 → sahara_booking_confirmed_v2 (View Quotation + Payment Options
 // path routes). Anything else keeps the approved v1 sahara_booking_confirmed unchanged.
-const bookingTemplateV2 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v2";
+// v2 is used only once it is on the approved transactional list — Meta has no
+// approved sahara_booking_confirmed_v2 (checked 2026-10-08), so until then the
+// approved sahara_booking_confirmed (View Booking · Pay Advance · Pay After
+// Service · Google Review) is sent even if WHATSAPP_BOOKING_TEMPLATE=v2 is set.
+const bookingTemplateV2 = () =>
+  process.env.WHATSAPP_BOOKING_TEMPLATE === "v2" && WHATSAPP_TRANSACTIONAL_TEMPLATES.includes("sahara_booking_confirmed_v2");
 
 /** Returns the job's unguessable booking-page token, creating it on first use. */
 export async function ensureJobToken(jobId: string) {
