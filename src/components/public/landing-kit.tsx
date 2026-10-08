@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Phone, MapPin, Check, X, MessageCircle, Mail } from "lucide-react";
-import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { FaFacebookF, FaGoogle, FaInstagram } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
@@ -97,46 +97,77 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
                 <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
               </span>
             ))}
-            <Link href="/booking" className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
+            <Link href="/booking?service=home#book" className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
           </div>
         </div>
       </header>
       {children}
       <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
-      <footer className="mx-auto max-w-6xl px-4 pb-6 pt-2 sm:pb-8">
-        <div className="border-t-2 border-primary/25 pt-4 text-center text-xs text-[#0a2540]/70">
-          <CompanyLogo logoUrl={logoUrl} className="mx-auto mb-3 h-9 w-auto max-w-[150px]" />
-          <div className="flex flex-wrap items-center justify-center gap-2 font-semibold">
-            {CONTACT.call.map((n) => (
-              <span key={n} className="inline-flex items-center gap-1 rounded-full bg-white py-1 pl-3 pr-1 text-primary shadow-sm">
-                {n}
-                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex size-8 items-center justify-center rounded-full hover:bg-primary/10"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex size-8 items-center justify-center rounded-full text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
-              </span>
-            ))}
+      <footer className="mt-6 border-t-2 border-primary bg-white">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 text-sm text-[#0a2540]/80 sm:grid-cols-[1.1fr_1.4fr_1fr] sm:py-8">
+          {/* Brand + contact */}
+          <div className="space-y-3">
+            <CompanyLogo logoUrl={logoUrl} className="h-12 w-auto max-w-[200px] sm:h-16 sm:max-w-[240px] lg:h-20 lg:max-w-[300px]" />
+            <p className="font-bold text-[#0a2540]">Sahara Cleaning Services</p>
+            <div className="space-y-1.5">
+              {CONTACT.call.map((n) => (
+                <div key={n} className="flex items-center gap-2">
+                  <span className="font-semibold text-[#0a2540]">{n}</span>
+                  <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white"><Phone className="size-3.5" /></a>
+                  <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex size-8 items-center justify-center rounded-full bg-success/10 text-success hover:bg-success hover:text-white"><MessageCircle className="size-3.5" /></a>
+                </div>
+              ))}
+            </div>
+            <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-1.5 break-all text-primary"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
+            <a href={`https://${COMPANY.website}`} target="_blank" rel="noreferrer" className="block text-primary">{COMPANY.website}</a>
           </div>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-semibold">
-            <a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-1.5 break-all text-primary"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
-            <a href={`https://${COMPANY.website}`} target="_blank" rel="noreferrer" className="text-primary">{COMPANY.website}</a>
-          </div>
-          <address className="mt-2 not-italic">
-            <span className="inline-flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" />{CONTACT.address}</span>
-            <span className="mt-0.5 block text-[11px] text-[#0a2540]/55">GSTIN: {COMPANY.gstin}</span>
-          </address>
-          <nav aria-label="Services" className="mt-3 flex flex-wrap justify-center gap-x-3 gap-y-1.5">
-            {SERVICE_LINKS.map((s) => <Link key={s.href} href={s.href} className="hover:text-primary">{s.label.replace(" Pune", "")}</Link>)}
-            <Link href="/booking" className="font-semibold text-primary">Book Online</Link>
+          {/* Services */}
+          <nav aria-label="Services" className="grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
+            <div>
+              <Link href="/home-deep-cleaning-pune" className="text-xs font-bold uppercase tracking-wide text-[#0a2540] hover:text-primary">Home Cleaning</Link>
+              <ul className="mt-1.5 space-y-0.5">
+                {["Full Home Cleaning", "Post-Interior Deep Cleaning", "Construction Cleaning", "Customized Services", "Sofa", "Mattress", "Carpet", "Windows", "Floor Cleaning"].map((x) => (
+                  <li key={x}>{x}</li>
+                ))}
+              </ul>
+            </div>
+            <ul className="space-y-2 text-xs font-bold uppercase tracking-wide text-[#0a2540]">
+              <li><Link href="/interior-painting-pune" className="hover:text-primary">Painting Services</Link></li>
+              <li><Link href="/pest-control-pune" className="hover:text-primary">Pest Control</Link></li>
+              <li><Link href="/commercial-cleaning-pune" className="hover:text-primary">Facility Management</Link></li>
+              <li><Link href="/commercial-cleaning-pune" className="hover:text-primary">Housekeeping Services</Link></li>
+              <li>Security Services</li>
+              <li><Link href="/booking" className="text-primary">Book Online</Link></li>
+            </ul>
           </nav>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            {SOCIAL.map(({ href, label, icon: Icon }) => (
-              <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-white text-primary shadow-sm hover:bg-primary hover:text-white">
-                <Icon className="size-4" />
-              </a>
-            ))}
+          {/* Location + social */}
+          <div className="space-y-3">
+            <address className="not-italic">
+              <span className="flex gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{CONTACT.address}</span>
+            </address>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Sahara+Cleaning+Services+Magarpatta+City+Hadapsar+Pune"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5"
+            >
+              <MapPin className="size-3.5" /> Open in Google Maps
+            </a>
+            <div className="flex items-center gap-2">
+              {SOCIAL.map(({ href, label, icon: Icon }) => (
+                <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white">
+                  <Icon className="size-4" />
+                </a>
+              ))}
+            </div>
           </div>
-          <p className="mt-3 text-[11px] text-[#0a2540]/55">
-            © Sahara Cleaning Services · Since 2012 · Pune &amp; PCMC ·{" "}
-            <Link href="/privacy-policy" className="underline">Privacy</Link> · <Link href="/terms" className="underline">Terms</Link>
+        </div>
+        <div className="border-t border-primary/30">
+          <p className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-3 text-[11px] text-[#0a2540]/60 sm:justify-between">
+            <span>© Sahara Cleaning Services · Since 2012 · GSTIN: {COMPANY.gstin}</span>
+            <span>
+              <Link href="/privacy-policy" className="underline">Privacy Policy</Link> · <Link href="/terms" className="underline">Terms &amp; Conditions</Link>
+            </span>
           </p>
         </div>
       </footer>
@@ -144,13 +175,13 @@ export function LandingShell({ logoUrl, waText, jsonLd, children }: { logoUrl?: 
       <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-border bg-white text-center text-xs font-bold sm:hidden">
         <a href={`tel:+91${CONTACT.call[0]}`} className="flex items-center justify-center gap-1 py-3 text-primary"><Phone className="size-3.5" /> Call</a>
         <a href={waLink(waText)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
-        <Link href="/booking" className="bg-primary py-3 text-white">Book Now</Link>
+        <Link href="/booking?service=home#book" className="bg-primary py-3 text-white">Book Now</Link>
       </div>
     </div>
   );
 }
 
-export const FESTIVAL_BADGE = "🎉 NAVRATRI • DUSSEHRA • DIWALI — FESTIVAL CLEANING";
+export const FESTIVAL_BADGE = "Festival Cleaning Packages";
 
 // Hero: photo and text never overlap, so faces and the service activity stay
 // fully visible. Mobile — full-width photo, then badge + headline + actions
@@ -161,7 +192,8 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
   /** Same-page anchor for Book Now (package pages scroll to their own booking form). */
   bookHrefOverride?: string;
 }) {
-  const bookHref = bookHrefOverride ?? primaryHref === "#book" ? "/booking#book" : primaryHref.startsWith("#") ? "/booking" : primaryHref;
+  // Book Now goes straight to the service selection with Home Cleaning open.
+  const bookHref = bookHrefOverride ?? (primaryHref === "/booking" || primaryHref.startsWith("#") ? "/booking?service=home#book" : primaryHref);
   // Trust + price proof from CRM Settings and the live price list — never hard-coded claims.
   const [settings, pricing] = await Promise.all([getCompanySettings().catch(() => null), getLivePricing()]);
   // Regular "from" price only outside festival periods — during a festival, prices
@@ -171,11 +203,8 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
   const fromPrice = festivalOn
     ? null
     : pricing.items.filter((p) => p.group === "PREMIUM" && p.price != null).reduce<number | null>((m, p) => (m == null || p.price! < m ? p.price! : m), null);
-  const trust = [
-    settings?.googleRating ? `★ ${settings.googleRating} Google rating` : null,
-    settings?.googleReviewCount ? `${settings.googleReviewCount} reviews` : null,
-    settings?.happyCustomers ? `${settings.happyCustomers} happy customers` : null,
-  ].filter(Boolean) as string[];
+  // Rating / review count are the owner-set values in CRM Settings.
+  const reviews = settings?.googleReviewCount ? settings.googleReviewCount.replace(/\d+/, (d) => Number(d).toLocaleString("en-IN")) : null;
   return (
     <section className="bg-[#0a2540] text-white">
       <div className="mx-auto grid max-w-6xl md:grid-cols-[1fr_1.1fr] md:items-center md:gap-8 md:px-4 md:py-10">
@@ -183,34 +212,38 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
           <LandingHeroCarousel images={images ?? heroImages(image, alt)} />
         </div>
         <div className="px-4 py-6 md:order-1 md:px-0 md:py-0">
-          <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold tracking-wide text-[#0a2540] sm:text-xs">
-            {badge?.startsWith("Quotation") ? badge : FESTIVAL_BADGE}
-          </p>
+          {(badge?.startsWith("Quotation") || festivalOn) && (
+            <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold tracking-wide text-[#0a2540] sm:text-xs">
+              {badge?.startsWith("Quotation") ? badge : FESTIVAL_BADGE}
+            </p>
+          )}
           <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl">{title}</h1>
           <p className="mt-2 max-w-md text-sm text-white/85 sm:text-base">{subtitle.split(/(?<=\.)\s/)[0]}</p>
-          {(trust.length > 0 || fromPrice != null) && (
-            <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold sm:text-xs">
-              {trust.map((t) => (
-                <span key={t} className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">{t}</span>
-              ))}
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold sm:text-xs">
+              {settings?.googleRating && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[#0a2540]">
+                  <FaGoogle className="size-3 text-[#4285F4]" aria-hidden /> {settings.googleRating}/5
+                </span>
+              )}
+              {reviews && <span className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">{reviews} Google Reviews</span>}
+              <span className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">Residential &amp; Commercial Services</span>
               {fromPrice != null && <span className="rounded-full bg-amber-400/90 px-2.5 py-1 text-[#0a2540]">Full home deep cleaning from {inr(fromPrice)}</span>}
-            </div>
-          )}
+          </div>
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <Link href={bookHref} className="relative rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-lg">
               <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-white/50 [animation-duration:2.2s]" aria-hidden />
               Book Now
             </Link>
+            {/* Both customer numbers, each with Call + WhatsApp. */}
             {CONTACT.call.map((n) => (
-              <a key={n} href={`tel:+91${n}`} aria-label={`Call ${n}`} className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-xs font-semibold hover:bg-white/25">
-                <Phone className="size-3.5" /> {n}
-              </a>
+              <span key={n} className="inline-flex items-center gap-1 rounded-full bg-white/15 py-1 pl-3 pr-1 text-xs font-semibold">
+                {n}
+                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex size-8 items-center justify-center rounded-full hover:bg-white/20"><Phone className="size-3.5" /></a>
+                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex size-8 items-center justify-center rounded-full bg-success hover:bg-success/90"><MessageCircle className="size-3.5" /></a>
+              </span>
             ))}
-            <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="inline-flex items-center gap-1.5 rounded-full bg-success px-3 py-2 text-xs font-semibold">
-              <MessageCircle className="size-3.5" /> Get Quote on WhatsApp
-            </a>
           </div>
-          <p className="mt-4 text-[11px] font-semibold text-white/70">Since 2012 · Trained, supervised teams · Pune &amp; PCMC</p>
+          <p className="mt-4 text-[11px] font-semibold text-white/70">Since 2012</p>
         </div>
       </div>
     </section>

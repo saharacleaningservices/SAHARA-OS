@@ -6,7 +6,7 @@ import { publicBookLead } from "@/server/actions/public-booking";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
 import type { DayStatus } from "@/server/slot-capacity";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
-import { trackLead } from "@/components/public/marketing-tags";
+import { trackFunnel, trackLead } from "@/components/public/marketing-tags";
 import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, type HomeTier } from "@/lib/service-scope";
 import { BOOKING_TERMS, PRICING_MASTER, festivalForDate, inGroup, priceLabel, unitPriceFor, upcomingFestivals, type LivePricing, type PriceItem, type PriceType } from "@/lib/pricing-master";
@@ -367,9 +367,45 @@ export function BookingWizard({
     ];
   }
 
+  // Booking-funnel analytics: one event per choice (no-op without GA tags).
+  useEffect(() => trackFunnel("view_service"), []);
+  const [started, setStarted] = useState(false);
+  useEffect(() => {
+    if (!category) return;
+    trackFunnel("select_service", { service: category });
+    if (!started) {
+      setStarted(true);
+      trackFunnel("start_booking", { service: category });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category]);
+  useEffect(() => {
+    const c = homeType || comType || pest || paintJob;
+    if (c) trackFunnel("select_category", { service: category, category: c, price_type: priceMode || undefined });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [homeType, comType, pest, paintJob, priceMode]);
+  useEffect(() => {
+    if (pkg || paint) trackFunnel("select_package", { service: category, package: [bhk, pkg || paint].filter(Boolean).join(" ") });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pkg, paint, bhk]);
+  const addonCount = Object.values(qty).reduce((t, n) => t + (n || 0), 0) + Object.values(combos).filter(Boolean).length;
+  useEffect(() => {
+    if (addonCount > 0) trackFunnel("select_addon", { service: category, items: addonCount });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addonCount]);
+  useEffect(() => {
+    if (date) trackFunnel("select_date", { service: category });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date]);
+  useEffect(() => {
+    if (slot) trackFunnel("select_time", { service: category, slot });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slot]);
+
   function submit() {
     setError("");
     if (!ready) return setError("Please complete all steps.");
+    trackFunnel("submit_booking", { service: category });
     const summary = lines.map((l) => `${l.label}${l.amount != null ? ` = ${inr(l.amount)}` : l.note ? ` (${l.note})` : ""}`).join("; ");
     startTransition(async () => {
       const m = quote ? { serviceCategory: "HOME_DEEP_CLEANING", serviceVariant: "", packageName: "", propertyType: "" } : mapping();
@@ -402,6 +438,7 @@ export function BookingWizard({
       });
       if ("error" in res && res.error) return setError(res.error);
       trackLead({ category: m.serviceCategory, variant: m.serviceVariant });
+      trackFunnel("booking_confirmation", { service: m.serviceCategory, variant: m.serviceVariant });
       setDone("leadNumber" in res ? (res.leadNumber ?? "") : "");
     });
   }
@@ -428,13 +465,20 @@ export function BookingWizard({
       {title}
     </h3>
   );
-  const section = (key: Category, icon: React.ReactNode, title: string, hint: string, body: React.ReactNode) => (
+  // Honest starting prices on the main cards (live price list): the cheapest individual
+  // service for Home (never presented as a full-home price) and the lowest paint rate per sq ft.
+  const bathroom = CUSTOMISED.find((i) => /bathroom/i.test(i.name) && i.price != null);
+  const startHome = bathroom ? `Starting from ${inr(bathroom.price!)} · ${bathroom.name.replace(/ Deep Cleaning$/, " Cleaning")}` : undefined;
+  const cheapestPaint = PAINTS.filter((i) => i.price != null).sort((x, y) => x.price! - y.price!)[0];
+  const startPaint = cheapestPaint ? `From ${inr(cheapestPaint.price!)} ${cheapestPaint.unit ?? ""}`.trim() : undefined;
+  const section = (key: Category, icon: React.ReactNode, title: string, hint: string, body: React.ReactNode, price?: string) => (
     <div className={`rounded-2xl border ${category === key ? "border-primary/40 bg-primary/[0.03]" : "border-[#0a2540]/10 bg-white"}`}>
       <button type="button" onClick={() => setCategory(category === key ? "" : key)} className="flex min-h-14 w-full items-center gap-3 p-3.5 text-left sm:p-4" aria-expanded={category === key}>
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">{icon}</span>
         <span className="flex-1">
           <span className="block font-bold">{title}</span>
           <span className="block text-xs text-[#0a2540]/60">{hint}</span>
+          {price && <span className="mt-0.5 block text-[11px] font-semibold text-primary">{price}</span>}
         </span>
         <ChevronDown className={`size-5 transition ${category === key ? "rotate-180" : ""}`} />
       </button>
@@ -512,52 +556,57 @@ export function BookingWizard({
         <div id="bk-service" className={`${card} scroll-mt-20 ${svcCollapsed ? "max-sm:hidden" : ""}`}>
           {step(1, "Choose service & package", serviceChosen)}
           <div className="mt-3 space-y-2.5">
-            {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full house · Customized · Combo", (
+            {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full Home Deep Cleaning, Sofa, Mattress & More", (
               <>
                 {pkgCollapsed && (
                   <MobileSummaryRow label="Package" onChange={() => setPkgEdit(true)}>
                     {bhk} {pkg}{priceMode ? ` · ${priceMode === "FESTIVAL" ? "Festival" : "Regular"}` : ""}{lines[0]?.amount != null ? ` · ${inr(lines[0].amount)}` : ""}
                   </MobileSummaryRow>
                 )}
-                {needsPriceMode && (
-                  <div className={pkgCollapsed ? "max-sm:hidden" : ""}>
-                    <p className="mb-2 text-sm font-semibold">Festival or regular booking?</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => { setPriceMode("FESTIVAL"); if (date && !festivalForDate(festivals, date)) setDate(""); }} className={`${chip(priceMode === "FESTIVAL")} text-left leading-tight`}>
-                        🪔 Festival Special
-                        <span className={`block text-[11px] font-medium ${priceMode === "FESTIVAL" ? "text-white/85" : "text-[#0a2540]/60"}`}>
-                          {festivals.map((f) => `${f.name} ${shortDay(f.start)}–${shortDay(f.end)}`).join(" · ")}
-                        </span>
+                {/* Home: four compact choices — Festival / Regular full-home packages, Combos, Individual services. */}
+                <div className={`grid grid-cols-2 gap-2 ${pkgCollapsed ? "max-sm:hidden" : ""}`}>
+                  {([
+                    ...(festivalApplies
+                      ? [{ key: "FEST", title: "Festival Home Cleaning", sub: `Service dates ${shortDay(festivals[0].start)}–${shortDay(festivals.reduce((e, f) => (f.end > e ? f.end : e), festivals[0].end))}`, type: "FULL", mode: "FESTIVAL" }]
+                      : []),
+                    { key: "REG", title: festivalApplies ? "After-Diwali / Regular Home Cleaning" : "Full Home Deep Cleaning", sub: festivalApplies ? "Service dates outside the festival" : "Premium & Platinum packages", type: "FULL", mode: "REGULAR" },
+                    { key: "COMBO", title: "Combo Packages", sub: "Kitchen, bathroom & sofa combos", type: "COMBO", mode: "" },
+                    { key: "CUSTOM", title: "Individual Cleaning Services", sub: "Bathroom, kitchen, sofa, mattress & more", type: "CUSTOM", mode: "" },
+                  ] as const).map((c) => {
+                    const on = homeType === c.type && (c.type !== "FULL" || !festivalApplies || priceMode === c.mode);
+                    return (
+                      <button
+                        key={c.key}
+                        type="button"
+                        onClick={() => {
+                          if (homeType !== c.type) {
+                            setQty({});
+                            setCombos({});
+                          }
+                          setHomeType(c.type as "FULL" | "COMBO" | "CUSTOM");
+                          if (c.mode === "FESTIVAL") {
+                            setPriceMode("FESTIVAL");
+                            if (date && !festivalForDate(festivals, date)) setDate("");
+                          } else if (c.mode === "REGULAR") {
+                            setPriceMode("REGULAR");
+                            if (date && festivalForDate(festivals, date)) setDate("");
+                          }
+                        }}
+                        className={`rounded-xl border p-2.5 text-left leading-tight ${on ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white"}`}
+                      >
+                        <span className="block text-[13px] font-bold">{c.key === "FEST" ? "🪔 " : ""}{c.title}</span>
+                        <span className={`mt-0.5 block text-[11px] font-medium ${on ? "text-white/85" : "text-[#0a2540]/60"}`}>{c.sub}</span>
                       </button>
-                      <button type="button" onClick={() => { setPriceMode("REGULAR"); if (date && festivalForDate(festivals, date)) setDate(""); }} className={`${chip(priceMode === "REGULAR")} text-left leading-tight`}>
-                        Regular
-                        <span className={`block text-[11px] font-medium ${priceMode === "REGULAR" ? "text-white/85" : "text-[#0a2540]/60"}`}>Service on a date outside festival dates</span>
-                      </button>
-                    </div>
+                    );
+                  })}
+                </div>
+                {/* Combo / Individual during a festival: which dates (festival prices apply only inside the festival). */}
+                {needsPriceMode && (homeType === "COMBO" || homeType === "CUSTOM") && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" onClick={() => { setPriceMode("FESTIVAL"); if (date && !festivalForDate(festivals, date)) setDate(""); }} className={`${chip(priceMode === "FESTIVAL")} text-[12px] leading-tight`}>Festival dates</button>
+                    <button type="button" onClick={() => { setPriceMode("REGULAR"); if (date && festivalForDate(festivals, date)) setDate(""); }} className={`${chip(priceMode === "REGULAR")} text-[12px] leading-tight`}>Other dates</button>
                   </div>
                 )}
-                <div className={`grid grid-cols-3 gap-2 ${pkgCollapsed ? "max-sm:hidden" : ""}`}>
-                  {([
-                    ["FULL", "Full House"],
-                    ["CUSTOM", "Customized"],
-                    ["COMBO", "Combo"],
-                  ] as const).map(([v, t]) => (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => {
-                        if (homeType !== v) {
-                          setQty({});
-                          setCombos({});
-                        }
-                        setHomeType(v);
-                      }}
-                      className={`${chip(homeType === v)} whitespace-nowrap px-1.5 text-[13px]`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
                 {homeType === "FULL" && (
                   <>
                     <div className={pkgCollapsed ? "max-sm:hidden" : ""}>
@@ -577,7 +626,15 @@ export function BookingWizard({
                                   <span className="block text-[11px] font-semibold text-[#0a2540]/55">{HOME_DURATION}</span>
                                 </span>
                                 {it ? (
-                                  <PackagePrice item={it} festivalPrice={festivalApplies ? festivalPriceOf(it) : null} festivalOn={priceMode === "FESTIVAL"} />
+                                  (() => {
+                                    const fest = priceMode === "FESTIVAL" ? festivalPriceOf(it) : null;
+                                    return (
+                                      <span className="shrink-0 text-right leading-tight">
+                                        <span className="block text-[10px] font-semibold text-[#0a2540]/55">{fest != null ? "Festival price" : "Price"}</span>
+                                        <span className="block text-base font-extrabold text-primary">{inr(fest ?? it.price!)}</span>
+                                      </span>
+                                    );
+                                  })()
                                 ) : (
                                   <span className="text-right text-[11px] font-semibold text-[#0a2540]/60">Price on confirmation</span>
                                 )}
@@ -673,8 +730,8 @@ export function BookingWizard({
                   </div>
                 )}
               </>
-            ))}
-            {section("COMMERCIAL", <Building2 className="size-5" />, "Office / Commercial", "Office · Shop · Warehouse · Clinic", (
+            ), startHome)}
+            {section("COMMERCIAL", <Building2 className="size-5" />, "Office & Commercial", "Office, shop, clinic & commercial spaces · contracts", (
               <>
                 <div>
                   <p className="mb-2 text-sm font-semibold">1. Property</p>
@@ -697,8 +754,8 @@ export function BookingWizard({
                 </Accordion>
                 <p className="text-xs font-semibold text-primary">Business pricing depends on area and frequency — we send a written quote.</p>
               </>
-            ))}
-            {section("PEST", <Bug className="size-5" />, "Pest Control", "Cockroach · Termite · Bed bug · Ant", (
+            ), "Written quote after requirement check")}
+            {section("PEST", <Bug className="size-5" />, "Pest Control", "Home, office & commercial pest control", (
               <>
                 <div>
                   <p className="mb-2 text-sm font-semibold">1. Pest type</p>
@@ -717,8 +774,8 @@ export function BookingWizard({
                 )}
                 <p className="text-xs font-semibold text-primary">Price confirmed after a quick inspection of the affected areas.</p>
               </>
-            ))}
-            {section("PAINTING", <Paintbrush className="size-5" />, "Interior Painting", "Per sq ft · Asian Paints range", (
+            ), "Price after inspection")}
+            {section("PAINTING", <Paintbrush className="size-5" />, "Interior Painting", "Residential & full home painting · Asian Paints", (
               <>
                 <div>
                   <p className="mb-2 text-sm font-semibold">1. Type of job</p>
@@ -784,7 +841,7 @@ export function BookingWizard({
                   </dl>
                 </Accordion>
               </>
-            ))}
+            ), startPaint)}
           </div>
         </div>
       )}
@@ -1166,24 +1223,3 @@ function BookingCalendar({
   );
 }
 
-/** Package card price: regular only, or Regular + Festival Special side by side. */
-function PackagePrice({ item, festivalPrice, festivalOn }: { item: PriceItem; festivalPrice: number | null; festivalOn: boolean }) {
-  if (festivalPrice == null) {
-    return (
-      <span className="text-right">
-        <span className="block text-lg font-extrabold text-primary">{inr(item.price!)}</span>
-        {item.mrp && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(item.mrp)}</span>}
-      </span>
-    );
-  }
-  return (
-    <span className="text-right text-[11px] leading-tight">
-      <span className={`block ${festivalOn ? "text-[#0a2540]/50" : "font-semibold"}`}>
-        Regular <span className={`text-sm font-extrabold ${festivalOn ? "" : "text-primary"}`}>{inr(item.price!)}</span>
-      </span>
-      <span className={`mt-0.5 block ${festivalOn ? "font-semibold text-amber-800" : "text-[#0a2540]/50"}`}>
-        Festival Special <span className={`text-sm font-extrabold ${festivalOn ? "text-amber-700" : ""}`}>{inr(festivalPrice)}</span>
-      </span>
-    </span>
-  );
-}

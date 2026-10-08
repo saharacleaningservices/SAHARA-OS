@@ -22,7 +22,7 @@ import { LeadMonthCalendar } from "./lead-calendar";
 import { BusinessTargetCard } from "./business-target-card";
 import { RevenueIntelligence } from "./revenue-intelligence";
 import { QuickDispatch } from "./quick-dispatch";
-import { DashboardModules, DashboardQuickBar } from "@/components/dashboard/dashboard-modules";
+import { DashboardModules } from "@/components/dashboard/dashboard-modules";
 import { getSlotBoard } from "@/server/actions/slot-control";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -139,7 +139,6 @@ export async function OwnerCommandCenter({
       {/* Control center: quick actions + six groups | compact calendar (side by side on desktop) */}
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-3">
-          <DashboardQuickBar role={role} />
           <DashboardModules role={role} />
         </div>
         <section id="schedule" className="scroll-mt-20 rounded-xl border bg-card p-3">

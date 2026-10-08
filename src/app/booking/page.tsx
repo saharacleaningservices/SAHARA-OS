@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, HowItWorks, Faqs, Terms, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, Terms, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
 import { ServiceCards } from "@/components/public/service-cards";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getLivePricing } from "@/server/pricing";
@@ -38,13 +38,6 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 }
 
 const WA = "Hi Sahara, I'd like help with my booking.";
-const FAQS = [
-  { q: "Is my booking confirmed when I submit the form?", a: "No — it's a booking request. Our team checks the slot and confirms it; you then receive the confirmation with your booking link on WhatsApp." },
-  { q: "How are available slots decided?", a: "Slots come from our live booking calendar and team capacity. Dates and times that are already full can't be selected." },
-  { q: "Can I pay after the service?", a: "Yes. Choose Pay After Service, or choose Pay Advance to secure your slot — payment details are on your booking page." },
-  { q: "What is the difference between Premium and Platinum?", a: "Both include the same complete cleaning scope. Premium includes wall dry dusting; Platinum includes wall wet cleaning. Both include ceiling dry dusting." },
-  { q: "Are there minimum quantities?", a: "Sofa cleaning needs a minimum of 5 seats, bathroom cleaning 2 bathrooms and mattress cleaning 2 mattresses." },
-];
 
 async function loadQuote(token?: string): Promise<QuotePrefill | null> {
   if (!token || !/^[A-Za-z0-9_-]{20,40}$/.test(token)) return null;
@@ -73,14 +66,14 @@ export default async function BookingPage({
   const [settings, quote, pricing] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getLivePricing()]);
 
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd()]}>
       <Hero
         image={CAROUSEL.team.src}
         alt={CAROUSEL.team.alt}
         images={ALL_SERVICES_SLIDES}
         eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
         badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
-        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning in Pune & PCMC"}
+        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning Services in Pune"}
         subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Trained teams, real available slots, pay advance or after service."}
         primaryLabel="Choose Date & Slot"
         primaryHref="#book"
@@ -90,7 +83,20 @@ export default async function BookingPage({
         {quoteToken && !quote && (
           <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">This quotation link is no longer valid. You can still book below, or call us on 8956567130 / 7083347130.</p>
         )}
-        {!quote && <ServiceCards />}
+        {!quote && (
+          <ServiceCards
+            starts={{
+              HOME: (() => {
+                const b = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
+                return b ? `Starting from ₹${b.price!.toLocaleString("en-IN")} · Bathroom Cleaning` : undefined;
+              })(),
+              PAINTING: (() => {
+                const p = pricing.items.filter((i) => i.group === "PAINTING" && !i.addOnOnly && i.price != null).sort((x, y) => x.price! - y.price!)[0];
+                return p ? `From ₹${p.price} ${p.unit ?? ""}`.trim() : undefined;
+              })(),
+            }}
+          />
+        )}
         <section id="book" className="scroll-mt-20">
           <BookingWizard
             quote={quote}
@@ -101,8 +107,6 @@ export default async function BookingPage({
           />
         </section>
 
-        <HowItWorks />
-        <Faqs faqs={FAQS} />
         <Terms />
       </main>
     </LandingShell>

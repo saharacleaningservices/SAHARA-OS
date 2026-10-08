@@ -8,13 +8,14 @@ import { ChevronRight } from "lucide-react";
  * there, not on the cards.
  */
 const SERVICES = [
-  { key: "HOME", title: "Home Cleaning", benefit: "Full-home deep cleaning, sofa, mattress & more", img: "/marketing/carousel-team.webp" },
-  { key: "COMMERCIAL", title: "Office / Commercial", benefit: "Offices, shops & clinics — quote by area", img: "/marketing/hero-commercial.webp" },
-  { key: "PAINTING", title: "Interior Painting", benefit: "Asian Paints finishes, estimate by sq ft", img: "/marketing/hero-painting.webp" },
-  { key: "PEST", title: "Pest Control", benefit: "Cockroach, termite, bed bug & ant treatment", img: "/marketing/hero-pest.webp" },
+  { key: "HOME", title: "Home Cleaning", benefit: "Full Home Deep Cleaning, Sofa, Mattress & More", img: "/marketing/carousel-team.webp" },
+  { key: "COMMERCIAL", title: "Office & Commercial", benefit: "Offices, shops, clinics & contracts — written quote", img: "/marketing/hero-commercial.webp" },
+  { key: "PAINTING", title: "Interior Painting", benefit: "Residential & full home painting, Asian Paints", img: "/marketing/hero-painting.webp" },
+  { key: "PEST", title: "Pest Control", benefit: "Home, office & commercial — price after inspection", img: "/marketing/hero-pest.webp" },
 ] as const;
 
-export function ServiceCards() {
+/** starts: optional honest "starting from" line per service (from the live price list). */
+export function ServiceCards({ starts = {} }: { starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>> }) {
   function open(key: string) {
     window.dispatchEvent(new CustomEvent("sahara:select-service", { detail: key }));
     document.getElementById("bk-service")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -34,8 +35,9 @@ export function ServiceCards() {
             <span className="flex flex-1 flex-col gap-1 p-2.5 sm:p-3">
               <span className="text-sm font-bold leading-tight sm:text-base">{s.title}</span>
               <span className="text-[11px] leading-snug text-[#0a2540]/65 sm:text-xs">{s.benefit}</span>
+              {starts[s.key] && <span className="text-[11px] font-semibold leading-snug text-primary">{starts[s.key]}</span>}
               <span className="mt-auto flex min-h-9 items-center justify-center gap-0.5 rounded-lg bg-primary/10 pt-0 text-xs font-bold text-primary group-hover:bg-primary group-hover:text-white">
-                View Packages <ChevronRight className="size-3.5" />
+                Book Now <ChevronRight className="size-3.5" />
               </span>
             </span>
           </button>
