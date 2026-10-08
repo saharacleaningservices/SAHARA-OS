@@ -154,7 +154,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         }
       />
 
-      <div className="max-w-3xl">
+      <div>
         {/* ── JOB STATUS workspace ─────────────────────────────── */}
         <section className="rounded-xl border bg-card p-3 sm:p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -165,6 +165,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </div>
           </div>
 
+          {/* Desktop: details | actions side by side; phone: one column. */}
+          <div className="lg:grid lg:grid-cols-2 lg:gap-6">
+          <div>
           {showJobAmount && (
             <div className="mt-3 grid grid-cols-3 divide-x rounded-lg border text-center">
               <div className="px-1 py-2">
@@ -227,7 +230,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <Row label="Service Address">{job.address}</Row>
           </div>
 
-          <div className="mt-2 border-t pt-3">
+          </div>
+          <div>
+          <div className="mt-2 border-t pt-3 lg:mt-3 lg:border-t-0 lg:pt-0">
             <StatusActions
               jobId={job.id}
               status={job.status}
@@ -373,6 +378,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               ))}
             </ul>
           </Fold>
+          </div>
+          </div>
           </div>
         </section>
 

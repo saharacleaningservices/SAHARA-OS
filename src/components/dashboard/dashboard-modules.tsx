@@ -77,30 +77,19 @@ export function DashboardModules({ role }: { role: string }) {
       ),
     );
 
+  // Six compact group tiles (phone 2 columns, desktop 3) — a group's modules show only when it is opened.
   return (
-    <>
-      {/* Phone: six collapsible groups — one tap opens a group. */}
-      <div className="grid grid-cols-2 gap-2 sm:hidden">
-        {groups.map((g) => (
-          <details key={g.title} className="group rounded-xl border bg-card open:col-span-2">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-1 px-3 py-2.5 text-sm font-semibold">
-              <span className="min-w-0 truncate">{g.title}</span>
-              <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-            </summary>
-            <div className="flex flex-wrap gap-1.5 px-3 pb-3">{links(g.items)}</div>
-          </details>
-        ))}
-      </div>
-      {/* Desktop: the same six groups as a compact grid. */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border bg-card p-4 max-sm:hidden xl:grid-cols-3">
-        {groups.map((g) => (
-          <section key={g.title} className="min-w-0">
-            <h2 className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{g.title}</h2>
-            <div className="flex flex-wrap gap-1.5">{links(g.items)}</div>
-          </section>
-        ))}
-      </div>
-    </>
+    <div className="grid grid-cols-2 items-start gap-2 sm:grid-cols-3">
+      {groups.map((g) => (
+        <details key={g.title} className="group rounded-xl border bg-card open:col-span-2 sm:open:col-span-3">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-1 px-3 py-2.5 text-sm font-semibold">
+            <span className="min-w-0 truncate">{g.title}</span>
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="flex flex-wrap gap-1.5 px-3 pb-3">{links(g.items)}</div>
+        </details>
+      ))}
+    </div>
   );
 }
 

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CalendarClock, CalendarDays, CalendarRange, ClipboardList, HardHat, History, Route, ShieldCheck, Truck, UserCheck, UserPlus, Users } from "lucide-react";
+import { CalendarClock, CalendarRange, ChevronDown, ClipboardList, HardHat, History, ShieldCheck, Truck, UserCheck } from "lucide-react";
 import { getOperationsHome } from "@/server/owner-command-center";
 import { getDashboardData } from "@/server/dashboard";
 import { ExpandableCard } from "./expandable-card";
 import { LeadMonthCalendar } from "./lead-calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getSlotBoard } from "@/server/actions/slot-control";
+import { DashboardModules, DashboardQuickBar } from "@/components/dashboard/dashboard-modules";
 import { JobStatusBadge } from "@/components/shared/status-badge";
 
 type OpsDay = Awaited<ReturnType<typeof getOperationsHome>>["today"];
@@ -71,10 +72,11 @@ function dayBody(data: OpsDay, when: "yesterday" | "today" | "tomorrow") {
  * profit, margin, salary, loan, staff cost, revenue or payment totals.
  */
 export async function OperationsCommandCenter({ name, userId, newLeads }: { name: string; userId: string; newLeads?: ReactNode }) {
-  const [{ yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar }, { stats }] = await Promise.all([
+  const [{ yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar }, { stats }, board] = await Promise.all([
     getOperationsHome(),
     // Team / vehicle / AMC counts he already uses today (counts only — no money is rendered from this).
     getDashboardData("OPERATIONS", userId),
+    getSlotBoard(1),
   ]);
 
   const tile = (icon: ReactNode, tint: string, label: string, value: number, sub: string) => (
@@ -87,21 +89,23 @@ export async function OperationsCommandCenter({ name, userId, newLeads }: { name
       </div>
     </div>
   );
+  // Same summary as the Super Admin dashboard, operational counts only (no payments/money).
   const chips = [
-    { href: "/jobs?when=yesterday", label: "jobs yesterday", count: yesterday.totalJobs },
     { href: "/jobs?when=today", label: "jobs today", count: today.totalJobs },
     { href: "/jobs?when=tomorrow", label: "jobs tomorrow", count: tomorrow.totalJobs },
     { href: "/leads?due=today", label: "follow-ups", count: today.followUps },
     { href: "/leads?stage=SITE_VISIT", label: "site visits", count: today.siteVisits },
+    { href: "/jobs?when=today", label: "jobs without team", count: today.jobs.filter((j) => !j.teamNumber).length },
   ];
+  const todaySlot = board?.[0];
+  if (todaySlot) chips.push({ href: "/jobs/slots", label: `teams · ${todaySlot.booked}/${todaySlot.dailyCapacity} booked today`, count: todaySlot.teams });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="sahara-gradient rounded-xl p-4 text-white sm:p-5">
         <h1 className="text-xl font-semibold text-white sm:text-2xl">
           {getGreeting()}, {name}
         </h1>
-        <p className="mt-0.5 text-xs text-white/80">Operations · yesterday, today &amp; tomorrow</p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {chips.map((c) => (
             <Link key={c.label} href={c.href} className={`rounded-full px-2.5 py-1 text-xs font-medium ${c.count > 0 ? "bg-white text-foreground" : "bg-white/15 text-white/80"}`}>
@@ -111,83 +115,63 @@ export async function OperationsCommandCenter({ name, userId, newLeads }: { name
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <ExpandableCard trigger={tile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}>{dayBody(today, "today")}</ExpandableCard>
-        <ExpandableCard trigger={tile(<CalendarClock className="size-5" />, "bg-indigo-500/15 text-indigo-600", "Tomorrow's Jobs", tomorrow.totalJobs, "Tap for the full list")}>{dayBody(tomorrow, "tomorrow")}</ExpandableCard>
-        {/* Both lead tiles open the Booking Calendar below (owner rule 2026-10-06). */}
-        <a href="#booking-calendar" className="rounded-xl border border-border bg-card p-4 hover:border-primary/40">
-          {tile(<CalendarRange className="size-5" />, "bg-teal-500/15 text-teal-600", "Today Leads", todaysLeadsCount, "Tap for the booking calendar")}
-        </a>
-        <a href="#booking-calendar" className="rounded-xl border border-border bg-card p-4 hover:border-primary/40">
-          {tile(<Users className="size-5" />, "bg-blue-500/15 text-blue-600", "Total Leads", totalLeadsCount, "Tap for the booking calendar")}
-        </a>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card id="booking-calendar" className="scroll-mt-20 lg:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CalendarDays className="size-4 text-primary" /> Booking Calendar
-              <span className="text-xs font-normal text-muted-foreground">· customer phone shown for yesterday, today &amp; tomorrow</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <LeadMonthCalendar
-              initialYear={calendar.year}
-              initialMonth={calendar.month}
-              initialDays={calendar.days}
-              initialLeadsByDay={calendar.leadsByDay}
-              detailLevel="operations"
-            />
-          </CardContent>
-        </Card>
+      {/* Control center: quick actions + six groups (role-filtered) | compact calendar */}
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-3">
-          <ExpandableCard trigger={tile(<History className="size-5" />, "bg-muted text-muted-foreground", "Yesterday's Jobs", yesterday.totalJobs, "Tap for the full list")}>{dayBody(yesterday, "yesterday")}</ExpandableCard>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Team &amp; vehicles</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-2 text-sm">
-              {(
-                [
-                  ["/staff", "Staff available", stats.staffAvailableCount, <UserCheck key="i" className="size-4 text-teal-600" />],
-                  ["/staff", "Team on job", stats.staffOnJobCount, <HardHat key="i" className="size-4 text-purple-600" />],
-                  ["/vehicles", "Vehicles available", Math.max(stats.vehiclesActiveCount - stats.vehiclesInUseCount, 0), <Truck key="i" className="size-4 text-indigo-600" />],
-                  ["/amc", "Upcoming AMC", stats.upcomingAmcCount, <ShieldCheck key="i" className="size-4 text-amber-600" />],
-                ] as const
-              ).map(([href, label, value, icon]) => (
-                <Link key={label} href={href} className="rounded-lg border border-border px-3 py-2 hover:border-primary/40">
-                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    {icon} {label}
-                  </span>
-                  <span className="text-lg font-semibold text-foreground">{value}</span>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Quick actions</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-2 text-sm">
-              {(
-                [
-                  ["/leads/new", "New Lead", <UserPlus key="i" className="size-4" />],
-                  ["/jobs", "Jobs", <ClipboardList key="i" className="size-4" />],
-                  ["/jobs/dispatch", "Team Dispatch", <Route key="i" className="size-4" />],
-                  ["/attendance", "Attendance", <UserCheck key="i" className="size-4" />],
-                ] as const
-              ).map(([href, label, icon]) => (
-                <Link key={href} href={href} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-medium hover:border-primary/40">
-                  {icon} {label}
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
+          <DashboardQuickBar role="OPERATIONS" />
+          <DashboardModules role="OPERATIONS" />
         </div>
+        <section id="schedule" className="scroll-mt-20 rounded-xl border bg-card p-3">
+          <div className="mb-1 flex items-center justify-between">
+            <h2 className="text-sm font-semibold">Calendar</h2>
+            <Link href="/jobs/slots" className="text-xs font-medium text-primary">Slot Availability →</Link>
+          </div>
+          <LeadMonthCalendar
+            initialYear={calendar.year}
+            initialMonth={calendar.month}
+            initialDays={calendar.days}
+            initialLeadsByDay={calendar.leadsByDay}
+            detailLevel="operations"
+            compact
+          />
+        </section>
       </div>
 
-      {newLeads}
+      {/* Day lists, new leads and team counts — one tap away, not on the main view. */}
+      <details className="group rounded-xl border bg-card">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold">
+          Today&apos;s work <span className="text-xs font-normal text-muted-foreground">new leads · jobs · team &amp; vehicles</span>
+          <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="space-y-3 px-3 pb-3">
+          {newLeads}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <ExpandableCard trigger={tile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}>{dayBody(today, "today")}</ExpandableCard>
+            <ExpandableCard trigger={tile(<CalendarClock className="size-5" />, "bg-indigo-500/15 text-indigo-600", "Tomorrow's Jobs", tomorrow.totalJobs, "Tap for the full list")}>{dayBody(tomorrow, "tomorrow")}</ExpandableCard>
+            <ExpandableCard trigger={tile(<History className="size-5" />, "bg-muted text-muted-foreground", "Yesterday's Jobs", yesterday.totalJobs, "Tap for the full list")}>{dayBody(yesterday, "yesterday")}</ExpandableCard>
+            <a href="#schedule" className="rounded-xl border border-border bg-card p-4 hover:border-primary/40">
+              {tile(<CalendarRange className="size-5" />, "bg-teal-500/15 text-teal-600", "Leads today / total", todaysLeadsCount, `${totalLeadsCount} total`)}
+            </a>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+            {(
+              [
+                ["/staff", "Staff available", stats.staffAvailableCount, <UserCheck key="i" className="size-4 text-teal-600" />],
+                ["/staff", "Team on job", stats.staffOnJobCount, <HardHat key="i" className="size-4 text-purple-600" />],
+                ["/vehicles", "Vehicles available", Math.max(stats.vehiclesActiveCount - stats.vehiclesInUseCount, 0), <Truck key="i" className="size-4 text-indigo-600" />],
+                ["/amc", "Upcoming AMC", stats.upcomingAmcCount, <ShieldCheck key="i" className="size-4 text-amber-600" />],
+              ] as const
+            ).map(([href, label, value, icon]) => (
+              <Link key={label} href={href} className="rounded-lg border border-border px-3 py-2 hover:border-primary/40">
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {icon} {label}
+                </span>
+                <span className="text-lg font-semibold text-foreground">{value}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </details>
     </div>
   );
 }
