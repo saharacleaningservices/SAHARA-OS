@@ -20,7 +20,7 @@ import {
 } from "@/lib/package-calc";
 import { cn } from "@/lib/utils";
 
-const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+const inr = (n: number) => `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — paise only when present
 const sel = "h-10 w-full min-w-0 rounded-md border bg-background px-2 text-sm";
 const chip = "h-8 rounded-full border px-3 text-xs font-semibold transition-colors";
 let seq = 0;

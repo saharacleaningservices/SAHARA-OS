@@ -17,7 +17,7 @@ import { LEAD_SOURCES } from "@/lib/validation";
 import { cn } from "@/lib/utils";
 
 type Summary = NonNullable<Awaited<ReturnType<typeof getRepeatCustomerSummary>>>;
-const inr = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
+const inr = (n: number) => `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — paise only when present
 const field = "h-10 w-full min-w-0 rounded-md border bg-background px-2 text-sm";
 const NEW_SITE = "__new";
 

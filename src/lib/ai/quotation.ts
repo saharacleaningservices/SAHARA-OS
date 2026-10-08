@@ -65,7 +65,7 @@ export function draftQuotation(lead: {
 
   const subTotal = lineItems.reduce((s, i) => s + i.amount, 0);
   const gstPercent = 0;
-  const gstAmount = Math.round((subTotal * gstPercent) / 100);
+  const gstAmount = Math.round(((subTotal * gstPercent) / 100) * 100) / 100; // exact to the paisa
   const total = subTotal + gstAmount;
 
   const message = [

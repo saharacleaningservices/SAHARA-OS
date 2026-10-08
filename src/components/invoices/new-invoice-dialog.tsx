@@ -37,7 +37,7 @@ export function NewInvoiceDialog() {
 
   const subTotal = items.reduce((s, i) => s + (Number(i.amount) || 0), 0);
   const taxable = Math.max(subTotal - discount, 0);
-  const gstAmount = Math.round((taxable * gstPercent) / 100);
+  const gstAmount = Math.round(((taxable * gstPercent) / 100) * 100) / 100; // exact to the paisa
   const total = taxable + gstAmount;
 
   function updateItem(idx: number, patch: Partial<LineItem>) {
