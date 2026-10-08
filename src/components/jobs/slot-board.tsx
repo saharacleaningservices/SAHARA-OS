@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { setDayControl, setSlotControl } from "@/server/actions/slot-control";
 
 type Day = {
@@ -53,21 +53,31 @@ export function SlotBoard({ board }: { board: Day[] }) {
 
   const sel = "h-10 min-w-0 rounded-lg border bg-background px-2 text-sm";
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {board.map((d) => {
+    <div className="grid items-start gap-2 md:grid-cols-2 md:gap-3 xl:grid-cols-3">
+      {board.map((d, i) => {
         const cs = customerStatus(d);
         const capValue = cap[d.date] ?? "";
         return (
-          <div key={d.date} className="space-y-3 rounded-xl border bg-card p-3 shadow-sm">
-            <div className="flex items-start justify-between gap-2">
+          // Collapsed: the day at a glance (status + one dot per slot); tap to change it.
+          <details key={d.date} open={i === 0} className="group rounded-xl border bg-card shadow-sm">
+            <summary className="flex cursor-pointer list-none items-start justify-between gap-2 p-3">
               <div className="min-w-0">
                 <p className="font-semibold">{fmt(d.date)}</p>
                 <p className="text-xs text-muted-foreground">
                   {d.booked} booked · {d.teams} team{d.teams === 1 ? "" : "s"} · day cap {d.dailyCapacity}
                 </p>
+                <p className="mt-1 flex gap-1" aria-label="Slots">
+                  {d.slots.filter((x) => x.slot !== "Flexible").map((x) => (
+                    <span key={x.slot} title={`${x.slot}: ${x.available ? "open" : "full"}`} className={`inline-block size-2 rounded-full ${x.available ? "bg-emerald-500" : "bg-red-500"}`} />
+                  ))}
+                </p>
               </div>
-              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[cs]}`}>{cs === "FULL" ? "FULLY BOOKED" : cs}</span>
-            </div>
+              <span className="flex shrink-0 items-center gap-1.5">
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[cs]}`}>{cs === "FULL" ? "FULLY BOOKED" : cs}</span>
+                <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+              </span>
+            </summary>
+            <div className="space-y-3 px-3 pb-3">
 
             <div className="grid grid-cols-[1fr_5.5rem_auto] items-end gap-2">
               <label className="min-w-0 text-xs font-medium">
@@ -131,7 +141,8 @@ export function SlotBoard({ board }: { board: Day[] }) {
               })}
             </div>
             {d.updatedByName && <p className="text-[11px] text-muted-foreground">Last changed by {d.updatedByName}</p>}
-          </div>
+            </div>
+          </details>
         );
       })}
     </div>
