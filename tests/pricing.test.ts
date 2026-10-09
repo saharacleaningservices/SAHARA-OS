@@ -20,6 +20,7 @@ import {
 import { activeCampaign, homeFromPrice, FESTIVAL_PACKAGE_IDS, maskPaintingPrices, PAINTING_PUBLIC_NOTE } from "../src/lib/pricing-master";
 import { livePkgs } from "../src/lib/marketing-content";
 import { publicPaymentState, resolvePublicEstimate } from "../src/lib/booking-payment";
+import { resolvePackageEstimate } from "../src/lib/lead-estimate";
 import { draftQuotation } from "../src/lib/ai/quotation";
 
 const item = (id: string) => priceByContentId(id)!;
@@ -136,6 +137,51 @@ test("public painting rates are withheld; every other price (incl. festival pack
   for (const [id, price] of Object.entries(FESTIVAL_FINAL)) assert.equal(unitPriceFor(masked.find((x) => x.contentId === id)!, w), price, id);
   // the master itself (staff/CRM source) keeps the painting rates
   assert.ok(PRICING_MASTER.filter((i) => i.group === "PAINTING").some((p) => p.price != null));
+});
+
+test("CRM New Lead estimate: 2 BHK → 4 BHK / Villa drops the stale auto estimate; switching back re-prices", () => {
+  // Step 1: 2 BHK Premium on a regular date → form auto-fills ₹5,499.
+  const s1 = resolvePackageEstimate({ amount: null, source: "NONE" }, { propertyType: "2 BHK", price: 5499 });
+  assert.deepEqual([s1.amount, s1.source, s1.mode, s1.warnManual], [5499, "AUTO", "PRICED", false]);
+  // Step 2: property type changed to 4 BHK (no price) → the auto amount must be cleared.
+  const s2 = resolvePackageEstimate(s1, { propertyType: "4 BHK", price: null });
+  assert.deepEqual([s2.amount, s2.source, s2.mode, s2.warnManual], [null, "NONE", "INSPECTION", false]);
+  // Same from 2 BHK → Villa (no catalogue item at all).
+  const v = resolvePackageEstimate(s1, { propertyType: "Villa", price: null });
+  assert.deepEqual([v.amount, v.source, v.mode], [null, "NONE", "INSPECTION"]);
+  for (const t of ["5 BHK", "Bungalow", "Other"]) assert.equal(resolvePackageEstimate(s1, { propertyType: t, price: null }).amount, null, t);
+  // Step 3: back to a priced package → auto-fills again (festival-date price included).
+  const s3 = resolvePackageEstimate(s2, { propertyType: "3 BHK", price: 6999 });
+  assert.deepEqual([s3.amount, s3.source, s3.mode], [6999, "AUTO", "PRICED"]);
+  const s4 = resolvePackageEstimate(s3, { propertyType: "3 BHK", price: 8499 });
+  assert.equal(s4.amount, 8499); // auto estimate follows the new price
+});
+
+test("CRM New Lead estimate: a manual staff estimate is preserved but flagged on inspection-only types", () => {
+  const manual = { amount: 12000, source: "MANUAL" as const };
+  const onVilla = resolvePackageEstimate(manual, { propertyType: "Villa", price: null });
+  assert.deepEqual([onVilla.amount, onVilla.source, onVilla.mode, onVilla.warnManual], [12000, "MANUAL", "INSPECTION", true]);
+  const on4 = resolvePackageEstimate(manual, { propertyType: "4 BHK", price: null });
+  assert.equal(on4.warnManual, true);
+  // A manual figure is never overwritten by a package price.
+  const onPriced = resolvePackageEstimate(manual, { propertyType: "2 BHK", price: 5499 });
+  assert.deepEqual([onPriced.amount, onPriced.source, onPriced.warnManual], [12000, "MANUAL", false]);
+  // An existing saved lead's amount (treated as MANUAL by the form) is never silently cleared.
+  assert.equal(resolvePackageEstimate({ amount: 5500, source: "MANUAL" }, { propertyType: "4 BHK", price: null }).amount, 5500);
+  // Nothing typed and nothing auto-filled: stays empty and unwarned.
+  const empty = resolvePackageEstimate({ amount: null, source: "NONE" }, { propertyType: "Villa", price: null });
+  assert.deepEqual([empty.amount, empty.warnManual, empty.mode], [null, false, "INSPECTION"]);
+  // A non-inspection selection with no price (e.g. Diamond) is UNPRICED, auto estimate dropped.
+  const unpriced = resolvePackageEstimate({ amount: 5499, source: "AUTO" }, { propertyType: "2 BHK", price: null });
+  assert.deepEqual([unpriced.amount, unpriced.mode], [null, "UNPRICED"]);
+});
+
+test("CRM property types: every selectable type is either priced 1-3 BHK, or inspection-only", () => {
+  const types = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"];
+  const inspection = types.filter((t) => needsInspection(t));
+  assert.deepEqual(inspection, ["4 BHK", "5 BHK", "Villa", "Bungalow", "Other"]);
+  assert.equal(needsInspection("Commercial/Office"), false); // commercial uses its own quotation workflow
+  for (const t of inspection) assert.equal(resolvePackageEstimate({ amount: 5499, source: "AUTO" }, { propertyType: t, price: null }).amount, null, t);
 });
 
 test("forged public payment: browser can never create PAID / a Payment row / collected revenue", () => {
