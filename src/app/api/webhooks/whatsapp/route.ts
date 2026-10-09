@@ -22,6 +22,7 @@ import { addTimelineEntry } from "@/server/timeline";
 import { notify } from "@/server/notify";
 import { answerWhatsApp, HANDOFF_ACK } from "@/server/whatsapp-ai";
 import { setConversationMode } from "@/server/whatsapp-access";
+import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "@/lib/whatsapp-keywords";
 
 // Grounded AI assistant — off unless explicitly enabled.
 const AI_ENABLED = process.env.WHATSAPP_AI_ENABLED === "on";
@@ -138,8 +139,8 @@ type MetaWebhookPayload = { entry?: MetaEntry[] };
 // symmetrically an opt-in reply resubscribes. Matched on the whole trimmed
 // message body (case-insensitive) so a customer just typing "stop" — not a
 // sentence that happens to contain it — is what triggers this.
-const OPT_OUT_KEYWORDS = /^(stop|unsubscribe|opt\s*out|cancel)$/i;
-const OPT_IN_KEYWORDS = /^(start|subscribe|opt\s*in)$/i;
+// (Keyword patterns live in src/lib/whatsapp-keywords.ts — "CANCEL" is a
+// booking request, not an unsubscribe.)
 const MORE_OPTIONS_KEYWORDS = /^more$/i;
 
 async function sendMoreOptionsList(toNumber: string, messageId?: string) {

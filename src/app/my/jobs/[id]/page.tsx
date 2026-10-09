@@ -79,20 +79,10 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
         </a>
       </section>
 
-      {/* Amount / paid / balance */}
-      <section className="grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-2xl border border-border bg-card p-2.5">
-          <div className="text-[11px] text-muted-foreground">{t("jobAmount")}</div>
-          <div className="text-lg font-extrabold tabular-nums">{inr(job.jobValue)}</div>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-2.5">
-          <div className="text-[11px] text-muted-foreground">{t("advancePaid")}</div>
-          <div className="text-lg font-extrabold tabular-nums text-success">{inr(job.payment.paid)}</div>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-2.5">
-          <div className="text-[11px] text-muted-foreground">{t("balance")}</div>
-          <div className={cn("text-lg font-extrabold tabular-nums", job.payment.balance > 0 ? "text-destructive" : "text-success")}>{inr(job.payment.balance)}</div>
-        </div>
+      {/* Balance to collect only — never the job amount or paid amount (least privilege). */}
+      <section className="rounded-2xl border border-border bg-card p-3 text-center">
+        <div className="text-[11px] text-muted-foreground">{t("balanceToCollect")}</div>
+        <div className={cn("text-2xl font-extrabold tabular-nums", job.collect.balanceDue > 0 ? "text-destructive" : "text-success")}>{inr(job.collect.balanceDue)}</div>
       </section>
 
       {/* Team */}

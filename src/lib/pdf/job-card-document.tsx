@@ -156,7 +156,8 @@ export function JobCardDocument(props: JobCardPdfProps) {
           </View>
         )}
 
-        {props.notes ? (
+        {/* Internal office notes never go on the team copy. */}
+        {!team && props.notes ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Notes</Text>
             <Text style={styles.notesText}>{props.notes}</Text>

@@ -207,6 +207,9 @@ export function BookingWizard({
   const [mapLink, setMapLink] = useState("");
   const [locating, setLocating] = useState(false);
   const [pay, setPay] = useState<"PAY_ADVANCE" | "PAY_AFTER_SERVICE" | "">("");
+  // WhatsApp marketing consent: optional, NEVER pre-ticked, and independent of the booking itself
+  // (booking confirmations / reminders are transactional and do not depend on it).
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -447,7 +450,7 @@ export function BookingWizard({
         serviceDate: date,
         timeSlot: slot,
         paymentPreference: pay || undefined,
-        marketingOptIn: false,
+        marketingOptIn,
         quotationToken: quote?.token ?? "",
         referralCode: referralCode ?? "",
         notes: quote ? `Quotation ${quote.quoteNumber}` : `${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`,
@@ -1085,6 +1088,13 @@ export function BookingWizard({
             {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
             {mapLink ? "Google Maps location added ✓" : "Add Google Maps location (optional)"}
           </button>
+          <label htmlFor="bk-marketing-optin" className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-xl bg-[#f6f9fc] p-3 text-[13px] leading-snug text-[#0a2540]/85">
+            <input id="bk-marketing-optin" type="checkbox" className="mt-0.5 size-5 shrink-0" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} />
+            <span>
+              <span className="font-semibold">Send me WhatsApp updates and offers from Sahara Cleaning Services (optional).</span>{" "}
+              Your booking does not depend on this. You can reply STOP at any time to opt out.
+            </span>
+          </label>
         </div>
       )}
 

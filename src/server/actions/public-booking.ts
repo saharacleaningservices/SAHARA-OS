@@ -344,6 +344,7 @@ export async function publicBookLead(values: unknown) {
       `Attribution: ${existingOpen?.acquisitionChannel ?? channel}${campaignOf(firstTouch) ? ` / ${campaignOf(firstTouch)}` : ""}${latestTouch && latestFields.latestTouchSource !== channel ? ` · latest touch: ${latestFields.latestTouchSource}` : ""}`,
       isRepeatCustomer ? `⭐ Existing customer — ${priorLeads} prior enquir${priorLeads === 1 ? "y" : "ies"}, ${priorJobs} job(s) on this number` : null,
       data.propertyType ? `Property type: ${data.propertyType}` : null,
+      data.marketingOptIn ? "WhatsApp marketing opt-in: ticked by the customer on the web booking form (optional, not pre-ticked)" : null,
       inspectionRequired ? `SITE INSPECTION REQUIRED — no price shown or charged; assess scope and prepare a custom quotation` : null,
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
