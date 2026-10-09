@@ -11,7 +11,7 @@
 
 import { db } from "@/lib/db";
 import { packageSummary, parsePackage } from "@/lib/package-calc";
-import { jobPaymentSummary } from "@/lib/payment-status";
+import { staffBalanceToCollect } from "@/lib/payment-status";
 import type { SessionPayload } from "@/lib/session";
 import { computeEarned, type AttendanceCode } from "@/server/attendance";
 
@@ -368,9 +368,9 @@ export async function getMyDay(staffId: string, day: Date) {
     db.job.findMany({
       where: myJobsWhere(staffId, from, to),
       orderBy: { scheduledTime: "asc" },
-      // Scope, site and collection details for the crew (owner request
-      // 2026-10-05: job amount + payment status so staff needn't call the
-      // office). Never customerMobile, profit, margin or staff cost.
+      // Scope, site and collection details for the crew. Owner rule
+      // 2026-10-10: only the balance to collect leaves this module — never
+      // the job amount, paid amount, customerMobile, profit or staff cost.
       select: {
         ...JOB_STAFF_SELECT,
         address: true,
@@ -417,11 +417,10 @@ export async function getMyDay(staffId: string, day: Date) {
       mapLink: j.mapLink,
       customerName: j.customerName,
       comboServices: parseList(j.comboServices),
-      jobAmount: j.jobValue,
       priceType: j.priceType,
       festivalName: j.festivalName,
       scopeOfWork: j.scopeOfWork,
-      payment: jobPaymentSummary(j.jobValue, j.payments),
+      collect: staffBalanceToCollect(j.jobValue, j.payments),
       teamNumber: j.teamNumber,
       supervisorName: j.supervisor?.name ?? null,
       team: teamOf(j, staffId),
@@ -658,13 +657,15 @@ export async function getMyJob(staffId: string, jobId: string) {
   }));
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  // Raw money fields (and raw serviceItems, which carry prices) never leave this function.
+  const { jobValue, payments, serviceItems, ...safe } = job;
   return {
-    ...job,
+    ...safe,
     comboServices: parseList(job.comboServices),
     // Package services: names + quantity only — never prices (staff see no internal pricing).
-    packageServices: packageSummary(parsePackage(job.serviceItems)),
+    packageServices: packageSummary(parsePackage(serviceItems)),
     team,
-    payment: jobPaymentSummary(job.jobValue, job.payments),
+    collect: staffBalanceToCollect(jobValue, payments),
     isToday: job.scheduledDate >= today,
   };
 }

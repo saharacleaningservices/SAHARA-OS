@@ -207,6 +207,8 @@ export function LeadForm({
   const homeCategory = watch("serviceCategory") || "HOME_DEEP_CLEANING";
   const [initialPkgKey] = useState(() => `${defaultValues?.serviceCategory ?? ""}|${defaultValues?.serviceVariant ?? ""}|${defaultValues?.packageName ?? ""}`);
   const [pkgPriceNote, setPkgPriceNote] = useState("");
+  // Current package price for the selection (null when none) — drives the "custom quote active" banner.
+  const [pkgPrice, setPkgPrice] = useState<number | null>(null);
   // Remembers the amount THIS form auto-filled from a package price, so a later change to a selection
   // without a package price (4 BHK+, villa, bungalow, …) can drop exactly that stale amount — and never
   // a figure staff typed or a saved lead's existing quote.
@@ -233,6 +235,7 @@ export function LeadForm({
   useEffect(() => {
     if (!livePricing || homeCategory !== "HOME_DEEP_CLEANING" || !homeVariant || !homePackage) {
       setPkgPriceNote("");
+      setPkgPrice(null);
       // Package/category cleared: never leave an auto-filled package estimate behind.
       if (livePricing && autoEstimateRef.current != null) syncPackageEstimate(null, homeVariant);
       return;
@@ -243,6 +246,7 @@ export function LeadForm({
     const festival = homeDate ? festivalForDate(livePricing.festivals, homeDate) : null;
     const price = item ? unitPriceFor(item, festival) : null;
     const r = syncPackageEstimate(price, homeVariant);
+    setPkgPrice(r.mode === "PRICED" ? price : null);
     if (r.mode !== "PRICED" || !item || price == null) {
       // No package price: not a priced package, so no festival/regular price type is recorded.
       setValue("priceType", "");
@@ -539,6 +543,22 @@ export function LeadForm({
               placeholder="As per pricing master"
             />
             {pkgPriceNote && <p className="text-xs text-muted-foreground">{pkgPriceNote}{estimateTouched ? " · amount edited by hand" : ""}</p>}
+            {pkgPrice != null && estimated > 0 && estimated !== pkgPrice && (
+              <p className="rounded-md bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-900" role="note">
+                Custom quote active ({formatINR(estimated)}). Changing the property type or package will NOT recalculate it.{" "}
+                <button
+                  type="button"
+                  className="underline"
+                  onClick={() => {
+                    autoEstimateRef.current = pkgPrice;
+                    setEstimateTouched(false);
+                    setValue("quoteAmount", pkgPrice, { shouldDirty: true });
+                  }}
+                >
+                  Reset to package price ({formatINR(pkgPrice)})
+                </button>
+              </p>
+            )}
             {inspectionSelected && estimated > 0 && (
               <p className="rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-900" role="alert">
                 Manual staff estimate — not a package price. This property needs a site inspection; the final quote is confirmed only after inspection.

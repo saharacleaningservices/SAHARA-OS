@@ -21,7 +21,12 @@ import { activeCampaign, homeFromPrice, FESTIVAL_PACKAGE_IDS, maskPaintingPrices
 import { livePkgs } from "../src/lib/marketing-content";
 import { publicPaymentState, resolvePublicEstimate } from "../src/lib/booking-payment";
 import { resolvePackageEstimate } from "../src/lib/lead-estimate";
+import { redactJob, redactLead } from "../src/lib/redact";
+import { readdirSync, readFileSync } from "node:fs";
 import { draftQuotation } from "../src/lib/ai/quotation";
+import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "../src/lib/whatsapp-keywords";
+import { staffBalanceToCollect } from "../src/lib/payment-status";
+import { maskJobCardForAudience } from "../src/lib/pdf/job-card-mask";
 
 const item = (id: string) => priceByContentId(id)!;
 
@@ -176,12 +181,71 @@ test("CRM New Lead estimate: a manual staff estimate is preserved but flagged on
   assert.deepEqual([unpriced.amount, unpriced.mode], [null, "UNPRICED"]);
 });
 
+test("CRM manual quote: survives property/package changes; Reset re-prices from the current package price (regular or festival)", () => {
+  const item = (id: string) => priceByContentId(id)!;
+  const festival = { name: "Diwali", prices: { "SCS-02": 5499, "SCS-06": 6999 } } as unknown as FestivalWindow;
+  // A manual ₹6,200 quote on 2 BHK Premium, then 3 BHK, Villa, back to 2 BHK, then Platinum: never overwritten.
+  let st: { amount: number | null; source: "MANUAL" | "AUTO" | "NONE" } = { amount: 6200, source: "MANUAL" };
+  for (const [t, id] of [["3 BHK", "SCS-03"], ["Villa", null], ["2 BHK", "SCS-02"], ["2 BHK", "SCS-06"]] as const) {
+    const r = resolvePackageEstimate(st, { propertyType: t, price: id ? unitPriceFor(item(id), null) : null });
+    assert.deepEqual([r.amount, r.source], [6200, "MANUAL"], `${t} ${id}`);
+    st = r;
+  }
+  // Reset (the explicit button): amount := current package price, source := AUTO.
+  // No service date → regular Platinum 2 BHK; inside the festival window → festival price.
+  assert.equal(unitPriceFor(item("SCS-06"), null), 6499);
+  assert.equal(unitPriceFor(item("SCS-06"), festival), 6999);
+  const reset = { amount: unitPriceFor(item("SCS-06"), festival), source: "AUTO" as const };
+  // After Reset the estimate follows package changes again.
+  const after = resolvePackageEstimate(reset, { propertyType: "2 BHK", price: unitPriceFor(item("SCS-02"), festival) });
+  assert.deepEqual([after.amount, after.source], [5499, "AUTO"]);
+});
+
 test("CRM property types: every selectable type is either priced 1-3 BHK, or inspection-only", () => {
   const types = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"];
   const inspection = types.filter((t) => needsInspection(t));
   assert.deepEqual(inspection, ["4 BHK", "5 BHK", "Villa", "Bungalow", "Other"]);
   assert.equal(needsInspection("Commercial/Office"), false); // commercial uses its own quotation workflow
   for (const t of inspection) assert.equal(resolvePackageEstimate({ amount: 5499, source: "AUTO" }, { propertyType: t, price: null }).amount, null, t);
+});
+
+test("field staff never receive customer phone numbers or job money; office roles keep them", () => {
+  const job = { id: "j1", customerMobile: "9876543210", alternateMobile: "9123456780", jobValue: 5499, discountAmount: 100, publicToken: "tok", notes: "call 9876543210 total = ₹5,499", payments: [{ amount: 5499, paidAmount: 2000 }] };
+  for (const role of ["STAFF", "SUPERVISOR"]) {
+    const r = redactJob(job, role);
+    assert.equal(r.customerMobile, "", role);
+    assert.equal(r.alternateMobile, null);
+    assert.equal(r.jobValue, 0);
+    assert.equal(r.publicToken, null);
+    assert.deepEqual(r.payments, [{ amount: 0, paidAmount: 0 }]);
+    assert.ok(!/9876543210|5,499/.test(String(r.notes)), `${role} notes leak: ${r.notes}`);
+  }
+  // Operations sees the job amount but never the customer's number.
+  const ops = redactJob(job, "OPERATIONS");
+  assert.equal(ops.customerMobile, "");
+  assert.equal(ops.jobValue, 5499);
+  // Admin / Accounts see everything.
+  for (const role of ["ADMIN", "ACCOUNTS"]) {
+    const r = redactJob(job, role);
+    assert.equal(r.customerMobile, "9876543210");
+    assert.equal(r.jobValue, 5499);
+  }
+  const lead = { mobile: "9876543210", whatsapp: "9876543210", email: "a@b.in", quoteAmount: 5499, advanceAmount: 1000 };
+  const l = redactLead(lead, "STAFF");
+  assert.deepEqual([l.mobile, l.whatsapp, l.email, l.quoteAmount, l.advanceAmount], ["", null, null, null, null]);
+});
+
+test("project rule: the name 'Shweta' appears nowhere in application source (Accounts is Shoaib Qazi)", () => {
+  const hits: string[] = [];
+  const walk = (dir: string) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { if (!/node_modules|generated|\.next/.test(e.name)) walk(p); }
+      else if (/\.(ts|tsx|mjs|json|prisma)$/.test(e.name) && /shweta/i.test(readFileSync(p, "utf8"))) hits.push(p);
+    }
+  };
+  for (const d of ["src", "scripts", "prisma"]) walk(path.join(process.cwd(), d));
+  assert.deepEqual(hits, []);
 });
 
 test("forged public payment: browser can never create PAID / a Payment row / collected revenue", () => {
@@ -269,4 +333,73 @@ test("migration on a production-like DB (old seeded festival prices, no marker) 
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("WhatsApp: STOP-style replies opt out; a booking CANCEL never unsubscribes", () => {
+  for (const w of ["STOP", "stop", " Stop ", "UNSUBSCRIBE", "opt out", "OptOut"]) {
+    assert.ok(OPT_OUT_KEYWORDS.test(w.trim()), `${w} should opt out`);
+  }
+  for (const w of ["CANCEL", "cancel", "Cancel", "cancel my booking", "please stop the cleaner", "cancel booking"]) {
+    assert.ok(!OPT_OUT_KEYWORDS.test(w.trim()), `${w} must NOT opt out`);
+  }
+  // START still resubscribes; CANCEL is not an opt-in either.
+  assert.ok(OPT_IN_KEYWORDS.test("START") && OPT_IN_KEYWORDS.test("subscribe"));
+  assert.ok(!OPT_IN_KEYWORDS.test("cancel"));
+});
+
+test("staff app (real DB): own job shows ONLY balance to collect; no phone, token, notes, job amount or paid; other jobs denied", async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "sahara-staff-"));
+  const dbFile = path.join(dir, "s.db");
+  const prevUrl = process.env.DATABASE_URL;
+  try {
+    runSetup(dbFile);
+    process.env.DATABASE_URL = `file:${dbFile}`;
+    const { db } = await import("../src/lib/db");
+    const { getMyJob, getMyDay } = await import("../src/server/staff-portal");
+    const me = await db.staff.create({ data: { employeeCode: "T-ME", name: "Test Crew", mobile: "9000000001", designation: "Cleaning Executive" } });
+    const other = await db.staff.create({ data: { employeeCode: "T-OT", name: "Other Crew", mobile: "9000000002", designation: "Cleaning Executive" } });
+    const base = { customerName: "Test Customer", customerMobile: "9876501234", alternateMobile: "9876505678", address: "1 Test Rd", area: "Baner",
+      service: "HOME_DEEP_CLEANING" as const, scheduledDate: new Date(), scheduledTime: "10:00 AM", jobValue: 6499, status: "ASSIGNED" as const,
+      notes: "SECRET-OFFICE-NOTE", serviceItems: JSON.stringify([{ name: "Sofa", qty: 1, price: 999 }]) };
+    const mine = await db.job.create({ data: { ...base, jobNumber: "T-1", publicToken: "TOKEN-MINE-123", assignments: { create: { staffId: me.id, isLead: true } } } });
+    const theirs = await db.job.create({ data: { ...base, jobNumber: "T-2", publicToken: "TOKEN-OTHER-456", assignments: { create: { staffId: other.id } } } });
+    await db.payment.create({ data: { invoiceNumber: "T-INV-1", clientName: "Test Customer", amount: 6499, paidAmount: 2000, dueDate: new Date(), jobId: mine.id } });
+
+    const job = await getMyJob(me.id, mine.id);
+    assert.ok(job, "own assigned job is visible");
+    assert.deepEqual(job.collect, { balanceDue: 4499 });
+    const day = await getMyDay(me.id, new Date());
+    assert.equal(day.jobs.length, 1, "day view lists only my job");
+    assert.deepEqual(day.jobs[0].collect, { balanceDue: 4499 });
+    for (const [label, payload] of [["job detail", job], ["day view", day.jobs]] as const) {
+      const json = JSON.stringify(payload);
+      for (const leak of ["9876501234", "9876505678", "TOKEN-MINE-123", "SECRET-OFFICE-NOTE", "6499", "2000", "999", "/booking/"]) {
+        assert.ok(!json.includes(leak), `${label} leaks ${leak}`);
+      }
+      for (const key of ["jobValue", "jobAmount", "payments", "payment", "paid", "customerMobile", "alternateMobile", "publicToken", "notes", "serviceItems"]) {
+        assert.ok(!new RegExp(`"${key}":`).test(json), `${label} exposes key ${key}`);
+      }
+    }
+    assert.equal(await getMyJob(me.id, theirs.id), null, "a job assigned to someone else is denied");
+    await db.$disconnect();
+  } finally {
+    if (prevUrl === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = prevUrl;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("job card team copy carries no customer phone, payment figures or office notes; office copy unchanged", () => {
+  const props = { jobNumber: "J-1", logoDataUrl: null, customerName: "C", mobile: "9876501234", alternateMobile: "9876505678", address: "A", mapLink: null,
+    date: "d", timeSlot: "t", service: "s", flatType: null, team: "Team 1", supervisor: "S", paymentStatus: "Partly Paid", jobValue: 6499, advance: 2000, balance: 4499,
+    notes: "SECRET-OFFICE-NOTE" };
+  const team = maskJobCardForAudience({ ...props, audience: "team" });
+  const json = JSON.stringify(team);
+  for (const leak of ["9876501234", "9876505678", "SECRET-OFFICE-NOTE", "6499", "2000", "4499", "Partly Paid"]) assert.ok(!json.includes(leak), `team copy leaks ${leak}`);
+  assert.deepEqual(maskJobCardForAudience({ ...props, audience: "office" }), { ...props, audience: "office" });
+});
+
+test("staff collection helper returns only the balance due, never below zero", () => {
+  assert.deepEqual(staffBalanceToCollect(6499, [{ paidAmount: 2000 }, { paidAmount: null }]), { balanceDue: 4499 });
+  assert.deepEqual(staffBalanceToCollect(5000, [{ paidAmount: 6000 }]), { balanceDue: 0 });
+  assert.deepEqual(Object.keys(staffBalanceToCollect(1, [])), ["balanceDue"]);
 });

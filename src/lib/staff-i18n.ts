@@ -90,6 +90,7 @@ const D = {
   terms: ["Terms", "शर्तें", "अटी"],
   jobAmount: ["Job amount", "काम की रकम", "कामाची रक्कम"],
   balance: ["Balance", "बाकी", "बाकी"],
+  balanceToCollect: ["Balance to collect", "ग्राहक से लेना बाकी", "ग्राहकाकडून घ्यायचे बाकी"],
   openMap: ["Open map", "मैप खोलें", "नकाशा उघडा"],
   officeNotes: ["Office notes", "ऑफिस नोट", "ऑफिस नोंद"],
   servicesIncluded: ["Services included", "शामिल सेवाएं", "समाविष्ट सेवा"],

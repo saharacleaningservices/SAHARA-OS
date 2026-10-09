@@ -126,19 +126,10 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                   <b>{j.packageName || j.serviceVariant || t("asPerOffice")}</b>
                   {j.packageName && j.serviceVariant ? <span className="text-muted-foreground"> · {j.serviceVariant}</span> : null}
                 </div>
-                <div className="grid grid-cols-3 gap-2 rounded-lg border border-border p-2 text-center text-sm">
-                  <div>
-                    <div className="text-[11px] text-muted-foreground">{t("jobAmount")}</div>
-                    <div className="font-semibold">{formatINR(j.jobAmount)}</div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] text-muted-foreground">{t("paid")}</div>
-                    <div className="font-semibold">{formatINR(j.payment.paid)}</div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] text-muted-foreground">{t("balance")}</div>
-                    <div className={`font-semibold ${j.payment.balance > 0 ? "text-amber-700" : "text-emerald-700"}`}>{formatINR(j.payment.balance)}</div>
-                  </div>
+                {/* Balance to collect only — never the job amount or paid amount (least privilege). */}
+                <div className="flex items-center justify-between rounded-lg border border-border p-2 text-sm">
+                  <span className="text-[11px] text-muted-foreground">{t("balanceToCollect")}</span>
+                  <span className={`font-semibold ${j.collect.balanceDue > 0 ? "text-amber-700" : "text-emerald-700"}`}>{formatINR(j.collect.balanceDue)}</span>
                 </div>
                 {(j.scopeOfWork || j.priceType) && (
                   <div className="rounded-lg border border-border p-2.5 text-sm">

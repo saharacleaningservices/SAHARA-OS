@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 import { getJobDetail, canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { getCompanySettings } from "@/server/settings";
 import { JobCardDocument } from "@/lib/pdf/job-card-document";
+import { maskJobCardForAudience } from "@/lib/pdf/job-card-mask";
 import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
@@ -46,7 +47,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     fieldRole || _request.nextUrl.searchParams.get("team") === "1" ? "team" : "office";
 
   const buffer = await renderToBuffer(
-    JobCardDocument({
+    JobCardDocument(maskJobCardForAudience({
       jobNumber: job.jobNumber,
       logoDataUrl,
       customerName: job.customerName,
@@ -68,7 +69,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       balance,
       notes: job.notes ?? null,
       audience,
-    })
+    }))
   );
 
   const disposition = _request.nextUrl.searchParams.get("download") === "1" ? "attachment" : "inline";

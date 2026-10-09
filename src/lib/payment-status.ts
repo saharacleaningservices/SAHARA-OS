@@ -31,3 +31,13 @@ export function jobPaymentSummary(jobValue: number, payments: { paidAmount: numb
   const status = balance <= 0 && paid > 0 ? "Paid" : paid > 0 ? "Partly Paid" : "Pending";
   return { paid, balance, status } as const;
 }
+
+/**
+ * Field-staff view of a job's money (least privilege, owner rule 2026-10-10):
+ * ONLY the balance the crew must collect on site — never the total job
+ * amount or how much was already paid. Computed server-side from recorded
+ * Payment rows, same rule as jobPaymentSummary.
+ */
+export function staffBalanceToCollect(jobValue: number, payments: { paidAmount: number | null }[]) {
+  return { balanceDue: jobPaymentSummary(jobValue, payments).balance } as const;
+}
