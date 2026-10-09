@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { publicBookLead } from "@/server/actions/public-booking";
+import { safely } from "@/lib/safe-action";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
 import { LOCALITIES } from "@/lib/marketing-content";
@@ -44,7 +45,7 @@ export function QuickLeadForm({ service, serviceLabel, campaignName, packageLabe
     if (!/^[6-9]\d{9}$/.test(phone)) return setError("Enter a valid 10-digit mobile number.");
     if (!locality) return setError("Please pick your locality.");
     start(async () => {
-      const res = await publicBookLead({
+      const res = await safely(publicBookLead({
         name: name.trim(),
         mobile: phone,
         area: locality,
@@ -55,7 +56,7 @@ export function QuickLeadForm({ service, serviceLabel, campaignName, packageLabe
         source: "WEBSITE",
         marketingOptIn: false,
         attribution: getAttributionPayload(),
-      });
+      }));
       if ("error" in res && res.error) return setError(res.error);
       trackLead({ category: service, variant: packageLabel });
       const lead = "leadNumber" in res ? (res.leadNumber ?? "") : "";

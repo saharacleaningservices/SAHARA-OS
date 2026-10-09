@@ -1,4 +1,4 @@
-import { pricesIn, inGroup, type PriceItem } from "@/lib/pricing-master";
+import { pricesIn, inGroup, unitPriceFor, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
 
 // Customer-facing marketing content shared by the public landing pages.
 // PRICES: never defined here — PREMIUM / PLATINUM / SMALL_SERVICES / COMBOS are
@@ -16,13 +16,19 @@ export const CONTACT = {
 
 export const FESTIVAL_CAMPAIGN = "sahara_festival_2026";
 
-export type Pkg = { bhk: string; mrp: number; price: number };
+/** price/mrp are null for inspection-only properties (4 BHK+): no fixed price is ever shown for them. */
+export type Pkg = { bhk: string; mrp: number | null; price: number | null };
 // Prices come from the single pricing master (src/lib/pricing-master.ts).
-const toPkg = (g: "PREMIUM" | "PLATINUM"): Pkg[] => pricesIn(g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price!, price: p.price! }));
+const toPkg = (g: "PREMIUM" | "PLATINUM"): Pkg[] => pricesIn(g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price ?? null, price: p.price ?? null }));
 export const PREMIUM: Pkg[] = toPkg("PREMIUM");
 /** Same as PREMIUM/PLATINUM/SMALL_SERVICES/COMBOS but from live (CRM-edited) prices — server/pricing.ts getLivePricing(). */
-export const livePkgs = (items: PriceItem[], g: "PREMIUM" | "PLATINUM"): Pkg[] =>
-  inGroup(items, g).map((p) => ({ bhk: p.bhk!, mrp: p.mrp ?? p.price!, price: p.price! }));
+export const livePkgs = (items: PriceItem[], g: "PREMIUM" | "PLATINUM", festival?: FestivalWindow | null): Pkg[] =>
+  inGroup(items, g).map((p) =>
+    // During the festival campaign pass the current window: festival price only, no regular MRP / savings.
+    festival
+      ? { bhk: p.bhk!, mrp: null, price: unitPriceFor(p, festival) }
+      : { bhk: p.bhk!, mrp: p.mrp ?? p.price ?? null, price: p.price ?? null },
+  );
 export const liveSmallServices = (items: PriceItem[]) =>
   inGroup(items, "CUSTOMISED").map((p) => ({ name: p.name, price: p.price, unit: p.unit ?? "", rule: [p.rule, p.scope].filter(Boolean).join(" · "), priceNote: p.priceNote ?? "" }));
 export const liveCombos = (items: PriceItem[]) => inGroup(items, "COMBO").map((p) => ({ name: p.name, price: p.price!, note: p.addOnOnly ? p.rule ?? "Add-on only" : p.rule ?? "" }));

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, RoomScope, QuoteSection, Faqs, Terms, OtherServices, BASE_URL, CAROUSEL, businessJsonLd, faqJsonLd, packageSlug } from "@/components/public/landing-kit";
-import type { PriceItem } from "@/lib/pricing-master";
+import { activeCampaign, todayIST, unitPriceFor, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
 import { getLivePricing } from "@/server/pricing";
 import { inr } from "@/lib/marketing-content";
 import { HOME_DURATION, homeHighlights, type HomeTier } from "@/lib/service-scope";
@@ -17,12 +17,15 @@ export const dynamic = "force-dynamic";
 const TIERS: HomeTier[] = ["Premium", "Platinum"];
 const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"];
 
-function resolve(slug: string, items: PriceItem[]) {
+// While the festival campaign runs (`festival` set) the page shows the festival price only — no regular
+// price, MRP or savings. Outside the campaign it shows the regular price as before.
+function resolve(slug: string, items: PriceItem[], festival: FestivalWindow | null) {
   for (const bhk of BHKS) {
     for (const tier of TIERS) {
       if (packageSlug(bhk, tier) === slug) {
         const item = items.find((p) => p.bhk === bhk && p.variant === tier);
-        if (item?.price != null) return { bhk, tier, price: item.price, mrp: item.mrp ?? null };
+        const price = item ? (festival ? unitPriceFor(item, festival) : item.price) : null;
+        if (item && price != null) return { bhk, tier, price, mrp: festival ? null : item.mrp ?? null };
       }
     }
   }
@@ -30,7 +33,8 @@ function resolve(slug: string, items: PriceItem[]) {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ pkg: string }> }): Promise<Metadata> {
-  const p = resolve((await params).pkg, (await getLivePricing()).items);
+  const live = await getLivePricing();
+  const p = resolve((await params).pkg, live.items, activeCampaign(live.festivals, todayIST())?.current ?? null);
   if (!p) return {};
   const title = `${p.bhk} ${p.tier} Home Deep Cleaning in Pune – ${inr(p.price)} | Sahara Cleaning Services`;
   const description = `${p.bhk} ${p.tier} home deep cleaning in Pune & PCMC for ${inr(p.price)}: ${homeHighlights(p.tier).join(", ")}. Room-wise scope, terms and live available slots.`;
@@ -39,12 +43,14 @@ export async function generateMetadata({ params }: { params: Promise<{ pkg: stri
 }
 
 export default async function HomePackagePage({ params }: { params: Promise<{ pkg: string }> }) {
-  const { items } = await getLivePricing();
-  const p = resolve((await params).pkg, items);
+  const { items, festivals } = await getLivePricing();
+  const fest = activeCampaign(festivals, todayIST())?.current ?? null;
+  const p = resolve((await params).pkg, items, fest);
   if (!p) notFound();
   const settings = await getCompanySettings();
   const other = p.tier === "Premium" ? "Platinum" : "Premium";
   const otherItem = items.find((x) => x.bhk === p.bhk && x.variant === other);
+  const otherPrice = otherItem ? (fest ? unitPriceFor(otherItem, fest) : otherItem.price) : null;
   const WA = `Hi Sahara, I'd like to book ${p.bhk} ${p.tier} home deep cleaning.`;
   const FAQS = [
     { q: `What is included in ${p.bhk} ${p.tier}?`, a: `Complete home cleaning — rooms, kitchen, bathrooms and balcony — with ${p.tier === "Platinum" ? "wall wet cleaning" : "wall dry dusting"} and ceiling dry dusting. See the room-wise scope above.` },
@@ -87,9 +93,9 @@ export default async function HomePackagePage({ params }: { params: Promise<{ pk
         <section>
           <h2 className="text-xl font-bold">What&apos;s included</h2>
           <RoomScope tier={p.tier} />
-          {otherItem?.price != null && (
+          {otherPrice != null && (
             <Link href={`/home-deep-cleaning-pune/${packageSlug(p.bhk, other)}`} className="mt-3 block rounded-2xl border border-primary/30 bg-white p-3.5 text-sm">
-              Compare <span className="font-bold">{p.bhk} {other}</span> — {other === "Platinum" ? "wall wet cleaning" : "wall dry dusting"} · <span className="font-bold text-primary">{inr(otherItem.price)}</span> →
+              Compare <span className="font-bold">{p.bhk} {other}</span> — {other === "Platinum" ? "wall wet cleaning" : "wall dry dusting"} · <span className="font-bold text-primary">{inr(otherPrice)}</span> →
             </Link>
           )}
         </section>

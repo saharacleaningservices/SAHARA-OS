@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import { isWhatsAppReady, normalizeNumber, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 import { HOME_FROM_PRICE } from "@/lib/pricing-master";
+import { getLivePricing } from "@/server/pricing";
 import { WHATSAPP_TEST_NUMBERS, getWhatsAppMarketingAudience } from "@/server/whatsapp-audience";
 
 // Admin-only WhatsApp campaigns from the Marketing dashboard. Every message is
@@ -68,7 +69,13 @@ export async function sendFestivalCampaign(values: unknown) {
     if (!recipients.length) return { error: "No opted-in contacts left to send this campaign to." };
   }
 
-  const price = HOME_FROM_PRICE.toLocaleString("en-IN");
+  // "Starts from" must be what a customer actually pays on festival dates: the lowest festival Premium
+  // price of THIS festival window (not the regular price). Falls back to the regular master price only
+  // if the window has no Premium festival price set.
+  const live = await getLivePricing();
+  const offer = live.festivals.find((f) => f.name.toLowerCase() === festival.toLowerCase());
+  const festivalPremium = offer ? ["SCS-01", "SCS-02", "SCS-03"].map((id) => offer.prices[id]).filter((n): n is number => typeof n === "number") : [];
+  const price = (festivalPremium.length ? Math.min(...festivalPremium) : HOME_FROM_PRICE).toLocaleString("en-IN");
   const landing = `offers?utm_source=whatsapp&utm_medium=marketing&utm_campaign=${campaign}&utm_content=festival_offer`;
   let sent = 0;
   let failed = 0;

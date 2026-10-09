@@ -123,9 +123,11 @@ export default async function PublicBookingPage({
     getFeaturedGallery(24),
   ]);
   const leadSource = (sp.source || sp.src || "").toUpperCase();
-  const rating = settings.googleRating || "4.9";
-  const reviewCount = settings.googleReviewCount || "1800+";
-  const happyCustomers = settings.happyCustomers || "8000+";
+  // Trust claims come ONLY from Settings (owner-verified). No built-in fallback numbers: if a field is
+  // blank the claim is simply not shown.
+  const rating = settings.googleRating?.trim() || "";
+  const reviewCount = settings.googleReviewCount?.trim() || "";
+  const happyCustomers = settings.happyCustomers?.trim() || "";
   const reviewUrl = settings.googleReviewUrl || "";
   const prefillName = (sp.customer || sp.name || "").slice(0, 80);
   const prefillMobile = (sp.phone || sp.mobile || "").replace(/[^\d]/g, "").slice(-10);
@@ -224,18 +226,24 @@ export default async function PublicBookingPage({
       {/* ── Trust strip ───────────────────────────────────────── */}
       <div className="border-b border-border bg-white">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-4 py-4 text-sm sm:grid-cols-4">
-          <div className="flex items-center gap-2">
-            <Star className="size-6 shrink-0 fill-yellow-400 text-yellow-400" />
-            <span><span className="block font-bold text-foreground">{rating}/5</span><span className="text-xs text-muted-foreground">Google Rating</span></span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="size-6 shrink-0 text-primary" />
-            <span><span className="block font-bold text-foreground">{reviewCount}</span><span className="text-xs text-muted-foreground">Google Reviews</span></span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Users className="size-6 shrink-0 text-primary" />
-            <span><span className="block font-bold text-foreground">{happyCustomers}</span><span className="text-xs text-muted-foreground">Happy Customers</span></span>
-          </div>
+          {rating && (
+            <div className="flex items-center gap-2">
+              <Star className="size-6 shrink-0 fill-yellow-400 text-yellow-400" />
+              <span><span className="block font-bold text-foreground">{rating}/5</span><span className="text-xs text-muted-foreground">Google Rating</span></span>
+            </div>
+          )}
+          {reviewCount && (
+            <div className="flex items-center gap-2">
+              <Users className="size-6 shrink-0 text-primary" />
+              <span><span className="block font-bold text-foreground">{reviewCount}</span><span className="text-xs text-muted-foreground">Google Reviews</span></span>
+            </div>
+          )}
+          {happyCustomers && (
+            <div className="flex items-center gap-2">
+              <Users className="size-6 shrink-0 text-primary" />
+              <span><span className="block font-bold text-foreground">{happyCustomers}</span><span className="text-xs text-muted-foreground">Happy Customers</span></span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <ShieldCheck className="size-6 shrink-0 text-primary" />
             <span><span className="block font-bold text-foreground">Pune&apos;s Trusted</span><span className="text-xs text-muted-foreground">Cleaning Service</span></span>
@@ -365,8 +373,14 @@ export default async function PublicBookingPage({
                 its own TM mark, so showTm is omitted to avoid a duplicate. */}
             <CompanyLogo logoUrl={settings.logoUrl} className="h-11 w-auto max-w-[170px] brightness-0 invert" />
             <p className="max-w-xs text-xs leading-relaxed text-white/75">
-              Residential &amp; Commercial Cleaning Services — trusted by{" "}
-              <span className="font-semibold text-white">{happyCustomers} customers</span> across Pune.
+              Residential &amp; Commercial Cleaning Services
+              {happyCustomers ? (
+                <>
+                  {" "}— trusted by <span className="font-semibold text-white">{happyCustomers} customers</span> across Pune.
+                </>
+              ) : (
+                <> in Pune &amp; PCMC.</>
+              )}
             </p>
             <div className="flex items-center gap-4 pt-1">
               <a href="https://facebook.com/saharacleaningservices" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:opacity-80"><FaFacebookF className="size-4" /></a>

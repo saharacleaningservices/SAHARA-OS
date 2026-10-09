@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { HOME_FROM_PRICE } from "@/lib/pricing-master";
+import { activeCampaign, homeFromPrice, todayIST } from "@/lib/pricing-master";
 import { getLivePricing } from "@/server/pricing";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,16 +13,25 @@ import { livePkgs, liveSmallServices, inr } from "@/lib/marketing-content";
 // Reads company settings from the DB, which is not available at image build time.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Festival Home & Office Cleaning in Pune – Navratri, Dussehra, Diwali | Sahara",
-  description: `Get your home and workplace festival-ready with Sahara Cleaning Services, Pune. Home deep cleaning from ${inr(HOME_FROM_PRICE)}, office cleaning, pest control and interior painting. Since 2012.`,
-  alternates: { canonical: `${BASE_URL}/offers` },
-  openGraph: { title: "Get Your Home & Workplace Festival-Ready — Sahara Cleaning Services", description: `Navratri • Dussehra • Diwali. Transparent home deep cleaning prices from ${inr(HOME_FROM_PRICE)}.`, url: `${BASE_URL}/offers`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
-};
+// "From" price = what a customer actually pays now (festival price while the campaign runs).
+async function fromPriceNow() {
+  const { items, festivals } = await getLivePricing();
+  return homeFromPrice(items, activeCampaign(festivals, todayIST())?.current ?? null);
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const from = await fromPriceNow();
+  return {
+    title: "Festival Home & Office Cleaning in Pune – Navratri, Dussehra, Diwali | Sahara",
+    description: `Get your home and workplace festival-ready with Sahara Cleaning Services, Pune. Home deep cleaning from ${inr(from)}, office cleaning, pest control and interior painting. Since 2012.`,
+    alternates: { canonical: `${BASE_URL}/offers` },
+    openGraph: { title: "Get Your Home & Workplace Festival-Ready — Sahara Cleaning Services", description: `Navratri • Dussehra • Diwali. Transparent home deep cleaning prices from ${inr(from)}.`, url: `${BASE_URL}/offers`, images: [`${BASE_URL}/marketing/hero-home.webp`], type: "website" },
+  };
+}
 
 const WA = "Hi Sahara, I'd like to book festival cleaning. Please share details.";
-const SERVICES = [
-  { href: "/home-deep-cleaning-pune", img: "/marketing/hero-home.webp", title: "Home Deep Cleaning", text: `Premium & Platinum packages from ${inr(HOME_FROM_PRICE)}.`, cta: "View Packages" },
+const services = (from: number) => [
+  { href: "/home-deep-cleaning-pune", img: "/marketing/hero-home.webp", title: "Home Deep Cleaning", text: `Premium & Platinum packages from ${inr(from)}.`, cta: "View Packages" },
   { href: "/commercial-cleaning-pune", img: "/marketing/hero-commercial.webp", title: "Office & Commercial Cleaning", text: "Offices, workspaces and commercial premises — site visit and quote.", cta: "Get Quote" },
   { href: "/pest-control-pune", img: "/marketing/hero-pest.webp", title: "Pest Control", text: "Cockroach, termite, bed bug and ant control after inspection.", cta: "Book Inspection" },
   { href: "/interior-painting-pune", img: "/marketing/hero-painting.webp", title: "Interior Painting", text: "Asian Paints range — site visit and measurement based quote.", cta: "Get Painting Quote" },
@@ -37,11 +46,16 @@ const FAQS = [
 
 export default async function FestivalOffersPage() {
   const [settings, pricing] = await Promise.all([getCompanySettings(), getLivePricing()]);
-  const PREMIUM = livePkgs(pricing.items, "PREMIUM");
-  const PLATINUM = livePkgs(pricing.items, "PLATINUM");
+  // While the festival campaign runs, only festival packages are shown (no regular cards, MRP or
+  // "regular price" copy). Regular packages come back automatically once the campaign dates pass.
+  const campaign = activeCampaign(pricing.festivals, todayIST());
+  const PREMIUM = livePkgs(pricing.items, "PREMIUM", campaign?.current);
+  const PLATINUM = livePkgs(pricing.items, "PLATINUM", campaign?.current);
   const SMALL_SERVICES = liveSmallServices(pricing.items);
+  const faqs = campaign ? FAQS.filter((f) => !/festival and regular/i.test(f.q)) : FAQS;
+  const SERVICES = services(homeFromPrice(pricing.items, campaign?.current ?? null));
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}>
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(faqs)]}>
       <Hero
         image="/marketing/hero-home.webp"
         alt="Sahara Cleaning Services team deep cleaning a living room in Pune"
@@ -73,8 +87,8 @@ export default async function FestivalOffersPage() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold">Home deep cleaning — regular package prices</h2>
-          <p className="text-sm text-[#0a2540]/70">For service dates outside the festival dates. Festival prices are shown above.</p>
+          <h2 className="text-2xl font-bold">{campaign ? "Festival home deep cleaning packages" : "Home deep cleaning — regular package prices"}</h2>
+          <p className="text-sm text-[#0a2540]/70">{campaign ? "Prices for service dates during the festival. 4 BHK and larger homes are quoted after a site inspection." : "For service dates outside the festival dates. Festival prices are shown above."}</p>
           <h3 className="mt-3 font-semibold">Premium</h3>
           <PackageGrid items={PREMIUM} />
           <h3 className="mt-6 font-semibold">Platinum <span className="ml-1 rounded bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-900">⭐ WALL WET CLEANING &amp; CEILING DRY DUSTING INCLUDED</span></h3>
@@ -94,7 +108,7 @@ export default async function FestivalOffersPage() {
         <QuoteSection title="Book your festival cleaning" subtitle="Share a few details — our team will call you to confirm the price and your preferred date." campaignName="Sahara Festival 2026" />
         <HowItWorks />
         <Areas />
-        <Faqs faqs={FAQS} />
+        <Faqs faqs={faqs} />
         <Terms />
         <FinalCta title="Book early for Navratri, Dussehra & Diwali" waText={WA} />
       </main>

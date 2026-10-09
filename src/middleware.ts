@@ -14,7 +14,7 @@ import {
 // middleware already always lets through. Everything else must never be
 // reachable from booking.* (2026-09-22 domain-split master prompt: "Do not
 // expose internal CRM routes through the public booking domain").
-const BOOKING_HOST_ALLOWED_PREFIXES = ["/book", "/offers", "/home-deep-cleaning-pune", "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/marketing/", "/j/", "/gallery", "/privacy-policy", "/terms", "/data-deletion", "/api/booking-link", "/api/webhook"];
+const BOOKING_HOST_ALLOWED_PREFIXES = ["/robots.txt", "/sitemap.xml", "/book","/offers", "/home-deep-cleaning-pune", "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/marketing/", "/j/", "/gallery", "/privacy-policy", "/terms", "/data-deletion", "/api/booking-link", "/api/webhook"];
 
 // /api/backup and /api/cron do their own bearer-token auth (see
 // src/app/api/backup/route.ts and src/app/api/cron/reminders/route.ts).
@@ -45,6 +45,8 @@ const PUBLIC_PATHS = [
   "/api/cron",
   "/api/booking-link",
   "/api/webhook",
+  "/robots.txt",
+  "/sitemap.xml",
   "/book",
   "/j/",
   "/gallery",

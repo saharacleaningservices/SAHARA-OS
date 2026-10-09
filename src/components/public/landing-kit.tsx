@@ -8,7 +8,7 @@ import { MarketingTags } from "@/components/public/marketing-tags";
 import { BookingWizard } from "@/components/public/booking-wizard";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import { CONTACT, EQUIPMENT, TERMS, inr, type Pkg } from "@/lib/marketing-content";
-import { SERVICE_AREA_NOTICE } from "@/lib/pricing-master";
+import { SERVICE_AREA_NOTICE, activeCampaign } from "@/lib/pricing-master";
 import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
@@ -262,11 +262,22 @@ export function PackageGrid({ items, accent, tier }: { items: Pkg[]; accent?: bo
   return (
     <div className="mt-3 grid grid-cols-2 gap-2.5 md:grid-cols-4">
       {items.map((p) => {
+        // 4 BHK and larger: no fixed price — site inspection and a written quotation first.
+        if (p.price == null) {
+          return (
+            <div key={p.bhk} className={`rounded-2xl bg-white p-3.5 text-center shadow-sm ${accent ? "border-2 border-amber-300" : ""}`}>
+              <p className="font-bold">{p.bhk}</p>
+              <p className="mt-0.5 text-sm font-extrabold leading-tight text-primary">Price on inspection</p>
+              <p className="mt-0.5 text-[11px] font-medium text-[#0a2540]/60">Site inspection required</p>
+              <Link href="/booking" className="mt-2 block rounded-lg bg-primary/10 py-1.5 text-xs font-bold text-primary">Request inspection</Link>
+            </div>
+          );
+        }
         const body = (
           <>
             <p className="font-bold">{p.bhk}</p>
             <p className="mt-0.5"><span className="text-xl font-extrabold text-primary sm:text-2xl">{inr(p.price)}</span></p>
-            {p.mrp > p.price && <p className="text-xs text-[#0a2540]/50">MRP <span className="line-through">{inr(p.mrp)}</span> · Save {inr(p.mrp - p.price)}</p>}
+            {p.mrp != null && p.mrp > p.price && <p className="text-xs text-[#0a2540]/50">MRP <span className="line-through">{inr(p.mrp)}</span> · Save {inr(p.mrp - p.price)}</p>}
             {tier && <p className="mt-2 rounded-lg bg-primary/10 py-1.5 text-xs font-bold text-primary">View scope &amp; book</p>}
           </>
         );
@@ -452,13 +463,15 @@ export async function FestivalSection({ bookHref = "?price=festival#quote" }: { 
     })
     .filter((r) => r.premium?.festival != null || r.platinum?.festival != null);
   if (!rows.length) return null;
+  // While the campaign runs, regular prices are not promoted here (festival packages only).
+  const campaignOn = !!activeCampaign(festivals, today);
   const cell = (v: { regular: number | null; festival: number | null } | null) =>
     !v ? (
       <span className="text-[#0a2540]/40">—</span>
     ) : (
       <>
         <span className="block text-lg font-extrabold text-amber-700 sm:text-xl">{inr(v.festival ?? v.regular ?? 0)}</span>
-        {v.festival != null && v.regular != null && <span className="block text-[11px] text-[#0a2540]/55">Regular {inr(v.regular)} · other dates</span>}
+        {!campaignOn && v.festival != null && v.regular != null && <span className="block text-[11px] text-[#0a2540]/55">Regular {inr(v.regular)} · other dates</span>}
       </>
     );
 
@@ -499,9 +512,14 @@ export async function FestivalSection({ bookHref = "?price=festival#quote" }: { 
               <span>{cell(r.platinum)}</span>
             </div>
           ))}
+          {campaignOn && (
+            <div className="border-t border-[#0a2540]/10 px-3 py-2.5 text-sm">
+              <span className="font-bold">4 BHK and larger</span> — <span className="font-semibold text-amber-700">Price on inspection · site inspection required</span>
+            </div>
+          )}
         </div>
         <p className="mt-2 text-[11px] leading-relaxed text-[#0a2540]/65">
-          Festival prices apply to service dates during the festival dates above; regular prices apply on all other dates. Package price applies to the selected scope — Platinum adds wall wet cleaning. Festival slots are subject to team availability; live availability is shown in the booking calendar.
+          {campaignOn ? "Festival prices apply to service dates during the festival dates above." : "Festival prices apply to service dates during the festival dates above; regular prices apply on all other dates."} Package price applies to the selected scope — Platinum adds wall wet cleaning. Festival slots are subject to team availability; live availability is shown in the booking calendar.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <a href={bookHref} className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-amber-500 px-5 text-base font-extrabold text-[#0a2540] shadow-sm hover:bg-amber-400 sm:flex-none">

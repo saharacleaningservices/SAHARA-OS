@@ -9,7 +9,7 @@ import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackFunnel, trackLead } from "@/components/public/marketing-tags";
 import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, type HomeTier } from "@/lib/service-scope";
-import { BOOKING_TERMS, PRICING_MASTER, festivalForDate, inGroup, priceLabel, unitPriceFor, upcomingFestivals, type LivePricing, type PriceItem, type PriceType } from "@/lib/pricing-master";
+import { BOOKING_TERMS, INSPECTION_NOTE, PRICING_MASTER, activeCampaign, festivalForDate, inGroup, needsInspection, priceLabel, unitPriceFor, upcomingFestivals, type LivePricing, type PriceItem, type PriceType } from "@/lib/pricing-master";
 
 // Shown once, right under the service prices.
 const PRICE_NOTE =
@@ -34,7 +34,7 @@ type Line = { label: string; amount: number | null; note?: string };
 
 // Owner 2026-10-05: Property Type + 4 packages. Fixed prices exist only for
 // 1–4 BHK × Premium / Platinum; every other combination is "price on confirmation".
-const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"];
+const BHKS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"];
 const HOME_PACKAGES = ["Premium", "Platinum", "Diamond", "Unfurnished"] as const;
 const isTier = (v: string): v is HomeTier => v === "Premium" || v === "Platinum";
 const PEST_SIZES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Villa / Bungalow", "Commercial"];
@@ -145,9 +145,12 @@ export function BookingWizard({
   // service dates inside a festival window; Regular to all other dates.
   const festivals = useMemo(() => upcomingFestivals(pricing?.festivals ?? [], todayIST()), [pricing]);
   const [priceMode, setPriceMode] = useState<PriceType | "">("");
+  // Festival campaign running today → festival packages ONLY: no regular selector, and the festival mode
+  // cannot be switched off for full-home packages. The server still prices by service date (authoritative).
+  const campaign = useMemo(() => activeCampaign(pricing?.festivals ?? [], todayIST()), [pricing]);
   useEffect(() => {
-    if (festivals.length && /[?&]price=festival/i.test(window.location.search)) setPriceMode("FESTIVAL");
-  }, [festivals.length]);
+    if (campaign || (festivals.length && /[?&]price=festival/i.test(window.location.search))) setPriceMode("FESTIVAL");
+  }, [campaign, festivals.length]);
   const [category, setCategory] = useState<Category | "">(preset ? "HOME" : (defaultCategory ?? ""));
   // Home
   const [bhk, setBhk] = useState(preset?.bhk ?? "");
@@ -290,6 +293,13 @@ export function BookingWizard({
   const hasUnpriced = !quote && lines.some((l) => l.amount == null);
   const addOnOnlyAlone = !quote && lines.length > 0 && lines.every((l) => COMBOS.find((c) => c.name === l.label)?.addOnOnly);
   const needsPriceMode = festivalApplies && category === "HOME";
+  // Campaign running: full-home packages can never fall back to regular pricing from the UI.
+  useEffect(() => {
+    if (campaign && category === "HOME" && homeType === "FULL" && priceMode !== "FESTIVAL") {
+      setPriceMode("FESTIVAL");
+      if (date && !festivalForDate(festivals, date)) setDate("");
+    }
+  }, [campaign, category, homeType, priceMode, date, festivals]);
   // Festival / Regular each allow only some dates — open the calendar on the first
   // bookable month for the chosen mode, not an all-greyed month.
   useEffect(() => {
@@ -337,6 +347,12 @@ export function BookingWizard({
       { enableHighAccuracy: true, timeout: 10000 },
     );
   }
+  // 4 BHK+, villa, bungalow, full house: no instant price — a site inspection and written quotation come first.
+  const inspection = category === "HOME" && homeType === "FULL" && needsInspection(bhk);
+  useEffect(() => {
+    // Nothing is charged before an approved quotation, so the payment choice is fixed to "after service".
+    if (inspection && pay !== "PAY_AFTER_SERVICE") setPay("PAY_AFTER_SERVICE");
+  }, [inspection, pay]);
   const ready = serviceChosen && date && slot && pay && detailsOk;
 
   function mapping() {
@@ -408,6 +424,7 @@ export function BookingWizard({
     trackFunnel("submit_booking", { service: category });
     const summary = lines.map((l) => `${l.label}${l.amount != null ? ` = ${inr(l.amount)}` : l.note ? ` (${l.note})` : ""}`).join("; ");
     startTransition(async () => {
+      try {
       const m = quote ? { serviceCategory: "HOME_DEEP_CLEANING", serviceVariant: "", packageName: "", propertyType: "" } : mapping();
       const res = await publicBookLead({
         name: name.trim(),
@@ -432,7 +449,7 @@ export function BookingWizard({
         marketingOptIn: false,
         quotationToken: quote?.token ?? "",
         referralCode: referralCode ?? "",
-        notes: quote ? `Quotation ${quote.quoteNumber}` : `${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`,
+        notes: quote ? `Quotation ${quote.quoteNumber}` : `${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`,
         source: "WEBSITE",
         attribution: getAttributionPayload(),
       });
@@ -440,6 +457,11 @@ export function BookingWizard({
       trackLead({ category: m.serviceCategory, variant: m.serviceVariant });
       trackFunnel("booking_confirmation", { service: m.serviceCategory, variant: m.serviceVariant });
       setDone("leadNumber" in res ? (res.leadNumber ?? "") : "");
+      } catch {
+        // Never show success on a failed/uncertain submit. Retrying is safe: the server reuses an
+        // open enquiry for the same mobile instead of creating a duplicate lead.
+        setError("We couldn't send your request just now. Please check your connection and tap the button again — your details are still here. If it keeps failing, call us on 8956567130 / 7083347130.");
+      }
     });
   }
 
@@ -569,7 +591,10 @@ export function BookingWizard({
                     ...(festivalApplies
                       ? [{ key: "FEST", title: "Festival Home Cleaning", sub: `Service dates ${shortDay(festivals[0].start)}–${shortDay(festivals.reduce((e, f) => (f.end > e ? f.end : e), festivals[0].end))}`, type: "FULL", mode: "FESTIVAL" }]
                       : []),
-                    { key: "REG", title: festivalApplies ? "After-Diwali / Regular Home Cleaning" : "Full Home Deep Cleaning", sub: festivalApplies ? "Service dates outside the festival" : "Premium & Platinum packages", type: "FULL", mode: "REGULAR" },
+                    // The regular full-home option is hidden while the festival campaign runs.
+                    ...(campaign
+                      ? []
+                      : [{ key: "REG", title: festivalApplies ? "After-Diwali / Regular Home Cleaning" : "Full Home Deep Cleaning", sub: festivalApplies ? "Service dates outside the festival" : "Premium & Platinum packages", type: "FULL", mode: "REGULAR" }]),
                     { key: "COMBO", title: "Combo Packages", sub: "Kitchen, bathroom & sofa combos", type: "COMBO", mode: "" },
                     { key: "CUSTOM", title: "Individual Cleaning Services", sub: "Bathroom, kitchen, sofa, mattress & more", type: "CUSTOM", mode: "" },
                   ] as const).map((c) => {
@@ -613,10 +638,16 @@ export function BookingWizard({
                       <p className="mb-2 text-sm font-semibold">Property type</p>
                       <div className="grid grid-cols-4 gap-1.5 sm:gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} px-1 text-[11px] leading-tight sm:whitespace-nowrap sm:text-[13px] sm:leading-normal`}>{b}</button>)}</div>
                     </div>
+                    {inspection && (
+                      <div className={`rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 ${pkgCollapsed ? "max-sm:hidden" : ""}`} role="note">
+                        <p className="font-bold">{INSPECTION_NOTE}</p>
+                        <p className="mt-0.5 text-[13px]">For {bhk === "Other" ? "this property" : bhk}, our team first visits to assess the scope, then sends a written quotation. Pick your preferred inspection date and time, share your details, and we will call you. Nothing is charged before you approve the quotation.</p>
+                      </div>
+                    )}
                     {bhk && (
                       <div className={`grid gap-2.5 sm:grid-cols-2 ${pkgCollapsed ? "max-sm:hidden" : ""}`}>
                         {HOME_PACKAGES.map((t) => {
-                          const it = isTier(t) ? pkgPrice(t) : undefined;
+                          const it = isTier(t) && !inspection ? pkgPrice(t) : undefined;
                           const on = pkg === t;
                           return (
                             <button key={t} type="button" onClick={() => { setPkg(t); setPkgEdit(false); }} className={`rounded-2xl border p-3.5 text-left ${on ? "border-primary bg-primary/5 ring-2 ring-primary/30" : "border-[#0a2540]/15 bg-white"}`}>
@@ -638,7 +669,7 @@ export function BookingWizard({
                                     );
                                   })()
                                 ) : (
-                                  <span className="text-right text-[11px] font-semibold text-[#0a2540]/60">Price on confirmation</span>
+                                  <span className="text-right text-[11px] font-semibold text-[#0a2540]/60">{inspection ? "Price on inspection" : "Price on confirmation"}</span>
                                 )}
                               </span>
                               <span className="mt-2 block space-y-0.5 text-xs text-[#0a2540]/75 max-sm:hidden">
@@ -1057,7 +1088,10 @@ export function BookingWizard({
       {(quote ? !!date && !!slot : !!date && !!slot && !!detailsOk) && (
       <div id="bk-pay" className={`${card} scroll-mt-20 ${quote || dateCollapsed ? "" : "max-sm:hidden"}`}>
         {step(quote ? 3 : 6, "Payment *", !!pay)}
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        {inspection && (
+          <p className="mt-3 rounded-xl bg-primary/5 p-3 text-sm font-medium text-[#0a2540]/85">No payment is taken now. The final price is confirmed in a written quotation after our site inspection.</p>
+        )}
+        <div className={`mt-3 grid grid-cols-2 gap-2 ${inspection ? "hidden" : ""}`}>
           {([
             ["PAY_ADVANCE", "Pay Advance"],
             ["PAY_AFTER_SERVICE", "Pay After Service"],
@@ -1082,7 +1116,7 @@ export function BookingWizard({
               <dd className="font-medium">{tier === "Platinum" ? "Wall wet cleaning + ceiling dry dusting" : "Wall dry dusting + ceiling dry dusting"} · {HOME_DURATION}</dd>
             </>
           )}
-          {needsPriceMode && priceMode && (
+          {needsPriceMode && priceMode && !inspection && (
             <>
               <dt className="text-[#0a2540]/60">Price</dt>
               <dd className="font-medium">{priceMode === "FESTIVAL" ? `Festival Special${activeFestival ? ` · ${activeFestival.name}` : ""}` : "Regular"}</dd>
@@ -1106,6 +1140,12 @@ export function BookingWizard({
             {hasUnpriced && pricedTotal > 0 && <span className="ml-1 text-xs font-medium text-[#0a2540]/60">+ items priced before booking</span>}
           </dd>
         </dl>
+        {!quote && (
+          <div className="mt-3 rounded-xl border border-[#0a2540]/10 bg-[#f6f9fc] p-3 text-[13px] text-[#0a2540]/85" aria-label="Before our team arrives">
+            <p className="font-bold">Before our team arrives, please arrange:</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-5">{CUSTOMER_REQUIREMENTS.slice(0, 4).map((s) => <li key={s}>{s}</li>)}</ul>
+          </div>
+        )}
         <p className="mt-2 text-[11px] text-[#0a2540]/60">By confirming you agree to the scope, please-note points and terms shown above.</p>
         {!ready && !quote && missing.length > 0 && (
           <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
@@ -1115,7 +1155,7 @@ export function BookingWizard({
         )}
         {error && <p className="mt-2 text-sm font-semibold text-red-600" role="alert">{error}</p>}
         <button type="button" onClick={submit} disabled={!ready || pending} className="mt-3 min-h-12 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-white disabled:opacity-50">
-          {pending ? "Sending…" : !quote && pricedTotal === 0 ? "Request Quote" : "Confirm Booking Request"}
+          {pending ? "Sending…" : inspection ? "Request Site Inspection" : !quote && pricedTotal === 0 ? "Request Quote" : "Confirm Booking Request"}
         </button>
         <p className="mt-2 text-center text-xs text-[#0a2540]/60">Your booking is confirmed only after our team verifies the slot.</p>
       </div>

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Gift, Minus, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { getCatalogueForCrm } from "@/server/actions/pricing";
-import { PRICING_MASTER, unitPriceFor, upcomingFestivals, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
+import { PRICING_MASTER, activeCampaign, unitPriceFor, upcomingFestivals, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
 import {
   BASE_GROUPS,
   DISCOUNT_PRESETS,
@@ -55,8 +55,13 @@ export function PackageCalculator({
         if (!p) return;
         setItems(p.items);
         setFestivals(upcomingFestivals(p.festivals, todayYmd()));
+        // Festival campaign running: new packages start at the exact festival price (staff can still pick
+        // Regular for non-festival dates). Existing saved lines are never re-priced here.
+        const c = activeCampaign(p.festivals, todayYmd());
+        if (c && value.lines.length === 0) setFestivalId(c.current.id);
       })
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load once; the festival default only applies to an empty package
   }, []);
   const festival = festivals.find((f) => f.id === festivalId) ?? null;
   const priceOf = (i: PriceItem) => unitPriceFor(i, festival);

@@ -4,16 +4,20 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, FestivalSection, PackageGrid, RoomScope, QuoteSection, Faqs, Terms, OtherServices, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 import { livePkgs, liveSmallServices, liveCombos, inr } from "@/lib/marketing-content";
+import { activeCampaign, todayIST } from "@/lib/pricing-master";
+import { getFeaturedGallery } from "@/server/actions/gallery";
+import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 
 // Reads company settings from the DB, which is not available at image build time.
 export const dynamic = "force-dynamic";
 
-const fromPrice = (pk: { price: number }[]) => Math.min(...pk.map((p) => p.price ?? Infinity));
+const fromPrice = (pk: { price: number | null }[]) => Math.min(...pk.map((p) => p.price ?? Infinity));
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { items } = await getLivePricing();
-  const HOME_FROM_PRICE = fromPrice(livePkgs(items, "PREMIUM"));
-  const PLATINUM_FROM_PRICE = fromPrice(livePkgs(items, "PLATINUM"));
+  const { items, festivals } = await getLivePricing();
+  const fest = activeCampaign(festivals, todayIST())?.current ?? null; // festival price while the campaign runs
+  const HOME_FROM_PRICE = fromPrice(livePkgs(items, "PREMIUM", fest));
+  const PLATINUM_FROM_PRICE = fromPrice(livePkgs(items, "PLATINUM", fest));
   return {
   title: `Home Deep Cleaning in Pune – 1 BHK from ${inr(HOME_FROM_PRICE)} | Sahara Cleaning Services`,
   description: `Professional home deep cleaning across Pune & PCMC with transparent package prices: Premium 1 BHK ${inr(HOME_FROM_PRICE)}, Platinum with wall wet cleaning from ${inr(PLATINUM_FROM_PRICE)}. Sofa, bathroom, kitchen & mattress cleaning too.`,
@@ -33,17 +37,22 @@ const FAQS = [
 
 export default async function HomeDeepCleaningPage() {
   const [settings, pricing] = await Promise.all([getCompanySettings(), getLivePricing()]);
-  const PREMIUM = livePkgs(pricing.items, "PREMIUM");
-  const PLATINUM = livePkgs(pricing.items, "PLATINUM");
+  // Festival campaign running → festival packages only (no regular cards / MRP); regular returns after it ends.
+  const campaign = activeCampaign(pricing.festivals, todayIST());
+  const PREMIUM = livePkgs(pricing.items, "PREMIUM", campaign?.current);
+  const PLATINUM = livePkgs(pricing.items, "PLATINUM", campaign?.current);
   const SMALL_SERVICES = liveSmallServices(pricing.items);
   const COMBOS = liveCombos(pricing.items);
+  // Genuine, owner-uploaded Before/After pairs (Admin → Gallery). Renders nothing until real photos exist —
+  // no placeholder or stock imagery is ever shown as a customer result.
+  const galleryItems = await getFeaturedGallery(12).catch(() => []);
   // Sticky-bar default: the most-booked package (genuine MRP shown only if the owner set one).
   const popular = PREMIUM.find((p) => p.bhk === "2 BHK") ?? PREMIUM[0];
   return (
     <LandingShell
       logoUrl={settings.logoUrl}
       waText={WA}
-      jsonLd={[businessJsonLd({ makesOffer: [...PREMIUM, ...PLATINUM].map((p, i) => ({ "@type": "Offer", name: `${p.bhk} ${i < 4 ? "Premium" : "Platinum"} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" })) }), faqJsonLd(FAQS)]}
+      jsonLd={[businessJsonLd({ makesOffer: [...PREMIUM.map((p) => ({ ...p, tierName: "Premium" })), ...PLATINUM.map((p) => ({ ...p, tierName: "Platinum" }))].filter((p) => p.price != null).map((p) => ({ "@type": "Offer", name: `${p.bhk} ${p.tierName} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" })) }), faqJsonLd(FAQS)]}
       bookHref="#quote"
       footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
       mobileBar={popular ? <CampaignBar label={`${popular.bhk} Premium · Home Deep Cleaning`} price={popular.price} mrp={popular.mrp} /> : undefined}
@@ -62,6 +71,7 @@ export default async function HomeDeepCleaningPage() {
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
         <QuoteSection title="Book home deep cleaning" subtitle="Pick your home size, date and time — we confirm on WhatsApp." campaignName="Home Deep Cleaning Pune" defaultService="HOME_DEEP_CLEANING" />
         <FestivalSection />
+        {galleryItems.length > 0 && <BeforeAfterGallery items={galleryItems} />}
         <section>
           <h2 className="text-xl font-bold sm:text-2xl">Premium home deep cleaning</h2>
           <p className="text-sm text-[#0a2540]/70">Complete top-to-bottom cleaning of your home. Estimated 7–8 hours.</p>

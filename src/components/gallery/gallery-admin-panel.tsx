@@ -94,6 +94,10 @@ export function GalleryAdminPanel({ items }: { items: GalleryItemView[] }) {
           shareable <span className="font-medium">/gallery</span> link and in review campaigns. Pair a Before and an
           After photo by giving them the same <span className="font-medium">Pair tag</span>.
         </p>
+        <p className="rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-900">
+          Upload only genuine Sahara job photos that the customer has agreed can be shown publicly. Remove faces, house numbers,
+          nameplates and other identifying details first. Featured photos are shown on the public website.
+        </p>
 
         <div className="space-y-2 rounded-lg border border-dashed border-border p-3">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
