@@ -14,6 +14,7 @@ import {
   reviewReminderMessage,
 } from "@/lib/whatsapp-templates";
 import { computePaymentStatus } from "@/lib/payment-status";
+import { bookingPageUrl, ensureJobToken } from "@/server/booking-messages";
 
 function startOfDay(d: Date) {
   const x = new Date(d);
@@ -267,6 +268,7 @@ export async function sweepReviewCampaign() {
             service: SERVICE_LABELS[job.service] ?? job.service,
             googleReviewUrl: reviewUrl,
             jobNumber: job.jobNumber,
+            bookingUrl: bookingPageUrl(await ensureJobToken(job.id)),
           })
         : reviewReminderMessage({ customerName: job.customerName, googleReviewUrl: reviewUrl }));
 
@@ -335,6 +337,7 @@ export async function sweepPostPaymentReview() {
         service: SERVICE_LABELS[job.service] ?? job.service,
         googleReviewUrl: reviewUrl,
         jobNumber: job.jobNumber,
+        bookingUrl: bookingPageUrl(await ensureJobToken(job.id)),
       }),
       relatedType: "Job",
       relatedId: job.id,

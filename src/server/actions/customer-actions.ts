@@ -102,7 +102,9 @@ function canManageCustomers(role: string | undefined): boolean {
   // Booking Form/Review/Payment link and Call/WhatsApp a customer from a
   // Job/Lead's own detail page — that's a different, already-scoped code
   // path (createBookingLink in booking-links.ts) not gated by this check.
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+  // 2026-09-25 policy (ROLE_NAV_ACCESS): Operations no longer has the Customers
+  // module either — the action now matches the ADMIN/ACCOUNTS-only pages.
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /**
@@ -216,7 +218,8 @@ export async function upsertCustomerProfile(
  */
 export async function getRepeatCustomerSummary(mobile: string) {
     const session = await getSession();
-    if (!session) return null;
+    // Office roles that use the New Lead form only — never Field Staff (customer database lookup).
+    if (!session || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(session.role)) return null;
     const digits = mobile.replace(/\D/g, "").slice(-10);
     if (digits.length !== 10) return null;
 

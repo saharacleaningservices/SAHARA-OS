@@ -72,6 +72,12 @@ async function handle(req: NextRequest, raw: Record<string, unknown>) {
       address: existingCustomer?.address || null,
       service: "HOME_DEEP_CLEANING" as never,
       source: "CALL" as never,
+      // Attribution for the Marketing dashboard (was left empty → "Not tracked").
+      acquisitionChannel: "Phone Call",
+      firstTouchSource: "Phone Call",
+      firstTouchAt: new Date(),
+      latestTouchSource: "Phone Call",
+      latestTouchAt: new Date(),
       stage: "NEW",
       notes: "Auto-created from a missed call — call back to qualify.",
     },

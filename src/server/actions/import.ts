@@ -25,7 +25,9 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
   // Bulk import is an administrative action, not day-to-day today/tomorrow
   // operational editing — blocked for Francis (SUPERVISOR) at the action
   // level too, not just by hiding the Import button (2026-09-21 policy).
-  if (session?.role === "SUPERVISOR") {
+  // Signed-out callers and Field Staff are refused too (a server action is
+  // callable directly, not only from the Import button).
+  if (!session || !["ADMIN", "ACCOUNTS", "OPERATIONS"].includes(session.role)) {
     return { results: [{ row: 0, status: "invalid", message: "Not authorized" }], created: 0 };
   }
   const results: ImportRowResult[] = [];

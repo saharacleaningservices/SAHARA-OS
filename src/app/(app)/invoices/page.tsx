@@ -11,11 +11,26 @@ export default async function InvoicesPage() {
   await requireRole(["ADMIN", "ACCOUNTS"]);
   const list = await getInvoiceList();
   // Customer-facing invoice link (job token; only once the job is completed — the route 404s before that).
-  const invoices = list.map(({ job, ...inv }) => ({
+  const invoices = list.map(({ job, payment, ...inv }) => {
+    // Paid status follows recorded payments (same as the invoice PDF), not a hand-set label —
+    // except manual walk-in invoices with nothing linked, and DRAFT / CANCELLED.
+    const linked = !!job || !!payment;
+    const received = job ? job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0) : payment && !payment.deletedAt ? payment.paidAmount ?? 0 : 0;
+    const status =
+      !linked || inv.status === "DRAFT" || inv.status === "CANCELLED"
+        ? inv.status
+        : received >= inv.totalAmount - 0.01 && received > 0
+          ? "PAID"
+          : received > 0
+            ? "PARTIALLY_PAID"
+            : "ISSUED";
+    return {
     ...inv,
+    status,
     job: job ? { jobNumber: job.jobNumber } : null,
     customerUrl: job?.publicToken && job.status === "COMPLETED" ? `${PUBLIC_BOOKING_URL}/booking/invoice/${job.publicToken}` : null,
-  }));
+    };
+  });
 
   return (
     <div className="space-y-4">

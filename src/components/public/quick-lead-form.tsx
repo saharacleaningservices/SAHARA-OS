@@ -53,7 +53,9 @@ export function QuickLeadForm({ service, serviceLabel, campaignName, packageLabe
         serviceCategory: service,
         packageName: packageLabel ?? "",
         notes: `${campaignName} — quick enquiry (hero form)${packageLabel ? ` · ${packageLabel}` : ""}`,
-        source: "WEBSITE",
+        // Empty: the server derives the lead source from the detected channel (Google Ads,
+        // Meta, GBP…) and falls back to WEBSITE — a hard-coded WEBSITE hid ad leads.
+        source: "",
         marketingOptIn: false,
         attribution: getAttributionPayload(),
       }));

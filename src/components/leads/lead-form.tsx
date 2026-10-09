@@ -483,7 +483,13 @@ export function LeadForm({
               variant={watch("serviceVariant") || ""}
               initialSelectionNotes={leadId ? defaultValues?.notes : undefined}
               onEstimate={(amt) => {
-                if (amt > 0 && !estimateTouched) setValue("quoteAmount", amt, { shouldDirty: true });
+                // Same protection as package prices: only fill an empty amount or replace one
+                // this form auto-filled — never a typed figure or a saved lead's quote.
+                if (amt <= 0 || estimateTouched) return;
+                const cur = Number(getValues("quoteAmount")) || null;
+                if (cur != null && cur !== autoEstimateRef.current) return;
+                autoEstimateRef.current = amt;
+                setValue("quoteAmount", amt, { shouldDirty: true });
               }}
               onNotesLines={setSelectionNotesLines}
             />

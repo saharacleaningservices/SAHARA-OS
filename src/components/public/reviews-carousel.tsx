@@ -8,14 +8,11 @@ export type Review = { name: string; text: string; rating?: number };
 
 const ROTATE_MS = 5000;
 
-const FALLBACK: Review = {
-  name: "Priya Sharma",
-  text: "Excellent service! Very professional team and great results. Highly recommended!",
-  rating: 5,
-};
+// No placeholder/fallback review: with no real featured reviews configured,
+// nothing is shown (never present an invented testimonial as genuine).
 
 export function ReviewsCarousel({ reviews, reviewUrl }: { reviews: Review[]; reviewUrl?: string }) {
-  const list = reviews.length > 0 ? reviews : [FALLBACK];
+  const list = reviews;
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -25,7 +22,8 @@ export function ReviewsCarousel({ reviews, reviewUrl }: { reviews: Review[]; rev
     return () => clearInterval(id);
   }, [paused, list.length]);
 
-  const current = list[index] ?? FALLBACK;
+  const current = list[index] ?? list[0];
+  if (!current) return null;
   const stars = Math.max(1, Math.min(5, Math.round(current.rating ?? 5)));
 
   return (

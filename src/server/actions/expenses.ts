@@ -16,8 +16,9 @@ import { canViewSalary } from "@/lib/permissions";
  * (src/lib/constants.ts): ADMIN, ACCOUNTS, OPERATIONS. SUPERVISOR
  * (Francis) and STAFF are excluded — same as everyone without page access.
  */
+// Matches the Expenses page + ROLE_NAV_ACCESS (Operations has no Expenses module since 2026-09-25).
 function canAccessExpenses(role: string | undefined): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 export async function createExpense(values: unknown) {

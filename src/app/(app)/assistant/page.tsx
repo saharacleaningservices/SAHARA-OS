@@ -10,7 +10,7 @@ export default async function AssistantPage() {
   // ROLE_NAV_ACCESS for "assistant"; this page-level guard now matches
   // that explicitly, per the 2026-09-22 "enforce on route/page, not just
   // middleware" requirement.
-  await requireRole(["ADMIN", "ACCOUNTS"]);
+  const session = await requireRole(["ADMIN", "ACCOUNTS"]);
   const data = await getAssistantOverview();
 
   return (
@@ -26,7 +26,8 @@ export default async function AssistantPage() {
         jobsNeedingCrew={data.jobsNeedingCrew}
         dueFollowUps={data.dueFollowUps}
         staleLeads={data.staleLeads}
-        profitInputs={data.profitInputs}
+        // Profit is Super Admin only (CLAUDE.md) — never sent to the Accounts browser.
+        profitInputs={session.role === "ADMIN" ? data.profitInputs : null}
       />
     </div>
   );

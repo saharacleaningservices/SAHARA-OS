@@ -7,6 +7,7 @@ import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { getFeaturedGallery } from "@/server/actions/gallery";
 import { getCompanySettings } from "@/server/settings";
 import { COMPANY } from "@/lib/constants";
+import { CONTACT } from "@/lib/marketing-content";
 import { toWhatsAppLink } from "@/lib/utils";
 
 const GALLERY_TITLE = "Our Work — Sahara Cleaning Services, Pune";
@@ -31,7 +32,8 @@ export const metadata: Metadata = {
 // freeze it into the static build.
 export const dynamic = "force-dynamic";
 
-const CALL_NUMBER = "7083347130";
+// Primary customer call number — same source as every other landing page.
+const CALL_NUMBER = CONTACT.call[0];
 const WHATSAPP_NUMBER = "8956567130";
 
 const TIPS = [

@@ -31,6 +31,7 @@ import { getCompanySettings } from "@/server/settings";
 import { getFeaturedGallery } from "@/server/actions/gallery";
 import { toWhatsAppLink } from "@/lib/utils";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+import { db } from "@/lib/db";
 
 // Meta Business readiness (Phase 6, 2026-09-21 — "prepare for migration,
 // do not integrate yet"): domain verification and Open Graph tags cost
@@ -129,8 +130,11 @@ export default async function PublicBookingPage({
   const reviewCount = settings.googleReviewCount?.trim() || "";
   const happyCustomers = settings.happyCustomers?.trim() || "";
   const reviewUrl = settings.googleReviewUrl || "";
-  const prefillName = (sp.customer || sp.name || "").slice(0, 80);
-  const prefillMobile = (sp.phone || sp.mobile || "").replace(/[^\d]/g, "").slice(-10);
+  // Prefill from the staff-sent link record (token only in the URL); links sent
+  // before 2026-10-10 still carry ?customer=&phone= and keep working.
+  const link = /^[a-f0-9]{8,64}$/.test(sp.bl) ? await db.bookingLink.findUnique({ where: { token: sp.bl }, select: { customerName: true, customerMobile: true } }).catch(() => null) : null;
+  const prefillName = (link?.customerName || sp.customer || sp.name || "").slice(0, 80);
+  const prefillMobile = (link?.customerMobile || sp.phone || sp.mobile || "").replace(/[^\d]/g, "").slice(-10);
   const initialCategory = CATEGORIES.some((c) => c.value === sp.category) ? sp.category : undefined;
 
   let featured: { name: string; text: string; rating?: number }[] = [];
@@ -278,7 +282,8 @@ export default async function PublicBookingPage({
               {SERVICES.map(({ img, label, desc, cat }) => (
                 <Link
                   key={label}
-                  href={`/book?category=${cat}#book`}
+                  // Stay on this tracked link (keep ?bl=) so the submission is linked to it.
+                  href={`/book?${new URLSearchParams({ bl: sp.bl ?? "", category: cat }).toString()}#book`}
                   className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition active:scale-[0.97]"
                 >
                   <div className="relative h-20 w-full overflow-hidden">

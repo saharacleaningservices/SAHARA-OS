@@ -22,9 +22,11 @@ const BASE = PUBLIC_BOOKING_URL;
 
 type Kind = "BOOKING_FORM" | "FOLLOWUP" | "REVIEW" | "PAYMENT" | "GALLERY";
 
-function bookUrl(token: string, name: string, mobile: string) {
-  const q = new URLSearchParams({ bl: token, customer: name, phone: mobile });
-  return `${BASE}/book?${q.toString()}`;
+// Only the unguessable token goes in the URL — the page looks up the customer's
+// name/mobile from the BookingLink row. Personal data in a URL would leak to
+// analytics tags (Meta Pixel / GA4 page views), browser history and referrers.
+function bookUrl(token: string) {
+  return `${BASE}/book?${new URLSearchParams({ bl: token }).toString()}`;
 }
 
 /**
@@ -70,7 +72,7 @@ export async function createBookingLink(input: {
       jobNumber: "",
     });
   } else if (kind === "FOLLOWUP") {
-    text = followUpNudgeMessage({ customerName: name, url: bookUrl(token, name, mobile) });
+    text = followUpNudgeMessage({ customerName: name, url: bookUrl(token) });
   } else if (kind === "GALLERY") {
     text = galleryShareMessage({ customerName: name });
   } else if (kind === "PAYMENT") {
@@ -84,7 +86,7 @@ export async function createBookingLink(input: {
       bankIfsc: settings.bankIfsc ?? null,
     });
   } else {
-    text = bookingFormMessage({ customerName: name, url: bookUrl(token, name, mobile) });
+    text = bookingFormMessage({ customerName: name, url: bookUrl(token) });
   }
 
   // Queue for the Cloud API + SMS fallback (both go out when connected) and
@@ -147,7 +149,7 @@ export async function createBookingLink(input: {
   return {
     success: true as const,
     waUrl: toWhatsAppLink(mobile, text),
-    link: bookUrl(token, name, mobile),
+    link: bookUrl(token),
     token,
   };
 }

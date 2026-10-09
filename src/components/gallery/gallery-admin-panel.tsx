@@ -18,7 +18,8 @@ import {
 } from "@/lib/gallery";
 import { addGalleryItem, deleteGalleryItem, toggleGalleryFeatured } from "@/server/actions/gallery";
 
-export function GalleryAdminPanel({ items }: { items: GalleryItemView[] }) {
+// canManage: upload / feature / delete are Super Admin only (enforced again in the server actions).
+export function GalleryAdminPanel({ items, canManage = false }: { items: GalleryItemView[]; canManage?: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [type, setType] = useState<"PHOTO" | "VIDEO">("PHOTO");
   const [kind, setKind] = useState("GENERAL");
@@ -99,6 +100,12 @@ export function GalleryAdminPanel({ items }: { items: GalleryItemView[] }) {
           nameplates and other identifying details first. Featured photos are shown on the public website.
         </p>
 
+        {!canManage && (
+          <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            View only — the Super Admin uploads, features and removes gallery items.
+          </p>
+        )}
+        {canManage && (
         <div className="space-y-2 rounded-lg border border-dashed border-border p-3">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <div className="space-y-1">
@@ -158,6 +165,7 @@ export function GalleryAdminPanel({ items }: { items: GalleryItemView[] }) {
             Upload {type === "VIDEO" ? "video" : "photo"}
           </Button>
         </div>
+        )}
 
         {items.length === 0 ? (
           <EmptyState title="Gallery is empty" description="Upload before/after photos and videos to feature them on the booking page." />
@@ -182,6 +190,7 @@ export function GalleryAdminPanel({ items }: { items: GalleryItemView[] }) {
                   <p className="truncate text-[11px] text-muted-foreground" title={it.caption ?? ""}>
                     {it.caption || it.category || "—"}
                   </p>
+                  {canManage && (
                   <div className="flex items-center justify-between">
                     <Button
                       variant="ghost"
@@ -196,6 +205,7 @@ export function GalleryAdminPanel({ items }: { items: GalleryItemView[] }) {
                       <Trash2 className="size-3.5" />
                     </Button>
                   </div>
+                  )}
                 </div>
               </div>
             ))}

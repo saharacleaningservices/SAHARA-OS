@@ -14,7 +14,7 @@ import { notify } from "@/server/notify";
 import { z } from "zod";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
 import { getPublicPricing } from "@/server/pricing";
-import { FESTIVAL_PACKAGE_IDS, activeCampaign, festivalForDate, needsInspection, todayIST, unitPriceFor } from "@/lib/pricing-master";
+import { FESTIVAL_PACKAGE_IDS, INSPECTION_ONLY_IDS, activeCampaign, festivalForDate, needsInspection, todayIST, unitPriceFor } from "@/lib/pricing-master";
 import { scopeSnapshot } from "@/lib/service-scope";
 import { publicPaymentState, resolvePublicEstimate } from "@/lib/booking-payment";
 import { linkCustomerAndSite } from "@/server/customer-db";
@@ -24,7 +24,10 @@ const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOG
 
 const publicBookingSchema = z.object({
   name: z.string().min(2, "Name is required"),
-  mobile: z.string().min(10, "Enter a valid 10-digit mobile number").max(15),
+  mobile: z
+    .string()
+    .max(20)
+    .refine((v) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "").slice(-10)) && v.replace(/\D/g, "").length <= 12, "Enter a valid 10-digit mobile number"),
   alternateMobile: z.string().max(15).optional().or(z.literal("")),
   email: z.string().email("Enter a valid email").optional().or(z.literal("")),
   area: z.string().optional().or(z.literal("")),
@@ -63,7 +66,8 @@ const publicBookingSchema = z.object({
   // Explicit WhatsApp marketing opt-in ticked by the customer (never pre-ticked).
   marketingOptIn: z.boolean().optional(),
   // Honeypot — real visitors never fill this hidden field.
-  website: z.string().max(0).optional().or(z.literal("")),
+  // Accept any value here so the explicit check below (generic error) catches bots — zod's own message would reveal the trap.
+  website: z.string().max(200).optional().or(z.literal("")),
   // First/latest-touch marketing attribution captured in the browser
   // (components/public/attribution-capture.tsx). Untrusted — sanitized below.
   attribution: z.unknown().optional(),
@@ -85,13 +89,36 @@ export async function publicBookLead(values: unknown) {
   }
   const data = parsed.data;
   if (data.website) return { error: "Something went wrong. Please try again." }; // honeypot tripped
+  // Service date: a real calendar date, today or later (IST) — never trust the browser's picker.
+  if (data.serviceDate) {
+    const ymd = data.serviceDate.slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd) || Number.isNaN(new Date(`${ymd}T00:00:00+05:30`).getTime())) {
+      return { error: "Please pick a valid service date." };
+    }
+    if (ymd < todayIST()) return { error: "Please pick today or a future date." };
+  }
 
   // Re-check the requested slot on the server so a stale form can't request a
   // slot that filled up after the page loaded.
   if (data.serviceDate && data.timeSlot) {
     const avail = await getSlotAvailability(data.serviceDate).catch(() => null);
     if (avail?.ok && avail.slots.some((x) => x.slot === data.timeSlot && !x.available)) {
-      return { error: "That time slot has just filled up — please pick another time or date." };
+      // A retry of this customer's own request (e.g. the response was lost on mobile
+      // data) already holds that slot — it is counted against itself, so don't reject it.
+      const tail = data.mobile.replace(/\D/g, "").slice(-10);
+      const dayStart = new Date(`${data.serviceDate.slice(0, 10)}T00:00:00+05:30`);
+      const ownHold = tail.length === 10
+        ? await db.lead.findFirst({
+            where: {
+              deletedAt: null,
+              timeSlot: data.timeSlot,
+              serviceDate: { gte: dayStart, lt: new Date(dayStart.getTime() + 86400000) },
+              OR: [{ mobile: { endsWith: tail } }, { whatsapp: { endsWith: tail } }],
+            },
+            select: { id: true },
+          })
+        : null;
+      if (!ownHold) return { error: "That time slot has just filled up — please pick another time or date." };
     }
   }
 
@@ -184,6 +211,8 @@ export async function publicBookLead(values: unknown) {
   // Server-side price snapshot for catalogue bookings (see selectedItems).
   // Only a server-priced catalogue total is authoritative. A browser-supplied
   // estimatedAmount is never stored as the quote — it becomes an unverified staff note.
+  // 4 BHK and larger, villas, bungalows, full houses: staff inspect and quote — never an instant price.
+  const inspectionRequired = data.serviceCategory === "HOME_DEEP_CLEANING" && needsInspection(data.propertyType);
   let estimated: number | null = null;
   let priceType: "REGULAR" | "FESTIVAL" | null = null;
   let festivalName: string | null = null;
@@ -218,19 +247,30 @@ export async function publicBookLead(values: unknown) {
     if (!allPriced && total === 0) estimated = null;
     priceType = usedFestival ? "FESTIVAL" : "REGULAR";
     festivalName = usedFestival ? festival!.name : null;
+    // Inspection-only property (or an inspection-only package picked): no stored
+    // price at all — an add-on subtotal must never stand in for the whole quote.
+    if (inspectionRequired || picked.some(({ item }) => INSPECTION_ONLY_IDS.has(item.contentId))) {
+      estimated = null;
+      priceType = null;
+      festivalName = null;
+    }
     scopeOfWork = scopeSnapshot({
       packageName: data.packageName,
       serviceVariant: data.serviceVariant,
       items: picked.map(({ s, item }) => ({ name: item.name, qty: Math.max(s.qty, item.minQty ?? 1), unit: item.unit })),
     });
   }
-  // 4 BHK and larger, villas, bungalows, full houses: staff inspect and quote — never an instant price.
-  const inspectionRequired = data.serviceCategory === "HOME_DEEP_CLEANING" && needsInspection(data.propertyType);
   // No payment gateway exists: a public request can never mark anything paid.
   // Whatever advance the browser claims is kept only as an unverified staff note.
   const { advance, paymentStatus, declaredAdvance } = publicPaymentState({ advancePaid: data.advancePaid, advanceAmount: data.advanceAmount });
   const { unverifiedClientEstimate } = resolvePublicEstimate({ catalogueTotal: estimated, clientEstimate: data.estimatedAmount });
 
+  // Package, property, price and scope are ONE unit: keep the open enquiry's
+  // set if it has any of it, otherwise take the new submission's whole set —
+  // never a package label from one submission with another's price.
+  const keepPkg = existingOpen
+    ? existingOpen.quoteAmount != null || !!existingOpen.packageName || !!existingOpen.scopeOfWork || !!existingOpen.propertyType || !!existingOpen.serviceVariant
+    : false;
   const lead = existingOpen
     ? await db.lead.update({
         where: { id: existingOpen.id },
@@ -239,17 +279,17 @@ export async function publicBookLead(values: unknown) {
           email: existingOpen.email ?? (data.email || null),
           address: existingOpen.address ?? (data.address || null),
           pinCode: existingOpen.pinCode ?? (data.pinCode || null),
-          propertyType: existingOpen.propertyType ?? (data.propertyType || null),
-          serviceVariant: existingOpen.serviceVariant ?? (data.serviceVariant || null),
+          propertyType: keepPkg ? existingOpen.propertyType : data.propertyType || null,
+          serviceVariant: keepPkg ? existingOpen.serviceVariant : data.serviceVariant || null,
           serviceDate: existingOpen.serviceDate ?? (data.serviceDate ? new Date(data.serviceDate) : null),
           timeSlot: existingOpen.timeSlot ?? (data.timeSlot || null),
           mapLink: existingOpen.mapLink ?? (data.mapLink || null),
           paymentPreference: data.paymentPreference ?? existingOpen.paymentPreference,
-          quoteAmount: existingOpen.quoteAmount ?? estimated,
-          packageName: existingOpen.packageName ?? (data.packageName || null),
-          priceType: existingOpen.priceType ?? priceType,
-          festivalName: existingOpen.festivalName ?? festivalName,
-          scopeOfWork: existingOpen.scopeOfWork ?? scopeOfWork,
+          quoteAmount: keepPkg ? existingOpen.quoteAmount : estimated,
+          packageName: keepPkg ? existingOpen.packageName : data.packageName || null,
+          priceType: keepPkg ? existingOpen.priceType : priceType,
+          festivalName: keepPkg ? existingOpen.festivalName : festivalName,
+          scopeOfWork: keepPkg ? existingOpen.scopeOfWork : scopeOfWork,
           ...(data.marketingOptIn ? { marketingConsent: "OPTED_IN", marketingConsentAt: new Date() } : {}),
           formSubmittedAt: new Date(),
           // A repeat submission without a tracked visit keeps the existing latest touch.
@@ -351,10 +391,13 @@ export async function publicBookLead(values: unknown) {
       data.packageName ? `Package: ${data.packageName}` : null,
       combos.length ? `Combos: ${combos.join(", ")}` : null,
       addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
-      estimated ? `Estimated: ₹${estimated}` : null,
+      estimated && !(existingOpen && keepPkg) ? `Estimated: ₹${estimated}` : null,
       unverifiedClientEstimate ? `Customer-side indicative estimate (UNVERIFIED, not a quote): ₹${unverifiedClientEstimate}` : null,
       declaredAdvance > 0 ? `Customer claims advance ₹${declaredAdvance} (${data.paymentMode ?? "—"}) — UNVERIFIED, pending staff verification` : `Advance: pending`,
       data.pinCode ? `PIN: ${data.pinCode}` : null,
+      // A repeat submission keeps the lead's existing notes/selection — record what the customer sent now.
+      existingOpen && keepPkg && (data.packageName || estimated) ? `Customer's new selection (lead price kept, review): ${data.packageName || data.serviceVariant || "—"}${estimated ? ` ₹${estimated}` : ""}` : null,
+      existingOpen && data.notes ? `Customer notes: ${data.notes}` : null,
       data.alternateMobile ? `Alt mobile: ${data.alternateMobile}` : null,
       data.email ? `Email: ${data.email}` : null,
     ]
@@ -482,27 +525,46 @@ async function bookFromQuotation(data: z.infer<typeof publicBookingSchema>) {
   if (!/^[A-Za-z0-9_-]{20,40}$/.test(token)) return { error: "This quotation link is not valid." };
   const quote = await db.quotation.findFirst({
     where: { publicToken: token },
-    include: { lead: { select: { id: true, leadNumber: true, name: true, mobile: true, deletedAt: true } } },
+    include: { lead: { select: { id: true, leadNumber: true, name: true, mobile: true, deletedAt: true, stage: true, jobs: { where: { deletedAt: null }, select: { jobNumber: true } } } } },
   });
   if (!quote || quote.lead.deletedAt) return { error: "This quotation link is not valid." };
   if (["REJECTED", "CANCELLED", "EXPIRED"].includes(quote.status)) return { error: "This quotation is no longer active — please contact us." };
   if (!data.serviceDate || !data.timeSlot) return { error: "Pick a date and an available time slot." };
 
-  const lead = await db.lead.update({
-    where: { id: quote.leadId },
-    data: {
-      serviceDate: new Date(data.serviceDate),
-      timeSlot: data.timeSlot,
-      paymentPreference: data.paymentPreference ?? null,
-      quoteAmount: quote.totalAmount,
-      formSubmittedAt: new Date(),
-    },
-  });
+  // Never let an old link silently rewrite a booked lead or re-apply a stale price:
+  // an already-booked/closed enquiry, a superseded quotation or one past its
+  // validity is recorded as a request for the office to reconfirm instead.
+  const booked = quote.lead.jobs.length > 0 || ["CONFIRMED", "JOB_SCHEDULED", "COMPLETED", "CANCELLED"].includes(quote.lead.stage);
+  const newer = await db.quotation.findFirst({ where: { leadId: quote.leadId, createdAt: { gt: quote.createdAt }, status: { notIn: ["REJECTED", "CANCELLED", "EXPIRED"] } }, select: { quoteNumber: true } });
+  const expired = !!quote.validTill && quote.validTill < new Date();
+  const reconfirm = booked || !!newer || expired;
+  const why = booked
+    ? `enquiry already booked/closed${quote.lead.jobs[0] ? ` (job ${quote.lead.jobs[0].jobNumber})` : ""}`
+    : newer
+      ? `a newer quotation ${newer.quoteNumber} exists`
+      : expired
+        ? `quotation validity ended ${quote.validTill!.toLocaleDateString("en-IN")}`
+        : "";
+
+  const lead = reconfirm
+    ? await db.lead.update({ where: { id: quote.leadId }, data: { formSubmittedAt: new Date() } })
+    : await db.lead.update({
+        where: { id: quote.leadId },
+        data: {
+          serviceDate: new Date(data.serviceDate),
+          timeSlot: data.timeSlot,
+          paymentPreference: data.paymentPreference ?? null,
+          quoteAmount: quote.totalAmount,
+          formSubmittedAt: new Date(),
+        },
+      });
   const pref = data.paymentPreference === "PAY_AFTER_SERVICE" ? "Pay after service" : "Pay advance";
   await addTimelineEntry({
     leadId: lead.id,
     type: "NOTE",
-    body: `Customer requested booking from quotation ${quote.quoteNumber} — ${data.serviceDate} at ${data.timeSlot} · ${pref}. Awaiting office confirmation.`,
+    body: reconfirm
+      ? `Customer requested booking from quotation ${quote.quoteNumber} — ${data.serviceDate} at ${data.timeSlot} · ${pref}. NOT applied to the lead (${why}) — confirm date and price with the customer.`
+      : `Customer requested booking from quotation ${quote.quoteNumber} — ${data.serviceDate} at ${data.timeSlot} · ${pref}. Awaiting office confirmation.`,
   }).catch(() => {});
   await db.followUp
     .create({ data: { leadId: lead.id, dueDate: new Date(Date.now() + 15 * 60 * 1000), type: "CALL", priority: "HIGH", notes: `Confirm booking request from quotation ${quote.quoteNumber}` } })

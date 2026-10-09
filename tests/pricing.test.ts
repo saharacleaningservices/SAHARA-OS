@@ -26,6 +26,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { draftQuotation } from "../src/lib/ai/quotation";
 import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "../src/lib/whatsapp-keywords";
 import { staffBalanceToCollect } from "../src/lib/payment-status";
+import { reviewRequestMessage, premiumReviewRequestMessage } from "../src/lib/whatsapp-templates";
 import { maskJobCardForAudience } from "../src/lib/pdf/job-card-mask";
 
 const item = (id: string) => priceByContentId(id)!;
@@ -381,10 +382,24 @@ test("staff app (real DB): own job shows ONLY balance to collect; no phone, toke
       }
     }
     assert.equal(await getMyJob(me.id, theirs.id), null, "a job assigned to someone else is denied");
-    await db.$disconnect();
+
+    // Numbering never reuses an issued number (row-count numbering collided after a
+    // deletion or when Payments and standalone Invoices share the INV sequence).
+    const { generateInvoiceNumber, generateStandaloneInvoiceNumber, generateLeadNumber } = await import("../src/lib/id-generators");
+    const yr = new Date().getFullYear();
+    // A standalone invoice numbered ahead of the Payment count (count-based numbering re-issued it).
+    await db.invoice.create({ data: { invoiceNumber: `INV-${yr}-0007`, customerName: "T", lineItems: "[]", subTotal: 1, totalAmount: 1 } });
+    const inv = await generateInvoiceNumber();
+    const standalone = await generateStandaloneInvoiceNumber();
+    assert.equal(inv, `INV-${yr}-0008`, "payment invoice number skips past issued numbers");
+    assert.equal(standalone, `INV-${yr}-0008`);
+    await db.lead.create({ data: { leadNumber: `LD-${yr}-0050`, name: "T", mobile: "9000000003", area: "x", service: "HOME_DEEP_CLEANING", source: "WEBSITE" } });
+    assert.equal(await generateLeadNumber(), `LD-${yr}-0051`, "lead number never collides with an existing one");
   } finally {
+    // Always release the SQLite file first, so a failed assertion isn't hidden by EBUSY on cleanup.
+    await (await import("../src/lib/db")).db.$disconnect().catch(() => {});
     if (prevUrl === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = prevUrl;
-    rmSync(dir, { recursive: true, force: true });
+    try { rmSync(dir, { recursive: true, force: true }); } catch { /* temp dir — OS cleans it */ }
   }
 });
 
@@ -396,6 +411,14 @@ test("job card team copy carries no customer phone, payment figures or office no
   const json = JSON.stringify(team);
   for (const leak of ["9876501234", "9876505678", "SECRET-OFFICE-NOTE", "6499", "2000", "4499", "Partly Paid"]) assert.ok(!json.includes(leak), `team copy leaks ${leak}`);
   assert.deepEqual(maskJobCardForAudience({ ...props, audience: "office" }), { ...props, audience: "office" });
+});
+
+test("review / photo messages never send a token-less /j/ link (privacy dead end)", () => {
+  const withUrl = reviewRequestMessage({ customerName: "A", service: "Cleaning", googleReviewUrl: null, jobNumber: "JOB-1", bookingUrl: "https://x/booking/TOKEN" });
+  assert.ok(withUrl.includes("https://x/booking/TOKEN"));
+  const without = reviewRequestMessage({ customerName: "A", service: "Cleaning", googleReviewUrl: null, jobNumber: "JOB-1" });
+  const premium = premiumReviewRequestMessage({ customerName: "A", service: "Cleaning", jobNumber: "JOB-1" });
+  for (const m of [withUrl, without, premium]) assert.ok(!/\/j\/JOB-1(?!\?t=)/.test(m), m);
 });
 
 test("staff collection helper returns only the balance due, never below zero", () => {

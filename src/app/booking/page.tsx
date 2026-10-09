@@ -66,8 +66,10 @@ export default async function BookingPage({
   const [settings, quote, pricing] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing()]);
 
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />}>
+    // On a quotation link, Book Now scrolls to the wizard on THIS page (keeps ?quote=).
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} {...(quote ? { bookHref: "#book" } : {})}>
       <Hero
+        {...(quote ? { bookHrefOverride: "#book" } : {})}
         image={CAROUSEL.team.src}
         alt={CAROUSEL.team.alt}
         images={ALL_SERVICES_SLIDES}

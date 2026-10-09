@@ -60,12 +60,22 @@ export async function updatePayment(id: string, values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const d = parsed.data;
+  // A changed amount re-derives PAID from what was actually collected
+  // (same rule as confirmBooking) — a raised amount can't stay "Paid".
+  let status: "PAID" | "PENDING" | "DUE_SOON" | "OVERDUE" | undefined;
+  if (d.amount !== undefined) {
+    const cur = await db.payment.findUnique({ where: { id }, select: { paidAmount: true, status: true } });
+    if (!cur) return { error: "Payment not found", success: false as const };
+    const paid = cur.paidAmount ?? 0;
+    status = paid > 0 && paid >= d.amount - 0.01 ? "PAID" : cur.status === "PAID" ? "PENDING" : cur.status;
+  }
   await db.payment.update({
     where: { id },
     data: {
       ...(d.clientName && { clientName: d.clientName }),
       ...(d.clientMobile !== undefined && { clientMobile: d.clientMobile || null }),
       ...(d.amount !== undefined && { amount: d.amount }),
+      ...(status && { status }),
       ...(d.dueDate && { dueDate: new Date(d.dueDate) }),
       ...(d.mybillbookInvoiceNo !== undefined && {
         mybillbookInvoiceNo: d.mybillbookInvoiceNo || null,

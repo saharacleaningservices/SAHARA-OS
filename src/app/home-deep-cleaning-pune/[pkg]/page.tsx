@@ -63,6 +63,7 @@ export default async function HomePackagePage({ params }: { params: Promise<{ pk
     <LandingShell
       logoUrl={settings.logoUrl}
       waText={WA}
+      bookHref="#quote"
       jsonLd={[
         businessJsonLd({ makesOffer: [{ "@type": "Offer", name: `${p.bhk} ${p.tier} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" }] }),
         faqJsonLd(FAQS),

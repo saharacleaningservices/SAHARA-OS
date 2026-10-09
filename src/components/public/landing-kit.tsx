@@ -282,7 +282,7 @@ export function PackageGrid({ items, accent, tier }: { items: Pkg[]; accent?: bo
               <p className="font-bold">{p.bhk}</p>
               <p className="mt-0.5 text-sm font-extrabold leading-tight text-primary">Price on inspection</p>
               <p className="mt-0.5 text-[11px] font-medium text-[#0a2540]/60">Site inspection required</p>
-              <Link href="/booking" className="mt-2 block rounded-lg bg-primary/10 py-1.5 text-xs font-bold text-primary">Request inspection</Link>
+              <Link href="/booking?service=home#book" className="mt-2 block rounded-lg bg-primary/10 py-1.5 text-xs font-bold text-primary">Request inspection</Link>
             </div>
           );
         }
