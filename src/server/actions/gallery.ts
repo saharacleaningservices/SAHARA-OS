@@ -65,8 +65,10 @@ export async function toggleGalleryFeatured(id: string, featured: boolean) {
 }
 
 /** All gallery items for the admin manager (newest first). */
+// Viewing matches the page (ROLE_NAV_ACCESS grants Gallery to Accounts and
+// Operations); add / feature / delete stay ADMIN-only above.
 export async function listGalleryItems(): Promise<GalleryItemView[]> {
-  await requireRole(["ADMIN"]);
+  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
   const rows = await db.galleryItem
     .findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] })
     .catch(() => []);

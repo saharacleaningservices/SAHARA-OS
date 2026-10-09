@@ -9,7 +9,7 @@ export const metadata = { title: "Gallery — Sahara OS" };
 
 export default async function GalleryAdminPage() {
   // SUPERVISOR (Francis) removed 2026-09-21 — Gallery isn't part of his narrowed module list.
-  await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
+  const session = await requireRole(["ADMIN", "ACCOUNTS", "OPERATIONS"]);
   const items = await listGalleryItems();
 
   return (
@@ -26,7 +26,7 @@ export default async function GalleryAdminPage() {
       >
         <ExternalLink className="size-3.5" /> Open the public gallery ({GALLERY_PUBLIC_URL})
       </a>
-      <GalleryAdminPanel items={items} />
+      <GalleryAdminPanel items={items} canManage={session.role === "ADMIN"} />
     </div>
   );
 }

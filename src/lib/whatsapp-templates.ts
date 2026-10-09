@@ -272,8 +272,10 @@ export function premiumReviewRequestMessage(input: {
   jobNumber: string;
   service: string;
   googleReviewUrl?: string | null;
+  /** Secure /booking/<token> page. A bare /j/<jobNumber> link has no token and opens a privacy dead end. */
+  bookingUrl?: string | null;
 }) {
-  const trackingUrl = `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
+  const trackingUrl = input.bookingUrl || null;
   return [
     `🎉 *Service Completed — ${COMPANY.name}*`,
     ``,
@@ -282,7 +284,7 @@ export function premiumReviewRequestMessage(input: {
     ``,
     `— — — — — — — — — —`,
     input.googleReviewUrl ? `⭐ Leave a Google Review: ${input.googleReviewUrl}` : null,
-    `📄 View Booking / Before-After Photos: ${trackingUrl}`,
+    trackingUrl ? `📄 View Booking / Before-After Photos: ${trackingUrl}` : null,
     `— — — — — — — — — —`,
     ``,
     `📞 ${COMPANY.phones[0]}`,
@@ -484,11 +486,14 @@ export function reviewRequestMessage(input: {
   service: string;
   googleReviewUrl: string | null;
   jobNumber: string;
+  /** Secure /booking/<token> page; omitted when unknown (never a token-less /j link). */
+  bookingUrl?: string | null;
 }) {
+  const photos = input.bookingUrl ? ` See your before/after photos + refer & earn code here: ${input.bookingUrl}` : "";
   const link = input.googleReviewUrl
     ? `\n\nPlease share a quick Google review — it really helps us: ${input.googleReviewUrl}`
     : "";
-  return `Hi ${input.customerName}, thank you for choosing ${COMPANY.name} for your ${input.service}! We hope you're happy with the work. See your before/after photos + refer & earn code here: ${PUBLIC_BOOKING_URL}/j/${input.jobNumber}${link}\n\nCall us on ${COMPANY.phones[0]} for anything you need.`;
+  return `Hi ${input.customerName}, thank you for choosing ${COMPANY.name} for your ${input.service}! We hope you're happy with the work.${photos}${link}\n\nCall us on ${COMPANY.phones[0]} for anything you need.`;
 }
 
 /** Day-3 gentle nudge in the review sequence (stops once a review is received). */

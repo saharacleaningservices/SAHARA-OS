@@ -72,7 +72,7 @@ export async function getRevenueDashboard() {
     .map(([k, v]) => ({ label: SERVICE_LABELS[k] ?? k, value: v }))
     .sort((a, b) => b.value - a.value);
   const sourceRevenue = [...bySource.entries()]
-    .map(([k, v]) => ({ label: LEAD_SOURCE_LABELS[k] ?? (k === "DIRECT" ? "Direct / Walk-in" : k), value: v }))
+    .map(([k, v]) => ({ label: LEAD_SOURCE_LABELS[k] ?? (k === "DIRECT" ? "Unknown / no lead" : k), value: v }))
     .sort((a, b) => b.value - a.value);
 
   return {

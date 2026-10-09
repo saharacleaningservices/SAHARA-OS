@@ -109,6 +109,11 @@ export async function updateInvoiceStatus(invoiceId: string, status: (typeof INV
 
   const invoice = await db.invoice.findUnique({ where: { id: invoiceId } });
   if (!invoice) return { error: "Invoice not found" };
+  // An invoice tied to a job/payment is paid by recording the money on Payments —
+  // it can't be hand-marked paid (only manual walk-in invoices keep all options).
+  if ((invoice.jobId || invoice.paymentId) && (status === "PAID" || status === "PARTIALLY_PAID")) {
+    return { error: "Record the collection on Payments — this invoice's paid status follows its job's payments." };
+  }
 
   await db.invoice.update({ where: { id: invoiceId }, data: { status } });
   revalidatePath("/invoices");

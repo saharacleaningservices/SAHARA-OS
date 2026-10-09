@@ -76,7 +76,8 @@ export function AssistantExplorer({
   jobsNeedingCrew: JobNeedingCrew[];
   dueFollowUps: DueFollowUp[];
   staleLeads: StaleLead[];
-  profitInputs: ProfitSummaryInput;
+  /** null = the viewer may not see profit (non-Admin): the tab is not rendered. */
+  profitInputs: ProfitSummaryInput | null;
 }) {
   return (
     <Tabs defaultValue="quotations">
@@ -84,7 +85,7 @@ export function AssistantExplorer({
         <TabsTrigger value="quotations">Draft Quotation</TabsTrigger>
         <TabsTrigger value="reminders">Payment Reminders</TabsTrigger>
         <TabsTrigger value="staffing">Staff Suggestion</TabsTrigger>
-        <TabsTrigger value="profit">Daily Profit Summary</TabsTrigger>
+        {profitInputs && <TabsTrigger value="profit">Daily Profit Summary</TabsTrigger>}
         <TabsTrigger value="followups">Follow-up Suggestions</TabsTrigger>
       </TabsList>
 
@@ -112,9 +113,11 @@ export function AssistantExplorer({
         <StaffingTool staffList={staffList} jobsNeedingCrew={jobsNeedingCrew} />
       </TabsContent>
 
-      <TabsContent value="profit">
-        <ProfitSummaryCard input={profitInputs} />
-      </TabsContent>
+      {profitInputs && (
+        <TabsContent value="profit">
+          <ProfitSummaryCard input={profitInputs} />
+        </TabsContent>
+      )}
 
       <TabsContent value="followups" className="space-y-5">
         <div className="space-y-3">

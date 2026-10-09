@@ -105,7 +105,7 @@ export default async function FestivalOffersPage() {
           <p className="mt-3 text-sm"><Link href="/home-deep-cleaning-pune" className="font-semibold text-primary underline">See full scope, combos and what&apos;s included →</Link></p>
         </section>
 
-        <QuoteSection title="Book your festival cleaning" subtitle="Share a few details — our team will call you to confirm the price and your preferred date." campaignName="Sahara Festival 2026" />
+        <QuoteSection title="Book your festival cleaning" subtitle="Share a few details — our team will call you to confirm the price and your preferred date." campaignName="Sahara Festival 2026" defaultService="HOME_DEEP_CLEANING" />
         <HowItWorks />
         <Areas />
         <Faqs faqs={faqs} />

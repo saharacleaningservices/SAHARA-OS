@@ -61,10 +61,10 @@ export function LoginForm({ next }: { next?: string }) {
           if (pollRef.current) clearInterval(pollRef.current);
           setPendingApproval(false);
           setDenied(true);
-        } else if (data.expired) {
+        } else if (data.expired || res.status === 401) {
           if (pollRef.current) clearInterval(pollRef.current);
           setPendingApproval(false);
-          setError("The approval request expired. Please sign in again.");
+          setError(data.expired ? "The approval request expired. Please sign in again." : "Device approved — please sign in again.");
         }
       } catch {
         // transient network issue — keep polling

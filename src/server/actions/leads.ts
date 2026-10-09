@@ -197,6 +197,17 @@ export async function createLead(values: unknown, opts: { allowDuplicate?: boole
   }
   const session = await getSession();
   const data = parsed.data;
+  // Same rule as updateLead (owner rule 2026-10-08): a role that never sees job
+  // amounts can't set a price, an advance or a payment status — and so can't
+  // create a "collected" Payment row either.
+  if (!session || !canViewJobAmount(session.role)) {
+    delete data.quoteAmount;
+    delete data.advanceAmount;
+    delete data.paymentMode;
+    delete data.paymentStatus;
+    delete data.serviceItems;
+    delete data.discountAmount;
+  }
 
   if (!opts.allowDuplicate) {
     const dup = await findExactDuplicateLead(data);
@@ -277,7 +288,9 @@ export async function createLead(values: unknown, opts: { allowDuplicate?: boole
   // Office recorded an advance → create the Payment row so it flows to the
   // Payments module + revenue.
   if (data.advanceAmount && data.advanceAmount > 0) {
-    const total = data.quoteAmount && data.quoteAmount > 0 ? data.quoteAmount : data.advanceAmount;
+    // The stored (server-priced) quote, not the browser's figure.
+    const quoted = lead.quoteAmount ?? null;
+    const total = quoted && quoted > 0 ? quoted : data.advanceAmount;
     await db.payment
       .create({
         data: {
@@ -413,15 +426,26 @@ export async function updateLead(id: string, values: unknown, scheduleBase?: { s
   }
   if (!editor || !canViewJobAmount(editor.role)) {
     delete data.quoteAmount;
+    delete data.priceType;
+    delete data.festivalName;
     delete data.advanceAmount;
     delete data.paymentMode;
     delete data.paymentStatus;
     delete data.serviceItems;
     delete data.discountAmount;
   }
-  const before = await db.lead.findUnique({ where: { id }, select: { serviceDate: true, timeSlot: true } });
+  const before = await db.lead.findUnique({ where: { id }, select: { serviceDate: true, timeSlot: true, quoteAmount: true, advanceAmount: true } });
   const booked = await db.job.findFirst({ where: { leadId: id, deletedAt: null }, select: { id: true } });
   if (booked) {
+    // After Confirm Booking the job + Payment rows are the money record; a lead-only
+    // edit would leave them out of sync (crew balance, dashboards, invoices).
+    const changed = (a: number | null | undefined, b: number | null | undefined) => (a ?? 0) !== (b ?? 0);
+    if ((data.quoteAmount !== undefined && changed(data.quoteAmount, before?.quoteAmount)) || (data.advanceAmount !== undefined && changed(data.advanceAmount, before?.advanceAmount))) {
+      return { error: "This enquiry is already booked — change the amount or advance on the job / Payments instead." };
+    }
+    delete data.paymentStatus;
+    delete data.serviceItems;
+    delete data.discountAmount;
     const ymd = (d: Date | null | undefined) => (d ? d.toISOString().slice(0, 10) : "");
     const curDate = ymd(before?.serviceDate);
     const curSlot = before?.timeSlot ?? "";
@@ -468,6 +492,11 @@ export async function updateLead(id: string, values: unknown, scheduleBase?: { s
       ...(data.service && { service: data.service }),
       ...(data.source && { source: data.source }),
       ...(data.quoteAmount !== undefined && !keptPkg && !(pkg && "quoteAmount" in pkg) && { quoteAmount: data.quoteAmount }),
+      // Festival/regular label follows the edited price (createLead already stores it).
+      ...(data.priceType !== undefined && !keptPkg && {
+        priceType: data.priceType || null,
+        festivalName: data.priceType === "FESTIVAL" ? data.festivalName || null : null,
+      }),
       ...(data.followUpDate !== undefined && {
         followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       }),
@@ -680,7 +709,16 @@ export async function confirmBooking(leadId: string, values: unknown) {
   // make sure there's a Payment row for the balance (quote − advance).
   const leadPayments = await db.payment.findMany({ where: { leadId, deletedAt: null } });
   if (leadPayments.length > 0) {
-    await db.payment.updateMany({ where: { leadId, deletedAt: null }, data: { jobId: job.id, amount: jobValue } });
+    // The amount changes to the job value, so PAID must be re-derived from what
+    // was actually collected — a part-paid advance can't stay marked PAID.
+    for (const p of leadPayments) {
+      const paid = p.paidAmount ?? 0;
+      const fullyPaid = paid > 0 && paid >= jobValue - 0.01;
+      await db.payment.update({
+        where: { id: p.id },
+        data: { jobId: job.id, amount: jobValue, status: fullyPaid ? "PAID" : p.status === "PAID" ? "PENDING" : p.status },
+      });
+    }
   } else {
     const advance = lead.advanceAmount ?? 0;
     await db.payment
@@ -795,6 +833,11 @@ export async function addFollowUp(leadId: string, values: unknown) {
     const __s = await getSession();
     if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
   }
+  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
+  {
+    const scopeError = await assertLeadEditable(leadId);
+    if (scopeError) return { ...scopeError, success: false } as never;
+  }
   const parsed = followUpSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
@@ -847,6 +890,11 @@ export async function toggleFollowUpDone(followUpId: string, leadId: string) {
     const __s = await getSession();
     if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
   }
+  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
+  {
+    const scopeError = await assertLeadEditable(leadId);
+    if (scopeError) return { ...scopeError, success: false } as never;
+  }
   const followUp = await db.followUp.findUnique({ where: { id: followUpId } });
   if (!followUp) return { error: "Not found" };
   const nowDone = !followUp.isDone;
@@ -879,6 +927,11 @@ export async function updateFollowUp(followUpId: string, leadId: string, values:
   {
     const __s = await getSession();
     if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
+  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
+  {
+    const scopeError = await assertLeadEditable(leadId);
+    if (scopeError) return { ...scopeError, success: false } as never;
   }
   const parsed = followUpSchema.partial().safeParse(values);
   if (!parsed.success) {
@@ -932,6 +985,11 @@ export async function addNote(leadId: string, values: unknown) {
     const __s = await getSession();
     if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
   }
+  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
+  {
+    const scopeError = await assertLeadEditable(leadId);
+    if (scopeError) return { ...scopeError, success: false } as never;
+  }
   const parsed = timelineNoteSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid note", success: false as const };
@@ -948,6 +1006,11 @@ export async function addVoiceNote(leadId: string, audioUrl: string) {
     const __s = await getSession();
     if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
   }
+  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
+  {
+    const scopeError = await assertLeadEditable(leadId);
+    if (scopeError) return { ...scopeError, success: false } as never;
+  }
   if (!audioUrl || !audioUrl.startsWith("/uploads/")) {
     return { error: "Invalid recording", success: false as const };
   }
@@ -962,6 +1025,11 @@ export async function logCall(leadId: string, values: unknown) {
   {
     const __s = await getSession();
     if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
+  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
+  {
+    const scopeError = await assertLeadEditable(leadId);
+    if (scopeError) return { ...scopeError, success: false } as never;
   }
   const parsed = callLogSchema.safeParse(values);
   if (!parsed.success) {
@@ -1003,6 +1071,12 @@ export async function createQuotation(
   gstPercent: number,
   discount = 0,
 ) {
+  // Same rule as the UI (Quotation button only for roles that see contact + amounts):
+  // a direct action call must not let Operations/Field roles price a lead.
+  const caller = await getSession();
+  if (!caller || !canSeeCustomerContact(caller.role) || !canViewJobAmount(caller.role)) return { error: "Not authorized" };
+  if (!Array.isArray(services) || services.some((s) => !Number.isFinite(s.amount) || s.amount < 0)) return { error: "Invalid service amount" };
+  if (!Number.isFinite(gstPercent) || gstPercent < 0 || gstPercent > 28) return { error: "Invalid GST %" };
   const scopeError = await assertLeadEditable(leadId);
   if (scopeError) return scopeError;
   const lead = await db.lead.findUnique({ where: { id: leadId } });
@@ -1098,6 +1172,12 @@ export async function createRepeatBooking(mobile: string) {
       serviceVariant: lastJob?.serviceVariant || lastLead?.serviceVariant || null,
       propertyType: lastJob?.propertyType || lastLead?.propertyType || null,
       source: "CALL" as never,
+      // Attribution for the Marketing dashboard (was left empty → "Not tracked").
+      acquisitionChannel: "Repeat Customer",
+      firstTouchSource: "Repeat Customer",
+      firstTouchAt: new Date(),
+      latestTouchSource: "Repeat Customer",
+      latestTouchAt: new Date(),
       stage: "NEW",
       notes: `Repeat booking${lastJob ? ` — previous job ${lastJob.jobNumber}` : ""}`,
       createdById: session.sub,

@@ -454,7 +454,9 @@ export function BookingWizard({
         quotationToken: quote?.token ?? "",
         referralCode: referralCode ?? "",
         notes: quote ? `Quotation ${quote.quoteNumber}` : `${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`,
-        source: "WEBSITE",
+        // Empty: the server derives the lead source from the detected channel (Google Ads,
+        // Meta, GBP…) and falls back to WEBSITE — a hard-coded WEBSITE hid ad leads.
+        source: "",
         attribution: getAttributionPayload(),
       });
       if ("error" in res && res.error) return setError(res.error);

@@ -18,7 +18,7 @@ import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-temp
 import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
-import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
+import { bookingPageUrl, ensureJobToken, sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 
 /**
@@ -69,9 +69,11 @@ export async function createJob(values: unknown) {
   const formTeam = typeof data.teamNumber === "number" ? data.teamNumber : null;
   // Inherit the enquiry's team when the job form leaves it blank.
   const lead = data.leadId
-    ? await db.lead.findUnique({ where: { id: data.leadId }, select: { teamNumber: true } })
+    ? await db.lead.findUnique({ where: { id: data.leadId }, select: { teamNumber: true, quoteAmount: true } })
     : null;
   const teamNumber = formTeam ?? lead?.teamNumber ?? null;
+  // A role that never sees job amounts can't set one: use the enquiry's quote.
+  if (!session || !canViewJobAmount(session.role)) data.jobValue = lead?.quoteAmount ?? 0;
 
   const jobNumber = await generateJobNumber();
   const job = await db.job.create({
@@ -357,6 +359,7 @@ async function sendJobCompletionReview(job: {
       jobNumber: job.jobNumber,
       service: SERVICE_LABELS[job.service] ?? job.service,
       googleReviewUrl: settings?.googleReviewUrl ?? null,
+      bookingUrl: bookingPageUrl(await ensureJobToken(job.id)),
     }),
     relatedType: "Job",
     relatedId: job.id,
@@ -375,6 +378,16 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
   if (!job || job.status !== "COMPLETED" || job.deletedAt) return null;
   const existing = await db.invoice.findUnique({ where: { jobId } });
   if (existing) return existing;
+  // Accounts may already have converted this enquiry's quotation into an invoice:
+  // link that one to the job (so its PDF shows the job's payments) instead of
+  // raising a second invoice for the same sale.
+  if (job.leadId) {
+    const fromQuote = await db.invoice.findFirst({
+      where: { jobId: null, status: { not: "CANCELLED" }, quotation: { leadId: job.leadId } },
+      orderBy: { createdAt: "desc" },
+    });
+    if (fromQuote) return db.invoice.update({ where: { id: fromQuote.id }, data: { jobId } });
+  }
 
   const now = new Date();
   let payment = await db.payment.findFirst({ where: { jobId, deletedAt: null }, orderBy: { createdAt: "asc" } });

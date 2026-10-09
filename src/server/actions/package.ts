@@ -1,5 +1,5 @@
 "use server";
-import { canSeeCustomerContact } from "@/lib/permissions";
+import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 
 // Header "Package Calculator" → Save/Attach to Lead. Reuses updateLead, so the
 // same pricing guard (only Super Admin / Accounts may change prices/discount),
@@ -46,6 +46,9 @@ export async function searchLeadsForPackage(q: string) {
 export async function attachPackageToLead(leadId: string, serviceItems: string, discountAmount: number) {
   const session = await getSession();
   if (!session || !OFFICE.includes(session.role)) return { error: "Not authorized" };
+  // updateLead drops package lines for roles without job-amount access, so refuse
+  // up front instead of changing the service and silently losing the package.
+  if (!canViewJobAmount(session.role)) return { error: "Not authorized to attach a priced package" };
   const lead = await db.lead.findFirst({ where: { id: leadId, deletedAt: null }, select: { id: true, leadNumber: true, jobs: { where: { deletedAt: null }, select: { jobNumber: true } } } });
   if (!lead) return { error: "Lead not found" };
   if (lead.jobs.length) return { error: `${lead.leadNumber} is already booked (job ${lead.jobs[0].jobNumber}) — change the job instead.` };

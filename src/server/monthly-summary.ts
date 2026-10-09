@@ -12,9 +12,9 @@ import { monthlyBusinessSummaryMessage } from "@/lib/whatsapp-templates";
  *
  * Employee Salaries is the accrued payroll cost for the month — the same
  * present-days/wage formula the Staff payroll ledger already uses
- * (src/server/attendance.ts getStaffLedger) — not the STAFF_ADVANCE expense
- * category, which is cash already advanced against that pay and is counted
- * separately inside "Other Expenses" below.
+ * (src/server/attendance.ts getStaffLedger). SALARY payouts and STAFF_ADVANCE
+ * (cash advanced against that same pay) are therefore NOT added again under
+ * "Other Expenses" — that counted the same salary twice.
  */
 export async function getMonthlyBusinessReport(forDate: Date = subMonths(new Date(), 1)) {
   const start = startOfMonth(forDate);
@@ -31,7 +31,7 @@ export async function getMonthlyBusinessReport(forDate: Date = subMonths(new Dat
       _sum: { amount: true },
     }),
     db.expense.aggregate({
-      where: { deletedAt: null, category: { not: "VENDOR_PAYMENT" }, date: { gte: start, lte: end } },
+      where: { deletedAt: null, category: { notIn: ["VENDOR_PAYMENT", "SALARY", "STAFF_ADVANCE"] }, date: { gte: start, lte: end } },
       _sum: { amount: true },
     }),
     db.staff.findMany({

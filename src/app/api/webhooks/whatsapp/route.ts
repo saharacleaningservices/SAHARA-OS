@@ -453,6 +453,12 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
           address: existingCustomer?.address || null,
           service: "HOME_DEEP_CLEANING" as never,
           source: "WHATSAPP" as never,
+          // Attribution for the Marketing dashboard (was left empty → "Not tracked").
+          acquisitionChannel: "WhatsApp Direct",
+          firstTouchSource: "WhatsApp Direct",
+          firstTouchAt: new Date(),
+          latestTouchSource: "WhatsApp Direct",
+          latestTouchAt: new Date(),
           stage: "NEW",
           notes: `Auto-created from an inbound WhatsApp message: "${body.slice(0, 300)}"`,
         },

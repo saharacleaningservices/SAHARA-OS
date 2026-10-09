@@ -1,29 +1,45 @@
 import { db } from "@/lib/db";
 
-async function nextNumber(prefix: string, count: number, pad = 4): Promise<string> {
+async function nextNumber(prefix: string, count: number, pad = 4, existing: (string | null)[] = []): Promise<string> {
   const year = new Date().getFullYear();
-  const seq = String(count + 1).padStart(pad, "0");
-  return `${prefix}-${year}-${seq}`;
+  // Same sequence as before (row count + 1), but never below the highest number
+  // already issued this year — so a deleted row or a second document type
+  // sharing the sequence can't hand out a duplicate number.
+  const head = `${prefix}-${year}-`;
+  const maxIssued = existing.reduce((m, v) => (v && v.startsWith(head) && /^\d+$/.test(v.slice(head.length)) ? Math.max(m, Number(v.slice(head.length))) : m), 0);
+  const seq = String(Math.max(count, maxIssued) + 1).padStart(pad, "0");
+  return `${head}${seq}`;
 }
 
+const thisYear = (prefix: string) => ({ startsWith: `${prefix}-${new Date().getFullYear()}-` });
+
 export async function generateLeadNumber() {
-  const count = await db.lead.count();
-  return nextNumber("LD", count);
+  const [count, rows] = await Promise.all([db.lead.count(), db.lead.findMany({ where: { leadNumber: thisYear("LD") }, select: { leadNumber: true } })]);
+  return nextNumber("LD", count, 4, rows.map((r) => r.leadNumber));
 }
 
 export async function generateJobNumber() {
-  const count = await db.job.count();
-  return nextNumber("JOB", count);
+  const [count, rows] = await Promise.all([db.job.count(), db.job.findMany({ where: { jobNumber: thisYear("JOB") }, select: { jobNumber: true } })]);
+  return nextNumber("JOB", count, 4, rows.map((r) => r.jobNumber));
 }
 
 export async function generateQuoteNumber() {
-  const count = await db.quotation.count();
-  return nextNumber("QT", count);
+  const [count, rows] = await Promise.all([db.quotation.count(), db.quotation.findMany({ where: { quoteNumber: thisYear("QT") }, select: { quoteNumber: true } })]);
+  return nextNumber("QT", count, 4, rows.map((r) => r.quoteNumber));
+}
+
+/** Payment rows and standalone Invoices share the INV sequence — check both tables. */
+async function issuedInvoiceNumbers() {
+  const [p, i] = await Promise.all([
+    db.payment.findMany({ where: { invoiceNumber: thisYear("INV") }, select: { invoiceNumber: true } }),
+    db.invoice.findMany({ where: { invoiceNumber: thisYear("INV") }, select: { invoiceNumber: true } }),
+  ]);
+  return [...p.map((r) => r.invoiceNumber), ...i.map((r) => r.invoiceNumber)];
 }
 
 export async function generateInvoiceNumber() {
-  const count = await db.payment.count();
-  return nextNumber("INV", count);
+  const [count, issued] = await Promise.all([db.payment.count(), issuedInvoiceNumbers()]);
+  return nextNumber("INV", count, 4, issued);
 }
 
 /**
@@ -33,8 +49,8 @@ export async function generateInvoiceNumber() {
  * collide with generateInvoiceNumber()'s Payment-count-based numbering.
  */
 export async function generateStandaloneInvoiceNumber() {
-  const [paymentCount, invoiceCount] = await Promise.all([db.payment.count(), db.invoice.count()]);
-  return nextNumber("INV", Math.max(paymentCount, invoiceCount));
+  const [paymentCount, invoiceCount, issued] = await Promise.all([db.payment.count(), db.invoice.count(), issuedInvoiceNumbers()]);
+  return nextNumber("INV", Math.max(paymentCount, invoiceCount), 4, issued);
 }
 
 export async function generateCertificateNumber() {

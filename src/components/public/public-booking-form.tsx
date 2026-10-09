@@ -867,7 +867,9 @@ export function PublicBookingForm({
           <p className="text-sm font-semibold text-foreground">Add-on Services <span className="font-normal text-muted-foreground">(Optional)</span></p>
         </div>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          {ADDON_SERVICE_PRICES.map(({ name: svc, price }) => {
+          {/* Names only: these legacy "indicative" prices contradicted the pricing master,
+              so add-on amounts are confirmed by the team in the quotation instead. */}
+          {ADDON_SERVICE_PRICES.map(({ name: svc }) => {
             const Icon = ADDON_ICONS[svc] ?? Sparkles;
             const on = addOns.includes(svc);
             return (
@@ -881,7 +883,7 @@ export function PublicBookingForm({
               >
                 <Icon className={`size-5 ${on ? "text-primary" : "text-muted-foreground"}`} />
                 <span className="text-xs font-medium text-foreground">{svc}</span>
-                <span className="text-[11px] text-muted-foreground">{price}</span>
+                <span className="text-[11px] text-muted-foreground">Price confirmed in your quote</span>
               </button>
             );
           })}

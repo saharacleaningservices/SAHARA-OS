@@ -48,12 +48,16 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
     timeline: rawLead.timeline.map((e) => ({ ...e, body: maskDigits(e.body ?? "") })),
     // Quotation / payment records + PDFs carry the customer number — Super Admin / Accounts only.
     quotations: showContact && showMoney ? rawLead.quotations : [],
-    payments: showContact && showMoney ? rawLead.payments : [],
+    payments: showContact && showMoney ? rawLead.payments.filter((p) => !p.deletedAt) : [],
   };
 
   const estimated = lead.quoteAmount ?? 0;
-  const advance = lead.advanceAmount ?? 0;
+  // Paid so far = recorded (non-deleted) Payment rows — the money record — falling
+  // back to the lead's advance field only when no Payment row exists yet.
+  const livePayments = rawLead.payments.filter((p) => !p.deletedAt);
+  const advance = livePayments.length ? livePayments.reduce((s, p) => s + (p.paidAmount ?? 0), 0) : lead.advanceAmount ?? 0;
   const leadBalance = Math.max(estimated - advance, 0);
+  const fullyPaid = estimated > 0 && advance > 0 && leadBalance === 0;
   const paymentDetails = {
     upiId: settings.upiId ?? null,
     upiQrUrl: settings.upiQrUrl ?? null,
@@ -84,7 +88,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               </>
             )}
             <ScheduleVisitDialog leadId={lead.id} />
-            {showContact && showMoney && (
+            {showContact && showMoney && !fullyPaid && (
             <SendPaymentLinkButton
               mobile={lead.whatsapp || lead.mobile}
               details={paymentDetails}
@@ -95,7 +99,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
                 packageName: lead.packageName,
                 quote: estimated || null,
                 advance: advance || null,
-                balance: leadBalance || estimated,
+                balance: advance > 0 ? leadBalance : estimated,
               }}
               purpose={advance > 0 ? "BALANCE" : "ADVANCE"}
             />

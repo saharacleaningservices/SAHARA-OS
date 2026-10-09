@@ -81,7 +81,7 @@ export async function sendBookingConfirmation(jobId: string) {
   });
   if (already) return { skipped: "already-confirmed" as const };
 
-  const job = await db.job.findUnique({ where: { id: jobId }, include: { payments: true } });
+  const job = await db.job.findUnique({ where: { id: jobId }, include: { payments: { where: { deletedAt: null } } } });
   if (!job || job.deletedAt || job.isDemo || job.status === "CANCELLED") return { skipped: "not-confirmable" as const };
 
   const token = await ensureJobToken(job.id);

@@ -31,7 +31,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ pending: true });
   }
 
-  // APPROVED — issue the real session now.
+  // APPROVED — issue the real session ONCE: only for the login that was waiting
+  // on this approval (first poll after approvedAt, within 30 min) and only for an
+  // active account. Afterwards an approved device must sign in with its password
+  // (login route) — so this cookie can't mint sessions after logout,
+  // deactivation or a password reset.
+  const approvedAt = device.approvedAt?.getTime() ?? 0;
+  const firstAfterApproval = approvedAt > 0 && device.lastSeenAt.getTime() < approvedAt && Date.now() - approvedAt < 30 * 60 * 1000;
+  if (!device.user.isActive || !firstAfterApproval) {
+    return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
+  }
   const sessionToken = await createSessionToken({
     sub: device.user.id,
     name: device.user.name,

@@ -17,7 +17,7 @@ export async function getPublicJobSummary(jobNumber: string) {
       photos: { orderBy: { uploadedAt: "asc" } },
       videos: { orderBy: { uploadedAt: "asc" } },
       certificate: true,
-      payments: true,
+      payments: { where: { deletedAt: null } },
     },
   });
   if (!job) return null;

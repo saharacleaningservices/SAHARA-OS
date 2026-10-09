@@ -89,9 +89,24 @@ export async function getMarketingRoi(opts: RoiFilters) {
     const spend = await db.marketingSpend.findMany({
       where: { ...(months ? { month: months } : {}), ...(opts.channel ? { channel: opts.channel } : {}), ...(opts.campaign ? { campaign: opts.campaign } : {}) },
     });
+    // Spend is stored per month; leads are filtered by exact day. Count only the
+    // share of each month that falls inside [from, to] so a part-month range
+    // isn't charged the whole month's spend (CPL / ROAS stay comparable).
+    const DAY = 86400000;
+    const share = (month: string) => {
+      if (!opts.from && !opts.to) return 1;
+      const [y, m] = month.split("-").map(Number);
+      if (!y || !m) return 1;
+      const mStart = Date.UTC(y, m - 1, 1);
+      const mEnd = Date.UTC(y, m, 1); // exclusive
+      const f = opts.from ? Date.UTC(opts.from.getUTCFullYear(), opts.from.getUTCMonth(), opts.from.getUTCDate()) : mStart;
+      const t = opts.to ? Date.UTC(opts.to.getUTCFullYear(), opts.to.getUTCMonth(), opts.to.getUTCDate()) + DAY : mEnd;
+      const overlap = Math.max(0, Math.min(mEnd, t) - Math.max(mStart, f));
+      return overlap / (mEnd - mStart);
+    };
     for (const s of spend) {
       if (opts.festivalOnly && !FESTIVAL_CAMPAIGN_PATTERN.test(s.campaign)) continue;
-      row(s.channel, s.campaign).spend += s.amount;
+      row(s.channel, s.campaign).spend += Math.round(s.amount * share(s.month) * 100) / 100;
     }
   }
 
