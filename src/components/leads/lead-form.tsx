@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +29,8 @@ import { ACQUISITION_CHANNELS } from "@/lib/attribution";
 import { PackageCalculator } from "@/components/shared/package-calculator";
 import { packageTotals, parsePackage, serializeLines, type PackageDraft } from "@/lib/package-calc";
 import { getCatalogueForCrm } from "@/server/actions/pricing";
-import { festivalForDate, unitPriceFor, type LivePricing } from "@/lib/pricing-master";
+import { festivalForDate, needsInspection, unitPriceFor, type LivePricing } from "@/lib/pricing-master";
+import { resolvePackageEstimate, type EstimateSource } from "@/lib/lead-estimate";
 
 type StaffOption = { id: string; name: string; designation: string };
 type UserOption = { id: string; name: string; role: string };
@@ -128,6 +129,7 @@ export function LeadForm({
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<LeadFormValues>({
     resolver: zodResolver(leadSchema),
@@ -205,22 +207,57 @@ export function LeadForm({
   const homeCategory = watch("serviceCategory") || "HOME_DEEP_CLEANING";
   const [initialPkgKey] = useState(() => `${defaultValues?.serviceCategory ?? ""}|${defaultValues?.serviceVariant ?? ""}|${defaultValues?.packageName ?? ""}`);
   const [pkgPriceNote, setPkgPriceNote] = useState("");
+  // Remembers the amount THIS form auto-filled from a package price, so a later change to a selection
+  // without a package price (4 BHK+, villa, bungalow, …) can drop exactly that stale amount — and never
+  // a figure staff typed or a saved lead's existing quote.
+  const autoEstimateRef = useRef<number | null>(null);
+  function syncPackageEstimate(price: number | null, propertyType: string) {
+    const prevAmount = Number(getValues("quoteAmount")) || null;
+    const source: EstimateSource = estimateTouched
+      ? "MANUAL"
+      : prevAmount != null && prevAmount === autoEstimateRef.current
+        ? "AUTO"
+        : prevAmount != null
+          ? "MANUAL"
+          : "NONE";
+    const r = resolvePackageEstimate({ amount: prevAmount, source }, { propertyType, price });
+    if (r.source === "AUTO") {
+      autoEstimateRef.current = r.amount;
+      setValue("quoteAmount", r.amount ?? undefined, { shouldDirty: true });
+    } else if (source === "AUTO") {
+      autoEstimateRef.current = null; // stale auto estimate dropped
+      setValue("quoteAmount", undefined, { shouldDirty: true });
+    }
+    return r;
+  }
   useEffect(() => {
-    if (!livePricing || homeCategory !== "HOME_DEEP_CLEANING" || !homeVariant || !homePackage) return setPkgPriceNote("");
+    if (!livePricing || homeCategory !== "HOME_DEEP_CLEANING" || !homeVariant || !homePackage) {
+      setPkgPriceNote("");
+      // Package/category cleared: never leave an auto-filled package estimate behind.
+      if (livePricing && autoEstimateRef.current != null) syncPackageEstimate(null, homeVariant);
+      return;
+    }
     if (leadId && `${homeCategory}|${homeVariant}|${homePackage}` === initialPkgKey) return;
     const want = homeVariant.replace(/\s+/g, "").toLowerCase();
     const item = livePricing.items.find((i) => i.group === homePackage.toUpperCase() && i.name.replace(/\s+/g, "").toLowerCase().startsWith(want));
-    if (!item) return setPkgPriceNote("");
     const festival = homeDate ? festivalForDate(livePricing.festivals, homeDate) : null;
-    const price = unitPriceFor(item, festival);
-    if (price == null) return setPkgPriceNote("");
+    const price = item ? unitPriceFor(item, festival) : null;
+    const r = syncPackageEstimate(price, homeVariant);
+    if (r.mode !== "PRICED" || !item || price == null) {
+      // No package price: not a priced package, so no festival/regular price type is recorded.
+      setValue("priceType", "");
+      setValue("festivalName", "");
+      setPkgPriceNote(r.mode === "INSPECTION" ? "Price on inspection — site inspection required (no package price)" : "");
+      return;
+    }
     const isFestival = !!festival && festival.prices[item.contentId] != null;
     setValue("priceType", isFestival ? "FESTIVAL" : "REGULAR");
     setValue("festivalName", isFestival ? festival!.name : "");
     setPkgPriceNote(`${item.name} — ${isFestival ? `${festival!.name} price` : "Regular price"} ${formatINR(price)}`);
-    if (!estimateTouched) setValue("quoteAmount", price, { shouldDirty: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [livePricing, homeCategory, homeVariant, homePackage, homeDate]);
+  // A staff-typed estimate on a selection that needs inspection stays, with a clear warning.
+  const inspectionSelected = homeCategory === "HOME_DEEP_CLEANING" && needsInspection(homeVariant);
 
   // Opened from a customer page (+ New Lead): look the contact up straight away.
   useEffect(() => {
@@ -235,7 +272,18 @@ export function LeadForm({
     // putty, Pest property size, Housekeeping staff/hours) into Notes — same
     // composition the public booking form uses — so nothing the staff
     // selected is lost even though Lead has no dedicated columns for them.
-    const mergedNotes = [values.notes?.trim(), isCustomized ? "" : selectionNotesLines.join("\n")].filter(Boolean).join("\n\n");
+    // Inspection-only properties (4 BHK+, villa, bungalow, …) are flagged in the notes so follow-up staff see it.
+    const needsInspectionHere = (values.serviceCategory || "HOME_DEEP_CLEANING") === "HOME_DEEP_CLEANING" && needsInspection(values.serviceVariant);
+    const inspectionLine =
+      needsInspectionHere && !/SITE INSPECTION REQUIRED/i.test(values.notes ?? "")
+        ? "SITE INSPECTION REQUIRED — no package price; final quote after inspection."
+        : "";
+    // A staff-typed figure on an inspection-only property is provisional, never a confirmed quote.
+    const provisionalLine =
+      needsInspectionHere && Number(values.quoteAmount) > 0 && !/provisional/i.test(values.notes ?? "")
+        ? `Estimate ${formatINR(Number(values.quoteAmount))} is PROVISIONAL — pending site inspection (not a confirmed quote).`
+        : "";
+    const mergedNotes = [values.notes?.trim(), inspectionLine, provisionalLine, isCustomized ? "" : selectionNotesLines.join("\n")].filter(Boolean).join("\n\n");
     const finalValues = { ...values, notes: mergedNotes };
     let res = leadId
       ? await updateLead(leadId, finalValues, { serviceDate: defaultValues?.serviceDate ?? "", timeSlot: defaultValues?.timeSlot ?? "" })
@@ -491,6 +539,11 @@ export function LeadForm({
               placeholder="As per pricing master"
             />
             {pkgPriceNote && <p className="text-xs text-muted-foreground">{pkgPriceNote}{estimateTouched ? " · amount edited by hand" : ""}</p>}
+            {inspectionSelected && estimated > 0 && (
+              <p className="rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-900" role="alert">
+                Manual staff estimate — not a package price. This property needs a site inspection; the final quote is confirmed only after inspection.
+              </p>
+            )}
           </div>
 
           <More title="Advance / payment" hint={advReceived > 0 ? `advance ${formatINR(advReceived)}` : "none recorded"} open={advReceived > 0}>

@@ -246,7 +246,7 @@ export const SERVICE_RULES: Record<string, string> = {
 // Property type — asked once, options depend on whether the category is a
 // commercial one. Stored on Lead.propertyType / Job.propertyType.
 // Owner 2026-10-05: Home Deep Cleaning "Property Type" list (CRM + booking forms).
-export const HOME_PROPERTY_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"] as const;
+export const HOME_PROPERTY_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "Villa", "Bungalow", "Commercial/Office", "Other"] as const;
 export const COMMERCIAL_PROPERTY_TYPES = ["Office", "Shop", "Showroom", "Warehouse", "Factory", "Hospital / Clinic", "Restaurant", "Society / Complex"] as const;
 export const COMMERCIAL_CATEGORIES = ["COMMERCIAL_CLEANING"];
 export function propertyTypesFor(category: string): readonly string[] {
