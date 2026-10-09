@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
-import { INSPECTION_ONLY_IDS, PRICING_MASTER, type FestivalWindow, type LivePricing, type PriceItem } from "@/lib/pricing-master";
+import { INSPECTION_ONLY_IDS, PRICING_MASTER, maskPaintingPrices, type FestivalWindow, type LivePricing, type PriceItem } from "@/lib/pricing-master";
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
@@ -38,4 +38,14 @@ export const getLivePricing = cache(async (): Promise<LivePricing> => {
     console.error("[pricing] falling back to catalogue prices:", e);
     return { items: PRICING_MASTER, festivals: [] };
   }
+});
+
+/**
+ * Pricing for PUBLIC surfaces (booking page/widget, landing pages, public booking action, catalogue feed):
+ * identical to getLivePricing() except interior-painting rates are withheld (quoted after a free site
+ * inspection). CRM / staff tools keep using getLivePricing().
+ */
+export const getPublicPricing = cache(async (): Promise<LivePricing> => {
+  const live = await getLivePricing();
+  return { ...live, items: maskPaintingPrices(live.items) };
 });
