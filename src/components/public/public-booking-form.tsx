@@ -58,6 +58,7 @@ import {
   PAINTING_REQUIREMENT_OPTIONS,
 } from "@/lib/constants";
 import { publicBookLead } from "@/server/actions/public-booking";
+import { safely } from "@/lib/safe-action";
 import { getSlotAvailability } from "@/server/actions/slot-availability";
 
 // The four customer-facing categories shown on the public booking page are
@@ -430,7 +431,7 @@ export function PublicBookingForm({
     const selectionNotes = buildSelectionNotes();
     const combinedNotes = [notes.trim(), selectionNotes].filter(Boolean).join("\n\n");
     setSubmitting(true);
-    const res = await publicBookLead({
+    const res = await safely(publicBookLead({
       name,
       mobile,
       alternateMobile,
@@ -454,7 +455,7 @@ export function PublicBookingForm({
       estimatedAmount: estNum || undefined,
       advancePaid,
       attribution: getAttributionPayload(),
-    });
+    }));
     setSubmitting(false);
     if ("error" in res) {
       setError(res.error ?? "Something went wrong");

@@ -14,8 +14,9 @@ import { notify } from "@/server/notify";
 import { z } from "zod";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
 import { getLivePricing } from "@/server/pricing";
-import { festivalForDate, unitPriceFor } from "@/lib/pricing-master";
+import { FESTIVAL_PACKAGE_IDS, activeCampaign, festivalForDate, needsInspection, todayIST, unitPriceFor } from "@/lib/pricing-master";
 import { scopeSnapshot } from "@/lib/service-scope";
+import { publicPaymentState, resolvePublicEstimate } from "@/lib/booking-payment";
 import { linkCustomerAndSite } from "@/server/customer-db";
 import { copyLeadToSheet } from "@/server/lead-sheet";
 
@@ -181,7 +182,9 @@ export async function publicBookLead(values: unknown) {
   const isRepeatCustomer = priorLeads + priorJobs > 0;
 
   // Server-side price snapshot for catalogue bookings (see selectedItems).
-  let estimated = data.estimatedAmount && data.estimatedAmount > 0 ? data.estimatedAmount : null;
+  // Only a server-priced catalogue total is authoritative. A browser-supplied
+  // estimatedAmount is never stored as the quote — it becomes an unverified staff note.
+  let estimated: number | null = null;
   let priceType: "REGULAR" | "FESTIVAL" | null = null;
   let festivalName: string | null = null;
   let scopeOfWork: string | null = null;
@@ -192,6 +195,13 @@ export async function publicBookLead(values: unknown) {
       .map((s) => ({ s, item: pricing.items.find((p) => p.contentId === s.contentId) }))
       .filter((x): x is { s: { contentId: string; qty: number }; item: NonNullable<typeof x.item> } => !!x.item);
     if (picked.length !== data.selectedItems.length) return { error: "A selected package is no longer available — please refresh the page." };
+    // Festival campaign running: Premium/Platinum home packages are bookable only for festival service dates.
+    // Pricing follows the service DATE, so a query parameter or edited form cannot select regular prices.
+    const campaign = activeCampaign(pricing.festivals, todayIST());
+    if (campaign && !festival && picked.some(({ item }) => FESTIVAL_PACKAGE_IDS.has(item.contentId))) {
+      const d = (ymd: string) => new Date(`${ymd}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
+      return { error: `Festival packages are available for service dates ${d(campaign.start)} – ${d(campaign.end)}. Please choose a date in the festival period.` };
+    }
     let total = 0;
     let allPriced = true;
     let usedFestival = false;
@@ -214,12 +224,12 @@ export async function publicBookLead(values: unknown) {
       items: picked.map(({ s, item }) => ({ name: item.name, qty: Math.max(s.qty, item.minQty ?? 1), unit: item.unit })),
     });
   }
-  const advance = data.advancePaid && data.advanceAmount && data.advanceAmount > 0 ? data.advanceAmount : 0;
-  const paymentStatus = advance > 0
-    ? estimated && advance >= estimated
-      ? "PAID"
-      : "PARTIAL"
-    : "PENDING_ADVANCE";
+  // 4 BHK and larger, villas, bungalows, full houses: staff inspect and quote — never an instant price.
+  const inspectionRequired = data.serviceCategory === "HOME_DEEP_CLEANING" && needsInspection(data.propertyType);
+  // No payment gateway exists: a public request can never mark anything paid.
+  // Whatever advance the browser claims is kept only as an unverified staff note.
+  const { advance, paymentStatus, declaredAdvance } = publicPaymentState({ advancePaid: data.advancePaid, advanceAmount: data.advanceAmount });
+  const { unverifiedClientEstimate } = resolvePublicEstimate({ catalogueTotal: estimated, clientEstimate: data.estimatedAmount });
 
   const lead = existingOpen
     ? await db.lead.update({
@@ -303,31 +313,9 @@ export async function publicBookLead(values: unknown) {
     await db.lead.update({ where: { id: lead.id }, data: { siteId: link.siteId } }).catch(() => {});
   }
 
-  // Customer-declared advance → a Payment row so it flows into the Payments
-  // module + revenue (marked from the booking form, unverified like the
-  // booking itself until the office confirms the screenshot).
-  if (advance > 0) {
-    const { generateInvoiceNumber } = await import("@/lib/id-generators");
-    const total = estimated ?? advance;
-    const dueDate = data.serviceDate ? new Date(data.serviceDate) : new Date(Date.now() + 7 * 86400000);
-    await db.payment
-      .create({
-        data: {
-          invoiceNumber: await generateInvoiceNumber(),
-          leadId: lead.id,
-          clientName: data.name,
-          clientMobile: data.mobile,
-          amount: total,
-          paidAmount: advance,
-          dueDate,
-          paidDate: new Date(),
-          status: advance >= total ? "PAID" : "PENDING",
-          mode: data.paymentMode || null,
-          notes: `Advance declared on the online booking form (${data.paymentMode ?? "—"})`,
-        },
-      })
-      .catch(() => {});
-  }
+  // No Payment row is created here: a public request cannot prove a payment, so
+  // nothing from this form is counted as collected revenue. Staff record any
+  // real advance in the CRM (authenticated) after verifying it.
 
   // Automation: open a same-day high-priority call-back follow-up so the
   // enquiry can't be missed. Confirmation promised within 5–15 minutes.
@@ -339,7 +327,9 @@ export async function publicBookLead(values: unknown) {
         dueDate: followUpAt,
         type: "CALL",
         priority: "HIGH",
-        notes: `New online booking ${leadNumber} — call to confirm schedule.`,
+        notes: inspectionRequired
+          ? `New inspection / custom-quote request ${leadNumber} — call to arrange the site inspection (no price was shown).`
+          : `New online booking ${leadNumber} — call to confirm schedule.`,
       },
     })
     .catch(() => {});
@@ -354,13 +344,15 @@ export async function publicBookLead(values: unknown) {
       `Attribution: ${existingOpen?.acquisitionChannel ?? channel}${campaignOf(firstTouch) ? ` / ${campaignOf(firstTouch)}` : ""}${latestTouch && latestFields.latestTouchSource !== channel ? ` · latest touch: ${latestFields.latestTouchSource}` : ""}`,
       isRepeatCustomer ? `⭐ Existing customer — ${priorLeads} prior enquir${priorLeads === 1 ? "y" : "ies"}, ${priorJobs} job(s) on this number` : null,
       data.propertyType ? `Property type: ${data.propertyType}` : null,
+      inspectionRequired ? `SITE INSPECTION REQUIRED — no price shown or charged; assess scope and prepare a custom quotation` : null,
       data.serviceDate ? `Requested service date: ${data.serviceDate}` : null,
       data.timeSlot ? `Preferred slot: ${data.timeSlot}` : null,
       data.packageName ? `Package: ${data.packageName}` : null,
       combos.length ? `Combos: ${combos.join(", ")}` : null,
       addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
       estimated ? `Estimated: ₹${estimated}` : null,
-      advance > 0 ? `Advance declared: ₹${advance} (${data.paymentMode ?? "—"})` : `Advance: pending`,
+      unverifiedClientEstimate ? `Customer-side indicative estimate (UNVERIFIED, not a quote): ₹${unverifiedClientEstimate}` : null,
+      declaredAdvance > 0 ? `Customer claims advance ₹${declaredAdvance} (${data.paymentMode ?? "—"}) — UNVERIFIED, pending staff verification` : `Advance: pending`,
       data.pinCode ? `PIN: ${data.pinCode}` : null,
       data.alternateMobile ? `Alt mobile: ${data.alternateMobile}` : null,
       data.email ? `Email: ${data.email}` : null,

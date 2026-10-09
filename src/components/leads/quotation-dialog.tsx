@@ -20,7 +20,7 @@ import { createQuotation } from "@/server/actions/leads";
 import { packageToQuoteItems, packageTotals, parsePackage } from "@/lib/package-calc";
 import { formatINR } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
-import { PRICING_MASTER, lineTotal, type PriceItem } from "@/lib/pricing-master";
+import { PRICING_MASTER, activeCampaign, todayIST, unitPriceFor, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
 import { getCatalogueForCrm } from "@/server/actions/pricing";
 
 type LineItem = { name: string; description: string; amount: number };
@@ -76,9 +76,24 @@ export function QuotationDialog({
   const [open, setOpen] = useState(false);
   // Live prices (Super Admin → Pricing & Packages); catalogue defaults until loaded.
   const [catalogue, setCatalogue] = useState<PriceItem[]>(PRICING_MASTER);
+  // Festival windows: while a festival campaign runs, "Add from price list" defaults to the exact festival
+  // price (staff can switch to Regular for non-festival dates). Regular stays available.
+  const [festivals, setFestivals] = useState<FestivalWindow[]>([]);
+  const [festivalId, setFestivalId] = useState("");
   useEffect(() => {
-    if (open) getCatalogueForCrm().then((p) => p && setCatalogue(p.items)).catch(() => {});
+    if (!open) return;
+    getCatalogueForCrm()
+      .then((p) => {
+        if (!p) return;
+        setCatalogue(p.items);
+        setFestivals(p.festivals);
+        const c = activeCampaign(p.festivals, todayIST());
+        if (c) setFestivalId(c.current.id);
+      })
+      .catch(() => {});
   }, [open]);
+  const festival = festivals.find((f) => f.id === festivalId) ?? null;
+  const priceOf = (p: PriceItem) => unitPriceFor(p, festival);
   const [items, setItems] = useState<LineItem[]>(pkg.lines.length ? packageToQuoteItems(pkg) : [
     {
       name: SERVICE_LABELS[service] ?? service,
@@ -179,6 +194,19 @@ export function QuotationDialog({
             >
               <Plus className="size-3.5" /> Add line item
             </Button>
+            {festivals.length > 0 && (
+              <select
+                value={festivalId}
+                onChange={(e) => setFestivalId(e.target.value)}
+                aria-label="Price type for price-list items"
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="">Regular prices</option>
+                {festivals.map((f) => (
+                  <option key={f.id} value={f.id}>{f.name} festival prices ({f.start} → {f.end})</option>
+                ))}
+              </select>
+            )}
             {/* Same approved prices as the landing pages, booking page and catalogue (pricing master). */}
             <select
               value=""
@@ -186,15 +214,17 @@ export function QuotationDialog({
                 const p = catalogue.find((x) => x.contentId === e.target.value);
                 if (!p) return;
                 const qty = p.minQty ?? 1;
+                const unit = priceOf(p);
+                const festivalPriced = !!festival && unit != null && unit !== p.price;
                 setItems((prev) => [
                   ...prev,
                   {
                     name: p.name,
                     description:
-                      p.price == null
+                      unit == null
                         ? `${p.name} — price after inspection`
-                        : `${p.name}${p.unit ? ` — ${qty} × ₹${p.price.toLocaleString("en-IN")} ${p.unit}` : ""}${p.rule ? ` (${p.rule})` : ""}`,
-                    amount: lineTotal(p, qty) ?? 0,
+                        : `${p.name}${festivalPriced ? ` — ${festival!.name} price` : ""}${p.unit ? ` — ${qty} × ₹${unit.toLocaleString("en-IN")} ${p.unit}` : ""}${p.rule ? ` (${p.rule})` : ""}`,
+                    amount: unit == null ? 0 : unit * Math.max(qty, p.minQty ?? 1),
                   },
                 ]);
               }}
@@ -203,7 +233,7 @@ export function QuotationDialog({
               <option value="">+ Add from Sahara price list…</option>
               {catalogue.map((p) => (
                 <option key={p.contentId} value={p.contentId}>
-                  {p.name} — {p.price == null ? "after inspection" : `₹${p.price.toLocaleString("en-IN")}${p.unit ? ` ${p.unit}` : ""}`}
+                  {p.name} — {priceOf(p) == null ? "after inspection" : `₹${priceOf(p)!.toLocaleString("en-IN")}${p.unit ? ` ${p.unit}` : ""}`}
                 </option>
               ))}
             </select>

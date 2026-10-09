@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
-import { PRICING_MASTER, type FestivalWindow, type LivePricing, type PriceItem } from "@/lib/pricing-master";
+import { INSPECTION_ONLY_IDS, PRICING_MASTER, type FestivalWindow, type LivePricing, type PriceItem } from "@/lib/pricing-master";
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
@@ -20,7 +20,8 @@ export const getLivePricing = cache(async (): Promise<LivePricing> => {
     const items: PriceItem[] = PRICING_MASTER.filter((p) => byId.get(p.contentId)?.isActive !== false).map((p) => {
       const s = byId.get(p.contentId);
       if (!s) return p;
-      const price = s.price ?? p.price;
+      // Inspection-only packages (4 BHK+) stay unpriced even if a Super Admin row exists.
+      const price = INSPECTION_ONLY_IDS.has(p.contentId) ? null : s.price ?? p.price;
       // A struck-through MRP must stay above the selling price to be genuine.
       const mrp = s.mrp ?? p.mrp;
       return { ...p, price, mrp: mrp != null && price != null && mrp > price ? mrp : undefined };

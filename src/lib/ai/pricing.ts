@@ -1,6 +1,5 @@
-// Baseline price points per service, used when a lead has no quoteAmount yet.
-// These are starting estimates for a standard-size job — always editable by
-// staff before a quotation is finalised.
+// LEGACY internal baselines — no longer used to draft customer quotes (a draft without a
+// lead quoteAmount now carries no price; see quotation.ts). Not an approved price list.
 export const SERVICE_BASE_PRICE: Record<string, number> = {
   HOME_DEEP_CLEANING: 4999,
   COMMERCIAL_CLEANING: 8999,

@@ -1343,8 +1343,8 @@ db.close();
   if (festivalCount === 0) {
     const now = new Date().toISOString().replace("Z", "+00:00");
     const day = (d) => `${d}T00:00:00.000+00:00`;
-    // Owner-approved festival prices (2026-10-05): Premium / Platinum, 1–3 BHK.
-    const prices = { "SCS-01": 5000, "SCS-05": 6500, "SCS-02": 5500, "SCS-06": 7000, "SCS-03": 7000, "SCS-07": 8500 };
+    // Owner-approved festival prices (final, 2026-10-09): Premium / Platinum, 1–3 BHK.
+    const prices = { "SCS-01": 4999, "SCS-05": 6499, "SCS-02": 5499, "SCS-06": 6999, "SCS-03": 6999, "SCS-07": 8499 };
     const offers = [
       ["fest_navratri_2026", "Navratri", "2026-10-01", "2026-10-19"],
       ["fest_dussehra_2026", "Dussehra", "2026-10-20", "2026-10-25"],
@@ -1380,6 +1380,37 @@ db.close();
           upd.run(price, now, cid);
           console.log(`Pricing: ${cid} override ${row.price} -> ${price} (Excel sync, one-time).`);
         }
+      }
+      prDb.prepare(`INSERT INTO "PriceSetting" ("contentId","price","mrp","isActive","updatedByName","updatedAt") VALUES (?,NULL,NULL,0,'System migration',?)`).run(MARKER_ID, now);
+    }
+  }
+
+  // Owner-approved prices (2026-10-09). Regular Premium: 1BHK ₹4,499 · 2BHK ₹5,499 · 3BHK ₹6,999 (the
+  // catalogue carries them; this replaces an older Super Admin override of the retired selling prices
+  // only). Festival (exact, no rounding): 1BHK Premium ₹4,999 · 1BHK Platinum ₹6,499 · 2BHK Premium ₹5,499 ·
+  // 2BHK Platinum ₹6,999 · 3BHK Premium ₹6,999 · 3BHK Platinum ₹8,499 in every existing festival offer.
+  // Runs exactly once (marker row), so later Super Admin edits are never reset; existing Lead/Job price
+  // snapshots, payments and invoices are not touched.
+  {
+    const MARKER_ID = "_migration:owner-price-sync-2026-10-09";
+    const done = prDb.prepare(`SELECT 1 AS x FROM "PriceSetting" WHERE "contentId" = ?`).get(MARKER_ID);
+    if (!done) {
+      const now = new Date().toISOString().replace("Z", "+00:00");
+      const regular = { "SCS-01": [4000, 4499], "SCS-02": [4999, 5499], "SCS-03": [6499, 6999] };
+      const selP = prDb.prepare(`SELECT "price" FROM "PriceSetting" WHERE "contentId" = ?`);
+      const updP = prDb.prepare(`UPDATE "PriceSetting" SET "price" = ?, "mrp" = NULL, "updatedByName" = 'Owner price sync 2026-10-09', "updatedAt" = ? WHERE "contentId" = ?`);
+      for (const [cid, [oldPrice, price]] of Object.entries(regular)) {
+        const row = selP.get(cid);
+        if (row && row.price === oldPrice) {
+          updP.run(price, now, cid);
+          console.log(`Pricing: ${cid} regular override ${oldPrice} -> ${price} (owner sync, one-time).`);
+        }
+      }
+      const festival = { "SCS-01": 4999, "SCS-05": 6499, "SCS-02": 5499, "SCS-06": 6999, "SCS-03": 6999, "SCS-07": 8499 };
+      const updF = prDb.prepare(`UPDATE "FestivalPrice" SET "price" = ? WHERE "contentId" = ? AND "price" != ?`);
+      for (const [cid, price] of Object.entries(festival)) {
+        const r = updF.run(price, cid, price);
+        if (r.changes) console.log(`Pricing: festival ${cid} -> ${price} in ${r.changes} offer(s) (owner sync, one-time).`);
       }
       prDb.prepare(`INSERT INTO "PriceSetting" ("contentId","price","mrp","isActive","updatedByName","updatedAt") VALUES (?,NULL,NULL,0,'System migration',?)`).run(MARKER_ID, now);
     }

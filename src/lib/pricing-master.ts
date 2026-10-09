@@ -39,7 +39,23 @@ export type PriceItem = {
 const AFTER_INSPECTION = "Price after inspection";
 const ON_CONFIRMATION = "Price confirmed before booking";
 
-const home = (tier: "Premium" | "Platinum", n: number, mrp: number, price: number, id: string): PriceItem => ({
+/** Customer-facing wording for properties that need a site assessment before any price is quoted. */
+export const INSPECTION_NOTE = "Price on inspection — site inspection required";
+/** Property types with no fixed package price: 4 BHK and larger, villas, bungalows, full houses, unusual scope. */
+export const INSPECTION_PROPERTY_TYPES = ["4 BHK", "5 BHK", "Villa", "Bungalow", "Other"] as const;
+/** Catalogue items that are never priced from the master / DB overrides / festival offers (inspection only). */
+export const INSPECTION_ONLY_IDS: ReadonlySet<string> = new Set(["SCS-04", "SCS-08"]);
+
+/** True when a home property type must be inspected and quoted by staff (no instant price). */
+export function needsInspection(propertyType?: string | null): boolean {
+  const t = (propertyType ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (!t) return false;
+  const bhk = t.match(/^(\d+)\s*bhk\+?$/);
+  if (bhk) return Number(bhk[1]) >= 4;
+  return INSPECTION_PROPERTY_TYPES.some((p) => p.toLowerCase() === t) || /villa|bungalow|full house/.test(t);
+}
+
+const home = (tier: "Premium" | "Platinum", n: number, mrp: number | undefined, price: number | null, id: string): PriceItem => ({
   contentId: id,
   group: tier === "Premium" ? "PREMIUM" : "PLATINUM",
   name: `${n}BHK ${tier} Deep Cleaning`,
@@ -48,19 +64,22 @@ const home = (tier: "Premium" | "Platinum", n: number, mrp: number, price: numbe
   bhk: `${n} BHK`,
   mrp,
   price,
+  ...(price == null ? { priceNote: INSPECTION_NOTE } : {}),
 });
 
 export const PRICING_MASTER: PriceItem[] = [
-  // Home Cleaning — Premium (approved: 1BHK ₹4,000 · 2BHK ₹4,999 · 3BHK ₹6,499; 4BHK existing approved)
-  home("Premium", 1, 4499, 4000, "SCS-01"),
-  home("Premium", 2, 5499, 4999, "SCS-02"),
-  home("Premium", 3, 6999, 6499, "SCS-03"),
-  home("Premium", 4, 7999, 7499, "SCS-04"),
+  // Home Cleaning — Premium (owner-approved selling prices 2026-10-09: 1BHK ₹4,499 · 2BHK ₹5,499 · 3BHK ₹6,999;
+  // 4BHK existing approved). The old ₹4,000/₹4,999/₹6,499 selling prices are retired; no MRP is shown
+  // because there is no genuine earlier price above the new selling price.
+  home("Premium", 1, undefined, 4499, "SCS-01"),
+  home("Premium", 2, undefined, 5499, "SCS-02"),
+  home("Premium", 3, undefined, 6999, "SCS-03"),
+  home("Premium", 4, undefined, null, "SCS-04"), // 4 BHK+: price on inspection (owner 2026-10-09) — no fixed price
   // Home Cleaning — Platinum (existing approved master values)
   home("Platinum", 1, 5999, 5499, "SCS-05"),
   home("Platinum", 2, 6999, 6499, "SCS-06"),
   home("Platinum", 3, 8499, 7999, "SCS-07"),
-  home("Platinum", 4, 9499, 8999, "SCS-08"),
+  home("Platinum", 4, undefined, null, "SCS-08"), // 4 BHK+: price on inspection (owner 2026-10-09) — no fixed price
 
   // Home Cleaning — Customised Cleaning (quantity based)
   { contentId: "SCS-09", group: "CUSTOMISED", name: "Sofa Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Sofa Cleaning", price: 249, unit: "per seat", minQty: 5, rule: "Minimum 5 seats" },
@@ -169,8 +188,39 @@ export function upcomingFestivals(festivals: FestivalWindow[], todayYmd: string)
   return festivals.filter((f) => f.end >= todayYmd).sort((a, b) => a.start.localeCompare(b.start));
 }
 
+/** Today's calendar date in India ("YYYY-MM-DD") — festival windows are IST calendar dates. */
+export const todayIST = () => new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
+
+/** The six full-home packages that carry festival prices (Premium / Platinum, 1–3 BHK). */
+export const FESTIVAL_PACKAGE_IDS: ReadonlySet<string> = new Set(["SCS-01", "SCS-02", "SCS-03", "SCS-05", "SCS-06", "SCS-07"]);
+
+export type Campaign = { current: FestivalWindow; windows: FestivalWindow[]; start: string; end: string };
+
+/**
+ * The festival campaign running today, or null. The campaign spans from the earliest festival start to
+ * the latest festival end (windows may touch or have gaps). While it is active, customer-facing pages
+ * show festival packages only; once it ends (or before it starts) regular packages show again. This
+ * uses the existing FestivalOffer windows — no separate switch to maintain.
+ */
+export function activeCampaign(festivals: FestivalWindow[], todayYmd: string): Campaign | null {
+  if (!festivals.length) return null;
+  const windows = [...festivals].sort((a, b) => a.start.localeCompare(b.start));
+  const start = windows[0].start;
+  const end = windows.reduce((e, f) => (f.end > e ? f.end : e), windows[0].end);
+  if (todayYmd < start || todayYmd > end) return null;
+  const current = windows.find((f) => todayYmd >= f.start && todayYmd <= f.end) ?? windows.find((f) => f.start > todayYmd);
+  return current ? { current, windows, start, end } : null;
+}
+
+/** Lowest Premium home package price a customer actually pays (festival price during a festival window). */
+export function homeFromPrice(items: PriceItem[], festival: FestivalWindow | null = null): number {
+  const v = items.filter((p) => p.group === "PREMIUM").map((p) => unitPriceFor(p, festival)).filter((n): n is number => n != null);
+  return v.length ? Math.min(...v) : HOME_FROM_PRICE;
+}
+
 /** Unit price for an item under a festival (or regular when null / no festival price). */
 export function unitPriceFor(item: PriceItem, festival: FestivalWindow | null): number | null {
+  if (INSPECTION_ONLY_IDS.has(item.contentId)) return null; // inspection-only: never priced, even if a DB row exists
   if (festival && festival.prices[item.contentId] != null) return festival.prices[item.contentId];
   return item.price;
 }
