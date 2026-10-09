@@ -34,7 +34,7 @@ const services = (from: number) => [
   { href: "/home-deep-cleaning-pune", img: "/marketing/hero-home.webp", title: "Home Deep Cleaning", text: `Premium & Platinum packages from ${inr(from)}.`, cta: "View Packages" },
   { href: "/commercial-cleaning-pune", img: "/marketing/hero-commercial.webp", title: "Office & Commercial Cleaning", text: "Offices, workspaces and commercial premises — site visit and quote.", cta: "Get Quote" },
   { href: "/pest-control-pune", img: "/marketing/hero-pest.webp", title: "Pest Control", text: "Cockroach, termite, bed bug and ant control after inspection.", cta: "Book Inspection" },
-  { href: "/interior-painting-pune", img: "/marketing/hero-painting.webp", title: "Interior Painting", text: "Asian Paints range — site visit and measurement based quote.", cta: "Get Painting Quote" },
+  { href: "/interior-painting-pune", img: "/marketing/hero-painting.webp", title: "Interior Painting", text: "Asian Paints range — free site inspection and measurement based quote.", cta: "Get Painting Quote" },
 ];
 const FAQS = [
   { q: "Why book festival cleaning early?", a: "Navratri, Dussehra and Diwali are the busiest cleaning weeks of the year. Booking early helps you get your preferred date." },

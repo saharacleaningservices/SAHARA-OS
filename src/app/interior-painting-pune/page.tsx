@@ -8,15 +8,16 @@ import { PAINT_OPTIONS, PAINT_SCOPE } from "@/lib/marketing-content";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Interior Painting in Pune – Asian Paints Range, Site Visit & Quote | Sahara",
-  description: "Interior painting across Pune & PCMC with Asian Paints options — Oil Bound Distemper, Tractor Emulsion, Premium Emulsion, Royale, Royale Lustre and texture painting. Site visit and measurement-based quote.",
+  title: "Interior Painting in Pune – Asian Paints Range, Free Site Inspection & Quote | Sahara",
+  description: "Interior painting across Pune & PCMC with Asian Paints options — Oil Bound Distemper, Tractor Emulsion, Premium Emulsion, Royale, Royale Lustre and texture painting. Free site inspection and measurement-based quote.",
   alternates: { canonical: `${BASE_URL}/interior-painting-pune` },
-  openGraph: { title: "Interior Painting in Pune — Sahara Cleaning Services", description: "Site visit and measurement-based painting quote.", url: `${BASE_URL}/interior-painting-pune`, images: [`${BASE_URL}/marketing/hero-painting.webp`], type: "website" },
+  openGraph: { title: "Interior Painting in Pune — Sahara Cleaning Services", description: "Free site inspection and measurement-based painting quote.", url: `${BASE_URL}/interior-painting-pune`, images: [`${BASE_URL}/marketing/hero-painting.webp`], type: "website" },
 };
 
 const WA = "Hi Sahara, I'd like a quote for interior painting.";
 const FAQS = [
-  { q: "How is painting priced?", a: "Painting is quoted after a site visit and measurement, based on the area, surface condition and the paint you choose." },
+  { q: "How is painting priced?", a: "Painting is quoted after a free site inspection and measurement, based on the area, surface condition and the paint you choose." },
+  { q: "Is the site inspection free?", a: "Yes — the interior painting site inspection is free. Nothing is charged until you approve the written quote." },
   { q: "How many coats do you apply?", a: "The number of coats depends on the site condition and the selected finish; it is confirmed in your quote." },
   { q: "Do you protect furniture and floors?", a: "Yes — basic protection of furniture and flooring is part of the work, followed by final cleaning." },
   { q: "Can I choose the paint type?", a: "Yes. Choose from the Asian Paints options listed on this page; our team can advise on the right finish for each room." },
@@ -31,7 +32,7 @@ export default async function InteriorPaintingPage() {
       jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}
       bookHref="#quote"
       footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
-      mobileBar={<CampaignBar label="Interior Painting · Asian Paints" priceNote="Quote after site measurement" cta="Book Site Visit →" />}
+      mobileBar={<CampaignBar label="Interior Painting · Asian Paints" priceNote="Quote after free site inspection" cta="Book Free Site Inspection →" />}
     >
       <CampaignStyles />
       <CampaignHero
@@ -45,10 +46,10 @@ export default async function InteriorPaintingPage() {
         waText={WA}
       />
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
-        <QuoteSection title="Get your painting quote" subtitle="Tell us your home size and rooms — we'll schedule a site visit and measurement." campaignName="Interior Painting Pune" defaultService="PAINTING" />
+        <QuoteSection title="Get your painting quote" subtitle="Tell us your home size and rooms — we'll schedule a free site inspection and measurement." campaignName="Interior Painting Pune" defaultService="PAINTING" />
         <section>
           <h2 className="text-2xl font-bold">Paint options</h2>
-          <p className="text-sm text-[#0a2540]/70">Site visit / measurement required — price shared after measurement.</p>
+          <p className="text-sm text-[#0a2540]/70">Free site inspection and measurement — price shared after measurement.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {PAINT_OPTIONS.map((p) => <span key={p} className="rounded-full bg-white px-4 py-2 text-sm font-semibold shadow-sm">{p}</span>)}
           </div>

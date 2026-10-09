@@ -17,7 +17,7 @@ import {
   unitPriceFor,
   type FestivalWindow,
 } from "../src/lib/pricing-master";
-import { activeCampaign, homeFromPrice, FESTIVAL_PACKAGE_IDS } from "../src/lib/pricing-master";
+import { activeCampaign, homeFromPrice, FESTIVAL_PACKAGE_IDS, maskPaintingPrices, PAINTING_PUBLIC_NOTE } from "../src/lib/pricing-master";
 import { livePkgs } from "../src/lib/marketing-content";
 import { publicPaymentState, resolvePublicEstimate } from "../src/lib/booking-payment";
 import { draftQuotation } from "../src/lib/ai/quotation";
@@ -118,6 +118,24 @@ test("landing grids: festival prices only during the campaign (no MRP / regular)
 
 test("exactly the six 1-3 BHK Premium/Platinum packages carry festival prices", () => {
   assert.deepEqual([...FESTIVAL_PACKAGE_IDS].sort(), Object.keys(FESTIVAL_FINAL).sort());
+});
+
+test("public painting rates are withheld; every other price (incl. festival packages) is untouched", () => {
+  const masked = maskPaintingPrices(PRICING_MASTER);
+  const paint = masked.filter((i) => i.group === "PAINTING");
+  assert.ok(paint.length > 0);
+  for (const p of paint) {
+    assert.equal(p.price, null, `${p.contentId} still priced`);
+    assert.equal(p.mrp, undefined);
+    assert.equal(p.priceNote, PAINTING_PUBLIC_NOTE);
+  }
+  // nothing else changes
+  for (const [i, m] of masked.entries()) if (m.group !== "PAINTING") assert.deepEqual(m, PRICING_MASTER[i]);
+  // festival packages still exact after masking
+  const w: FestivalWindow = { id: "f", name: "Navratri", start: "2026-10-01", end: "2026-10-19", prices: FESTIVAL_FINAL };
+  for (const [id, price] of Object.entries(FESTIVAL_FINAL)) assert.equal(unitPriceFor(masked.find((x) => x.contentId === id)!, w), price, id);
+  // the master itself (staff/CRM source) keeps the painting rates
+  assert.ok(PRICING_MASTER.filter((i) => i.group === "PAINTING").some((p) => p.price != null));
 });
 
 test("forged public payment: browser can never create PAID / a Payment row / collected revenue", () => {

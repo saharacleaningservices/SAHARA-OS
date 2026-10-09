@@ -13,7 +13,7 @@ import { getSlotAvailability } from "@/server/actions/slot-availability";
 import { notify } from "@/server/notify";
 import { z } from "zod";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
-import { getLivePricing } from "@/server/pricing";
+import { getPublicPricing } from "@/server/pricing";
 import { FESTIVAL_PACKAGE_IDS, activeCampaign, festivalForDate, needsInspection, todayIST, unitPriceFor } from "@/lib/pricing-master";
 import { scopeSnapshot } from "@/lib/service-scope";
 import { publicPaymentState, resolvePublicEstimate } from "@/lib/booking-payment";
@@ -189,7 +189,7 @@ export async function publicBookLead(values: unknown) {
   let festivalName: string | null = null;
   let scopeOfWork: string | null = null;
   if (data.selectedItems?.length) {
-    const pricing = await getLivePricing();
+    const pricing = await getPublicPricing(); // painting stays unpriced for public requests (free site inspection first)
     const festival = data.serviceDate ? festivalForDate(pricing.festivals, data.serviceDate.slice(0, 10)) : null;
     const picked = data.selectedItems
       .map((s) => ({ s, item: pricing.items.find((p) => p.contentId === s.contentId) }))

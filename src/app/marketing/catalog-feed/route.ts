@@ -1,4 +1,4 @@
-import { getLivePricing } from "@/server/pricing";
+import { getPublicPricing } from "@/server/pricing";
 import descriptions from "@/lib/catalog-descriptions.json";
 
 // WhatsApp / Meta catalogue data feed generated from the Sahara pricing
@@ -17,7 +17,7 @@ const UTM = "?utm_source=whatsapp&utm_medium=catalog&utm_campaign=sahara_catalog
 const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
 
 export async function GET() {
-  const { items } = await getLivePricing();
+  const { items } = await getPublicPricing();
   const byId = descriptions as Record<string, { description: string; image: string }>;
   const rows = items.filter((p) => p.price != null && byId[p.contentId]).map((p) => {
     const d = byId[p.contentId];

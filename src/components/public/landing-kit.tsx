@@ -9,7 +9,7 @@ import { BookingWizard } from "@/components/public/booking-wizard";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import { CONTACT, EQUIPMENT, TERMS, inr, type Pkg } from "@/lib/marketing-content";
 import { SERVICE_AREA_NOTICE, activeCampaign } from "@/lib/pricing-master";
-import { getLivePricing } from "@/server/pricing";
+import { getLivePricing, getPublicPricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
 import { toWhatsAppLink } from "@/lib/utils";
@@ -187,6 +187,19 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
   );
 }
 
+/**
+ * Mobile bottom bar for /booking: Call + WhatsApp only (no "Book Now" — the booking wizard is the page).
+ * Uses the primary customer number (CONTACT.call[0] / CONTACT.whatsapp = 8956567130).
+ */
+export function CallWhatsAppBar({ waText }: { waText: string }) {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-2 border-t border-border bg-white text-center text-xs font-bold sm:hidden">
+      <a href={`tel:+91${CONTACT.call[0]}`} className="flex items-center justify-center gap-1 py-3 text-primary"><Phone className="size-3.5" /> Call</a>
+      <a href={waLink(waText, CONTACT.whatsapp)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
+    </div>
+  );
+}
+
 export const FESTIVAL_BADGE = "Festival Cleaning Packages";
 
 // Hero: photo and text never overlap, so faces and the service activity stay
@@ -359,7 +372,7 @@ export function ScopeLists({ included, excluded, equipment = EQUIPMENT }: { incl
 const SERVICE_TO_CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { HOME_DEEP_CLEANING: "HOME", COMMERCIAL_CLEANING: "COMMERCIAL", PEST_CONTROL: "PEST", PAINTING: "PAINTING" };
 
 export async function QuoteSection({ title, subtitle, campaignName, defaultService, preset }: { title: string; subtitle: string; campaignName: string; defaultService?: string; preset?: { bhk: string; pkg: HomeTier } }) {
-  const pricing = await getLivePricing();
+  const pricing = await getPublicPricing(); // painting rates are never sent to the public booking widget
   return (
     <section id="quote" className="scroll-mt-20">
       <h2 className="text-center text-xl font-bold sm:text-2xl">{title}</h2>

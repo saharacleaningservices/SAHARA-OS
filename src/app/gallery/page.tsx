@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Phone } from "lucide-react";
+import { BASE_URL } from "@/components/public/landing-kit";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -7,9 +9,22 @@ import { getCompanySettings } from "@/server/settings";
 import { COMPANY } from "@/lib/constants";
 import { toWhatsAppLink } from "@/lib/utils";
 
-export const metadata = {
-  title: "Our Work — Sahara Cleaning Services, Pune",
-  description: "Before & after photos and result videos from Sahara Cleaning Services.",
+const GALLERY_TITLE = "Our Work — Sahara Cleaning Services, Pune";
+const GALLERY_DESCRIPTION = "Before & after photos and result videos from Sahara Cleaning Services.";
+
+export const metadata: Metadata = {
+  title: GALLERY_TITLE,
+  description: GALLERY_DESCRIPTION,
+  alternates: { canonical: `${BASE_URL}/gallery` },
+  openGraph: {
+    title: GALLERY_TITLE,
+    description: GALLERY_DESCRIPTION,
+    url: `${BASE_URL}/gallery`,
+    siteName: "Sahara Cleaning Services",
+    type: "website",
+    // Approved existing brand asset (the company logo) — never customer-work or stock imagery.
+    images: [{ url: `${BASE_URL}/brand/sahara-logo-hires.png`, width: 1102, height: 465, alt: "Sahara Cleaning Services logo" }],
+  },
 };
 
 // Gallery content is managed from the CRM admin — always render fresh, never

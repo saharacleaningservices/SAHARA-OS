@@ -55,6 +55,16 @@ export function needsInspection(propertyType?: string | null): boolean {
   return INSPECTION_PROPERTY_TYPES.some((p) => p.toLowerCase() === t) || /villa|bungalow|full house/.test(t);
 }
 
+/**
+ * Customer-facing interior-painting items carry NO price (owner decision 2026-10-09): painting is quoted after
+ * a free site inspection. Staff/CRM tools keep the master rates; every public surface (booking widget, landing
+ * pages, public booking server action, catalogue feed) passes items through this mask.
+ */
+export const PAINTING_PUBLIC_NOTE = "Quote after free site inspection";
+export function maskPaintingPrices(items: PriceItem[]): PriceItem[] {
+  return items.map((i) => (i.group === "PAINTING" ? { ...i, price: null, mrp: undefined, priceNote: PAINTING_PUBLIC_NOTE } : i));
+}
+
 const home = (tier: "Premium" | "Platinum", n: number, mrp: number | undefined, price: number | null, id: string): PriceItem => ({
   contentId: id,
   group: tier === "Premium" ? "PREMIUM" : "PLATINUM",

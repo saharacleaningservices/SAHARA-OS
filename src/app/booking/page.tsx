@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, Terms, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, Terms, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
 import { ServiceCards } from "@/components/public/service-cards";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
-import { getLivePricing } from "@/server/pricing";
+import { getPublicPricing } from "@/server/pricing";
 
 // Customer booking page in the approved transparent-pricing landing design.
 // /booking                → pick a package, date, available slot, payment preference
@@ -63,10 +63,10 @@ export default async function BookingPage({
   searchParams: Promise<{ quote?: string; service?: string; ref?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
 }) {
   const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
-  const [settings, quote, pricing] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getLivePricing()]);
+  const [settings, quote, pricing] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing()]);
 
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd()]}>
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />}>
       <Hero
         image={CAROUSEL.team.src}
         alt={CAROUSEL.team.alt}
@@ -90,10 +90,8 @@ export default async function BookingPage({
                 const b = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
                 return b ? `Starting from ₹${b.price!.toLocaleString("en-IN")} · Bathroom Cleaning` : undefined;
               })(),
-              PAINTING: (() => {
-                const p = pricing.items.filter((i) => i.group === "PAINTING" && !i.addOnOnly && i.price != null).sort((x, y) => x.price! - y.price!)[0];
-                return p ? `From ₹${p.price} ${p.unit ?? ""}`.trim() : undefined;
-              })(),
+              // No painting rate is published: painting is quoted after a free site inspection.
+              PAINTING: "Free Site Inspection",
             }}
           />
         )}

@@ -9,7 +9,7 @@ import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackFunnel, trackLead } from "@/components/public/marketing-tags";
 import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, type HomeTier } from "@/lib/service-scope";
-import { BOOKING_TERMS, INSPECTION_NOTE, PRICING_MASTER, activeCampaign, festivalForDate, inGroup, needsInspection, priceLabel, unitPriceFor, upcomingFestivals, type LivePricing, type PriceItem, type PriceType } from "@/lib/pricing-master";
+import { BOOKING_TERMS, INSPECTION_NOTE, PRICING_MASTER, activeCampaign, festivalForDate, inGroup, maskPaintingPrices, needsInspection, priceLabel, unitPriceFor, upcomingFestivals, type LivePricing, type PriceItem, type PriceType } from "@/lib/pricing-master";
 
 // Shown once, right under the service prices.
 const PRICE_NOTE =
@@ -123,8 +123,9 @@ export function BookingWizard({
   /** Live prices + festival offers (server/pricing.ts). Falls back to the catalogue. */
   pricing?: LivePricing;
 }) {
-  // Live catalogue (Super Admin → Pricing & Packages).
-  const items = pricing?.items ?? PRICING_MASTER;
+  // Live catalogue (Super Admin → Pricing & Packages). Interior-painting rates are never shown or used
+  // here (owner decision): painting is quoted after a free site inspection.
+  const items = useMemo(() => maskPaintingPrices(pricing?.items ?? PRICING_MASTER), [pricing]);
   const { CUSTOMISED, ADDON_ITEMS, COMBOS, ADDON_COMBOS, PACKAGE_COMBOS, PAINTS, PUTTY, PEST_ITEMS, COMMERCIAL_ITEMS } = useMemo(() => {
     const combos = inGroup(items, "COMBO");
     const customised = inGroup(items, "CUSTOMISED");
@@ -491,8 +492,8 @@ export function BookingWizard({
   // service for Home (never presented as a full-home price) and the lowest paint rate per sq ft.
   const bathroom = CUSTOMISED.find((i) => /bathroom/i.test(i.name) && i.price != null);
   const startHome = bathroom ? `Starting from ${inr(bathroom.price!)} · ${bathroom.name.replace(/ Deep Cleaning$/, " Cleaning")}` : undefined;
-  const cheapestPaint = PAINTS.filter((i) => i.price != null).sort((x, y) => x.price! - y.price!)[0];
-  const startPaint = cheapestPaint ? `From ${inr(cheapestPaint.price!)} ${cheapestPaint.unit ?? ""}`.trim() : undefined;
+  // Painting: no rate is shown — the card advertises the free site inspection instead.
+  const startPaint = "Free Site Inspection";
   const section = (key: Category, icon: React.ReactNode, title: string, hint: string, body: React.ReactNode, price?: string) => (
     <div className={`rounded-2xl border ${category === key ? "border-primary/40 bg-primary/[0.03]" : "border-[#0a2540]/10 bg-white"}`}>
       <button type="button" onClick={() => setCategory(category === key ? "" : key)} className="flex min-h-14 w-full items-center gap-3 p-3.5 text-left sm:p-4" aria-expanded={category === key}>
@@ -522,7 +523,7 @@ export function BookingWizard({
           "Additional work outside the listed scope may be chargeable.",
         ]
       : category === "PAINTING"
-        ? ["Final price is confirmed after site measurement.", "Number of coats depends on site condition and the selected finish."]
+        ? ["Site inspection is free.", "Final price is confirmed after site measurement.", "Number of coats depends on site condition and the selected finish."]
         : ["Price is confirmed after inspection / requirement assessment.", "Additional work outside the agreed scope may be chargeable."];
   const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   // Mobile collapse flags (only ever applied through max-sm:/sm: classes).
@@ -837,7 +838,7 @@ export function BookingWizard({
                     </div>
                   </div>
                 )}
-                {paintSide === "Exterior" && <p className="rounded-xl bg-amber-50 p-2.5 text-xs font-semibold text-amber-900">Exterior painting is quoted after a site inspection (surface condition and access vary).</p>}
+                {paintSide === "Exterior" && <p className="rounded-xl bg-amber-50 p-2.5 text-xs font-semibold text-amber-900">Exterior painting is quoted after a free site inspection (surface condition and access vary).</p>}
                 {(paintSide === "Exterior" || paint) && (
                   <div>
                     <p className="mb-2 text-sm font-semibold">{paintSide === "Exterior" ? "3" : "4"}. Property &amp; area</p>
@@ -845,7 +846,7 @@ export function BookingWizard({
                     <input className={`${input} mt-2`} inputMode="numeric" placeholder="Paintable area (sq ft)" value={sqft} onChange={(e) => setSqft(e.target.value.replace(/\D/g, ""))} />
                     {paintSide === "Interior" && PUTTY && (
                       <label className="mt-1 flex min-h-11 items-center gap-2.5 text-sm">
-                        <input type="checkbox" className="size-5" checked={putty} onChange={(e) => setPutty(e.target.checked)} /> Add putty ({priceLabel(PUTTY)})
+                        <input type="checkbox" className="size-5" checked={putty} onChange={(e) => setPutty(e.target.checked)} /> Add putty (priced in your quote)
                       </label>
                     )}
                   </div>
@@ -861,7 +862,9 @@ export function BookingWizard({
                       <p className="flex justify-between border-t border-[#0a2540]/10 pt-1 font-extrabold text-primary"><span>Estimated amount</span><span>{s ? inr(rate * s) : "Enter area"}</span></p>
                       <p className="mt-1 text-[11px] text-[#0a2540]/60">Estimate only — final quote after site measurement and surface check.</p>
                     </div>
-                  ) : null;
+                  ) : (
+                    <p className="rounded-xl bg-emerald-50 p-2.5 text-xs font-semibold text-emerald-900">Free Site Inspection — our team visits, measures and sends a written quote. Nothing is charged before you approve it.</p>
+                  );
                 })()}
                 <Accordion title="View painting scope">
                   <dl className="space-y-1.5">
