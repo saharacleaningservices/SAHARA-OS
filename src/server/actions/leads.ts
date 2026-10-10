@@ -638,8 +638,9 @@ export async function confirmBooking(leadId: string, values: unknown) {
   if (claimed.count === 0) return { error: "This booking is already confirmed.", success: false as const };
 
   const scheduledDate = new Date(data.serviceDate);
-  // Transparent-pricing bookings keep their real total (no minimum booking
-  // value); the legacy minimum is only a fallback when no amount exists.
+  // Bookings keep their real total — there is NO minimum booking value (owner
+  // decision 2026-10-10; MIN_JOB_VALUE is 0). Without a priced amount the job
+  // starts at 0 for the office to price; nothing is raised automatically.
   const jobValue = lead.quoteAmount && lead.quoteAmount > 0 ? lead.quoteAmount : MIN_JOB_VALUE;
 
   // Team carries over from the enquiry; the confirm dialog can override it.
