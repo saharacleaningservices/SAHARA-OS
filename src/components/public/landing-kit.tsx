@@ -106,67 +106,59 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
       {children}
       <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
       {footer ?? (
-      <footer className="mt-6 border-t-2 border-primary bg-white">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 text-sm text-[#0a2540]/80 sm:grid-cols-[1.1fr_1.4fr_1fr] sm:py-8">
-          {/* Brand + contact */}
-          <div className="space-y-3">
-            <CompanyLogo logoUrl={logoUrl} className="h-12 w-auto max-w-[200px] sm:h-16 sm:max-w-[240px] lg:h-20 lg:max-w-[300px]" />
-            <p className="font-bold text-[#0a2540]">Sahara Cleaning Services</p>
-            <div className="space-y-1.5">
-              {CONTACT.call.map((n) => (
-                <div key={n} className="flex items-center gap-2">
-                  <span className="font-semibold text-[#0a2540]">{n}</span>
-                  <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white"><Phone className="size-3.5" /></a>
-                  <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex size-8 items-center justify-center rounded-full bg-success/10 text-success hover:bg-success hover:text-white"><MessageCircle className="size-3.5" /></a>
-                </div>
-              ))}
-            </div>
-            <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-1.5 break-all text-primary"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
-            <a href={`https://${COMPANY.website}`} target="_blank" rel="noreferrer" className="block text-primary">{COMPANY.website}</a>
+      <footer className="mt-6 bg-[#0a2540] text-white/80">
+        <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 text-sm sm:py-8">
+          <p className="text-base font-extrabold text-white">Sahara Cleaning Services — Pune &amp; PCMC</p>
+          {/* Call + WhatsApp quick-action chips for both customer numbers */}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {CONTACT.call.map((n) => (
+              <div key={n} className="flex items-center gap-2 rounded-2xl bg-white/5 p-2 ring-1 ring-white/10">
+                <span className="flex-1 pl-1 font-bold tracking-wide text-white">{n}</span>
+                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex min-h-10 items-center gap-1.5 rounded-xl bg-white px-3 text-xs font-bold text-[#0a2540]"><Phone className="size-3.5" /> Call</a>
+                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex min-h-10 items-center gap-1.5 rounded-xl bg-success px-3 text-xs font-bold text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
+              </div>
+            ))}
           </div>
-          {/* Services */}
-          <nav aria-label="Services" className="grid grid-cols-2 gap-x-4 gap-y-3 text-[13px]">
-            <div>
-              <Link href="/home-deep-cleaning-pune" className="text-xs font-bold uppercase tracking-wide text-[#0a2540] hover:text-primary">Home Cleaning</Link>
-              <ul className="mt-1.5 space-y-0.5">
-                {["Full Home Cleaning", "Post-Interior Deep Cleaning", "Construction Cleaning", "Customized Services", "Sofa", "Mattress", "Carpet", "Windows", "Floor Cleaning"].map((x) => (
-                  <li key={x}>{x}</li>
-                ))}
-              </ul>
-            </div>
-            <ul className="space-y-2 text-xs font-bold uppercase tracking-wide text-[#0a2540]">
-              <li><Link href="/interior-painting-pune" className="hover:text-primary">Painting Services</Link></li>
-              <li><Link href="/pest-control-pune" className="hover:text-primary">Pest Control</Link></li>
-              <li><Link href="/commercial-cleaning-pune" className="hover:text-primary">Facility Management</Link></li>
-              <li><Link href="/commercial-cleaning-pune" className="hover:text-primary">Housekeeping Services</Link></li>
-              <li>Security Services</li>
-              <li><Link href="/booking" className="text-primary">Book Online</Link></li>
-            </ul>
-          </nav>
-          {/* Location + social */}
-          <div className="space-y-3">
-            <address className="not-italic">
-              <span className="flex gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{CONTACT.address}</span>
-            </address>
+          {/* Location */}
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
+            <address className="flex min-w-0 gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
             <a
               href="https://www.google.com/maps/search/?api=1&query=Sahara+Cleaning+Services+Magarpatta+City+Hadapsar+Pune"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-amber-400 px-3 text-xs font-bold text-[#0a2540]"
             >
               <MapPin className="size-3.5" /> Open in Google Maps
             </a>
-            <div className="flex items-center gap-2">
-              {SOCIAL.map(({ href, label, icon: Icon }) => (
-                <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white">
-                  <Icon className="size-4" />
-                </a>
-              ))}
+          </div>
+          {/* Categories + social / contact — clean 2-column grid */}
+          <div className="grid grid-cols-2 gap-4 text-[13px]">
+            <nav aria-label="Services">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-white/50">Services</p>
+              <ul className="mt-1.5 space-y-1">
+                <li><Link href="/home-deep-cleaning-pune" className="hover:text-white">Home Deep Cleaning</Link></li>
+                <li><Link href="/commercial-cleaning-pune" className="hover:text-white">Office &amp; Commercial</Link></li>
+                <li><Link href="/interior-painting-pune" className="hover:text-white">Interior Painting</Link></li>
+                <li><Link href="/pest-control-pune" className="hover:text-white">Pest Control</Link></li>
+                <li><Link href="/booking" className="font-semibold text-amber-400">Book Online</Link></li>
+              </ul>
+            </nav>
+            <div className="space-y-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-white/50">Follow us</p>
+              <div className="flex items-center gap-2">
+                {SOCIAL.map(({ href, label, icon: Icon }) => (
+                  <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white hover:text-[#0a2540]">
+                    <Icon className="size-4" />
+                  </a>
+                ))}
+              </div>
+              <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-1.5 break-all text-white/80 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
+              <Link href="/gallery" className="block hover:text-white">Our work — gallery</Link>
             </div>
           </div>
         </div>
-        <div className="border-t border-primary/30">
-          <p className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-3 text-[11px] text-[#0a2540]/60 sm:justify-between">
+        <div className="border-t border-white/10">
+          <p className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-3 text-[11px] text-white/50 sm:justify-between">
             <span>© Sahara Cleaning Services · Since 2012 · GSTIN: {COMPANY.gstin}</span>
             <span>
               <Link href="/privacy-policy" className="underline">Privacy Policy</Link> · <Link href="/terms" className="underline">Terms &amp; Conditions</Link>
@@ -382,6 +374,68 @@ export async function QuoteSection({ title, subtitle, campaignName, defaultServi
   );
 }
 
+/**
+ * Compact festival hero (WhatsApp campaign traffic): headline, Google rating badge from
+ * CRM Settings (no hard-coded claim — omitted when Settings is blank) and three actions.
+ */
+export async function CompactHero({ title, subtitle, waText, badge }: { title: string; subtitle?: string; waText: string; badge?: string | null }) {
+  const settings = await getCompanySettings().catch(() => null);
+  const rating = settings?.googleRating?.trim() || "";
+  const reviews = settings?.googleReviewCount?.trim() ? settings.googleReviewCount.trim().replace(/\d+/, (d) => Number(d).toLocaleString("en-IN")) : "";
+  return (
+    <section className="relative overflow-hidden bg-[#0a2540] text-white">
+      <img src="/marketing/festival-banner.webp" alt="" aria-hidden className="absolute inset-0 size-full object-cover opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a2540]/60 to-[#0a2540]" aria-hidden />
+      <div className="relative mx-auto max-w-6xl px-4 py-5 sm:py-10">
+        {badge && <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-[#0a2540]">{badge}</p>}
+        <h1 className="mt-2 text-[26px] font-extrabold leading-tight sm:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-white/80">{subtitle}</p>}
+        {(rating || reviews) && (
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-bold text-[#0a2540]">
+            <FaGoogle className="size-3 text-[#4285F4]" aria-hidden />
+            {rating && <>⭐ {rating}/5</>}
+            {reviews && <span className="font-semibold text-[#0a2540]/70">({reviews} Google Reviews)</span>}
+          </p>
+        )}
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <a href={`tel:+91${CONTACT.call[0]}`} className="flex min-h-12 flex-col items-center justify-center rounded-xl bg-white text-[11px] font-bold leading-tight text-[#0a2540]">
+            <span className="flex items-center gap-1"><Phone className="size-3.5" /> Call</span>
+            <span className="text-[10px] font-semibold text-[#0a2540]/70">{CONTACT.call[0]}</span>
+          </a>
+          <a href={waLink(waText)} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-1 rounded-xl bg-success text-xs font-bold text-white"><MessageCircle className="size-4" /> WhatsApp</a>
+          <a href="#quote" className="flex min-h-12 items-center justify-center rounded-xl bg-amber-400 text-xs font-extrabold text-[#0a2540]">Book Online</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** One-row process: Select Service → Pick Date → WhatsApp Confirmation. */
+export function ProcessStepper() {
+  const steps = ["Select Service", "Pick Date", "WhatsApp Confirmation"];
+  return (
+    <ol aria-label="How it works" className="flex items-center justify-between gap-1 rounded-2xl bg-white px-2 py-2.5 text-[11px] font-semibold shadow-sm">
+      {steps.map((st, i) => (
+        <li key={st} className="flex min-w-0 items-center gap-1">
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-extrabold text-white">{i + 1}</span>
+          <span className="leading-tight">{st}</span>
+          {i < steps.length - 1 && <span aria-hidden className="pl-0.5 text-primary">➔</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/** Single-line service-area badge. */
+export function AreasBadge() {
+  return (
+    <p className="flex flex-wrap items-center justify-center gap-x-1.5 rounded-full bg-white px-3 py-2 text-center text-xs font-semibold shadow-sm">
+      <span className="inline-flex items-center gap-1"><MapPin className="size-3.5 text-primary" /> Serving Pune &amp; PCMC</span>
+      <span className="font-normal text-[#0a2540]/60">· extra charge may apply outside standard areas</span>
+    </p>
+  );
+}
+
 export function HowItWorks() {
   const steps = ["Choose service & see price", "Pick an available date & time", "We confirm on WhatsApp", "Trained team arrives equipped"];
   return (
@@ -417,13 +471,13 @@ export function OtherServices({ current }: { current: string }) {
   );
 }
 
-export function Faqs({ faqs }: { faqs: { q: string; a: string }[] }) {
+export function Faqs({ faqs, compact }: { faqs: { q: string; a: string }[]; compact?: boolean }) {
   return (
     <section className="mx-auto max-w-3xl">
-      <h2 className="text-center text-lg font-bold">Frequently asked questions</h2>
-      <div className="mt-3 divide-y divide-[#0a2540]/10 rounded-2xl bg-white shadow-sm">
+      <h2 className={`text-center font-bold ${compact ? "text-base" : "text-lg"}`}>Frequently asked questions</h2>
+      <div className={`${compact ? "mt-2" : "mt-3"} divide-y divide-[#0a2540]/10 rounded-2xl bg-white shadow-sm`}>
         {faqs.map((f) => (
-          <details key={f.q} className="px-4 py-3">
+          <details key={f.q} className={compact ? "px-3 py-2" : "px-4 py-3"}>
             <summary className="cursor-pointer text-sm font-semibold">{f.q}</summary>
             <p className="mt-1.5 text-sm text-[#0a2540]/70">{f.a}</p>
           </details>

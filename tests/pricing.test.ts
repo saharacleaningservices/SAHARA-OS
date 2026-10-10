@@ -569,3 +569,12 @@ test("office quotation PDF stays Super Admin / Accounts only", () => {
   assert.match(src, /\["ADMIN", "ACCOUNTS"\]\.includes\(session\.role\)/);
   assert.match(src, /if \(!session\) return new NextResponse\("Unauthorized", \{ status: 401 \}\)/);
 });
+
+test("festival landing (/offers) layout never hard-codes prices or a ₹3,999 minimum; claims come from Settings", () => {
+  for (const f of ["../src/components/public/offers-tabs.tsx", "../src/app/offers/page.tsx"]) {
+    const src = readFileSync(path.join(__dirname, f), "utf8");
+    assert.ok(!/[₹]\s?\d|\b(4999|5499|6499|6999|8499|3999)\b/.test(src), `${f} must take prices from the pricing master`);
+  }
+  const kit = readFileSync(path.join(__dirname, "../src/components/public/landing-kit.tsx"), "utf8");
+  assert.ok(!/4\.9\/5|1,?800\+/.test(kit), "rating / review count only from CRM Settings");
+});
