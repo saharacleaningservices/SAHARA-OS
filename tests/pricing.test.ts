@@ -432,6 +432,8 @@ test("compact CRM service lines: full home = one line; small services = saved na
   assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING", packageName: "2 BHK Premium", serviceVariant: "2 BHK", scopeOfWork: "2 BHK Premium Home Deep Cleaning — full Premium room-by-room package scope (wall dry dusting …)" }), ["Full Home Cleaning — Premium"]);
   assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING", packageName: "3 BHK Platinum" }), ["Full Home Cleaning — Platinum"]);
   assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING", packageName: "2 BHK Platinum Unfurnished" }), ["Full Home Cleaning — Unfurnished"]);
+  assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING", packageName: "Unfurnished", serviceVariant: "2 BHK" }), ["Full Home Cleaning — Unfurnished"]);
+  assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING" }), [], "no package saved → nothing invented");
   const items = JSON.stringify([{ name: "Sofa Cleaning", qty: 5, unit: "per seat", unitPrice: 249 }, { name: "Bathroom Deep Cleaning", qty: 2, unit: "per bathroom", unitPrice: 599 }, { name: "Kitchen Deep Cleaning", qty: 1, unit: "per kitchen" }]);
   const small = compactServiceLines({ service: "HOUSEKEEPING", serviceItems: items, comboServices: JSON.stringify(["Kitchen + 2 Bathroom + Fridge"]) });
   assert.deepEqual(small, ["Sofa Cleaning × 5 seats", "Bathroom Deep Cleaning × 2 bathrooms", "Kitchen Deep Cleaning × 1 kitchen", "Combo Package — Kitchen + 2 Bathroom + Fridge × 1"]);
