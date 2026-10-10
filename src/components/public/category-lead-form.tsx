@@ -14,7 +14,7 @@ import { LOCALITIES } from "@/lib/marketing-content";
 // WhatsApp hand-over. No price is ever calculated or shown here — these services are quoted
 // after a site visit.
 
-export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber, title, cta, typeLabel, typeOptions, areaLabel, showCompany, showDate, schedule }: {
+export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber, title, cta, typeLabel, typeOptions, areaLabel, showCompany, showDate, schedule, stacked, note }: {
   service: string;
   serviceLabel: string;
   campaignName: string;
@@ -28,6 +28,10 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
   showDate?: boolean;
   /** Site-visit / inspection request → also fire the Meta "Schedule" event. */
   schedule?: boolean;
+  /** One column (narrow hero card). */
+  stacked?: boolean;
+  /** Footnote under the button; null hides it (default: "no price shown online" text). */
+  note?: string | null;
 }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -106,7 +110,7 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
   return (
     <form id="enquiry" onSubmit={submit} className="scroll-mt-20 rounded-2xl bg-white p-4 shadow-sm" aria-label={title}>
       <h2 className="text-lg font-bold text-[#0a2540]">{title}</h2>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+      <div className={`mt-3 grid gap-2 ${stacked ? "" : "sm:grid-cols-2"}`}>
         <input className={field} placeholder="Your name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
         <input className={field} placeholder="10-digit mobile" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} />
         {showCompany && <input className={field} placeholder="Company / society name" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} />}
@@ -128,7 +132,7 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
       <button type="submit" disabled={pending} className="sahara-shimmer mt-3 min-h-11 w-full rounded-xl bg-primary text-sm font-bold text-white disabled:opacity-60">
         {pending ? "Sending…" : cta}
       </button>
-      <p className="mt-2 text-center text-[11px] text-[#0a2540]/60">No price is shown online for this service — we visit, understand your requirement and share a clear quote.</p>
+      {note !== null && <p className="mt-2 text-center text-[11px] text-[#0a2540]/60">{note ?? "No price is shown online for this service — we visit, understand your requirement and share a clear quote."}</p>}
     </form>
   );
 }

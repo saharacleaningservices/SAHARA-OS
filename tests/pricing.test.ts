@@ -721,3 +721,67 @@ test("/booking UI: new headline + stacked numbers, price line without service na
   for (const frag of ["Open in Google Maps", "mailto:${CONTACT.email}", "Serving Pune Since 2012", "COMPANY.gstin", "/privacy-policy", "/terms"]) assert.ok(kit.includes(frag), frag);
   for (const href of ["/home-deep-cleaning-pune#price-selector", "/commercial-cleaning-pune", "/interior-painting-pune", "/pest-control-pune", "/housekeeping-services"]) assert.ok(kit.includes(href), `footer link ${href}`);
 });
+
+test("Google Ads landing pages (/landing/*): 4 isolated single-service routes with a hero lead form, UTM capture, tracking, sticky bar and clean footer", async () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  const { PPC_PAGES } = await import("../src/lib/ppc-landing-content");
+  const slugs = ["home-deep-cleaning-pune", "office-commercial-cleaning-pune", "pest-control-services-pune", "interior-painting-pune"] as const;
+  assert.deepEqual(Object.keys(PPC_PAGES).sort(), [...slugs].sort());
+  const mw = read("src/middleware.ts");
+  assert.equal((mw.match(/"\/landing"/g) ?? []).length, 2, "/landing is public on both middleware lists");
+
+  const OTHER: Record<string, RegExp> = {
+    "home-deep-cleaning-pune": /pest control|painting|commercial|office/i,
+    "office-commercial-cleaning-pune": /pest|painting|bhk|home deep/i,
+    "pest-control-services-pune": /painting|commercial|office|bhk|home deep/i,
+    "interior-painting-pune": /pest|commercial|office|bhk|home deep/i,
+  };
+  for (const s of slugs) {
+    const page = read(`src/app/landing/${s}/page.tsx`);
+    assert.match(page, /<PpcPage slug=/);
+    assert.match(page, /ppcMetadata\(/);
+    const cfg = PPC_PAGES[s];
+    assert.equal(cfg.slug, s);
+    // 100% category focus: no other service named in this page's own copy.
+    const copy = [cfg.title, cfg.subtitle, cfg.includedHeading, ...cfg.included.map((i) => i.text), ...cfg.steps].join(" | ");
+    assert.doesNotMatch(copy, OTHER[s], `${s} copy mentions another service`);
+    assert.equal(cfg.steps.length, 3);
+    assert.match(cfg.steps[2], /Pay After Inspection/);
+    assert.ok(cfg.included.length >= 3, `${s}: visual checklist`);
+    assert.doesNotMatch(JSON.stringify(cfg), /₹\s?\d/, `${s}: no typed prices`);
+  }
+
+  const comp = read("src/components/public/ppc-landing.tsx");
+  // isolation: no links into the main funnel or other services
+  assert.doesNotMatch(comp, /href=["'`{][^"'`}]*(\/booking|\/offers|\/home-deep-cleaning-pune|\/commercial-cleaning|\/pest-control|\/painting-services|\/interior-painting|\/housekeeping|\/residential)/);
+  assert.match(comp, /<AttributionCapture \/>/, "utm_*, gclid, fbclid captured");
+  assert.match(comp, /<MarketingTags withPixel \/>/);
+  assert.match(comp, /<CategoryLeadForm[\s\S]*cta="Get Instant Quote \/ Call Back"/);
+  assert.match(comp, /md:sticky/, "sticky hero form");
+  assert.match(comp, /Call \{fmt\(CONTACT\.call\[0\]\)\}/);
+  assert.match(comp, /WhatsApp Quote/);
+  assert.match(comp, /📞 Call Now/);
+  assert.match(comp, /💬 WhatsApp Quote/);
+  assert.match(comp, /settings\?\.googleRating/, "rating comes from CRM Settings");
+  assert.doesNotMatch(comp, /4\.9|1,?800/, "no hard-coded review claim");
+  assert.match(comp, /Verified Google Reviews in Pune & PCMC/);
+  assert.match(comp, /In-House Staff in Branded Uniforms &amp; Verified ID Badges/);
+  assert.match(comp, /📍 Open in Google Maps/);
+  assert.match(comp, /Serving Pune Since 2012/);
+  assert.match(comp, /COMPANY\.gstin/);
+  assert.match(comp, /\/privacy-policy/);
+  assert.match(comp, /\/terms/);
+  assert.match(comp, /robots: \{ index: false/, "paid pages stay out of organic search");
+  assert.match(comp, /getFeaturedGallery\(24, cfg\.galleryCategory\)/, "gallery filtered to the page's category");
+
+  const form = read("src/components/public/category-lead-form.tsx");
+  assert.match(form, /attribution: getAttributionPayload\(\)/, "lead carries utm_source/medium/campaign/term + gclid");
+  assert.match(form, /trackLead\(/);
+
+  // utm_source=google_ads + utm_medium=cpc → Google Ads, term preserved
+  const { classifyTouch } = await import("../src/lib/attribution");
+  assert.equal(classifyTouch({ source: "google_ads", medium: "cpc", campaign: "home_pune", term: "deep cleaning pune", content: null, gclid: null, fbclid: null, referrer: null, landingPage: "/landing/home-deep-cleaning-pune", landingPageUrl: "", at: "2026-10-10T00:00:00Z" } as never), "Google Ads");
+  assert.match(read("src/components/public/attribution-capture.tsx"), /term: p\.get\("utm_term"\)/);
+  assert.match(read("src/server/actions/gallery.ts"), /category: \{ contains: category \}/);
+});

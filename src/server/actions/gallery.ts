@@ -105,10 +105,10 @@ function toView(r: {
  * Featured gallery items for the public booking page and the public /gallery
  * page. Never throws — an unmigrated DB or an empty gallery both return [].
  */
-export async function getFeaturedGallery(limit = 24): Promise<GalleryItemView[]> {
+export async function getFeaturedGallery(limit = 24, category?: string): Promise<GalleryItemView[]> {
   try {
     const rows = await db.galleryItem.findMany({
-      where: { featured: true },
+      where: { featured: true, ...(category ? { category: { contains: category } } : {}) },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       take: limit,
     });
