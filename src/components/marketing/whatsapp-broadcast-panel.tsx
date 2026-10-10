@@ -14,7 +14,8 @@ type Job = Awaited<ReturnType<typeof broadcastStatus>>;
 const ALIASES = { mobile: ["mobile", "phone", "number", "whatsapp", "contact", "mobile number"], name: ["name", "customer", "customer name"], service: ["service", "last service"] };
 const TEMPLATES = [
   { value: "sahara_festival_offer", label: "Festival offer (Navratri · Dussehra · Diwali)" },
-] as const; // reactivation template: add once Meta approves sahara_customer_reactivation
+  { value: "sahara_customer_reactivation", label: "Customer reactivation" },
+] as const;
 
 /**
  * Admin → Marketing: CSV / Excel WhatsApp broadcast. The file only selects WHO from your
