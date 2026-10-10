@@ -1,3 +1,4 @@
+import { paymentDetailsFrom } from "@/lib/booking-payment";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
@@ -105,6 +106,7 @@ export default async function BookingPage({
             referralCode={ref}
             prefill={{ name: name ?? customer, mobile: mobile ?? phone }}
             pricing={pricing}
+            paymentDetails={paymentDetailsFrom(settings)}
           />
         </section>
 

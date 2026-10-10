@@ -47,7 +47,10 @@ export type JobCardPdfProps = {
   customerName: string;
   mobile: string;
   alternateMobile: string | null;
+  /** Work site (where the job is done). */
   address: string;
+  /** Client's registered / office address — office copy only, never on the team copy. */
+  officeAddress?: string | null;
   mapLink: string | null;
   date: string;
   timeSlot: string;
@@ -113,9 +116,15 @@ export function JobCardDocument(props: JobCardPdfProps) {
             {team ? null : <Field label="Alternate Number" value={props.alternateMobile || "—"} />}
             <Field label="Google Maps" value={props.mapLink ? "See link below" : "Not shared"} />
             <View style={styles.cellFull}>
-              <Text style={styles.label}>Address</Text>
+              <Text style={styles.label}>Site Address / Work Location</Text>
               <Text style={styles.value}>{props.address || "—"}</Text>
             </View>
+            {!team && props.officeAddress ? (
+              <View style={styles.cellFull}>
+                <Text style={styles.label}>Registered / Office Address</Text>
+                <Text style={styles.value}>{props.officeAddress}</Text>
+              </View>
+            ) : null}
             {props.mapLink ? (
               <View style={styles.cellFull}>
                 <Text style={styles.label}>Maps Link</Text>

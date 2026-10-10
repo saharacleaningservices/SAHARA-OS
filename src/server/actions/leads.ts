@@ -227,6 +227,7 @@ export async function createLead(values: unknown, opts: { allowDuplicate?: boole
     alternateMobile: data.alternateMobile,
     email: data.email,
     address: data.address,
+    officeAddress: data.officeAddress || null,
     pinCode: data.pinCode,
     area: deriveArea(data),
     mapLink: data.mapLink,

@@ -43,7 +43,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 }
 
 /** Shows the payment instructions for the chosen mode. */
-export function PaymentDetailsBox({ mode, details }: { mode: string; details: CompanyPaymentDetails }) {
+export function PaymentDetailsBox({ mode, details, large }: { mode: string; details: CompanyPaymentDetails; /** Prominent QR (confirmation screen). */ large?: boolean }) {
   if (mode === "CASH") {
     return (
       <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
@@ -55,7 +55,7 @@ export function PaymentDetailsBox({ mode, details }: { mode: string; details: Co
   if (mode === "QR") {
     return details.upiQrUrl ? (
       <div className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card p-3">
-        <img src={details.upiQrUrl} alt="Payment QR" className="size-44 rounded-lg border border-border object-contain" />
+        <img src={details.upiQrUrl} alt="Scan to pay the advance" className={`${large ? "size-64 sm:size-72" : "size-44"} rounded-lg border border-border bg-white object-contain`} />
         <p className="text-xs text-muted-foreground">Scan with any UPI app</p>
         {details.upiId && <p className="text-xs font-medium text-foreground">{details.upiId}</p>}
       </div>

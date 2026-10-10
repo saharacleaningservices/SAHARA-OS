@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { startOfDay, endOfDay } from "date-fns";
+import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { getJobDetail, canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { getCompanySettings } from "@/server/settings";
@@ -47,6 +48,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const audience: "team" | "office" =
     fieldRole || _request.nextUrl.searchParams.get("team") === "1" ? "team" : "office";
 
+  // Client's registered / office address (customer record) — office copy only; the work site is job.address.
+  const officeAddress =
+    audience === "office"
+      ? ((await db.customer.findUnique({ where: { mobile: job.customerMobile.replace(/\D/g, "").slice(-10) }, select: { address: true } }).catch(() => null))?.address ?? null)
+      : null;
+
   const buffer = await renderToBuffer(
     JobCardDocument(maskJobCardForAudience({
       jobNumber: job.jobNumber,
@@ -55,6 +62,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       mobile: job.customerMobile,
       alternateMobile: job.alternateMobile ?? null,
       address: job.address,
+      officeAddress,
       mapLink: job.mapLink ?? null,
       date: formatDate(job.scheduledDate),
       timeSlot: job.scheduledTime,
