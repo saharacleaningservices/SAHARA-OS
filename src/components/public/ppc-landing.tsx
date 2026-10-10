@@ -7,7 +7,7 @@ import { PriceSelector } from "@/components/public/price-selector";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BASE_URL, buildHomeRows, festivalPriceNote, businessJsonLd } from "@/components/public/landing-kit";
-import { CONTACT, livePkgs, reviewCountLabel } from "@/lib/marketing-content";
+import { CONTACT, GOOGLE_MAPS_URL, livePkgs, reviewCountLabel } from "@/lib/marketing-content";
 import { activeCampaign, todayIST } from "@/lib/pricing-master";
 import { PPC_PAGES, type PpcConfig, type PpcIcon } from "@/lib/ppc-landing-content";
 import { COMPANY } from "@/lib/constants";
@@ -28,7 +28,6 @@ const ICONS: Record<PpcIcon, ComponentType<{ className?: string }>> = {
   bug: Bug,
 };
 
-const MAP_URL = "https://www.google.com/maps/search/?api=1&query=Sahara+Cleaning+Services+Magarpatta+City+Hadapsar+Pune";
 const fmt = (n: string) => `+91 ${n.slice(0, 5)} ${n.slice(5)}`;
 const waLink = (text: string) => `${toWhatsAppLink(CONTACT.whatsapp)}?text=${encodeURIComponent(text)}`;
 
@@ -158,7 +157,7 @@ export async function PpcPage({ slug }: { slug: PpcConfig["slug"] }) {
         <div className="mx-auto max-w-6xl space-y-2 px-4 py-6 text-center sm:text-left">
           <p className="font-bold text-[#0a2540]">Sahara Cleaning Services · Serving Pune Since 2012</p>
           <address className="not-italic">{CONTACT.address}</address>
-          <a href={MAP_URL} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-amber-400 px-4 text-sm font-bold text-[#0a2540]">📍 Open in Google Maps</a>
+          <a href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-amber-400 px-4 text-sm font-bold text-[#0a2540]">📍 Open in Google Maps</a>
           <p className="text-xs">GSTIN: {COMPANY.gstin}</p>
           <p className="flex flex-wrap items-center justify-center gap-x-2 text-xs sm:justify-start"><a href="/privacy-policy" className="inline-flex min-h-11 items-center underline">Privacy Policy</a><span aria-hidden>·</span><a href="/terms" className="inline-flex min-h-11 items-center underline">Terms &amp; Conditions</a></p>
         </div>

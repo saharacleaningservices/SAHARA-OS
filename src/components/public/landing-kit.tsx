@@ -1,15 +1,18 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Phone, MapPin, Check, X, MessageCircle, Mail } from "lucide-react";
+import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe } from "lucide-react";
 import { FaFacebookF, FaGoogle, FaInstagram, FaYoutube } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
 import { BookingWizard } from "@/components/public/booking-wizard";
+import { ServiceCards } from "@/components/public/service-cards";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import type { HomeRow } from "@/components/public/price-selector";
-import { CONTACT, EQUIPMENT, TERMS, inr, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
-import { SERVICE_AREA_NOTICE, activeCampaign } from "@/lib/pricing-master";
+import { CONTACT, EQUIPMENT, GOOGLE_MAPS_URL, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
+import { PriceSelector } from "@/components/public/price-selector";
+import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
+import { SERVICE_AREA_NOTICE, activeCampaign, todayIST } from "@/lib/pricing-master";
 import { getLivePricing, getPublicPricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
@@ -115,12 +118,12 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
             <h2 id="ft-location" className="text-base font-extrabold text-white">Visit us</h2>
             <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
             <a
-              href="https://www.google.com/maps/search/?api=1&query=Sahara+Cleaning+Services+Magarpatta+City+Hadapsar+Pune"
+              href={GOOGLE_MAPS_URL}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-amber-400 px-3 text-sm font-bold text-[#0a2540]"
             >
-              <MapPin className="size-4" /> Open in Google Maps
+              📍 Open in Google Maps
             </a>
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-semibold text-white">
               {CONTACT.call.map((n) => <a key={n} href={`tel:+91${n}`} className="hover:text-amber-300">+91 {n.slice(0, 5)} {n.slice(5)}</a>)}
@@ -137,7 +140,8 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               <li><Link href="/housekeeping-services" className="hover:text-white">Housekeeping &amp; AMC</Link></li>
               <li><Link href="/booking#book" className="font-semibold text-amber-400">Book Online</Link></li>
             </ul>
-            <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
+            <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
+            <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Globe className="size-3.5 shrink-0" />www.saharacleaningservices.com</a>
             <div className="flex items-center gap-2">
               {SOCIAL.map(({ href, label, icon: Icon }) => (
                 <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white hover:text-[#0a2540]">
@@ -189,7 +193,7 @@ export function CallWhatsAppBar({ waText }: { waText: string }) {
   );
 }
 
-export const FESTIVAL_BADGE = "Festival Cleaning Packages";
+export const FESTIVAL_BADGE = "🪔 Diwali Special Discounts Live!";
 
 // Hero: photo and text never overlap, so faces and the service activity stay
 // fully visible. Mobile — full-width photo, then badge + headline + actions
@@ -221,19 +225,26 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
         </div>
         <div className="px-4 py-6 md:order-1 md:px-0 md:py-0">
           {(badge?.startsWith("Quotation") || festivalOn) && (
-            <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold tracking-wide text-[#0a2540] sm:text-xs">
+            <p className={`inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold tracking-wide text-[#0a2540] sm:text-xs ${badge?.startsWith("Quotation") ? "" : "motion-safe:animate-[sahara-badge-pulse_2.2s_ease-in-out_infinite]"}`}>
               {badge?.startsWith("Quotation") ? badge : FESTIVAL_BADGE}
+              <style>{`@keyframes sahara-badge-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.05)}}`}</style>
             </p>
           )}
           <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl">{title}</h1>
           <p className="mt-2 max-w-md text-sm text-white/85 sm:text-base">{subtitle.split(/(?<=\.)\s/)[0]}</p>
           <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold sm:text-xs">
-              {settings?.googleRating && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[#0a2540]">
-                  <FaGoogle className="size-3 text-[#4285F4]" aria-hidden /> {settings.googleRating}/5
-                </span>
+              {(settings?.googleRating || reviews) && (
+                <a
+                  href={settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Read our Google reviews (opens in a new tab)"
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[#0a2540] shadow-sm ring-1 ring-white/40 transition hover:bg-amber-50"
+                >
+                  <FaGoogle className="size-3 text-[#4285F4]" aria-hidden />
+                  <span>{settings?.googleRating ? `⭐ ${settings.googleRating}/5` : ""}{settings?.googleRating && reviews ? " | " : ""}{reviews ? `${reviews} Google Reviews` : ""}</span>
+                </a>
               )}
-              {reviews && <span className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">{reviews} Google Reviews</span>}
               <span className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">Residential &amp; Commercial Services</span>
               {fromPrice != null && <span className="rounded-full bg-amber-400/90 px-2.5 py-1 text-[#0a2540]">Full home deep cleaning from {inr(fromPrice)}</span>}
           </div>
@@ -362,71 +373,18 @@ export function ScopeLists({ included, excluded, equipment = EQUIPMENT }: { incl
 // Request), preselected for the page's service.
 const SERVICE_TO_CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { HOME_DEEP_CLEANING: "HOME", COMMERCIAL_CLEANING: "COMMERCIAL", PEST_CONTROL: "PEST", PAINTING: "PAINTING" };
 
-export async function QuoteSection({ title, subtitle, campaignName, defaultService, preset }: { title: string; subtitle: string; campaignName: string; defaultService?: string; preset?: { bhk: string; pkg: HomeTier } }) {
+export async function QuoteSection({ title, subtitle, campaignName, defaultService, preset, hidePicker }: { title: string; subtitle: string; campaignName: string; defaultService?: string; preset?: { bhk: string; pkg: HomeTier }; /** The four service cards above pick the service (same as /booking). */ hidePicker?: boolean }) {
   const [pricing, settings] = await Promise.all([getPublicPricing(), getCompanySettings().catch(() => null)]); // painting rates are never sent to the public booking widget
   return (
     <section id="quote" className="scroll-mt-20">
+      <span id="book" aria-hidden className="block scroll-mt-20" />
       <h2 className="text-center text-xl font-bold sm:text-2xl">{title}</h2>
       <p className="mb-3 text-center text-sm text-[#0a2540]/70">{subtitle}</p>
-      <BookingWizard campaignName={campaignName} defaultCategory={SERVICE_TO_CATEGORY[defaultService ?? ""]} preset={preset} pricing={pricing} paymentDetails={paymentDetailsFrom(settings)} />
+      <BookingWizard campaignName={campaignName} defaultCategory={SERVICE_TO_CATEGORY[defaultService ?? ""]} preset={preset} hidePicker={hidePicker} pricing={pricing} paymentDetails={paymentDetailsFrom(settings)} />
     </section>
   );
 }
 
-/**
- * Compact festival hero (WhatsApp campaign traffic): headline, Google rating badge from
- * CRM Settings (no hard-coded claim — omitted when Settings is blank) and three actions.
- */
-export async function CompactHero({ title, subtitle, waText, badge }: { title: string; subtitle?: string; waText: string; badge?: string | null }) {
-  const settings = await getCompanySettings().catch(() => null);
-  const rating = settings?.googleRating?.trim() || "";
-  const reviews = reviewCountLabel(settings?.googleReviewCount);
-  return (
-    <section className="relative overflow-hidden bg-[#0a2540] text-white">
-      <img src="/marketing/festival-banner.webp" alt="" aria-hidden className="absolute inset-0 size-full object-cover opacity-30" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a2540]/60 to-[#0a2540]" aria-hidden />
-      <div className="relative mx-auto max-w-6xl px-4 py-5 sm:py-10">
-        {badge && <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-[#0a2540] motion-safe:animate-[sahara-badge-pulse_2.2s_ease-in-out_infinite]">{badge}</p>}
-        <style>{`@keyframes sahara-badge-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.05)}}`}</style>
-        <h1 className="mt-2 text-[26px] font-extrabold leading-tight sm:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-white/80">{subtitle}</p>}
-        {(rating || reviews) && (
-          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-bold text-[#0a2540]">
-            <FaGoogle className="size-3 text-[#4285F4]" aria-hidden />
-            {rating && <>⭐ {rating}/5</>}
-            {reviews && <span className="font-semibold text-[#0a2540]/70">({reviews} Google Reviews)</span>}
-          </p>
-        )}
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <a href={`tel:+91${CONTACT.call[0]}`} className="flex min-h-12 flex-col items-center justify-center rounded-xl bg-white text-[11px] font-bold leading-tight text-[#0a2540]">
-            <span className="flex items-center gap-1"><Phone className="size-3.5" /> Call</span>
-            <span className="text-[10px] font-semibold text-[#0a2540]/70">{CONTACT.call[0]}</span>
-          </a>
-          <a href={waLink(waText)} target="_blank" rel="noreferrer" className="flex min-h-12 items-center justify-center gap-1 rounded-xl bg-success text-xs font-bold text-white"><MessageCircle className="size-4" /> WhatsApp</a>
-          <a href="#quote" className="flex min-h-12 items-center justify-center rounded-xl bg-amber-400 text-xs font-extrabold text-[#0a2540]">Book Online</a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/** One-row process: Select Service → Pick Date → WhatsApp Confirmation. */
-export function ProcessStepper() {
-  const steps = ["Select Service", "Pick Date", "WhatsApp Confirmation"];
-  return (
-    <ol aria-label="How it works" className="flex items-center justify-between gap-1 rounded-2xl bg-white px-2 py-2.5 text-[11px] font-semibold shadow-sm">
-      {steps.map((st, i) => (
-        <li key={st} className="flex min-w-0 items-center gap-1">
-          <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-extrabold text-white">{i + 1}</span>
-          <span className="leading-tight">{st}</span>
-          {i < steps.length - 1 && <span aria-hidden className="pl-0.5 text-primary">➔</span>}
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-/** Single-line service-area badge. */
 export function AreasBadge() {
   return (
     <p className="flex flex-wrap items-center justify-center gap-x-1.5 rounded-full bg-white px-3 py-2 text-center text-xs font-semibold shadow-sm">
@@ -621,4 +579,30 @@ export function festivalPriceNote(campaign: ReturnType<typeof activeCampaign>): 
   if (!campaign) return "Regular package prices. Platinum adds wall wet cleaning.";
   const day = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
   return `${campaign.windows.map((w) => w.name).join(" · ")} prices for service dates ${day(campaign.start)} – ${day(campaign.end)}. Platinum adds wall wet cleaning. Slots subject to team availability.`;
+}
+
+/**
+ * The compact "Select BHK → package → price" picker used identically on /booking and /offers.
+ * Live prices (festival-aware); choosing Book hands the BHK + package to the booking form below.
+ */
+export async function CompactPriceSelector() {
+  const pricing = await getLivePricing();
+  const campaign = activeCampaign(pricing.festivals, todayIST());
+  const rows = buildHomeRows(livePkgs(pricing.items, "PREMIUM", campaign?.current), livePkgs(pricing.items, "PLATINUM", campaign?.current));
+  return <PriceSelector rows={rows} note={festivalPriceNote(campaign)} bookHref="#book" hideDetails heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />;
+}
+
+/** The four service cards (same on /booking and /offers): tapping one opens that service in the booking form. */
+export async function FunnelCards() {
+  const pricing = await getPublicPricing();
+  const bathroom = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
+  return (
+    <ServiceCards
+      starts={{
+        HOME: bathroom ? `Starting from ₹${bathroom.price!.toLocaleString("en-IN")}` : undefined,
+        // No painting rate is published: painting is quoted after a free site inspection.
+        PAINTING: "Free Site Inspection",
+      }}
+    />
+  );
 }

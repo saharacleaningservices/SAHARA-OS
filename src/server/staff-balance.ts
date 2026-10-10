@@ -1,3 +1,4 @@
+import { dedupeByIstDay, istDayKey } from "@/lib/ist-days";
 import { db } from "@/lib/db";
 import { computeEarned } from "@/server/attendance";
 import { autoFareAllowed } from "@/lib/staff-money-rules";
@@ -230,10 +231,14 @@ export async function getStaffMoney(staffId: string, now = new Date()) {
   const m1 = istMonthStart(nowIst.y, nowIst.m + 1);
   const inM = (d: Date) => d >= m0 && d < m1;
   const month = entries.filter((e) => inM(e.date));
-  const monthAtt = attendance.filter((a) => inM(a.date));
-  const khataWorkDays = new Set(month.filter((e) => e.source === "KHATABOOK" && e.kind === "EARNING").map((e) => e.date.toDateString()));
-  const present = monthAtt.filter((a) => a.status === "PRESENT").length + khataWorkDays.size;
-  const halfDay = monthAtt.filter((a) => a.status === "HALF_DAY").length;
+  // One record per India day: duplicates of the same day collapse (a day is never counted twice), and an
+  // imported Khata work day counts only when the app has no record for that same day.
+  const monthAtt = dedupeByIstDay(attendance.filter((a) => inM(a.date)));
+  const nativeDays = new Set(monthAtt.map((a) => istDayKey(a.date)));
+  const khataOnlyDays = new Set(month.filter((e) => e.source === "KHATABOOK" && e.kind === "EARNING").map((e) => istDayKey(e.date)).filter((k) => !nativeDays.has(k)));
+  const countStatus = (st: string) => monthAtt.filter((a) => a.status === st).length;
+  const present = countStatus("PRESENT") + khataOnlyDays.size;
+  const halfDay = countStatus("HALF_DAY");
   const summary = salarySummary(entries);
   return {
     staffId: staff.id,
@@ -251,8 +256,12 @@ export async function getStaffMoney(staffId: string, now = new Date()) {
       paid: r2(month.filter((e) => e.group === "paid").reduce((s, e) => s + e.amount, 0)),
       present,
       halfDay,
-      absent: monthAtt.filter((a) => a.status === "ABSENT").length,
-      leave: monthAtt.filter((a) => a.status === "LEAVE").length,
+      absent: countStatus("ABSENT"),
+      leave: countStatus("LEAVE"),
+      // Weekly off is a recorded day too — without it a 10-day record (8 worked + 2 off) read as "8".
+      weeklyOff: countStatus("WEEKLY_OFF"),
+      /** Every day with a record this month (present, half, absent, leave, weekly off, imported work days). */
+      recorded: monthAtt.length + khataOnlyDays.size,
       workDays: present + halfDay * 0.5,
     },
   };
@@ -275,7 +284,7 @@ export async function getStaffMoneyMonth(staffId: string, year: number, month: n
     monthNet: s.salaryDue,
     closingDue: r2(openingDue + s.salaryDue),
     loan: loanSummary(all.loanEntries.filter((l) => l.date < m1)),
-    khataWorkDays: new Set(inMonth.filter((e) => e.source === "KHATABOOK" && e.kind === "EARNING").map((e) => e.date.toDateString())).size,
+    khataWorkDays: new Set(inMonth.filter((e) => e.source === "KHATABOOK" && e.kind === "EARNING").map((e) => istDayKey(e.date))).size,
   };
 }
 
@@ -290,7 +299,7 @@ export async function getStaffMoneyYear(staffId: string, year: number) {
   const before = entries.filter((e) => e.date < y0);
   const months = Array.from({ length: 12 }, (_, m) => {
     const rows = inY.filter((e) => istYM(e.date).m === m);
-    const days = new Set(rows.filter((e) => e.bucket === "earned" && (e.kind === "EARNING" || e.kind === "PRESENT" || e.kind === "HALF_DAY")).map((e) => e.date.toDateString()));
+    const days = new Set(rows.filter((e) => e.bucket === "earned" && (e.kind === "EARNING" || e.kind === "PRESENT" || e.kind === "HALF_DAY")).map((e) => istDayKey(e.date)));
     return {
       month: m + 1,
       workDays: days.size,

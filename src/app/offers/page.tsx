@@ -2,11 +2,8 @@ import type { Metadata } from "next";
 import { activeCampaign, homeFromPrice, todayIST } from "@/lib/pricing-master";
 import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, CompactHero, ProcessStepper, AreasBadge, QuoteSection, Faqs, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd, buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
-import { CampaignFooter } from "@/components/public/campaign-kit";
-import { PriceSelector } from "@/components/public/price-selector";
-import { ServiceGrid } from "@/components/public/service-grid";
-import { livePkgs, inr } from "@/lib/marketing-content";
+import { LandingShell, Hero, FunnelCards, CompactPriceSelector, AreasBadge, QuoteSection, Faqs, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { inr } from "@/lib/marketing-content";
 
 // Festival campaign hub (Navratri · Dussehra · Diwali) — the WhatsApp campaign
 // lands here and customers pick a service page.
@@ -39,31 +36,29 @@ const FAQS = [
   { q: "Which areas do you cover?", a: "We serve Pune and Pimpri-Chinchwad (PCMC). Standard package prices apply to our standard serviceable areas; additional charges may apply for locations outside it, depending on distance and requirements." },
 ];
 
+// Same funnel as /booking, in the same order: Hero → 4 service cards → compact price selector → booking form with
+// its live summary. Only the SEO extras below the form (areas + FAQs) are specific to this page.
 export default async function FestivalOffersPage() {
   const [settings, pricing] = await Promise.all([getCompanySettings(), getLivePricing()]);
   const campaign = activeCampaign(pricing.festivals, todayIST());
-  // Same price source as before: pricing master + the active festival window (festival price only while it runs).
-  const PREMIUM = livePkgs(pricing.items, "PREMIUM", campaign?.current);
-  const PLATINUM = livePkgs(pricing.items, "PLATINUM", campaign?.current);
   const faqs = campaign ? FAQS.filter((f) => !/festival and regular/i.test(f.q)) : FAQS;
   return (
-    <LandingShell
-      logoUrl={settings.logoUrl}
-      waText={WA}
-      jsonLd={[businessJsonLd(), faqJsonLd(faqs)]}
-      bookHref="#quote"
-      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
-    >
-      <CompactHero
-        title="Get Your Home & Workplace Festival-Ready"
-        badge={campaign ? "🪔 Diwali Special Discounts Live!" : null}
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(faqs)]} bookHref="#book">
+      <Hero
+        bookHrefOverride="#book"
+        image={CAROUSEL.team.src}
+        alt={CAROUSEL.team.alt}
+        images={ALL_SERVICES_SLIDES}
+        title="Pune's Most Trusted Cleaning Service Provider — Residential & Commercial"
+        subtitle="Verified Staff | Transparent Pricing | Pay After Service"
+        primaryLabel="Choose Date & Slot"
+        primaryHref="#book"
         waText={WA}
       />
-      <main className="mx-auto max-w-6xl space-y-4 px-4 py-4">
-        <ServiceGrid />
-        <PriceSelector rows={buildHomeRows(PREMIUM, PLATINUM)} note={festivalPriceNote(campaign)} heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />
-        <ProcessStepper />
-        <QuoteSection title="Book online" subtitle="Pick a service, date and time — we confirm on WhatsApp." campaignName="Sahara Festival 2026" defaultService="HOME_DEEP_CLEANING" />
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+        <FunnelCards />
+        <CompactPriceSelector />
+        <QuoteSection title="Book online" subtitle="Pick a service, date and time — we confirm on WhatsApp." campaignName="Sahara Festival 2026" hidePicker />
         <AreasBadge />
         <Faqs faqs={faqs} compact />
       </main>

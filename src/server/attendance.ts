@@ -1,3 +1,4 @@
+import { dedupeByIstDay, isoOf, istDayKey, istDaysInMonth, istMonthRange, istWeekday } from "@/lib/ist-days";
 import { db } from "@/lib/db";
 import { COMPANY } from "@/lib/constants";
 import { sendWhatsApp } from "@/lib/whatsapp";
@@ -79,9 +80,9 @@ export async function getMonthCloseState(year: number, month: number) {
  * 1 → last day of month. `status` is null for un-marked days.
  */
 export async function getMonthMatrix(staffId: string, year: number, month: number) {
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 1);
-  const daysInMonth = new Date(year, month, 0).getDate();
+  // India-time month bounds and day keys: correct whatever the server timezone is.
+  const { from: start, to: end } = istMonthRange(year, month);
+  const daysInMonth = istDaysInMonth(year, month);
 
   const [staff, rows, closed] = await Promise.all([
     db.staff.findUnique({ where: { id: staffId } }),
@@ -89,20 +90,19 @@ export async function getMonthMatrix(staffId: string, year: number, month: numbe
     isMonthClosed(year, month),
   ]);
 
-  const byDay = new Map<number, (typeof rows)[number]>();
-  for (const r of rows) byDay.set(new Date(r.date).getDate(), r);
+  const byIso = new Map<string, (typeof rows)[number]>();
+  for (const r of dedupeByIstDay(rows)) byIso.set(istDayKey(r.date), r);
 
-  const today = dayKey(new Date());
-  const mm = String(month).padStart(2, "0");
+  const todayKey = istDayKey(new Date());
   const days = Array.from({ length: daysInMonth }, (_, i) => {
     const dayNum = i + 1;
-    const date = new Date(year, month - 1, dayNum);
-    const rec = byDay.get(dayNum);
+    const iso = isoOf(year, month, dayNum);
+    const rec = byIso.get(iso);
     return {
       day: dayNum,
-      iso: `${year}-${mm}-${String(dayNum).padStart(2, "0")}`,
-      weekday: date.getDay(), // 0 = Sun
-      isFuture: date > today,
+      iso,
+      weekday: istWeekday(year, month, dayNum), // 0 = Sun
+      isFuture: iso > todayKey,
       status: (rec?.status ?? null) as AttendanceCode | null,
       checkInTime: rec?.checkInTime ?? null,
       checkOutTime: rec?.checkOutTime ?? null,
@@ -306,8 +306,7 @@ export async function checkOut(staffId: string) {
 }
 
 export async function listAttendanceForMonth(staffId: string, year: number, month: number) {
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 1);
+  const { from: start, to: end } = istMonthRange(year, month);
   return db.attendance.findMany({ where: { staffId, date: { gte: start, lt: end } }, orderBy: { date: "asc" } });
 }
 
@@ -381,8 +380,7 @@ export function computeEarned(
  *   netBalance    Salary Due at the end of the month (= openingDue + month)
  */
 export async function getStaffLedger(staffId: string, year: number, month: number) {
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 1);
+  const { from: start, to: end } = istMonthRange(year, month);
   const { getStaffMoneyMonth } = await import("@/server/staff-balance");
 
   const [staff, attendance, advances, fines, rewards, money] = await Promise.all([

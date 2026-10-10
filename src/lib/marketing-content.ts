@@ -14,6 +14,11 @@ export const CONTACT = {
   address: "Opposite South Gate, Magarpatta City, Hadapsar, Pune 411028",
 };
 
+/** Direct Google Maps listing of the Magarpatta City branch (place id of the Google Business Profile). */
+export const GOOGLE_MAPS_URL =
+  "https://www.google.com/maps/place/Sahara+Cleaning+Services/@18.5082466,73.9298453,17z/data=!4m6!3m5!1s0x3bc2ea0728111bc5:0x78a3192231b37d82!8m2!3d18.5082466!4d73.9298453!16s%2Fg%2F11cnd9rskw";
+export const WEBSITE_URL = "https://www.saharacleaningservices.com";
+
 export const FESTIVAL_CAMPAIGN = "sahara_festival_2026";
 
 /** price/mrp are null for inspection-only properties (4 BHK+): no fixed price is ever shown for them. */

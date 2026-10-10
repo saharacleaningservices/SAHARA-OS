@@ -10,6 +10,7 @@
 // queries per request (staffId + date), no N+1 loops, no polling.
 
 import { db } from "@/lib/db";
+import { dedupeByIstDay, isoOf, istDayKey, istDayRange, istDaysInMonth, istMonthOf, istMonthRange, istWeekday, istYearRange } from "@/lib/ist-days";
 import { packageSummary, parsePackage } from "@/lib/package-calc";
 import { staffBalanceToCollect } from "@/lib/payment-status";
 import type { SessionPayload } from "@/lib/session";
@@ -257,10 +258,12 @@ async function rangeData(staffId: string, from: Date, to: Date) {
     db.fineRecord.findMany({ where: { staffId, date: { gte: from, lt: to } }, select: { date: true, amount: true } }),
     db.rewardRecord.findMany({ where: { staffId, date: { gte: from, lt: to } }, select: { date: true, amount: true } }),
   ]);
-  const seen = new Set(nativeAttendance.map((a) => a.date.toDateString()));
-  const attendance = [...nativeAttendance];
+  // One record per India day (never counted twice); an imported work day shows only where the app has no record.
+  const nativeDays = dedupeByIstDay(nativeAttendance);
+  const seen = new Set(nativeDays.map((a) => istDayKey(a.date)));
+  const attendance = [...nativeDays];
   for (const i of imported) {
-    const k = i.date.toDateString();
+    const k = istDayKey(i.date);
     if (!seen.has(k)) {
       seen.add(k);
       attendance.push({ date: i.date, status: "PRESENT" as AttendanceCode, wageForDay: null });
@@ -270,14 +273,16 @@ async function rangeData(staffId: string, from: Date, to: Date) {
 }
 
 export async function getMyMonth(staffId: string, year: number, month: number) {
-  const from = new Date(year, month - 1, 1);
-  const to = new Date(year, month, 1);
+  const { from, to } = istMonthRange(year, month);
   const { attendance, jobs, advances, fines, rewards } = await rangeData(staffId, from, to);
 
-  const statusByDay = new Map(attendance.map((a) => [new Date(a.date).getDate(), a.status as AttendanceCode]));
+  const statusByIso = new Map(attendance.map((a) => [istDayKey(a.date), a.status as AttendanceCode]));
   const countBy = (dates: Date[]) => {
-    const m = new Map<number, number>();
-    for (const d of dates) m.set(new Date(d).getDate(), (m.get(new Date(d).getDate()) ?? 0) + 1);
+    const m = new Map<string, number>();
+    for (const d of dates) {
+      const k = istDayKey(d);
+      m.set(k, (m.get(k) ?? 0) + 1);
+    }
     return m;
   };
   const jobsBy = countBy(jobs.map((j) => j.scheduledDate));
@@ -285,26 +290,26 @@ export async function getMyMonth(staffId: string, year: number, month: number) {
   const fineBy = countBy(fines.map((f) => f.date));
   const rewardBy = countBy(rewards.map((r) => r.date));
 
-  const today = startOfToday();
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const days: CalendarDay[] = Array.from({ length: daysInMonth }, (_, i) => {
-    const date = new Date(year, month - 1, i + 1);
+  const todayKey = istDayKey(new Date());
+  const days: CalendarDay[] = Array.from({ length: istDaysInMonth(year, month) }, (_, i) => {
     const n = i + 1;
+    const iso = isoOf(year, month, n);
     return {
-      iso: toIsoDay(date),
+      iso,
       day: n,
-      weekday: date.getDay(),
-      isToday: date.getTime() === today.getTime(),
-      isFuture: date > today,
-      status: statusByDay.get(n) ?? null,
-      jobCount: jobsBy.get(n) ?? 0,
-      hasAdvance: advBy.has(n),
-      hasFine: fineBy.has(n),
-      hasReward: rewardBy.has(n),
+      weekday: istWeekday(year, month, n),
+      isToday: iso === todayKey,
+      isFuture: iso > todayKey,
+      status: statusByIso.get(iso) ?? null,
+      jobCount: jobsBy.get(iso) ?? 0,
+      hasAdvance: advBy.has(iso),
+      hasFine: fineBy.has(iso),
+      hasReward: rewardBy.has(iso),
     };
   });
 
   const count = (s: AttendanceCode) => attendance.filter((a) => a.status === s).length;
+  const todayStart = istDayRange(new Date()).from;
   return {
     days,
     totals: {
@@ -313,28 +318,28 @@ export async function getMyMonth(staffId: string, year: number, month: number) {
       absent: count("ABSENT"),
       leave: count("LEAVE"),
       weeklyOff: count("WEEKLY_OFF"),
+      /** Days with any record (incl. weekly off) — equals the marked days on the calendar. */
+      recorded: attendance.length,
       jobs: jobs.length,
-      upcomingJobs: jobs.filter((j) => j.scheduledDate >= today).length,
+      upcomingJobs: jobs.filter((j) => j.scheduledDate >= todayStart).length,
     },
   };
 }
 
 /** Year view: per-day status code for 12 mini-months + per-month counts. */
 export async function getMyYear(staffId: string, year: number) {
-  const from = new Date(year, 0, 1);
-  const to = new Date(year + 1, 0, 1);
+  const { from, to } = istYearRange(year);
   const { attendance, jobs } = await rangeData(staffId, from, to);
-  const statusByIso = new Map(attendance.map((a) => [toIsoDay(new Date(a.date)), a.status as AttendanceCode]));
-  const jobIsos = new Set(jobs.map((j) => toIsoDay(new Date(j.scheduledDate))));
-  const today = startOfToday();
+  const statusByIso = new Map(attendance.map((a) => [istDayKey(a.date), a.status as AttendanceCode]));
+  const jobIsos = new Set(jobs.map((j) => istDayKey(j.scheduledDate)));
+  const todayKey = istDayKey(new Date());
 
   const months = Array.from({ length: 12 }, (_, m) => {
-    const daysInMonth = new Date(year, m + 1, 0).getDate();
-    const firstWeekday = new Date(year, m, 1).getDay();
+    const daysInMonth = istDaysInMonth(year, m + 1);
+    const firstWeekday = istWeekday(year, m + 1, 1);
     const days = Array.from({ length: daysInMonth }, (_, i) => {
-      const date = new Date(year, m, i + 1);
-      const iso = toIsoDay(date);
-      return { iso, day: i + 1, status: statusByIso.get(iso) ?? null, hasJob: jobIsos.has(iso), isFuture: date > today };
+      const iso = isoOf(year, m + 1, i + 1);
+      return { iso, day: i + 1, status: statusByIso.get(iso) ?? null, hasJob: jobIsos.has(iso), isFuture: iso > todayKey };
     });
     const c = (s: AttendanceCode) => days.filter((d) => d.status === s).length;
     return {
@@ -355,10 +360,7 @@ export async function getMyYear(staffId: string, year: number) {
 // ── Day detail ──
 
 export async function getMyDay(staffId: string, day: Date) {
-  const from = new Date(day);
-  from.setHours(0, 0, 0, 0);
-  const to = new Date(from);
-  to.setDate(to.getDate() + 1);
+  const { from, to } = istDayRange(day);
 
   const [attendance, jobs, advances, fines, rewards, payments] = await Promise.all([
     db.attendance.findFirst({
@@ -455,13 +457,12 @@ export type MonthSummary = {
 
 /** Twelve monthly payroll summaries in 5 queries — same rule as getStaffLedger (computeEarned). */
 export async function getMyYearSummary(staff: MyStaff, year: number) {
-  const from = new Date(year, 0, 1);
-  const to = new Date(year + 1, 0, 1);
+  const { from, to } = istYearRange(year);
   const [{ attendance, advances, fines, rewards }, paidAgg] = await Promise.all([
     rangeData(staff.id, from, to),
     db.expense.aggregate({ where: salaryPaidFilter(staff.id, from, to), _sum: { amount: true } }),
   ]);
-  const inMonth = <T,>(rows: T[], get: (r: T) => Date, m: number) => rows.filter((r) => new Date(get(r)).getMonth() === m);
+  const inMonth = <T,>(rows: T[], get: (r: T) => Date, m: number) => rows.filter((r) => istMonthOf(get(r)) - 1 === m);
   const sum = (rows: { amount: number }[]) => rows.reduce((s, r) => s + r.amount, 0);
 
   const months: MonthSummary[] = Array.from({ length: 12 }, (_, m) => {
@@ -529,8 +530,7 @@ function round2(n: number) {
 }
 
 export async function getMyLedgerLists(staffId: string, year: number) {
-  const from = new Date(year, 0, 1);
-  const to = new Date(year + 1, 0, 1);
+  const { from, to } = istYearRange(year);
   const [attendance, advances, fines, rewards, payments, advanceLifetime] = await Promise.all([
     db.attendance.findMany({ where: { staffId, date: { gte: from, lt: to } }, orderBy: { date: "desc" }, select: { id: true, date: true, status: true, checkInTime: true, checkOutTime: true } }),
     db.advance.findMany({ where: { staffId, givenAt: { gte: from, lt: to } }, orderBy: { givenAt: "desc" }, select: { id: true, amount: true, reason: true, givenAt: true } }),
@@ -568,7 +568,7 @@ export async function getMyLedgerLists(staffId: string, year: number) {
 /** Job/site history for the year, newest first (area + service only — no customer contact or price). */
 export async function getMyJobHistory(staffId: string, year: number) {
   const jobs = await db.job.findMany({
-    where: myJobsWhere(staffId, new Date(year, 0, 1), new Date(year + 1, 0, 1)),
+    where: myJobsWhere(staffId, istYearRange(year).from, istYearRange(year).to),
     orderBy: { scheduledDate: "desc" },
     take: 400,
     select: JOB_STAFF_SELECT,

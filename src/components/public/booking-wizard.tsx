@@ -192,7 +192,22 @@ export function BookingWizard({
       }
     };
     window.addEventListener("sahara:select-service", onPick);
-    return () => window.removeEventListener("sahara:select-service", onPick);
+    // The compact price selector (BHK → package) hands its choice to this form.
+    const onPackage = (e: Event) => {
+      const d = (e as CustomEvent<{ bhk?: string; tier?: string }>).detail;
+      if (!d?.bhk) return;
+      setCategory("HOME");
+      setHomeType("FULL");
+      if (campaign) setPriceMode("FESTIVAL");
+      setBhk(d.bhk);
+      setPkg(d.tier ?? "");
+      setPkgEdit(false);
+    };
+    window.addEventListener("sahara:select-package", onPackage);
+    return () => {
+      window.removeEventListener("sahara:select-service", onPick);
+      window.removeEventListener("sahara:select-package", onPackage);
+    };
   }, [campaign]);
   // Schedule / details
   const [dates, setDates] = useState<{ date: string; available: boolean; status: DayStatus }[] | null>(null);
@@ -227,6 +242,7 @@ export function BookingWizard({
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
   const [closed, setClosed] = useState(false);
+  const [addonsOpen, setAddonsOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   // Hide the mobile sticky bar once the summary (with its own Confirm) is on or above screen.
   const [pastSummary, setPastSummary] = useState(false);
@@ -757,8 +773,17 @@ export function BookingWizard({
                     )}
                     {bhk && pkg && (
                       <div className="rounded-2xl border border-[#0a2540]/10 bg-white p-3">
-                        <p className="text-sm font-bold">Add-ons <span className="font-medium text-[#0a2540]/55">(optional)</span></p>
-                        <div className="mt-2 divide-y divide-[#0a2540]/10">
+                        <button type="button" onClick={() => setAddonsOpen((o) => !o)} aria-expanded={addonsOpen} aria-controls="bk-addons" className="flex min-h-11 w-full items-center justify-between gap-2 text-left">
+                          <span className="text-sm font-bold">
+                            {addonsOpen ? "−" : "+"} Add Optional Services
+                            {ADDON_ITEMS.some((it) => (qty[it.contentId] ?? 0) > 0) && (
+                              <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-white">{ADDON_ITEMS.filter((it) => (qty[it.contentId] ?? 0) > 0).length} added</span>
+                            )}
+                          </span>
+                          <ChevronDown className={`size-4 shrink-0 transition ${addonsOpen ? "rotate-180" : ""}`} />
+                        </button>
+                        {addonsOpen && (
+                        <div id="bk-addons" className="mt-2 divide-y divide-[#0a2540]/10">
                           {ADDON_ITEMS.map((it) => {
                             const n = qty[it.contentId] ?? 0;
                             const u = unit(it);
@@ -776,6 +801,7 @@ export function BookingWizard({
                             );
                           })}
                         </div>
+                        )}
                         {(() => {
                           const pkgAmt = lines[0]?.amount ?? 0;
                           const addAmt = lines.slice(1).reduce((s, l) => s + (l.amount ?? 0), 0);
@@ -981,7 +1007,7 @@ export function BookingWizard({
                 : "Regular price — for service dates outside the festival dates."}
             </p>
           )}
-          <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-relaxed text-amber-900">{PRICE_NOTE}</p>
+          <p className="mt-2 rounded-xl border-l-4 border-amber-400 bg-amber-50 px-3 py-2 text-xs font-medium italic leading-relaxed text-amber-900">{PRICE_NOTE}</p>
 
           {tier && (
             <ul className="mt-3 grid gap-1 text-sm max-sm:hidden sm:grid-cols-2">
@@ -1193,12 +1219,6 @@ export function BookingWizard({
         <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
           <dt className="text-[#0a2540]/60">Service</dt>
           <dd className="font-medium">{lines.length ? lines.map((l) => l.label).join(", ") : quote ? quote.services.join(", ") : "—"}</dd>
-          {tier && (
-            <>
-              <dt className="text-[#0a2540]/60">Scope</dt>
-              <dd className="font-medium">{tier === "Platinum" ? "Wall wet cleaning + ceiling dry dusting" : "Wall dry dusting + ceiling dry dusting"} · {HOME_DURATION}</dd>
-            </>
-          )}
           {needsPriceMode && priceMode && !inspection && (
             <>
               <dt className="text-[#0a2540]/60">Price</dt>
@@ -1237,7 +1257,7 @@ export function BookingWizard({
             <ul className="mt-1 list-disc space-y-0.5 pl-5">{CUSTOMER_REQUIREMENTS.slice(0, 4).map((s) => <li key={s}>{s}</li>)}</ul>
           </div>
         )}
-        <p className="mt-2 text-[11px] text-[#0a2540]/60">By confirming you agree to the scope, please-note points and terms shown above.</p>
+        <p className="mt-2 text-[11px] text-[#0a2540]/60">By confirming you agree to the scope and please-note points above and our <a href="/terms" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold underline">Terms &amp; Conditions</a>.</p>
         {!ready && !quote && missing.length > 0 && (
           <div className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
             <p className="font-bold">Still needed:</p>
