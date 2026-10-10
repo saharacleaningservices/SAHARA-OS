@@ -191,3 +191,23 @@ export function isAutoScope(scope: string | null | undefined): boolean {
   if (!scope) return true;
   return AUTO_FULL_HOME.test(scope) || scope.split("\n").every((l) => /^\s*•\s/.test(l));
 }
+
+// ── Concise document scope ───────────────────────────────────────────────
+// Quotations / invoices print ONE short scope line for a full-house package
+// (the room-by-room checklist stays on the booking page). Wording comes only
+// from the approved scope above — nothing new is promised.
+
+/** "Full Home Cleaning — Premium: living room, bedrooms, kitchen, …" — one line, no room-by-room list. */
+export function conciseHomeScope(tier: HomeTier | null): string {
+  const walls = tier === "Platinum" ? "wall wet cleaning" : tier === "Premium" ? "wall dry dusting" : null;
+  return [
+    "Living room, bedrooms, kitchen, bathrooms & balcony — floors scrubbed & mopped, window glass, fittings and furniture exterior cleaned",
+    [walls, "ceiling dry dusting"].filter(Boolean).join(" + "),
+    `${HOME_DURATION.replace(/^Estimated /, "approx. ")}`,
+  ].join("; ") + ".";
+}
+
+/** Short "not included" line for a full-house package (from homePleaseNote). */
+export function conciseHomeExclusions(tier: HomeTier | null): string {
+  return `Not included: sofa / carpet / mattress shampooing, chimney${tier === "Premium" ? ", wall wet cleaning (Platinum only)" : ""}.`;
+}

@@ -28,7 +28,8 @@ import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "../src/lib/whatsapp-keywords"
 import { staffBalanceToCollect, jobPaymentSummary } from "../src/lib/payment-status";
 import { leadSchema, jobSchema } from "../src/lib/validation";
 import { packageTotals } from "../src/lib/package-calc";
-import { reviewRequestMessage, premiumReviewRequestMessage } from "../src/lib/whatsapp-templates";
+import { reviewRequestMessage, premiumReviewRequestMessage, premiumBookingConfirmationMessage, documentShareMessage } from "../src/lib/whatsapp-templates";
+import { documentScope } from "../src/lib/document-scope";
 import { maskJobCardForAudience } from "../src/lib/pdf/job-card-mask";
 import { compactServiceLines, isAutoScope } from "../src/lib/service-scope";
 
@@ -507,4 +508,64 @@ test("job card team copy keeps crew instructions but hides any phone number in t
   assert.ok(team.instructions?.includes("pet dog") && !/98765\s?01234/.test(team.instructions ?? ""));
   assert.deepEqual(team.services, ["Sofa Cleaning × 5 seats"]);
   assert.equal(maskJobCardForAudience({ ...base, audience: "office" }).instructions, base.instructions);
+});
+
+test("customer quotation: compact home / small / combo rows, advance + balance, concise scope & terms", async () => {
+  const React = (await import("react")).default;
+  (globalThis as unknown as { React: unknown }).React = React; // components compile with the classic JSX runtime here
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { CustomerDocument, COMPACT_TERMS } = await import("../src/components/public/customer-document");
+  const company = { name: "Sahara", phone: "1", email: "e", address: "a", website: null, logoUrl: null, upiId: "sahara@upi", upiQrUrl: null, bankName: null, bankAccountName: null, bankAccountNumber: null, bankIfsc: null };
+  const job = { jobNumber: "JOB-1", customerName: "Test", customerMobile: "9000000000", address: "1 Rd", area: "Baner", serviceLabel: "Home Deep Cleaning", packageName: null as string | null, serviceVariant: null as string | null, included: [] as string[], serviceItems: null as string | null, discountAmount: null, jobValue: 0, scopeOfWork: null as string | null, scheduledDate: new Date("2026-10-20T00:00:00+05:30"), scheduledTime: "10:00 AM", createdAt: new Date("2026-10-10T00:00:00+05:30"), completedAt: null, festivalName: null as string | null, paid: 0, invoiceNumber: null };
+  const text = (j: typeof job, kind: "QUOTATION" | "INVOICE" = "QUOTATION") =>
+    renderToStaticMarkup(CustomerDocument({ kind, job: j, company, shareUrl: "https://x/booking/quotation/T" })).replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/\s+/g, " ");
+
+  // Full home: one concise label + one scope line; never the room-by-room checklist.
+  const home = text({ ...job, packageName: "2 BHK Premium", serviceVariant: "2 BHK", jobValue: 5499, paid: 2000, festivalName: "Navratri", scopeOfWork: "2 BHK Premium Home Deep Cleaning — full Premium room-by-room package scope (wall dry dusting + ceiling dry dusting)." });
+  assert.ok(home.includes("Full Home Cleaning — Premium") && home.includes("2 BHK"));
+  assert.ok(!/room-by-room|Living room & bedrooms:|Kitchen:/.test(home), "no room checklist in the quotation");
+  assert.ok(/Final Payable ₹5,499/.test(home) && /Advance Paid ₹2,000/.test(home) && /Balance Due ₹3,499/.test(home));
+  assert.ok(home.includes("Reschedule, postpone or cancel") && COMPACT_TERMS.every((t) => home.includes(t)) && COMPACT_TERMS.length <= 5);
+  assert.ok(text({ ...job, packageName: "Unfurnished", serviceVariant: "2 BHK", jobValue: 4999 }).includes("Full Home Cleaning — Unfurnished"));
+
+  // Small services: actual saved names, quantities and units; exact totals.
+  const items = JSON.stringify([{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Cleaning", unit: "per seat", qty: 5, unitPrice: 249 }, { id: "b", group: "CUSTOMISED", contentId: "SCS-10", name: "Bathroom Deep Cleaning", unit: "per bathroom", qty: 2, unitPrice: 599 }]);
+  const small = text({ ...job, serviceLabel: "Housekeeping", serviceItems: items, jobValue: 2443, paid: 0 });
+  assert.ok(small.includes("Sofa Cleaning") && small.includes("× 5 seats") && small.includes("× 2 bathrooms"));
+  assert.ok(/Final Payable ₹2,443/.test(small) && /Balance Due ₹2,443/.test(small) && !small.includes("Scope of Work"));
+
+  // Combo: package name + its price-master components.
+  const combo = text({ ...job, serviceLabel: "Housekeeping", included: ["Kitchen + 2 Bathroom + Fridge"], jobValue: 3499, paid: 3499 });
+  assert.ok(combo.includes("Combo Package — Kitchen + 2 Bathroom + Fridge") && /Empty kitchen · 2 bathrooms · fridge/.test(combo));
+  assert.ok(/Balance Due ₹0/.test(combo));
+  // Invoice keeps Received / Balance.
+  assert.ok(/Received ₹3,499/.test(text({ ...job, included: ["Kitchen + 2 Bathroom + Fridge"], jobValue: 3499, paid: 3499 }, "INVOICE")));
+});
+
+test("office quotation/invoice PDF scope is concise for full-home packages; items keep their rules", () => {
+  const home = documentScope({ service: "HOME_DEEP_CLEANING", packageName: "3 BHK Platinum", serviceVariant: "3 BHK" });
+  assert.equal(home.notes.length, 1);
+  assert.ok(home.notes[0].startsWith("Full Home Cleaning — Platinum:") && home.notes[0].includes("wall wet cleaning"));
+  assert.ok(!/Living room & bedrooms:|Bathrooms:/.test(home.notes.join(" ")));
+  const items = JSON.stringify([{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Cleaning", unit: "per seat", qty: 5, unitPrice: 249 }]);
+  assert.ok(documentScope({ service: "HOUSEKEEPING", serviceItems: items }).notes.some((n) => n.includes("Sofa Cleaning × 5") && n.includes("Minimum 5 seats")));
+  // A staff-typed scope is kept as written.
+  assert.deepEqual(documentScope({ service: "HOME_DEEP_CLEANING", packageName: "2 BHK Premium", scopeOfWork: "Only 2 bedrooms + kitchen, customer request" }).notes, ["Only 2 bedrooms + kitchen, customer request"]);
+});
+
+test("WhatsApp confirmation + share texts: concise, links, totals, MORE; no phone number in the confirmation", () => {
+  const msg = premiumBookingConfirmationMessage({ customerName: "Asha", jobNumber: "JOB-2026-0300", service: "Home Deep Cleaning", date: new Date("2026-10-20T00:00:00+05:30"), timeSlot: "10:00 AM", address: "1 Rd, Baner", area: "Baner", balanceDue: 3499, bookingUrl: "https://b/booking/TOKEN", serviceSummary: "Full Home Cleaning — Premium", total: 5499, paid: 2000 });
+  for (const s of ["JOB-2026-0300", "Full Home Cleaning — Premium", "10:00 AM", "Total ₹5,499 · Paid ₹2,000 · Balance ₹3,499", "https://b/booking/TOKEN", "https://b/booking/quotation/TOKEN", "?pay=advance", "MORE"]) assert.ok(msg.includes(s), s);
+  assert.ok(msg.split("\n").length <= 14, "fits on one phone screen");
+  assert.ok(!/\b\d{10}\b/.test(msg), "no visible phone number");
+  const paidUp = premiumBookingConfirmationMessage({ customerName: "A", jobNumber: "J", service: "S", date: new Date(), timeSlot: "t", area: "x", balanceDue: 0, bookingUrl: "https://b/booking/T", total: 1245, paid: 1245 });
+  assert.ok(paidUp.includes("fully settled") && !paidUp.includes("?pay=advance"));
+  const share = documentShareMessage({ customerName: "Asha", label: "quotation", reference: "QT-2026-0007", url: "https://b/booking?quote=X", serviceSummary: "Sofa Cleaning × 5 seats", total: 1245 });
+  assert.ok(share.includes("QT-2026-0007") && share.includes("Sofa Cleaning × 5 seats") && share.includes("₹1,245") && share.includes("https://b/booking?quote=X") && share.split("\n").length <= 6);
+});
+
+test("office quotation PDF stays Super Admin / Accounts only", () => {
+  const src = readFileSync(path.join(__dirname, "../src/app/api/quotations/[id]/pdf/route.ts"), "utf8");
+  assert.match(src, /\["ADMIN", "ACCOUNTS"\]\.includes\(session\.role\)/);
+  assert.match(src, /if \(!session\) return new NextResponse\("Unauthorized", \{ status: 401 \}\)/);
 });

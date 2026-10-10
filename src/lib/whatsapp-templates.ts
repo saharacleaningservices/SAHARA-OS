@@ -98,47 +98,63 @@ export function premiumBookingConfirmationMessage(input: {
   googleReviewUrl?: string | null;
   /** Secure /booking/<token> page; falls back to the legacy /j/<jobNumber> page. */
   bookingUrl?: string | null;
+  /** Concise booked summary ("Full Home Cleaning — Premium" / "Sofa Cleaning × 5 seats"). */
+  serviceSummary?: string | null;
+  /** Booking total and recorded payments (shown only when a total exists). */
+  total?: number | null;
+  paid?: number | null;
 }) {
   const trackingUrl = input.bookingUrl || `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
   const payUrl = input.bookingUrl ? `${input.bookingUrl}?pay=advance` : `${trackingUrl}#payment`;
   const location = input.address?.trim() || input.area;
-  const hasBalance = !!input.balanceDue && input.balanceDue > 0;
-  const paymentLine = hasBalance
-    ? `💳 Pay Advance — ${formatINR(input.balanceDue!)} due: ${payUrl}`
-    : `💳 Payment — fully settled, thank you!`;
+  const due = Math.max(0, input.balanceDue ?? 0);
+  const total = input.total && input.total > 0 ? input.total : null;
+  const paid = Math.max(0, input.paid ?? 0);
+  const money = total
+    ? `💰 Total ${formatINR(total)}${paid > 0 ? ` · Paid ${formatINR(paid)}` : ""} · Balance ${formatINR(due)}`
+    : null;
 
+  // Compact, mobile-first: who/what/when/where, money, then the actions. No visible
+  // phone number (owner instruction 2026-09-21) — support & changes via MORE.
   return [
     `✅ *Booking Confirmed — ${COMPANY.name}*`,
+    `Hi ${input.customerName}, your booking is confirmed.`,
     ``,
-    `Hi ${input.customerName},`,
-    `*Your booking has been confirmed!* ✅`,
-    `Thank you for choosing ${COMPANY.name}. We're excited to serve you!`,
+    `🆔 ${input.jobNumber}`,
+    `🧹 ${input.serviceSummary?.trim() || input.service}`,
+    `🗓️ ${formatDate(input.date)} · ${input.timeSlot}`,
+    `📍 ${location}`,
+    money,
     ``,
-    `🆔 Booking ID: ${input.jobNumber}`,
-    `🗓️ Service Date: ${formatDate(input.date)}`,
-    `⏰ Time: ${input.timeSlot}`,
-    `🧹 Service: ${input.service}`,
-    `📍 Address: ${location}`,
-    ``,
-    `👥 Our team will arrive on time. You'll get a WhatsApp message before they start.`,
-    `Keep your space ready, we'll take care of the rest! 🙏`,
-    ``,
-    `— — — — — — — — — —`,
-    `📄 View Booking: ${trackingUrl}`,
-    input.bookingUrl ? `🧾 View Quotation: ${input.bookingUrl.replace("/booking/", "/booking/quotation/")}` : null,
-    paymentLine,
-    input.googleReviewUrl ? `⭐ Google Review: ${input.googleReviewUrl}` : null,
-    // Owner instruction 2026-09-21 (Phase 5 WhatsApp readiness): the
-    // confirmation message itself must carry no visible phone number.
-    // Reschedule/pay-after-service/calendar/review/photos/call/WhatsApp
-    // support are all reached by replying MORE, matching the real
-    // Cloud-API "More Options" interactive-list button once the template
-    // below is approved and connected — see moreOptionsListMessage().
-    `ℹ️ More Options: reply *MORE* for reschedule, pay-after-service, calendar, review, photos & support`,
-    `— — — — — — — — — —`,
-    ``,
-    `🌐 ${COMPANY.website ?? "www.saharacleaningservices.com"}`,
-    `✉️ ${COMPANY.email}`,
+    `📄 Booking: ${trackingUrl}`,
+    input.bookingUrl ? `🧾 Quotation: ${input.bookingUrl.replace("/booking/", "/booking/quotation/")}` : null,
+    due > 0 ? `💳 Pay advance: ${payUrl}` : `💳 Payment: fully settled — thank you!`,
+    `🔁 Reschedule / postpone / cancel: reply *MORE* or use “Need a change?” on your booking page.`,
+    input.googleReviewUrl ? `⭐ ${input.googleReviewUrl}` : null,
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+}
+
+/** Short WhatsApp text for sharing a quotation / final invoice link (staff press send themselves). */
+export function documentShareMessage(input: {
+  customerName: string;
+  label: "quotation" | "final invoice";
+  reference: string;
+  url: string;
+  serviceSummary?: string | null;
+  total?: number | null;
+  paid?: number | null;
+}) {
+  const total = input.total && input.total > 0 ? input.total : null;
+  const paid = Math.max(0, input.paid ?? 0);
+  return [
+    `Hi ${input.customerName}, here is your ${input.label} *${input.reference}* from ${COMPANY.name}.`,
+    input.serviceSummary ? `🧹 ${input.serviceSummary}` : null,
+    total ? `💰 Total ${formatINR(total)}${paid > 0 ? ` · Paid ${formatINR(paid)} · Balance ${formatINR(Math.max(0, total - paid))}` : ""}` : null,
+    `📄 ${input.url}`,
+    input.label === "quotation" ? `You can view it, pay or request a change of date there.` : null,
+    `Help: WhatsApp ${COMPANY.phones[1] ?? COMPANY.phones[0]}`,
   ]
     .filter((l) => l !== null)
     .join("\n");
