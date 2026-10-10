@@ -49,11 +49,15 @@ export async function ensureCustomer(input: {
   email?: string | null;
   area?: string | null;
   address?: string | null;
+  /** Client's registered / office address. When given it is the ONLY thing written to Customer.address
+   *  (the work-site `address` then goes to a CustomerSite only); when absent the older behaviour applies. */
+  officeAddress?: string | null;
   contactType?: string | null;
   isRepeat?: boolean | null;
   source?: string | null;
 }) {
   const mobile = normalizeMobile(input.mobile);
+  const office = input.officeAddress?.trim() || "";
   if (!mobile) return null;
   const existing = await db.customer.findUnique({ where: { mobile } });
   if (!existing) {
@@ -64,7 +68,7 @@ export async function ensureCustomer(input: {
         alternateMobile: input.alternateMobile?.trim() || null,
         email: input.email?.trim() || null,
         area: cleanArea(input.area),
-        address: input.address?.trim() || null,
+        address: office || input.address?.trim() || null,
         source: input.source ?? null,
         contactType: isContactType(input.contactType) ? input.contactType : "CUSTOMER",
         isRepeat: !!input.isRepeat,
@@ -75,7 +79,10 @@ export async function ensureCustomer(input: {
   if (!existing.alternateMobile && input.alternateMobile?.trim()) patch.alternateMobile = input.alternateMobile.trim();
   if (!existing.email && input.email?.trim()) patch.email = input.email.trim();
   if (!existing.area && cleanArea(input.area)) patch.area = cleanArea(input.area);
-  if (!existing.address && input.address?.trim()) patch.address = input.address.trim();
+  if (office) {
+    // Staff typed a registered address on purpose: it replaces the stored one when different.
+    if (office !== (existing.address ?? "")) patch.address = office;
+  } else if (!existing.address && input.address?.trim()) patch.address = input.address.trim();
   if (input.isRepeat && !existing.isRepeat) patch.isRepeat = true;
   if (isContactType(input.contactType) && input.contactType !== existing.contactType && input.contactType !== "CUSTOMER") patch.contactType = input.contactType;
   return Object.keys(patch).length ? db.customer.update({ where: { id: existing.id }, data: patch }) : existing;
@@ -122,6 +129,7 @@ export async function linkCustomerAndSite(input: {
   alternateMobile?: string | null;
   email?: string | null;
   address?: string | null;
+  officeAddress?: string | null;
   pinCode?: string | null;
   area?: string | null;
   mapLink?: string | null;

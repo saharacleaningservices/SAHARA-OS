@@ -9,10 +9,10 @@ import { ChevronRight } from "lucide-react";
  * there, not on the cards.
  */
 const SERVICES = [
-  { key: "HOME", title: "Home Cleaning", benefit: "Full Home Deep Cleaning, Sofa, Mattress & More", img: "/marketing/carousel-team.webp" },
-  { key: "COMMERCIAL", title: "Office & Commercial", benefit: "Offices, shops, clinics & contracts — written quote", img: "/marketing/hero-commercial.webp" },
+  { key: "HOME", title: "Home Deep Cleaning", benefit: "Full Home Deep Cleaning, Sofa, Mattress & More", img: "/marketing/carousel-team.webp" },
+  { key: "COMMERCIAL", title: "Commercial & Office Cleaning", benefit: "Offices, shops, clinics & contracts — written quote", img: "/marketing/hero-commercial.webp" },
+  { key: "PEST", title: "Pest Control Services", benefit: "Home, office & commercial — price after inspection", img: "/marketing/hero-pest.webp" },
   { key: "PAINTING", title: "Interior Painting", benefit: "Residential & full home painting, Asian Paints", img: "/marketing/hero-painting.webp" },
-  { key: "PEST", title: "Pest Control", benefit: "Home, office & commercial — price after inspection", img: "/marketing/hero-pest.webp" },
 ] as const;
 
 /** starts: optional honest "starting from" line per service (from the live price list). */

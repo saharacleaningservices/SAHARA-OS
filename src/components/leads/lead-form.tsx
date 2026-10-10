@@ -19,7 +19,7 @@ import { leadSchema, type LeadFormValues } from "@/lib/validation";
 import { LEAD_SOURCE_OPTIONS, SERVICE_CATEGORY_TO_LEGACY, TIME_SLOTS, PAYMENT_MODES, PAYMENT_MODE_LABELS, LEAD_PAYMENT_STATUSES, LEAD_PAYMENT_STATUS_LABELS } from "@/lib/constants";
 import { formatINR, formatDate } from "@/lib/utils";
 import { createLead, updateLead } from "@/server/actions/leads";
-import { getRepeatCustomerSummary } from "@/server/actions/customer-actions";
+import { getRepeatCustomerSummary, searchCustomersQuick } from "@/server/actions/customer-actions";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { ServiceQuantityFields } from "@/components/shared/service-quantity-fields";
 import { MapsLocationInput } from "@/components/shared/maps-location-input";
@@ -98,6 +98,28 @@ export function LeadForm({
           setCheckingRepeat(false);
           setRepeatCustomer(summary);
           setSiteChoice(summary?.sites?.length ? "" : "NEW");
+          if (summary) autoFillCustomer(summary);
+    }
+
+    // Recognised contact → fill the stored basic profile straight away (blank fields only, so nothing the
+    // user already typed is overwritten). Sites are still chosen below; the work-site address is never touched here.
+    function autoFillCustomer(c: NonNullable<Awaited<ReturnType<typeof getRepeatCustomerSummary>>>) {
+      if (c.name && !(watch("name") || "").trim()) setValue("name", c.name, { shouldDirty: true });
+      if (c.alternateMobile && !(watch("alternateMobile") || "").trim()) setValue("alternateMobile", c.alternateMobile, { shouldDirty: true });
+      if (c.email && !(watch("email") || "").trim()) setValue("email", c.email, { shouldDirty: true });
+      if (c.officeAddress && !(watch("officeAddress") || "").trim()) setValue("officeAddress", c.officeAddress, { shouldDirty: true });
+      setValue("contactType", c.contactType, { shouldDirty: true });
+      setValue("isRepeat", true, { shouldDirty: true });
+      toast.success(`Existing ${c.contactType === "CUSTOMER" ? "customer" : "client"} recognised — details filled`);
+    }
+
+    // Name typeahead (Super Admin / Accounts only — the server returns nothing for other roles, which keeps
+    // customer phone numbers hidden from them). Picking a result fills the mobile and runs the same lookup.
+    async function pickNameMatch(m: { name: string; mobile: string }) {
+      setNameMatches([]);
+      setValue("name", m.name, { shouldDirty: true });
+      setValue("mobile", m.mobile, { shouldDirty: true });
+      await handleMobileBlur(m.mobile);
     }
 
   // Customer database (2026-10-08): reuse an existing contact and pick one of
@@ -108,6 +130,7 @@ export function LeadForm({
     if (repeatCustomer.name) setValue("name", repeatCustomer.name, { shouldDirty: true });
     if (repeatCustomer.alternateMobile) setValue("alternateMobile", repeatCustomer.alternateMobile, { shouldDirty: true });
     if (repeatCustomer.email) setValue("email", repeatCustomer.email, { shouldDirty: true });
+    if (repeatCustomer.officeAddress) setValue("officeAddress", repeatCustomer.officeAddress, { shouldDirty: true });
     setValue("contactType", repeatCustomer.contactType, { shouldDirty: true });
     setValue("isRepeat", true, { shouldDirty: true });
     toast.success("Customer details filled — choose a site below");
@@ -163,6 +186,21 @@ export function LeadForm({
       ...defaultValues,
     },
   });
+
+    const [nameMatches, setNameMatches] = useState<{ name: string; mobile: string }[]>([]);
+    const typedName = watch("name") || "";
+    useEffect(() => {
+      if (leadId || repeatCustomer) return;
+      const q = typedName.trim();
+      if (q.length < 3) {
+        setNameMatches([]);
+        return;
+      }
+      const t = setTimeout(() => {
+        searchCustomersQuick(q).then((r) => setNameMatches(r.slice(0, 6))).catch(() => setNameMatches([]));
+      }, 300);
+      return () => clearTimeout(t);
+    }, [typedName, leadId, repeatCustomer]);
 
   // Package Calculator (Customized Service): multiple services in one lead.
   const [pkg, setPkg] = useState<PackageDraft>(() => parsePackage(defaultValues?.serviceItems, defaultValues?.discountAmount));
@@ -319,8 +357,20 @@ export function LeadForm({
         <CardContent className="grid grid-cols-1 gap-3 px-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="name">Customer Name</Label>
-            <Input id="name" {...register("name")} />
+            <Input id="name" {...register("name")} autoComplete="off" />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+            {nameMatches.length > 0 && (
+              <ul className="rounded-md border bg-card text-sm shadow-sm" aria-label="Existing customers matching this name">
+                {nameMatches.map((m) => (
+                  <li key={m.mobile}>
+                    <button type="button" onClick={() => pickNameMatch(m)} className="flex min-h-10 w-full items-center justify-between gap-2 px-3 text-left hover:bg-muted">
+                      <span className="truncate font-medium">{m.name}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{m.mobile}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="mobile">Mobile</Label>
@@ -391,6 +441,13 @@ export function LeadForm({
               </label>
             </div>
           )}
+          {!leadId && (
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="officeAddress">Registered / Office Address (client)</Label>
+              <Textarea id="officeAddress" {...register("officeAddress")} rows={2} placeholder="Client's registered or office address — not the work site" />
+              <p className="text-xs text-muted-foreground">Saved on the client record. The place where the work happens is the Site Address below.</p>
+            </div>
+          )}
           </More>
           {!leadId && repeatCustomer?.sites && repeatCustomer.sites.length > 0 && (
             <div className="space-y-1.5 sm:col-span-2">
@@ -426,8 +483,8 @@ export function LeadForm({
             {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="address">Full Address</Label>
-            <Textarea id="address" {...register("address")} rows={2} placeholder="Flat / house no, building, street, landmark, area" />
+            <Label htmlFor="address">Site Address / Work Location</Label>
+            <Textarea id="address" {...register("address")} rows={2} placeholder="Where the work will be done — flat / house no, building, street, landmark, area" />
           </div>
           <div className="sm:col-span-2">
             <MapsLocationInput

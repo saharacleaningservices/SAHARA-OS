@@ -160,7 +160,7 @@ export async function PpcPage({ slug }: { slug: PpcConfig["slug"] }) {
           <address className="not-italic">{CONTACT.address}</address>
           <a href={MAP_URL} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-amber-400 px-4 text-sm font-bold text-[#0a2540]">📍 Open in Google Maps</a>
           <p className="text-xs">GSTIN: {COMPANY.gstin}</p>
-          <p className="text-xs"><a href="/privacy-policy" className="underline">Privacy Policy</a> · <a href="/terms" className="underline">Terms &amp; Conditions</a></p>
+          <p className="flex flex-wrap items-center justify-center gap-x-2 text-xs sm:justify-start"><a href="/privacy-policy" className="inline-flex min-h-11 items-center underline">Privacy Policy</a><span aria-hidden>·</span><a href="/terms" className="inline-flex min-h-11 items-center underline">Terms &amp; Conditions</a></p>
         </div>
       </footer>
 

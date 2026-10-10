@@ -11,6 +11,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Short legal URL some links and ad forms use. 308 = permanent, method-preserving.
+  async redirects() {
+    return [{ source: "/privacy", destination: "/privacy-policy", permanent: true }];
+  },
   async headers() {
     return [
       {

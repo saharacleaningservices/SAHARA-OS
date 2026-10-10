@@ -92,6 +92,8 @@ export const leadSchema = z.object({
   mapLink: z.string().optional().or(z.literal("")),
   // Customer database (2026-10-08): chosen existing site, contact type, repeat flag.
   siteId: z.string().max(40).optional().or(z.literal("")),
+  // Client's registered / office address (saved on the customer record) — NOT the work site, which is `address`.
+  officeAddress: z.string().max(500).optional().or(z.literal("")),
   contactType: z.string().max(30).optional().or(z.literal("")),
   isRepeat: z.boolean().optional(),
   // Which approved price list the package amount came from (Festival window by service date).

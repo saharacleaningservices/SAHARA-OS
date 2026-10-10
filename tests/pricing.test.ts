@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import Database from "better-sqlite3";
@@ -784,4 +784,130 @@ test("Google Ads landing pages (/landing/*): 4 isolated single-service routes wi
   assert.equal(classifyTouch({ source: "google_ads", medium: "cpc", campaign: "home_pune", term: "deep cleaning pune", content: null, gclid: null, fbclid: null, referrer: null, landingPage: "/landing/home-deep-cleaning-pune", landingPageUrl: "", at: "2026-10-10T00:00:00Z" } as never), "Google Ads");
   assert.match(read("src/components/public/attribution-capture.tsx"), /term: p\.get\("utm_term"\)/);
   assert.match(read("src/server/actions/gallery.ts"), /category: \{ contains: category \}/);
+});
+
+test("Advance payment: 50% rule, Total | Advance | Remaining, pay-after-service means no advance", async () => {
+  const { ADVANCE_PERCENT, advanceBreakdown, paymentDetailsFrom } = await import("../src/lib/booking-payment");
+  assert.equal(ADVANCE_PERCENT, 50);
+  assert.deepEqual(advanceBreakdown(4999, "PAY_ADVANCE"), { total: 4999, advance: 2500, remaining: 2499 });
+  assert.deepEqual(advanceBreakdown(6999, "PAY_ADVANCE"), { total: 6999, advance: 3500, remaining: 3499 });
+  assert.deepEqual(advanceBreakdown(5499, "PAY_AFTER_SERVICE"), { total: 5499, advance: 0, remaining: 5499 });
+  assert.deepEqual(advanceBreakdown(5499, ""), { total: 5499, advance: 0, remaining: 5499 });
+  assert.deepEqual(advanceBreakdown(-5, "PAY_ADVANCE"), { total: 0, advance: 0, remaining: 0 });
+  for (const t of [1, 999, 4999, 12345]) {
+    const b = advanceBreakdown(t, "PAY_ADVANCE");
+    assert.equal(b.advance + b.remaining, b.total, "parts always add up");
+  }
+  // Bank / QR details come only from CRM Settings; nothing configured → null (confirmation says "team will share").
+  assert.equal(paymentDetailsFrom(null), null);
+  assert.equal(paymentDetailsFrom({ upiId: null, upiQrUrl: null, bankAccountNumber: null }), null);
+  const d = paymentDetailsFrom({ upiQrUrl: "/uploads/qr.png", bankAccountName: "Sahara", bankAccountNumber: "123", bankIfsc: "XYZ0001" });
+  assert.equal(d?.bankIfsc, "XYZ0001");
+  assert.equal(d?.upiQrUrl, "/uploads/qr.png");
+});
+
+test("Booking funnel: 4 named visual cards, Home opens packages, Diwali price note, advance modal with QR + bank, no card payments", () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  const cards = read("src/components/public/service-cards.tsx");
+  const order = ["Home Deep Cleaning", "Commercial & Office Cleaning", "Pest Control Services", "Interior Painting"].map((t) => cards.indexOf(`title: "${t}"`));
+  assert.ok(order.every((i) => i >= 0) && [...order].sort((a, b) => a - b).join() === order.join(), "4 cards, requested names and order");
+  assert.equal((cards.match(/img: "\/marketing\//g) ?? []).length, 4, "every card has an image");
+  const grid = read("src/components/public/service-grid.tsx");
+  assert.equal((grid.match(/img: "\/marketing\//g) ?? []).length, 4, "/offers cards have images too");
+  const w = read("src/components/public/booking-wizard.tsx");
+  assert.match(w, /if \(c === "HOME"\) \{[\s\S]{0,260}setHomeType\(\(t\) => t \|\| "FULL"\)/, "tapping Home opens the full-home packages");
+  assert.match(w, /Diwali & Festival Special Offer/);
+  assert.doesNotMatch(w, /Festival Special price|Festival Special\$\{/, "old Navratri-only wording is gone");
+  // confirmation modal
+  assert.match(w, /role="dialog" aria-modal="true"/);
+  for (const l of ["Total amount", "Advance payable", "After service"]) assert.ok(w.includes(l), l);
+  assert.match(w, /<PaymentDetailsBox mode="QR" details=\{paymentDetails\} large \/>/);
+  assert.match(w, /<PaymentDetailsBox mode="BANK" details=\{paymentDetails\} \/>/);
+  assert.doesNotMatch(w, /credit card|debit card|card payment/i, "no card payment option");
+  assert.match(w, /marked received only after our team verifies/, "never auto-marks a public payment as paid");
+  const box = read("src/components/shared/payment-details-box.tsx");
+  for (const l of ["Account Name", "Account Number", "IFSC"]) assert.ok(box.includes(l), `bank field ${l}`);
+  assert.match(box, /size-64 sm:size-72/, "large QR");
+  assert.match(read("src/app/booking/page.tsx"), /paymentDetails=\{paymentDetailsFrom\(settings\)\}/);
+});
+
+test("/privacy permanently redirects to /privacy-policy; Privacy / Terms links are at least 44px tall", async () => {
+  const cfg = (await import("../next.config")).default as { redirects?: () => Promise<{ source: string; destination: string; permanent?: boolean }[]> };
+  const rules = (await cfg.redirects?.()) ?? [];
+  assert.deepEqual(rules.find((r) => r.source === "/privacy"), { source: "/privacy", destination: "/privacy-policy", permanent: true });
+  const root = path.join(__dirname, "..");
+  for (const f of ["src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx", "src/components/public/ppc-landing.tsx"]) {
+    const src = readFileSync(path.join(root, f), "utf8");
+    for (const href of ["/privacy-policy", "/terms"]) {
+      const m = src.match(new RegExp(`href="${href}" className="([^"]*)"`));
+      assert.ok(m && /min-h-11/.test(m[1]), `${f}: ${href} link is at least 44px tall`);
+    }
+  }
+});
+
+test("CRM lead form: auto-fill of a recognised client, name lookup, separate Site Address vs Registered / Office Address", () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  const form = read("src/components/leads/lead-form.tsx");
+  assert.match(form, /if \(summary\) autoFillCustomer\(summary\)/, "phone match fills the stored profile automatically");
+  assert.match(form, /searchCustomersQuick\(q\)/, "name typeahead");
+  assert.match(form, /Site Address \/ Work Location/);
+  assert.match(form, /Registered \/ Office Address \(client\)/);
+  assert.match(form, /\{!leadId && \(\s*<div className="space-y-1\.5 sm:col-span-2">\s*<Label htmlFor="officeAddress">/, "office address only in the create flow");
+  // name search stays Super Admin / Accounts only (customer phone rule)
+  assert.match(read("src/server/actions/customer-actions.ts"), /export async function searchCustomersQuick[\s\S]{0,400}!canSeeCustomerContact\(session\.role\)\) return \[\]/);
+  assert.match(read("src/server/actions/customer-actions.ts"), /officeAddress: canSeeCustomerContact\(session\.role\)/, "registered address is contact data: Admin / Accounts only");
+  // job card
+  const doc = read("src/lib/pdf/job-card-document.tsx");
+  assert.match(doc, /Site Address \/ Work Location/);
+  assert.match(doc, /Registered \/ Office Address/);
+  assert.match(read("src/lib/pdf/job-card-mask.ts"), /officeAddress: null/, "team copy never carries the registered address");
+  const route = read("src/app/api/jobs/[id]/card/pdf/route.ts");
+  assert.match(route, /audience === "office"\s*\?/, "registered address loaded for the office copy only");
+});
+
+test("Lead flow (real DB, fresh process): registered address saved on the client, work site kept as a separate CustomerSite; old flow unchanged", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "sahara-link-"));
+  const dbFile = path.join(dir, "l.db");
+  const root = path.join(__dirname, "..");
+  const probe = path.join(root, ".probe-link.mts");
+  try {
+    runSetup(dbFile);
+    writeFileSync(
+      probe,
+      `
+import { linkCustomerAndSite } from "./src/server/customer-db";
+import { db } from "./src/lib/db";
+(async () => {
+  await linkCustomerAndSite({ mobile: "9000011111", name: "Broker One", address: "SITE Flat 4 Baner", officeAddress: "OFFICE 12 Corporate Park Kharadi", contactType: "BROKER" });
+  const c1 = await db.customer.findUnique({ where: { mobile: "9000011111" }, include: { sites: true } });
+  await linkCustomerAndSite({ mobile: "9000011111", name: "Broker One", address: "SITE Villa 9 Wakad" });
+  const c2 = await db.customer.findUnique({ where: { mobile: "9000011111" }, include: { sites: true } });
+  await linkCustomerAndSite({ mobile: "9000022222", name: "Walk In", address: "1 Test Rd" });
+  const c3 = await db.customer.findUnique({ where: { mobile: "9000022222" }, include: { sites: true } });
+  await linkCustomerAndSite({ mobile: "9000011111", name: "Broker One", address: "SITE Villa 9 Wakad", officeAddress: "OFFICE New Tower Hinjewadi" });
+  const c4 = await db.customer.findUnique({ where: { mobile: "9000011111" } });
+  console.log("RESULT" + JSON.stringify({ c1: [c1?.address, c1?.contactType, c1?.sites.map((s) => s.address)], c2: [c2?.address, c2?.sites.map((s) => s.address).sort()], c3: [c3?.address, c3?.sites.map((s) => s.address)], c4: c4?.address }));
+})();
+`,
+    );
+    const out = execFileSync("node", ["node_modules/tsx/dist/cli.mjs", ".probe-link.mts"], { cwd: root, env: { ...process.env, DATABASE_URL: `file:${dbFile}` }, encoding: "utf8" });
+    const r = JSON.parse(out.slice(out.indexOf("RESULT") + 6));
+    assert.deepEqual(r.c1, ["OFFICE 12 Corporate Park Kharadi", "BROKER", ["SITE Flat 4 Baner"]], "office address on the client, work site in its own site row");
+    assert.deepEqual(r.c2, ["OFFICE 12 Corporate Park Kharadi", ["SITE Flat 4 Baner", "SITE Villa 9 Wakad"]], "a 2nd site never overwrites the registered address");
+    assert.deepEqual(r.c3, ["1 Test Rd", ["1 Test Rd"]], "flows that send no office address behave exactly as before");
+    assert.equal(r.c4, "OFFICE New Tower Hinjewadi", "an explicitly typed registered address replaces the old one");
+  } finally {
+    rmSync(probe, { force: true });
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("Legacy pricing constants are gone (no stale typed prices, no PEST_CONTROL 3999)", () => {
+  const root = path.join(__dirname, "..");
+  assert.ok(!existsSync(path.join(root, "src/lib/ai/pricing.ts")), "src/lib/ai/pricing.ts removed");
+  const walk = (d: string): string[] =>
+    readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.name === "generated" ? [] : e.isDirectory() ? walk(path.join(d, e.name)) : /\.(ts|tsx)$/.test(e.name) ? [path.join(d, e.name)] : []));
+  for (const f of walk(path.join(root, "src"))) assert.ok(!/SERVICE_BASE_PRICE/.test(readFileSync(f, "utf8")), `${f} still references SERVICE_BASE_PRICE`);
 });

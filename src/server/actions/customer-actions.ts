@@ -251,6 +251,9 @@ export async function getRepeatCustomerSummary(mobile: string) {
         // Contact details only for Super Admin / Accounts (owner rule 2026-10-08).
         alternateMobile: canSeeCustomerContact(session.role) ? (master?.alternateMobile ?? leads[0]?.alternateMobile ?? null) : null,
         email: canSeeCustomerContact(session.role) ? (master?.email ?? leads[0]?.email ?? null) : null,
+        // The client's registered / office address (Customer.address) — distinct from the work-site address
+        // (Lead/Job address, CustomerSite). Contact roles only, same rule as the mobile number.
+        officeAddress: canSeeCustomerContact(session.role) ? (master?.address ?? null) : null,
         contactType: master?.contactType ?? "CUSTOMER",
         isRepeat: !!master?.isRepeat || jobs.length >= 2,
         sites,

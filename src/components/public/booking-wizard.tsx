@@ -6,6 +6,8 @@ import { publicBookLead } from "@/server/actions/public-booking";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
 import type { DayStatus } from "@/server/slot-capacity";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
+import { PaymentDetailsBox, type CompanyPaymentDetails } from "@/components/shared/payment-details-box";
+import { advanceBreakdown, ADVANCE_PERCENT } from "@/lib/booking-payment";
 import { trackFunnel, trackLead } from "@/components/public/marketing-tags";
 import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, type HomeTier } from "@/lib/service-scope";
@@ -113,6 +115,7 @@ export function BookingWizard({
   prefill,
   preset,
   pricing,
+  paymentDetails,
 }: {
   quote?: QuotePrefill | null;
   defaultCategory?: Category;
@@ -125,6 +128,8 @@ export function BookingWizard({
   prefill?: { name?: string; mobile?: string };
   /** Live prices + festival offers (server/pricing.ts). Falls back to the catalogue. */
   pricing?: LivePricing;
+  /** Company UPI QR + bank details (CRM Settings) shown on the confirmation for the advance. */
+  paymentDetails?: CompanyPaymentDetails | null;
 }) {
   // Live catalogue (Super Admin → Pricing & Packages). Interior-painting rates are never shown or used
   // here (owner decision): painting is quoted after a free site inspection.
@@ -179,10 +184,16 @@ export function BookingWizard({
     const onPick = (e: Event) => {
       const c = (e as CustomEvent<string>).detail;
       if (c === "HOME" || c === "COMMERCIAL" || c === "PEST" || c === "PAINTING") setCategory(c);
+      // Home: open the full-home packages straight away (BHK + Premium/Platinum), not a bare list of
+      // choices. During a running festival campaign that is the festival package.
+      if (c === "HOME") {
+        setHomeType((t) => t || "FULL");
+        if (campaign) setPriceMode("FESTIVAL");
+      }
     };
     window.addEventListener("sahara:select-service", onPick);
     return () => window.removeEventListener("sahara:select-service", onPick);
-  }, []);
+  }, [campaign]);
   // Schedule / details
   const [dates, setDates] = useState<{ date: string; available: boolean; status: DayStatus }[] | null>(null);
   const [monthOffset, setMonthOffset] = useState(0);
@@ -215,6 +226,7 @@ export function BookingWizard({
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
+  const [closed, setClosed] = useState(false);
   const [pending, startTransition] = useTransition();
   // Hide the mobile sticky bar once the summary (with its own Confirm) is on or above screen.
   const [pastSummary, setPastSummary] = useState(false);
@@ -474,16 +486,60 @@ export function BookingWizard({
     });
   }
 
-  if (done !== null) {
+  if (done !== null && closed) {
     return (
-      <div id="bk-done" ref={(el) => el?.scrollIntoView({ behavior: "smooth", block: "center" })} className={`${card} scroll-mt-20 text-center`}>
-        <CheckCircle2 className="mx-auto size-10 text-emerald-600" />
-        <h3 className="mt-2 text-xl font-bold">Booking request received</h3>
-        <p className="mt-1 text-sm text-[#0a2540]/75">Reference: <span className="font-semibold">{done}</span></p>
-        <p className="mt-2 text-sm text-[#0a2540]/75">{fmtDay(date)} · {slot}</p>
-        <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
-          This is not yet a confirmed booking. Our team will confirm your slot shortly — you&apos;ll receive the confirmation with your booking link on WhatsApp.
-        </p>
+      <div id="bk-done" className={`${card} scroll-mt-20 text-center`}>
+        <CheckCircle2 className="mx-auto size-8 text-emerald-600" />
+        <h3 className="mt-2 text-lg font-bold">Booking request received</h3>
+        <p className="mt-1 text-sm text-[#0a2540]/75">Reference: <span className="font-semibold">{done}</span> · {fmtDay(date)} · {slot}</p>
+        <button type="button" onClick={() => setClosed(false)} className="mt-3 min-h-11 rounded-xl border border-primary/40 px-5 text-sm font-bold text-primary">View payment details</button>
+      </div>
+    );
+  }
+  if (done !== null) {
+    const bd = advanceBreakdown(pricedTotal, pay);
+    const advanceDue = !quote && pay === "PAY_ADVANCE" && pricedTotal > 0 && !inspection;
+    return (
+      <div className="fixed inset-0 z-[70] overflow-y-auto bg-black/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="bk-done-title">
+        <div id="bk-done" className="mx-auto my-4 w-full max-w-lg rounded-2xl bg-white p-4 text-center shadow-2xl sm:p-6">
+          <CheckCircle2 className="mx-auto size-10 text-emerald-600" />
+          <h3 id="bk-done-title" className="mt-2 text-xl font-bold">Booking request received</h3>
+          <p className="mt-1 text-sm text-[#0a2540]/75">Reference: <span className="font-semibold">{done}</span></p>
+          <p className="mt-1 text-sm text-[#0a2540]/75">{fmtDay(date)} · {slot}</p>
+
+          {pricedTotal > 0 && !inspection && (
+            <dl className="mt-3 grid grid-cols-3 gap-2 text-center" aria-label="Payment breakdown">
+              <div className="rounded-xl bg-[#eef4fb] p-2"><dt className="text-[11px] font-semibold text-[#0a2540]/60">Total amount</dt><dd className="text-base font-extrabold text-primary">{inr(bd.total)}</dd></div>
+              <div className="rounded-xl bg-amber-50 p-2"><dt className="text-[11px] font-semibold text-[#0a2540]/60">Advance payable</dt><dd className="text-base font-extrabold text-amber-800">{inr(bd.advance)}</dd></div>
+              <div className="rounded-xl bg-[#eef4fb] p-2"><dt className="text-[11px] font-semibold text-[#0a2540]/60">After service</dt><dd className="text-base font-extrabold text-primary">{inr(bd.remaining)}</dd></div>
+            </dl>
+          )}
+
+          {advanceDue && (
+            <div className="mt-4 space-y-3 text-left">
+              <p className="text-center text-sm font-bold">Pay the {inr(bd.advance)} advance to secure your slot</p>
+              {paymentDetails ? (
+                <>
+                  <PaymentDetailsBox mode="QR" details={paymentDetails} large />
+                  <div>
+                    <p className="mb-1 text-xs font-bold uppercase tracking-wide text-[#0a2540]/60">Or bank transfer (NEFT / IMPS / UPI)</p>
+                    <PaymentDetailsBox mode="BANK" details={paymentDetails} />
+                  </div>
+                </>
+              ) : (
+                <p className="rounded-xl bg-[#eef4fb] p-3 text-center text-sm">Our team will share the payment QR and bank details on WhatsApp.</p>
+              )}
+              <p className="rounded-xl bg-primary/5 p-3 text-xs text-[#0a2540]/80">
+                Payments by QR or bank transfer only. After paying, send the payment screenshot on WhatsApp — your payment is marked received only after our team verifies it.
+              </p>
+            </div>
+          )}
+
+          <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
+            This is not yet a confirmed booking. Our team will confirm your slot shortly — you&apos;ll receive the confirmation with your booking link on WhatsApp.
+          </p>
+          <button type="button" onClick={() => setClosed(true)} className="mt-3 min-h-11 w-full rounded-xl border border-primary/40 text-sm font-bold text-primary">Close</button>
+        </div>
       </div>
     );
   }
@@ -921,7 +977,7 @@ export function BookingWizard({
           {needsPriceMode && priceMode && (
             <p className="mt-2 rounded-xl bg-primary/5 px-3 py-2 text-xs font-semibold text-[#0a2540]">
               {priceMode === "FESTIVAL"
-                ? `Festival Special price${activeFestival ? ` (${activeFestival.name})` : ""} — for service dates during the festival. Festival slots are subject to team availability.`
+                ? "Diwali & Festival Special Offer — for service dates during the festival. Festival slots are subject to team availability."
                 : "Regular price — for service dates outside the festival dates."}
             </p>
           )}
@@ -1146,7 +1202,7 @@ export function BookingWizard({
           {needsPriceMode && priceMode && !inspection && (
             <>
               <dt className="text-[#0a2540]/60">Price</dt>
-              <dd className="font-medium">{priceMode === "FESTIVAL" ? `Festival Special${activeFestival ? ` · ${activeFestival.name}` : ""}` : "Regular"}</dd>
+              <dd className="font-medium">{priceMode === "FESTIVAL" ? "Diwali & Festival Special Offer" : "Regular"}</dd>
             </>
           )}
           <dt className="text-[#0a2540]/60">Date</dt>
@@ -1166,6 +1222,14 @@ export function BookingWizard({
             {pricedTotal > 0 ? inr(pricedTotal) : lines.length ? "After inspection" : "—"}
             {hasUnpriced && pricedTotal > 0 && <span className="ml-1 text-xs font-medium text-[#0a2540]/60">+ items priced before booking</span>}
           </dd>
+          {!quote && pricedTotal > 0 && !inspection && (
+            <>
+              <dt className="text-[#0a2540]/60">Advance payable{pay === "PAY_ADVANCE" ? ` (${ADVANCE_PERCENT}%)` : ""}</dt>
+              <dd className="font-bold">{pay ? inr(advanceBreakdown(pricedTotal, pay).advance) : "Choose payment above"}</dd>
+              <dt className="text-[#0a2540]/60">Remaining after service</dt>
+              <dd className="font-bold">{pay ? inr(advanceBreakdown(pricedTotal, pay).remaining) : "—"}</dd>
+            </>
+          )}
         </dl>
         {!quote && (
           <div className="mt-3 rounded-xl border border-[#0a2540]/10 bg-[#f6f9fc] p-3 text-[13px] text-[#0a2540]/85" aria-label="Before our team arrives">

@@ -14,6 +14,7 @@ import { getLivePricing, getPublicPricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
 import { toWhatsAppLink } from "@/lib/utils";
+import { paymentDetailsFrom } from "@/lib/booking-payment";
 import { COMPANY } from "@/lib/constants";
 
 // Building blocks for the public marketing landing pages (/offers, /booking
@@ -154,7 +155,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               ))}
             </ul>
             <p className="text-[13px]">GSTIN: <span className="font-semibold text-white">{COMPANY.gstin}</span></p>
-            <p className="text-[13px]"><Link href="/privacy-policy" className="underline hover:text-white">Privacy Policy</Link> · <Link href="/terms" className="underline hover:text-white">Terms &amp; Conditions</Link></p>
+            <p className="flex flex-wrap items-center gap-x-2 text-[13px]"><Link href="/privacy-policy" className="inline-flex min-h-11 items-center underline hover:text-white">Privacy Policy</Link><span aria-hidden>·</span><Link href="/terms" className="inline-flex min-h-11 items-center underline hover:text-white">Terms &amp; Conditions</Link></p>
             <Link href="/gallery" className="block text-[13px] hover:text-white">Our work — gallery</Link>
           </section>
         </div>
@@ -362,12 +363,12 @@ export function ScopeLists({ included, excluded, equipment = EQUIPMENT }: { incl
 const SERVICE_TO_CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { HOME_DEEP_CLEANING: "HOME", COMMERCIAL_CLEANING: "COMMERCIAL", PEST_CONTROL: "PEST", PAINTING: "PAINTING" };
 
 export async function QuoteSection({ title, subtitle, campaignName, defaultService, preset }: { title: string; subtitle: string; campaignName: string; defaultService?: string; preset?: { bhk: string; pkg: HomeTier } }) {
-  const pricing = await getPublicPricing(); // painting rates are never sent to the public booking widget
+  const [pricing, settings] = await Promise.all([getPublicPricing(), getCompanySettings().catch(() => null)]); // painting rates are never sent to the public booking widget
   return (
     <section id="quote" className="scroll-mt-20">
       <h2 className="text-center text-xl font-bold sm:text-2xl">{title}</h2>
       <p className="mb-3 text-center text-sm text-[#0a2540]/70">{subtitle}</p>
-      <BookingWizard campaignName={campaignName} defaultCategory={SERVICE_TO_CATEGORY[defaultService ?? ""]} preset={preset} pricing={pricing} />
+      <BookingWizard campaignName={campaignName} defaultCategory={SERVICE_TO_CATEGORY[defaultService ?? ""]} preset={preset} pricing={pricing} paymentDetails={paymentDetailsFrom(settings)} />
     </section>
   );
 }
