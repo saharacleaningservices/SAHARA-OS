@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local email workspace (signature, filters, Apps Script) - never commit
+email-workspace/
