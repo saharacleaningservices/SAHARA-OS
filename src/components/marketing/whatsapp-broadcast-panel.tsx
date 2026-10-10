@@ -14,6 +14,7 @@ type Job = Awaited<ReturnType<typeof broadcastStatus>>;
 const ALIASES = { mobile: ["mobile", "phone", "number", "whatsapp", "contact", "mobile number"], name: ["name", "customer", "customer name"], service: ["service", "last service"] };
 const TEMPLATES = [
   { value: "sahara_festival_offer", label: "Festival offer (Navratri · Dussehra · Diwali)" },
+  { value: "sahara_diwali_festival_offer", label: "Diwali festival offer — image banner" },
   { value: "sahara_customer_reactivation", label: "Customer reactivation" },
 ] as const;
 

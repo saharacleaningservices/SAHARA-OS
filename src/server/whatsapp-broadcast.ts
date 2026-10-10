@@ -15,7 +15,7 @@ import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-temp
 // only numbers with a recorded marketing opt-in and no STOP, and each send
 // re-checks the STOP table and the outbound-mode gate in sendWhatsAppTemplate.
 
-export type BroadcastRecipient = { mobile: string; name: string; params: string[]; buttonParam?: string };
+export type BroadcastRecipient = { mobile: string; name: string; params: string[]; buttonParam?: string; headerImageUrl?: string };
 export type BroadcastJob = {
   campaign: string;
   templateName: string;
@@ -98,6 +98,7 @@ export function startBroadcastJob(input: { campaign: string; templateName: strin
         templateName: t.name,
         languageCode: t.language,
         bodyParams: r.params,
+        headerImageUrl: r.headerImageUrl,
         buttonUrlParams: r.buttonParam ? [{ index: 0, value: r.buttonParam }] : undefined,
         preview: renderTemplatePreview(t, r.params),
         relatedType: "Campaign",
