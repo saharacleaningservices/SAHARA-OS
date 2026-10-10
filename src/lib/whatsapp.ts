@@ -486,7 +486,7 @@ const STAFF_KINDS = new Set<WhatsAppKind>(["TEAM_DISPATCH", "ATTENDANCE_SUMMARY"
 
 function categorize(m: { id: string; kind: WhatsAppKind; body: string }, keepIds: Set<string>): PendingCategory {
   if (keepIds.has(m.id)) return "QA test";
-  if (m.kind === "DEVICE_APPROVAL" || /OTP|signed in|login/i.test(m.body)) return "OTP/security";
+  if (m.kind === "DEVICE_APPROVAL" || /\bOTP\b|signed in|login/i.test(m.body)) return "OTP/security";
   if (CUSTOMER_KINDS.has(m.kind)) return "Customer";
   if (STAFF_KINDS.has(m.kind)) return "Staff/team";
   return "Other";

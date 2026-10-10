@@ -119,3 +119,73 @@ export function tierFromPackage(...values: (string | null | undefined)[]): HomeT
   if (/premium/i.test(s)) return "Premium";
   return null;
 }
+
+// ── Compact CRM summary ──────────────────────────────────────────────────
+// One short line per booked item for CRM / Job Details / Job Card — never the
+// room-by-room checklist (that lives on customer-facing scope documents).
+// Built only from what was actually saved; nothing is invented.
+
+const listOf = (json: string | null | undefined): string[] => {
+  if (!json) return [];
+  try {
+    const v = JSON.parse(json);
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && !!x.trim()) : [];
+  } catch {
+    return [];
+  }
+};
+
+/** "per seat" + 5 → "seats"; "per mattress" + 2 → "mattresses"; 1 → "seat". */
+function unitWord(unit: string | null | undefined, qty: number): string {
+  const u = (unit ?? "").replace(/^per\s+/i, "").trim();
+  if (!u) return "";
+  if (qty <= 1) return u;
+  return /(s|x|ch|sh)$/i.test(u) ? `${u}es` : `${u}s`;
+}
+
+const AUTO_FULL_HOME = /room-by-room package scope/i;
+
+export function compactServiceLines(job: {
+  service?: string | null;
+  packageName?: string | null;
+  serviceVariant?: string | null;
+  serviceItems?: string | null;
+  comboServices?: string | null;
+  addOnServices?: string | null;
+  scopeOfWork?: string | null;
+}): string[] {
+  const lines: { name: string; qty: number; unit?: string | null }[] = [];
+  try {
+    const raw = job.serviceItems ? JSON.parse(job.serviceItems) : [];
+    if (Array.isArray(raw)) {
+      for (const l of raw) if (l && typeof l.name === "string") lines.push({ name: l.name, qty: Math.max(1, Number(l.qty) || 1), unit: l.unit ?? null });
+    }
+  } catch {
+    /* unreadable package JSON — fall through to the other saved fields */
+  }
+  const tier = (job.service === "HOME_DEEP_CLEANING" || !job.service) && lines.length <= 1 ? tierFromPackage(job.packageName, job.serviceVariant) : null;
+  const out: string[] = [];
+  if (tier) {
+    out.push(`Full Home Cleaning — ${/unfurnished/i.test(`${job.packageName ?? ""} ${job.serviceVariant ?? ""}`) ? "Unfurnished" : tier}`);
+  } else if (lines.length) {
+    for (const l of lines) {
+      const u = unitWord(l.unit, l.qty);
+      out.push(`${l.name} × ${l.qty}${u ? ` ${u}` : ""}`);
+    }
+  }
+  for (const c of listOf(job.comboServices)) out.push(`Combo Package — ${c} × 1`);
+  for (const a of listOf(job.addOnServices)) out.push(a);
+  // Older bookings saved only a scope snapshot: reuse its "• item × qty" lines.
+  if (!out.length && job.scopeOfWork && !AUTO_FULL_HOME.test(job.scopeOfWork)) {
+    const bullets = job.scopeOfWork.split("\n").map((s) => s.replace(/^\s*[•\-*]\s*/, "").trim()).filter(Boolean);
+    if (bullets.length && bullets.length <= 12 && bullets.every((b) => b.length <= 80)) out.push(...bullets);
+  }
+  if (!out.length && job.packageName) out.push(job.packageName);
+  return out;
+}
+
+/** True when the saved scope is only the auto-generated package sentence / item list (nothing staff typed). */
+export function isAutoScope(scope: string | null | undefined): boolean {
+  if (!scope) return true;
+  return AUTO_FULL_HOME.test(scope) || scope.split("\n").every((l) => /^\s*•\s/.test(l));
+}

@@ -62,6 +62,10 @@ export type JobCardPdfProps = {
   advance: number;
   balance: number;
   notes: string | null;
+  /** Compact list of booked services ("Sofa Cleaning × 5 seats") — no room-by-room checklist. */
+  services?: string[];
+  /** Scope / instructions staff typed for the team (shown in the Staff App too). */
+  instructions?: string | null;
   /** Team card — hide customer phone + payment figures. */
   audience?: "team" | "office";
 };
@@ -128,10 +132,25 @@ export function JobCardDocument(props: JobCardPdfProps) {
             <Field label="Time Slot" value={props.timeSlot} />
             <Field label="Service" value={props.service} />
             <Field label="Flat / Type" value={props.flatType || "—"} />
-            {props.packageName ? <Field label="Package" value={props.packageName} /> : null}
+            {props.packageName && !props.services?.length ? <Field label="Package" value={props.packageName} /> : null}
             <Field label="Team" value={props.team} />
             {props.crew ? <Field label="Crew" value={props.crew} /> : null}
             <Field label="Supervisor" value={props.supervisor} />
+            {props.services?.length ? (
+              <View style={styles.cellFull}>
+                <Text style={styles.label}>Services</Text>
+                {props.services.map((s, i) => (
+                  // The built-in PDF font has no "•" / "×" glyphs (same reason amounts use "Rs.").
+                  <Text key={`${s}-${i}`} style={styles.value}>{`- ${s.replace(/×/g, "x")}`}</Text>
+                ))}
+              </View>
+            ) : null}
+            {props.instructions ? (
+              <View style={styles.cellFull}>
+                <Text style={styles.label}>Instructions</Text>
+                <Text style={styles.value}>{props.instructions}</Text>
+              </View>
+            ) : null}
           </View>
         </View>
 
@@ -165,7 +184,7 @@ export function JobCardDocument(props: JobCardPdfProps) {
         ) : null}
 
         <Text style={styles.footer}>
-          {COMPANY.name} · Generated {new Date().toLocaleString("en-IN")}
+          {COMPANY.name} - Generated {new Date().toLocaleString("en-IN")}
         </Text>
       </Page>
     </Document>
