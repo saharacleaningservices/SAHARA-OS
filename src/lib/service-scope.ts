@@ -163,10 +163,12 @@ export function compactServiceLines(job: {
   } catch {
     /* unreadable package JSON — fall through to the other saved fields */
   }
-  const tier = (job.service === "HOME_DEEP_CLEANING" || !job.service) && lines.length <= 1 ? tierFromPackage(job.packageName, job.serviceVariant) : null;
+  const homeJob = (job.service === "HOME_DEEP_CLEANING" || !job.service) && lines.length <= 1;
+  const unfurnished = homeJob && /unfurnished/i.test(`${job.packageName ?? ""} ${job.serviceVariant ?? ""}`);
+  const tier = homeJob ? tierFromPackage(job.packageName, job.serviceVariant) : null;
   const out: string[] = [];
-  if (tier) {
-    out.push(`Full Home Cleaning — ${/unfurnished/i.test(`${job.packageName ?? ""} ${job.serviceVariant ?? ""}`) ? "Unfurnished" : tier}`);
+  if (tier || unfurnished) {
+    out.push(`Full Home Cleaning — ${unfurnished ? "Unfurnished" : tier}`);
   } else if (lines.length) {
     for (const l of lines) {
       const u = unitWord(l.unit, l.qty);
