@@ -22,7 +22,7 @@ import {
 import { getDashboardData } from "@/server/dashboard";
 import { getNewLeadsForDashboard } from "@/server/leads";
 import { NewLeadsCard } from "@/components/dashboard/new-leads-card";
-import { getLeadSourceStats } from "@/server/owner";
+import { getLeadChannelBreakdown, getLeadSourceStats } from "@/server/owner";
 import { getLeadMonthCalendar, type CalendarDetailLevel } from "@/server/owner-command-center";
 import { LeadMonthCalendar } from "@/components/dashboard/owner/lead-calendar";
 import { PageHeader } from "@/components/shared/page-header";
@@ -91,11 +91,13 @@ export default async function DashboardPage() {
       recentReviews,
     },
     sourceStats,
+    channelStats,
     calendar,
     newLeads,
   ] = await Promise.all([
     getDashboardData(session.role, session.sub),
     getLeadSourceStats(3),
+    getLeadChannelBreakdown(3),
     getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, calendarDetailLevel),
     // Francis (OPERATIONS) has his own Operations Command Center above; New Leads lives there.
     Promise.resolve(null as Awaited<ReturnType<typeof getNewLeadsForDashboard>> | null),
@@ -465,6 +467,24 @@ export default async function DashboardPage() {
           </Card>
         )}
       </div>
+
+      {showRevenue && channelStats.some((c) => c.leads > 0) && (
+        <Card>
+          <CardHeader className="flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm">Lead Source Breakdown — last 3 months</CardTitle>
+            <Link href="/profit/marketing" className="text-xs font-medium text-primary">Marketing →</Link>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {channelStats.map((c) => (
+              <div key={c.bucket} className="rounded-lg border p-2">
+                <p className="text-[11px] text-muted-foreground">{c.bucket}</p>
+                <p className="text-lg font-bold">{c.leads}</p>
+                <p className="text-[11px] text-muted-foreground">{c.converted} booked · {c.conversion}%</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {showRevenue && sourceStats.length > 0 && (
         <Card>

@@ -168,3 +168,114 @@ export async function recordMarketingConsent(values: unknown) {
   revalidatePath(`/leads/${parsed.data.leadId}`);
   return { success: true as const };
 }
+
+// ── CSV / Excel broadcast (owner request 2026-10-10) ─────────────────────────
+// Upload a contact list → preview counts → paced send (50–100/min) of an
+// approved MARKETING template. The upload never grants consent: only uploaded
+// numbers that ALREADY have a recorded marketing opt-in in Sahara OS (and no
+// STOP) are messaged; every other number is reported as excluded. TEST mode
+// sends only to the approved QA number(s), whatever the file contains.
+
+// Only templates Meta shows as Active for 9175220270 (checked 2026-10-10).
+// sahara_customer_reactivation is defined in whatsapp-cloud-templates.ts but not yet
+// submitted to Meta — add it here only after it is approved.
+const BROADCAST_TEMPLATES = ["sahara_festival_offer"] as const;
+const contactSchema = z.object({ mobile: z.string().max(30), name: z.string().max(80).optional().default(""), service: z.string().max(60).optional().default("") });
+const broadcastSchema = z.object({
+  campaign: z.string().regex(/^[a-z0-9_]{3,60}$/, "Campaign name: 3–60 lowercase letters, numbers or _"),
+  template: z.enum(BROADCAST_TEMPLATES),
+  festival: z.enum(FESTIVALS).optional(),
+  mode: z.enum(["TEST", "LIVE"]),
+  perMinute: z.coerce.number().min(50).max(100),
+  contacts: z.array(contactSchema).max(5000),
+});
+
+/** Splits an uploaded list into who may be messaged (recorded opt-in, no STOP) and why the rest are excluded. */
+async function classifyContacts(contacts: z.infer<typeof contactSchema>[]) {
+  const { eligible } = await getWhatsAppMarketingAudience();
+  const optedIn = new Map(eligible.map((e) => [e.mobile, e.name]));
+  const optedOut = new Set(
+    (await db.whatsAppConsent.findMany({ where: { optedOut: true }, select: { phoneNumber: true } })).map((r) => r.phoneNumber.replace(/\D/g, "").slice(-10)),
+  );
+  const seen = new Set<string>();
+  const ok: { mobile: string; name: string; service: string }[] = [];
+  let invalid = 0, duplicates = 0, stopped = 0, noConsent = 0;
+  for (const c of contacts) {
+    const m = c.mobile.replace(/\D/g, "").slice(-10);
+    if (!/^[6-9]\d{9}$/.test(m)) { invalid++; continue; }
+    if (seen.has(m)) { duplicates++; continue; }
+    seen.add(m);
+    if (optedOut.has(m)) { stopped++; continue; }
+    if (!optedIn.has(m)) { noConsent++; continue; }
+    ok.push({ mobile: m, name: (c.name || optedIn.get(m) || "").trim(), service: c.service.trim() });
+  }
+  return { ok, counts: { uploaded: contacts.length, invalid, duplicates, stopped, noConsent, eligible: ok.length } };
+}
+
+export async function previewBroadcast(contacts: unknown) {
+  const session = await requireAdmin();
+  if (!session) return { error: "Only Admin can prepare broadcasts" };
+  const parsed = z.array(contactSchema).max(5000).safeParse(contacts);
+  if (!parsed.success) return { error: "The file has more than 5,000 rows or unreadable values." };
+  const { counts } = await classifyContacts(parsed.data);
+  return { success: true as const, counts, liveEnabled: process.env.WHATSAPP_CAMPAIGNS === "on" };
+}
+
+async function festivalStartPrice(festival: string) {
+  const live = await getLivePricing();
+  const offer = live.festivals.find((f) => f.name.toLowerCase() === festival.toLowerCase());
+  const prem = offer ? ["SCS-01", "SCS-02", "SCS-03"].map((id) => offer.prices[id]).filter((n): n is number => typeof n === "number") : [];
+  return (prem.length ? Math.min(...prem) : HOME_FROM_PRICE).toLocaleString("en-IN");
+}
+
+export async function startBroadcast(values: unknown) {
+  const session = await requireAdmin();
+  if (!session) return { error: "Only Admin can send broadcasts" };
+  const parsed = broadcastSchema.safeParse(values);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid broadcast" };
+  const { campaign, template, festival, mode, perMinute, contacts } = parsed.data;
+  if (template === "sahara_festival_offer" && !festival) return { error: "Pick the festival for the festival offer template." };
+  if (!(await isWhatsAppReady())) return { error: "WhatsApp Cloud API is not connected yet — nothing was sent." };
+  const { getBroadcastJob, startBroadcastJob } = await import("@/server/whatsapp-broadcast");
+  if (getBroadcastJob()?.status === "RUNNING") return { error: "A broadcast is already running — wait for it to finish or stop it first." };
+
+  let list: { mobile: string; name: string; service: string }[];
+  if (mode === "TEST") {
+    list = WHATSAPP_TEST_NUMBERS.map((mobile) => ({ mobile, name: "Sahara Test", service: "" }));
+  } else {
+    if (process.env.WHATSAPP_CAMPAIGNS !== "on") {
+      return { error: "Live campaigns are switched off (WHATSAPP_CAMPAIGNS is not 'on'). Finish QA first, then the owner turns it on in Coolify." };
+    }
+    list = (await classifyContacts(contacts)).ok;
+    if (!list.length) return { error: "None of the uploaded numbers has a recorded WhatsApp marketing opt-in — nothing to send." };
+  }
+
+  const price = template === "sahara_festival_offer" ? await festivalStartPrice(festival!) : "";
+  const utm = (page: string) => `${page}?utm_source=whatsapp&utm_medium=broadcast&utm_campaign=${campaign}`;
+  const recipients = list.map((r) => {
+    const first = r.name.split(/\s+/)[0] || "there";
+    return template === "sahara_festival_offer"
+      ? { mobile: r.mobile, name: r.name, params: [first, festival!, price], buttonParam: utm("offers") }
+      : { mobile: r.mobile, name: r.name, params: [first, r.service || "home deep cleaning"], buttonParam: utm("home-deep-cleaning-pune") };
+  });
+  const started = startBroadcastJob({ campaign, templateName: template, perMinute, recipients, startedBy: session.name });
+  if (!started) return { error: "Could not start the broadcast (another one is running or the template is missing)." };
+  await audit(mode === "TEST" ? "WHATSAPP_BROADCAST_TEST" : "WHATSAPP_BROADCAST_STARTED", `${campaign} (${template}) ${mode}: ${recipients.length} recipient(s) at ${perMinute}/min`, session);
+  revalidatePath(PAGE);
+  return { success: true as const, total: recipients.length, perMinute };
+}
+
+export async function broadcastStatus() {
+  if (!(await requireAdmin())) return null;
+  const { getBroadcastJob } = await import("@/server/whatsapp-broadcast");
+  return getBroadcastJob();
+}
+
+export async function stopBroadcast() {
+  const session = await requireAdmin();
+  if (!session) return { error: "Only Admin can stop broadcasts" };
+  const { stopBroadcastJob } = await import("@/server/whatsapp-broadcast");
+  stopBroadcastJob();
+  await audit("WHATSAPP_BROADCAST_STOPPED", "Broadcast stop requested", session);
+  return { success: true as const };
+}

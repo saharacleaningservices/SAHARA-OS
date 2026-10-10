@@ -10,6 +10,7 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { isWhatsAppReady } from "@/lib/whatsapp";
 import { getWhatsAppMarketingAudience, WHATSAPP_TEST_NUMBERS } from "@/server/whatsapp-audience";
 import { WhatsAppCampaignPanel } from "@/components/marketing/whatsapp-campaign-panel";
+import { WhatsAppBroadcastPanel } from "@/components/marketing/whatsapp-broadcast-panel";
 import { formatINR } from "@/lib/utils";
 
 // Admin-only (inherits the Profit section's ADMIN restriction). The central
@@ -179,6 +180,7 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
             <div><p className="text-xs text-muted-foreground">Opted out (never messaged)</p><p className="text-lg font-bold">{audience.optOut}</p></div>
           </div>
           <WhatsAppCampaignPanel connected={connected} liveEnabled={process.env.WHATSAPP_CAMPAIGNS === "on"} eligible={audience.optIn} testNumbers={WHATSAPP_TEST_NUMBERS} />
+          <WhatsAppBroadcastPanel liveEnabled={process.env.WHATSAPP_CAMPAIGNS === "on"} />
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-sm">
               <thead className="text-left text-muted-foreground">

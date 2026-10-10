@@ -599,3 +599,27 @@ test("WhatsApp booking template v3 follows Meta rules: ≤2 URL buttons, ≤25-c
   const { WHATSAPP_TEST_MODE_NUMBERS } = await import("../src/lib/whatsapp");
   assert.ok(!WHATSAPP_TEST_MODE_NUMBERS.includes("917083347130"), "protected main number is never an API test/send target");
 });
+
+test("Lead Source Breakdown buckets: Google Ads / Meta Ads / WhatsApp Broadcast / Organic; unknown stays unknown", async () => {
+  const { leadSourceBucket } = await import("../src/lib/attribution");
+  assert.equal(leadSourceBucket("Google Ads"), "Google Ads");
+  assert.equal(leadSourceBucket("Meta Ads"), "Meta Ads");
+  assert.equal(leadSourceBucket("WhatsApp Marketing"), "WhatsApp Broadcast");
+  for (const c of ["Google Organic/SEO", "Google Business Profile", "Instagram Organic", "Facebook Organic", "Website Direct"]) assert.equal(leadSourceBucket(c), "Organic", c);
+  for (const c of [null, undefined, "", "Unattributed", "Other"]) assert.equal(leadSourceBucket(c), "Unknown / not tracked", String(c));
+});
+
+test("WhatsApp broadcast: 50–100/min pacing, 5,000 cap, live sends only to recorded opt-ins and stays switched off by default", async () => {
+  const b = await import("../src/server/whatsapp-broadcast");
+  assert.equal(b.BROADCAST_MIN_PER_MINUTE, 50);
+  assert.equal(b.BROADCAST_MAX_PER_MINUTE, 100);
+  assert.equal(b.BROADCAST_MAX_RECIPIENTS, 5000);
+  const src = readFileSync(path.join(__dirname, "../src/server/actions/whatsapp-campaigns.ts"), "utf8");
+  const start = src.slice(src.indexOf("export async function startBroadcast"));
+  assert.match(start, /requireAdmin\(\)/, "Admin only");
+  assert.match(start, /process\.env\.WHATSAPP_CAMPAIGNS !== "on"/, "live gated by WHATSAPP_CAMPAIGNS");
+  assert.match(start, /classifyContacts\(contacts\)\)\.ok/, "live recipients = uploaded ∩ recorded opt-in (no STOP)");
+  assert.match(start, /WHATSAPP_TEST_NUMBERS/, "test mode uses QA numbers only");
+  const job = readFileSync(path.join(__dirname, "../src/server/whatsapp-broadcast.ts"), "utf8");
+  assert.match(job, /isOptedOut\(to\)/, "each send re-checks STOP");
+});
