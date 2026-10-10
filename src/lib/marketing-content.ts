@@ -117,3 +117,9 @@ export const LOCALITIES = [
   "Hadapsar", "Magarpatta", "Kharadi", "Viman Nagar", "Wagholi", "Kalyani Nagar", "Koregaon Park", "Kondhwa", "Undri",
   "Baner", "Aundh", "Wakad", "Hinjewadi", "Pimple Saudagar", "Kothrud", "Bavdhan", "Warje", "Shivajinagar", "PCMC", "Other",
 ] as const;
+
+/** CRM Settings review count → "1,800+" (accepts "1800+" or "1,800+ Google Reviews"; the badge adds "Google Reviews"). */
+export function reviewCountLabel(v?: string | null): string {
+  const t = (v ?? "").replace(/google\s*reviews?/i, "").trim();
+  return t ? t.replace(/\d[\d,]*/, (d) => Number(d.replace(/,/g, "")).toLocaleString("en-IN")) : "";
+}

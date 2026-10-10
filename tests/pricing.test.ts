@@ -18,7 +18,7 @@ import {
   type FestivalWindow,
 } from "../src/lib/pricing-master";
 import { activeCampaign, homeFromPrice, FESTIVAL_PACKAGE_IDS, maskPaintingPrices, PAINTING_PUBLIC_NOTE } from "../src/lib/pricing-master";
-import { livePkgs } from "../src/lib/marketing-content";
+import { livePkgs, reviewCountLabel } from "../src/lib/marketing-content";
 import { publicPaymentState, resolvePublicEstimate } from "../src/lib/booking-payment";
 import { resolvePackageEstimate } from "../src/lib/lead-estimate";
 import { redactJob, redactLead } from "../src/lib/redact";
@@ -577,4 +577,25 @@ test("festival landing (/offers) layout never hard-codes prices or a ₹3,999 mi
   }
   const kit = readFileSync(path.join(__dirname, "../src/components/public/landing-kit.tsx"), "utf8");
   assert.ok(!/4\.9\/5|1,?800\+/.test(kit), "rating / review count only from CRM Settings");
+});
+
+test("Google review badge text comes from Settings and never doubles the label", () => {
+  assert.equal(reviewCountLabel("1800+"), "1,800+");
+  assert.equal(reviewCountLabel("1,800+"), "1,800+");
+  assert.equal(reviewCountLabel("1,800+ Google Reviews"), "1,800+");
+  assert.equal(reviewCountLabel(""), "");
+  assert.equal(reviewCountLabel(null), "");
+});
+
+test("WhatsApp booking template v3 follows Meta rules: ≤2 URL buttons, ≤25-char labels, review as quick reply", async () => {
+  const { templateByName } = await import("../src/lib/whatsapp-cloud-templates");
+  const t = templateByName("sahara_booking_confirmed_v3");
+  assert.ok(t, "v3 template defined");
+  const urls = t!.buttons!.filter((b) => b.type === "URL");
+  assert.ok(urls.length <= 2, "Meta allows at most 2 URL buttons");
+  assert.ok(t!.buttons!.every((b) => b.text.length <= 25), "button text ≤ 25 characters");
+  assert.deepEqual(t!.buttons!.map((b) => b.text), ["View Quotation", "Pay Now / Later", "Google Review"]);
+  assert.ok(urls.every((b) => /\/booking\/(quotation|pay)\/\{\{1\}\}$/.test(b.url ?? "")), "plain-token path URLs");
+  const { WHATSAPP_TEST_MODE_NUMBERS } = await import("../src/lib/whatsapp");
+  assert.ok(!WHATSAPP_TEST_MODE_NUMBERS.includes("917083347130"), "protected main number is never an API test/send target");
 });

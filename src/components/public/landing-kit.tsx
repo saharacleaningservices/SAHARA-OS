@@ -7,7 +7,7 @@ import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
 import { BookingWizard } from "@/components/public/booking-wizard";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
-import { CONTACT, EQUIPMENT, TERMS, inr, type Pkg } from "@/lib/marketing-content";
+import { CONTACT, EQUIPMENT, TERMS, inr, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
 import { SERVICE_AREA_NOTICE, activeCampaign } from "@/lib/pricing-master";
 import { getLivePricing, getPublicPricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
@@ -215,7 +215,7 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
     ? null
     : pricing.items.filter((p) => p.group === "PREMIUM" && p.price != null).reduce<number | null>((m, p) => (m == null || p.price! < m ? p.price! : m), null);
   // Rating / review count are the owner-set values in CRM Settings.
-  const reviews = settings?.googleReviewCount ? settings.googleReviewCount.replace(/\d+/, (d) => Number(d).toLocaleString("en-IN")) : null;
+  const reviews = reviewCountLabel(settings?.googleReviewCount) || null;
   return (
     <section className="bg-[#0a2540] text-white">
       <div className="mx-auto grid max-w-6xl md:grid-cols-[1fr_1.1fr] md:items-center md:gap-8 md:px-4 md:py-10">
@@ -381,7 +381,7 @@ export async function QuoteSection({ title, subtitle, campaignName, defaultServi
 export async function CompactHero({ title, subtitle, waText, badge }: { title: string; subtitle?: string; waText: string; badge?: string | null }) {
   const settings = await getCompanySettings().catch(() => null);
   const rating = settings?.googleRating?.trim() || "";
-  const reviews = settings?.googleReviewCount?.trim() ? settings.googleReviewCount.trim().replace(/\d+/, (d) => Number(d).toLocaleString("en-IN")) : "";
+  const reviews = reviewCountLabel(settings?.googleReviewCount);
   return (
     <section className="relative overflow-hidden bg-[#0a2540] text-white">
       <img src="/marketing/festival-banner.webp" alt="" aria-hidden className="absolute inset-0 size-full object-cover opacity-30" />
