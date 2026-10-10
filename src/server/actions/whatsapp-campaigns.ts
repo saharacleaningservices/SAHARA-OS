@@ -176,10 +176,9 @@ export async function recordMarketingConsent(values: unknown) {
 // STOP) are messaged; every other number is reported as excluded. TEST mode
 // sends only to the approved QA number(s), whatever the file contains.
 
-// Only templates Meta shows as Active for 9175220270 (checked 2026-10-10).
-// sahara_customer_reactivation is defined in whatsapp-cloud-templates.ts but not yet
-// submitted to Meta — add it here only after it is approved.
-const BROADCAST_TEMPLATES = ["sahara_festival_offer"] as const;
+// Only templates Meta shows as Active for 9175220270 (festival offer + customer reactivation
+// verified Active in WhatsApp Manager 2026-10-10).
+const BROADCAST_TEMPLATES = ["sahara_festival_offer", "sahara_customer_reactivation"] as const;
 const contactSchema = z.object({ mobile: z.string().max(30), name: z.string().max(80).optional().default(""), service: z.string().max(60).optional().default("") });
 const broadcastSchema = z.object({
   campaign: z.string().regex(/^[a-z0-9_]{3,60}$/, "Campaign name: 3–60 lowercase letters, numbers or _"),
