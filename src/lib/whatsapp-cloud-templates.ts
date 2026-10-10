@@ -25,6 +25,8 @@ export type CloudTemplate = {
   category: "UTILITY" | "MARKETING";
   language: "en";
   purpose: string;
+  /** Optional media header; the sample is what Meta's reviewer sees (the real image URL is passed per send). */
+  header?: { type: "IMAGE"; sample: string };
   body: string;
   /** Example value per {{n}} body placeholder, in order (Meta requires examples). */
   examples: string[];
@@ -187,6 +189,24 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     examples: ["Priya", "home deep cleaning"],
     buttons: [
       { type: "URL", text: "Book Now", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/home-deep-cleaning-pune?utm_source=whatsapp&utm_medium=marketing&utm_campaign=reactivation` },
+      { type: "QUICK_REPLY", text: "Stop promotions" },
+    ],
+  },
+  // ── Rich Diwali broadcast (owner request 2026-10-10): image header + emoji copy. Submitted in
+  // WhatsApp Manager; offered in the CRM broadcast dropdown only after Meta shows it Active.
+  // Meta does not allow emojis in button labels, so the button reads "Book Festival Clean".
+  {
+    key: "14",
+    name: "sahara_diwali_festival_offer",
+    category: "MARKETING",
+    language: "en",
+    purpose: "Diwali festival marketing — image header, emoji copy, Book Festival Clean + Stop promotions",
+    header: { type: "IMAGE", sample: `${PUBLIC_BOOKING_URL}/marketing/diwali-offer-banner.jpg` },
+    body:
+      "Hi {{1}}, Diwali is around the corner! 🪔 Get your home & office sparkling clean 🧹 with Sahara's Special Festival Offers.\n\n✨ 100% In-House Verified Staff\n✨ Transparent Pricing & Pay After Service",
+    examples: ["Priya"],
+    buttons: [
+      { type: "URL", text: "Book Festival Clean", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/offers?utm_source=whatsapp&utm_medium=broadcast&utm_campaign=sahara_broadcast_diwali_2026` },
       { type: "QUICK_REPLY", text: "Stop promotions" },
     ],
   },

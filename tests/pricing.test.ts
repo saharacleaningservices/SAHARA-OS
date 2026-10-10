@@ -571,7 +571,7 @@ test("office quotation PDF stays Super Admin / Accounts only", () => {
 });
 
 test("festival landing (/offers) layout never hard-codes prices or a ₹3,999 minimum; claims come from Settings", () => {
-  for (const f of ["../src/components/public/offers-tabs.tsx", "../src/app/offers/page.tsx"]) {
+  for (const f of ["../src/components/public/price-selector.tsx", "../src/components/public/service-grid.tsx", "../src/app/offers/page.tsx"]) {
     const src = readFileSync(path.join(__dirname, f), "utf8");
     assert.ok(!/[₹]\s?\d|\b(4999|5499|6499|6999|8499|3999)\b/.test(src), `${f} must take prices from the pricing master`);
   }
@@ -660,4 +660,44 @@ test("Attribution: utm_source=meta_ads / google_ads (any medium) classify as pai
   assert.equal(t("facebook", null), "Facebook Organic");
   assert.equal(t("whatsapp", "broadcast"), "WhatsApp Marketing");
   assert.equal(t("newsletter"), "Other");
+});
+
+test("Landing overhaul: one price selector, 4 service cards, pulse badge, no hard-coded sticky price, footer facts", async () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  const home = read("src/app/home-deep-cleaning-pune/page.tsx");
+  const offers = read("src/app/offers/page.tsx");
+  for (const [n, src] of [["home", home], ["offers", offers]] as const) {
+    assert.match(src, /<PriceSelector/, `${n}: single interactive price selector`);
+    assert.doesNotMatch(src, /<FestivalSection|<PackageGrid/, `${n}: no duplicate festival / package price tables`);
+  }
+  assert.match(home, /Select Your Package/, "sticky bar default text");
+  assert.doesNotMatch(home, /popular\.price|CampaignBar[^>]*price=\{/, "sticky bar must not carry a hard-coded package price");
+  const grid = read("src/components/public/service-grid.tsx");
+  for (const t of ["Home Deep Cleaning", "Commercial & Office Cleaning", "Pest Control Services", "Interior Painting"]) assert.ok(grid.includes(t), `grid card: ${t}`);
+  assert.match(offers, /Diwali Special Discounts Live!/);
+  assert.match(read("src/components/public/landing-kit.tsx"), /sahara-badge-pulse/);
+  const { COMPANY } = await import("../src/lib/constants");
+  assert.equal(COMPANY.gstin, "27DMTPS3584R2ZJ");
+  for (const f of ["src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx"]) {
+    const src = read(f);
+    assert.match(src, /Serving Pune Since 2012/, `${f} footer`);
+    assert.match(src, /privacy-policy/);
+    assert.match(src, /\/terms/);
+  }
+});
+
+test("Rich Diwali template: image header + emoji body, ≤2 URL buttons, STOP quick reply; sender supports image header", async () => {
+  const { templateByName, placeholderCount } = await import("../src/lib/whatsapp-cloud-templates");
+  const t = templateByName("sahara_diwali_festival_offer")!;
+  assert.ok(t);
+  assert.equal(t.category, "MARKETING");
+  assert.equal(t.header?.type, "IMAGE");
+  assert.equal(placeholderCount(t), 1);
+  assert.match(t.body, /🪔/);
+  assert.equal((t.buttons ?? []).filter((b) => b.type === "URL").length, 1);
+  assert.ok((t.buttons ?? []).some((b) => b.type === "QUICK_REPLY" && b.text === "Stop promotions"));
+  for (const b of t.buttons ?? []) assert.ok(!/\p{Extended_Pictographic}/u.test(b.text), "Meta disallows emojis in button labels");
+  assert.match(readFileSync(path.join(__dirname, "../src/lib/whatsapp.ts"), "utf8"), /type: "header", parameters: \[\{ type: "image"/);
+  assert.ok(readFileSync(path.join(__dirname, "../public/marketing/diwali-offer-banner.jpg")).length < 5 * 1024 * 1024);
 });
