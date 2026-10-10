@@ -27,6 +27,9 @@ const templatesEnabled = () => process.env.WHATSAPP_USE_TEMPLATES === "on";
 // Service · Google Review) is sent even if WHATSAPP_BOOKING_TEMPLATE=v2 is set.
 const bookingTemplateV2 = () =>
   process.env.WHATSAPP_BOOKING_TEMPLATE === "v2" && WHATSAPP_TRANSACTIONAL_TEMPLATES.includes("sahara_booking_confirmed_v2");
+// WHATSAPP_BOOKING_TEMPLATE=v3 → sahara_booking_confirmed_v3 (View Quotation · Pay Now / Later ·
+// Google Review). Set it in Coolify only AFTER Meta shows the template as Approved.
+const bookingTemplateV3 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v3";
 
 /** Returns the job's unguessable booking-page token, creating it on first use. */
 export async function ensureJobToken(jobId: string) {
@@ -93,6 +96,27 @@ export async function sendBookingConfirmation(jobId: string) {
   // as requested (unless the customer already chose to pay after service).
   if (due > 0 && !job.advanceRequestedAt && job.paymentPreference !== "PAY_AFTER_SERVICE") {
     await db.job.update({ where: { id: job.id }, data: { advanceRequestedAt: new Date() } });
+  }
+
+  if (templatesEnabled() && bookingTemplateV3()) {
+    const t = templateByName("sahara_booking_confirmed_v3")!;
+    const params = [job.customerName, job.jobNumber, service, formatDate(job.scheduledDate), job.scheduledTime, job.area];
+    return sendWhatsAppTemplate({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      // Plain token only — /booking/quotation/{{1}} and /booking/pay/{{1}}; button 3 is a Quick Reply.
+      buttonUrlParams: [
+        { index: 0, value: token },
+        { index: 1, value: token },
+      ],
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
   }
 
   if (templatesEnabled() && bookingTemplateV2()) {

@@ -207,6 +207,26 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
       { type: "URL", text: "Payment Options", url: `${PUBLIC_BOOKING_URL}/booking/pay/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/pay/${EX_TOKEN}` },
     ],
   },
+  // ── V3 (owner request 2026-10-10): the 3 actions the owner asked for. Meta allows at most
+  // 2 URL buttons per template, so Google Review is a Quick Reply — the webhook answers a
+  // "Google Review" tap with the Settings review link (inside the 24-hour window, no extra cost).
+  // The pay page (/booking/pay/<token>) offers both Pay Advance and Pay After Service.
+  // Submit in WhatsApp Manager; used only when WHATSAPP_BOOKING_TEMPLATE=v3 is set after approval.
+  {
+    key: "2c",
+    name: "sahara_booking_confirmed_v3",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Booking confirmed — View Quotation + Pay Now / Later + Google Review",
+    body:
+      "Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\n\nOur team will reach on time. Please keep water and electricity available.",
+    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00", "Magarpatta, Hadapsar"],
+    buttons: [
+      { type: "URL", text: "View Quotation", url: `${PUBLIC_BOOKING_URL}/booking/quotation/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/quotation/${EX_TOKEN}` },
+      { type: "URL", text: "Pay Now / Later", url: `${PUBLIC_BOOKING_URL}/booking/pay/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/pay/${EX_TOKEN}` },
+      { type: "QUICK_REPLY", text: "Google Review" },
+    ],
+  },
   {
     key: "10b",
     name: "sahara_review_request_v2",

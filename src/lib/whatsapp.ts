@@ -95,6 +95,8 @@ export const WHATSAPP_TEST_MODE_BLOCK = "Blocked — WhatsApp TEST MODE (only th
 export const WHATSAPP_TRANSACTIONAL_TEMPLATES: readonly string[] = [
   "sahara_booking_request_received",
   "sahara_booking_confirmed",
+  // v3 is sent only when WHATSAPP_BOOKING_TEMPLATE=v3 is set (after Meta approves it).
+  "sahara_booking_confirmed_v3",
   "sahara_booking_rescheduled",
   "sahara_booking_cancelled",
   "sahara_advance_payment_request",
