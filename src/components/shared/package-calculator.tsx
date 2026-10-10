@@ -253,7 +253,6 @@ export function PackageCalculator({
           <span className="tabular-nums">{inr(t.final)}</span>
         </div>
         {t.discount + t.complimentary > 0 && <p className="text-right text-xs font-semibold text-emerald-700 dark:text-emerald-400">Customer saves {inr(t.discount + t.complimentary)}</p>}
-        {t.final > 0 && t.final < 3999 && <p className="text-xs text-amber-700 dark:text-amber-400">Below the ₹3,999 minimum service value.</p>}
         {festival && <p className="text-[11px] text-muted-foreground">{festival.name} prices ({festival.start} → {festival.end}).</p>}
       </div>
     </div>

@@ -25,7 +25,9 @@ import { redactJob, redactLead } from "../src/lib/redact";
 import { readdirSync, readFileSync } from "node:fs";
 import { draftQuotation } from "../src/lib/ai/quotation";
 import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "../src/lib/whatsapp-keywords";
-import { staffBalanceToCollect } from "../src/lib/payment-status";
+import { staffBalanceToCollect, jobPaymentSummary } from "../src/lib/payment-status";
+import { leadSchema, jobSchema } from "../src/lib/validation";
+import { packageTotals } from "../src/lib/package-calc";
 import { reviewRequestMessage, premiumReviewRequestMessage } from "../src/lib/whatsapp-templates";
 import { maskJobCardForAudience } from "../src/lib/pdf/job-card-mask";
 import { compactServiceLines, isAutoScope } from "../src/lib/service-scope";
@@ -396,6 +398,44 @@ test("staff app (real DB): own job shows ONLY balance to collect; no phone, toke
     assert.equal(standalone, `INV-${yr}-0008`);
     await db.lead.create({ data: { leadNumber: `LD-${yr}-0050`, name: "T", mobile: "9000000003", area: "x", service: "HOME_DEEP_CLEANING", source: "WEBSITE" } });
     assert.equal(await generateLeadNumber(), `LD-${yr}-0051`, "lead number never collides with an existing one");
+
+    // ── No ₹3,999 minimum (owner decision 2026-10-10): real public bookings below ₹3,999 go through
+    // at their exact pricing-master totals; the other validation rules still hold.
+    const { publicBookLead } = await import("../src/server/actions/public-booking");
+    const book = async (v: Record<string, unknown>) => {
+      try { return (await publicBookLead(v)) as { error?: string } | undefined; } catch (e) {
+        // revalidatePath() needs a Next request context; it runs after every DB write, so ignore it here.
+        if (/static generation store missing/i.test(String((e as Error).message))) return undefined;
+        throw e;
+      }
+    };
+    const bookDay = new Date(Date.now() + 5.5 * 3600_000 + 3 * 86400_000).toISOString().slice(0, 10);
+    const bookBase = { name: "Small Job Test", area: "Baner", address: "1 Test Rd", timeSlot: "", attribution: {} };
+    const small: [string, string, { contentId: string; qty: number }[], number][] = [
+      ["9100000001", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-30", qty: 1 }], 299], // 1 window
+      ["9100000002", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-09", qty: 5 }], 1245], // sofa 5 seats
+      ["9100000003", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-09", qty: 5 }, { contentId: "SCS-10", qty: 2 }], 2443], // sofa + 2 bathrooms
+      ["9100000004", "COMBO_PACKAGE", [{ contentId: "SCS-26", qty: 1 }], 3499], // Kitchen + 2 Bathroom + Fridge
+      ["9100000005", "COMBO_PACKAGE", [{ contentId: "SCS-27", qty: 1 }], 3999], // ₹3,999 still works
+    ];
+    for (const [mobile, cat, items, total] of small) {
+      const r = await book({ ...bookBase, mobile, serviceCategory: cat, serviceDate: bookDay, selectedItems: items });
+      assert.ok(!r?.error, `₹${total} booking rejected: ${r?.error}`);
+      const lead = await db.lead.findFirst({ where: { mobile }, select: { quoteAmount: true } });
+      assert.equal(lead?.quoteAmount, total, `stored ₹${lead?.quoteAmount}, expected the exact ₹${total} (never raised to a minimum)`);
+    }
+    // Below the item's own minimum quantity → priced at the minimum quantity (sofa 2 seats → 5 seats), not refused.
+    await book({ ...bookBase, mobile: "9100000006", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-09", qty: 2 }] });
+    assert.equal((await db.lead.findFirst({ where: { mobile: "9100000006" }, select: { quoteAmount: true } }))?.quoteAmount, 1245);
+    // Still enforced: past/invalid dates, invalid mobile, invalid quantities, unknown items, inspection-only.
+    assert.match((await book({ ...bookBase, mobile: "9100000007", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: "2020-01-01", selectedItems: [{ contentId: "SCS-30", qty: 1 }] }))?.error ?? "", /future date/);
+    assert.match((await book({ ...bookBase, mobile: "9100000007", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: "31-12-2030", selectedItems: [{ contentId: "SCS-30", qty: 1 }] }))?.error ?? "", /valid service date/);
+    assert.match((await book({ ...bookBase, mobile: "12345", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-30", qty: 1 }] }))?.error ?? "", /mobile/);
+    assert.ok((await book({ ...bookBase, mobile: "9100000008", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-30", qty: 0 }] }))?.error, "qty 0 refused");
+    assert.ok((await book({ ...bookBase, mobile: "9100000008", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-30", qty: 101 }] }))?.error, "qty > 100 refused");
+    assert.match((await book({ ...bookBase, mobile: "9100000008", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: bookDay, selectedItems: [{ contentId: "NOPE-1", qty: 1 }] }))?.error ?? "", /no longer available/);
+    await book({ ...bookBase, mobile: "9100000009", serviceCategory: "HOME_DEEP_CLEANING", propertyType: "4 BHK", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-04", qty: 1 }, { contentId: "SCS-30", qty: 1 }] });
+    assert.equal((await db.lead.findFirst({ where: { mobile: "9100000009" }, select: { quoteAmount: true } }))?.quoteAmount, null, "inspection-only stays unpriced");
   } finally {
     // Always release the SQLite file first, so a failed assertion isn't hidden by EBUSY on cleanup.
     await (await import("../src/lib/db")).db.$disconnect().catch(() => {});
@@ -420,6 +460,23 @@ test("review / photo messages never send a token-less /j/ link (privacy dead end
   const without = reviewRequestMessage({ customerName: "A", service: "Cleaning", googleReviewUrl: null, jobNumber: "JOB-1" });
   const premium = premiumReviewRequestMessage({ customerName: "A", service: "Cleaning", jobNumber: "JOB-1" });
   for (const m of [withUrl, without, premium]) assert.ok(!/\/j\/JOB-1(?!\?t=)/.test(m), m);
+});
+
+test("no ₹3,999 minimum in CRM: office-entered small amounts validate, and quotation/payment maths stay exact", () => {
+  for (const amt of [499, 1599, 3200, 3999, 8499]) {
+    assert.ok(leadSchema.safeParse({ name: "Test", mobile: "9100000010", area: "Baner", service: "HOUSEKEEPING", source: "CALL", quoteAmount: amt }).success, `lead ₹${amt}`);
+    assert.ok(jobSchema.partial().safeParse({ jobValue: amt }).success, `job ₹${amt}`);
+  }
+  assert.ok(!jobSchema.partial().safeParse({ jobValue: -1 }).success, "negative job value still refused");
+  // Small package: exact total, no top-up to a minimum.
+  const t = packageTotals({ lines: [{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Cleaning", unit: "per seat", qty: 5, unitPrice: 249 }], discount: 0 } as never);
+  assert.equal(t.final, 1245);
+  // Small job payments: advance / balance / status exact.
+  assert.deepEqual(jobPaymentSummary(1599, [{ paidAmount: 500 }]), { paid: 500, balance: 1099, status: "Partly Paid" });
+  assert.deepEqual(jobPaymentSummary(499, [{ paidAmount: 499 }]), { paid: 499, balance: 0, status: "Paid" });
+  // No CRM UI or rule text still claims a ₹3,999 minimum.
+  const calc = readFileSync(path.join(__dirname, "../src/components/shared/package-calculator.tsx"), "utf8");
+  assert.ok(!/3,?999 minimum/i.test(calc));
 });
 
 test("staff collection helper returns only the balance due, never below zero", () => {
