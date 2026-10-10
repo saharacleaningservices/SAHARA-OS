@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, FestivalSection, PackageGrid, RoomScope, QuoteSection, Faqs, Terms, OtherServices, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, RoomScope, QuoteSection, Faqs, Terms, OtherServices, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd, buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
+import { PriceSelector } from "@/components/public/price-selector";
 import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 import { livePkgs, liveSmallServices, liveCombos, inr } from "@/lib/marketing-content";
 import { activeCampaign, todayIST } from "@/lib/pricing-master";
@@ -46,8 +47,6 @@ export default async function HomeDeepCleaningPage() {
   // Genuine, owner-uploaded Before/After pairs (Admin → Gallery). Renders nothing until real photos exist —
   // no placeholder or stock imagery is ever shown as a customer result.
   const galleryItems = await getFeaturedGallery(12).catch(() => []);
-  // Sticky-bar default: the most-booked package (genuine MRP shown only if the owner set one).
-  const popular = PREMIUM.find((p) => p.bhk === "2 BHK") ?? PREMIUM[0];
   return (
     <LandingShell
       logoUrl={settings.logoUrl}
@@ -55,7 +54,7 @@ export default async function HomeDeepCleaningPage() {
       jsonLd={[businessJsonLd({ makesOffer: [...PREMIUM.map((p) => ({ ...p, tierName: "Premium" })), ...PLATINUM.map((p) => ({ ...p, tierName: "Platinum" }))].filter((p) => p.price != null).map((p) => ({ "@type": "Offer", name: `${p.bhk} ${p.tierName} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" })) }), faqJsonLd(FAQS)]}
       bookHref="#quote"
       footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
-      mobileBar={popular ? <CampaignBar label={`${popular.bhk} Premium · Home Deep Cleaning`} price={popular.price} mrp={popular.mrp} /> : undefined}
+      mobileBar={<CampaignBar label="Home Deep Cleaning" priceNote="Select Your Package →" cta="Book Now →" />}
     >
       <CampaignStyles />
       <CampaignHero
@@ -69,20 +68,16 @@ export default async function HomeDeepCleaningPage() {
         waText={WA}
       />
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
+        <PriceSelector rows={buildHomeRows(PREMIUM, PLATINUM)} note={festivalPriceNote(campaign)} heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />
         <QuoteSection title="Book home deep cleaning" subtitle="Pick your home size, date and time — we confirm on WhatsApp." campaignName="Home Deep Cleaning Pune" defaultService="HOME_DEEP_CLEANING" />
-        <FestivalSection />
         {galleryItems.length > 0 && <BeforeAfterGallery items={galleryItems} />}
         <section>
-          <h2 className="text-xl font-bold sm:text-2xl">Premium home deep cleaning</h2>
-          <p className="text-sm text-[#0a2540]/70">Complete top-to-bottom cleaning of your home. Estimated 7–8 hours.</p>
-          <PackageGrid items={PREMIUM} tier="Premium" />
-          <div className="mt-3"><Accordion title="View Full Cleaning Scope — Premium"><RoomScope tier="Premium" compact /></Accordion></div>
-        </section>
-        <section>
-          <h2 className="text-xl font-bold sm:text-2xl">Platinum home deep cleaning</h2>
-          <p className="mt-1 inline-block rounded-lg bg-amber-100 px-3 py-1 text-sm font-bold text-amber-900">⭐ WALL WET CLEANING &amp; CEILING DRY DUSTING INCLUDED</p>
-          <PackageGrid items={PLATINUM} accent tier="Platinum" />
-          <div className="mt-3"><Accordion title="View Full Cleaning Scope — Platinum"><RoomScope tier="Platinum" compact /></Accordion></div>
+          <h2 className="text-xl font-bold sm:text-2xl">What&apos;s included</h2>
+          <p className="text-sm text-[#0a2540]/70">Top-to-bottom home deep cleaning, estimated 7–8 hours. Platinum adds wall wet cleaning &amp; ceiling dry dusting.</p>
+          <div className="mt-3 space-y-3">
+            <Accordion title="Full cleaning scope — Premium"><RoomScope tier="Premium" compact /></Accordion>
+            <Accordion title="Full cleaning scope — Platinum ⭐"><RoomScope tier="Platinum" compact /></Accordion>
+          </div>
         </section>
         <Accordion title="Individual cleaning services & combo packages">
           <div className="grid gap-3 sm:grid-cols-2">

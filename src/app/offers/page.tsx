@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { activeCampaign, homeFromPrice, todayIST } from "@/lib/pricing-master";
 import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, CompactHero, ProcessStepper, AreasBadge, QuoteSection, Faqs, BASE_URL, businessJsonLd, faqJsonLd, packageSlug } from "@/components/public/landing-kit";
-import { OffersTabs, type CategoryCard, type HomeRow } from "@/components/public/offers-tabs";
+import { LandingShell, CompactHero, ProcessStepper, AreasBadge, QuoteSection, Faqs, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd, buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
+import { CampaignFooter } from "@/components/public/campaign-kit";
+import { PriceSelector } from "@/components/public/price-selector";
+import { ServiceGrid } from "@/components/public/service-grid";
 import { livePkgs, inr } from "@/lib/marketing-content";
 
 // Festival campaign hub (Navratri · Dussehra · Diwali) — the WhatsApp campaign
@@ -37,46 +39,30 @@ const FAQS = [
   { q: "Which areas do you cover?", a: "We serve Pune and Pimpri-Chinchwad (PCMC). Standard package prices apply to our standard serviceable areas; additional charges may apply for locations outside it, depending on distance and requirements." },
 ];
 
-// The four core categories (order as the owner specified). CTAs open the booking
-// form with that service selected — inspection-based services quote after a visit.
-const CATEGORIES: CategoryCard[] = [
-  { key: "commercial", label: "Office & Commercial", title: "Office & Commercial Cleaning", text: "Offices, workspaces and commercial premises — site visit and quote.", cta: "Get Quote", href: "/booking?service=commercial#book", img: "/marketing/hero-commercial.webp" },
-  { key: "painting", label: "Interior Painting", title: "Interior Painting", text: "Asian Paints range — free site inspection and a measurement-based quote.", cta: "Book Free Inspection", href: "/booking?service=painting#book", img: "/marketing/hero-painting.webp" },
-  { key: "pest", label: "Pest Control", title: "Pest Control", text: "Cockroach, termite, bed bug and ant control after inspection.", cta: "Book Inspection", href: "/booking?service=pest#book", img: "/marketing/hero-pest.webp" },
-];
-
 export default async function FestivalOffersPage() {
   const [settings, pricing] = await Promise.all([getCompanySettings(), getLivePricing()]);
   const campaign = activeCampaign(pricing.festivals, todayIST());
   // Same price source as before: pricing master + the active festival window (festival price only while it runs).
   const PREMIUM = livePkgs(pricing.items, "PREMIUM", campaign?.current);
   const PLATINUM = livePkgs(pricing.items, "PLATINUM", campaign?.current);
-  const home: HomeRow[] = ["1 BHK", "2 BHK", "3 BHK"].map((bhk) => {
-    const pr = PREMIUM.find((p) => p.bhk === bhk)?.price ?? null;
-    const pl = PLATINUM.find((p) => p.bhk === bhk)?.price ?? null;
-    return {
-      bhk,
-      premium: pr,
-      platinum: pl,
-      premiumHref: pr != null ? `/home-deep-cleaning-pune/${packageSlug(bhk, "Premium")}` : null,
-      platinumHref: pl != null ? `/home-deep-cleaning-pune/${packageSlug(bhk, "Platinum")}` : null,
-    };
-  });
-  const day = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
-  const priceNote = campaign
-    ? `${campaign.windows.map((w) => w.name).join(" · ")} prices for service dates ${day(campaign.start)} – ${day(campaign.end)}. Platinum adds wall wet cleaning. Slots subject to team availability.`
-    : "Regular package prices. Platinum adds wall wet cleaning.";
   const faqs = campaign ? FAQS.filter((f) => !/festival and regular/i.test(f.q)) : FAQS;
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(faqs)]} bookHref="#quote">
+    <LandingShell
+      logoUrl={settings.logoUrl}
+      waText={WA}
+      jsonLd={[businessJsonLd(), faqJsonLd(faqs)]}
+      bookHref="#quote"
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+    >
       <CompactHero
         title="Get Your Home & Workplace Festival-Ready"
-        badge={campaign ? `🪔 ${campaign.windows.map((w) => w.name).join(" · ")}` : null}
+        badge={campaign ? "🪔 Diwali Special Discounts Live!" : null}
         waText={WA}
       />
       <main className="mx-auto max-w-6xl space-y-4 px-4 py-4">
+        <ServiceGrid />
+        <PriceSelector rows={buildHomeRows(PREMIUM, PLATINUM)} note={festivalPriceNote(campaign)} heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />
         <ProcessStepper />
-        <OffersTabs home={home} priceNote={priceNote} homeCta={campaign ? "Book Festival Cleaning" : "Book Online"} categories={CATEGORIES} />
         <QuoteSection title="Book online" subtitle="Pick a service, date and time — we confirm on WhatsApp." campaignName="Sahara Festival 2026" defaultService="HOME_DEEP_CLEANING" />
         <AreasBadge />
         <Faqs faqs={faqs} compact />

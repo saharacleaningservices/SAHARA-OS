@@ -7,6 +7,7 @@ import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
 import { BookingWizard } from "@/components/public/booking-wizard";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
+import type { HomeRow } from "@/components/public/price-selector";
 import { CONTACT, EQUIPMENT, TERMS, inr, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
 import { SERVICE_AREA_NOTICE, activeCampaign } from "@/lib/pricing-master";
 import { getLivePricing, getPublicPricing } from "@/server/pricing";
@@ -159,7 +160,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
         </div>
         <div className="border-t border-white/10">
           <p className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-3 text-[11px] text-white/50 sm:justify-between">
-            <span>© Sahara Cleaning Services · Since 2012 · GSTIN: {COMPANY.gstin}</span>
+            <span>© Sahara Cleaning Services · Serving Pune Since 2012 · GSTIN: {COMPANY.gstin}</span>
             <span>
               <Link href="/privacy-policy" className="underline">Privacy Policy</Link> · <Link href="/terms" className="underline">Terms &amp; Conditions</Link>
             </span>
@@ -387,7 +388,8 @@ export async function CompactHero({ title, subtitle, waText, badge }: { title: s
       <img src="/marketing/festival-banner.webp" alt="" aria-hidden className="absolute inset-0 size-full object-cover opacity-30" />
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a2540]/60 to-[#0a2540]" aria-hidden />
       <div className="relative mx-auto max-w-6xl px-4 py-5 sm:py-10">
-        {badge && <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-[#0a2540]">{badge}</p>}
+        {badge && <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-[#0a2540] motion-safe:animate-[sahara-badge-pulse_2.2s_ease-in-out_infinite]">{badge}</p>}
+        <style>{`@keyframes sahara-badge-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.05)}}`}</style>
         <h1 className="mt-2 text-[26px] font-extrabold leading-tight sm:text-4xl">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-white/80">{subtitle}</p>}
         {(rating || reviews) && (
@@ -599,4 +601,26 @@ export async function FestivalSection({ bookHref = "?price=festival#quote" }: { 
       </div>
     </section>
   );
+}
+
+/** Rows for the PriceSelector from the live (festival-aware) Premium / Platinum packages. */
+export function buildHomeRows(premium: Pkg[], platinum: Pkg[]): HomeRow[] {
+  return ["1 BHK", "2 BHK", "3 BHK"].map((bhk) => {
+    const pr = premium.find((p) => p.bhk === bhk)?.price ?? null;
+    const pl = platinum.find((p) => p.bhk === bhk)?.price ?? null;
+    return {
+      bhk,
+      premium: pr,
+      platinum: pl,
+      premiumHref: pr != null ? `/home-deep-cleaning-pune/${packageSlug(bhk, "Premium")}` : null,
+      platinumHref: pl != null ? `/home-deep-cleaning-pune/${packageSlug(bhk, "Platinum")}` : null,
+    };
+  });
+}
+
+/** One-line price footnote under the PriceSelector (festival dates only while a campaign runs). */
+export function festivalPriceNote(campaign: ReturnType<typeof activeCampaign>): string {
+  if (!campaign) return "Regular package prices. Platinum adds wall wet cleaning.";
+  const day = (d: string) => new Date(`${d}T00:00:00+05:30`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
+  return `${campaign.windows.map((w) => w.name).join(" · ")} prices for service dates ${day(campaign.start)} – ${day(campaign.end)}. Platinum adds wall wet cleaning. Slots subject to team availability.`;
 }

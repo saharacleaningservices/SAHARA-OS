@@ -535,6 +535,8 @@ export async function sendWhatsAppTemplate(input: {
   templateName: string;
   languageCode: string;
   bodyParams?: string[];
+  /** Public https image URL for templates with an IMAGE header (JPG/PNG, ≤5 MB). */
+  headerImageUrl?: string;
   /** Dynamic suffix for URL buttons, by the button's index in the template. */
   buttonUrlParams?: { index: number; value: string }[];
   preview: string;
@@ -567,6 +569,7 @@ export async function sendWhatsAppTemplate(input: {
 
   const params = input.bodyParams ?? [];
   const components = [
+    ...(input.headerImageUrl ? [{ type: "header", parameters: [{ type: "image", image: { link: input.headerImageUrl } }] }] : []),
     ...(params.length ? [{ type: "body", parameters: params.map((text) => ({ type: "text", text })) }] : []),
     ...(input.buttonUrlParams ?? []).map((b) => ({
       type: "button",

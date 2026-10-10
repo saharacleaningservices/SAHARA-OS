@@ -169,7 +169,7 @@ export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string |
       </div>
       <div className="border-t border-primary/30">
         <p className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-3 text-[11px] text-[#0a2540]/60 sm:justify-between">
-          <span>© Sahara Cleaning Services · Since 2012 · GSTIN: {COMPANY.gstin} · {CONTACT.call.join(" / ")}</span>
+          <span>© Sahara Cleaning Services · Serving Pune Since 2012 · GSTIN: {COMPANY.gstin} · {CONTACT.call.join(" / ")}</span>
           <span><Link href="/privacy-policy" className="underline">Privacy Policy</Link> · <Link href="/terms" className="underline">Terms &amp; Conditions</Link></span>
         </p>
       </div>
