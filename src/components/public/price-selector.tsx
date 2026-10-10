@@ -14,7 +14,7 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const TIERS = ["Premium", "Platinum"] as const;
 type Tier = (typeof TIERS)[number];
 
-export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick your home size" }: { rows: HomeRow[]; note: string; bookHref?: string; heading?: string }) {
+export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick your home size", hideDetails }: { rows: HomeRow[]; note: string; bookHref?: string; heading?: string; /** Hide the "What's included" link (isolated PPC pages must not link into the main site). */ hideDetails?: boolean }) {
   const [bhk, setBhk] = useState<string>("");
   const [tier, setTier] = useState<Tier | "">("");
   const row = rows.find((r) => r.bhk === bhk);
@@ -65,9 +65,9 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
           <>
             <p className="text-xs font-semibold text-[#0a2540]/60">{bhk} · {tier} home deep cleaning</p>
             <p className="text-3xl font-extrabold text-primary">{inr(price)}</p>
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className={`mt-2 grid gap-2 ${hideDetails ? "" : "grid-cols-2"}`}>
               <a href={bookHref} className="flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book {bhk} {tier}</a>
-              <Link href={href ?? "/home-deep-cleaning-pune"} className="flex min-h-11 items-center justify-center rounded-xl border border-primary/40 text-sm font-bold text-primary">What&apos;s included</Link>
+              {!hideDetails && <Link href={href ?? "/home-deep-cleaning-pune"} className="flex min-h-11 items-center justify-center rounded-xl border border-primary/40 text-sm font-bold text-primary">What&apos;s included</Link>}
             </div>
           </>
         )}
