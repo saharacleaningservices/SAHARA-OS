@@ -5,6 +5,7 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { formatDate } from "@/lib/utils";
 import { WHATSAPP_TRANSACTIONAL_TEMPLATES, sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
+import { compactServiceLines } from "@/lib/service-scope";
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 
 // One booking-message pipeline for every confirmed booking — online requests
@@ -151,6 +152,9 @@ export async function sendBookingConfirmation(jobId: string) {
       balanceDue: due,
       googleReviewUrl: settings?.googleReviewUrl ?? null,
       bookingUrl: url,
+      serviceSummary: compactServiceLines(job).join(", ") || null,
+      total: job.jobValue,
+      paid: job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0),
     }),
     relatedType: "Job",
     relatedId: job.id,

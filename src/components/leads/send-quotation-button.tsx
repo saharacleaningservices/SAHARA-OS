@@ -7,6 +7,7 @@ import { Loader2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getQuotationBookingLink, updateQuotationStatus } from "@/server/actions/quotations";
 import { toWhatsAppLink } from "@/lib/utils";
+import { documentShareMessage } from "@/lib/whatsapp-templates";
 
 /**
  * Send a lead's quotation: the secure customer link (/booking?quote=<token> — shows the
@@ -31,7 +32,7 @@ export function SendQuotationButton({ quotationId, quoteNumber, status, name, mo
             return void toast.error(res.error);
           }
           const url = "url" in res ? res.url : "";
-          const text = `Hi ${name}, here is your quotation ${quoteNumber} from Sahara Cleaning Services:\n${url}\n\nYou can view it and choose your date & slot there. For any help, call or WhatsApp 7083347130 / 8956567130.`;
+          const text = documentShareMessage({ customerName: name, label: "quotation", reference: quoteNumber, url: url ?? "" });
           if (w) w.location.href = toWhatsAppLink(mobile, text);
           if (status === "DRAFT") await updateQuotationStatus(quotationId, "SENT").catch(() => {});
           router.refresh();

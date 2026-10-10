@@ -21,6 +21,7 @@ import { requireUser } from "@/lib/current-user";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { ensureJobToken } from "@/server/booking-messages";
 import { compactServiceLines } from "@/lib/service-scope";
+import { documentShareMessage } from "@/lib/whatsapp-templates";
 
 /** One compact row: label left, value right (stacks only when the value is long). */
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -89,8 +90,16 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const quotationUrl = docToken ? `${PUBLIC_BOOKING_URL}/booking/quotation/${docToken}` : "";
   // The final invoice exists only once the job is completed (the public route 404s before that too).
   const invoiceUrl = docToken && completed ? `${PUBLIC_BOOKING_URL}/booking/invoice/${docToken}` : "";
-  const docMessage = (label: string, url: string) =>
-    `Hi ${job.customerName}, here is your ${label} from Sahara Cleaning Services for booking ${job.jobNumber}:\n${url}\n\nFor any help, call or WhatsApp 7083347130 / 8956567130.`;
+  const docMessage = (label: "quotation" | "final invoice", url: string) =>
+    documentShareMessage({
+      customerName: job.customerName,
+      label,
+      reference: job.jobNumber,
+      url,
+      serviceSummary: services.join(", ") || null,
+      total: job.jobValue,
+      paid: advance,
+    });
   const leadQuote = job.lead?.quotations[0] ?? null;
 
   const coords = job.mapLink ? parseMapLink(job.mapLink) : null;

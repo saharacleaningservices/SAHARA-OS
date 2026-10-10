@@ -108,6 +108,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
     included = [];
   }
 
+  const docView = focus === "quotation" || focus === "invoice";
   const paymentBlock = (
         <div id="payment" className="space-y-3 rounded-2xl bg-white p-5 text-sm shadow-sm">
           <p className="flex items-center justify-between font-semibold text-[#0a2540]">
@@ -206,6 +207,16 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
         {focus === "pay" && paymentBlock}
         <div className="space-y-4 print:hidden">
 
+        {/* Quotation / invoice view: the document above already carries the service, schedule,
+            scope, terms and payment details — keep the page short (change request right under it). */}
+        {docView && open && (
+          <div className="space-y-2 rounded-2xl bg-white p-5 text-sm shadow-sm">
+            <p className="font-semibold text-[#0a2540]">Need a change?</p>
+            <BookingChangeRequest token={token} />
+          </div>
+        )}
+
+        {!docView && (
         <div className="space-y-2 rounded-2xl bg-white p-5 text-sm shadow-sm">
           <p className="font-semibold text-[#0a2540]">{SERVICE_LABELS[job.service] ?? job.service}</p>
           {(job.packageName || job.serviceVariant) && (
@@ -222,7 +233,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
             </a>
           )}
           <p className="flex items-start gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" /> {job.address || job.area}</p>
-          {focus !== "quotation" && focus !== "invoice" && (
+          {(
             <div className="flex flex-wrap gap-2 pt-1">
               <a href={`/booking/quotation/${token}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-bold text-white">
                 <FileText className="size-3.5" /> View Quotation
@@ -242,7 +253,9 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           )}
         </div>
 
-        <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} />
+        )}
+
+        {!docView && <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} />}
 
         {focus !== "pay" && paymentBlock}
 
@@ -254,7 +267,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           </a>
         )}
 
-        {open && (
+        {!docView && open && (
           <div className="space-y-2 rounded-2xl bg-white p-5 text-sm shadow-sm">
             <p className="font-semibold text-[#0a2540]">Need a change?</p>
             <BookingChangeRequest token={token} />
@@ -262,12 +275,16 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
         )}
 
         <div className="rounded-2xl bg-white p-5 text-sm shadow-sm">
-          <p className="font-semibold text-[#0a2540]">Important</p>
-          <ul className="mt-1 list-disc space-y-1 pl-5 text-[#0a2540]/80">
-            <li>Please keep water supply and electricity available.</li>
-            <li>Arrange a stool / ladder where required.</li>
-            <li>Need to change the date? Call or WhatsApp us.</li>
-          </ul>
+          {!docView && (
+            <>
+              <p className="font-semibold text-[#0a2540]">Important</p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-[#0a2540]/80">
+                <li>Please keep water supply and electricity available.</li>
+                <li>Arrange a stool / ladder where required.</li>
+                <li>Need to change the date? Call or WhatsApp us.</li>
+              </ul>
+            </>
+          )}
           <a href="/terms" className="mt-2 inline-block text-xs font-semibold text-primary">Terms &amp; Conditions →</a>
           <div className="mt-3 flex flex-wrap gap-2">
             {support.map((n) => (

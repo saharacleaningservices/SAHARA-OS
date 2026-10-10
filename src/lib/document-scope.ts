@@ -3,7 +3,7 @@
 // (service-scope.ts) and each price-master item's own scope / rule text.
 import { PRICING_MASTER } from "@/lib/pricing-master";
 import { parsePackage } from "@/lib/package-calc";
-import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homePleaseNote, homeScopeByArea, tierFromPackage } from "@/lib/service-scope";
+import { CUSTOMER_REQUIREMENTS, conciseHomeExclusions, conciseHomeScope, homePleaseNote, isAutoScope, tierFromPackage } from "@/lib/service-scope";
 
 export function documentScope(input: {
   service: string;
@@ -25,16 +25,12 @@ export function documentScope(input: {
       ? tierFromPackage(baseLine?.name, input.packageName, input.serviceVariant)
       : null;
 
-  if (tier && !manual) {
-    notes.push(
-      `Full house deep cleaning (${tier}): ` +
-        homeScopeByArea(tier)
-          .map((a) => `${a.area}: ${a.items.map((i) => i.item.toLowerCase()).join(", ")}`)
-          .join("; ") +
-        ".",
-    );
-    notes.push(`Working time: ${HOME_DURATION}.`);
-    kindlyNote.push(...homePleaseNote(tier));
+  if (tier && (!manual || isAutoScope(manual))) {
+    // One concise line — the full room-by-room checklist stays on the booking page.
+    if (manual) notes.pop();
+    notes.push(`Full Home Cleaning — ${tier}: ${conciseHomeScope(tier)}`);
+    kindlyNote.push(conciseHomeExclusions(tier));
+    kindlyNote.push(...homePleaseNote(tier).slice(-3)); // stains, inaccessible areas, extra work
   }
 
   // Customized / add-on services: each item's approved scope / rule.

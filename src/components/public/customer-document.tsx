@@ -1,6 +1,7 @@
 import { parsePackage, lineAmount } from "@/lib/package-calc";
 import { COMPANY } from "@/lib/constants";
-import { BOOKING_TERMS } from "@/lib/pricing-master";
+import { PRICING_MASTER } from "@/lib/pricing-master";
+import { conciseHomeExclusions, conciseHomeScope, isAutoScope, tierFromPackage } from "@/lib/service-scope";
 import { formatDate } from "@/lib/utils";
 import { DocumentActions } from "@/components/public/document-actions";
 
@@ -78,22 +79,61 @@ export type CustomerDocCompany = {
   bankIfsc: string | null;
 };
 
+/** Compact customer terms — the material conditions of BOOKING_TERMS + customer requirements, in 4 lines. */
+export const COMPACT_TERMS = [
+  "Price covers the scope listed above; any extra work is done only after your approval and charged separately.",
+  "Distant locations or urgent / same-day service may carry an extra charge. Festival slots are subject to team availability.",
+  "Please arrange water, electricity, a stool / ladder where needed, and access to all areas; keep valuables secured.",
+  "Old or permanent stains can't be guaranteed to come off fully; heavy furniture is moved only if agreed.",
+];
+
+/** "per seat" x 5 -> "× 5 seats" (unit wording from the price master). */
+export function qtyLabel(qty: number, unit: string | null | undefined): string {
+  const u = (unit ?? "").replace(/^per\s+/i, "").trim();
+  if (!u) return qty > 1 ? `× ${qty}` : "";
+  return `× ${qty} ${qty === 1 ? u : /(s|x|ch|sh)$/i.test(u) ? `${u}es` : `${u}s`}`;
+}
+
 export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOTATION" | "INVOICE"; job: CustomerDocJob; company: CustomerDocCompany; shareUrl: string }) {
   const isInvoice = kind === "INVOICE";
   const pkg = parsePackage(job.serviceItems, job.discountAmount);
   const discount = Math.max(0, job.discountAmount ?? 0);
   const packageLabel = [job.packageName, job.serviceVariant && job.serviceVariant !== job.packageName ? job.serviceVariant : null].filter(Boolean).join(" · ");
-  // Itemised package lines when the booking has them; otherwise one line for the booked
-  // service — titled by the combo package(s) when the booking is a combo with no tier.
-  const comboTitle = !packageLabel && job.included.length > 0 ? job.included.join(" · ") : "";
+  // Full-house package -> one concise line ("Full Home Cleaning — Premium"), never the room checklist.
+  const unfurnished = /unfurnished/i.test(`${job.packageName ?? ""} ${job.serviceVariant ?? ""}`);
+  const tier = pkg.lines.length <= 1 ? tierFromPackage(job.packageName, job.serviceVariant) : null;
+  const homeLabel = tier || unfurnished ? `Full Home Cleaning — ${unfurnished ? "Unfurnished" : tier}` : null;
+  const property = job.serviceVariant && !/premium|platinum|unfurnished/i.test(job.serviceVariant) ? job.serviceVariant : null;
+  // Combo components from the price master's own description ("Empty kitchen · 2 bathrooms · fridge").
+  const comboParts = (name: string) =>
+    PRICING_MASTER.find((p) => p.group === "COMBO" && (p.name === name || p.variant === name))
+      ?.rule?.split(" · ")
+      .filter((x) => !/approx\./i.test(x))
+      .join(" · ");
+  // Itemised package lines when the booking has them; otherwise one line for the booked service.
+  const comboTitle = !packageLabel && job.included.length > 0 ? job.included.join(" + ") : "";
   const rows =
     pkg.lines.length > 0
-      ? pkg.lines.map((l) =>
-          l.complimentary
-            ? { name: `${l.name} (Complimentary)`, detail: `Free · value ${inr(lineAmount(l))}`, qty: l.qty, rate: l.unitPrice, disc: lineAmount(l), total: 0 }
-            : { name: l.name, detail: l.unit ?? "", qty: l.qty, rate: l.unitPrice, disc: 0, total: lineAmount(l) },
-        )
-      : [{ name: comboTitle || job.serviceLabel, detail: comboTitle ? `${job.serviceLabel} · package` : packageLabel, qty: 1, rate: job.jobValue + discount, disc: discount, total: job.jobValue }];
+      ? pkg.lines.map((l) => {
+          const isHome = !!homeLabel && /premium|platinum/i.test(l.name);
+          return l.complimentary
+            ? { name: `${l.name} (Complimentary)`, detail: `${qtyLabel(l.qty, l.unit)} · free (value ${inr(lineAmount(l))})`, qty: l.qty, rate: l.unitPrice, disc: lineAmount(l), total: 0 }
+            : { name: isHome ? homeLabel! : l.name, detail: isHome ? property ?? "" : qtyLabel(l.qty, l.unit), qty: l.qty, rate: l.unitPrice, disc: 0, total: lineAmount(l) };
+        })
+      : [
+          {
+            name: homeLabel ?? (comboTitle ? `Combo Package — ${comboTitle}` : job.serviceLabel),
+            detail: homeLabel
+              ? [property, job.festivalName ? `${job.festivalName} price` : null].filter(Boolean).join(" · ")
+              : comboTitle
+                ? job.included.map((c) => [c, comboParts(c)].filter(Boolean).join(": ")).join(" | ")
+                : packageLabel,
+            qty: 1,
+            rate: job.jobValue + discount,
+            disc: discount,
+            total: job.jobValue,
+          },
+        ];
   const showIncludes = !comboTitle;
   const itemsDiscount = pkg.lines.length > 0 ? discount : 0;
   const subtotal = rows.reduce((s, r) => s + r.total, 0);
@@ -102,13 +142,21 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
   const balance = Math.max(0, total - job.paid);
   const docNo = isInvoice ? job.invoiceNumber || `INV-${job.jobNumber}` : `QO-${job.jobNumber}`;
   const docDate = isInvoice ? (job.completedAt ?? new Date()) : job.createdAt;
-  const scope = (job.scopeOfWork ?? "").split(/\n+/).map((s) => s.replace(/^[•\-\s]+/, "").trim()).filter(Boolean);
+  // Concise scope: one line for a full-house package + anything staff actually typed; item
+  // bookings need nothing more (each item and quantity is already in the table above).
+  const customScope = job.scopeOfWork && !isAutoScope(job.scopeOfWork) ? job.scopeOfWork.trim() : null;
+  const scope = [
+    ...(homeLabel ? [conciseHomeScope(tier), conciseHomeExclusions(tier)] : []),
+    ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : []),
+  ];
   const hasPayment = !!(company.upiId || company.upiQrUrl || company.bankAccountNumber);
 
   return (
-    <article id="document" className="overflow-hidden rounded-2xl bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:shadow-none">
+    <article id="document" className="overflow-hidden rounded-2xl bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:text-[12px] print:shadow-none">
+      {/* Saved / printed PDF: A4 with slim margins so a normal quotation fits on one page. */}
+      <style>{"@media print{@page{size:A4;margin:8mm}html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}"}</style>
       {/* Header */}
-      <header className="flex items-start justify-between gap-3 border-b border-[#0a2540]/10 p-4 sm:p-6">
+      <header className="flex items-start justify-between gap-3 border-b border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
         <div className="min-w-0">
           {company.logoUrl ? (
              
@@ -133,7 +181,7 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
       </header>
 
       {/* Bill to + service schedule */}
-      <section className="grid gap-3 border-b border-[#0a2540]/10 p-4 sm:grid-cols-2 sm:p-6">
+      <section className="grid gap-3 border-b border-[#0a2540]/10 p-4 sm:grid-cols-2 sm:p-6 print:grid-cols-2 print:px-4 print:py-2">
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Bill To</p>
           <p className="font-bold">{job.customerName}</p>
@@ -149,7 +197,7 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
       </section>
 
       {/* Services table — stacked rows on mobile, columns from sm */}
-      <section className="p-4 sm:p-6">
+      <section className="p-4 sm:p-6 print:px-4 print:py-2">
         <div className="hidden grid-cols-[2rem_1fr_3rem_5.5rem_5rem_6rem] gap-2 border-b border-[#0a2540]/15 pb-2 text-[11px] font-bold uppercase text-[#0a2540]/60 sm:grid">
           <span>No</span><span>Services</span><span className="text-right">Qty</span><span className="text-right">Rate</span><span className="text-right">Disc.</span><span className="text-right">Total</span>
         </div>
@@ -181,40 +229,35 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
           {itemsDiscount > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Discount</span><span className="tabular-nums">− {inr(itemsDiscount)}</span></p>}
           {complimentary > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Complimentary (free)</span><span className="tabular-nums">{inr(complimentary)}</span></p>}
           <p className="flex justify-between rounded-lg bg-primary/10 px-2 py-1.5 text-base font-extrabold"><span>{isInvoice ? "Total Amount" : "Final Payable"}</span><span className="tabular-nums">{inr(total)}</span></p>
-          {isInvoice && (
-            <>
-              <p className="flex justify-between"><span className="text-[#0a2540]/70">Received</span><span className="tabular-nums">{inr(job.paid)}</span></p>
-              <p className="flex justify-between font-bold"><span>Balance</span><span className="tabular-nums">{inr(balance)}</span></p>
-            </>
-          )}
+          {/* Advance / balance from recorded payments only — on the quotation too. */}
+          <p className="flex justify-between"><span className="text-[#0a2540]/70">{isInvoice ? "Received" : "Advance Paid"}</span><span className="tabular-nums">{inr(job.paid)}</span></p>
+          <p className="flex justify-between font-bold"><span>Balance Due</span><span className="tabular-nums">{inr(balance)}</span></p>
           <p className="text-[11px] text-[#0a2540]/60">{rupeesInWords(total)}</p>
         </div>
       </section>
 
       {/* Scope / notes */}
-      {(scope.length > 0 || packageLabel) && (
-        <section className="border-t border-[#0a2540]/10 p-4 sm:p-6">
+      {scope.length > 0 && (
+        <section className="border-t border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
           <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Scope of Work</p>
-          {scope.length > 0 ? (
-            <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">{scope.map((s) => <li key={s} className="break-words">{s}</li>)}</ul>
-          ) : (
-            <p className="mt-1 text-xs text-[#0a2540]/80">{job.serviceLabel} — {packageLabel}. Full scope is listed on your booking page.</p>
-          )}
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">{scope.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
         </section>
       )}
 
       {/* Terms */}
-      <section className="border-t border-[#0a2540]/10 p-4 sm:p-6">
+      <section className="border-t border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
         <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Terms &amp; Conditions</p>
         <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">
-          {BOOKING_TERMS.map((t) => <li key={t}>{t}</li>)}
-          <li>Customer to arrange water supply, electricity and a stool/ladder where required.</li>
+          {COMPACT_TERMS.map((t) => <li key={t}>{t}</li>)}
         </ol>
+        <p className="mt-1.5 text-xs text-[#0a2540]/80">
+          <span className="font-semibold">Reschedule, postpone or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
+        </p>
       </section>
 
       {/* Payment details */}
       {hasPayment && (!isInvoice || balance > 0) && (
-        <section className="flex flex-wrap items-start gap-4 border-t border-[#0a2540]/10 p-4 sm:p-6">
+        <section className="flex flex-wrap items-start gap-4 border-t border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
           <div className="min-w-0 flex-1 text-xs">
             <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Payment Details</p>
             {company.upiId && <p className="mt-1">UPI ID: <span className="font-semibold">{company.upiId}</span></p>}
@@ -234,7 +277,7 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
         </section>
       )}
 
-      <footer className="flex flex-wrap items-end justify-between gap-3 border-t border-[#0a2540]/10 p-4 text-xs sm:p-6">
+      <footer className="flex flex-wrap items-end justify-between gap-3 border-t border-[#0a2540]/10 p-4 text-xs sm:p-6 print:px-4 print:py-2">
         <p className="text-[#0a2540]/60">Questions? Call / WhatsApp {COMPANY.phones.join(" / ")}</p>
         <p className="text-right font-semibold">For {company.name}</p>
       </footer>
