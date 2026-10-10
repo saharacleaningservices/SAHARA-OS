@@ -135,3 +135,30 @@ export function sanitizeTouch(t: unknown): Touch | null {
     at: s("at", 40),
   };
 }
+
+/** Dashboard "Lead Source Breakdown" buckets (owner 2026-10-10). Unknown stays Unknown — never folded into Organic. */
+export const LEAD_SOURCE_BUCKETS = ["Google Ads", "Meta Ads", "WhatsApp Broadcast", "Organic", "Direct (WhatsApp / Call / Referral)", "Unknown / not tracked"] as const;
+export type LeadSourceBucket = (typeof LEAD_SOURCE_BUCKETS)[number];
+export function leadSourceBucket(channel: string | null | undefined): LeadSourceBucket {
+  switch (channel) {
+    case "Google Ads":
+      return "Google Ads";
+    case "Meta Ads":
+      return "Meta Ads";
+    case "WhatsApp Marketing":
+      return "WhatsApp Broadcast";
+    case "Google Organic/SEO":
+    case "Google Business Profile":
+    case "Instagram Organic":
+    case "Facebook Organic":
+    case "Website Direct":
+      return "Organic";
+    case "WhatsApp Direct":
+    case "Phone Call":
+    case "Referral":
+    case "Repeat Customer":
+      return "Direct (WhatsApp / Call / Referral)";
+    default:
+      return "Unknown / not tracked";
+  }
+}

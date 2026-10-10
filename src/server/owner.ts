@@ -105,3 +105,17 @@ export async function getLeadSourceStats(months = 3) {
     }))
     .sort((a, b) => b.leads - a.leads);
 }
+
+/** Leads in the last N months grouped by acquisition channel bucket (Google Ads / Meta Ads / WhatsApp Broadcast / Organic …). */
+export async function getLeadChannelBreakdown(months = 3) {
+  const { LEAD_SOURCE_BUCKETS, leadSourceBucket } = await import("@/lib/attribution");
+  const since = subMonths(new Date(), months);
+  const leads = await db.lead.findMany({ where: { deletedAt: null, createdAt: { gte: since } }, select: { acquisitionChannel: true, stage: true } });
+  const map = new Map<string, { leads: number; converted: number }>(LEAD_SOURCE_BUCKETS.map((b) => [b, { leads: 0, converted: 0 }]));
+  for (const l of leads) {
+    const row = map.get(leadSourceBucket(l.acquisitionChannel))!;
+    row.leads += 1;
+    if (l.stage === "JOB_SCHEDULED" || l.stage === "COMPLETED" || l.stage === "CONFIRMED") row.converted += 1;
+  }
+  return [...map.entries()].map(([bucket, v]) => ({ bucket, leads: v.leads, converted: v.converted, conversion: v.leads ? Math.round((v.converted / v.leads) * 100) : 0 }));
+}
