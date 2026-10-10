@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 
 /**
@@ -16,7 +17,9 @@ const SERVICES = [
 
 /** starts: optional honest "starting from" line per service (from the live price list). */
 export function ServiceCards({ starts = {} }: { starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>> }) {
+  const [active, setActive] = useState<string>("");
   function open(key: string) {
+    setActive(key);
     window.dispatchEvent(new CustomEvent("sahara:select-service", { detail: key }));
     document.getElementById("bk-service")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -29,7 +32,8 @@ export function ServiceCards({ starts = {} }: { starts?: Partial<Record<"HOME" |
             key={s.key}
             type="button"
             onClick={() => open(s.key)}
-            className="group flex flex-col overflow-hidden rounded-2xl bg-white text-left shadow-sm transition active:scale-[0.98]"
+            aria-pressed={active === s.key}
+            className={`group flex flex-col overflow-hidden rounded-2xl bg-white text-left shadow-sm transition active:scale-[0.98] ${active === s.key ? "ring-2 ring-primary" : ""}`}
           >
             <img src={s.img} alt={s.title} loading="lazy" className="aspect-[4/3] w-full object-cover" />
             <span className="flex flex-1 flex-col gap-1 p-2.5 sm:p-3">

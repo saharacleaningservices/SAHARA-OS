@@ -108,63 +108,58 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
       <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
       {footer ?? (
       <footer className="mt-6 bg-[#0a2540] text-white/80">
-        <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 text-sm sm:py-8">
-          <p className="text-base font-extrabold text-white">Sahara Cleaning Services — Pune &amp; PCMC</p>
-          {/* Call + WhatsApp quick-action chips for both customer numbers */}
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {CONTACT.call.map((n) => (
-              <div key={n} className="flex items-center gap-2 rounded-2xl bg-white/5 p-2 ring-1 ring-white/10">
-                <span className="flex-1 pl-1 font-bold tracking-wide text-white">{n}</span>
-                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex min-h-10 items-center gap-1.5 rounded-xl bg-white px-3 text-xs font-bold text-[#0a2540]"><Phone className="size-3.5" /> Call</a>
-                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex min-h-10 items-center gap-1.5 rounded-xl bg-success px-3 text-xs font-bold text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
-              </div>
-            ))}
-          </div>
-          {/* Location */}
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
-            <address className="flex min-w-0 gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
+        <div className="mx-auto grid max-w-6xl gap-5 px-4 py-6 text-sm sm:py-8 md:grid-cols-3">
+          {/* Block 1 — Location */}
+          <section aria-labelledby="ft-location" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+            <h2 id="ft-location" className="text-base font-extrabold text-white">Visit us</h2>
+            <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
             <a
               href="https://www.google.com/maps/search/?api=1&query=Sahara+Cleaning+Services+Magarpatta+City+Hadapsar+Pune"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-amber-400 px-3 text-xs font-bold text-[#0a2540]"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-amber-400 px-3 text-sm font-bold text-[#0a2540]"
             >
-              <MapPin className="size-3.5" /> Open in Google Maps
+              <MapPin className="size-4" /> Open in Google Maps
             </a>
-          </div>
-          {/* Categories + social / contact — clean 2-column grid */}
-          <div className="grid grid-cols-2 gap-4 text-[13px]">
-            <nav aria-label="Services">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-white/50">Services</p>
-              <ul className="mt-1.5 space-y-1">
-                <li><Link href="/home-deep-cleaning-pune" className="hover:text-white">Home Deep Cleaning</Link></li>
-                <li><Link href="/commercial-cleaning-pune" className="hover:text-white">Office &amp; Commercial</Link></li>
-                <li><Link href="/interior-painting-pune" className="hover:text-white">Interior Painting</Link></li>
-                <li><Link href="/pest-control-pune" className="hover:text-white">Pest Control</Link></li>
-                <li><Link href="/booking" className="font-semibold text-amber-400">Book Online</Link></li>
-              </ul>
-            </nav>
-            <div className="space-y-2">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-white/50">Follow us</p>
-              <div className="flex items-center gap-2">
-                {SOCIAL.map(({ href, label, icon: Icon }) => (
-                  <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white hover:text-[#0a2540]">
-                    <Icon className="size-4" />
-                  </a>
-                ))}
-              </div>
-              <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-1.5 break-all text-white/80 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
-              <Link href="/gallery" className="block hover:text-white">Our work — gallery</Link>
+            <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-semibold text-white">
+              {CONTACT.call.map((n) => <a key={n} href={`tel:+91${n}`} className="hover:text-amber-300">+91 {n.slice(0, 5)} {n.slice(5)}</a>)}
+            </p>
+          </section>
+          {/* Block 2 — Service directory, email, social */}
+          <section aria-labelledby="ft-services" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+            <h2 id="ft-services" className="text-base font-extrabold text-white">Our services</h2>
+            <ul className="space-y-1.5 text-[13px]">
+              <li><Link href="/home-deep-cleaning-pune#price-selector" className="hover:text-white">Home Deep Cleaning — packages &amp; prices</Link></li>
+              <li><Link href="/commercial-cleaning-pune" className="hover:text-white">Office &amp; Commercial Cleaning</Link></li>
+              <li><Link href="/interior-painting-pune" className="hover:text-white">Interior Painting</Link></li>
+              <li><Link href="/pest-control-pune" className="hover:text-white">Pest Control</Link></li>
+              <li><Link href="/housekeeping-services" className="hover:text-white">Housekeeping &amp; AMC</Link></li>
+              <li><Link href="/booking#book" className="font-semibold text-amber-400">Book Online</Link></li>
+            </ul>
+            <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
+            <div className="flex items-center gap-2">
+              {SOCIAL.map(({ href, label, icon: Icon }) => (
+                <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white hover:text-[#0a2540]">
+                  <Icon className="size-4" />
+                </a>
+              ))}
             </div>
-          </div>
+          </section>
+          {/* Block 3 — Trust, legal */}
+          <section aria-labelledby="ft-trust" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+            <h2 id="ft-trust" className="text-base font-extrabold text-white">Serving Pune Since 2012</h2>
+            <ul className="flex flex-wrap gap-1.5 text-[11px] font-semibold">
+              {["In-house verified staff", "Transparent pricing", "Pay after service"].map((b) => (
+                <li key={b} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-white"><Check className="size-3 text-emerald-300" aria-hidden />{b}</li>
+              ))}
+            </ul>
+            <p className="text-[13px]">GSTIN: <span className="font-semibold text-white">{COMPANY.gstin}</span></p>
+            <p className="text-[13px]"><Link href="/privacy-policy" className="underline hover:text-white">Privacy Policy</Link> · <Link href="/terms" className="underline hover:text-white">Terms &amp; Conditions</Link></p>
+            <Link href="/gallery" className="block text-[13px] hover:text-white">Our work — gallery</Link>
+          </section>
         </div>
         <div className="border-t border-white/10">
-          <p className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-3 text-[11px] text-white/50 sm:justify-between">
-            <span>© Sahara Cleaning Services · Serving Pune Since 2012 · GSTIN: {COMPANY.gstin}</span>
-            <span>
-              <Link href="/privacy-policy" className="underline">Privacy Policy</Link> · <Link href="/terms" className="underline">Terms &amp; Conditions</Link>
-            </span>
-          </p>
+          <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© Sahara Cleaning Services · Serving Pune Since 2012</p>
         </div>
       </footer>
       )}
@@ -246,13 +241,15 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
               <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-white/50 [animation-duration:2.2s]" aria-hidden />
               Book Now
             </Link>
-            {/* Both customer numbers, each with Call + WhatsApp. */}
+          </div>
+          {/* Both customer numbers stacked; Call + WhatsApp buttons share one fixed size so every row lines up. */}
+          <div className="mt-3 grid max-w-sm gap-2">
             {CONTACT.call.map((n) => (
-              <span key={n} className="inline-flex items-center gap-1 rounded-full bg-white/15 py-1 pl-3 pr-1 text-xs font-semibold">
-                {n}
-                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex size-8 items-center justify-center rounded-full hover:bg-white/20"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex size-8 items-center justify-center rounded-full bg-success hover:bg-success/90"><MessageCircle className="size-3.5" /></a>
-              </span>
+              <div key={n} className="grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded-2xl bg-white/10 p-1.5 pl-4">
+                <span className="text-sm font-semibold tabular-nums">+91 {n.slice(0, 5)} {n.slice(5)}</span>
+                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex h-10 w-[88px] items-center justify-center gap-1.5 rounded-xl bg-white text-xs font-bold text-primary"><Phone className="size-3.5" /> Call</a>
+                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex h-10 w-[88px] items-center justify-center gap-1.5 rounded-xl bg-success text-xs font-bold text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
+              </div>
             ))}
           </div>
           <p className="mt-4 text-[11px] font-semibold text-white/70">Since 2012</p>

@@ -107,6 +107,7 @@ function Stepper({ value, min, onChange }: { value: number; min: number; onChang
 export function BookingWizard({
   quote,
   defaultCategory,
+  hidePicker,
   campaignName,
   referralCode,
   prefill,
@@ -115,6 +116,8 @@ export function BookingWizard({
 }: {
   quote?: QuotePrefill | null;
   defaultCategory?: Category;
+  /** /booking: the four service cards above pick the service, so this form shows only the chosen service's options (no second picker list). */
+  hidePicker?: boolean;
   /** Package pages open with the full-house package already chosen. */
   preset?: { bhk: string; pkg: HomeTier };
   campaignName?: string;
@@ -496,10 +499,18 @@ export function BookingWizard({
   // Honest starting prices on the main cards (live price list): the cheapest individual
   // service for Home (never presented as a full-home price) and the lowest paint rate per sq ft.
   const bathroom = CUSTOMISED.find((i) => /bathroom/i.test(i.name) && i.price != null);
-  const startHome = bathroom ? `Starting from ${inr(bathroom.price!)} · ${bathroom.name.replace(/ Deep Cleaning$/, " Cleaning")}` : undefined;
+  const startHome = bathroom ? `Starting from ${inr(bathroom.price!)}` : undefined;
   // Painting: no rate is shown — the card advertises the free site inspection instead.
   const startPaint = "Free Site Inspection";
-  const section = (key: Category, icon: React.ReactNode, title: string, hint: string, body: React.ReactNode, price?: string) => (
+  const section = (key: Category, icon: React.ReactNode, title: string, hint: string, body: React.ReactNode, price?: string) =>
+    hidePicker ? (
+      category === key ? (
+        <div className="rounded-2xl border border-primary/40 bg-primary/[0.03]">
+          <p className="flex items-center gap-2 border-b border-[#0a2540]/10 px-3.5 py-2.5 text-sm font-bold sm:px-4"><span className="text-primary">{icon}</span>{title}</p>
+          <div className="space-y-4 p-3.5 sm:p-4">{body}</div>
+        </div>
+      ) : null
+    ) : (
     <div className={`rounded-2xl border ${category === key ? "border-primary/40 bg-primary/[0.03]" : "border-[#0a2540]/10 bg-white"}`}>
       <button type="button" onClick={() => setCategory(category === key ? "" : key)} className="flex min-h-14 w-full items-center gap-3 p-3.5 text-left sm:p-4" aria-expanded={category === key}>
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">{icon}</span>
@@ -512,7 +523,7 @@ export function BookingWizard({
       </button>
       {category === key && <div className="space-y-4 border-t border-[#0a2540]/10 p-3.5 sm:p-4">{body}</div>}
     </div>
-  );
+    );
   const pkgPrice = (tier: HomeTier) => items.find((p) => p.bhk === bhk && p.variant === tier);
   // Festival price shown next to the regular price (first upcoming festival until a date is picked).
   const previewFestival = (date && festivalForDate(festivals, date)) || festivals[0] || null;
@@ -582,7 +593,8 @@ export function BookingWizard({
         </div>
       ) : (
         <div id="bk-service" className={`${card} scroll-mt-20 ${svcCollapsed ? "max-sm:hidden" : ""}`}>
-          {step(1, "Choose service & package", serviceChosen)}
+          {step(1, hidePicker ? "Your package" : "Choose service & package", serviceChosen)}
+          {hidePicker && !category && <p className="mt-3 rounded-xl bg-[#eef4fb] p-3 text-sm text-[#0a2540]/75">Tap a service above to see its packages and book.</p>}
           <div className="mt-3 space-y-2.5">
             {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full Home Deep Cleaning, Sofa, Mattress & More", (
               <>

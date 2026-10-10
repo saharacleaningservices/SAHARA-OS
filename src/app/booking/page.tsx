@@ -75,8 +75,8 @@ export default async function BookingPage({
         images={ALL_SERVICES_SLIDES}
         eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
         badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
-        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Professional Cleaning Services in Pune"}
-        subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Trained teams, real available slots, pay advance or after service."}
+        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Pune's Most Trusted Cleaning Agency — Residential & Commercial"}
+        subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Verified Staff | Transparent Pricing | Pay After Service"}
         primaryLabel="Choose Date & Slot"
         primaryHref="#book"
         waText={WA}
@@ -90,7 +90,7 @@ export default async function BookingPage({
             starts={{
               HOME: (() => {
                 const b = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
-                return b ? `Starting from ₹${b.price!.toLocaleString("en-IN")} · Bathroom Cleaning` : undefined;
+                return b ? `Starting from ₹${b.price!.toLocaleString("en-IN")}` : undefined;
               })(),
               // No painting rate is published: painting is quoted after a free site inspection.
               PAINTING: "Free Site Inspection",
@@ -101,6 +101,7 @@ export default async function BookingPage({
           <BookingWizard
             quote={quote}
             defaultCategory={CATEGORY[service ?? ""]}
+            hidePicker={!quote}
             referralCode={ref}
             prefill={{ name: name ?? customer, mobile: mobile ?? phone }}
             pricing={pricing}

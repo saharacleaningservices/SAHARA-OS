@@ -701,3 +701,23 @@ test("Rich Diwali template: image header + emoji body, ≤2 URL buttons, STOP qu
   assert.match(readFileSync(path.join(__dirname, "../src/lib/whatsapp.ts"), "utf8"), /type: "header", parameters: \[\{ type: "image"/);
   assert.ok(readFileSync(path.join(__dirname, "../public/marketing/diwali-offer-banner.jpg")).length < 5 * 1024 * 1024);
 });
+
+test("/booking UI: new headline + stacked numbers, price line without service name, single service picker, 3-block footer", () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  const page = read("src/app/booking/page.tsx");
+  assert.match(page, /Pune's Most Trusted Cleaning Agency — Residential & Commercial/);
+  assert.match(page, /Verified Staff \| Transparent Pricing \| Pay After Service/);
+  assert.match(page, /Starting from ₹\$\{b\.price!\.toLocaleString\("en-IN"\)\}`/, "Home card: price only");
+  assert.doesNotMatch(page, /· Bathroom Cleaning/);
+  assert.match(page, /hidePicker=\{!quote\}/, "cards are the only service picker");
+  const wizard = read("src/components/public/booking-wizard.tsx");
+  assert.doesNotMatch(wizard, /Starting from \$\{inr\(bathroom\.price!\)\} ·/);
+  assert.match(wizard, /hidePicker \? \(/);
+  const kit = read("src/components/public/landing-kit.tsx");
+  assert.match(kit, /\+91 \{n\.slice\(0, 5\)\} \{n\.slice\(5\)\}/, "numbers formatted +91 89565 67130");
+  assert.match(kit, /w-\[88px\][\s\S]*w-\[88px\]/, "Call + WhatsApp buttons share one width");
+  for (const id of ["ft-location", "ft-services", "ft-trust"]) assert.ok(kit.includes(id), `footer block ${id}`);
+  for (const frag of ["Open in Google Maps", "mailto:${CONTACT.email}", "Serving Pune Since 2012", "COMPANY.gstin", "/privacy-policy", "/terms"]) assert.ok(kit.includes(frag), frag);
+  for (const href of ["/home-deep-cleaning-pune#price-selector", "/commercial-cleaning-pune", "/interior-painting-pune", "/pest-control-pune", "/housekeeping-services"]) assert.ok(kit.includes(href), `footer link ${href}`);
+});
