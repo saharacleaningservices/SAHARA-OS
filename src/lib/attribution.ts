@@ -58,6 +58,9 @@ export function classifyTouch(t?: Touch | null): AcquisitionChannel {
   // Explicit click IDs are the strongest paid signals.
   if (t.gclid) return "Google Ads";
   if (src && ["google", "adwords", "google_ads", "googleads"].includes(src) && ["cpc", "ppc", "paid", "paid_search"].includes(med)) return "Google Ads";
+  // The "<network>_ads" source names are explicit paid tags — the medium doesn't matter.
+  if (src && ["google_ads", "googleads", "adwords"].includes(src)) return "Google Ads";
+  if (src && ["meta_ads", "metaads", "facebook_ads", "fb_ads", "instagram_ads", "ig_ads"].includes(src)) return "Meta Ads";
 
   // Tagged links (UTMs) — Sahara's own naming convention.
   if (src === "gmb" || src === "google_business_profile" || src === "gbp") return "Google Business Profile";

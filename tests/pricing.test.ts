@@ -647,3 +647,17 @@ test("Category landing pages: public, tracked, no hard-coded prices, attribution
   assert.match(tags, /"track", "Contact"/);
   assert.match(tags, /"track", "Lead"/);
 });
+
+test("Attribution: utm_source=meta_ads / google_ads (any medium) classify as paid channels", async () => {
+  const { classifyTouch } = await import("../src/lib/attribution");
+  const t = (source: string, medium: string | null = null, extra: Record<string, string | null> = {}) =>
+    classifyTouch({ source, medium, campaign: null, term: null, content: null, gclid: null, fbclid: null, referrer: null, landingPage: "/", landingPageUrl: "/", at: "2026-10-10T00:00:00Z", ...extra } as never);
+  assert.equal(t("meta_ads", "paid_social"), "Meta Ads");
+  assert.equal(t("meta_ads"), "Meta Ads");
+  assert.equal(t("google_ads", "display"), "Google Ads");
+  assert.equal(t("google_ads"), "Google Ads");
+  // unchanged behaviour
+  assert.equal(t("facebook", null), "Facebook Organic");
+  assert.equal(t("whatsapp", "broadcast"), "WhatsApp Marketing");
+  assert.equal(t("newsletter"), "Other");
+});
