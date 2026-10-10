@@ -34,6 +34,12 @@ export function trackLead(details: { category?: string; variant?: string }) {
   if (ADS && ADS_LEAD_LABEL) g("event", "conversion", { send_to: `${ADS}/${ADS_LEAD_LABEL}` });
 }
 
+/** Site-visit / inspection requests (commercial, painting, pest, housekeeping): Meta "Schedule" + GA4. */
+export function trackSchedule(details: { category?: string }) {
+  fbq()?.("track", "Schedule", { content_category: details.category });
+  gtag()?.("event", "schedule_inspection", { service_category: details.category });
+}
+
 /**
  * Booking-funnel step (view_service, select_service, select_category, select_package,
  * select_addon, select_date, select_time, start_booking, submit_booking,

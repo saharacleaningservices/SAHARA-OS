@@ -623,3 +623,27 @@ test("WhatsApp broadcast: 50–100/min pacing, 5,000 cap, live sends only to rec
   const job = readFileSync(path.join(__dirname, "../src/server/whatsapp-broadcast.ts"), "utf8");
   assert.match(job, /isOptedOut\(to\)/, "each send re-checks STOP");
 });
+
+test("Category landing pages: public, tracked, no hard-coded prices, attribution + Meta events wired", () => {
+  const root = path.join(__dirname, "..");
+  const pages = ["residential-cleaning", "commercial-cleaning", "painting-services", "pest-control", "housekeeping-services"];
+  const mw = readFileSync(path.join(root, "src/middleware.ts"), "utf8");
+  for (const p of pages) {
+    assert.ok(mw.includes(`"/${p}"`), `${p} is a public path in middleware`);
+    const src = readFileSync(path.join(root, `src/app/${p}/page.tsx`), "utf8");
+    assert.match(src, /LandingShell/, `${p} renders in LandingShell (AttributionCapture + Meta Pixel)`);
+    assert.match(src, /StickyWhatsApp/, `${p} has the sticky WhatsApp CTA`);
+    assert.doesNotMatch(src, /₹\s?\d/, `${p} must not hard-code a price`);
+  }
+  const shell = readFileSync(path.join(root, "src/components/public/landing-kit.tsx"), "utf8");
+  assert.match(shell, /<AttributionCapture \/>/);
+  assert.match(shell, /<MarketingTags withPixel \/>/);
+  const form = readFileSync(path.join(root, "src/components/public/category-lead-form.tsx"), "utf8");
+  assert.match(form, /getAttributionPayload\(\)/, "lead carries first/latest touch (utm, gclid, fbclid)");
+  assert.match(form, /trackLead\(/);
+  assert.match(form, /trackSchedule\(/);
+  const tags = readFileSync(path.join(root, "src/components/public/marketing-tags.tsx"), "utf8");
+  assert.match(tags, /"track", "Schedule"/);
+  assert.match(tags, /"track", "Contact"/);
+  assert.match(tags, /"track", "Lead"/);
+});
