@@ -571,7 +571,7 @@ test("office quotation PDF stays Super Admin / Accounts only", () => {
 });
 
 test("festival landing (/offers) layout never hard-codes prices or a ₹3,999 minimum; claims come from Settings", () => {
-  for (const f of ["../src/components/public/price-selector.tsx", "../src/components/public/service-grid.tsx", "../src/app/offers/page.tsx"]) {
+  for (const f of ["../src/components/public/price-selector.tsx", "../src/app/offers/page.tsx"]) {
     const src = readFileSync(path.join(__dirname, f), "utf8");
     assert.ok(!/[₹]\s?\d|\b(4999|5499|6499|6999|8499|3999)\b/.test(src), `${f} must take prices from the pricing master`);
   }
@@ -668,14 +668,14 @@ test("Landing overhaul: one price selector, 4 service cards, pulse badge, no har
   const home = read("src/app/home-deep-cleaning-pune/page.tsx");
   const offers = read("src/app/offers/page.tsx");
   for (const [n, src] of [["home", home], ["offers", offers]] as const) {
-    assert.match(src, /<PriceSelector/, `${n}: single interactive price selector`);
+    assert.match(src, /<(Compact)?PriceSelector/, `${n}: single interactive price selector`);
     assert.doesNotMatch(src, /<FestivalSection|<PackageGrid/, `${n}: no duplicate festival / package price tables`);
   }
   assert.match(home, /Select Your Package/, "sticky bar default text");
   assert.doesNotMatch(home, /popular\.price|CampaignBar[^>]*price=\{/, "sticky bar must not carry a hard-coded package price");
-  const grid = read("src/components/public/service-grid.tsx");
-  for (const t of ["Home Deep Cleaning", "Commercial & Office Cleaning", "Pest Control Services", "Interior Painting"]) assert.ok(grid.includes(t), `grid card: ${t}`);
-  assert.match(offers, /Diwali Special Discounts Live!/);
+  const cardsSrc = read("src/components/public/service-cards.tsx");
+  for (const t of ["Home Deep Cleaning", "Commercial & Office Cleaning", "Pest Control Services", "Interior Painting"]) assert.ok(cardsSrc.includes(t), `card: ${t}`);
+  assert.match(read("src/components/public/landing-kit.tsx"), /Diwali Special Discounts Live!/);
   assert.match(read("src/components/public/landing-kit.tsx"), /sahara-badge-pulse/);
   const { COMPANY } = await import("../src/lib/constants");
   assert.equal(COMPANY.gstin, "27DMTPS3584R2ZJ");
@@ -706,10 +706,11 @@ test("/booking UI: new headline + stacked numbers, price line without service na
   const root = path.join(__dirname, "..");
   const read = (f: string) => readFileSync(path.join(root, f), "utf8");
   const page = read("src/app/booking/page.tsx");
-  assert.match(page, /Pune's Most Trusted Cleaning Agency — Residential & Commercial/);
+  assert.match(page, /Pune's Most Trusted Cleaning Service Provider — Residential & Commercial/);
   assert.match(page, /Verified Staff \| Transparent Pricing \| Pay After Service/);
-  assert.match(page, /Starting from ₹\$\{b\.price!\.toLocaleString\("en-IN"\)\}`/, "Home card: price only");
-  assert.doesNotMatch(page, /· Bathroom Cleaning/);
+  const funnelKit = read("src/components/public/landing-kit.tsx");
+  assert.match(funnelKit, /Starting from ₹\$\{bathroom\.price!\.toLocaleString\("en-IN"\)\}`/, "Home card: price only");
+  assert.doesNotMatch(funnelKit + page, /· Bathroom Cleaning/);
   assert.match(page, /hidePicker=\{!quote\}/, "cards are the only service picker");
   const wizard = read("src/components/public/booking-wizard.tsx");
   assert.doesNotMatch(wizard, /Starting from \$\{inr\(bathroom\.price!\)\} ·/);
@@ -813,8 +814,7 @@ test("Booking funnel: 4 named visual cards, Home opens packages, Diwali price no
   const order = ["Home Deep Cleaning", "Commercial & Office Cleaning", "Pest Control Services", "Interior Painting"].map((t) => cards.indexOf(`title: "${t}"`));
   assert.ok(order.every((i) => i >= 0) && [...order].sort((a, b) => a - b).join() === order.join(), "4 cards, requested names and order");
   assert.equal((cards.match(/img: "\/marketing\//g) ?? []).length, 4, "every card has an image");
-  const grid = read("src/components/public/service-grid.tsx");
-  assert.equal((grid.match(/img: "\/marketing\//g) ?? []).length, 4, "/offers cards have images too");
+  assert.match(read("src/app/offers/page.tsx"), /<FunnelCards \/>/, "/offers uses the same four cards");
   const w = read("src/components/public/booking-wizard.tsx");
   assert.match(w, /if \(c === "HOME"\) \{[\s\S]{0,260}setHomeType\(\(t\) => t \|\| "FULL"\)/, "tapping Home opens the full-home packages");
   assert.match(w, /Diwali & Festival Special Offer/);
@@ -910,4 +910,194 @@ test("Legacy pricing constants are gone (no stale typed prices, no PEST_CONTROL 
   const walk = (d: string): string[] =>
     readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.name === "generated" ? [] : e.isDirectory() ? walk(path.join(d, e.name)) : /\.(ts|tsx)$/.test(e.name) ? [path.join(d, e.name)] : []));
   for (const f of walk(path.join(root, "src"))) assert.ok(!/SERVICE_BASE_PRICE/.test(readFileSync(f, "utf8")), `${f} still references SERVICE_BASE_PRICE`);
+});
+
+test("IST day helpers: month / year / day bounds and keys are timezone-independent", async () => {
+  const h = await import("../src/lib/ist-days");
+  // An attendance row stored at IST midnight (18:30 UTC the day before) belongs to that IST day.
+  assert.equal(h.istDayKey(new Date("2026-09-30T18:30:00Z")), "2026-10-01");
+  assert.equal(h.istDayKey(new Date("2026-10-01T18:29:59Z")), "2026-10-01");
+  assert.equal(h.istDayKey(new Date("2026-10-01T18:30:00Z")), "2026-10-02");
+  const oct = h.istMonthRange(2026, 10);
+  assert.equal(oct.from.toISOString(), "2026-09-30T18:30:00.000Z");
+  assert.equal(oct.to.toISOString(), "2026-10-31T18:30:00.000Z");
+  assert.equal(h.istMonthRange(2026, 12).to.toISOString(), "2026-12-31T18:30:00.000Z", "December rolls into next January");
+  assert.equal(h.istYearRange(2026).from.toISOString(), "2025-12-31T18:30:00.000Z");
+  assert.equal(h.istDaysInMonth(2026, 2), 28);
+  assert.equal(h.istDaysInMonth(2028, 2), 29);
+  assert.equal(h.istWeekday(2026, 10, 4), 0, "4 Oct 2026 is a Sunday");
+  assert.equal(h.istWeekday(2026, 10, 10), 6, "10 Oct 2026 is a Saturday");
+  assert.equal(h.istMonthOf(new Date("2026-12-31T18:30:00Z")), 1, "31-Dec 18:30 UTC is 1-Jan in India");
+  const { from, to } = h.istDayRange(new Date("2026-10-05T07:00:00Z"));
+  assert.equal(from.toISOString(), "2026-10-04T18:30:00.000Z");
+  assert.equal(to.getTime() - from.getTime(), 24 * 3600 * 1000);
+  // Duplicates of one India day collapse; a worked day beats a stale absent row.
+  const rows = [
+    { date: new Date("2026-10-02T18:30:00Z"), status: "ABSENT" },
+    { date: new Date("2026-10-03T05:30:00Z"), status: "PRESENT" }, // same IST day, different representation
+    { date: new Date("2026-10-04T18:30:00Z"), status: "WEEKLY_OFF" },
+  ];
+  const d = h.dedupeByIstDay(rows);
+  assert.equal(d.length, 2, "one record per India day");
+  assert.equal(d.find((r) => h.istDayKey(r.date) === "2026-10-03")?.status, "PRESENT");
+});
+
+test("Staff App attendance (real DB, fresh process): 10 recorded days show as 10 — weekly off counted, no day lost to the timezone, duplicates and multi-shift imports counted once", () => {
+  const root = path.join(__dirname, "..");
+  const probe = path.join(root, ".probe-attendance.mts");
+  writeFileSync(
+    probe,
+    `
+import { db } from "./src/lib/db";
+import { getStaffMoney } from "./src/server/staff-balance";
+import { getMyMonth, getMyYear } from "./src/server/staff-portal";
+import { getMonthMatrix } from "./src/server/attendance";
+
+const IST = 5.5 * 3600 * 1000;
+const at = (d: number, h = 0) => new Date(Date.UTC(2026, 9, d) - IST + h * 3600 * 1000); // IST midnight (+h hours)
+const NOW = new Date("2026-10-10T15:00:00Z");
+
+(async () => {
+  // A: Oct 1-10 — 8 PRESENT + 2 WEEKLY_OFF (Sun 4, Sat 10) = 10 records; plus stale duplicates for 3 Oct.
+  const a = await db.staff.create({ data: { employeeCode: "T-A", name: "A", mobile: "9000000001", designation: "x", salaryType: "DAILY", dailyWage: 600 } });
+  for (let d = 1; d <= 10; d++) await db.attendance.create({ data: { staffId: a.id, date: at(d), status: d === 4 || d === 10 ? "WEEKLY_OFF" : "PRESENT", wageForDay: d === 4 || d === 10 ? 0 : 600 } });
+  await db.attendance.create({ data: { staffId: a.id, date: at(3, 5.5), status: "ABSENT" } }); // same India day, written with a different clock
+  // B: Khata-migrated. Cutover end of 5 Oct. Imported work days 1,2(x2 shifts),3,4,5; app days 6,7,8; Khata also has 7 (overlap).
+  const b = await db.staff.create({ data: { employeeCode: "T-B", name: "B", mobile: "9000000002", designation: "x", salaryType: "DAILY", dailyWage: 600, ledgerCutoverAt: new Date("2026-10-05T18:29:59Z") } });
+  const earn = async (d: number, h: number, n: string) => db.staffLedgerEntry.create({ data: { staffId: b.id, date: at(d, h), kind: "EARNING", amount: 600, signedAmount: 600, source: "KHATABOOK", sourceHash: n } });
+  await earn(1, 9, "h1"); await earn(2, 9, "h2a"); await earn(2, 15, "h2b"); await earn(3, 9, "h3"); await earn(4, 9, "h4"); await earn(5, 9, "h5"); await earn(7, 9, "h7");
+  for (const d of [6, 7, 8]) await db.attendance.create({ data: { staffId: b.id, date: at(d), status: "PRESENT", wageForDay: 600 } });
+
+  const out: Record<string, unknown> = {};
+  for (const [k, id] of [["A", a.id], ["B", b.id]] as const) {
+    const m = (await getStaffMoney(id, NOW))!.month;
+    const cal = await getMyMonth(id, 2026, 10);
+    const year = await getMyYear(id, 2026);
+    out[k] = { dash: { present: m.present, half: m.halfDay, off: m.weeklyOff, absent: m.absent, recorded: m.recorded }, cal: { present: cal.totals.present, off: cal.totals.weeklyOff, absent: cal.totals.absent, recorded: cal.totals.recorded, marked: cal.days.filter((d) => d.status).length, firstDay: cal.days[0].iso, weekdayOct4: cal.days[3].weekday }, yearOct: year.months[9].present };
+  }
+  const crm = await getMonthMatrix(a.id, 2026, 10);
+  out.crmA = { present: crm.totals.present, off: crm.totals.weeklyOff, absent: crm.totals.absent, marked: crm.totals.marked };
+  console.log("RESULT" + JSON.stringify(out));
+})();
+`,
+  );
+  try {
+    for (const tz of ["Asia/Kolkata", "UTC", "America/New_York"]) {
+      const dir = mkdtempSync(path.join(tmpdir(), "sahara-att-"));
+      const dbFile = path.join(dir, "a.db");
+      try {
+        runSetup(dbFile);
+        const stdout = execFileSync("node", ["node_modules/tsx/dist/cli.mjs", ".probe-attendance.mts"], { cwd: root, env: { ...process.env, TZ: tz, DATABASE_URL: `file:${dbFile}` }, encoding: "utf8" });
+        const r = JSON.parse(stdout.slice(stdout.indexOf("RESULT") + 6));
+        // A: 10 records = 8 present + 2 weekly off. The duplicate absent row does not add a day or hide a present one.
+        assert.deepEqual(r.A.dash, { present: 8, half: 0, off: 2, absent: 0, recorded: 10 }, `${tz}: Staff App dashboard`);
+        assert.deepEqual(r.A.cal, { present: 8, off: 2, absent: 0, recorded: 10, marked: 10, firstDay: "2026-10-01", weekdayOct4: 0 }, `${tz}: Staff App calendar`);
+        assert.equal(r.A.yearOct, 8, `${tz}: year view`);
+        assert.deepEqual(r.crmA, { present: 8, off: 2, absent: 0, marked: 10 }, `${tz}: CRM calendar agrees with the Staff App`);
+        // B: 5 imported work days (two shifts on 2 Oct = one day; the 7 Oct import is the same day as an app record) + 3 app days = 8.
+        assert.equal(r.B.dash.present, 8, `${tz}: Khata + app days`);
+        assert.equal(r.B.dash.recorded, 8, `${tz}: nothing counted twice`);
+        assert.equal(r.B.cal.marked, 8, `${tz}: calendar shows every day`);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    }
+  } finally {
+    rmSync(probe, { force: true });
+  }
+});
+
+test("Staff App dashboard shows Weekly Off and the number of days recorded", () => {
+  const root = path.join(__dirname, "..");
+  const page = readFileSync(path.join(root, "src/app/my/page.tsx"), "utf8");
+  assert.match(page, /t\("WEEKLY_OFF"\)[\s\S]{0,60}money\?\.month\.weeklyOff/);
+  assert.match(page, /money\?\.month\.recorded[\s\S]{0,80}t\("daysRecorded"\)/);
+  assert.match(readFileSync(path.join(root, "src/lib/staff-i18n.ts"), "utf8"), /daysRecorded: \["days recorded", "दिन दर्ज", "दिवस नोंदवले"\]/);
+});
+
+test("Hero Google badge is a clickable new-tab link; /booking and /offers share the same funnel and headline", () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  const kit = read("src/components/public/landing-kit.tsx");
+  const badge = kit.match(/<a\s+href=\{settings\?\.googleReviewUrl\?\.trim\(\) \|\| GOOGLE_REVIEW_URL\}[\s\S]{0,1200}?<\/a>/);
+  assert.ok(badge, "rating badge is an anchor to the Google Business Profile review link (Settings, with fallback)");
+  assert.match(badge![0], /target="_blank"/);
+  assert.match(badge![0], /rel="noopener noreferrer"/);
+  assert.match(badge![0], /Google Reviews/);
+  const HEADLINE = "Pune's Most Trusted Cleaning Service Provider — Residential & Commercial";
+  const booking = read("src/app/booking/page.tsx");
+  const offers = read("src/app/offers/page.tsx");
+  for (const [n, src] of [["/booking", booking], ["/offers", offers]] as const) {
+    assert.ok(src.includes(HEADLINE), `${n}: headline`);
+    assert.match(src, /Verified Staff \| Transparent Pricing \| Pay After Service/, `${n}: sub-headline`);
+    assert.match(src, /<Hero\b/, `${n}: same Hero`);
+    assert.match(src, /<FunnelCards \/>/, `${n}: same 4-card grid`);
+    assert.match(src, /<CompactPriceSelector \/>/, `${n}: same compact price selector`);
+  }
+  assert.match(booking, /<BookingWizard/, "/booking: booking form with live summary");
+  assert.match(offers, /<QuoteSection[^>]*hidePicker/, "/offers: same booking form (QuoteSection → BookingWizard) with live summary");
+  assert.doesNotMatch(offers, /defaultService=/, "/offers opens with nothing pre-selected, like /booking");
+  assert.doesNotMatch(booking, /<Terms \/>/, "duplicate Terms & conditions block under the CTA is gone");
+  // the price selector hands its choice to the booking form
+  assert.match(read("src/components/public/price-selector.tsx"), /sahara:select-package/);
+  assert.match(read("src/components/public/booking-wizard.tsx"), /addEventListener\("sahara:select-package"/);
+});
+
+test("Booking form: collapsible add-ons, no duplicate scope in the summary, italic highlighted price disclaimer, Terms link", () => {
+  const w = readFileSync(path.join(__dirname, "../src/components/public/booking-wizard.tsx"), "utf8");
+  assert.match(w, /Add Optional Services/);
+  assert.match(w, /aria-expanded=\{addonsOpen\}/);
+  assert.match(w, /\{addonsOpen && \(\s*<div id="bk-addons"/, "add-on rows render only when expanded");
+  const summary = w.slice(w.indexOf('id="bk-summary"'), w.indexOf("Booking summary") + 4000);
+  assert.doesNotMatch(summary, /<dt[^>]*>Scope<\/dt>/, "no scope row inside the Booking Summary");
+  const note = w.match(/<p className="([^"]*)">\{PRICE_NOTE\}<\/p>/);
+  assert.ok(note && /\bitalic\b/.test(note[1]) && /\bbg-amber-50\b/.test(note[1]), "price disclaimer: italic + subtle highlight");
+  assert.match(w, /href="\/terms" target="_blank"[^>]*>Terms &amp; Conditions<\/a>/, "agreement line links to the Terms page");
+});
+
+test("Footers: direct Google Maps listing, clickable email and website", async () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  const { GOOGLE_MAPS_URL, WEBSITE_URL, CONTACT } = await import("../src/lib/marketing-content");
+  assert.match(GOOGLE_MAPS_URL, /^https:\/\/www\.google\.com\/maps\/place\/Sahara\+Cleaning\+Services\/@18\.508/, "direct place URL, not a search query");
+  assert.doesNotMatch(GOOGLE_MAPS_URL, /\/search\//);
+  assert.match(GOOGLE_MAPS_URL, /0x3bc2ea0728111bc5:0x78a3192231b37d82/, "Google place id of the Magarpatta listing");
+  assert.equal(WEBSITE_URL, "https://www.saharacleaningservices.com");
+  assert.equal(CONTACT.email, "contact@saharacleaningservices.com");
+  for (const f of ["src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx"]) {
+    const src = read(f);
+    assert.match(src, /href=\{`mailto:\$\{CONTACT\.email\}`\}/, `${f}: clickable email`);
+    assert.match(src, /href=\{WEBSITE_URL\}[^>]*target="_blank"/, `${f}: clickable website`);
+    assert.match(src, /www\.saharacleaningservices\.com/, `${f}: website shown`);
+  }
+  assert.match(read("src/components/public/landing-kit.tsx"), /href=\{GOOGLE_MAPS_URL\}[\s\S]{0,500}📍 Open in Google Maps/);
+  assert.match(read("src/components/public/ppc-landing.tsx"), /href=\{GOOGLE_MAPS_URL\}/);
+  for (const f of ["src/components/public/landing-kit.tsx", "src/components/public/ppc-landing.tsx"]) assert.doesNotMatch(read(f), /maps\/search\/\?api=1/, `${f}: no search-query map link left`);
+});
+
+test("CRM roles: Admin all; Accounts = money + customer billing, no profit / security; Operations = dispatch without margins or customer phones; Staff = Staff App only", async () => {
+  const { canAccess } = await import("../src/lib/constants");
+  const p = await import("../src/lib/permissions");
+  // Admin
+  for (const s of ["profit", "settings", "admin", "payments", "dashboard"]) assert.ok(canAccess("ADMIN", s), `ADMIN ${s}`);
+  // Accounts (Shoyab Kazi): finance, billing, payment verification — never profit or security
+  for (const s of ["payments", "expenses", "invoices", "quotations", "customers", "revenue", "reports"]) assert.ok(canAccess("ACCOUNTS", s), `ACCOUNTS ${s}`);
+  assert.ok(!canAccess("ACCOUNTS", "profit"), "ACCOUNTS has no Profit page");
+  assert.equal(p.canViewFinancials("ACCOUNTS"), false);
+  assert.equal(p.canManageSecurity("ACCOUNTS"), false);
+  assert.equal(p.canSeeCustomerContact("ACCOUNTS"), true);
+  assert.equal(p.canViewSalary("ACCOUNTS"), true);
+  // Operations (Francis): dispatch, job cards, field assignments
+  for (const s of ["jobs", "staff", "attendance", "vehicles", "dashboard"]) assert.ok(canAccess("OPERATIONS", s), `OPERATIONS ${s}`);
+  for (const s of ["profit", "revenue", "payments", "expenses", "invoices", "quotations", "customers", "reports", "settings"]) assert.ok(!canAccess("OPERATIONS", s), `OPERATIONS must not reach ${s}`);
+  assert.equal(p.canViewFinancials("OPERATIONS"), false, "no profit / margins");
+  assert.equal(p.canViewRevenue("OPERATIONS"), false);
+  assert.equal(p.canViewSalary("OPERATIONS"), false);
+  assert.equal(p.canSeeCustomerContact("OPERATIONS"), false, "no raw customer phone numbers");
+  assert.equal(p.canViewJobAmount("OPERATIONS"), true, "sees job amount / balance only");
+  // Staff
+  assert.ok(canAccess("STAFF", "my"));
+  for (const s of ["dashboard", "leads", "jobs", "payments", "profit", "customers"]) assert.ok(!canAccess("STAFF", s), `STAFF must not reach ${s}`);
+  assert.equal(p.canSeeCustomerContact("STAFF"), false);
+  assert.equal(p.canViewFinancials("STAFF"), false);
 });

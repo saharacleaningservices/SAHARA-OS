@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { QuickLeadForm } from "@/components/public/quick-lead-form";
-import { CONTACT, LOCALITIES, inr } from "@/lib/marketing-content";
+import { CONTACT, LOCALITIES, WEBSITE_URL, inr } from "@/lib/marketing-content";
 import { COMPANY } from "@/lib/constants";
 import { getCompanySettings } from "@/server/settings";
 import { toWhatsAppLink } from "@/lib/utils";
@@ -146,6 +146,8 @@ export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string |
             ))}
             <p className="flex gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{CONTACT.address}</p>
             <p className="text-xs">GSTIN: {COMPANY.gstin}</p>
+            <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">{CONTACT.email}</a>
+            <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">www.saharacleaningservices.com</a>
             <div className="flex gap-2 pt-1">
               {social.map(({ href, label, icon: Icon }) => (
                 <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white"><Icon className="size-4" /></a>

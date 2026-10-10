@@ -136,12 +136,16 @@ export default async function StaffHomePage() {
           </h2>
           <ChevronRight className="size-4 text-muted-foreground" />
         </div>
-        <div className="grid grid-cols-4 gap-2 text-center">
+        <div className="grid grid-cols-5 gap-1.5 text-center">
           <AttStat label={t("PRESENT")} value={money?.month.present ?? 0} cls="text-success" />
           <AttStat label={t("HALF_DAY")} value={money?.month.halfDay ?? 0} cls="text-warning" />
+          <AttStat label={t("WEEKLY_OFF")} value={money?.month.weeklyOff ?? 0} cls="text-sky-600" />
           <AttStat label={t("ABSENT")} value={money?.month.absent ?? 0} cls="text-destructive" />
           <AttStat label={t("LEAVE")} value={money?.month.leave ?? 0} cls="text-violet-600" />
         </div>
+        <p className="mt-2 text-center text-xs font-medium text-muted-foreground">
+          {money?.month.recorded ?? 0} {t("daysRecorded")}
+        </p>
       </Link>
 
       {/* 💰 Salary summary: Salary · Paid · Due */}
@@ -256,8 +260,8 @@ function LoanStep({ label, value, strong }: { label: string; value: string; stro
 
 function AttStat({ label, value, cls }: { label: string; value: number; cls: string }) {
   return (
-    <div className="rounded-2xl bg-muted/60 p-2">
-      <div className={cn("text-2xl font-extrabold tabular-nums", cls)}>{value}</div>
+    <div className="rounded-2xl bg-muted/60 p-1.5">
+      <div className={cn("text-xl font-extrabold tabular-nums", cls)}>{value}</div>
       <div className="text-[11px] font-medium leading-tight text-muted-foreground">{label}</div>
     </div>
   );

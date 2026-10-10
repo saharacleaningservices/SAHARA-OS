@@ -24,6 +24,7 @@ const D = {
   todaysWork: ["Today's Work", "आज का काम", "आजचे काम"],
   mySalary: ["My Salary", "मेरा वेतन", "माझा पगार"],
   thisMonth: ["This month", "इस महीने", "या महिन्यात"],
+  daysRecorded: ["days recorded", "दिन दर्ज", "दिवस नोंदवले"],
   salaryDue: ["Salary Due", "बाकी वेतन", "बाकी पगार"],
   advanceTaken: ["Advance taken", "एडवांस लिया", "उचल घेतली"],
   allSettled: ["All settled", "पूरा हिसाब हो गया", "पूर्ण हिशोब झाला"],

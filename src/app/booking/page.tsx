@@ -2,8 +2,7 @@ import { paymentDetailsFrom } from "@/lib/booking-payment";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, Terms, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
-import { ServiceCards } from "@/components/public/service-cards";
+import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
 
@@ -76,7 +75,7 @@ export default async function BookingPage({
         images={ALL_SERVICES_SLIDES}
         eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
         badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
-        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Pune's Most Trusted Cleaning Agency — Residential & Commercial"}
+        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Pune's Most Trusted Cleaning Service Provider — Residential & Commercial"}
         subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Verified Staff | Transparent Pricing | Pay After Service"}
         primaryLabel="Choose Date & Slot"
         primaryHref="#book"
@@ -87,16 +86,10 @@ export default async function BookingPage({
           <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">This quotation link is no longer valid. You can still book below, or call us on 8956567130 / 7083347130.</p>
         )}
         {!quote && (
-          <ServiceCards
-            starts={{
-              HOME: (() => {
-                const b = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
-                return b ? `Starting from ₹${b.price!.toLocaleString("en-IN")}` : undefined;
-              })(),
-              // No painting rate is published: painting is quoted after a free site inspection.
-              PAINTING: "Free Site Inspection",
-            }}
-          />
+          <>
+            <FunnelCards />
+            <CompactPriceSelector />
+          </>
         )}
         <section id="book" className="scroll-mt-20">
           <BookingWizard
@@ -109,8 +102,6 @@ export default async function BookingPage({
             paymentDetails={paymentDetailsFrom(settings)}
           />
         </section>
-
-        <Terms />
       </main>
     </LandingShell>
   );

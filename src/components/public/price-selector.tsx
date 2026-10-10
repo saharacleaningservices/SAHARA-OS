@@ -20,6 +20,11 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
   const row = rows.find((r) => r.bhk === bhk);
   const price = row && tier ? (tier === "Premium" ? row.premium : row.platinum) : null;
   const href = row && tier ? (tier === "Premium" ? row.premiumHref : row.platinumHref) : null;
+  // Hand the choice to the booking form below (it opens that package); the link then scrolls to the form.
+  const pick = () => {
+    if (!bhk) return;
+    window.dispatchEvent(new CustomEvent("sahara:select-package", { detail: { bhk: bhk === "4 BHK+" ? "4 BHK" : bhk, tier: tier || "" } }));
+  };
   const chip = (on: boolean) => `min-h-11 flex-1 rounded-xl px-3 text-sm font-bold transition ${on ? "bg-primary text-white shadow" : "bg-white text-[#0a2540] ring-1 ring-[#0a2540]/15"}`;
 
   return (
@@ -55,7 +60,7 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
           <>
             <p className="text-sm font-bold text-amber-700">Free site inspection, then a quote</p>
             <p className="text-xs text-[#0a2540]/70">Larger homes are priced after we visit.</p>
-            <a href={bookHref} className="mt-2 flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book free inspection</a>
+            <a href={bookHref} onClick={pick} className="mt-2 flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book free inspection</a>
           </>
         ) : !tier ? (
           <p className="text-sm text-[#0a2540]/70">Now choose Premium or Platinum.</p>
@@ -66,7 +71,7 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
             <p className="text-xs font-semibold text-[#0a2540]/60">{bhk} · {tier} home deep cleaning</p>
             <p className="text-3xl font-extrabold text-primary">{inr(price)}</p>
             <div className={`mt-2 grid gap-2 ${hideDetails ? "" : "grid-cols-2"}`}>
-              <a href={bookHref} className="flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book {bhk} {tier}</a>
+              <a href={bookHref} onClick={pick} className="flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book {bhk} {tier}</a>
               {!hideDetails && <Link href={href ?? "/home-deep-cleaning-pune"} className="flex min-h-11 items-center justify-center rounded-xl border border-primary/40 text-sm font-bold text-primary">What&apos;s included</Link>}
             </div>
           </>
