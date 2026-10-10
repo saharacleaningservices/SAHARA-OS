@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import { isWhatsAppReady, normalizeNumber, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 import { HOME_FROM_PRICE } from "@/lib/pricing-master";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { getLivePricing } from "@/server/pricing";
 import { WHATSAPP_TEST_NUMBERS, getWhatsAppMarketingAudience } from "@/server/whatsapp-audience";
 
@@ -178,7 +179,7 @@ export async function recordMarketingConsent(values: unknown) {
 
 // Only templates Meta shows as Active for 9175220270 (festival offer + customer reactivation
 // verified Active in WhatsApp Manager 2026-10-10).
-const BROADCAST_TEMPLATES = ["sahara_festival_offer", "sahara_customer_reactivation"] as const;
+const BROADCAST_TEMPLATES = ["sahara_festival_offer", "sahara_customer_reactivation", "sahara_diwali_festival_offer"] as const;
 const contactSchema = z.object({ mobile: z.string().max(30), name: z.string().max(80).optional().default(""), service: z.string().max(60).optional().default("") });
 const broadcastSchema = z.object({
   campaign: z.string().regex(/^[a-z0-9_]{3,60}$/, "Campaign name: 3–60 lowercase letters, numbers or _"),
@@ -253,9 +254,10 @@ export async function startBroadcast(values: unknown) {
   const utm = (page: string) => `${page}?utm_source=whatsapp&utm_medium=broadcast&utm_campaign=${campaign}`;
   const recipients = list.map((r) => {
     const first = r.name.split(/\s+/)[0] || "there";
-    return template === "sahara_festival_offer"
-      ? { mobile: r.mobile, name: r.name, params: [first, festival!, price], buttonParam: utm("offers") }
-      : { mobile: r.mobile, name: r.name, params: [first, r.service || "home deep cleaning"], buttonParam: utm("home-deep-cleaning-pune") };
+    if (template === "sahara_festival_offer") return { mobile: r.mobile, name: r.name, params: [first, festival!, price], buttonParam: utm("offers") };
+    // Rich Diwali template: image header + one name variable; the button lands on the festival page.
+    if (template === "sahara_diwali_festival_offer") return { mobile: r.mobile, name: r.name, params: [first], buttonParam: utm("offers"), headerImageUrl: `${PUBLIC_BOOKING_URL}/marketing/diwali-offer-banner.jpg` };
+    return { mobile: r.mobile, name: r.name, params: [first, r.service || "home deep cleaning"], buttonParam: utm("home-deep-cleaning-pune") };
   });
   const started = startBroadcastJob({ campaign, templateName: template, perMinute, recipients, startedBy: session.name });
   if (!started) return { error: "Could not start the broadcast (another one is running or the template is missing)." };
