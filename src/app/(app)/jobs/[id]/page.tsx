@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { FileText, Pencil, Phone, MessageCircle, Navigation, Receipt, MapPin } from "lucide-react";
+import { FileText, Pencil, Phone, MessageCircle, Navigation, Receipt, MapPin, Download } from "lucide-react";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getCompanySettings } from "@/server/settings";
 import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
@@ -20,6 +20,7 @@ import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { ensureJobToken } from "@/server/booking-messages";
+import { compactServiceLines } from "@/lib/service-scope";
 
 /** One compact row: label left, value right (stacks only when the value is long). */
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -72,6 +73,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const completed = job.status === "COMPLETED";
   const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
   const packageLabel = job.packageName || null;
+  // Compact list of what was booked (no room-by-room checklist on CRM pages).
+  const services = compactServiceLines(job);
+  // Same rule as the PDF route: Field Coordinator only for today's jobs — never show a button that 403s.
+  const istDay = (d: Date) => new Date(d.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+  const canJobCard = session.role !== "SUPERVISOR" || istDay(job.scheduledDate) === istDay(new Date());
   const crew = job.assignments.map((a) => ({ id: a.id, name: a.staff.name, lead: a.isLead }));
 
 
@@ -102,6 +108,14 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <CallButton mobile={job.customerMobile} />
                 <WhatsAppButton mobile={job.customerMobile} />
               </>
+            )}
+            {/* Job Card PDF — field roles automatically get the team copy (no phone / money / notes). */}
+            {canJobCard && (
+              <Button variant="outline" size="sm" asChild>
+                <a href={`/api/jobs/${job.id}/card/pdf?download=1`} download={`job-card-${job.jobNumber}.pdf`}>
+                  <Download className="size-3.5" /> Job Card
+                </a>
+              </Button>
             )}
             {canManage && (
               <Button variant="outline" size="sm" asChild>
@@ -183,7 +197,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             </div>
             <div className="grid grid-cols-1 divide-y sm:grid-cols-2 sm:gap-x-6 sm:divide-y-0">
               <Row label="Property / Flat">{job.serviceVariant ?? "—"}</Row>
-              <Row label="Package">{packageLabel ?? serviceLabel}</Row>
+              <Row label={services.length > 1 ? "Services" : "Package"}>
+                {services.length ? (
+                  services.map((s) => <span key={s} className="block">{s}</span>)
+                ) : (
+                  packageLabel ?? serviceLabel
+                )}
+              </Row>
               {canSeeCustomerContact && (
                 <Row label="Customer Phone">
                   <a href={toTelLink(job.customerMobile)} className="text-primary">{job.customerMobile}</a>

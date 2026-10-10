@@ -1,5 +1,6 @@
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { BookedScopeCard } from "@/components/shared/booked-scope-card";
+import { compactServiceLines } from "@/lib/service-scope";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Pencil, FileText, ClipboardList, Wallet } from "lucide-react";
@@ -128,7 +129,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          <BookedScopeCard priceType={lead.priceType} festivalName={lead.festivalName} scopeOfWork={lead.scopeOfWork} />
+          <BookedScopeCard priceType={lead.priceType} festivalName={lead.festivalName} scopeOfWork={lead.scopeOfWork} services={compactServiceLines(rawLead)} />
           <PackageScopeCard service={lead.service} packageName={lead.packageName} serviceVariant={lead.serviceVariant} />
           <Card>
             <CardHeader>

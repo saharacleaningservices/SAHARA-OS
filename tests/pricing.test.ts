@@ -28,6 +28,7 @@ import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "../src/lib/whatsapp-keywords"
 import { staffBalanceToCollect } from "../src/lib/payment-status";
 import { reviewRequestMessage, premiumReviewRequestMessage } from "../src/lib/whatsapp-templates";
 import { maskJobCardForAudience } from "../src/lib/pdf/job-card-mask";
+import { compactServiceLines, isAutoScope } from "../src/lib/service-scope";
 
 const item = (id: string) => priceByContentId(id)!;
 
@@ -425,4 +426,26 @@ test("staff collection helper returns only the balance due, never below zero", (
   assert.deepEqual(staffBalanceToCollect(6499, [{ paidAmount: 2000 }, { paidAmount: null }]), { balanceDue: 4499 });
   assert.deepEqual(staffBalanceToCollect(5000, [{ paidAmount: 6000 }]), { balanceDue: 0 });
   assert.deepEqual(Object.keys(staffBalanceToCollect(1, [])), ["balanceDue"]);
+});
+
+test("compact CRM service lines: full home = one line; small services = saved names × qty units; nothing invented", () => {
+  assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING", packageName: "2 BHK Premium", serviceVariant: "2 BHK", scopeOfWork: "2 BHK Premium Home Deep Cleaning — full Premium room-by-room package scope (wall dry dusting …)" }), ["Full Home Cleaning — Premium"]);
+  assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING", packageName: "3 BHK Platinum" }), ["Full Home Cleaning — Platinum"]);
+  assert.deepEqual(compactServiceLines({ service: "HOME_DEEP_CLEANING", packageName: "2 BHK Platinum Unfurnished" }), ["Full Home Cleaning — Unfurnished"]);
+  const items = JSON.stringify([{ name: "Sofa Cleaning", qty: 5, unit: "per seat", unitPrice: 249 }, { name: "Bathroom Deep Cleaning", qty: 2, unit: "per bathroom", unitPrice: 599 }, { name: "Kitchen Deep Cleaning", qty: 1, unit: "per kitchen" }]);
+  const small = compactServiceLines({ service: "HOUSEKEEPING", serviceItems: items, comboServices: JSON.stringify(["Kitchen + 2 Bathroom + Fridge"]) });
+  assert.deepEqual(small, ["Sofa Cleaning × 5 seats", "Bathroom Deep Cleaning × 2 bathrooms", "Kitchen Deep Cleaning × 1 kitchen", "Combo Package — Kitchen + 2 Bathroom + Fridge × 1"]);
+  assert.ok(!small.join(" ").includes("249"), "no prices in the compact lines");
+  // Old record: scope snapshot bullets reused; empty record → nothing invented.
+  assert.deepEqual(compactServiceLines({ service: "HOUSEKEEPING", scopeOfWork: "• Sofa Cleaning × 5 (per seat)\n• Window Cleaning" }), ["Sofa Cleaning × 5 (per seat)", "Window Cleaning"]);
+  assert.deepEqual(compactServiceLines({ service: "PEST_CONTROL" }), []);
+  assert.ok(isAutoScope("• Sofa Cleaning × 5") && isAutoScope(null) && !isAutoScope("Customer has a pet dog — keep gate closed"));
+});
+
+test("job card team copy keeps crew instructions but hides any phone number in them", () => {
+  const base = { jobNumber: "J", logoDataUrl: null, customerName: "C", mobile: "9876501234", alternateMobile: null, address: "A", mapLink: null, date: "d", timeSlot: "t", service: "s", flatType: null, team: "T", supervisor: "S", paymentStatus: "Paid", jobValue: 1, advance: 1, balance: 0, notes: null, services: ["Sofa Cleaning × 5 seats"], instructions: "Call watchman 98765 01234 at the gate; pet dog" };
+  const team = maskJobCardForAudience({ ...base, audience: "team" });
+  assert.ok(team.instructions?.includes("pet dog") && !/98765\s?01234/.test(team.instructions ?? ""));
+  assert.deepEqual(team.services, ["Sofa Cleaning × 5 seats"]);
+  assert.equal(maskJobCardForAudience({ ...base, audience: "office" }).instructions, base.instructions);
 });

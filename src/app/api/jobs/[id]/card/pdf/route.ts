@@ -8,6 +8,7 @@ import { JobCardDocument } from "@/lib/pdf/job-card-document";
 import { maskJobCardForAudience } from "@/lib/pdf/job-card-mask";
 import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { compactServiceLines, isAutoScope } from "@/lib/service-scope";
 import { formatDate } from "@/lib/utils";
 import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 
@@ -60,6 +61,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       service: SERVICE_LABELS[job.service] ?? job.service,
       flatType: job.serviceVariant ?? null,
       packageName: job.packageName ?? null,
+      services: compactServiceLines(job),
+      instructions: isAutoScope(job.scopeOfWork) ? null : job.scopeOfWork,
       team: job.teamNumber ? `Team ${job.teamNumber}` : "—",
       crew: job.assignments.map((a) => a.staff.name).join(", ") || undefined,
       supervisor: job.supervisor?.name ?? "—",
