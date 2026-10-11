@@ -44,7 +44,8 @@ Last updated: 2026-10-04.
 | **Phone Number ID** | **1278812171990562** |
 | System user | "Sahara OS API" (ID 61595084843977, Employee) — assets: the app + production WABA only |
 | Test WABA (Meta sandbox) | 1517484620417215 — not used in production |
-| **Old number / WABA — NEVER TOUCH** | +91 7083347130 / WABA 108381505270532 (WhatsApp Business app) |
+| **Primary customer WhatsApp number (owner decision 2026-10-11)** | +91 7083347130 — used ONLY as the customer-facing `wa.me` / call link (GMB, Meta Ads profile, /booking, /offers, landing pages; `CONTACT.whatsapp` in `src/lib/marketing-content.ts`). Its WABA 108381505270532 (WhatsApp Business app) is **still NEVER TOUCH**: no API, webhook, template or settings change. |
+| Number roles | 9175220270 = Cloud API sender only (broadcasts/booking messages, inbox) · 7083347130 = customer-facing WhatsApp/call link · 8956567130 = operations/internal calls, never a `wa.me` target |
 | Webhook callback URL | `https://crm.saharacleaningservices.com/api/webhooks/whatsapp` |
 | Webhook fields | `messages` |
 | Test numbers allowed | 9921215250 only |
@@ -184,7 +185,8 @@ Festival price: the `{{3}}` price comes from the CRM pricing master (`HOME_FROM_
 - **Template changes**: any button/body change needs Meta re-approval; update `src/lib/whatsapp-cloud-templates.ts` only after approval.
 - **New staff**: Staff → add staff → *Enable Staff App login* → hand over mobile + PIN.
 - **Monthly**: Reports → Export Center → download month; check Profit dashboard matches.
-- **Do not**: touch +91 7083347130 / WABA 108381505270532; turn on AI/auto-replies or live campaigns without owner approval; store secrets in files or chat.
+- **Marketing consent (2026-10-11)**: Lead `marketingConsent` (`UNKNOWN`/`OPTED_IN`/`OPTED_OUT`) + `marketingConsentAt`. Recorded by Admin/Accounts (lead page, with note) or by field staff via the one-way "Record consent" card on `/my/jobs/[id]` (UNKNOWN → OPTED_IN only; never opt-out, never overrides an opt-out; audit-logged). Campaign audience reads it in `src/server/whatsapp-audience.ts`. Live campaigns still need `WHATSAPP_CAMPAIGNS=on` + owner "LIVE approve".
+- **Do not**: touch the API/settings of WABA 108381505270532 (+91 7083347130 is now only a customer-facing link number); turn on AI/auto-replies or live campaigns without owner approval; store secrets in files or chat.
 
 **Agency access audit (2026-10-05):**
 - Google Ads 892-332-3597: only user = owner (admin). Manager link **Brand Make Digital Marketing Solution (898-956-9172)**, not owner; conversions are account-owned (no cross-account tracking); Google says the account keeps serving after unlink. Unlink was blocked at a Google **passkey "Confirm it's you"** step → owner must finish: Admin → Access and security → Managers → Remove access → Unlink → passkey.

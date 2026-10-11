@@ -647,6 +647,7 @@ export async function getMyJob(staffId: string, jobId: string) {
       supervisor: { select: { name: true, employeeCode: true } },
       assignments: { select: { staffId: true, isLead: true, staff: { select: { name: true, employeeCode: true } } } },
       payments: { where: { deletedAt: null }, select: { paidAmount: true } },
+      lead: { select: { marketingConsent: true } },
     },
   });
   if (!job) return null;
@@ -658,9 +659,11 @@ export async function getMyJob(staffId: string, jobId: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   // Raw money fields (and raw serviceItems, which carry prices) never leave this function.
-  const { jobValue, payments, serviceItems, ...safe } = job;
+  const { jobValue, payments, serviceItems, lead, ...safe } = job;
   return {
     ...safe,
+    // null = no linked customer record → the consent control is hidden.
+    marketingConsent: lead ? lead.marketingConsent : null,
     comboServices: parseList(job.comboServices),
     // Package services: names + quantity only — never prices (staff see no internal pricing).
     packageServices: packageSummary(parsePackage(serviceItems)),
