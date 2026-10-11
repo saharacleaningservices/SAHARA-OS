@@ -141,7 +141,7 @@ export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string |
               <div key={n} className="flex items-center gap-2">
                 <span className="font-semibold text-[#0a2540]">{n}</span>
                 <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex size-8 items-center justify-center rounded-full bg-success/10 text-success"><MessageCircle className="size-3.5" /></a>
+                <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${CONTACT.whatsapp}`} className="flex size-8 items-center justify-center rounded-full bg-success/10 text-success"><MessageCircle className="size-3.5" /></a>
               </div>
             ))}
             <p className="flex gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{CONTACT.address}</p>

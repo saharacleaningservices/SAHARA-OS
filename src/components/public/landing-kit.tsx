@@ -101,7 +101,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               <span key={n} className="hidden items-center gap-1 rounded-xl border border-primary/40 py-1 pl-3 pr-1 text-xs font-semibold text-primary md:flex">
                 {n}
                 <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="rounded-lg p-1.5 hover:bg-primary/10"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
+                <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${CONTACT.whatsapp}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
               </span>
             ))}
             <Link href={bookHref} className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
@@ -182,7 +182,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
 
 /**
  * Mobile bottom bar for /booking: Call + WhatsApp only (no "Book Now" — the booking wizard is the page).
- * Uses the primary customer number (CONTACT.call[0] / CONTACT.whatsapp = 8956567130).
+ * Uses the primary customer number (CONTACT.call[0] for calls; CONTACT.whatsapp = 7083347130 for WhatsApp).
  */
 export function CallWhatsAppBar({ waText }: { waText: string }) {
   return (
@@ -260,7 +260,7 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
               <div key={n} className="grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded-2xl bg-white/10 p-1.5 pl-4">
                 <span className="text-sm font-semibold tabular-nums">+91 {n.slice(0, 5)} {n.slice(5)}</span>
                 <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex h-10 w-[88px] items-center justify-center gap-1.5 rounded-xl bg-white text-xs font-bold text-primary"><Phone className="size-3.5" /> Call</a>
-                <a href={waLink(waText, n)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${n}`} className="flex h-10 w-[88px] items-center justify-center gap-1.5 rounded-xl bg-success text-xs font-bold text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
+                <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${CONTACT.whatsapp}`} className="flex h-10 w-[88px] items-center justify-center gap-1.5 rounded-xl bg-success text-xs font-bold text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
               </div>
             ))}
           </div>

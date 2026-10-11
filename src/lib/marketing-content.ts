@@ -7,9 +7,10 @@ import { pricesIn, inGroup, unitPriceFor, type FestivalWindow, type PriceItem } 
 
 export const CONTACT = {
   call: ["8956567130", "7083347130"] as const,
-  // Customer-service WhatsApp. 9175220270 is the marketing/API sender only
-  // and must never appear as a customer-facing number.
-  whatsapp: "8956567130",
+  // Customer-facing WhatsApp = primary business/WABA number (owner decision 2026-10-11). 8956567130 is
+  // internal/operational only (never a wa.me target); 9175220270 is the marketing/API sender only and
+  // must never appear as a customer-facing number.
+  whatsapp: "7083347130",
   email: "contact@saharacleaningservices.com",
   address: "Opposite South Gate, Magarpatta City, Hadapsar, Pune 411028",
 };

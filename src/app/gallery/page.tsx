@@ -34,7 +34,7 @@ export const dynamic = "force-dynamic";
 
 // Primary customer call number — same source as every other landing page.
 const CALL_NUMBER = CONTACT.call[0];
-const WHATSAPP_NUMBER = "8956567130";
+const WHATSAPP_NUMBER = CONTACT.whatsapp;
 
 const TIPS = [
   "Keep windows open for 30–45 minutes after a deep clean so surfaces dry fully.",
