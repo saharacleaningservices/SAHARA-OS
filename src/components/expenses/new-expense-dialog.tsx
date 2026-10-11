@@ -1,5 +1,6 @@
 "use client";
 
+import { todayIST } from "@/lib/pricing-master";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -40,7 +41,7 @@ export function NewExpenseDialog({ jobOptions = [], staffOptions = [] }: { jobOp
     formState: { errors },
   } = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
-    defaultValues: { category: "MISCELLANEOUS", date: new Date().toISOString().slice(0, 10) },
+    defaultValues: { category: "MISCELLANEOUS", date: todayIST() },
   });
 
   async function onSubmit(values: ExpenseFormValues) {

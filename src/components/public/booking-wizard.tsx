@@ -1324,7 +1324,7 @@ function BookingCalendar({
   setMonthOffset: (n: number) => void;
 }) {
   const byDate = new Map(dates.map((d) => [d.date, d]));
-  const first = dates[0]?.date ?? new Date().toISOString().slice(0, 10);
+  const first = dates[0]?.date ?? todayIST();
   const last = dates[dates.length - 1]?.date ?? first;
   const [y0, m0] = first.split("-").map(Number);
   const [y1, m1] = last.split("-").map(Number);
