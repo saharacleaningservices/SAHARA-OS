@@ -1116,3 +1116,12 @@ test("Public pages never render or ship bank account / IFSC (owner rule 2026-10-
     assert.doesNotMatch(read(f), /bankIfsc:\s*settings/, f);
   }
 });
+
+test("Customer WhatsApp links all route to the primary WABA number 7083347130 (owner 2026-10-11)", () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  assert.match(read("src/lib/marketing-content.ts"), /whatsapp:\s*"7083347130"/);
+  for (const f of ["src/components/public/public-booking-form.tsx", "src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx", "src/app/gallery/page.tsx"]) {
+    assert.doesNotMatch(read(f), /wa\.me\/918956567130|WHATSAPP_NUMBER = "8956567130"|waLink\(waText, n\)/, f);
+  }
+});

@@ -1,5 +1,6 @@
 "use client";
 
+import { CONTACT } from "@/lib/marketing-content";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { trackLead } from "@/components/public/marketing-tags";
 import { useEffect, useState } from "react";
@@ -506,7 +507,7 @@ export function PublicBookingForm({
         </dl>
         <div className="flex w-full flex-col gap-2">
           <a
-            href={`https://wa.me/918956567130?text=${encodeURIComponent(`Hi, I just booked online. My booking ID is ${done.leadNumber}.`)}`}
+            href={`https://wa.me/91${CONTACT.whatsapp}?text=${encodeURIComponent(`Hi, I just booked online. My booking ID is ${done.leadNumber}.`)}`}
             target="_blank"
             rel="noreferrer"
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-success px-4 py-3 text-sm font-semibold text-white"
