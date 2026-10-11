@@ -9,6 +9,7 @@ import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { inrFor, staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { tierFromPackage } from "@/lib/service-scope";
 import { StaffJobStatusButtons } from "@/components/staff-app/job-status-buttons";
+import { StaffJobConsentToggle } from "@/components/staff-app/job-consent-toggle";
 import { cn, initials } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -124,6 +125,15 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
 
       {/* Status (today, own job) */}
       {job.isToday && !preview && <StaffJobStatusButtons jobId={job.id} status={job.status} labels={{ onTheWay: t("btnOnTheWay"), start: t("btnStart"), complete: t("btnComplete") }} />}
+
+      {job.marketingConsent !== null && (
+        <StaffJobConsentToggle
+          jobId={job.id}
+          consent={job.marketingConsent}
+          disabled={!job.isToday || !!preview}
+          labels={{ title: t("waConsentTitle"), hint: t("waConsentHint"), record: t("waConsentBtn"), ask: t("waConsentAsk"), done: t("waConsentDone"), out: t("waConsentOut") }}
+        />
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         {officePhone && (

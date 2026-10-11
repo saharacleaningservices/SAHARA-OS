@@ -552,6 +552,37 @@ export async function staffUpdateJobStatus(jobId: string, status: "ON_THE_WAY" |
   return updateJobStatusInternal(jobId, status, session.sub);
 }
 
+/**
+ * Field staff record that the customer verbally agreed to WhatsApp offers on site.
+ * One-way (UNKNOWN → OPTED_IN): staff can never opt a customer out, and never override an
+ * existing opt-out (STOP / office-recorded). Audit-logged with the staff member as actor.
+ */
+export async function staffRecordJobConsent(jobId: string) {
+  const session = await getSession();
+  if (!session || session.role !== "STAFF") return { error: "Not authorized", success: false as const };
+  const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
+  if (scopeError) return scopeError;
+  const job = await db.job.findUnique({ where: { id: jobId }, select: { jobNumber: true, leadId: true, lead: { select: { marketingConsent: true, leadNumber: true } } } });
+  if (!job?.leadId || !job.lead) return { error: "No customer record linked to this job", success: false as const };
+  if (job.lead.marketingConsent === "OPTED_OUT") return { error: "Customer has opted out", success: false as const };
+  if (job.lead.marketingConsent === "OPTED_IN") return { success: true as const };
+  await db.lead.update({ where: { id: job.leadId }, data: { marketingConsent: "OPTED_IN", marketingConsentAt: new Date() } });
+  await db.auditLog
+    .create({
+      data: {
+        entityType: "Lead",
+        entityId: job.leadId,
+        action: "MARKETING_OPT_IN_RECORDED",
+        summary: `${job.lead.leadNumber}: verbal WhatsApp consent recorded on site by staff (${job.jobNumber})`,
+        actorName: session.name,
+        actorEmail: session.email,
+      },
+    })
+    .catch(() => {});
+  revalidatePath(`/leads/${job.leadId}`);
+  return { success: true as const };
+}
+
 export async function addJobPhoto(jobId: string, type: "BEFORE" | "AFTER", url: string, caption?: string) {
   const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
   if (scopeError) return scopeError;
