@@ -329,10 +329,10 @@ export default async function PublicBookingPage({
             paymentDetails={{
               upiId: settings.upiId ?? null,
               upiQrUrl: settings.upiQrUrl ?? null,
-              bankName: settings.bankName ?? null,
-              bankAccountName: settings.bankAccountName ?? null,
-              bankAccountNumber: settings.bankAccountNumber ?? null,
-              bankIfsc: settings.bankIfsc ?? null,
+              bankName: null,
+              bankAccountName: null,
+              bankAccountNumber: null,
+              bankIfsc: null,
             }}
           />
         </div>

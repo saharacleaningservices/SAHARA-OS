@@ -803,7 +803,10 @@ test("Advance payment: 50% rule, Total | Advance | Remaining, pay-after-service 
   assert.equal(paymentDetailsFrom(null), null);
   assert.equal(paymentDetailsFrom({ upiId: null, upiQrUrl: null, bankAccountNumber: null }), null);
   const d = paymentDetailsFrom({ upiQrUrl: "/uploads/qr.png", bankAccountName: "Sahara", bankAccountNumber: "123", bankIfsc: "XYZ0001" });
-  assert.equal(d?.bankIfsc, "XYZ0001");
+  // Owner rule 2026-10-11: bank account / IFSC are never exposed on public pages — UPI / QR only.
+  assert.equal(d?.bankIfsc, null);
+  assert.equal(d?.bankAccountNumber, null);
+  assert.equal(paymentDetailsFrom({ bankAccountNumber: "123", bankIfsc: "XYZ0001" }), null);
   assert.equal(d?.upiQrUrl, "/uploads/qr.png");
 });
 
@@ -1100,4 +1103,16 @@ test("CRM roles: Admin all; Accounts = money + customer billing, no profit / sec
   for (const s of ["dashboard", "leads", "jobs", "payments", "profit", "customers"]) assert.ok(!canAccess("STAFF", s), `STAFF must not reach ${s}`);
   assert.equal(p.canSeeCustomerContact("STAFF"), false);
   assert.equal(p.canViewFinancials("STAFF"), false);
+});
+
+test("Public pages never render or ship bank account / IFSC (owner rule 2026-10-11)", () => {
+  const root = path.join(__dirname, "..");
+  const read = (f: string) => readFileSync(path.join(root, f), "utf8");
+  for (const f of ["src/components/public/booking-page-view.tsx", "src/components/public/customer-document.tsx"]) {
+    assert.doesNotMatch(read(f), /A\/C|IFSC|bankAccountNumber\)\s*&&|settings\??\.bankAccountNumber|company\.bankAccountNumber/, f);
+  }
+  for (const f of ["src/server/public-job.ts", "src/app/book/page.tsx"]) {
+    assert.doesNotMatch(read(f), /bankAccountNumber:\s*settings/, f);
+    assert.doesNotMatch(read(f), /bankIfsc:\s*settings/, f);
+  }
 });

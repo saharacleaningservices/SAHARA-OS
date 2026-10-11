@@ -18,14 +18,15 @@ export function paymentDetailsFrom(s: {
   upiId?: string | null; upiQrUrl?: string | null; bankName?: string | null;
   bankAccountName?: string | null; bankAccountNumber?: string | null; bankIfsc?: string | null;
 } | null | undefined) {
-  if (!s || !(s.upiQrUrl || s.bankAccountNumber || s.upiId)) return null;
+  // Bank account / IFSC are never exposed on public pages (owner rule 2026-10-11): UPI / QR only.
+  if (!s || !(s.upiQrUrl || s.upiId)) return null;
   return {
     upiId: s.upiId ?? null,
     upiQrUrl: s.upiQrUrl ?? null,
-    bankName: s.bankName ?? null,
-    bankAccountName: s.bankAccountName ?? null,
-    bankAccountNumber: s.bankAccountNumber ?? null,
-    bankIfsc: s.bankIfsc ?? null,
+    bankName: null,
+    bankAccountName: null,
+    bankAccountNumber: null,
+    bankIfsc: null,
   };
 }
 

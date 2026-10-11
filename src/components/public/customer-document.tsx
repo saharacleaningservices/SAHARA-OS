@@ -149,7 +149,7 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
     ...(homeLabel ? [conciseHomeScope(tier), conciseHomeExclusions(tier)] : []),
     ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : []),
   ];
-  const hasPayment = !!(company.upiId || company.upiQrUrl || company.bankAccountNumber);
+  const hasPayment = !!(company.upiId || company.upiQrUrl);
 
   return (
     <article id="document" className="overflow-hidden rounded-2xl bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:text-[12px] print:shadow-none">
@@ -261,13 +261,6 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
           <div className="min-w-0 flex-1 text-xs">
             <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Payment Details</p>
             {company.upiId && <p className="mt-1">UPI ID: <span className="font-semibold">{company.upiId}</span></p>}
-            {company.bankAccountNumber && (
-              <p className="mt-1 break-words">
-                {company.bankAccountName ?? company.name} · A/C {company.bankAccountNumber}
-                {company.bankIfsc ? ` · IFSC ${company.bankIfsc}` : ""}
-                {company.bankName ? ` · ${company.bankName}` : ""}
-              </p>
-            )}
             <p className="mt-1 text-[#0a2540]/60">Please share the payment screenshot on WhatsApp after paying.</p>
           </div>
           {company.upiQrUrl && (

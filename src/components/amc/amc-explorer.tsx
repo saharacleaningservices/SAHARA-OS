@@ -1,5 +1,6 @@
 "use client";
 
+import { todayIST } from "@/lib/pricing-master";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -50,7 +51,7 @@ type AmcRow = {
 export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; canManage: boolean }) {
   const [open, setOpen] = useState(false);
   const [visitDialogId, setVisitDialogId] = useState<string | null>(null);
-  const [visitDate, setVisitDate] = useState(new Date().toISOString().slice(0, 10));
+  const [visitDate, setVisitDate] = useState(todayIST());
   const [visitNotes, setVisitNotes] = useState("");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -62,7 +63,7 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
     category: "RESIDENTIAL",
     frequency: "QUARTERLY",
     amount: "",
-    startDate: new Date().toISOString().slice(0, 10),
+    startDate: todayIST(),
     serviceReminderDate: "",
     contractExpiryDate: "",
     notes: "",

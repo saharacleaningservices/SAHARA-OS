@@ -91,14 +91,14 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   const settings = await db.companySettings.findUnique({
     where: { id: "default" },
     select: {
-      googleReviewUrl: true, upiId: true, upiQrUrl: true, bankName: true, bankAccountName: true, bankAccountNumber: true, bankIfsc: true,
+      googleReviewUrl: true, upiId: true, upiQrUrl: true,
       name: true, phone: true, email: true, address: true, website: true, logoUrl: true,
     },
   });
   const pmt = customerPaymentStatus(job);
   const open = job.status !== "CANCELLED" && job.status !== "COMPLETED";
   const showPay = pmt.due > 0 && job.status !== "CANCELLED";
-  const hasPaymentDetails = !!(settings?.upiId || settings?.upiQrUrl || settings?.bankAccountNumber);
+  const hasPaymentDetails = !!(settings?.upiId || settings?.upiQrUrl);
   const support = ["8956567130", "7083347130"];
   let included: string[] = [];
   try {
@@ -126,13 +126,6 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
                 <>
                   {settings?.upiId && <p>UPI: <span className="font-medium">{settings.upiId}</span></p>}
                   {settings?.upiQrUrl && <img src={settings.upiQrUrl} alt="Scan to pay" className="h-40 w-40 rounded-md border bg-white object-contain" />}
-                  {settings?.bankAccountNumber && (
-                    <p>
-                      Bank transfer — {settings.bankAccountName ?? COMPANY.name}, A/C {settings.bankAccountNumber}
-                      {settings.bankIfsc ? `, IFSC ${settings.bankIfsc}` : ""}
-                      {settings.bankName ? `, ${settings.bankName}` : ""}
-                    </p>
-                  )}
                   <p className="text-xs text-[#0a2540]/70">
                     Please share the payment screenshot on WhatsApp. Your payment status updates once our team verifies it.
                   </p>
@@ -175,10 +168,10 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               logoUrl: settings?.logoUrl ?? "/brand/sahara-logo.png",
               upiId: settings?.upiId ?? null,
               upiQrUrl: settings?.upiQrUrl ?? null,
-              bankName: settings?.bankName ?? null,
-              bankAccountName: settings?.bankAccountName ?? null,
-              bankAccountNumber: settings?.bankAccountNumber ?? null,
-              bankIfsc: settings?.bankIfsc ?? null,
+              bankName: null,
+              bankAccountName: null,
+              bankAccountNumber: null,
+              bankIfsc: null,
             }}
             job={{
               jobNumber: job.jobNumber,
