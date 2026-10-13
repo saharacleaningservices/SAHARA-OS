@@ -1647,3 +1647,72 @@ db.close();
   console.log("Customer CRM (contact type, repeat, sites) migration complete.");
   cDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff self-registration + ops reminders (2026-10-13, additive only).
+// User.sessionVersion (session revocation), OpsReminder / OpsReminderEvent /
+// OpsReminderSettings. Rollback: the app ignores these if the code is reverted;
+// no existing row is modified.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const oDb = new Database(dbPath);
+  const cols = (t) => oDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
+  if (!cols("User").includes("sessionVersion")) oDb.exec(`ALTER TABLE "User" ADD COLUMN "sessionVersion" INTEGER NOT NULL DEFAULT 0`);
+  oDb.exec(`
+    CREATE TABLE IF NOT EXISTS "OpsReminder" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "kind" TEXT NOT NULL,
+      "jobId" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'OPEN',
+      "dueAt" DATETIME NOT NULL,
+      "nextAlertAt" DATETIME NOT NULL,
+      "lastAlertAt" DATETIME,
+      "alertCount" INTEGER NOT NULL DEFAULT 0,
+      "escalatedAt" DATETIME,
+      "snoozedUntil" DATETIME,
+      "acknowledgedAt" DATETIME,
+      "acknowledgedBy" TEXT,
+      "delayReason" TEXT,
+      "followUpNote" TEXT,
+      "followUpUntil" DATETIME,
+      "resolvedAt" DATETIME,
+      "resolvedReason" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "OpsReminder_kind_jobId_key" ON "OpsReminder"("kind", "jobId");
+    CREATE INDEX IF NOT EXISTS "OpsReminder_status_nextAlertAt_idx" ON "OpsReminder"("status", "nextAlertAt");
+    CREATE TABLE IF NOT EXISTS "OpsReminderEvent" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "reminderId" TEXT,
+      "type" TEXT NOT NULL,
+      "note" TEXT,
+      "actorName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "OpsReminderEvent_reminderId_fkey" FOREIGN KEY ("reminderId") REFERENCES "OpsReminder" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS "OpsReminderEvent_reminderId_idx" ON "OpsReminderEvent"("reminderId");
+    CREATE INDEX IF NOT EXISTS "OpsReminderEvent_createdAt_idx" ON "OpsReminderEvent"("createdAt");
+    CREATE TABLE IF NOT EXISTS "OpsReminderSettings" (
+      "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
+      "enabled" BOOLEAN NOT NULL DEFAULT true,
+      "jobIntervalMin" INTEGER NOT NULL DEFAULT 15,
+      "paymentIntervalMin" INTEGER NOT NULL DEFAULT 30,
+      "escalateAfterMin" INTEGER NOT NULL DEFAULT 120,
+      "defaultJobHours" INTEGER NOT NULL DEFAULT 4,
+      "paymentLookbackDays" INTEGER NOT NULL DEFAULT 30,
+      "quietStart" TEXT NOT NULL DEFAULT '21:00',
+      "quietEnd" TEXT NOT NULL DEFAULT '08:00',
+      "soundEnabled" BOOLEAN NOT NULL DEFAULT true,
+      "maxSnoozeMin" INTEGER NOT NULL DEFAULT 120,
+      "dailySummaryHour" INTEGER NOT NULL DEFAULT 9,
+      "lastDailySummaryDay" TEXT,
+      "staffSignupNeedsApproval" BOOLEAN NOT NULL DEFAULT true,
+      "updatedByName" TEXT,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  oDb.prepare(`INSERT OR IGNORE INTO "OpsReminderSettings" ("id") VALUES ('default')`).run();
+  console.log("Staff registration + ops reminders migration complete.");
+  oDb.close();
+}

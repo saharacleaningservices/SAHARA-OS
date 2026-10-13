@@ -287,8 +287,9 @@ export default async function StaffDetailPage({
             <StaffAppAccessCard
               staffId={staff.id}
               access={appAccess}
-              canManage={session.role === "ADMIN"}
+              canManage={session.role === "ADMIN" || session.role === "ACCOUNTS"}
               canApproveReset={session.role === "ADMIN" || session.role === "ACCOUNTS"}
+              canToggle={session.role === "ADMIN" || session.role === "ACCOUNTS"}
             />
           </Fold>
         )}

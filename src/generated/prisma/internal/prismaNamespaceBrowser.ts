@@ -108,7 +108,10 @@ export const ModelName = {
   StaffLoanEntry: 'StaffLoanEntry',
   AnnouncementRead: 'AnnouncementRead',
   KhataImportBatch: 'KhataImportBatch',
-  KhataImportLog: 'KhataImportLog'
+  KhataImportLog: 'KhataImportLog',
+  OpsReminder: 'OpsReminder',
+  OpsReminderEvent: 'OpsReminderEvent',
+  OpsReminderSettings: 'OpsReminderSettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -134,6 +137,7 @@ export const UserScalarFieldEnum = {
   avatarUrl: 'avatarUrl',
   isActive: 'isActive',
   mustChangePassword: 'mustChangePassword',
+  sessionVersion: 'sessionVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1250,6 +1254,65 @@ export const KhataImportLogScalarFieldEnum = {
 } as const
 
 export type KhataImportLogScalarFieldEnum = (typeof KhataImportLogScalarFieldEnum)[keyof typeof KhataImportLogScalarFieldEnum]
+
+
+export const OpsReminderScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  jobId: 'jobId',
+  status: 'status',
+  dueAt: 'dueAt',
+  nextAlertAt: 'nextAlertAt',
+  lastAlertAt: 'lastAlertAt',
+  alertCount: 'alertCount',
+  escalatedAt: 'escalatedAt',
+  snoozedUntil: 'snoozedUntil',
+  acknowledgedAt: 'acknowledgedAt',
+  acknowledgedBy: 'acknowledgedBy',
+  delayReason: 'delayReason',
+  followUpNote: 'followUpNote',
+  followUpUntil: 'followUpUntil',
+  resolvedAt: 'resolvedAt',
+  resolvedReason: 'resolvedReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpsReminderScalarFieldEnum = (typeof OpsReminderScalarFieldEnum)[keyof typeof OpsReminderScalarFieldEnum]
+
+
+export const OpsReminderEventScalarFieldEnum = {
+  id: 'id',
+  reminderId: 'reminderId',
+  type: 'type',
+  note: 'note',
+  actorName: 'actorName',
+  createdAt: 'createdAt'
+} as const
+
+export type OpsReminderEventScalarFieldEnum = (typeof OpsReminderEventScalarFieldEnum)[keyof typeof OpsReminderEventScalarFieldEnum]
+
+
+export const OpsReminderSettingsScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  jobIntervalMin: 'jobIntervalMin',
+  paymentIntervalMin: 'paymentIntervalMin',
+  escalateAfterMin: 'escalateAfterMin',
+  defaultJobHours: 'defaultJobHours',
+  paymentLookbackDays: 'paymentLookbackDays',
+  quietStart: 'quietStart',
+  quietEnd: 'quietEnd',
+  soundEnabled: 'soundEnabled',
+  maxSnoozeMin: 'maxSnoozeMin',
+  dailySummaryHour: 'dailySummaryHour',
+  lastDailySummaryDay: 'lastDailySummaryDay',
+  staffSignupNeedsApproval: 'staffSignupNeedsApproval',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpsReminderSettingsScalarFieldEnum = (typeof OpsReminderSettingsScalarFieldEnum)[keyof typeof OpsReminderSettingsScalarFieldEnum]
 
 
 export const SortOrder = {

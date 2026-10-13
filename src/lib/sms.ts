@@ -57,13 +57,15 @@ export async function sendSMS(input: {
   body: string;
   relatedType?: string;
   relatedId?: string;
+  /** OTPs: the log row keeps a redacted body and is never re-sent by flushSmsQueue (a stale code is useless). */
+  sensitive?: boolean;
 }) {
   const to = normalize(input.toNumber);
   const row = await db.smsMessage.create({
     data: {
       toNumber: to,
       toName: input.toName ?? null,
-      body: input.body,
+      body: input.sensitive ? "[one-time code — not stored]" : input.body,
       kind: input.kind,
       relatedType: input.relatedType ?? null,
       relatedId: input.relatedId ?? null,
@@ -71,7 +73,10 @@ export async function sendSMS(input: {
     },
   });
 
-  if (!(await isSmsReady())) return { queued: true, sent: false, id: row.id };
+  if (!(await isSmsReady())) {
+    if (input.sensitive) await db.smsMessage.update({ where: { id: row.id }, data: { status: "FAILED", attempts: 5, error: "SMS gateway not configured" } });
+    return { queued: !input.sensitive, sent: false, id: row.id };
+  }
 
   const r = await deliver(to, input.body);
   await db.smsMessage.update({
@@ -79,7 +84,7 @@ export async function sendSMS(input: {
     data: {
       status: r.ok ? "SENT" : "FAILED",
       sentAt: r.ok ? new Date() : null,
-      attempts: { increment: 1 },
+      attempts: input.sensitive ? 5 : { increment: 1 },
       error: r.error ?? null,
     },
   });

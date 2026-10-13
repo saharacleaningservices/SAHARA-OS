@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { enableStaffAppLogin, resetStaffAppPin, setStaffAppLoginActive } from "@/server/actions/staff-app-access";
 import { decideStaffPinReset } from "@/server/actions/staff-pin-reset";
+import { decideStaffRegistration } from "@/server/actions/staff-registration";
 
 type Access = {
   employeeCode: string;
@@ -19,11 +20,12 @@ type Access = {
   loginMobile: string | null;
   lastLoginAt: Date | null;
   pendingReset: { id: string; createdAt: Date; expiresAt: Date } | null;
+  pendingRegistration?: { id: string; createdAt: Date; expiresAt: Date } | null;
 };
 
 /**
- * Staff App login management on the Staff detail page. Super Admin creates /
- * resets / disables; Accounts sees status only. The temporary PIN is shown
+ * Staff App login management on the Staff detail page. Super Admin and
+ * Accounts create / reset / enable / disable (every action server-checked + audited). The temporary PIN is shown
  * once in a dialog and never stored in plain text.
  */
 export function StaffAppAccessCard({
@@ -31,11 +33,14 @@ export function StaffAppAccessCard({
   access,
   canManage,
   canApproveReset,
+  canToggle = canManage,
 }: {
   staffId: string;
   access: Access;
   canManage: boolean;
   canApproveReset: boolean;
+  /** enable / disable an existing login (Super Admin or Accounts) */
+  canToggle?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -99,21 +104,42 @@ export function StaffAppAccessCard({
             )}
           </div>
         )}
+        {access.pendingRegistration && (
+          <div className="space-y-2 rounded-lg border border-primary/40 bg-primary/5 p-3">
+            <div className="text-sm font-semibold">Staff App registration request</div>
+            <p className="text-xs text-muted-foreground">
+              The staff member verified this record&apos;s mobile number by SMS OTP on {new Date(access.pendingRegistration.createdAt).toLocaleString("en-IN")} and
+              chose their own password. Approving creates their login; nothing is shown to you.
+            </p>
+            {canApproveReset && (
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => run(() => decideStaffRegistration(access.pendingRegistration!.id, true))} disabled={pending}>
+                  Approve access
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => run(() => decideStaffRegistration(access.pendingRegistration!.id, false))} disabled={pending}>
+                  Reject
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
         {access.hasLogin && access.role && access.role !== "STAFF" && (
           <p className="text-xs text-muted-foreground">Linked to a {access.role} office login — manage it in User Management.</p>
         )}
-        {canManage && (
+        {(canManage || canToggle) && (
           <div className="flex flex-wrap gap-2">
             {!access.hasLogin ? (
-              <Button size="sm" onClick={() => run(() => enableStaffAppLogin(staffId))} disabled={pending}>
+              canManage && <Button size="sm" onClick={() => run(() => enableStaffAppLogin(staffId))} disabled={pending}>
                 {pending ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />} Enable Staff App login
               </Button>
             ) : access.role === "STAFF" ? (
               <>
-                <Button size="sm" variant="outline" onClick={() => run(() => resetStaffAppPin(staffId))} disabled={pending}>
-                  <KeyRound className="size-3.5" /> Reset PIN
-                </Button>
-                <Button
+                {canManage && (
+                  <Button size="sm" variant="outline" onClick={() => run(() => resetStaffAppPin(staffId))} disabled={pending}>
+                    <KeyRound className="size-3.5" /> Reset PIN
+                  </Button>
+                )}
+                {canToggle && <Button
                   size="sm"
                   variant={access.isActive ? "outline" : "default"}
                   onClick={() => run(() => setStaffAppLoginActive(staffId, !access.isActive))}
@@ -121,7 +147,7 @@ export function StaffAppAccessCard({
                 >
                   {access.isActive ? <ShieldOff className="size-3.5" /> : <ShieldCheck className="size-3.5" />}
                   {access.isActive ? "Disable" : "Enable"}
-                </Button>
+                </Button>}
               </>
             ) : null}
           </div>

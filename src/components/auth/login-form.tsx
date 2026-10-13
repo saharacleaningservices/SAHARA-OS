@@ -179,6 +179,11 @@ export function LoginForm({ next }: { next?: string }) {
           <Link href="/staff-reset" className="font-medium text-primary hover:underline">
             Request a reset
           </Link>
+          {" · "}
+          New staff?{" "}
+          <Link href="/staff-register" className="font-medium text-primary hover:underline">
+            Register
+          </Link>
         </p>
 
         {denied && (
