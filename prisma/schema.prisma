@@ -228,6 +228,7 @@ model User {
   avatarUrl           String?
   isActive            Boolean  @default(true)
   mustChangePassword  Boolean  @default(false) // force a policy-compliant reset on next login
+  sessionVersion      Int      @default(0) // bumped to revoke every session (password reset, access disabled)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -1660,4 +1661,70 @@ model KhataImportLog {
 
   @@index([batchId])
   @@index([party])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Ops reminders (2026-10-13): job-closure + payment-collection reminders for
+// Accounts, escalation to the Super Admin, daily summary. DB-backed queue —
+// the server sweep (src/server/ops-reminders.ts) is the only sender, so open
+// tabs/devices never duplicate an alert. Never changes job or payment status.
+// ─────────────────────────────────────────────────────────────────────────
+
+model OpsReminder {
+  id             String    @id @default(cuid())
+  kind           String // JOB_CLOSURE | PAYMENT_COLLECTION
+  jobId          String
+  status         String    @default("OPEN") // OPEN | RESOLVED
+  dueAt          DateTime
+  nextAlertAt    DateTime
+  lastAlertAt    DateTime?
+  alertCount     Int       @default(0)
+  escalatedAt    DateTime?
+  snoozedUntil   DateTime?
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+  delayReason    String?
+  followUpNote   String?
+  followUpUntil  DateTime?
+  resolvedAt     DateTime?
+  resolvedReason String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  events OpsReminderEvent[]
+
+  @@unique([kind, jobId])
+  @@index([status, nextAlertAt])
+}
+
+model OpsReminderEvent {
+  id         String      @id @default(cuid())
+  reminderId String?
+  reminder   OpsReminder? @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+  type       String // ALERT | ESCALATED | ACK | SNOOZE | DELAY | FOLLOW_UP | RESOLVED | DAILY_SUMMARY
+  note       String?
+  actorName  String?
+  createdAt  DateTime    @default(now())
+
+  @@index([reminderId])
+  @@index([createdAt])
+}
+
+model OpsReminderSettings {
+  id                      String   @id @default("default")
+  enabled                 Boolean  @default(true)
+  jobIntervalMin          Int      @default(15)
+  paymentIntervalMin      Int      @default(30)
+  escalateAfterMin        Int      @default(120)
+  defaultJobHours         Int      @default(4)
+  paymentLookbackDays     Int      @default(30)
+  quietStart              String   @default("21:00") // IST HH:MM
+  quietEnd                String   @default("08:00")
+  soundEnabled            Boolean  @default(true)
+  maxSnoozeMin            Int      @default(120)
+  dailySummaryHour        Int      @default(9) // IST hour, -1 = off
+  lastDailySummaryDay     String?
+  staffSignupNeedsApproval Boolean @default(true)
+  updatedByName           String?
+  updatedAt               DateTime @updatedAt
 }

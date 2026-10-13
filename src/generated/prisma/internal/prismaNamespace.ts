@@ -449,7 +449,10 @@ export const ModelName = {
   StaffLoanEntry: 'StaffLoanEntry',
   AnnouncementRead: 'AnnouncementRead',
   KhataImportBatch: 'KhataImportBatch',
-  KhataImportLog: 'KhataImportLog'
+  KhataImportLog: 'KhataImportLog',
+  OpsReminder: 'OpsReminder',
+  OpsReminderEvent: 'OpsReminderEvent',
+  OpsReminderSettings: 'OpsReminderSettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -465,7 +468,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4909,6 +4912,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OpsReminder: {
+      payload: Prisma.$OpsReminderPayload<ExtArgs>
+      fields: Prisma.OpsReminderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpsReminderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpsReminderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>
+        }
+        findFirst: {
+          args: Prisma.OpsReminderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpsReminderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>
+        }
+        findMany: {
+          args: Prisma.OpsReminderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>[]
+        }
+        create: {
+          args: Prisma.OpsReminderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>
+        }
+        createMany: {
+          args: Prisma.OpsReminderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpsReminderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>[]
+        }
+        delete: {
+          args: Prisma.OpsReminderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>
+        }
+        update: {
+          args: Prisma.OpsReminderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>
+        }
+        deleteMany: {
+          args: Prisma.OpsReminderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpsReminderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpsReminderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>[]
+        }
+        upsert: {
+          args: Prisma.OpsReminderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderPayload>
+        }
+        aggregate: {
+          args: Prisma.OpsReminderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpsReminder>
+        }
+        groupBy: {
+          args: Prisma.OpsReminderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpsReminderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpsReminderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpsReminderCountAggregateOutputType> | number
+        }
+      }
+    }
+    OpsReminderEvent: {
+      payload: Prisma.$OpsReminderEventPayload<ExtArgs>
+      fields: Prisma.OpsReminderEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpsReminderEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpsReminderEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>
+        }
+        findFirst: {
+          args: Prisma.OpsReminderEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpsReminderEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>
+        }
+        findMany: {
+          args: Prisma.OpsReminderEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>[]
+        }
+        create: {
+          args: Prisma.OpsReminderEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>
+        }
+        createMany: {
+          args: Prisma.OpsReminderEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpsReminderEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>[]
+        }
+        delete: {
+          args: Prisma.OpsReminderEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>
+        }
+        update: {
+          args: Prisma.OpsReminderEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.OpsReminderEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpsReminderEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpsReminderEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.OpsReminderEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderEventPayload>
+        }
+        aggregate: {
+          args: Prisma.OpsReminderEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpsReminderEvent>
+        }
+        groupBy: {
+          args: Prisma.OpsReminderEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpsReminderEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpsReminderEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpsReminderEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    OpsReminderSettings: {
+      payload: Prisma.$OpsReminderSettingsPayload<ExtArgs>
+      fields: Prisma.OpsReminderSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpsReminderSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpsReminderSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.OpsReminderSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpsReminderSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.OpsReminderSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.OpsReminderSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.OpsReminderSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpsReminderSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.OpsReminderSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>
+        }
+        update: {
+          args: Prisma.OpsReminderSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.OpsReminderSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpsReminderSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpsReminderSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.OpsReminderSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpsReminderSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.OpsReminderSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpsReminderSettings>
+        }
+        groupBy: {
+          args: Prisma.OpsReminderSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpsReminderSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpsReminderSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpsReminderSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4955,6 +5180,7 @@ export const UserScalarFieldEnum = {
   avatarUrl: 'avatarUrl',
   isActive: 'isActive',
   mustChangePassword: 'mustChangePassword',
+  sessionVersion: 'sessionVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -6073,6 +6299,65 @@ export const KhataImportLogScalarFieldEnum = {
 export type KhataImportLogScalarFieldEnum = (typeof KhataImportLogScalarFieldEnum)[keyof typeof KhataImportLogScalarFieldEnum]
 
 
+export const OpsReminderScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  jobId: 'jobId',
+  status: 'status',
+  dueAt: 'dueAt',
+  nextAlertAt: 'nextAlertAt',
+  lastAlertAt: 'lastAlertAt',
+  alertCount: 'alertCount',
+  escalatedAt: 'escalatedAt',
+  snoozedUntil: 'snoozedUntil',
+  acknowledgedAt: 'acknowledgedAt',
+  acknowledgedBy: 'acknowledgedBy',
+  delayReason: 'delayReason',
+  followUpNote: 'followUpNote',
+  followUpUntil: 'followUpUntil',
+  resolvedAt: 'resolvedAt',
+  resolvedReason: 'resolvedReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpsReminderScalarFieldEnum = (typeof OpsReminderScalarFieldEnum)[keyof typeof OpsReminderScalarFieldEnum]
+
+
+export const OpsReminderEventScalarFieldEnum = {
+  id: 'id',
+  reminderId: 'reminderId',
+  type: 'type',
+  note: 'note',
+  actorName: 'actorName',
+  createdAt: 'createdAt'
+} as const
+
+export type OpsReminderEventScalarFieldEnum = (typeof OpsReminderEventScalarFieldEnum)[keyof typeof OpsReminderEventScalarFieldEnum]
+
+
+export const OpsReminderSettingsScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  jobIntervalMin: 'jobIntervalMin',
+  paymentIntervalMin: 'paymentIntervalMin',
+  escalateAfterMin: 'escalateAfterMin',
+  defaultJobHours: 'defaultJobHours',
+  paymentLookbackDays: 'paymentLookbackDays',
+  quietStart: 'quietStart',
+  quietEnd: 'quietEnd',
+  soundEnabled: 'soundEnabled',
+  maxSnoozeMin: 'maxSnoozeMin',
+  dailySummaryHour: 'dailySummaryHour',
+  lastDailySummaryDay: 'lastDailySummaryDay',
+  staffSignupNeedsApproval: 'staffSignupNeedsApproval',
+  updatedByName: 'updatedByName',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpsReminderSettingsScalarFieldEnum = (typeof OpsReminderSettingsScalarFieldEnum)[keyof typeof OpsReminderSettingsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -6117,6 +6402,13 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -6155,13 +6447,6 @@ export type EnumStaffAvailabilityFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'AttendanceStatus'
  */
 export type EnumAttendanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttendanceStatus'>
-    
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 
@@ -6444,6 +6729,9 @@ export type GlobalOmitConfig = {
   announcementRead?: Prisma.AnnouncementReadOmit
   khataImportBatch?: Prisma.KhataImportBatchOmit
   khataImportLog?: Prisma.KhataImportLogOmit
+  opsReminder?: Prisma.OpsReminderOmit
+  opsReminderEvent?: Prisma.OpsReminderEventOmit
+  opsReminderSettings?: Prisma.OpsReminderSettingsOmit
 }
 
 /* Types for Logging */

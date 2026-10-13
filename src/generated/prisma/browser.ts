@@ -320,3 +320,18 @@ export type KhataImportBatch = Prisma.KhataImportBatchModel
  * 
  */
 export type KhataImportLog = Prisma.KhataImportLogModel
+/**
+ * Model OpsReminder
+ * 
+ */
+export type OpsReminder = Prisma.OpsReminderModel
+/**
+ * Model OpsReminderEvent
+ * 
+ */
+export type OpsReminderEvent = Prisma.OpsReminderEventModel
+/**
+ * Model OpsReminderSettings
+ * 
+ */
+export type OpsReminderSettings = Prisma.OpsReminderSettingsModel

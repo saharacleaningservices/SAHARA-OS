@@ -34,7 +34,12 @@ export type NotifKind =
   | "APPROVAL_REQUEST"
   | "LOGIN_ATTEMPT"
   | "LOGIN_ID_RECOVERY"
-  | "STAFF_PIN_RESET";
+  | "STAFF_PIN_RESET"
+  | "STAFF_REGISTRATION"
+  | "OPS_JOB_CLOSURE"
+  | "OPS_PAYMENT_DUE"
+  | "OPS_ESCALATION"
+  | "OPS_DAILY_SUMMARY";
 
 type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
@@ -52,6 +57,13 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   LOGIN_ATTEMPT: ["ADMIN"],
   LOGIN_ID_RECOVERY: ["ADMIN"],
   STAFF_PIN_RESET: ["ADMIN", "ACCOUNTS"], // approvable by Super Admin or Accounts (in-app + push only)
+  STAFF_REGISTRATION: ["ADMIN", "ACCOUNTS"], // Staff App self-registration awaiting approval
+  // Ops reminders (src/server/ops-reminders.ts): Accounts gets the repeats,
+  // the Super Admin only the 2-hour escalation + the daily summary.
+  OPS_JOB_CLOSURE: ["ACCOUNTS"],
+  OPS_PAYMENT_DUE: ["ACCOUNTS"],
+  OPS_ESCALATION: ["ADMIN"],
+  OPS_DAILY_SUMMARY: ["ADMIN", "ACCOUNTS"],
 };
 
 const CRITICAL_KINDS = new Set<NotifKind>(["DEVICE_LOGIN", "PASSWORD_OTP", "APPROVAL_REQUEST", "LOGIN_ATTEMPT", "LOGIN_ID_RECOVERY"]);
@@ -66,6 +78,10 @@ export type NotifyInput = {
   /** also queue a WhatsApp copy to the admin's registered number */
   whatsappToAdmin?: boolean;
   meta?: Record<string, unknown>;
+  /** loud alert + stays on screen, without the critical-kind WhatsApp copy */
+  critical?: boolean;
+  /** push tag — a newer push with the same tag replaces the older one on the device */
+  tag?: string;
 };
 
 /**
@@ -74,7 +90,7 @@ export type NotifyInput = {
 export async function notify(input: NotifyInput): Promise<void> {
   try {
     const roles = KIND_ROLES[input.kind] ?? ["ADMIN"];
-    const critical = CRITICAL_KINDS.has(input.kind);
+    const critical = CRITICAL_KINDS.has(input.kind) || Boolean(input.critical);
 
     const recipients = await db.user.findMany({
       where: {
@@ -103,14 +119,14 @@ export async function notify(input: NotifyInput): Promise<void> {
     const full = userIds.filter((id) => !restricted.has(id));
     const masked = userIds.filter((id) => restricted.has(id));
     const push = (ids: string[], t: { title: string; body: string | null }) =>
-      ids.length ? pushToUsers(ids, { title: t.title, body: t.body ?? undefined, href: input.href, critical, tag: input.kind }).catch(() => {}) : null;
+      ids.length ? pushToUsers(ids, { title: t.title, body: t.body ?? undefined, href: input.href, critical, tag: input.tag ?? input.kind }).catch(() => {}) : null;
     // Device push + the admin's WhatsApp copy are network round-trips to push
     // services / Meta — run them in the background so the user's save returns
     // immediately (the in-app notification row above is already saved). The
     // app runs as a long-lived Node server, so these still complete.
     const background = async () => {
       await Promise.all([push(full, { title: input.title, body: input.body ?? null }), push(masked, { title: maskPhones(input.title) ?? "", body: maskPhones(input.body) ?? null })]);
-      if (input.whatsappToAdmin || critical) {
+      if (input.whatsappToAdmin || CRITICAL_KINDS.has(input.kind)) {
         const admin = await db.user.findFirst({
           where: { role: "ADMIN", isActive: true },
           orderBy: { createdAt: "asc" },

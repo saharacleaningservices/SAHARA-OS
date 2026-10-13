@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { SESSION_COOKIE } from "@/lib/session";
+import { SESSION_COOKIE } from "@/lib/session-cookie";
 import { canAccess } from "@/lib/constants";
 import {
   PUBLIC_BOOKING_HOST,
@@ -36,6 +36,7 @@ const PUBLIC_PATHS = [
   "/forgot-password",
   "/forgot-login-id",
   "/staff-reset",
+  "/staff-register",
   "/privacy-policy",
   "/terms",
   "/data-deletion",

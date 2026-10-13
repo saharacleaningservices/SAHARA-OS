@@ -12,7 +12,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession, revokeUserSessions } from "@/lib/session";
 import { hashPassword } from "@/lib/auth";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { staffPinSchema } from "@/lib/validation";
@@ -46,9 +46,9 @@ export async function requestStaffPinReset(values: unknown) {
   // Same identity the login uses: the User's mobile number.
   const user = await db.user.findFirst({
     where: { phone: digits, role: "STAFF", isActive: true },
-    select: { id: true, email: true, staffProfile: { select: { id: true, name: true, employeeCode: true, deletedAt: true } } },
+    select: { id: true, email: true, staffProfile: { select: { id: true, name: true, employeeCode: true, deletedAt: true, isActive: true } } },
   });
-  const staff = user?.staffProfile && !user.staffProfile.deletedAt ? { ...user.staffProfile, user } : null;
+  const staff = user?.staffProfile && !user.staffProfile.deletedAt && user.staffProfile.isActive ? { ...user.staffProfile, user } : null;
   if (!staff) return generic;
   const code = parsed.data.employeeCode?.toUpperCase().replace(/\s+/g, "");
   if (code && code !== staff.employeeCode.toUpperCase()) return generic;
@@ -101,11 +101,14 @@ export async function decideStaffPinReset(requestId: string, approve: boolean) {
   if (!req || req.purpose !== PURPOSE || req.consumedAt) return { error: "This request is no longer open" };
   if (req.expiresAt < new Date()) return { error: "This request has expired — ask the staff member to request again" };
 
-  const target = await db.user.findUnique({ where: { id: req.targetUserId }, select: { id: true, role: true, staffProfile: { select: { id: true } } } });
+  const target = await db.user.findUnique({ where: { id: req.targetUserId }, select: { id: true, role: true, isActive: true, staffProfile: { select: { id: true, isActive: true, deletedAt: true } } } });
   if (!target || target.role !== "STAFF") return { error: "Account not found" };
+  // A disabled login / staff record never regains access through a reset.
+  if (approve && (!target.isActive || !target.staffProfile?.isActive || target.staffProfile.deletedAt)) return { error: "This Staff App login is disabled — enable it first" };
 
   if (approve && req.payload) {
     await db.user.update({ where: { id: target.id }, data: { passwordHash: req.payload, mustChangePassword: false } });
+    await revokeUserSessions(target.id); // old PIN's sessions end everywhere
   }
   await db.securityOtp.update({
     where: { id: req.id },
@@ -138,9 +141,9 @@ async function findStaffLogin(mobile: string, employeeCode?: string) {
   if (digits.length !== 10) return null;
   const user = await db.user.findFirst({
     where: { phone: digits, role: "STAFF", isActive: true },
-    select: { id: true, email: true, phone: true, staffProfile: { select: { id: true, name: true, employeeCode: true, deletedAt: true } } },
+    select: { id: true, email: true, phone: true, staffProfile: { select: { id: true, name: true, employeeCode: true, deletedAt: true, isActive: true } } },
   });
-  if (!user?.staffProfile || user.staffProfile.deletedAt) return null;
+  if (!user?.staffProfile || user.staffProfile.deletedAt || !user.staffProfile.isActive) return null;
   const code = employeeCode?.toUpperCase().replace(/\s+/g, "");
   if (code && code !== user.staffProfile.employeeCode.toUpperCase()) return null;
   return { user, staff: user.staffProfile, digits };
@@ -170,7 +173,13 @@ export async function sendStaffPinOtp(values: unknown) {
       requestedByName: `${found.staff.name} (Staff App, ${ip})`,
     },
   });
-  await sendSMS({ kind: "OTHER", toNumber: found.digits, toName: found.staff.name, body: `Sahara Staff App OTP: ${otp}. Valid 10 minutes. Do not share it.`, relatedType: "SecurityOtp", relatedId: row.id });
+  const sms = await sendSMS({ kind: "OTHER", toNumber: found.digits, toName: found.staff.name, body: `Sahara Staff App OTP: ${otp}. Valid 10 minutes. Do not share it.`, relatedType: "SecurityOtp", relatedId: row.id, sensitive: true });
+  if (!sms.sent) {
+    // Never report a delivery that didn't happen.
+    await db.securityOtp.update({ where: { id: row.id }, data: { consumedAt: new Date(), codePlain: "SMS_FAILED" } });
+    await db.auditLog.create({ data: { entityType: "Security", entityId: row.id, action: "STAFF_PIN_OTP_FAILED", summary: `PIN reset OTP SMS to ${found.staff.employeeCode} ${found.staff.name} failed: ${sms.error ?? "not sent"}`, actorName: found.staff.name } }).catch(() => {});
+    return { error: "We could not send the SMS right now. Use “Ask the office to reset” below.", fallback: true as const };
+  }
   await db.auditLog.create({ data: { entityType: "Security", entityId: row.id, action: "STAFF_PIN_OTP_SENT", summary: `PIN reset OTP sent to ${found.staff.employeeCode} ${found.staff.name}`, actorName: found.staff.name } }).catch(() => {});
   return generic;
 }
@@ -193,8 +202,10 @@ export async function resetStaffPinWithOtp(values: unknown) {
     await db.securityOtp.update({ where: { id: req.id }, data: { attempts: { increment: 1 } } });
     return bad;
   }
+  const used = await db.securityOtp.updateMany({ where: { id: req.id, consumedAt: null }, data: { consumedAt: new Date(), codePlain: "USED" } });
+  if (used.count !== 1) return bad;
   await db.user.update({ where: { id: found.user.id }, data: { passwordHash: await hashPassword(parsed.data.newPin), mustChangePassword: false } });
-  await db.securityOtp.update({ where: { id: req.id }, data: { consumedAt: new Date(), codePlain: "USED" } });
+  await revokeUserSessions(found.user.id); // sign out every other device
   await db.auditLog.create({ data: { entityType: "Security", entityId: req.id, action: "STAFF_PIN_RESET_BY_OTP", summary: `${found.staff.employeeCode} ${found.staff.name} reset their PIN by SMS OTP`, actorName: found.staff.name } }).catch(() => {});
   return { success: true as const };
 }

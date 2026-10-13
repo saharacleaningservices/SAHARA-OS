@@ -24,6 +24,20 @@ type Item = {
 };
 
 const POLL_MS = 20000;
+// Shared with the dashboard Pending-actions panel (per-device mute for reminder sounds).
+const OPS_MUTE_KEY = "sahara-ops-sound-muted";
+const CHIME_CLAIM_KEY = "sahara-last-chimed";
+
+/** Only one open tab chimes / pops a desktop notice for a given notification. */
+function claimOnce(id: string): boolean {
+  try {
+    if (localStorage.getItem(CHIME_CLAIM_KEY) === id) return false;
+    localStorage.setItem(CHIME_CLAIM_KEY, id);
+  } catch {
+    /* storage blocked — fall back to chiming in this tab */
+  }
+  return true;
+}
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -70,6 +84,7 @@ export function NotificationsBell() {
   const [perm, setPerm] = useState<NotificationPermission>("default");
   const lastSeenRef = useRef<string>("");
   const primedRef = useRef(false);
+  const pushOkRef = useRef(false);
 
   const subscribePush = useCallback(async () => {
     try {
@@ -91,6 +106,7 @@ export function NotificationsBell() {
         keys: json.keys,
         userAgent: navigator.userAgent,
       });
+      pushOkRef.current = true;
     } catch {
       /* push not available — in-app polling still works */
     }
@@ -100,7 +116,7 @@ export function NotificationsBell() {
     try {
       const res = await fetch("/api/notifications/feed", { cache: "no-store" });
       if (!res.ok) return;
-      const data: { unreadCount: number; items: Item[] } = await res.json();
+      const data: { unreadCount: number; items: Item[]; opsSound?: boolean } = await res.json();
       setUnread(data.unreadCount);
       setItems(data.items);
 
@@ -113,14 +129,40 @@ export function NotificationsBell() {
       if (newest && newest.createdAt > lastSeenRef.current) {
         const fresh = data.items.filter((i) => i.createdAt > lastSeenRef.current);
         lastSeenRef.current = newest.createdAt;
-        const critical = fresh.some((i) => i.critical);
-        playChime(critical);
-        if ("vibrate" in navigator) navigator.vibrate(critical ? [200, 100, 200, 100, 400] : [120, 60, 120]);
+        if (!claimOnce(newest.id)) return; // another tab already alerted for this one
+        let opsMuted = false;
+        try {
+          opsMuted = localStorage.getItem(OPS_MUTE_KEY) === "1";
+        } catch {
+          /* ignore */
+        }
+        const silentOps = data.opsSound === false || opsMuted;
+        const audible = fresh.filter((i) => !(i.kind.startsWith("OPS_") && silentOps));
+        const critical = audible.some((i) => i.critical);
+        if (audible.length) {
+          playChime(critical);
+          if ("vibrate" in navigator) navigator.vibrate(critical ? [200, 100, 200, 100, 400] : [120, 60, 120]);
+        }
+        // Desktop notice for reminders when this browser has no push subscription
+        // (with push, the service worker already shows the system notification).
+        if (!pushOkRef.current && typeof Notification !== "undefined" && Notification.permission === "granted") {
+          for (const i of fresh.filter((x) => x.kind.startsWith("OPS_")).slice(0, 2)) {
+            try {
+              const n = new Notification(i.title, { body: i.body ?? undefined, tag: i.kind, requireInteraction: i.critical, silent: silentOps });
+              n.onclick = () => {
+                window.focus();
+                if (i.href) router.push(i.href);
+              };
+            } catch {
+              /* some mobile browsers only allow notifications from the service worker */
+            }
+          }
+        }
       }
     } catch {
       /* offline — will retry on next tick */
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     setPerm(typeof Notification !== "undefined" ? Notification.permission : "denied");

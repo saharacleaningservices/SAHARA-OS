@@ -42,6 +42,7 @@ import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
 import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-center";
 import { OperationsCommandCenter } from "@/components/dashboard/owner/operations-command-center";
+import { PendingActionsPanel } from "@/components/dashboard/pending-actions-panel";
 
 export default async function DashboardPage() {
   const session = await requireUser();
@@ -63,13 +64,17 @@ export default async function DashboardPage() {
 
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
     return (
-    <OwnerCommandCenter
-      role={session.role}
-      ownerName={session.name.split(" ")[0]}
-      showProfit={session.role === "ADMIN"}
-      showBusinessTarget={session.role === "ADMIN"}
-    />
-  );
+      <div className="space-y-4">
+        {/* Job-closure + payment-collection reminders (src/server/ops-reminders.ts) */}
+        <PendingActionsPanel />
+        <OwnerCommandCenter
+          role={session.role}
+          ownerName={session.name.split(" ")[0]}
+          showProfit={session.role === "ADMIN"}
+          showBusinessTarget={session.role === "ADMIN"}
+        />
+      </div>
+    );
   }
   // Calendar widget, now shown to every role (owner instruction
   // 2026-09-21). Detail level is decided from the session's real role here,

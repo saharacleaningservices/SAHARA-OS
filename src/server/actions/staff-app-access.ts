@@ -12,13 +12,16 @@
 import { randomInt } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession, revokeUserSessions } from "@/lib/session";
 import { hashPassword, verifyPassword } from "@/lib/auth";
 import { getPendingStaffPinReset } from "@/server/staff-pin-reset";
+import { getPendingStaffRegistration } from "@/server/staff-registration";
 
+// Super Admin, and Accounts (Shoyab Kazi) — owner-authorised 2026-10-13 to manage
+// Staff App access: create logins, Reset PIN, enable/disable.
 async function requireOwner() {
   const session = await getSession();
-  return session?.role === "ADMIN" ? session : null;
+  return session?.role === "ADMIN" || session?.role === "ACCOUNTS" ? session : null;
 }
 
 // Same digit x4, simple runs, and year-like PINs (19xx / 20xx) are easy to guess.
@@ -72,8 +75,10 @@ export async function getStaffAppAccess(staffId: string) {
       })
     : null;
   const pendingReset = staff.user ? await getPendingStaffPinReset(staff.user.id) : null;
+  const pendingRegistration = staff.user ? null : await getPendingStaffRegistration(staffId);
   return {
     pendingReset,
+    pendingRegistration,
     employeeCode: staff.employeeCode,
     hasLogin: Boolean(staff.user),
     isActive: staff.user?.isActive ?? false,
@@ -86,7 +91,7 @@ export async function getStaffAppAccess(staffId: string) {
 
 export async function enableStaffAppLogin(staffId: string) {
   const session = await requireOwner();
-  if (!session) return { error: "Only the Super Admin can create Staff App logins" };
+  if (!session) return { error: "Only Super Admin or Accounts can create Staff App logins" };
 
   const staff = await db.staff.findUnique({ where: { id: staffId } });
   if (!staff || staff.deletedAt) return { error: "Staff not found" };
@@ -134,24 +139,29 @@ export async function enableStaffAppLogin(staffId: string) {
 
 export async function resetStaffAppPin(staffId: string) {
   const session = await requireOwner();
-  if (!session) return { error: "Only the Super Admin can reset a PIN" };
+  if (!session) return { error: "Only Super Admin or Accounts can reset a PIN" };
   const staff = await db.staff.findUnique({ where: { id: staffId }, select: { name: true, employeeCode: true, userId: true } });
   if (!staff?.userId) return { error: "No Staff App login yet" };
   const pin = await uniqueInitialPin(staff.userId);
   await db.user.update({ where: { id: staff.userId }, data: { passwordHash: await hashPassword(pin), mustChangePassword: true } });
+  await revokeUserSessions(staff.userId); // the old PIN's sessions end on every device
   await audit(session, staff.userId, "STAFF_APP_PIN_RESET", `Staff App PIN reset for ${staff.name} (${staff.employeeCode}) — temporary PIN issued`);
   revalidatePath(`/staff/${staffId}`);
   return { success: true as const, tempPin: pin };
 }
 
 export async function setStaffAppLoginActive(staffId: string, isActive: boolean) {
-  const session = await requireOwner();
-  if (!session) return { error: "Only the Super Admin can change Staff App access" };
+  // Super Admin or Accounts (2026-10-13: Accounts may control staff access).
+  const session = await getSession();
+  if (!session || (session.role !== "ADMIN" && session.role !== "ACCOUNTS")) return { error: "Only Super Admin or Accounts can change Staff App access" };
   const staff = await db.staff.findUnique({ where: { id: staffId }, select: { name: true, employeeCode: true, userId: true, user: { select: { role: true } } } });
   if (!staff?.userId) return { error: "No Staff App login yet" };
   if (staff.user?.role !== "STAFF") return { error: "This login isn't a Staff App account — manage it in User Management" };
   await db.user.update({ where: { id: staff.userId }, data: { isActive } });
-  if (!isActive) await db.pushSubscription.deleteMany({ where: { userId: staff.userId } });
+  if (!isActive) {
+    await db.pushSubscription.deleteMany({ where: { userId: staff.userId } });
+    await revokeUserSessions(staff.userId); // signed out on every device immediately
+  }
   await audit(
     session,
     staff.userId,
