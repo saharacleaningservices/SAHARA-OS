@@ -12,6 +12,7 @@
     "test:public": "tsx --test tests/public-input.test.ts",
     "test:ops": "tsx --test tests/ops-reminders.test.ts",
     "test:inquiry": "tsx --test tests/owner-inquiry.test.ts tests/owner-inquiry-outcomes.test.ts",
+    "test:backup": "tsx --test tests/backup-health.test.ts && python -I .github/scripts/test_backup_guards.py",
     "test:eod": "tsx --test tests/eod-reminders.test.ts tests/reminder-baseline.test.ts tests/reminder-fresh-install.test.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

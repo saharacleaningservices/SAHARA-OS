@@ -7,6 +7,11 @@ on:
     - cron: "30 20 * * *"
   workflow_dispatch: {}
 
+# GITHUB_TOKEN only needs to read the repo and open/close the "backup failed" issue.
+permissions:
+  contents: read
+  issues: write
+
 concurrency:
   group: sahara-os-backup
   cancel-in-progress: false
@@ -25,7 +30,6 @@ jobs:
     # have secrets access) and branch on that instead.
     env:
       HAS_S3: ${{ secrets.S3_BUCKET != '' }}
-      HAS_GDRIVE: ${{ secrets.GDRIVE_CREDENTIALS != '' }}
       HAS_ENCRYPTION: ${{ secrets.BACKUP_ENCRYPTION_KEY != '' }}
     steps:
       - name: Checkout
@@ -56,6 +60,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Delivery to Google Drive is MANDATORY (2026-10-14). Previously a missing GDRIVE_CREDENTIALS skipped every
+      # upload step and the run still ended green. Now it fails here, loudly, before anything else is trusted.
+      - name: Require Google Drive delivery configuration
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: python .github/scripts/gdrive_backup.py --check-config
+
       - name: Verify backup integrity (stdlib sqlite3 — must pass before upload)
         run: python .github/scripts/verify_backup.py "$ARCHIVE"
 
@@ -79,11 +91,10 @@ jobs:
       # Drive under the owner's account, owner: "me".
       # Skips gracefully (not a failure) if GDRIVE_CREDENTIALS isn't set.
       - name: Install Google API client
-        if: ${{ env.HAS_GDRIVE == 'true' }}
         run: pip install --quiet google-api-python-client google-auth
 
-      - name: Upload to Google Drive (primary) and apply retention
-        if: ${{ env.HAS_GDRIVE == 'true' }}
+      - name: Upload to Google Drive (primary), verify size, apply retention
+        id: drive_upload
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
@@ -91,14 +102,33 @@ jobs:
           KEEP_MONTHLY: "12"
         run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
 
+      # Tell the CRM the archive was delivered AND size-verified in Drive. The CRM's stale-backup alert (26 h)
+      # measures these confirmations, not merely "a snapshot was served". Non-fatal on purpose: the order of rollout
+      # (CRM first, workflow second) must never turn a good backup into a failed run; if this call ever fails the
+      # CRM raises the stale alert after 26 h.
+      - name: Confirm delivery to the CRM
+        if: ${{ steps.drive_upload.conclusion == 'success' }}
+        continue-on-error: true
+        env:
+          BACKUP_URL: ${{ secrets.BACKUP_URL }}
+          BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
+        run: |
+          set -euo pipefail
+          size="$(stat -c %s "$ARCHIVE")"
+          curl -fsS --retry 3 --retry-delay 10 --retry-all-errors --max-time 60 -X POST             -H "Authorization: Bearer ${BACKUP_TOKEN}" -H "Content-Type: application/json"             -d "{\"fileName\":\"${ARCHIVE}\",\"sizeBytes\":${size},\"destination\":\"google-drive\"}"             "${BACKUP_URL%/}/confirm"
+
       # ── Weekly full encrypted backup (Sundays) ──────────────────────────
       # Owner instruction: "Weekly: Full encrypted backup." Same verified
       # archive, additionally AES-256 encrypted with a passphrase before a
       # second upload to the same Drive folder — the .enc suffix keeps it
       # distinct from the daily plaintext archives. Skips gracefully if
       # Drive or the encryption passphrase isn't configured yet.
+      - name: Weekly encrypted backup NOT configured
+        if: ${{ env.IS_WEEKLY == '1' && env.HAS_ENCRYPTION != 'true' }}
+        run: echo "::warning::Sunday encrypted backup skipped - BACKUP_ENCRYPTION_KEY is not set. Only the plaintext daily archive was stored."
+
       - name: Weekly full encrypted backup
-        if: ${{ env.IS_WEEKLY == '1' && env.HAS_GDRIVE == 'true' && env.HAS_ENCRYPTION == 'true' }}
+        if: ${{ env.IS_WEEKLY == '1' && env.HAS_ENCRYPTION == 'true' }}
         env:
           BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
@@ -109,6 +139,10 @@ jobs:
           set -euo pipefail
           encrypted="${ARCHIVE}.enc"
           openssl enc -aes-256-cbc -pbkdf2 -salt -in "$ARCHIVE" -out "$encrypted" -pass env:BACKUP_ENCRYPTION_KEY
+          # Prove it decrypts back to the identical archive BEFORE it is uploaded.
+          openssl enc -d -aes-256-cbc -pbkdf2 -in "$encrypted" -out "$encrypted.check" -pass env:BACKUP_ENCRYPTION_KEY
+          cmp "$ARCHIVE" "$encrypted.check"
+          rm -f "$encrypted.check"
           ls -lh "$encrypted"
           python .github/scripts/gdrive_backup.py "$encrypted"
           rm -f "$encrypted"
@@ -131,3 +165,19 @@ jobs:
         run: |
           pip install --quiet boto3
           python .github/scripts/s3_backup.py "$ARCHIVE"
+
+      # ── Alerting ─────────────────────────────────────────────────────────
+      # Any failed step above (download, integrity, Drive configuration, upload, size check) opens ONE GitHub Issue
+      # labelled backup-failure (repeat failures comment on it). GitHub e-mails repo watchers about new issues.
+      # A later good run closes it. Uses the built-in GITHUB_TOKEN only.
+      - name: Alert - backup failed
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/backup_alert.sh failure
+
+      - name: Clear alert - backup delivered
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/backup_alert.sh success
