@@ -5181,6 +5181,8 @@ export const UserScalarFieldEnum = {
   isActive: 'isActive',
   mustChangePassword: 'mustChangePassword',
   sessionVersion: 'sessionVersion',
+  soundEnabled: 'soundEnabled',
+  notificationsEnabled: 'notificationsEnabled',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -6303,6 +6305,8 @@ export const OpsReminderScalarFieldEnum = {
   id: 'id',
   kind: 'kind',
   jobId: 'jobId',
+  quotationId: 'quotationId',
+  followUpId: 'followUpId',
   status: 'status',
   dueAt: 'dueAt',
   nextAlertAt: 'nextAlertAt',
@@ -6330,6 +6334,7 @@ export const OpsReminderEventScalarFieldEnum = {
   type: 'type',
   note: 'note',
   actorName: 'actorName',
+  userId: 'userId',
   createdAt: 'createdAt'
 } as const
 
@@ -6350,6 +6355,10 @@ export const OpsReminderSettingsScalarFieldEnum = {
   maxSnoozeMin: 'maxSnoozeMin',
   dailySummaryHour: 'dailySummaryHour',
   lastDailySummaryDay: 'lastDailySummaryDay',
+  eodSummaryTime: 'eodSummaryTime',
+  lastEodSummaryDay: 'lastEodSummaryDay',
+  quotationFollowUpDays: 'quotationFollowUpDays',
+  followUpIntervalMin: 'followUpIntervalMin',
   staffSignupNeedsApproval: 'staffSignupNeedsApproval',
   updatedByName: 'updatedByName',
   updatedAt: 'updatedAt'

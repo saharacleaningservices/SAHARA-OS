@@ -15,7 +15,7 @@ export default async function ReminderSettingsPage() {
     <div className="max-w-3xl space-y-6">
       <PageHeader
         title="Reminders & alerts"
-        description={`Job-closure and payment-collection reminders for Accounts, escalation to the Super Admin, daily summary. Open now: ${totals.jobClosures} closures · ${totals.payments} unpaid.`}
+        description={`Job-closure, payment, quotation and customer follow-up reminders for Accounts, escalation to the Super Admin, daily and end-of-day summaries. Open now: ${totals.jobClosures} closures · ${totals.payments} unpaid · ${totals.quotations} quotations · ${totals.followUps} follow-ups.`}
       />
       <OpsReminderSettingsForm
         initial={{
@@ -30,6 +30,9 @@ export default async function ReminderSettingsPage() {
           soundEnabled: settings.soundEnabled,
           maxSnoozeMin: settings.maxSnoozeMin,
           dailySummaryHour: settings.dailySummaryHour,
+          eodSummaryTime: settings.eodSummaryTime,
+          quotationFollowUpDays: settings.quotationFollowUpDays,
+          followUpIntervalMin: settings.followUpIntervalMin,
           staffSignupNeedsApproval: settings.staffSignupNeedsApproval,
         }}
         updatedBy={settings.updatedByName}

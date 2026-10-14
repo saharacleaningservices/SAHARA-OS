@@ -39,7 +39,10 @@ export type NotifKind =
   | "OPS_JOB_CLOSURE"
   | "OPS_PAYMENT_DUE"
   | "OPS_ESCALATION"
-  | "OPS_DAILY_SUMMARY";
+  | "OPS_DAILY_SUMMARY"
+  | "OPS_QUOTATION_FOLLOWUP"
+  | "OPS_FOLLOWUP_DUE"
+  | "OPS_EOD_SUMMARY";
 
 type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
@@ -64,6 +67,9 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   OPS_PAYMENT_DUE: ["ACCOUNTS"],
   OPS_ESCALATION: ["ADMIN"],
   OPS_DAILY_SUMMARY: ["ADMIN", "ACCOUNTS"],
+  OPS_QUOTATION_FOLLOWUP: ["ACCOUNTS"],
+  OPS_FOLLOWUP_DUE: ["ACCOUNTS"],
+  OPS_EOD_SUMMARY: ["ADMIN", "ACCOUNTS"],
 };
 
 const CRITICAL_KINDS = new Set<NotifKind>(["DEVICE_LOGIN", "PASSWORD_OTP", "APPROVAL_REQUEST", "LOGIN_ATTEMPT", "LOGIN_ID_RECOVERY"]);
@@ -97,9 +103,13 @@ export async function notify(input: NotifyInput): Promise<void> {
         isActive: true,
         OR: [{ role: { in: roles } }, ...(input.extraUserIds?.length ? [{ id: { in: input.extraUserIds } }] : [])],
       },
-      select: { id: true, role: true },
+      select: { id: true, role: true, notificationsEnabled: true },
     });
     const userIds = [...new Set(recipients.map((r) => r.id))];
+    // Ops reminders only: a user who switched notifications off still gets the in-app row
+    // (silent, unread — the dashboard keeps showing the unresolved items) but no device push.
+    // Security / OTP / approval kinds are never affected by this preference.
+    const pushMuted = new Set(input.kind.startsWith("OPS_") ? recipients.filter((r) => !r.notificationsEnabled).map((r) => r.id) : []);
     if (userIds.length === 0) return;
     const restricted = new Set(recipients.filter((r) => !canSeeCustomerContact(r.role)).map((r) => r.id));
     const textFor = (userId: string) =>
@@ -116,8 +126,8 @@ export async function notify(input: NotifyInput): Promise<void> {
       })),
     });
 
-    const full = userIds.filter((id) => !restricted.has(id));
-    const masked = userIds.filter((id) => restricted.has(id));
+    const full = userIds.filter((id) => !restricted.has(id) && !pushMuted.has(id));
+    const masked = userIds.filter((id) => restricted.has(id) && !pushMuted.has(id));
     const push = (ids: string[], t: { title: string; body: string | null }) =>
       ids.length ? pushToUsers(ids, { title: t.title, body: t.body ?? undefined, href: input.href, critical, tag: input.tag ?? input.kind }).catch(() => {}) : null;
     // Device push + the admin's WhatsApp copy are network round-trips to push

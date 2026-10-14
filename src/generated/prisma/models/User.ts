@@ -45,6 +45,8 @@ export type UserMinAggregateOutputType = {
   isActive: boolean | null
   mustChangePassword: boolean | null
   sessionVersion: number | null
+  soundEnabled: boolean | null
+  notificationsEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,6 +62,8 @@ export type UserMaxAggregateOutputType = {
   isActive: boolean | null
   mustChangePassword: boolean | null
   sessionVersion: number | null
+  soundEnabled: boolean | null
+  notificationsEnabled: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -75,6 +79,8 @@ export type UserCountAggregateOutputType = {
   isActive: number
   mustChangePassword: number
   sessionVersion: number
+  soundEnabled: number
+  notificationsEnabled: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -100,6 +106,8 @@ export type UserMinAggregateInputType = {
   isActive?: true
   mustChangePassword?: true
   sessionVersion?: true
+  soundEnabled?: true
+  notificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -115,6 +123,8 @@ export type UserMaxAggregateInputType = {
   isActive?: true
   mustChangePassword?: true
   sessionVersion?: true
+  soundEnabled?: true
+  notificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -130,6 +140,8 @@ export type UserCountAggregateInputType = {
   isActive?: true
   mustChangePassword?: true
   sessionVersion?: true
+  soundEnabled?: true
+  notificationsEnabled?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -232,6 +244,8 @@ export type UserGroupByOutputType = {
   isActive: boolean
   mustChangePassword: boolean
   sessionVersion: number
+  soundEnabled: boolean
+  notificationsEnabled: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -270,6 +284,8 @@ export type UserWhereInput = {
   isActive?: Prisma.BoolFilter<"User"> | boolean
   mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   sessionVersion?: Prisma.IntFilter<"User"> | number
+  soundEnabled?: Prisma.BoolFilter<"User"> | boolean
+  notificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   staffProfile?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
@@ -297,6 +313,8 @@ export type UserOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
+  soundEnabled?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   staffProfile?: Prisma.StaffOrderByWithRelationInput
@@ -327,6 +345,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"User"> | boolean
   mustChangePassword?: Prisma.BoolFilter<"User"> | boolean
   sessionVersion?: Prisma.IntFilter<"User"> | number
+  soundEnabled?: Prisma.BoolFilter<"User"> | boolean
+  notificationsEnabled?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   staffProfile?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
@@ -354,6 +374,8 @@ export type UserOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
+  soundEnabled?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -377,6 +399,8 @@ export type UserScalarWhereWithAggregatesInput = {
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   mustChangePassword?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   sessionVersion?: Prisma.IntWithAggregatesFilter<"User"> | number
+  soundEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  notificationsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -392,6 +416,8 @@ export type UserCreateInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -419,6 +445,8 @@ export type UserUncheckedCreateInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -446,6 +474,8 @@ export type UserUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -473,6 +503,8 @@ export type UserUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -500,6 +532,8 @@ export type UserCreateManyInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -515,6 +549,8 @@ export type UserUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -530,6 +566,8 @@ export type UserUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -545,6 +583,8 @@ export type UserCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
+  soundEnabled?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -564,6 +604,8 @@ export type UserMaxOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
+  soundEnabled?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -579,6 +621,8 @@ export type UserMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   mustChangePassword?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
+  soundEnabled?: Prisma.SortOrder
+  notificationsEnabled?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -822,6 +866,8 @@ export type UserCreateWithoutDevicesInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -848,6 +894,8 @@ export type UserUncheckedCreateWithoutDevicesInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -890,6 +938,8 @@ export type UserUpdateWithoutDevicesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -916,6 +966,8 @@ export type UserUncheckedUpdateWithoutDevicesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -942,6 +994,8 @@ export type UserCreateWithoutStaffProfileInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
@@ -968,6 +1022,8 @@ export type UserUncheckedCreateWithoutStaffProfileInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
@@ -1010,6 +1066,8 @@ export type UserUpdateWithoutStaffProfileInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
@@ -1036,6 +1094,8 @@ export type UserUncheckedUpdateWithoutStaffProfileInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
@@ -1062,6 +1122,8 @@ export type UserCreateWithoutLeadsAssignedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1088,6 +1150,8 @@ export type UserUncheckedCreateWithoutLeadsAssignedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1119,6 +1183,8 @@ export type UserCreateWithoutLeadsCreatedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1145,6 +1211,8 @@ export type UserUncheckedCreateWithoutLeadsCreatedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1187,6 +1255,8 @@ export type UserUpdateWithoutLeadsAssignedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1213,6 +1283,8 @@ export type UserUncheckedUpdateWithoutLeadsAssignedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -1250,6 +1322,8 @@ export type UserUpdateWithoutLeadsCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1276,6 +1350,8 @@ export type UserUncheckedUpdateWithoutLeadsCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -1302,6 +1378,8 @@ export type UserCreateWithoutFollowUpsAssignedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1328,6 +1406,8 @@ export type UserUncheckedCreateWithoutFollowUpsAssignedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1370,6 +1450,8 @@ export type UserUpdateWithoutFollowUpsAssignedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1396,6 +1478,8 @@ export type UserUncheckedUpdateWithoutFollowUpsAssignedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -1422,6 +1506,8 @@ export type UserCreateWithoutTimelineEntriesInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1448,6 +1534,8 @@ export type UserUncheckedCreateWithoutTimelineEntriesInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1490,6 +1578,8 @@ export type UserUpdateWithoutTimelineEntriesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1516,6 +1606,8 @@ export type UserUncheckedUpdateWithoutTimelineEntriesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -1542,6 +1634,8 @@ export type UserCreateWithoutPhotosUploadedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1568,6 +1662,8 @@ export type UserUncheckedCreateWithoutPhotosUploadedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1610,6 +1706,8 @@ export type UserUpdateWithoutPhotosUploadedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1636,6 +1734,8 @@ export type UserUncheckedUpdateWithoutPhotosUploadedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -1662,6 +1762,8 @@ export type UserCreateWithoutPaymentsRecordedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1688,6 +1790,8 @@ export type UserUncheckedCreateWithoutPaymentsRecordedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1730,6 +1834,8 @@ export type UserUpdateWithoutPaymentsRecordedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1756,6 +1862,8 @@ export type UserUncheckedUpdateWithoutPaymentsRecordedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -1782,6 +1890,8 @@ export type UserCreateWithoutExpensesAddedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1808,6 +1918,8 @@ export type UserUncheckedCreateWithoutExpensesAddedInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1850,6 +1962,8 @@ export type UserUpdateWithoutExpensesAddedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1876,6 +1990,8 @@ export type UserUncheckedUpdateWithoutExpensesAddedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -1902,6 +2018,8 @@ export type UserCreateWithoutActivityLogsInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -1928,6 +2046,8 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -1970,6 +2090,8 @@ export type UserUpdateWithoutActivityLogsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -1996,6 +2118,8 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -2022,6 +2146,8 @@ export type UserCreateWithoutNotificationsInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -2048,6 +2174,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -2090,6 +2218,8 @@ export type UserUpdateWithoutNotificationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -2116,6 +2246,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -2142,6 +2274,8 @@ export type UserCreateWithoutPushSubscriptionsInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
@@ -2168,6 +2302,8 @@ export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
@@ -2210,6 +2346,8 @@ export type UserUpdateWithoutPushSubscriptionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
@@ -2236,6 +2374,8 @@ export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
@@ -2383,6 +2523,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: boolean
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   staffProfile?: boolean | Prisma.User$staffProfileArgs<ExtArgs>
@@ -2411,6 +2553,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: boolean
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -2426,6 +2570,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: boolean
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -2441,11 +2587,13 @@ export type UserSelectScalar = {
   isActive?: boolean
   mustChangePassword?: boolean
   sessionVersion?: boolean
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "passwordHash" | "role" | "avatarUrl" | "isActive" | "mustChangePassword" | "sessionVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "phone" | "passwordHash" | "role" | "avatarUrl" | "isActive" | "mustChangePassword" | "sessionVersion" | "soundEnabled" | "notificationsEnabled" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staffProfile?: boolean | Prisma.User$staffProfileArgs<ExtArgs>
   pushSubscriptions?: boolean | Prisma.User$pushSubscriptionsArgs<ExtArgs>
@@ -2491,6 +2639,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     isActive: boolean
     mustChangePassword: boolean
     sessionVersion: number
+    soundEnabled: boolean
+    notificationsEnabled: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -2938,6 +3088,8 @@ export interface UserFieldRefs {
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly mustChangePassword: Prisma.FieldRef<"User", 'Boolean'>
   readonly sessionVersion: Prisma.FieldRef<"User", 'Int'>
+  readonly soundEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly notificationsEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

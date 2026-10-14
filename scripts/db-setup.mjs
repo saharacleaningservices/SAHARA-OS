@@ -1713,6 +1713,26 @@ db.close();
     );
   `);
   oDb.prepare(`INSERT OR IGNORE INTO "OpsReminderSettings" ("id") VALUES ('default')`).run();
+
+  // EOD summary + quotation / customer follow-up reminders + per-user alert prefs
+  // (2026-10-14, additive; SQLite has no ADD COLUMN IF NOT EXISTS, so each column is
+  // guarded by PRAGMA table_info). Existing job / payment reminder rows are untouched.
+  const addCol = (table, name, ddl) => {
+    if (!cols(table).includes(name)) oDb.exec(`ALTER TABLE "${table}" ADD COLUMN "${name}" ${ddl}`);
+  };
+  addCol("User", "soundEnabled", "BOOLEAN NOT NULL DEFAULT true");
+  addCol("User", "notificationsEnabled", "BOOLEAN NOT NULL DEFAULT true");
+  addCol("OpsReminder", "quotationId", `TEXT REFERENCES "Quotation" ("id") ON DELETE SET NULL ON UPDATE CASCADE`);
+  addCol("OpsReminder", "followUpId", `TEXT REFERENCES "FollowUp" ("id") ON DELETE SET NULL ON UPDATE CASCADE`);
+  oDb.exec(`
+    CREATE INDEX IF NOT EXISTS "OpsReminder_quotationId_idx" ON "OpsReminder"("quotationId");
+    CREATE INDEX IF NOT EXISTS "OpsReminder_followUpId_idx" ON "OpsReminder"("followUpId");
+  `);
+  addCol("OpsReminderEvent", "userId", "TEXT");
+  addCol("OpsReminderSettings", "eodSummaryTime", `TEXT NOT NULL DEFAULT '18:30'`);
+  addCol("OpsReminderSettings", "lastEodSummaryDay", "TEXT");
+  addCol("OpsReminderSettings", "quotationFollowUpDays", "INTEGER NOT NULL DEFAULT 2");
+  addCol("OpsReminderSettings", "followUpIntervalMin", "INTEGER NOT NULL DEFAULT 120");
   console.log("Staff registration + ops reminders migration complete.");
   oDb.close();
 }

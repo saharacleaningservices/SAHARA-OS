@@ -30,6 +30,7 @@ export type OpsReminderEventMinAggregateOutputType = {
   type: string | null
   note: string | null
   actorName: string | null
+  userId: string | null
   createdAt: Date | null
 }
 
@@ -39,6 +40,7 @@ export type OpsReminderEventMaxAggregateOutputType = {
   type: string | null
   note: string | null
   actorName: string | null
+  userId: string | null
   createdAt: Date | null
 }
 
@@ -48,6 +50,7 @@ export type OpsReminderEventCountAggregateOutputType = {
   type: number
   note: number
   actorName: number
+  userId: number
   createdAt: number
   _all: number
 }
@@ -59,6 +62,7 @@ export type OpsReminderEventMinAggregateInputType = {
   type?: true
   note?: true
   actorName?: true
+  userId?: true
   createdAt?: true
 }
 
@@ -68,6 +72,7 @@ export type OpsReminderEventMaxAggregateInputType = {
   type?: true
   note?: true
   actorName?: true
+  userId?: true
   createdAt?: true
 }
 
@@ -77,6 +82,7 @@ export type OpsReminderEventCountAggregateInputType = {
   type?: true
   note?: true
   actorName?: true
+  userId?: true
   createdAt?: true
   _all?: true
 }
@@ -159,6 +165,7 @@ export type OpsReminderEventGroupByOutputType = {
   type: string
   note: string | null
   actorName: string | null
+  userId: string | null
   createdAt: Date
   _count: OpsReminderEventCountAggregateOutputType | null
   _min: OpsReminderEventMinAggregateOutputType | null
@@ -189,6 +196,7 @@ export type OpsReminderEventWhereInput = {
   type?: Prisma.StringFilter<"OpsReminderEvent"> | string
   note?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
   actorName?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
+  userId?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OpsReminderEvent"> | Date | string
   reminder?: Prisma.XOR<Prisma.OpsReminderNullableScalarRelationFilter, Prisma.OpsReminderWhereInput> | null
 }
@@ -199,6 +207,7 @@ export type OpsReminderEventOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   actorName?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   reminder?: Prisma.OpsReminderOrderByWithRelationInput
 }
@@ -212,6 +221,7 @@ export type OpsReminderEventWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.StringFilter<"OpsReminderEvent"> | string
   note?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
   actorName?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
+  userId?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OpsReminderEvent"> | Date | string
   reminder?: Prisma.XOR<Prisma.OpsReminderNullableScalarRelationFilter, Prisma.OpsReminderWhereInput> | null
 }, "id">
@@ -222,6 +232,7 @@ export type OpsReminderEventOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   actorName?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.OpsReminderEventCountOrderByAggregateInput
   _max?: Prisma.OpsReminderEventMaxOrderByAggregateInput
@@ -237,6 +248,7 @@ export type OpsReminderEventScalarWhereWithAggregatesInput = {
   type?: Prisma.StringWithAggregatesFilter<"OpsReminderEvent"> | string
   note?: Prisma.StringNullableWithAggregatesFilter<"OpsReminderEvent"> | string | null
   actorName?: Prisma.StringNullableWithAggregatesFilter<"OpsReminderEvent"> | string | null
+  userId?: Prisma.StringNullableWithAggregatesFilter<"OpsReminderEvent"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OpsReminderEvent"> | Date | string
 }
 
@@ -245,6 +257,7 @@ export type OpsReminderEventCreateInput = {
   type: string
   note?: string | null
   actorName?: string | null
+  userId?: string | null
   createdAt?: Date | string
   reminder?: Prisma.OpsReminderCreateNestedOneWithoutEventsInput
 }
@@ -255,6 +268,7 @@ export type OpsReminderEventUncheckedCreateInput = {
   type: string
   note?: string | null
   actorName?: string | null
+  userId?: string | null
   createdAt?: Date | string
 }
 
@@ -263,6 +277,7 @@ export type OpsReminderEventUpdateInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reminder?: Prisma.OpsReminderUpdateOneWithoutEventsNestedInput
 }
@@ -273,6 +288,7 @@ export type OpsReminderEventUncheckedUpdateInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -282,6 +298,7 @@ export type OpsReminderEventCreateManyInput = {
   type: string
   note?: string | null
   actorName?: string | null
+  userId?: string | null
   createdAt?: Date | string
 }
 
@@ -290,6 +307,7 @@ export type OpsReminderEventUpdateManyMutationInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -299,6 +317,7 @@ export type OpsReminderEventUncheckedUpdateManyInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -318,6 +337,7 @@ export type OpsReminderEventCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   note?: Prisma.SortOrder
   actorName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -327,6 +347,7 @@ export type OpsReminderEventMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   note?: Prisma.SortOrder
   actorName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -336,6 +357,7 @@ export type OpsReminderEventMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   note?: Prisma.SortOrder
   actorName?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -386,6 +408,7 @@ export type OpsReminderEventCreateWithoutReminderInput = {
   type: string
   note?: string | null
   actorName?: string | null
+  userId?: string | null
   createdAt?: Date | string
 }
 
@@ -394,6 +417,7 @@ export type OpsReminderEventUncheckedCreateWithoutReminderInput = {
   type: string
   note?: string | null
   actorName?: string | null
+  userId?: string | null
   createdAt?: Date | string
 }
 
@@ -431,6 +455,7 @@ export type OpsReminderEventScalarWhereInput = {
   type?: Prisma.StringFilter<"OpsReminderEvent"> | string
   note?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
   actorName?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
+  userId?: Prisma.StringNullableFilter<"OpsReminderEvent"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OpsReminderEvent"> | Date | string
 }
 
@@ -439,6 +464,7 @@ export type OpsReminderEventCreateManyReminderInput = {
   type: string
   note?: string | null
   actorName?: string | null
+  userId?: string | null
   createdAt?: Date | string
 }
 
@@ -447,6 +473,7 @@ export type OpsReminderEventUpdateWithoutReminderInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -455,6 +482,7 @@ export type OpsReminderEventUncheckedUpdateWithoutReminderInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -463,6 +491,7 @@ export type OpsReminderEventUncheckedUpdateManyWithoutReminderInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -474,6 +503,7 @@ export type OpsReminderEventSelect<ExtArgs extends runtime.Types.Extensions.Inte
   type?: boolean
   note?: boolean
   actorName?: boolean
+  userId?: boolean
   createdAt?: boolean
   reminder?: boolean | Prisma.OpsReminderEvent$reminderArgs<ExtArgs>
 }, ExtArgs["result"]["opsReminderEvent"]>
@@ -484,6 +514,7 @@ export type OpsReminderEventSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   type?: boolean
   note?: boolean
   actorName?: boolean
+  userId?: boolean
   createdAt?: boolean
   reminder?: boolean | Prisma.OpsReminderEvent$reminderArgs<ExtArgs>
 }, ExtArgs["result"]["opsReminderEvent"]>
@@ -494,6 +525,7 @@ export type OpsReminderEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   type?: boolean
   note?: boolean
   actorName?: boolean
+  userId?: boolean
   createdAt?: boolean
   reminder?: boolean | Prisma.OpsReminderEvent$reminderArgs<ExtArgs>
 }, ExtArgs["result"]["opsReminderEvent"]>
@@ -504,10 +536,11 @@ export type OpsReminderEventSelectScalar = {
   type?: boolean
   note?: boolean
   actorName?: boolean
+  userId?: boolean
   createdAt?: boolean
 }
 
-export type OpsReminderEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reminderId" | "type" | "note" | "actorName" | "createdAt", ExtArgs["result"]["opsReminderEvent"]>
+export type OpsReminderEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reminderId" | "type" | "note" | "actorName" | "userId" | "createdAt", ExtArgs["result"]["opsReminderEvent"]>
 export type OpsReminderEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   reminder?: boolean | Prisma.OpsReminderEvent$reminderArgs<ExtArgs>
 }
@@ -529,6 +562,7 @@ export type $OpsReminderEventPayload<ExtArgs extends runtime.Types.Extensions.In
     type: string
     note: string | null
     actorName: string | null
+    userId: string | null
     createdAt: Date
   }, ExtArgs["result"]["opsReminderEvent"]>
   composites: {}
@@ -959,6 +993,7 @@ export interface OpsReminderEventFieldRefs {
   readonly type: Prisma.FieldRef<"OpsReminderEvent", 'String'>
   readonly note: Prisma.FieldRef<"OpsReminderEvent", 'String'>
   readonly actorName: Prisma.FieldRef<"OpsReminderEvent", 'String'>
+  readonly userId: Prisma.FieldRef<"OpsReminderEvent", 'String'>
   readonly createdAt: Prisma.FieldRef<"OpsReminderEvent", 'DateTime'>
 }
     

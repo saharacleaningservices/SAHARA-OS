@@ -22,10 +22,13 @@ type Settings = {
   soundEnabled: boolean;
   maxSnoozeMin: number;
   dailySummaryHour: number;
+  eodSummaryTime: string;
+  quotationFollowUpDays: number;
+  followUpIntervalMin: number;
   staffSignupNeedsApproval: boolean;
 };
 type HistoryRow = { id: string; type: string; note: string | null; actorName: string | null; createdAt: string; kind: string | null; jobId: string | null; jobNumber: string | null };
-type NumKey = "jobIntervalMin" | "paymentIntervalMin" | "escalateAfterMin" | "defaultJobHours" | "paymentLookbackDays" | "maxSnoozeMin" | "dailySummaryHour";
+type NumKey = "jobIntervalMin" | "paymentIntervalMin" | "escalateAfterMin" | "defaultJobHours" | "paymentLookbackDays" | "maxSnoozeMin" | "dailySummaryHour" | "quotationFollowUpDays" | "followUpIntervalMin";
 type BoolKey = "enabled" | "soundEnabled" | "staffSignupNeedsApproval";
 
 const NUMBERS: { key: NumKey; label: string; hint: string }[] = [
@@ -36,11 +39,13 @@ const NUMBERS: { key: NumKey; label: string; hint: string }[] = [
   { key: "paymentLookbackDays", label: "Track unpaid jobs completed in the last (days)", hint: "Older dues stay on the Payments page" },
   { key: "maxSnoozeMin", label: "Max snooze (min)", hint: "" },
   { key: "dailySummaryHour", label: "Daily summary hour (IST, −1 = off)", hint: "0–23" },
+  { key: "quotationFollowUpDays", label: "Quotation needs follow-up after (days)", hint: "Sent quotations older than this are reminded until their status changes" },
+  { key: "followUpIntervalMin", label: "Quotation / customer follow-up repeat (min)", hint: "Repeat while a follow-up is overdue" },
 ];
 
 const TOGGLES: { key: BoolKey; label: string }[] = [
   { key: "enabled", label: "Reminders on" },
-  { key: "soundEnabled", label: "Alert sound in the CRM (each device can still mute it from the dashboard panel)" },
+  { key: "soundEnabled", label: "Alert sound in the CRM (master switch — each user also has their own Sound switch)" },
   { key: "staffSignupNeedsApproval", label: "Staff App self-registration needs Super Admin / Accounts approval" },
 ];
 
@@ -88,6 +93,11 @@ export function OpsReminderSettingsForm({ initial, updatedBy, history }: { initi
               </div>
             ))}
             <div className="space-y-1">
+              <Label htmlFor="eod">End-of-day summary time (IST)</Label>
+              <Input id="eod" type="time" value={v.eodSummaryTime === "off" ? "" : v.eodSummaryTime} onChange={(e) => setV((p) => ({ ...p, eodSummaryTime: e.target.value || "off" }))} />
+              <p className="text-[11px] text-muted-foreground">Pop-up for Super Admin + Accounts. Clear the field to switch it off.</p>
+            </div>
+            <div className="space-y-1">
               <Label htmlFor="qs">Quiet hours start (IST)</Label>
               <Input id="qs" type="time" value={v.quietStart} onChange={(e) => setV((p) => ({ ...p, quietStart: e.target.value }))} />
             </div>
@@ -127,7 +137,7 @@ export function OpsReminderSettingsForm({ initial, updatedBy, history }: { initi
                         {h.jobNumber}
                       </Link>
                     )}
-                    {h.kind && <span className="text-[10px] text-muted-foreground">{h.kind === "JOB_CLOSURE" ? "closure" : "payment"}</span>}
+                    {h.kind && <span className="text-[10px] text-muted-foreground">{{ JOB_CLOSURE: "closure", PAYMENT_COLLECTION: "payment", QUOTATION_FOLLOWUP: "quotation", FOLLOWUP_DUE: "follow-up" }[h.kind] ?? h.kind}</span>}
                     <span className="ml-auto text-[11px] text-muted-foreground">{new Date(h.createdAt).toLocaleString("en-IN")}</span>
                   </div>
                   {h.note && (

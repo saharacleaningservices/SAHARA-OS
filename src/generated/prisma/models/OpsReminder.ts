@@ -38,6 +38,8 @@ export type OpsReminderMinAggregateOutputType = {
   id: string | null
   kind: string | null
   jobId: string | null
+  quotationId: string | null
+  followUpId: string | null
   status: string | null
   dueAt: Date | null
   nextAlertAt: Date | null
@@ -60,6 +62,8 @@ export type OpsReminderMaxAggregateOutputType = {
   id: string | null
   kind: string | null
   jobId: string | null
+  quotationId: string | null
+  followUpId: string | null
   status: string | null
   dueAt: Date | null
   nextAlertAt: Date | null
@@ -82,6 +86,8 @@ export type OpsReminderCountAggregateOutputType = {
   id: number
   kind: number
   jobId: number
+  quotationId: number
+  followUpId: number
   status: number
   dueAt: number
   nextAlertAt: number
@@ -114,6 +120,8 @@ export type OpsReminderMinAggregateInputType = {
   id?: true
   kind?: true
   jobId?: true
+  quotationId?: true
+  followUpId?: true
   status?: true
   dueAt?: true
   nextAlertAt?: true
@@ -136,6 +144,8 @@ export type OpsReminderMaxAggregateInputType = {
   id?: true
   kind?: true
   jobId?: true
+  quotationId?: true
+  followUpId?: true
   status?: true
   dueAt?: true
   nextAlertAt?: true
@@ -158,6 +168,8 @@ export type OpsReminderCountAggregateInputType = {
   id?: true
   kind?: true
   jobId?: true
+  quotationId?: true
+  followUpId?: true
   status?: true
   dueAt?: true
   nextAlertAt?: true
@@ -267,6 +279,8 @@ export type OpsReminderGroupByOutputType = {
   id: string
   kind: string
   jobId: string
+  quotationId: string | null
+  followUpId: string | null
   status: string
   dueAt: Date
   nextAlertAt: Date
@@ -312,6 +326,8 @@ export type OpsReminderWhereInput = {
   id?: Prisma.StringFilter<"OpsReminder"> | string
   kind?: Prisma.StringFilter<"OpsReminder"> | string
   jobId?: Prisma.StringFilter<"OpsReminder"> | string
+  quotationId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  followUpId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   status?: Prisma.StringFilter<"OpsReminder"> | string
   dueAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
   nextAlertAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
@@ -328,6 +344,8 @@ export type OpsReminderWhereInput = {
   resolvedReason?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
+  quotation?: Prisma.XOR<Prisma.QuotationNullableScalarRelationFilter, Prisma.QuotationWhereInput> | null
+  followUp?: Prisma.XOR<Prisma.FollowUpNullableScalarRelationFilter, Prisma.FollowUpWhereInput> | null
   events?: Prisma.OpsReminderEventListRelationFilter
 }
 
@@ -335,6 +353,8 @@ export type OpsReminderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   dueAt?: Prisma.SortOrder
   nextAlertAt?: Prisma.SortOrder
@@ -351,6 +371,8 @@ export type OpsReminderOrderByWithRelationInput = {
   resolvedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  quotation?: Prisma.QuotationOrderByWithRelationInput
+  followUp?: Prisma.FollowUpOrderByWithRelationInput
   events?: Prisma.OpsReminderEventOrderByRelationAggregateInput
 }
 
@@ -362,6 +384,8 @@ export type OpsReminderWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.OpsReminderWhereInput | Prisma.OpsReminderWhereInput[]
   kind?: Prisma.StringFilter<"OpsReminder"> | string
   jobId?: Prisma.StringFilter<"OpsReminder"> | string
+  quotationId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  followUpId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   status?: Prisma.StringFilter<"OpsReminder"> | string
   dueAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
   nextAlertAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
@@ -378,6 +402,8 @@ export type OpsReminderWhereUniqueInput = Prisma.AtLeast<{
   resolvedReason?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
+  quotation?: Prisma.XOR<Prisma.QuotationNullableScalarRelationFilter, Prisma.QuotationWhereInput> | null
+  followUp?: Prisma.XOR<Prisma.FollowUpNullableScalarRelationFilter, Prisma.FollowUpWhereInput> | null
   events?: Prisma.OpsReminderEventListRelationFilter
 }, "id" | "kind_jobId">
 
@@ -385,6 +411,8 @@ export type OpsReminderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrderInput | Prisma.SortOrder
+  followUpId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   dueAt?: Prisma.SortOrder
   nextAlertAt?: Prisma.SortOrder
@@ -415,6 +443,8 @@ export type OpsReminderScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
   kind?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
   jobId?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
+  quotationId?: Prisma.StringNullableWithAggregatesFilter<"OpsReminder"> | string | null
+  followUpId?: Prisma.StringNullableWithAggregatesFilter<"OpsReminder"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
   dueAt?: Prisma.DateTimeWithAggregatesFilter<"OpsReminder"> | Date | string
   nextAlertAt?: Prisma.DateTimeWithAggregatesFilter<"OpsReminder"> | Date | string
@@ -453,6 +483,8 @@ export type OpsReminderCreateInput = {
   resolvedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  quotation?: Prisma.QuotationCreateNestedOneWithoutOpsRemindersInput
+  followUp?: Prisma.FollowUpCreateNestedOneWithoutOpsRemindersInput
   events?: Prisma.OpsReminderEventCreateNestedManyWithoutReminderInput
 }
 
@@ -460,6 +492,8 @@ export type OpsReminderUncheckedCreateInput = {
   id?: string
   kind: string
   jobId: string
+  quotationId?: string | null
+  followUpId?: string | null
   status?: string
   dueAt: Date | string
   nextAlertAt: Date | string
@@ -499,6 +533,8 @@ export type OpsReminderUpdateInput = {
   resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  quotation?: Prisma.QuotationUpdateOneWithoutOpsRemindersNestedInput
+  followUp?: Prisma.FollowUpUpdateOneWithoutOpsRemindersNestedInput
   events?: Prisma.OpsReminderEventUpdateManyWithoutReminderNestedInput
 }
 
@@ -506,6 +542,8 @@ export type OpsReminderUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -529,6 +567,8 @@ export type OpsReminderCreateManyInput = {
   id?: string
   kind: string
   jobId: string
+  quotationId?: string | null
+  followUpId?: string | null
   status?: string
   dueAt: Date | string
   nextAlertAt: Date | string
@@ -573,6 +613,8 @@ export type OpsReminderUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -591,6 +633,16 @@ export type OpsReminderUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type OpsReminderListRelationFilter = {
+  every?: Prisma.OpsReminderWhereInput
+  some?: Prisma.OpsReminderWhereInput
+  none?: Prisma.OpsReminderWhereInput
+}
+
+export type OpsReminderOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type OpsReminderKindJobIdCompoundUniqueInput = {
   kind: string
   jobId: string
@@ -600,6 +652,8 @@ export type OpsReminderCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrder
+  followUpId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   dueAt?: Prisma.SortOrder
   nextAlertAt?: Prisma.SortOrder
@@ -626,6 +680,8 @@ export type OpsReminderMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrder
+  followUpId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   dueAt?: Prisma.SortOrder
   nextAlertAt?: Prisma.SortOrder
@@ -648,6 +704,8 @@ export type OpsReminderMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  quotationId?: Prisma.SortOrder
+  followUpId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   dueAt?: Prisma.SortOrder
   nextAlertAt?: Prisma.SortOrder
@@ -675,6 +733,90 @@ export type OpsReminderNullableScalarRelationFilter = {
   isNot?: Prisma.OpsReminderWhereInput | null
 }
 
+export type OpsReminderCreateNestedManyWithoutQuotationInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutQuotationInput, Prisma.OpsReminderUncheckedCreateWithoutQuotationInput> | Prisma.OpsReminderCreateWithoutQuotationInput[] | Prisma.OpsReminderUncheckedCreateWithoutQuotationInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutQuotationInput | Prisma.OpsReminderCreateOrConnectWithoutQuotationInput[]
+  createMany?: Prisma.OpsReminderCreateManyQuotationInputEnvelope
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+}
+
+export type OpsReminderUncheckedCreateNestedManyWithoutQuotationInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutQuotationInput, Prisma.OpsReminderUncheckedCreateWithoutQuotationInput> | Prisma.OpsReminderCreateWithoutQuotationInput[] | Prisma.OpsReminderUncheckedCreateWithoutQuotationInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutQuotationInput | Prisma.OpsReminderCreateOrConnectWithoutQuotationInput[]
+  createMany?: Prisma.OpsReminderCreateManyQuotationInputEnvelope
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+}
+
+export type OpsReminderUpdateManyWithoutQuotationNestedInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutQuotationInput, Prisma.OpsReminderUncheckedCreateWithoutQuotationInput> | Prisma.OpsReminderCreateWithoutQuotationInput[] | Prisma.OpsReminderUncheckedCreateWithoutQuotationInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutQuotationInput | Prisma.OpsReminderCreateOrConnectWithoutQuotationInput[]
+  upsert?: Prisma.OpsReminderUpsertWithWhereUniqueWithoutQuotationInput | Prisma.OpsReminderUpsertWithWhereUniqueWithoutQuotationInput[]
+  createMany?: Prisma.OpsReminderCreateManyQuotationInputEnvelope
+  set?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  disconnect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  delete?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  update?: Prisma.OpsReminderUpdateWithWhereUniqueWithoutQuotationInput | Prisma.OpsReminderUpdateWithWhereUniqueWithoutQuotationInput[]
+  updateMany?: Prisma.OpsReminderUpdateManyWithWhereWithoutQuotationInput | Prisma.OpsReminderUpdateManyWithWhereWithoutQuotationInput[]
+  deleteMany?: Prisma.OpsReminderScalarWhereInput | Prisma.OpsReminderScalarWhereInput[]
+}
+
+export type OpsReminderUncheckedUpdateManyWithoutQuotationNestedInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutQuotationInput, Prisma.OpsReminderUncheckedCreateWithoutQuotationInput> | Prisma.OpsReminderCreateWithoutQuotationInput[] | Prisma.OpsReminderUncheckedCreateWithoutQuotationInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutQuotationInput | Prisma.OpsReminderCreateOrConnectWithoutQuotationInput[]
+  upsert?: Prisma.OpsReminderUpsertWithWhereUniqueWithoutQuotationInput | Prisma.OpsReminderUpsertWithWhereUniqueWithoutQuotationInput[]
+  createMany?: Prisma.OpsReminderCreateManyQuotationInputEnvelope
+  set?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  disconnect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  delete?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  update?: Prisma.OpsReminderUpdateWithWhereUniqueWithoutQuotationInput | Prisma.OpsReminderUpdateWithWhereUniqueWithoutQuotationInput[]
+  updateMany?: Prisma.OpsReminderUpdateManyWithWhereWithoutQuotationInput | Prisma.OpsReminderUpdateManyWithWhereWithoutQuotationInput[]
+  deleteMany?: Prisma.OpsReminderScalarWhereInput | Prisma.OpsReminderScalarWhereInput[]
+}
+
+export type OpsReminderCreateNestedManyWithoutFollowUpInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutFollowUpInput, Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput> | Prisma.OpsReminderCreateWithoutFollowUpInput[] | Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput | Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput[]
+  createMany?: Prisma.OpsReminderCreateManyFollowUpInputEnvelope
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+}
+
+export type OpsReminderUncheckedCreateNestedManyWithoutFollowUpInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutFollowUpInput, Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput> | Prisma.OpsReminderCreateWithoutFollowUpInput[] | Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput | Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput[]
+  createMany?: Prisma.OpsReminderCreateManyFollowUpInputEnvelope
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+}
+
+export type OpsReminderUpdateManyWithoutFollowUpNestedInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutFollowUpInput, Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput> | Prisma.OpsReminderCreateWithoutFollowUpInput[] | Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput | Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput[]
+  upsert?: Prisma.OpsReminderUpsertWithWhereUniqueWithoutFollowUpInput | Prisma.OpsReminderUpsertWithWhereUniqueWithoutFollowUpInput[]
+  createMany?: Prisma.OpsReminderCreateManyFollowUpInputEnvelope
+  set?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  disconnect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  delete?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  update?: Prisma.OpsReminderUpdateWithWhereUniqueWithoutFollowUpInput | Prisma.OpsReminderUpdateWithWhereUniqueWithoutFollowUpInput[]
+  updateMany?: Prisma.OpsReminderUpdateManyWithWhereWithoutFollowUpInput | Prisma.OpsReminderUpdateManyWithWhereWithoutFollowUpInput[]
+  deleteMany?: Prisma.OpsReminderScalarWhereInput | Prisma.OpsReminderScalarWhereInput[]
+}
+
+export type OpsReminderUncheckedUpdateManyWithoutFollowUpNestedInput = {
+  create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutFollowUpInput, Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput> | Prisma.OpsReminderCreateWithoutFollowUpInput[] | Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput[]
+  connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput | Prisma.OpsReminderCreateOrConnectWithoutFollowUpInput[]
+  upsert?: Prisma.OpsReminderUpsertWithWhereUniqueWithoutFollowUpInput | Prisma.OpsReminderUpsertWithWhereUniqueWithoutFollowUpInput[]
+  createMany?: Prisma.OpsReminderCreateManyFollowUpInputEnvelope
+  set?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  disconnect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  delete?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  connect?: Prisma.OpsReminderWhereUniqueInput | Prisma.OpsReminderWhereUniqueInput[]
+  update?: Prisma.OpsReminderUpdateWithWhereUniqueWithoutFollowUpInput | Prisma.OpsReminderUpdateWithWhereUniqueWithoutFollowUpInput[]
+  updateMany?: Prisma.OpsReminderUpdateManyWithWhereWithoutFollowUpInput | Prisma.OpsReminderUpdateManyWithWhereWithoutFollowUpInput[]
+  deleteMany?: Prisma.OpsReminderScalarWhereInput | Prisma.OpsReminderScalarWhereInput[]
+}
+
 export type OpsReminderCreateNestedOneWithoutEventsInput = {
   create?: Prisma.XOR<Prisma.OpsReminderCreateWithoutEventsInput, Prisma.OpsReminderUncheckedCreateWithoutEventsInput>
   connectOrCreate?: Prisma.OpsReminderCreateOrConnectWithoutEventsInput
@@ -689,6 +831,179 @@ export type OpsReminderUpdateOneWithoutEventsNestedInput = {
   delete?: Prisma.OpsReminderWhereInput | boolean
   connect?: Prisma.OpsReminderWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.OpsReminderUpdateToOneWithWhereWithoutEventsInput, Prisma.OpsReminderUpdateWithoutEventsInput>, Prisma.OpsReminderUncheckedUpdateWithoutEventsInput>
+}
+
+export type OpsReminderCreateWithoutQuotationInput = {
+  id?: string
+  kind: string
+  jobId: string
+  status?: string
+  dueAt: Date | string
+  nextAlertAt: Date | string
+  lastAlertAt?: Date | string | null
+  alertCount?: number
+  escalatedAt?: Date | string | null
+  snoozedUntil?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedBy?: string | null
+  delayReason?: string | null
+  followUpNote?: string | null
+  followUpUntil?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolvedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  followUp?: Prisma.FollowUpCreateNestedOneWithoutOpsRemindersInput
+  events?: Prisma.OpsReminderEventCreateNestedManyWithoutReminderInput
+}
+
+export type OpsReminderUncheckedCreateWithoutQuotationInput = {
+  id?: string
+  kind: string
+  jobId: string
+  followUpId?: string | null
+  status?: string
+  dueAt: Date | string
+  nextAlertAt: Date | string
+  lastAlertAt?: Date | string | null
+  alertCount?: number
+  escalatedAt?: Date | string | null
+  snoozedUntil?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedBy?: string | null
+  delayReason?: string | null
+  followUpNote?: string | null
+  followUpUntil?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolvedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  events?: Prisma.OpsReminderEventUncheckedCreateNestedManyWithoutReminderInput
+}
+
+export type OpsReminderCreateOrConnectWithoutQuotationInput = {
+  where: Prisma.OpsReminderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OpsReminderCreateWithoutQuotationInput, Prisma.OpsReminderUncheckedCreateWithoutQuotationInput>
+}
+
+export type OpsReminderCreateManyQuotationInputEnvelope = {
+  data: Prisma.OpsReminderCreateManyQuotationInput | Prisma.OpsReminderCreateManyQuotationInput[]
+}
+
+export type OpsReminderUpsertWithWhereUniqueWithoutQuotationInput = {
+  where: Prisma.OpsReminderWhereUniqueInput
+  update: Prisma.XOR<Prisma.OpsReminderUpdateWithoutQuotationInput, Prisma.OpsReminderUncheckedUpdateWithoutQuotationInput>
+  create: Prisma.XOR<Prisma.OpsReminderCreateWithoutQuotationInput, Prisma.OpsReminderUncheckedCreateWithoutQuotationInput>
+}
+
+export type OpsReminderUpdateWithWhereUniqueWithoutQuotationInput = {
+  where: Prisma.OpsReminderWhereUniqueInput
+  data: Prisma.XOR<Prisma.OpsReminderUpdateWithoutQuotationInput, Prisma.OpsReminderUncheckedUpdateWithoutQuotationInput>
+}
+
+export type OpsReminderUpdateManyWithWhereWithoutQuotationInput = {
+  where: Prisma.OpsReminderScalarWhereInput
+  data: Prisma.XOR<Prisma.OpsReminderUpdateManyMutationInput, Prisma.OpsReminderUncheckedUpdateManyWithoutQuotationInput>
+}
+
+export type OpsReminderScalarWhereInput = {
+  AND?: Prisma.OpsReminderScalarWhereInput | Prisma.OpsReminderScalarWhereInput[]
+  OR?: Prisma.OpsReminderScalarWhereInput[]
+  NOT?: Prisma.OpsReminderScalarWhereInput | Prisma.OpsReminderScalarWhereInput[]
+  id?: Prisma.StringFilter<"OpsReminder"> | string
+  kind?: Prisma.StringFilter<"OpsReminder"> | string
+  jobId?: Prisma.StringFilter<"OpsReminder"> | string
+  quotationId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  followUpId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  status?: Prisma.StringFilter<"OpsReminder"> | string
+  dueAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
+  nextAlertAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
+  lastAlertAt?: Prisma.DateTimeNullableFilter<"OpsReminder"> | Date | string | null
+  alertCount?: Prisma.IntFilter<"OpsReminder"> | number
+  escalatedAt?: Prisma.DateTimeNullableFilter<"OpsReminder"> | Date | string | null
+  snoozedUntil?: Prisma.DateTimeNullableFilter<"OpsReminder"> | Date | string | null
+  acknowledgedAt?: Prisma.DateTimeNullableFilter<"OpsReminder"> | Date | string | null
+  acknowledgedBy?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  delayReason?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  followUpNote?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  followUpUntil?: Prisma.DateTimeNullableFilter<"OpsReminder"> | Date | string | null
+  resolvedAt?: Prisma.DateTimeNullableFilter<"OpsReminder"> | Date | string | null
+  resolvedReason?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OpsReminder"> | Date | string
+}
+
+export type OpsReminderCreateWithoutFollowUpInput = {
+  id?: string
+  kind: string
+  jobId: string
+  status?: string
+  dueAt: Date | string
+  nextAlertAt: Date | string
+  lastAlertAt?: Date | string | null
+  alertCount?: number
+  escalatedAt?: Date | string | null
+  snoozedUntil?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedBy?: string | null
+  delayReason?: string | null
+  followUpNote?: string | null
+  followUpUntil?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolvedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  quotation?: Prisma.QuotationCreateNestedOneWithoutOpsRemindersInput
+  events?: Prisma.OpsReminderEventCreateNestedManyWithoutReminderInput
+}
+
+export type OpsReminderUncheckedCreateWithoutFollowUpInput = {
+  id?: string
+  kind: string
+  jobId: string
+  quotationId?: string | null
+  status?: string
+  dueAt: Date | string
+  nextAlertAt: Date | string
+  lastAlertAt?: Date | string | null
+  alertCount?: number
+  escalatedAt?: Date | string | null
+  snoozedUntil?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedBy?: string | null
+  delayReason?: string | null
+  followUpNote?: string | null
+  followUpUntil?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolvedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  events?: Prisma.OpsReminderEventUncheckedCreateNestedManyWithoutReminderInput
+}
+
+export type OpsReminderCreateOrConnectWithoutFollowUpInput = {
+  where: Prisma.OpsReminderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OpsReminderCreateWithoutFollowUpInput, Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput>
+}
+
+export type OpsReminderCreateManyFollowUpInputEnvelope = {
+  data: Prisma.OpsReminderCreateManyFollowUpInput | Prisma.OpsReminderCreateManyFollowUpInput[]
+}
+
+export type OpsReminderUpsertWithWhereUniqueWithoutFollowUpInput = {
+  where: Prisma.OpsReminderWhereUniqueInput
+  update: Prisma.XOR<Prisma.OpsReminderUpdateWithoutFollowUpInput, Prisma.OpsReminderUncheckedUpdateWithoutFollowUpInput>
+  create: Prisma.XOR<Prisma.OpsReminderCreateWithoutFollowUpInput, Prisma.OpsReminderUncheckedCreateWithoutFollowUpInput>
+}
+
+export type OpsReminderUpdateWithWhereUniqueWithoutFollowUpInput = {
+  where: Prisma.OpsReminderWhereUniqueInput
+  data: Prisma.XOR<Prisma.OpsReminderUpdateWithoutFollowUpInput, Prisma.OpsReminderUncheckedUpdateWithoutFollowUpInput>
+}
+
+export type OpsReminderUpdateManyWithWhereWithoutFollowUpInput = {
+  where: Prisma.OpsReminderScalarWhereInput
+  data: Prisma.XOR<Prisma.OpsReminderUpdateManyMutationInput, Prisma.OpsReminderUncheckedUpdateManyWithoutFollowUpInput>
 }
 
 export type OpsReminderCreateWithoutEventsInput = {
@@ -711,12 +1026,16 @@ export type OpsReminderCreateWithoutEventsInput = {
   resolvedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  quotation?: Prisma.QuotationCreateNestedOneWithoutOpsRemindersInput
+  followUp?: Prisma.FollowUpCreateNestedOneWithoutOpsRemindersInput
 }
 
 export type OpsReminderUncheckedCreateWithoutEventsInput = {
   id?: string
   kind: string
   jobId: string
+  quotationId?: string | null
+  followUpId?: string | null
   status?: string
   dueAt: Date | string
   nextAlertAt: Date | string
@@ -771,12 +1090,204 @@ export type OpsReminderUpdateWithoutEventsInput = {
   resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  quotation?: Prisma.QuotationUpdateOneWithoutOpsRemindersNestedInput
+  followUp?: Prisma.FollowUpUpdateOneWithoutOpsRemindersNestedInput
 }
 
 export type OpsReminderUncheckedUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertCount?: Prisma.IntFieldUpdateOperationsInput | number
+  escalatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  snoozedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  delayReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OpsReminderCreateManyQuotationInput = {
+  id?: string
+  kind: string
+  jobId: string
+  followUpId?: string | null
+  status?: string
+  dueAt: Date | string
+  nextAlertAt: Date | string
+  lastAlertAt?: Date | string | null
+  alertCount?: number
+  escalatedAt?: Date | string | null
+  snoozedUntil?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedBy?: string | null
+  delayReason?: string | null
+  followUpNote?: string | null
+  followUpUntil?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolvedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OpsReminderUpdateWithoutQuotationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertCount?: Prisma.IntFieldUpdateOperationsInput | number
+  escalatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  snoozedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  delayReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  followUp?: Prisma.FollowUpUpdateOneWithoutOpsRemindersNestedInput
+  events?: Prisma.OpsReminderEventUpdateManyWithoutReminderNestedInput
+}
+
+export type OpsReminderUncheckedUpdateWithoutQuotationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertCount?: Prisma.IntFieldUpdateOperationsInput | number
+  escalatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  snoozedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  delayReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.OpsReminderEventUncheckedUpdateManyWithoutReminderNestedInput
+}
+
+export type OpsReminderUncheckedUpdateManyWithoutQuotationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertCount?: Prisma.IntFieldUpdateOperationsInput | number
+  escalatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  snoozedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  delayReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OpsReminderCreateManyFollowUpInput = {
+  id?: string
+  kind: string
+  jobId: string
+  quotationId?: string | null
+  status?: string
+  dueAt: Date | string
+  nextAlertAt: Date | string
+  lastAlertAt?: Date | string | null
+  alertCount?: number
+  escalatedAt?: Date | string | null
+  snoozedUntil?: Date | string | null
+  acknowledgedAt?: Date | string | null
+  acknowledgedBy?: string | null
+  delayReason?: string | null
+  followUpNote?: string | null
+  followUpUntil?: Date | string | null
+  resolvedAt?: Date | string | null
+  resolvedReason?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OpsReminderUpdateWithoutFollowUpInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertCount?: Prisma.IntFieldUpdateOperationsInput | number
+  escalatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  snoozedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  delayReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  quotation?: Prisma.QuotationUpdateOneWithoutOpsRemindersNestedInput
+  events?: Prisma.OpsReminderEventUpdateManyWithoutReminderNestedInput
+}
+
+export type OpsReminderUncheckedUpdateWithoutFollowUpInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  alertCount?: Prisma.IntFieldUpdateOperationsInput | number
+  escalatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  snoozedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  acknowledgedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  delayReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUpUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resolvedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  events?: Prisma.OpsReminderEventUncheckedUpdateManyWithoutReminderNestedInput
+}
+
+export type OpsReminderUncheckedUpdateManyWithoutFollowUpInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -830,6 +1341,8 @@ export type OpsReminderSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  quotationId?: boolean
+  followUpId?: boolean
   status?: boolean
   dueAt?: boolean
   nextAlertAt?: boolean
@@ -846,6 +1359,8 @@ export type OpsReminderSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   resolvedReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  quotation?: boolean | Prisma.OpsReminder$quotationArgs<ExtArgs>
+  followUp?: boolean | Prisma.OpsReminder$followUpArgs<ExtArgs>
   events?: boolean | Prisma.OpsReminder$eventsArgs<ExtArgs>
   _count?: boolean | Prisma.OpsReminderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["opsReminder"]>
@@ -854,6 +1369,8 @@ export type OpsReminderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  quotationId?: boolean
+  followUpId?: boolean
   status?: boolean
   dueAt?: boolean
   nextAlertAt?: boolean
@@ -870,12 +1387,16 @@ export type OpsReminderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   resolvedReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  quotation?: boolean | Prisma.OpsReminder$quotationArgs<ExtArgs>
+  followUp?: boolean | Prisma.OpsReminder$followUpArgs<ExtArgs>
 }, ExtArgs["result"]["opsReminder"]>
 
 export type OpsReminderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  quotationId?: boolean
+  followUpId?: boolean
   status?: boolean
   dueAt?: boolean
   nextAlertAt?: boolean
@@ -892,12 +1413,16 @@ export type OpsReminderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   resolvedReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  quotation?: boolean | Prisma.OpsReminder$quotationArgs<ExtArgs>
+  followUp?: boolean | Prisma.OpsReminder$followUpArgs<ExtArgs>
 }, ExtArgs["result"]["opsReminder"]>
 
 export type OpsReminderSelectScalar = {
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  quotationId?: boolean
+  followUpId?: boolean
   status?: boolean
   dueAt?: boolean
   nextAlertAt?: boolean
@@ -916,23 +1441,35 @@ export type OpsReminderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OpsReminderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "jobId" | "status" | "dueAt" | "nextAlertAt" | "lastAlertAt" | "alertCount" | "escalatedAt" | "snoozedUntil" | "acknowledgedAt" | "acknowledgedBy" | "delayReason" | "followUpNote" | "followUpUntil" | "resolvedAt" | "resolvedReason" | "createdAt" | "updatedAt", ExtArgs["result"]["opsReminder"]>
+export type OpsReminderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "jobId" | "quotationId" | "followUpId" | "status" | "dueAt" | "nextAlertAt" | "lastAlertAt" | "alertCount" | "escalatedAt" | "snoozedUntil" | "acknowledgedAt" | "acknowledgedBy" | "delayReason" | "followUpNote" | "followUpUntil" | "resolvedAt" | "resolvedReason" | "createdAt" | "updatedAt", ExtArgs["result"]["opsReminder"]>
 export type OpsReminderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  quotation?: boolean | Prisma.OpsReminder$quotationArgs<ExtArgs>
+  followUp?: boolean | Prisma.OpsReminder$followUpArgs<ExtArgs>
   events?: boolean | Prisma.OpsReminder$eventsArgs<ExtArgs>
   _count?: boolean | Prisma.OpsReminderCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type OpsReminderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type OpsReminderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type OpsReminderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  quotation?: boolean | Prisma.OpsReminder$quotationArgs<ExtArgs>
+  followUp?: boolean | Prisma.OpsReminder$followUpArgs<ExtArgs>
+}
+export type OpsReminderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  quotation?: boolean | Prisma.OpsReminder$quotationArgs<ExtArgs>
+  followUp?: boolean | Prisma.OpsReminder$followUpArgs<ExtArgs>
+}
 
 export type $OpsReminderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "OpsReminder"
   objects: {
+    quotation: Prisma.$QuotationPayload<ExtArgs> | null
+    followUp: Prisma.$FollowUpPayload<ExtArgs> | null
     events: Prisma.$OpsReminderEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     kind: string
     jobId: string
+    quotationId: string | null
+    followUpId: string | null
     status: string
     dueAt: Date
     nextAlertAt: Date
@@ -1343,6 +1880,8 @@ readonly fields: OpsReminderFieldRefs;
  */
 export interface Prisma__OpsReminderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  quotation<T extends Prisma.OpsReminder$quotationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OpsReminder$quotationArgs<ExtArgs>>): Prisma.Prisma__QuotationClient<runtime.Types.Result.GetResult<Prisma.$QuotationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  followUp<T extends Prisma.OpsReminder$followUpArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OpsReminder$followUpArgs<ExtArgs>>): Prisma.Prisma__FollowUpClient<runtime.Types.Result.GetResult<Prisma.$FollowUpPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   events<T extends Prisma.OpsReminder$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OpsReminder$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OpsReminderEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1376,6 +1915,8 @@ export interface OpsReminderFieldRefs {
   readonly id: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly kind: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly jobId: Prisma.FieldRef<"OpsReminder", 'String'>
+  readonly quotationId: Prisma.FieldRef<"OpsReminder", 'String'>
+  readonly followUpId: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly status: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly dueAt: Prisma.FieldRef<"OpsReminder", 'DateTime'>
   readonly nextAlertAt: Prisma.FieldRef<"OpsReminder", 'DateTime'>
@@ -1639,6 +2180,10 @@ export type OpsReminderCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many OpsReminders.
    */
   data: Prisma.OpsReminderCreateManyInput | Prisma.OpsReminderCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OpsReminderIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1709,6 +2254,10 @@ export type OpsReminderUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many OpsReminders to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OpsReminderIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1775,6 +2324,44 @@ export type OpsReminderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many OpsReminders to delete.
    */
   limit?: number
+}
+
+/**
+ * OpsReminder.quotation
+ */
+export type OpsReminder$quotationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Quotation
+   */
+  select?: Prisma.QuotationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Quotation
+   */
+  omit?: Prisma.QuotationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.QuotationInclude<ExtArgs> | null
+  where?: Prisma.QuotationWhereInput
+}
+
+/**
+ * OpsReminder.followUp
+ */
+export type OpsReminder$followUpArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FollowUp
+   */
+  select?: Prisma.FollowUpSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FollowUp
+   */
+  omit?: Prisma.FollowUpOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FollowUpInclude<ExtArgs> | null
+  where?: Prisma.FollowUpWhereInput
 }
 
 /**

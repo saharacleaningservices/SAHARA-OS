@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, BellRing, Check } from "lucide-react";
+import { Bell, BellOff, BellRing, Check, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import {
   savePushSubscription,
   markNotificationsRead,
 } from "@/server/actions/notifications";
+import { setMyReminderPrefs } from "@/server/actions/ops-reminders";
 
 type Item = {
   id: string;
@@ -24,8 +25,9 @@ type Item = {
 };
 
 const POLL_MS = 20000;
-// Shared with the dashboard Pending-actions panel (per-device mute for reminder sounds).
-const OPS_MUTE_KEY = "sahara-ops-sound-muted";
+// Set once the user has explicitly clicked "Enable audio reminders" on this device, so a later
+// page load may re-arm the audio on the first user gesture. Audio is never started without one.
+const AUDIO_CONSENT_KEY = "sahara-audio-consent";
 const CHIME_CLAIM_KEY = "sahara-last-chimed";
 
 /** Only one open tab chimes / pops a desktop notice for a given notification. */
@@ -48,11 +50,37 @@ function urlBase64ToUint8Array(base64String: string) {
   return arr;
 }
 
-/** Synthesised alert tones — no audio asset needed. */
-function playChime(critical: boolean) {
+let sharedCtx: AudioContext | null = null;
+
+function audioCtx(): AudioContext | null {
   try {
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
+    if (!sharedCtx) {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      sharedCtx = new Ctx();
+    }
+    return sharedCtx;
+  } catch {
+    return null;
+  }
+}
+
+/** Must be called from a user gesture (click / key press). Resolves true once the browser lets us play audio. */
+async function unlockAudio(): Promise<boolean> {
+  const ctx = audioCtx();
+  if (!ctx) return false;
+  try {
+    await ctx.resume();
+  } catch {
+    /* blocked */
+  }
+  return ctx.state === "running";
+}
+
+/** Synthesised alert tones — no audio asset needed. Returns false when the browser has not allowed audio yet. */
+function playChime(critical: boolean): boolean {
+  try {
+    const ctx = audioCtx();
+    if (!ctx || ctx.state !== "running") return false;
     const now = ctx.currentTime;
     const seq = critical
       ? [880, 660, 880, 660, 990]
@@ -70,9 +98,9 @@ function playChime(critical: boolean) {
       osc.start(t);
       osc.stop(t + 0.3);
     });
-    setTimeout(() => ctx.close().catch(() => {}), 1500);
+    return true;
   } catch {
-    /* ignore */
+    return false;
   }
 }
 
@@ -82,6 +110,11 @@ export function NotificationsBell() {
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const [perm, setPerm] = useState<NotificationPermission>("default");
+  // Reminder alert preferences (own account). `canConfigure` = Super Admin / Accounts.
+  const [prefs, setPrefs] = useState<{ sound: boolean; userSound: boolean; notifications: boolean; canConfigure: boolean }>({ sound: true, userSound: true, notifications: true, canConfigure: false });
+  const [audioReady, setAudioReady] = useState(false);
+  const prefsRef = useRef(prefs);
+  prefsRef.current = prefs;
   const lastSeenRef = useRef<string>("");
   const primedRef = useRef(false);
   const pushOkRef = useRef(false);
@@ -116,7 +149,8 @@ export function NotificationsBell() {
     try {
       const res = await fetch("/api/notifications/feed", { cache: "no-store" });
       if (!res.ok) return;
-      const data: { unreadCount: number; items: Item[]; opsSound?: boolean } = await res.json();
+      const data: { unreadCount: number; items: Item[]; opsSound?: boolean; opsNotifications?: boolean; userSound?: boolean; canConfigure?: boolean } = await res.json();
+      setPrefs({ sound: data.opsSound !== false, userSound: data.userSound !== false, notifications: data.opsNotifications !== false, canConfigure: Boolean(data.canConfigure) });
       setUnread(data.unreadCount);
       setItems(data.items);
 
@@ -130,22 +164,20 @@ export function NotificationsBell() {
         const fresh = data.items.filter((i) => i.createdAt > lastSeenRef.current);
         lastSeenRef.current = newest.createdAt;
         if (!claimOnce(newest.id)) return; // another tab already alerted for this one
-        let opsMuted = false;
-        try {
-          opsMuted = localStorage.getItem(OPS_MUTE_KEY) === "1";
-        } catch {
-          /* ignore */
-        }
-        const silentOps = data.opsSound === false || opsMuted;
+        // Reminder (OPS_) alerts follow the user's own switches: sound off → no chime;
+        // notifications off → no chime, vibration or desktop popup (items stay in the list + dashboard).
+        const notifOff = data.opsNotifications === false;
+        const silentOps = data.opsSound === false || notifOff;
         const audible = fresh.filter((i) => !(i.kind.startsWith("OPS_") && silentOps));
         const critical = audible.some((i) => i.critical);
         if (audible.length) {
-          playChime(critical);
-          if ("vibrate" in navigator) navigator.vibrate(critical ? [200, 100, 200, 100, 400] : [120, 60, 120]);
+          const played = playChime(critical);
+          if (!played) setAudioReady(false); // browser has not allowed audio yet → show "Enable audio reminders"
+          if ("vibrate" in navigator && !(notifOff && audible.every((i) => i.kind.startsWith("OPS_")))) navigator.vibrate(critical ? [200, 100, 200, 100, 400] : [120, 60, 120]);
         }
         // Desktop notice for reminders when this browser has no push subscription
         // (with push, the service worker already shows the system notification).
-        if (!pushOkRef.current && typeof Notification !== "undefined" && Notification.permission === "granted") {
+        if (!notifOff && !pushOkRef.current && typeof Notification !== "undefined" && Notification.permission === "granted") {
           for (const i of fresh.filter((x) => x.kind.startsWith("OPS_")).slice(0, 2)) {
             try {
               const n = new Notification(i.title, { body: i.body ?? undefined, tag: i.kind, requireInteraction: i.critical, silent: silentOps });
@@ -183,13 +215,59 @@ export function NotificationsBell() {
     };
   }, [poll, subscribePush]);
 
+  // A device that has explicitly enabled audio before re-arms it on the first click/key press of a visit.
+  useEffect(() => {
+    let consent = false;
+    try {
+      consent = localStorage.getItem(AUDIO_CONSENT_KEY) === "1";
+    } catch {
+      /* storage blocked */
+    }
+    if (!consent) return;
+    const arm = async () => {
+      if (await unlockAudio()) setAudioReady(true);
+    };
+    window.addEventListener("pointerdown", arm, { once: true });
+    window.addEventListener("keydown", arm, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", arm);
+      window.removeEventListener("keydown", arm);
+    };
+  }, []);
+
+  /** Explicit user action: unlock browser audio, remember the consent on this device, play a sample. */
+  async function enableAudio() {
+    const ok = await unlockAudio();
+    setAudioReady(ok);
+    if (ok) {
+      try {
+        localStorage.setItem(AUDIO_CONSENT_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      playChime(false);
+    }
+  }
+
+  async function savePref(patch: { soundEnabled?: boolean; notificationsEnabled?: boolean }) {
+    const res = await setMyReminderPrefs(patch);
+    if ("error" in res && res.error) return;
+    setPrefs((p) => ({
+      ...p,
+      userSound: patch.soundEnabled ?? p.userSound,
+      sound: patch.soundEnabled !== undefined ? patch.soundEnabled : p.sound,
+      notifications: patch.notificationsEnabled ?? p.notifications,
+    }));
+    if (patch.soundEnabled) void enableAudio(); // switching sound ON is itself the explicit gesture
+  }
+
   async function enable() {
     if (typeof Notification === "undefined") return;
     const p = await Notification.requestPermission();
     setPerm(p);
     if (p === "granted") {
       await subscribePush();
-      playChime(false);
+      void enableAudio();
     }
   }
 
@@ -211,7 +289,7 @@ export function NotificationsBell() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          {unread > 0 ? <BellRing className="size-5" /> : <Bell className="size-5" />}
+          {!prefs.notifications ? <BellOff className="size-5 text-muted-foreground" /> : unread > 0 ? <BellRing className="size-5" /> : <Bell className="size-5" />}
           {unread > 0 && (
             <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
               {unread > 9 ? "9+" : unread}
@@ -228,6 +306,40 @@ export function NotificationsBell() {
             </button>
           )}
         </div>
+
+        {!prefs.notifications && (
+          <div className="flex items-center gap-1.5 border-b border-border bg-warning/15 px-3 py-1.5 text-xs font-semibold text-warning" role="status">
+            <BellOff className="size-3.5" /> Notifications Disabled — pending items stay on your dashboard
+          </div>
+        )}
+        {prefs.canConfigure && (
+          <div className="flex flex-wrap items-center gap-1.5 border-b border-border px-3 py-2">
+            <button
+              onClick={() => savePref({ soundEnabled: !prefs.userSound })}
+              className="flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-muted"
+              aria-pressed={prefs.userSound}
+              title="Reminder sound for your account (reminders keep running either way)"
+            >
+              {prefs.userSound ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />} Sound {prefs.userSound ? "ON" : "OFF"}
+            </button>
+            <button
+              onClick={() => savePref({ notificationsEnabled: !prefs.notifications })}
+              className="flex items-center gap-1 rounded-md border px-2 py-1 text-xs hover:bg-muted"
+              aria-pressed={prefs.notifications}
+              title="Reminder alerts for your account (pending items stay visible either way)"
+            >
+              {prefs.notifications ? <Bell className="size-3.5" /> : <BellOff className="size-3.5" />} Notifications {prefs.notifications ? "ON" : "OFF"}
+            </button>
+          </div>
+        )}
+        {prefs.canConfigure && prefs.sound && prefs.notifications && !audioReady && (
+          <button
+            onClick={enableAudio}
+            className="block w-full border-b border-border bg-accent/60 px-3 py-2 text-left text-xs font-medium text-accent-foreground hover:bg-accent"
+          >
+            🔊 Enable audio reminders on this device
+          </button>
+        )}
 
         {perm !== "granted" && (
           <button

@@ -322,6 +322,7 @@ export type QuotationWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  opsReminders?: Prisma.OpsReminderListRelationFilter
 }
 
 export type QuotationOrderByWithRelationInput = {
@@ -343,6 +344,7 @@ export type QuotationOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   lead?: Prisma.LeadOrderByWithRelationInput
   invoice?: Prisma.InvoiceOrderByWithRelationInput
+  opsReminders?: Prisma.OpsReminderOrderByRelationAggregateInput
 }
 
 export type QuotationWhereUniqueInput = Prisma.AtLeast<{
@@ -367,6 +369,7 @@ export type QuotationWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  opsReminders?: Prisma.OpsReminderListRelationFilter
 }, "id" | "quoteNumber" | "publicToken">
 
 export type QuotationOrderByWithAggregationInput = {
@@ -433,6 +436,7 @@ export type QuotationCreateInput = {
   updatedAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutQuotationsInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationUncheckedCreateInput = {
@@ -453,6 +457,7 @@ export type QuotationUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationUpdateInput = {
@@ -473,6 +478,7 @@ export type QuotationUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutQuotationsNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationUncheckedUpdateInput = {
@@ -493,6 +499,7 @@ export type QuotationUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationCreateManyInput = {
@@ -701,6 +708,22 @@ export type QuotationUpdateOneWithoutInvoiceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.QuotationUpdateToOneWithWhereWithoutInvoiceInput, Prisma.QuotationUpdateWithoutInvoiceInput>, Prisma.QuotationUncheckedUpdateWithoutInvoiceInput>
 }
 
+export type QuotationCreateNestedOneWithoutOpsRemindersInput = {
+  create?: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+  connectOrCreate?: Prisma.QuotationCreateOrConnectWithoutOpsRemindersInput
+  connect?: Prisma.QuotationWhereUniqueInput
+}
+
+export type QuotationUpdateOneWithoutOpsRemindersNestedInput = {
+  create?: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+  connectOrCreate?: Prisma.QuotationCreateOrConnectWithoutOpsRemindersInput
+  upsert?: Prisma.QuotationUpsertWithoutOpsRemindersInput
+  disconnect?: Prisma.QuotationWhereInput | boolean
+  delete?: Prisma.QuotationWhereInput | boolean
+  connect?: Prisma.QuotationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.QuotationUpdateToOneWithWhereWithoutOpsRemindersInput, Prisma.QuotationUpdateWithoutOpsRemindersInput>, Prisma.QuotationUncheckedUpdateWithoutOpsRemindersInput>
+}
+
 export type QuotationCreateWithoutLeadInput = {
   id?: string
   quoteNumber: string
@@ -718,6 +741,7 @@ export type QuotationCreateWithoutLeadInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invoice?: Prisma.InvoiceCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationUncheckedCreateWithoutLeadInput = {
@@ -737,6 +761,7 @@ export type QuotationUncheckedCreateWithoutLeadInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationCreateOrConnectWithoutLeadInput = {
@@ -803,6 +828,7 @@ export type QuotationCreateWithoutInvoiceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutQuotationsInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationUncheckedCreateWithoutInvoiceInput = {
@@ -822,6 +848,7 @@ export type QuotationUncheckedCreateWithoutInvoiceInput = {
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationCreateOrConnectWithoutInvoiceInput = {
@@ -857,6 +884,7 @@ export type QuotationUpdateWithoutInvoiceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutQuotationsNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationUncheckedUpdateWithoutInvoiceInput = {
@@ -876,6 +904,103 @@ export type QuotationUncheckedUpdateWithoutInvoiceInput = {
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutQuotationNestedInput
+}
+
+export type QuotationCreateWithoutOpsRemindersInput = {
+  id?: string
+  quoteNumber: string
+  publicToken?: string | null
+  services: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  terms: string
+  validTill?: Date | string | null
+  pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lead: Prisma.LeadCreateNestedOneWithoutQuotationsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutQuotationInput
+}
+
+export type QuotationUncheckedCreateWithoutOpsRemindersInput = {
+  id?: string
+  quoteNumber: string
+  publicToken?: string | null
+  leadId: string
+  services: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  terms: string
+  validTill?: Date | string | null
+  pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutQuotationInput
+}
+
+export type QuotationCreateOrConnectWithoutOpsRemindersInput = {
+  where: Prisma.QuotationWhereUniqueInput
+  create: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+}
+
+export type QuotationUpsertWithoutOpsRemindersInput = {
+  update: Prisma.XOR<Prisma.QuotationUpdateWithoutOpsRemindersInput, Prisma.QuotationUncheckedUpdateWithoutOpsRemindersInput>
+  create: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+  where?: Prisma.QuotationWhereInput
+}
+
+export type QuotationUpdateToOneWithWhereWithoutOpsRemindersInput = {
+  where?: Prisma.QuotationWhereInput
+  data: Prisma.XOR<Prisma.QuotationUpdateWithoutOpsRemindersInput, Prisma.QuotationUncheckedUpdateWithoutOpsRemindersInput>
+}
+
+export type QuotationUpdateWithoutOpsRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  services?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  terms?: Prisma.StringFieldUpdateOperationsInput | string
+  validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.LeadUpdateOneRequiredWithoutQuotationsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutQuotationNestedInput
+}
+
+export type QuotationUncheckedUpdateWithoutOpsRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  services?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  terms?: Prisma.StringFieldUpdateOperationsInput | string
+  validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutQuotationNestedInput
 }
 
 export type QuotationCreateManyLeadInput = {
@@ -913,6 +1038,7 @@ export type QuotationUpdateWithoutLeadInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.InvoiceUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationUncheckedUpdateWithoutLeadInput = {
@@ -932,6 +1058,7 @@ export type QuotationUncheckedUpdateWithoutLeadInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationUncheckedUpdateManyWithoutLeadInput = {
@@ -953,6 +1080,35 @@ export type QuotationUncheckedUpdateManyWithoutLeadInput = {
 }
 
 
+/**
+ * Count Type QuotationCountOutputType
+ */
+
+export type QuotationCountOutputType = {
+  opsReminders: number
+}
+
+export type QuotationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  opsReminders?: boolean | QuotationCountOutputTypeCountOpsRemindersArgs
+}
+
+/**
+ * QuotationCountOutputType without action
+ */
+export type QuotationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuotationCountOutputType
+   */
+  select?: Prisma.QuotationCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * QuotationCountOutputType without action
+ */
+export type QuotationCountOutputTypeCountOpsRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OpsReminderWhereInput
+}
+
 
 export type QuotationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -973,6 +1129,8 @@ export type QuotationSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Quotation$invoiceArgs<ExtArgs>
+  opsReminders?: boolean | Prisma.Quotation$opsRemindersArgs<ExtArgs>
+  _count?: boolean | Prisma.QuotationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["quotation"]>
 
 export type QuotationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1038,6 +1196,8 @@ export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type QuotationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Quotation$invoiceArgs<ExtArgs>
+  opsReminders?: boolean | Prisma.Quotation$opsRemindersArgs<ExtArgs>
+  _count?: boolean | Prisma.QuotationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type QuotationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
@@ -1051,6 +1211,7 @@ export type $QuotationPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     lead: Prisma.$LeadPayload<ExtArgs>
     invoice: Prisma.$InvoicePayload<ExtArgs> | null
+    opsReminders: Prisma.$OpsReminderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1465,6 +1626,7 @@ export interface Prisma__QuotationClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   lead<T extends Prisma.LeadDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LeadDefaultArgs<ExtArgs>>): Prisma.Prisma__LeadClient<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   invoice<T extends Prisma.Quotation$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Quotation$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  opsReminders<T extends Prisma.Quotation$opsRemindersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Quotation$opsRemindersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OpsReminderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1920,6 +2082,30 @@ export type Quotation$invoiceArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   include?: Prisma.InvoiceInclude<ExtArgs> | null
   where?: Prisma.InvoiceWhereInput
+}
+
+/**
+ * Quotation.opsReminders
+ */
+export type Quotation$opsRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OpsReminder
+   */
+  select?: Prisma.OpsReminderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OpsReminder
+   */
+  omit?: Prisma.OpsReminderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OpsReminderInclude<ExtArgs> | null
+  where?: Prisma.OpsReminderWhereInput
+  orderBy?: Prisma.OpsReminderOrderByWithRelationInput | Prisma.OpsReminderOrderByWithRelationInput[]
+  cursor?: Prisma.OpsReminderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OpsReminderScalarFieldEnum | Prisma.OpsReminderScalarFieldEnum[]
 }
 
 /**
