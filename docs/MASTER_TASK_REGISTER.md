@@ -14,7 +14,7 @@ No secrets appear here (names/locations only). Production boundary: no push to `
 | SOS-04 | GitHub, Coolify, production deployment | P1 | PARTIALLY COMPLETE; exposed ports risk open |
 | SOS-05 | WhatsApp Cloud API + customer messages | P1 | PARTIALLY COMPLETE (TEST MODE); campaign launch gated |
 | SOS-06 | Cognito forms → CRM → WhatsApp | P1 | BLOCKED/PENDING OWNER — bridge script not installed; recent enquiries not in CRM |
-| SOS-07 | Google Ads — Brand Make unlink + support | P1 | PENDING OWNER PASSKEY — unlink dialog reached Google's passkey gate; manager still linked |
+| SOS-07 | Google Ads — Brand Make unlink + support | P1 | VERIFIED COMPLETE — Managers list empty, 0 pending approvals (2026-10-15) |
 | SOS-08 | Meta Business assets + ads ownership | P1 | PARTIALLY COMPLETE (inventory + access audit done 2026-10-15; ad account outside portfolio; owner decisions needed) |
 | SOS-09 | Staff operations + mobile QA | P1 | NOT TESTED on real devices |
 | SOS-10 | Google Workspace email migration | P1 | PENDING (no verified work in this context) |
@@ -115,6 +115,21 @@ Report separately (per directive):
 - **BLOCKED:** depends on SOS-05 (consent/tracking), SOS-07, SOS-08 and an owner-approved budget. No spend, no campaign activation without explicit approval.
 
 - **Read-only digital-channel findings (2026-10-15, partial — P5 paused to finish Task 1 first):** (1) **No conversion/analytics tags load on the live booking site**: in a real Chrome session `window.gtag`, `window.fbq`, `dataLayer` are undefined and no Google/Meta tracking requests fire; the www WordPress homepage HTML has no GA4/Ads/GTM/Pixel either. The CRM code (`marketing-tags.tsx`) only loads tags when `NEXT_PUBLIC_GA4_ID` / `NEXT_PUBLIC_GOOGLE_ADS_ID` / `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL` / `NEXT_PUBLIC_META_PIXEL_ID` were set **at build time** — so they were not set (or the app was not rebuilt after setting). Ads launch (SOS-14) must wait for this; CRM-side lead-source attribution is unaffected. Fix = owner sets the public IDs in Coolify + redeploy (production change, approval needed). (2) Facebook page "Sahara Cleaning Services" (954 followers, phone +91 70833 47130) and Instagram saharacleaningservices.pune (85 followers, 32 posts) load and link to the website; YouTube channel and the Google review link resolve. Instagram/Facebook text claims "4.9★ Google (1,800+ reviews)" — not verified against the live GBP (Maps page did not render). (3) www homepage title is the long Kharadi-only text, no H1, no robots meta; sitemap_index.xml and robots.txt exist on www; booking site has its own sitemap/robots. Full audit report still to be written.
+
+### SOS-17 — Brand Make ownership / access matrix (read-only, 2026-10-15)
+| Asset | Confirmed owner / admin | Sahara admin? | Brand Make access | Dependencies | Sahara replacement needed? |
+|---|---|---|---|---|---|
+| Google Ads 988-668-0860 | Sahara (contact@, Admin since 2019-01-30, passkey on) | **Yes** | **None — manager link removed** (Managers list empty, 0 pending approvals; owner completed the passkey step) | Billing = Sahara's Visa 2994; conversion goals live in this account | No (keep). Conversion tags fire via the agency GTM (below) |
+| GA4 account 383708287 "Sahara Cleaning" / property 523634206, stream G-74EZWDS33Z (stream URL `https://saharacleaningservices.in`) | Unknown administrator | **No** — contact@ has access but **not Administrator** ("cannot add/remove users") | Unverified; an unknown admin controls users | Fed by GTM-WPM2QXCX; no data in last 48 h | **Yes — get Administrator granted by the current admin, or create a Sahara-owned GA4 property** |
+| GTM container GTM-WPM2QXCX | Not Sahara (contact@ sees no GTM accounts) | **No** | Most likely (agency container on the agency landing page) | Fires Sahara AW-765890204 + G-74EZWDS33Z + Clarity, Meta, DoubleClick, CallTrack | **Yes — Sahara-owned container or direct tags in Sahara OS** |
+| Search Console | contact@ has **no properties** | **No** | Unknown (may be set up by someone else, or not at all) | SEO data, sitemap submission | **Yes — add a Domain property owned by contact@** (needs a DNS TXT record = owner-approved DNS change) |
+| Meta Business portfolio 152082702561104 | Sahara (created by Altaf 2019) | Yes (2 full-access people) | **None** (0 partners) | Page + Instagram + WABA owned | No; finish verification/security items |
+| Meta ad account 343079872519451 | Outside the portfolio; roles: "Sahara Cleaning Services" (admin) + Altaf Shaikh (admin); contact e-mail saharaenterprises161@gmail.com | **Yes** | **None found** | 3 old campaigns On/payment error; no payment method | Claim into the portfolio (owner) |
+| Meta Pixel / datasets | Ad account has only the dataset "Sahara OS Messaging"; **no web Pixel**; portfolio has no datasets | — | None | Sites have no Pixel firing | **Yes — create Sahara Pixel/dataset** |
+| Vercel `sahara-lp-rho` | Unknown (not visible to Sahara) | **No** | Assumed (agency build) | Hosts the landing page | **Yes — rebuild in Sahara OS** |
+| EmailJS | Unknown | **No** | Unknown | SDK bundled; no visible form | Not needed if the new page posts to the CRM |
+| promo.saharacleaningservices.com | Hosting unknown — Hostinger shared 82.180.143.191 (LiteSpeed); DNS A-record at Namecheap | **No** (host); DNS owner unknown | Assumed | Same page + same GTM | **Yes — replace before repointing DNS** |
+Drive cleanup status: 17 duplicate copies created by Claude in "Sahara/Marketing Assets/Brand Make Landing Page Audit" are in Google Drive Trash (recoverable for 30 days, untouched since); 19 copies remain active (1 report, 6 inventory, 1 desktop-fold, 3 desktop-full, 2 mobile-fold, 6 mobile-full); originals also kept locally. Cleanup frozen by the owner.
 
 ### SOS-15 — Final documentation + handover · P1
 - Exists: Drive Technical Master + UPDATE 1/2 + Report 3; repo `docs/DISASTER_RECOVERY_RUNBOOK.md`, `docs/BACKUP_ALERTS_ROLLOUT_PLAN.md`, this register. Remaining: merge facts into one Technical Master at the end, final consolidated report.
