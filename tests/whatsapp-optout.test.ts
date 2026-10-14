@@ -76,3 +76,50 @@ test("only one broadcast may run at a time", async () => {
   for (let i = 0; i < 100 && bc.getBroadcastJob()?.status === "RUNNING"; i++) await new Promise((r) => setTimeout(r, 100));
   assert.equal(bc.getBroadcastJob()!.status, "STOPPED");
 });
+
+// ── Marketing-template consent guard (sendWhatsAppTemplate) ─────────────────────────────────────────────────────
+// LIVE mode + no credentials: a number that passes every gate reaches the "not connected" check and stops there — no network.
+const lead = (mobile: string, consent: "OPTED_IN" | "OPTED_OUT" | "UNKNOWN") =>
+  db.lead.create({ data: { leadNumber: `LD-T-${mobile}`, name: "Priya Sharma", mobile, whatsapp: mobile, area: "x", service: "HOME_DEEP_CLEANING" as never, source: "WEBSITE" as never, marketingConsent: consent as never } });
+
+async function sendLive(template: string, mobile: string) {
+  const prev = process.env.WHATSAPP_OUTBOUND_MODE;
+  process.env.WHATSAPP_OUTBOUND_MODE = "live";
+  try {
+    return await wa.sendWhatsAppTemplate({ kind: "OTHER", toNumber: mobile, templateName: template, languageCode: "en", bodyParams: ["T", "x"], preview: "p" });
+  } finally {
+    process.env.WHATSAPP_OUTBOUND_MODE = prev;
+  }
+}
+
+test("marketing template: refused without a recorded opt-in (UNKNOWN, no lead at all, opted-out lead, STOP reply), audited as CANCELLED", async () => {
+  await lead("9820000011", "UNKNOWN");
+  await lead("9820000013", "OPTED_OUT");
+  await lead("9820000014", "OPTED_IN");
+  await wa.setWhatsAppOptOut("9820000014", "CUSTOMER_REPLY"); // STOP beats an earlier opt-in
+  for (const m of ["9820000011", "9820000012", "9820000013", "9820000014"]) {
+    const r = await sendLive("sahara_customer_reactivation", m);
+    assert.equal(r.sent, false, m);
+    assert.match(r.error ?? "", /opt/i, m);
+  }
+  const rows = await db.whatsAppMessage.findMany({ where: { templateName: "sahara_customer_reactivation", toNumber: { in: ["919820000011", "919820000012", "919820000013"] } } });
+  assert.ok(rows.length >= 3 && rows.every((r) => r.status === "CANCELLED"), "refusals are written to the log");
+});
+
+test("marketing template: a recorded opt-in passes the consent gate (and stops at 'not connected' here — nothing is sent)", async () => {
+  await lead("9820000015", "OPTED_IN");
+  const r = await sendLive("sahara_customer_reactivation", "9820000015");
+  assert.equal(r.sent, false);
+  assert.match(r.error ?? "", /not connected/i, "consent was accepted; only the missing credentials stopped it");
+});
+
+test("utility (transactional) templates are not blocked by the marketing-consent guard", async () => {
+  const r = await sendLive("sahara_booking_confirmed", "9820000016"); // no consent record at all
+  assert.equal(r.sent, false);
+  assert.match(r.error ?? "", /not connected/i, "transactional booking messages never need marketing consent");
+});
+
+test("the approved QA number is exempt from the marketing-consent guard", async () => {
+  const r = await sendLive("sahara_customer_reactivation", "9921215250");
+  assert.match(r.error ?? "", /not connected/i);
+});
