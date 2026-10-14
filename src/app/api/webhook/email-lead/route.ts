@@ -64,6 +64,8 @@ export async function POST(req: NextRequest) {
   });
   if (recent) {
     await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: `New enquiry via ${sourceLabel}: ${serviceText || "—"} ${message}`.trim() }).catch(() => {});
+    // A repeat enquiry must not be silent: the team gets an in-app/push alert pointing at the existing lead.
+    await notify({ kind: "NEW_INQUIRY", title: `🔁 Repeat enquiry — ${recent.name}`, body: `Repeat enquiry on ${recent.leadNumber} · ${serviceText || "new message"}`, href: `/leads/${recent.id}` }).catch(() => {});
     return NextResponse.json({ ok: true, matchedExisting: recent.leadNumber });
   }
 
