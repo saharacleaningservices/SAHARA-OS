@@ -92,7 +92,7 @@ The backup holds 221 `Lead` rows; 17 have `deletedAt` set (soft-deleted). The Le
 2. **No failure alert** on the backup workflow beyond GitHub's default email; **no in-app "backup is stale" alert**. Proposal in §10.
 3. Coolify configuration and env values are not backed up anywhere off the VPS.
 4. Full new-VPS rebuild not rehearsed; RTO is an estimate.
-5. Weekly encrypted copy is NOT running (no `BACKUP_ENCRYPTION_KEY`). If the owner enables it, the key must also be stored offline, or encrypted backups become unreadable.
+5. No encrypted copy exists today (no `BACKUP_ENCRYPTION_KEY`). The workflow branch adds a nightly encrypted copy once the owner creates the key (§9a); the key must also be stored offline, or encrypted backups become unreadable.
 6. The running workflow (`main`) already fails if Drive credentials are missing (the upload script errors) - it does not skip silently. It does NOT verify the uploaded size, does not tell the CRM, and relies on GitHub's default failure e-mail. A latent retention bug exists in the script (an encrypted upload with KEEP_DAILY=12 would prune plaintext dailies); it never triggers today and is fixed in the prepared change.
 7. Backups in Drive hold plaintext customer data; Drive account security is the only protection.
 8. Coolify admin ports 8000/6001/6002 are open on the VPS (Hostinger firewall has 0 rules) — owner decision pending.
@@ -130,13 +130,13 @@ Rotate yearly; keep old keys while old encrypted backups exist. Plaintext daily 
 
 ## 10. Backup-failure alerting - PREPARED, tested in isolation, NOT deployed
 
-Two local branches (unpushed): `feat/backup-alerts` (CRM side, based on the production line, commit after `dfa1073`) and `feat/backup-alerts-workflow` (workflow side, based on `main`, commit `957e7f1`, only `.github/` files). Full plan, evidence and rollback: `docs/BACKUP_ALERTS_ROLLOUT_PLAN.md`.
+Two local branches (unpushed): `feat/backup-alerts` (CRM side, based on the production line, commit after `dfa1073`) and `feat/backup-alerts-workflow` (workflow side, based on `main`, commits `957e7f1` + `7c91911`, only `.github/` files + `.gitignore`). Full plan, evidence and rollback: `docs/BACKUP_ALERTS_ROLLOUT_PLAN.md`.
 
 1. **Drive config check** (`gdrive_backup.py --check-config`): missing/invalid credentials fail with a clear message, no values printed.
 2. **Upload size verified** against the local archive after upload.
 3. **GitHub Issue alert**: a failed run opens ONE issue labelled `backup-failure` (repeat failures comment); a good run closes it. Built-in `GITHUB_TOKEN` only. Owner enabled GitHub issue notifications on 2026-10-14.
 4. **CRM stale-backup alert**: the workflow POSTs `/api/backup/confirm` after a size-verified upload (`BackupEvent` status `DELIVERED`). Newest DELIVERED older than 26 h -> one critical in-app + push notification to the Super Admin (kind `BACKUP_STALE`), max once per 24 h, 08:00-22:00 IST only. Until the first confirmation ever, the newest automatic snapshot is used.
-5. Weekly encrypted backup is NOT part of this change (separate owner decision, §9).
+5. Encryption + encrypted GitHub-artifact copy and day-based retention are in the same workflow branch (commit `7c91911`); the encrypted copy only activates once the owner creates `BACKUP_ENCRYPTION_KEY` (§9a).
 
 Tests (all passing, isolated scratch DB / stubs, no network): `npm run test:backup` = 10 TypeScript tests (normal, 25.9 h/26.1 h boundary, overdue, de-duplication, night window, upload-failure-with-fresh-snapshot, rollout window, recovery, confirm endpoint auth/validation); `python -I .github/scripts/test_backup_guards.py` = 16 Python tests (missing Drive credentials, invalid credentials, no secret in errors, size mismatch, retention scoping, issue open/comment/close with a stubbed `gh`). Regression: `test:ops` 7, `test:inquiry` 15, `test:eod` 16, `tsc --noEmit` clean. The real GitHub Actions run is NOT TESTED until the rollout.
 
