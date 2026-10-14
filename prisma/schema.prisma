@@ -1681,6 +1681,9 @@ model OpsReminder {
   // JOB_CLOSURE / PAYMENT_COLLECTION: the job id. QUOTATION_FOLLOWUP / FOLLOWUP_DUE: a synthetic
   // subject key ("Q:<quotationId>" / "F:<followUpId>") so @@unique([kind, jobId]) still holds.
   jobId          String
+  // true = recorded as part of the one-time baseline when this reminder kind first went live
+  // (historical backlog): it still repeats to Accounts but is never escalated to the Super Admin.
+  isBacklog      Boolean   @default(false)
   quotationId    String?
   quotation      Quotation? @relation(fields: [quotationId], references: [id], onDelete: SetNull)
   followUpId     String?

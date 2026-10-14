@@ -38,6 +38,7 @@ export type OpsReminderMinAggregateOutputType = {
   id: string | null
   kind: string | null
   jobId: string | null
+  isBacklog: boolean | null
   quotationId: string | null
   followUpId: string | null
   status: string | null
@@ -62,6 +63,7 @@ export type OpsReminderMaxAggregateOutputType = {
   id: string | null
   kind: string | null
   jobId: string | null
+  isBacklog: boolean | null
   quotationId: string | null
   followUpId: string | null
   status: string | null
@@ -86,6 +88,7 @@ export type OpsReminderCountAggregateOutputType = {
   id: number
   kind: number
   jobId: number
+  isBacklog: number
   quotationId: number
   followUpId: number
   status: number
@@ -120,6 +123,7 @@ export type OpsReminderMinAggregateInputType = {
   id?: true
   kind?: true
   jobId?: true
+  isBacklog?: true
   quotationId?: true
   followUpId?: true
   status?: true
@@ -144,6 +148,7 @@ export type OpsReminderMaxAggregateInputType = {
   id?: true
   kind?: true
   jobId?: true
+  isBacklog?: true
   quotationId?: true
   followUpId?: true
   status?: true
@@ -168,6 +173,7 @@ export type OpsReminderCountAggregateInputType = {
   id?: true
   kind?: true
   jobId?: true
+  isBacklog?: true
   quotationId?: true
   followUpId?: true
   status?: true
@@ -279,6 +285,7 @@ export type OpsReminderGroupByOutputType = {
   id: string
   kind: string
   jobId: string
+  isBacklog: boolean
   quotationId: string | null
   followUpId: string | null
   status: string
@@ -326,6 +333,7 @@ export type OpsReminderWhereInput = {
   id?: Prisma.StringFilter<"OpsReminder"> | string
   kind?: Prisma.StringFilter<"OpsReminder"> | string
   jobId?: Prisma.StringFilter<"OpsReminder"> | string
+  isBacklog?: Prisma.BoolFilter<"OpsReminder"> | boolean
   quotationId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   followUpId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   status?: Prisma.StringFilter<"OpsReminder"> | string
@@ -353,6 +361,7 @@ export type OpsReminderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  isBacklog?: Prisma.SortOrder
   quotationId?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -384,6 +393,7 @@ export type OpsReminderWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.OpsReminderWhereInput | Prisma.OpsReminderWhereInput[]
   kind?: Prisma.StringFilter<"OpsReminder"> | string
   jobId?: Prisma.StringFilter<"OpsReminder"> | string
+  isBacklog?: Prisma.BoolFilter<"OpsReminder"> | boolean
   quotationId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   followUpId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   status?: Prisma.StringFilter<"OpsReminder"> | string
@@ -411,6 +421,7 @@ export type OpsReminderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  isBacklog?: Prisma.SortOrder
   quotationId?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -443,6 +454,7 @@ export type OpsReminderScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
   kind?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
   jobId?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
+  isBacklog?: Prisma.BoolWithAggregatesFilter<"OpsReminder"> | boolean
   quotationId?: Prisma.StringNullableWithAggregatesFilter<"OpsReminder"> | string | null
   followUpId?: Prisma.StringNullableWithAggregatesFilter<"OpsReminder"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"OpsReminder"> | string
@@ -467,6 +479,7 @@ export type OpsReminderCreateInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   status?: string
   dueAt: Date | string
   nextAlertAt: Date | string
@@ -492,6 +505,7 @@ export type OpsReminderUncheckedCreateInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   quotationId?: string | null
   followUpId?: string | null
   status?: string
@@ -517,6 +531,7 @@ export type OpsReminderUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -542,6 +557,7 @@ export type OpsReminderUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -567,6 +583,7 @@ export type OpsReminderCreateManyInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   quotationId?: string | null
   followUpId?: string | null
   status?: string
@@ -591,6 +608,7 @@ export type OpsReminderUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -613,6 +631,7 @@ export type OpsReminderUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -652,6 +671,7 @@ export type OpsReminderCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  isBacklog?: Prisma.SortOrder
   quotationId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -680,6 +700,7 @@ export type OpsReminderMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  isBacklog?: Prisma.SortOrder
   quotationId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -704,6 +725,7 @@ export type OpsReminderMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   jobId?: Prisma.SortOrder
+  isBacklog?: Prisma.SortOrder
   quotationId?: Prisma.SortOrder
   followUpId?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -837,6 +859,7 @@ export type OpsReminderCreateWithoutQuotationInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   status?: string
   dueAt: Date | string
   nextAlertAt: Date | string
@@ -861,6 +884,7 @@ export type OpsReminderUncheckedCreateWithoutQuotationInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   followUpId?: string | null
   status?: string
   dueAt: Date | string
@@ -913,6 +937,7 @@ export type OpsReminderScalarWhereInput = {
   id?: Prisma.StringFilter<"OpsReminder"> | string
   kind?: Prisma.StringFilter<"OpsReminder"> | string
   jobId?: Prisma.StringFilter<"OpsReminder"> | string
+  isBacklog?: Prisma.BoolFilter<"OpsReminder"> | boolean
   quotationId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   followUpId?: Prisma.StringNullableFilter<"OpsReminder"> | string | null
   status?: Prisma.StringFilter<"OpsReminder"> | string
@@ -937,6 +962,7 @@ export type OpsReminderCreateWithoutFollowUpInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   status?: string
   dueAt: Date | string
   nextAlertAt: Date | string
@@ -961,6 +987,7 @@ export type OpsReminderUncheckedCreateWithoutFollowUpInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   quotationId?: string | null
   status?: string
   dueAt: Date | string
@@ -1010,6 +1037,7 @@ export type OpsReminderCreateWithoutEventsInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   status?: string
   dueAt: Date | string
   nextAlertAt: Date | string
@@ -1034,6 +1062,7 @@ export type OpsReminderUncheckedCreateWithoutEventsInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   quotationId?: string | null
   followUpId?: string | null
   status?: string
@@ -1074,6 +1103,7 @@ export type OpsReminderUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1098,6 +1128,7 @@ export type OpsReminderUncheckedUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1122,6 +1153,7 @@ export type OpsReminderCreateManyQuotationInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   followUpId?: string | null
   status?: string
   dueAt: Date | string
@@ -1145,6 +1177,7 @@ export type OpsReminderUpdateWithoutQuotationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1169,6 +1202,7 @@ export type OpsReminderUncheckedUpdateWithoutQuotationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1193,6 +1227,7 @@ export type OpsReminderUncheckedUpdateManyWithoutQuotationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   followUpId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1216,6 +1251,7 @@ export type OpsReminderCreateManyFollowUpInput = {
   id?: string
   kind: string
   jobId: string
+  isBacklog?: boolean
   quotationId?: string | null
   status?: string
   dueAt: Date | string
@@ -1239,6 +1275,7 @@ export type OpsReminderUpdateWithoutFollowUpInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextAlertAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1263,6 +1300,7 @@ export type OpsReminderUncheckedUpdateWithoutFollowUpInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1287,6 +1325,7 @@ export type OpsReminderUncheckedUpdateManyWithoutFollowUpInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   jobId?: Prisma.StringFieldUpdateOperationsInput | string
+  isBacklog?: Prisma.BoolFieldUpdateOperationsInput | boolean
   quotationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   dueAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1341,6 +1380,7 @@ export type OpsReminderSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  isBacklog?: boolean
   quotationId?: boolean
   followUpId?: boolean
   status?: boolean
@@ -1369,6 +1409,7 @@ export type OpsReminderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  isBacklog?: boolean
   quotationId?: boolean
   followUpId?: boolean
   status?: boolean
@@ -1395,6 +1436,7 @@ export type OpsReminderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  isBacklog?: boolean
   quotationId?: boolean
   followUpId?: boolean
   status?: boolean
@@ -1421,6 +1463,7 @@ export type OpsReminderSelectScalar = {
   id?: boolean
   kind?: boolean
   jobId?: boolean
+  isBacklog?: boolean
   quotationId?: boolean
   followUpId?: boolean
   status?: boolean
@@ -1441,7 +1484,7 @@ export type OpsReminderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OpsReminderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "jobId" | "quotationId" | "followUpId" | "status" | "dueAt" | "nextAlertAt" | "lastAlertAt" | "alertCount" | "escalatedAt" | "snoozedUntil" | "acknowledgedAt" | "acknowledgedBy" | "delayReason" | "followUpNote" | "followUpUntil" | "resolvedAt" | "resolvedReason" | "createdAt" | "updatedAt", ExtArgs["result"]["opsReminder"]>
+export type OpsReminderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "jobId" | "isBacklog" | "quotationId" | "followUpId" | "status" | "dueAt" | "nextAlertAt" | "lastAlertAt" | "alertCount" | "escalatedAt" | "snoozedUntil" | "acknowledgedAt" | "acknowledgedBy" | "delayReason" | "followUpNote" | "followUpUntil" | "resolvedAt" | "resolvedReason" | "createdAt" | "updatedAt", ExtArgs["result"]["opsReminder"]>
 export type OpsReminderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   quotation?: boolean | Prisma.OpsReminder$quotationArgs<ExtArgs>
   followUp?: boolean | Prisma.OpsReminder$followUpArgs<ExtArgs>
@@ -1468,6 +1511,7 @@ export type $OpsReminderPayload<ExtArgs extends runtime.Types.Extensions.Interna
     id: string
     kind: string
     jobId: string
+    isBacklog: boolean
     quotationId: string | null
     followUpId: string | null
     status: string
@@ -1915,6 +1959,7 @@ export interface OpsReminderFieldRefs {
   readonly id: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly kind: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly jobId: Prisma.FieldRef<"OpsReminder", 'String'>
+  readonly isBacklog: Prisma.FieldRef<"OpsReminder", 'Boolean'>
   readonly quotationId: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly followUpId: Prisma.FieldRef<"OpsReminder", 'String'>
   readonly status: Prisma.FieldRef<"OpsReminder", 'String'>

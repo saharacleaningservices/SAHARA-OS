@@ -1723,6 +1723,7 @@ db.close();
   addCol("User", "soundEnabled", "BOOLEAN NOT NULL DEFAULT true");
   addCol("User", "notificationsEnabled", "BOOLEAN NOT NULL DEFAULT true");
   addCol("OpsReminder", "quotationId", `TEXT REFERENCES "Quotation" ("id") ON DELETE SET NULL ON UPDATE CASCADE`);
+  addCol("OpsReminder", "isBacklog", "BOOLEAN NOT NULL DEFAULT false");
   addCol("OpsReminder", "followUpId", `TEXT REFERENCES "FollowUp" ("id") ON DELETE SET NULL ON UPDATE CASCADE`);
   oDb.exec(`
     CREATE INDEX IF NOT EXISTS "OpsReminder_quotationId_idx" ON "OpsReminder"("quotationId");

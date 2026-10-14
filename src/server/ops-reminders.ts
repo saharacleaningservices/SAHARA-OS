@@ -71,6 +71,15 @@ const DAY_MS = 24 * 60 * MIN;
 const quoteKey = (id: string) => `Q:${id}`;
 const followKey = (id: string) => `F:${id}`;
 
+/**
+ * One-time baseline per reminder kind. The first sweep after a kind goes live records everything that is
+ * ALREADY overdue as "backlog": silent (first repeat one interval later) and never escalated. A persisted
+ * event marks the baseline as done — even when there was nothing to record — so any item that becomes
+ * overdue afterwards is treated as a normal, escalatable reminder.
+ */
+const baselineType = (kind: string) => `BASELINE_${kind}`;
+const needsBaseline = async (kind: string) => (await db.opsReminderEvent.count({ where: { type: baselineType(kind) } })) === 0;
+
 function intervalFor(kind: string, s: OpsSettings) {
   return kind === "JOB_CLOSURE" ? s.jobIntervalMin : kind === "PAYMENT_COLLECTION" ? s.paymentIntervalMin : s.followUpIntervalMin;
 }
@@ -86,7 +95,7 @@ async function resolveOpen(id: string, reason: string, now: Date) {
  * acknowledge / snooze never touch the quotation.
  */
 async function syncQuotations(now: Date, s: OpsSettings) {
-  const kindFirstRun = (await db.opsReminder.count({ where: { kind: QUOTATION_KIND } })) === 0;
+  const kindFirstRun = await needsBaseline(QUOTATION_KIND);
   const dueBefore = new Date(now.getTime() - s.quotationFollowUpDays * DAY_MS);
   const since = new Date(now.getTime() - QUOTE_LOOKBACK_DAYS * DAY_MS);
   const quotes = await db.quotation.findMany({
@@ -100,8 +109,9 @@ async function syncQuotations(now: Date, s: OpsSettings) {
     const dueAt = new Date(q.createdAt.getTime() + s.quotationFollowUpDays * DAY_MS);
     // First deployment of this kind: record the backlog silently, first repeat one interval later.
     const next = kindFirstRun ? new Date(now.getTime() + s.followUpIntervalMin * MIN) : dueAt;
-    await db.opsReminder.create({ data: { kind: QUOTATION_KIND, jobId: quoteKey(q.id), quotationId: q.id, dueAt, nextAlertAt: next } }).catch(() => {});
+    await db.opsReminder.create({ data: { kind: QUOTATION_KIND, jobId: quoteKey(q.id), quotationId: q.id, dueAt, nextAlertAt: next, isBacklog: kindFirstRun, createdAt: now } }).catch(() => {});
   }
+  if (kindFirstRun) await event(null, baselineType(QUOTATION_KIND), `Baseline: ${quotes.length} existing quotation(s) recorded silently (no escalation)`);
   const open = await db.opsReminder.findMany({ where: { kind: QUOTATION_KIND, status: "OPEN" }, select: { id: true, quotationId: true } });
   const live = new Set(quotes.map((q) => q.id));
   const stale = open.filter((r) => !r.quotationId || !live.has(r.quotationId));
@@ -123,7 +133,7 @@ async function syncQuotations(now: Date, s: OpsSettings) {
 
 /** Customer follow-ups: due/overdue and not done. Closed only when marked done (or the lead closes / is deleted). */
 async function syncFollowUps(now: Date, s: OpsSettings) {
-  const kindFirstRun = (await db.opsReminder.count({ where: { kind: FOLLOWUP_KIND } })) === 0;
+  const kindFirstRun = await needsBaseline(FOLLOWUP_KIND);
   const since = new Date(now.getTime() - FOLLOWUP_LOOKBACK_DAYS * DAY_MS);
   const fups = await db.followUp.findMany({
     where: { isDone: false, dueDate: { lte: now, gte: since }, lead: { deletedAt: null, stage: { notIn: ["CANCELLED", "COMPLETED"] } } },
@@ -135,8 +145,9 @@ async function syncFollowUps(now: Date, s: OpsSettings) {
     if (have.some((r) => r.jobId === followKey(f.id))) continue;
     // The existing one-shot FOLLOWUP_DUE ping fires first; this repeat starts one interval after the due time.
     const base = kindFirstRun ? now.getTime() : f.dueDate.getTime();
-    await db.opsReminder.create({ data: { kind: FOLLOWUP_KIND, jobId: followKey(f.id), followUpId: f.id, dueAt: f.dueDate, nextAlertAt: new Date(base + s.followUpIntervalMin * MIN) } }).catch(() => {});
+    await db.opsReminder.create({ data: { kind: FOLLOWUP_KIND, jobId: followKey(f.id), followUpId: f.id, dueAt: f.dueDate, nextAlertAt: new Date(base + s.followUpIntervalMin * MIN), isBacklog: kindFirstRun, createdAt: now } }).catch(() => {});
   }
+  if (kindFirstRun) await event(null, baselineType(FOLLOWUP_KIND), `Baseline: ${fups.length} existing follow-up(s) recorded silently (no escalation)`);
   const open = await db.opsReminder.findMany({ where: { kind: FOLLOWUP_KIND, status: "OPEN" }, select: { id: true, followUpId: true } });
   const live = new Set(fups.map((f) => f.id));
   const stale = open.filter((r) => !r.followUpId || !live.has(r.followUpId));
@@ -386,7 +397,7 @@ async function sendDueAlerts(now: Date, s: OpsSettings, extraUserIds?: string[])
 async function sendEscalations(now: Date, s: OpsSettings) {
   const cutoff = new Date(now.getTime() - s.escalateAfterMin * MIN);
   const candidates = await db.opsReminder.findMany({
-    where: { status: "OPEN", escalatedAt: null, dueAt: { lte: cutoff }, createdAt: { lte: cutoff }, OR: [{ followUpUntil: null }, { followUpUntil: { lte: now } }] },
+    where: { status: "OPEN", escalatedAt: null, isBacklog: false, dueAt: { lte: cutoff }, createdAt: { lte: cutoff }, OR: [{ followUpUntil: null }, { followUpUntil: { lte: now } }] },
     take: 200,
   });
   const claimed: typeof candidates = [];
@@ -432,6 +443,8 @@ export async function openReminderTotals() {
 }
 
 const EOD_LIST_MAX = 10;
+/** A missed EOD is still sent within this many minutes after eodSummaryTime (sweep restart, brief outage); later it is skipped for the day. */
+export const EOD_GRACE_MIN = 120;
 
 /**
  * End-of-day picture, read LIVE from the CRM tables (not from reminder rows), so a snoozed or
@@ -485,7 +498,8 @@ export function parseEodTime(v: string | null | undefined): number | null {
 /** Once per India day at eodSummaryTime → Admin + Accounts (claimed atomically; first sweep after the time wins). */
 async function maybeEodSummary(now: Date, s: OpsSettings) {
   const at = parseEodTime(s.eodSummaryTime);
-  if (at === null || istMinuteOfDay(now) < at) return false;
+  const t = istMinuteOfDay(now);
+  if (at === null || t < at) return false;
   const day = istDayKey(now);
   if (s.lastEodSummaryDay === day) return false;
   const claim = await db.opsReminderSettings.updateMany({
@@ -493,6 +507,17 @@ async function maybeEodSummary(now: Date, s: OpsSettings) {
     data: { lastEodSummaryDay: day },
   });
   if (claim.count !== 1) return false;
+  // Never send a surprise EOD just because the feature (or a restart) happened after the cut-off:
+  //  - very first run ever → today is the baseline, the first real EOD goes out tomorrow;
+  //  - later than the grace window → today's EOD is skipped (logged), tomorrow's is unaffected.
+  if (s.lastEodSummaryDay === null) {
+    await event(null, "EOD_SKIPPED", `EOD ${day}: first run after the ${s.eodSummaryTime} cut-off — baseline only, first summary tomorrow`);
+    return false;
+  }
+  if (t > at + EOD_GRACE_MIN) {
+    await event(null, "EOD_SKIPPED", `EOD ${day}: ${s.eodSummaryTime} cut-off passed more than ${EOD_GRACE_MIN} min ago — skipped for today`);
+    return false;
+  }
   const e = await getEodSummary(now, s);
   const total = eodTotal(e);
   await notify({
