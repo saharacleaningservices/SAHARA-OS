@@ -42,7 +42,8 @@ export type NotifKind =
   | "OPS_DAILY_SUMMARY"
   | "OPS_QUOTATION_FOLLOWUP"
   | "OPS_FOLLOWUP_DUE"
-  | "OPS_EOD_SUMMARY";
+  | "OPS_EOD_SUMMARY"
+  | "OWNER_INQUIRY";
 
 type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
@@ -70,6 +71,9 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   OPS_QUOTATION_FOLLOWUP: ["ACCOUNTS"],
   OPS_FOLLOWUP_DUE: ["ACCOUNTS"],
   OPS_EOD_SUMMARY: ["ADMIN", "ACCOUNTS"],
+  // Owner Quick Add Inquiry (src/server/owner-inquiry.ts): delivered ONLY to the team members the owner picked
+  // (extraUserIds) — no role routing, no WhatsApp copy.
+  OWNER_INQUIRY: [],
 };
 
 const CRITICAL_KINDS = new Set<NotifKind>(["DEVICE_LOGIN", "PASSWORD_OTP", "APPROVAL_REQUEST", "LOGIN_ATTEMPT", "LOGIN_ID_RECOVERY"]);

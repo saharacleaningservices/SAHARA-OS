@@ -43,6 +43,7 @@ import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-center";
 import { OperationsCommandCenter } from "@/components/dashboard/owner/operations-command-center";
 import { PendingActionsPanel } from "@/components/dashboard/pending-actions-panel";
+import { OwnerQuickInquiry } from "@/components/dashboard/owner-quick-inquiry";
 
 export default async function DashboardPage() {
   const session = await requireUser();
@@ -65,6 +66,8 @@ export default async function DashboardPage() {
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
     return (
       <div className="space-y-4">
+        {/* Owner-only: paste a number, alert Shoyab / Francis (src/server/owner-inquiry.ts) */}
+        {session.role === "ADMIN" && <OwnerQuickInquiry />}
         {/* Job-closure + payment-collection reminders (src/server/ops-reminders.ts) */}
         <PendingActionsPanel />
         <OwnerCommandCenter
