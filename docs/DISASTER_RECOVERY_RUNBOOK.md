@@ -22,7 +22,7 @@ Last verified: 2026-10-14 (real-backup restore drill, CRM page test, alert desig
 - **Schedule:** GitHub Actions workflow "Sahara OS Enterprise Backup" (`.github/workflows/backup.yml` on `main`), cron `30 20 * * *` UTC = **02:00 IST daily**, plus manual `workflow_dispatch`.
 - **Content:** tar.gz with `dev.db` (SQLite `VACUUM INTO` consistent snapshot) and `uploads/`.
 - **Integrity gate before upload:** `.github/scripts/verify_backup.py` runs SQLite `integrity_check` and requires ≥1 User. A failing check fails the run (nothing uploaded).
-- **Destination:** Google Drive folder "Sahara OS Backups" (owner's Workspace account, OAuth). Retention: 30 daily + 12 monthly. Sundays are meant to also upload an AES-256 encrypted copy (`.enc`). **VERIFIED 2026-10-14: this has never happened** - the GitHub repository secrets are only `BACKUP_TOKEN`, `BACKUP_URL`, `GDRIVE_CREDENTIALS`, `GDRIVE_FOLDER_ID` (names read from Settings > Secrets; `BACKUP_ENCRYPTION_KEY` is NOT set) and the Drive folder holds no `.enc` file, including after the Sunday 2026-10-11 run. All stored backups are plaintext `.tar.gz`.
+- **Destination:** Google Drive folder "Sahara OS Backups" (owner's Workspace account, OAuth). Retention: 30 daily + 12 monthly. The workflow file that actually runs (on `main`, last changed 2026-09-15) has **no weekly encrypted step at all**; the `.enc` logic exists only in an older copy on the `coolify-deploy` line, which never runs. `BACKUP_ENCRYPTION_KEY` is NOT set (GitHub repository secrets are only `BACKUP_TOKEN`, `BACKUP_URL`, `GDRIVE_CREDENTIALS`, `GDRIVE_FOLDER_ID` - names read from Settings > Secrets) and the Drive folder holds no `.enc` file. **All stored backups are plaintext `.tar.gz`.**
 - **Each backup also records** a `BackupEvent` row in the DB (status, size, integrity note).
 - **Access:** Drive folder is private to the owner account; `/api/backup` needs Bearer `BACKUP_TOKEN` or an Admin session.
 - **Known limit:** the daily archive is plaintext (customer data) in Drive; protect the Drive account with MFA/passkey.
@@ -92,7 +92,7 @@ The backup holds 221 `Lead` rows; 17 have `deletedAt` set (soft-deleted). The Le
 3. Coolify configuration and env values are not backed up anywhere off the VPS.
 4. Full new-VPS rebuild not rehearsed; RTO is an estimate.
 5. Weekly encrypted copy is NOT running (no `BACKUP_ENCRYPTION_KEY`). If the owner enables it, the key must also be stored offline, or encrypted backups become unreadable.
-6. Before the §10 fix, removing `GDRIVE_CREDENTIALS` made every upload step skip and the run stay green. A latent bug also existed: the Sunday encrypted upload used KEEP_DAILY=12 over ALL `sahara-os-*` files and would have pruned plaintext dailies to 12 (never triggered because the step never ran). Both fixed in the prepared change.
+6. The running workflow (`main`) already fails if Drive credentials are missing (the upload script errors) - it does not skip silently. It does NOT verify the uploaded size, does not tell the CRM, and relies on GitHub's default failure e-mail. A latent retention bug exists in the script (an encrypted upload with KEEP_DAILY=12 would prune plaintext dailies); it never triggers today and is fixed in the prepared change.
 7. Backups in Drive hold plaintext customer data; Drive account security is the only protection.
 8. Coolify admin ports 8000/6001/6002 are open on the VPS (Hostinger firewall has 0 rules) — owner decision pending.
 
@@ -124,18 +124,15 @@ node scripts/restore-drill.mjs restored.tar.gz
 
 ## 10. Backup-failure alerting - PREPARED, tested in isolation, NOT deployed
 
-Files (working tree only): `.github/workflows/backup.yml`, `.github/scripts/gdrive_backup.py`, `.github/scripts/backup_alert.sh`, `.github/scripts/test_backup_guards.py`, `src/server/backup-health.ts`, `src/app/api/backup/confirm/route.ts`, `src/server/notify.ts`, `src/instrumentation.ts`, `tests/backup-health.test.ts`, `package.json` (`npm run test:backup`).
+Two local branches (unpushed): `feat/backup-alerts` (CRM side, based on the production line, commit after `dfa1073`) and `feat/backup-alerts-workflow` (workflow side, based on `main`, commit `957e7f1`, only `.github/` files). Full plan, evidence and rollback: `docs/BACKUP_ALERTS_ROLLOUT_PLAN.md`.
 
-1. **Drive delivery can no longer be skipped silently.** A new step `gdrive_backup.py --check-config` fails the run if `GDRIVE_CREDENTIALS`/`GDRIVE_FOLDER_ID` are missing, empty or malformed (no values printed). Upload steps no longer have a skip condition.
-2. **Upload is verified.** After upload the size Drive reports must equal the local archive size, else the run fails.
-3. **GitHub Issue alert.** Any failed step opens ONE issue labelled `backup-failure` (repeat failures comment on it); the next good run closes it. Uses the built-in `GITHUB_TOKEN` (`permissions: issues: write`) - no new credentials. GitHub e-mails repo watchers on new issues: **owner must confirm Watch settings on the repo** (not verifiable from here).
-4. **CRM stale-backup alert.** The workflow POSTs `/api/backup/confirm` (Bearer `BACKUP_TOKEN`) after a size-verified Drive upload -> `BackupEvent` status `DELIVERED`. If the newest DELIVERED event is older than 26 h, the Super Admin gets one critical in-app + push notification (kind `BACKUP_STALE`), at most once per 24 h, only 08:00-22:00 IST. Before the first confirmation ever, the newest automatic snapshot is used (rollout window).
-5. **Weekly encrypted backup** now prints a warning when the key is missing and, when the key exists, proves the encrypted file decrypts to the identical archive before uploading; retention is scoped per file kind.
+1. **Drive config check** (`gdrive_backup.py --check-config`): missing/invalid credentials fail with a clear message, no values printed.
+2. **Upload size verified** against the local archive after upload.
+3. **GitHub Issue alert**: a failed run opens ONE issue labelled `backup-failure` (repeat failures comment); a good run closes it. Built-in `GITHUB_TOKEN` only. Owner enabled GitHub issue notifications on 2026-10-14.
+4. **CRM stale-backup alert**: the workflow POSTs `/api/backup/confirm` after a size-verified upload (`BackupEvent` status `DELIVERED`). Newest DELIVERED older than 26 h -> one critical in-app + push notification to the Super Admin (kind `BACKUP_STALE`), max once per 24 h, 08:00-22:00 IST only. Until the first confirmation ever, the newest automatic snapshot is used.
+5. Weekly encrypted backup is NOT part of this change (separate owner decision, §9).
 
-**Rollout order (needs owner approval):** (a) deploy the CRM change to `coolify-deploy`; (b) put the workflow on `main`; (c) run the workflow manually once and confirm: green run, new file in Drive, a DELIVERED row, no issue; (d) optionally test the failure path with a manual run from a branch with a deliberately wrong folder secret is NOT recommended on production secrets - the failure path is covered by the unit tests below.
-**Rollback:** revert the workflow file on `main` (nothing in production data changes; `DELIVERED` rows are inert) and redeploy the previous CRM commit.
-
-Tests run (all passing, isolated scratch DB / stubs, no network): `npm run test:backup` = 10 TypeScript tests (normal, 25.9 h vs 26.1 h boundary, overdue, de-duplication, night window, upload-failure-but-fresh-snapshot, rollout window, recovery, confirm endpoint auth/validation) + 16 Python tests (missing Drive credentials, invalid/incomplete credentials, no secret in errors, upload size mismatch, retention scoping, issue open/comment/close with a stubbed `gh`). Regression: `test:ops` 7, `test:inquiry` 15, `test:eod` 16, `tsc --noEmit` clean. The real GitHub Actions run itself cannot be executed before merge (NOT TESTED end-to-end).
+Tests (all passing, isolated scratch DB / stubs, no network): `npm run test:backup` = 10 TypeScript tests (normal, 25.9 h/26.1 h boundary, overdue, de-duplication, night window, upload-failure-with-fresh-snapshot, rollout window, recovery, confirm endpoint auth/validation); `python -I .github/scripts/test_backup_guards.py` = 16 Python tests (missing Drive credentials, invalid credentials, no secret in errors, size mismatch, retention scoping, issue open/comment/close with a stubbed `gh`). Regression: `test:ops` 7, `test:inquiry` 15, `test:eod` 16, `tsc --noEmit` clean. The real GitHub Actions run is NOT TESTED until the rollout.
 
 ## 11. Drill checklist (repeat monthly)
 Download latest archive → `npm run restore:drill -- <file>` → (optional) boot with `DATABASE_URL` pointing at a *copy* under a temp folder on another port → check login and Leads/Jobs/Payments/Quotations/Invoices → delete archive + temp folder → confirm nothing is listening and no temp folder remains.
