@@ -92,3 +92,25 @@ test("service detection and missing-name fallback", async () => {
   assert.equal(l.service, "PEST_CONTROL");
   assert.match(l.name, /Enquiry 9820033333/);
 });
+
+test("a COMPLETED lead older than 24 h does not swallow a new enquiry: a fresh NEW lead is created", async () => {
+  await db.lead.create({ data: { leadNumber: "LD-T-OLD", name: "Old Customer", mobile: "9820044444", whatsapp: "9820044444", area: "x", service: "HOME_DEEP_CLEANING" as never, source: "WEBSITE" as never, stage: "COMPLETED" as never, createdAt: new Date(Date.now() - 3 * 86400000) } });
+  const r = await post({ name: "Old Customer", mobile: "9820044444", service: "Deep cleaning again", source: "Cognito Form" });
+  assert.equal(r.status, 200);
+  assert.ok(((await r.json()) as { created?: string }).created, "a new lead is created for a returning customer");
+  assert.equal(await db.lead.count({ where: { mobile: "9820044444", deletedAt: null } }), 2);
+});
+
+test("a trashed (soft-deleted) lead is ignored by the duplicate check", async () => {
+  await db.lead.create({ data: { leadNumber: "LD-T-DEL", name: "Gone", mobile: "9820055555", whatsapp: "9820055555", area: "x", service: "HOME_DEEP_CLEANING" as never, source: "WEBSITE" as never, stage: "NEW" as never, deletedAt: new Date() } });
+  const r = await post({ name: "Gone", mobile: "9820055555", service: "Home cleaning" });
+  assert.ok(((await r.json()) as { created?: string }).created);
+});
+
+test("field limits and aliases: 'phone' works as the number, long text is truncated, no raw HTML/markup breaks the insert", async () => {
+  const r = await post({ phone: "98200-66666", name: "N".repeat(500), message: "M".repeat(5000) + "<script>x</script>", service: "S".repeat(900) });
+  assert.equal(r.status, 200);
+  const l = (await db.lead.findFirst({ where: { mobile: "9820066666" } }))!;
+  assert.ok(l.name.length <= 120);
+  assert.ok((l.notes ?? "").length < 2000, "message capped at 1000 chars, service at 200");
+});
