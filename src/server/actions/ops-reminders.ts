@@ -103,8 +103,24 @@ export async function getPendingActions() {
     const d = fuInfo.find((x) => x.id === r.id);
     return d ? [{ ...shape(r), leadId: d.leadId, leadName: d.leadName, type: d.type, notes: d.notes }] : [];
   });
+  // New inquiries (stage NEW) — the first category on the dashboard. Oldest unattended first. Names only: the
+  // customer's number is never part of this payload (contact details stay on the lead page).
+  const [newCount, newRows] = await Promise.all([
+    db.lead.count({ where: { deletedAt: null, stage: "NEW" as never } }),
+    db.lead.findMany({
+      where: { deletedAt: null, stage: "NEW" as never },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+      select: { id: true, leadNumber: true, name: true, service: true, createdAt: true, source: true, assignedTo: { select: { name: true } } },
+    }),
+  ]);
+  const newInquiries = {
+    count: newCount,
+    items: newRows.map((l) => ({ id: l.id, leadNumber: l.leadNumber, name: l.name, service: String(l.service), source: String(l.source), createdAt: l.createdAt.toISOString(), assignedTo: l.assignedTo?.name ?? null })),
+  };
   return {
     role: session.role,
+    newInquiries,
     // Effective sound = global switch AND this user's own switch. Neither affects tracking.
     soundEnabled: settings.soundEnabled && (me?.soundEnabled ?? true),
     userSoundEnabled: me?.soundEnabled ?? true,
