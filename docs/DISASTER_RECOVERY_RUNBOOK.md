@@ -21,7 +21,7 @@ Last verified: 2026-10-14 (real-backup restore drill, CRM page test, alert desig
 
 - **Schedule:** GitHub Actions workflow "Sahara OS Enterprise Backup" (`.github/workflows/backup.yml` on `main`), cron `30 20 * * *` UTC = **02:00 IST daily**, plus manual `workflow_dispatch`.
 - **Content:** tar.gz with `dev.db` (SQLite `VACUUM INTO` consistent snapshot) and `uploads/`.
-- **Retention verified in practice (2026-10-14, Drive listing):** 32 files, oldest 2026-09-30; = 30 newest (daily tier) + 2 monthly keepers (September, October). Pruning works as designed. **Caveat:** the daily tier is *count*-based (30 newest files), not day-based - on 2026-10-08 about 17 manual runs happened in one day, so today the 30-file window only reaches back ~2 weeks (to 2026-10-02). Avoid many manual test runs; the monthly tier keeps one older snapshot per month.
+- **Retention (fixed, prepared on branch `feat/backup-alerts-workflow` `7c91911`, not yet live):** day-based - every archive of the last 48 h is kept, then the newest archive of each IST day for 30 days, then the newest of each month for 12 months; the newest archive is never deleted and one run deletes at most 40 files (else it deletes nothing and warns). Verified against the real Drive listing of 2026-10-14 (32 files): the new rule keeps 17 and would remove 15 same-day manual duplicates (mostly 2026-10-08), keeping history back to 2026-09-30. Unit-tested (21 Python tests). The live (old) rule is count-based (30 newest files), so many manual runs shorten real history until this is deployed.
 - **Integrity gate before upload:** `.github/scripts/verify_backup.py` runs SQLite `integrity_check` and requires ≥1 User. A failing check fails the run (nothing uploaded).
 - **Destination:** Google Drive folder "Sahara OS Backups" (owner's Workspace account, OAuth). Retention: 30 daily + 12 monthly. The workflow file that actually runs (on `main`, last changed 2026-09-15) has **no weekly encrypted step at all**; the `.enc` logic exists only in an older copy on the `coolify-deploy` line, which never runs. `BACKUP_ENCRYPTION_KEY` is NOT set (GitHub repository secrets are only `BACKUP_TOKEN`, `BACKUP_URL`, `GDRIVE_CREDENTIALS`, `GDRIVE_FOLDER_ID` - names read from Settings > Secrets) and the Drive folder holds no `.enc` file. **All stored backups are plaintext `.tar.gz`.**
 - **Each backup also records** a `BackupEvent` row in the DB (status, size, integrity note).
@@ -101,19 +101,24 @@ The backup holds 221 `Lead` rows; 17 have `deletedAt` set (soft-deleted). The Le
 
 **Finding:** `BACKUP_ENCRYPTION_KEY` was never created, so every stored backup is plaintext (customer names, phones, addresses, payments). The only protection is the Google account (use MFA/passkey).
 
-### 9a. Encryption plan (owner decision needed)
-1. The OWNER generates a long random passphrase in the password manager (e.g. 32+ random characters). Claude never sees or prints it.
-2. Store it in **three** places: (i) the password manager, (ii) a sealed paper copy kept physically separate from the office/VPS, (iii) GitHub secret `BACKUP_ENCRYPTION_KEY` (the owner pastes it in GitHub > Settings > Secrets). Losing all copies makes every encrypted backup permanently unreadable - there is no recovery.
-3. After the key exists the Sunday workflow produces `sahara-os-*.tar.gz.enc` (AES-256-CBC, PBKDF2, round-trip verified before upload). Daily plaintext archives stay in Drive until the owner chooses to switch the daily file to encrypted as well (recommended once step 4 passes).
-4. **Key-recovery drill (once, after the first .enc appears):** download it, then
+### 9a. Encryption procedure (prepared in the workflow; the KEY is owner-created)
+The workflow branch now contains an "Encrypted copy" step. Without `BACKUP_ENCRYPTION_KEY` it only prints a warning. Once the key exists it, every night: encrypts the archive (AES-256-CBC, PBKDF2, salted), **proves it decrypts to the identical archive**, uploads the `.enc` to the Drive folder (retention scoped to `.enc` files), and keeps the `.enc` as a 30-day GitHub Actions artifact (second off-site copy; only encrypted data ever goes to GitHub). Logic tested locally with a throwaway key: no-key -> `encrypted=false`, exit 0; with key -> encrypted, round-trip verified, upload invoked, `encrypted=true`; independent decrypt identical.
+**Owner steps (one at a time, nothing is shared in chat):**
+1. In your password manager generate a random passphrase of 32+ characters and save it there. Print/write a second copy on paper and keep it away from the office and the VPS. (Losing every copy = encrypted backups are unrecoverable.)
+2. GitHub -> repo SAHARA-OS -> Settings -> Secrets and variables -> Actions -> New repository secret -> name `BACKUP_ENCRYPTION_KEY`, paste the passphrase.
+3. After the next run, tell Claude; Claude verifies the `.enc` file exists in Drive and as an artifact, downloads it, decrypts it with a key YOU type locally, and runs the restore drill (key-recovery drill).
+Decrypt command (key from the environment, not typed in the command line):
 ```bash
-openssl enc -d -aes-256-cbc -pbkdf2 -in sahara-os-YYYYMMDD-HHMMSS.tar.gz.enc -out restored.tar.gz -pass pass:<paste key at the prompt, never in shell history>
+export BACKUP_ENCRYPTION_KEY='...'   # in your own shell only
+openssl enc -d -aes-256-cbc -pbkdf2 -in sahara-os-YYYYMMDD-HHMMSS.tar.gz.enc -out restored.tar.gz -pass env:BACKUP_ENCRYPTION_KEY
 node scripts/restore-drill.mjs restored.tar.gz
 ```
-   (use `-pass stdin` or an environment variable so the key is not left in shell history).
-5. Rotate the key yearly; keep old keys as long as old encrypted backups exist.
+Rotate yearly; keep old keys while old encrypted backups exist. Plaintext daily archives stay in Drive until you decide to drop them (recommended after the key-recovery drill passes).
 
-### 9b. Second independent destination - options
+### 9b. Second independent destination - decision
+**Implemented in the workflow (existing authorised service, ₹0):** encrypted GitHub Actions artifact, 30 days. It is a different operator from Google and Hostinger, but short retention; it becomes active only when the key exists. **Still recommended:** option B/C below for long retention (monthly offline download to the owner's PC/disk, or an encrypted object store) - owner decision, nothing purchased.
+
+### 9b-options. Options
 | Option | Cost | Security | Recovery |
 |---|---|---|---|
 | A. Second Google account, weekly encrypted copy | Rs 0 | Separate login; still Google | Easy, Drive download |

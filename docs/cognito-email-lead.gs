@@ -1,15 +1,15 @@
 /**
  * Sahara OS — Cognito Forms e-mail -> CRM lead bridge (Google Apps Script, runs on contact@saharacleaningservices.com).
  *
- * NOT INSTALLED YET (2026-10-14: the account has no Apps Script projects). The CRM side already exists:
+ * INSTALLED 2026-10-14 by Claude (code only) in the owner's Apps Script project "Sahara Cognito to CRM"; LEAD_URL is set. Still
+ * needed from the owner: LEAD_TOKEN, Gmail authorisation, and the 5-minute trigger. The CRM side already exists:
  * POST /api/webhook/email-lead (Bearer EMAIL_LEAD_TOKEN, de-duplicates, alerts Admin/Accounts/Operations).
  *
- * Install (owner, ~5 minutes — Google asks the owner to authorise Gmail access; Claude must not do that):
- *  1. script.google.com -> New project -> paste this file.
- *  2. Project Settings -> Script properties -> add LEAD_URL = https://crm.saharacleaningservices.com/api/webhook/email-lead
- *     and LEAD_TOKEN = <the value of EMAIL_LEAD_TOKEN from Coolify> (never put the token in this file or in GitHub).
- *  3. Run  testParse  once (no network, no CRM call) and check the log, then run  processCognitoEmails  and approve access.
- *  4. Triggers -> Add trigger -> processCognitoEmails -> Time-driven -> every 5 minutes.
+ * Owner steps:
+ *  1. Project Settings -> Script properties -> add LEAD_TOKEN = <the value of EMAIL_LEAD_TOKEN from Coolify>
+ *     (never put the token in this file or in GitHub). LEAD_URL is already set.
+ *  2. Run  testParse  once (no network, no CRM call) and check the log, then run  processCognitoEmails  and approve access.
+ *  3. Triggers -> Add trigger -> processCognitoEmails -> Time-driven -> every 5 minutes.
  *
  * Safety: only mails from notifications@cognitoforms.com are read; each processed thread gets the label CRM-synced so it
  * is never sent twice; the CRM also de-duplicates by number. No message is sent to the customer by this script.
