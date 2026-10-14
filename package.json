@@ -16,6 +16,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:setup": "node scripts/db-setup.mjs",
+    "restore:drill": "node scripts/restore-drill.mjs",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "rm -f dev.db && npm run db:setup && npm run db:seed",
     "reset-production-data": "node scripts/reset-production-data.mjs",
