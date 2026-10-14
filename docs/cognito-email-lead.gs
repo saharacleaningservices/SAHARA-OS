@@ -15,6 +15,7 @@
  * is never sent twice; the CRM also de-duplicates by number. No message is sent to the customer by this script.
  */
 var LABEL = "CRM-synced";
+var LOOKBACK = "newer_than:14d"; // first run also back-fills enquiries missed in the last 14 days; the CRM de-duplicates by number
 
 function processCognitoEmails() {
   var props = PropertiesService.getScriptProperties();
@@ -25,7 +26,8 @@ function processCognitoEmails() {
   if (!lock.tryLock(20000)) return;
   try {
     var label = GmailApp.getUserLabelByName(LABEL) || GmailApp.createLabel(LABEL);
-    var threads = GmailApp.search("from:notifications@cognitoforms.com -label:" + LABEL + " newer_than:7d", 0, 30);
+    var failed = 0;
+    var threads = GmailApp.search("from:notifications@cognitoforms.com -label:" + LABEL + " " + LOOKBACK, 0, 30);
     threads.forEach(function (thread) {
       var msg = thread.getMessages()[0];
       var lead = parseCognito(msg.getPlainBody());
@@ -38,11 +40,26 @@ function processCognitoEmails() {
         muteHttpExceptions: true,
       });
       if (res.getResponseCode() >= 200 && res.getResponseCode() < 300) thread.addLabel(label);
-      else console.error("CRM returned " + res.getResponseCode() + " for thread " + thread.getId());
+      else {
+        failed++;
+        console.error("CRM returned " + res.getResponseCode() + " for thread " + thread.getId());
+      }
     });
+    // Nothing is ever lost silently: failed threads stay unlabelled (retried in 5 minutes) and the owner is e-mailed once.
+    if (failed > 0) alertOwner(failed);
   } finally {
     lock.releaseLock();
   }
+}
+
+function alertOwner(count) {
+  var props = PropertiesService.getScriptProperties();
+  var today = Utilities.formatDate(new Date(), "Asia/Kolkata", "yyyy-MM-dd");
+  if (props.getProperty("LAST_ALERT_DAY") === today) return; // at most one e-mail per day
+  props.setProperty("LAST_ALERT_DAY", today);
+  MailApp.sendEmail(Session.getActiveUser().getEmail(), "Sahara: " + count + " Cognito enquiry(ies) could not reach the CRM",
+    "The Cognito -> CRM bridge could not deliver " + count + " enquiry(ies). They are still in Gmail (unlabelled) and will be retried every 5 minutes. " +
+    "Check that the CRM is up and that LEAD_TOKEN matches EMAIL_LEAD_TOKEN in Coolify.");
 }
 
 /** "Entry Details Name X Phone Y Subject Z Email E Message ..." -> payload for the CRM endpoint. */
