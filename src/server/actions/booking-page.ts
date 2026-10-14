@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { sanitizeChangeRequest } from "@/lib/public-input";
 
 // Customer actions on the public /booking/<token> page. The unguessable token
 // is the only credential; each action only records the customer's choice —
@@ -9,8 +12,20 @@ import { db } from "@/lib/db";
 
 const TOKEN_RE = /^[A-Za-z0-9_-]{20,40}$/;
 
+/** Per-IP and per-booking throttle for the public booking-page actions (skipped outside an HTTP request). */
+async function throttled(token: string) {
+  let ip: string;
+  try {
+    ip = clientIp(await headers());
+  } catch {
+    return false;
+  }
+  return !rateLimit(`bookpage:ip:${ip}`, 30, 600).allowed || !rateLimit(`bookpage:tok:${token}`, 10, 600).allowed;
+}
+
 export async function choosePayAfterService(token: string) {
-  if (!TOKEN_RE.test(token)) return { error: "Invalid booking link" };
+  if (typeof token !== "string" || !TOKEN_RE.test(token)) return { error: "Invalid booking link" };
+  if (await throttled(token)) return { error: "Too many requests — please try again in a few minutes." };
   const job = await db.job.findFirst({ where: { publicToken: token, deletedAt: null }, select: { id: true, status: true } });
   if (!job) return { error: "Booking not found" };
   if (job.status === "CANCELLED" || job.status === "COMPLETED") return { error: "This booking can no longer be changed" };
@@ -27,8 +42,10 @@ const CHANGE_LABEL = { RESCHEDULE: "reschedule", POSTPONE: "postponement", CANCE
  * Records a REQUEST for the office (activity log, lead timeline, high-priority
  * follow-up, staff alert) — the job itself is never changed here.
  */
-export async function requestBookingChange(token: string, kind: keyof typeof CHANGE_LABEL, note: string, preferredDate?: string) {
-  if (!TOKEN_RE.test(token) || !(kind in CHANGE_LABEL)) return { error: "Invalid request" };
+export async function requestBookingChange(token: string, kind: keyof typeof CHANGE_LABEL, rawNote: string, rawPreferredDate?: string) {
+  if (typeof token !== "string" || !TOKEN_RE.test(token) || typeof kind !== "string" || !Object.prototype.hasOwnProperty.call(CHANGE_LABEL, kind)) return { error: "Invalid request" };
+  if (await throttled(token)) return { error: "Too many requests — please try again in a few minutes." };
+  const { note, preferredDate } = sanitizeChangeRequest(rawNote, rawPreferredDate);
   const job = await db.job.findFirst({
     where: { publicToken: token, deletedAt: null },
     select: { id: true, jobNumber: true, leadId: true, customerName: true, status: true },
@@ -37,7 +54,7 @@ export async function requestBookingChange(token: string, kind: keyof typeof CHA
   if (job.status === "CANCELLED" || job.status === "COMPLETED") return { error: "This booking can no longer be changed online — please call us." };
 
   const label = CHANGE_LABEL[kind];
-  const text = `Customer requested ${label}${preferredDate ? ` (preferred: ${preferredDate})` : ""}${note.trim() ? ` — "${note.trim().slice(0, 300)}"` : ""}`;
+  const text = `Customer requested ${label}${preferredDate ? ` (preferred: ${preferredDate})` : ""}${note ? ` — "${note}"` : ""}`;
   const recent = await db.activityLog.findFirst({
     where: { jobId: job.id, action: { startsWith: `Customer requested ${label}` }, createdAt: { gte: new Date(Date.now() - 60 * 60 * 1000) } },
   });
