@@ -10,7 +10,10 @@ import {
   createOwnerInquiry,
   listAssignees,
   listInquiryAlerts,
+  getInquiryTracker,
+  recordInquiryOutcome,
   type CreateInquiryInput,
+  type OutcomeInput,
 } from "@/server/owner-inquiry";
 
 const ALERT_ROLES = ["ADMIN", "ACCOUNTS", "OPERATIONS"];
@@ -43,4 +46,23 @@ export async function acknowledgeMyInquiryAlert(notificationId: string) {
   const s = await getSession();
   if (!s || !ALERT_ROLES.includes(s.role) || typeof notificationId !== "string") return { ok: false as const, error: "Not authorized" };
   return acknowledgeInquiryAlert({ id: s.sub, name: s.name, email: s.email }, notificationId);
+}
+
+/** One-click follow-up outcome (Accounts / Operations / Super Admin). Never changes stage, quotation, booking or payment. */
+export async function recordMyInquiryOutcome(values: OutcomeInput) {
+  const s = await getSession();
+  if (!s || !ALERT_ROLES.includes(s.role)) return { ok: false as const, error: "Not authorized" };
+  const res = await recordInquiryOutcome({ id: s.sub, name: s.name, email: s.email, role: s.role }, values ?? { leadId: "", outcome: "" });
+  if (res.ok) {
+    revalidatePath("/dashboard");
+    revalidatePath("/leads");
+  }
+  return res;
+}
+
+/** Super Admin only: owner-entered inquiries with who saw them and every recorded outcome. */
+export async function getOwnerInquiryTracker() {
+  const s = await getSession();
+  if (s?.role !== "ADMIN") return null;
+  return getInquiryTracker();
 }

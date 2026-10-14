@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { playChime, unlockAudio } from "@/lib/alert-audio";
 import { getMyInquiryAlerts, acknowledgeMyInquiryAlert } from "@/server/actions/owner-inquiry";
+import { InquiryOutcomeButtons } from "@/components/leads/inquiry-outcome-buttons";
 
 type Alert = NonNullable<Awaited<ReturnType<typeof getMyInquiryAlerts>>>[number];
 
@@ -139,6 +140,18 @@ export function NewInquiryAlert() {
                 <p className="text-[11px] text-muted-foreground">
                   Assigned by {a.assignedBy} to {a.assignees.join(", ") || "you"}
                 </p>
+                <div className="space-y-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">What happened? One click records it</p>
+                  <InquiryOutcomeButtons
+                    leadId={a.leadId}
+                    alertId={a.id}
+                    compact
+                    onDone={() => {
+                      setAlerts((prev) => prev.filter((x) => x.id !== a.id));
+                      if (alerts.length <= 1) setOpen(false);
+                    }}
+                  />
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {a.canOpen && (
                     <Button size="sm" disabled={busy === a.id} onClick={() => ack(a, true)}>

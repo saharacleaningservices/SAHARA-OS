@@ -44,6 +44,7 @@ import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-c
 import { OperationsCommandCenter } from "@/components/dashboard/owner/operations-command-center";
 import { PendingActionsPanel } from "@/components/dashboard/pending-actions-panel";
 import { OwnerQuickInquiry } from "@/components/dashboard/owner-quick-inquiry";
+import { OwnerInquiryTracker } from "@/components/dashboard/owner-inquiry-tracker";
 
 export default async function DashboardPage() {
   const session = await requireUser();
@@ -68,6 +69,7 @@ export default async function DashboardPage() {
       <div className="space-y-4">
         {/* Owner-only: paste a number, alert Shoyab / Francis (src/server/owner-inquiry.ts) */}
         {session.role === "ADMIN" && <OwnerQuickInquiry />}
+        {session.role === "ADMIN" && <OwnerInquiryTracker />}
         {/* Job-closure + payment-collection reminders (src/server/ops-reminders.ts) */}
         <PendingActionsPanel />
         <OwnerCommandCenter

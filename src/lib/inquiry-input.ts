@@ -22,6 +22,18 @@ export function parseIndianMobile(raw: unknown): MobileResult {
   return { ok: true, mobile: d };
 }
 
+/** Where the inquiry actually came from (owner picks it; default phone call). Maps onto existing lead source / channel values. */
+export const INQUIRY_SOURCES = {
+  PHONE: { label: "Phone call", channel: "Phone Call", lead: "CALL" },
+  TRUECALLER: { label: "Truecaller / phone call", channel: "Phone Call", lead: "CALL" },
+  WHATSAPP: { label: "WhatsApp", channel: "WhatsApp Direct", lead: "WHATSAPP" },
+  REFERRAL: { label: "Referral", channel: "Referral", lead: "CALL" },
+  WALKIN: { label: "Walk-in / in person", channel: "Other", lead: "CALL" },
+  OTHER: { label: "Other", channel: "Other", lead: "CALL" },
+} as const;
+export type InquirySourceKey = keyof typeof INQUIRY_SOURCES;
+export const isInquirySource = (v: unknown): v is InquirySourceKey => typeof v === "string" && Object.prototype.hasOwnProperty.call(INQUIRY_SOURCES, v);
+
 export const cleanText = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
 
 /** Masked form for lists / logs: ••••••3210. */

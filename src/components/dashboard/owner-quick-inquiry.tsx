@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { parseIndianMobile } from "@/lib/inquiry-input";
+import { INQUIRY_SOURCES, parseIndianMobile, type InquirySourceKey } from "@/lib/inquiry-input";
 import { getInquiryAssignees, quickAddInquiry } from "@/server/actions/owner-inquiry";
 
 type Assignee = { id: string; name: string; role: string };
@@ -27,6 +27,7 @@ export function OwnerQuickInquiry() {
   const [mobile, setMobile] = useState("");
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
+  const [source, setSource] = useState<InquirySourceKey>("PHONE");
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dup, setDup] = useState<{ active: Match[]; closed: Match[] } | null>(null);
@@ -60,7 +61,7 @@ export function OwnerQuickInquiry() {
     setBusy(true);
     setTouched(true);
     try {
-      const res = await quickAddInquiry({ mobile, name, note, assigneeIds: picked, mode, leadId });
+      const res = await quickAddInquiry({ mobile, name, note, source, assigneeIds: picked, mode, leadId });
       if (res.ok) {
         setDone({ leadId: res.leadId, leadNumber: res.leadNumber, alerted: res.alerted, note: res.reopened ? "reopened" : res.alertedExisting ? "re-alerted" : "created" });
         setDup(null);
@@ -130,7 +131,17 @@ export function OwnerQuickInquiry() {
           </div>
 
           <div className="md:col-span-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <span className="text-xs font-medium text-muted-foreground">Source: Owner / Altaf</span>
+            <label className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              Source
+              <select aria-label="Inquiry source" className="h-8 rounded-md border bg-background px-2 text-xs text-foreground" value={source} onChange={(e) => setSource(e.target.value as InquirySourceKey)}>
+                {Object.entries(INQUIRY_SOURCES).map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+              <span className="font-normal">· entered by Altaf — Direct CRM Entry</span>
+            </label>
             <span className="text-xs font-medium text-muted-foreground">Alert:</span>
             {assignees.map((u) => (
               <label key={u.id} className="flex items-center gap-1.5 text-sm">
