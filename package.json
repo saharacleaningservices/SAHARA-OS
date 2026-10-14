@@ -9,6 +9,7 @@
     "start:next": "next start",
     "lint": "eslint",
     "test:pricing": "tsx --test tests/pricing.test.ts",
+    "test:public": "tsx --test tests/public-input.test.ts",
     "test:ops": "tsx --test tests/ops-reminders.test.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

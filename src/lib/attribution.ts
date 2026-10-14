@@ -12,6 +12,9 @@ export const ACQUISITION_CHANNELS = [
   "Facebook Organic",
   "Google Business Profile",
   "Google Organic/SEO",
+  "YouTube",
+  "LinkedIn",
+  "Email Outreach",
   "Website Direct",
   "WhatsApp Direct",
   "WhatsApp Marketing",
@@ -70,6 +73,9 @@ export function classifyTouch(t?: Touch | null): AcquisitionChannel {
     if (["cpc", "paid", "paid_social", "ads"].includes(med) || t.fbclid) return "Meta Ads";
     return src === "instagram" || src === "ig" ? "Instagram Organic" : "Facebook Organic";
   }
+  if (src === "youtube" || src === "yt") return "YouTube";
+  if (src === "linkedin") return "LinkedIn";
+  if (src === "email" || src === "email_outreach") return "Email Outreach";
   if (src === "referral" || med === "referral") return "Referral";
   if (src) return "Other";
 
@@ -82,6 +88,8 @@ export function classifyTouch(t?: Touch | null): AcquisitionChannel {
     if (/(^|\.)google\./.test(ref)) return "Google Organic/SEO";
     if (ref.includes("instagram")) return "Instagram Organic";
     if (ref.includes("facebook")) return "Facebook Organic";
+    if (ref.includes("youtube") || ref === "youtu.be") return "YouTube";
+    if (ref.includes("linkedin") || ref === "lnkd.in") return "LinkedIn";
     if (ref.includes("whatsapp")) return "WhatsApp Direct";
     if (ref.endsWith("saharacleaningservices.com")) return "Website Direct";
     return "Other";
@@ -154,6 +162,9 @@ export function leadSourceBucket(channel: string | null | undefined): LeadSource
     case "Google Business Profile":
     case "Instagram Organic":
     case "Facebook Organic":
+    case "YouTube":
+    case "LinkedIn":
+    case "Email Outreach":
     case "Website Direct":
       return "Organic";
     case "WhatsApp Direct":

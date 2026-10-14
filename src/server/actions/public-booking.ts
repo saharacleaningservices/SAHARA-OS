@@ -12,6 +12,8 @@ import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-temp
 import { getSlotAvailability } from "@/server/actions/slot-availability";
 import { notify } from "@/server/notify";
 import { z } from "zod";
+import { headers } from "next/headers";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
 import { getPublicPricing } from "@/server/pricing";
 import { FESTIVAL_PACKAGE_IDS, INSPECTION_ONLY_IDS, activeCampaign, festivalForDate, needsInspection, todayIST, unitPriceFor } from "@/lib/pricing-master";
@@ -20,39 +22,48 @@ import { publicPaymentState, resolvePublicEstimate } from "@/lib/booking-payment
 import { linkCustomerAndSite } from "@/server/customer-db";
 import { copyLeadToSheet } from "@/server/lead-sheet";
 
+/** Caller IP from the current HTTP request, or null outside a request scope. */
+async function requestIp(): Promise<string | null> {
+  try {
+    return clientIp(await headers());
+  } catch {
+    return null;
+  }
+}
+
 const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOGLE"] as const;
 
 const publicBookingSchema = z.object({
-  name: z.string().min(2, "Name is required"),
+  name: z.string().min(2, "Name is required").max(100),
   mobile: z
     .string()
     .max(20)
     .refine((v) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "").slice(-10)) && v.replace(/\D/g, "").length <= 12, "Enter a valid 10-digit mobile number"),
   alternateMobile: z.string().max(15).optional().or(z.literal("")),
-  email: z.string().email("Enter a valid email").optional().or(z.literal("")),
-  area: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  pinCode: z.string().optional().or(z.literal("")),
-  serviceCategory: z.string().min(1, "Pick a service"),
-  serviceVariant: z.string().optional().or(z.literal("")),
-  propertyType: z.string().optional().or(z.literal("")),
-  packageName: z.string().optional().or(z.literal("")),
-  comboServices: z.array(z.string()).optional(),
-  addOnServices: z.array(z.string()).optional(),
-  estimatedAmount: z.coerce.number().min(0).optional(),
-  advanceAmount: z.coerce.number().min(0).optional(),
+  email: z.string().email("Enter a valid email").max(120).optional().or(z.literal("")),
+  area: z.string().max(100).optional().or(z.literal("")),
+  address: z.string().max(400).optional().or(z.literal("")),
+  pinCode: z.string().max(10).optional().or(z.literal("")),
+  serviceCategory: z.string().min(1, "Pick a service").max(60),
+  serviceVariant: z.string().max(120).optional().or(z.literal("")),
+  propertyType: z.string().max(60).optional().or(z.literal("")),
+  packageName: z.string().max(120).optional().or(z.literal("")),
+  comboServices: z.array(z.string().max(120)).max(30).optional(),
+  addOnServices: z.array(z.string().max(120)).max(30).optional(),
+  estimatedAmount: z.coerce.number().min(0).max(10_000_000).optional(),
+  advanceAmount: z.coerce.number().min(0).max(10_000_000).optional(),
   paymentMode: z.enum(["UPI", "QR", "BANK", "CASH"]).optional(),
   advancePaid: z.boolean().optional(),
-  serviceDate: z.string().optional().or(z.literal("")),
-  timeSlot: z.string().optional().or(z.literal("")),
-  notes: z.string().optional().or(z.literal("")),
-  mapLink: z.string().optional().or(z.literal("")),
-  source: z.string().optional().or(z.literal("")),
-  referralCode: z.string().optional().or(z.literal("")),
-  bookingLinkToken: z.string().optional().or(z.literal("")),
-  upsellRuleId: z.string().optional().or(z.literal("")),
-  upsellLabel: z.string().optional().or(z.literal("")),
-  upsellValue: z.coerce.number().optional(),
+  serviceDate: z.string().max(40).optional().or(z.literal("")),
+  timeSlot: z.string().max(40).optional().or(z.literal("")),
+  notes: z.string().max(2000).optional().or(z.literal("")),
+  mapLink: z.string().max(600).optional().or(z.literal("")),
+  source: z.string().max(40).optional().or(z.literal("")),
+  referralCode: z.string().max(40).optional().or(z.literal("")),
+  bookingLinkToken: z.string().max(64).optional().or(z.literal("")),
+  upsellRuleId: z.string().max(40).optional().or(z.literal("")),
+  upsellLabel: z.string().max(120).optional().or(z.literal("")),
+  upsellValue: z.coerce.number().min(0).max(10_000_000).optional(), // ignored server-side: the rule's own label/price are recorded
   upsellAccepted: z.boolean().optional(),
   // Booking page v2: the customer's payment choice, and the quotation link
   // token when the booking comes from a quotation (/booking?quote=<token>).
@@ -89,6 +100,15 @@ export async function publicBookLead(values: unknown) {
   }
   const data = parsed.data;
   if (data.website) return { error: "Something went wrong. Please try again." }; // honeypot tripped
+  // Throttle spam: per IP and per mobile number (in-memory, single instance — see lib/rate-limit.ts).
+  // Skipped when there is no HTTP request (internal/test calls).
+  const ip = await requestIp();
+  if (ip) {
+    const tail = data.mobile.replace(/\D/g, "").slice(-10);
+    if (!rateLimit(`pubbook:ip:${ip}`, 10, 600).allowed || !rateLimit(`pubbook:mob:${tail}`, 5, 600).allowed) {
+      return { error: "Too many requests — please wait a few minutes or call us to book." };
+    }
+  }
   // Service date: a real calendar date, today or later (IST) — never trust the browser's picker.
   if (data.serviceDate) {
     const ymd = data.serviceDate.slice(0, 10);
@@ -101,7 +121,7 @@ export async function publicBookLead(values: unknown) {
   // Re-check the requested slot on the server so a stale form can't request a
   // slot that filled up after the page loaded.
   if (data.serviceDate && data.timeSlot) {
-    const avail = await getSlotAvailability(data.serviceDate).catch(() => null);
+    const avail = await getSlotAvailability(data.serviceDate.slice(0, 10)).catch(() => null);
     if (avail?.ok && avail.slots.some((x) => x.slot === data.timeSlot && !x.available)) {
       // A retry of this customer's own request (e.g. the response was lost on mobile
       // data) already holds that slot — it is counted against itself, so don't reject it.
@@ -406,13 +426,17 @@ export async function publicBookLead(values: unknown) {
   });
 
   if (data.upsellRuleId) {
-    await recordUpsellEvent({
-      ruleId: data.upsellRuleId,
-      leadId: lead.id,
-      label: data.upsellLabel || "Combo offer",
-      comboValue: data.upsellValue || null,
-      accepted: Boolean(data.upsellAccepted),
-    }).catch(() => {});
+    // Never trust the browser's label/price: record the active rule's own values.
+    const rule = await db.upsellRule.findFirst({ where: { id: data.upsellRuleId, isActive: true } }).catch(() => null);
+    if (rule) {
+      await recordUpsellEvent({
+        ruleId: rule.id,
+        leadId: lead.id,
+        label: rule.label,
+        comboValue: rule.comboPrice ?? null,
+        accepted: Boolean(data.upsellAccepted),
+      }).catch(() => {});
+    }
   }
 
   // Booking confirmation is normally sent when the enquiry is confirmed into

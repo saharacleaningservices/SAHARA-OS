@@ -1,6 +1,7 @@
 "use server";
 
 import { computeDateAvailability, computeSlotAvailability } from "@/server/slot-capacity";
+import { clampDays, isValidYmd } from "@/lib/public-input";
 
 // Public slot availability for the booking forms. The calculation (CRM calendar
 // + manual Slot Availability overrides) lives in server/slot-capacity.ts; these
@@ -10,11 +11,12 @@ import { computeDateAvailability, computeSlotAvailability } from "@/server/slot-
 // only export async functions.)
 
 export async function getSlotAvailability(dateStr: string) {
+  if (!isValidYmd(dateStr)) return { ok: false as const };
   const r = await computeSlotAvailability(dateStr);
   if (!r.ok) return { ok: false as const };
   return { ok: true as const, slotsLeft: r.slotsLeft, isFull: r.isFull, label: r.label, slots: r.slots };
 }
 
 export async function getDateAvailability(days = 21) {
-  return computeDateAvailability(days);
+  return computeDateAvailability(clampDays(days));
 }
