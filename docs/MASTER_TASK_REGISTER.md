@@ -15,7 +15,7 @@ No secrets appear here (names/locations only). Production boundary: no push to `
 | SOS-05 | WhatsApp Cloud API + customer messages | P1 | PARTIALLY COMPLETE (TEST MODE); campaign launch gated |
 | SOS-06 | Cognito forms → CRM → WhatsApp | P1 | BLOCKED/PENDING OWNER — bridge script not installed; recent enquiries not in CRM |
 | SOS-07 | Google Ads — Brand Make unlink + support | P1 | PENDING OWNER DECISION — manager still linked; Sahara admin access verified |
-| SOS-08 | Meta Business assets + ads ownership | P1 | PARTIALLY COMPLETE (account audited 2026-10-14; billing owner-only) |
+| SOS-08 | Meta Business assets + ads ownership | P1 | PARTIALLY COMPLETE (inventory + access audit done 2026-10-15; ad account outside portfolio; owner decisions needed) |
 | SOS-09 | Staff operations + mobile QA | P1 | NOT TESTED on real devices |
 | SOS-10 | Google Workspace email migration | P1 | PENDING (no verified work in this context) |
 | SOS-11 | Google Business Profile + marketing assets | P2 | PARTIALLY COMPLETE (audit done; corrections need owner login) |
@@ -84,10 +84,15 @@ Report separately (per directive):
 - **Not done / not claimed:** unlink not completed; no support case reference. Do not add funds or change billing.
 
 ### SOS-08 — Meta Business assets + ads ownership · P1
-- **Verified 2026-10-14 (read-only, owner's signed-in Meta):** Sahara-owned ad account `343079872519451`; business name Sahara Cleaning Services, INR, GST verified. **Funds ₹0.00, no payment method, no recent spend.** Campaigns (last 30 days): 3 — "Post: Keep your glass maintain and clean…", "INDEPENDENCE DAY SALE", "Post: Sahara Cleaning Services was live." — all switched **On** but delivery = **Payment error**, no results/spend.
-- **Risk:** as soon as a payment method/funds are added these three On campaigns could start spending. Review and switch off/replace before adding billing (not changed by Claude — no publish/activate/schedule/spend).
-- **Legitimate reuse:** the three are old boosted posts/sale creative — reuse creative as inspiration only; new campaigns should be built fresh from the approved landing pages with Pixel/CAPI checks. Not started.
-- **Owner steps (later, one at a time):** add a payment method (owner only), then approve a budget; until then SOS-14 stays blocked. Note the ad account business address shows Magarpatta — an ad-account setting, left unchanged.
+**Status: PARTIALLY COMPLETE — ownership inventory + access audit done (read-only, 2026-10-15, owner's signed-in Meta Business Suite); Sahara-controlled setup needs owner decisions.**
+- **Business portfolio "Sahara Cleaning Services"** (ID 152082702561104): created by Altaf Shaikh on 2019-09-06; legal name Sahara Cleaning Services; business phone +91 70833 47130; website https://www.saharacleaningservices.com/; **Business verification: UNVERIFIED**; Primary Page: none.
+- **Owned by Sahara (in the portfolio):** Facebook Page "Sahara Cleaning Services" (ID 1880762258603818, 2 people full access, 0 partners); Instagram @saharacleaningservices.pune (ID 17841476001601525, 1 person, 0 partners); WhatsApp: production WABA 1629093895673046 (+ the Meta test WABA and a WhatsApp-Business-App account entry — not touched).
+- **Not in the portfolio:** **Ad accounts: none**, **Datasets/pixels: none**, **Domains: none**, **Partners (agencies): none**. The ad account `343079872519451` that holds the 3 old campaigns is therefore **outside** the portfolio (an ad account owned by a personal profile or another portfolio) — ownership of it is unconfirmed. No agency (Brand Make) partner or person appears in the portfolio.
+- **People (2):** "Sahara Cleaning Services @saharacleaningservices.pune" (full access incl. finance, last active 2026-10-06) and Altaf Shaikh (full access, active 2026-10-14). **Owner to confirm the first one is yours** (it looks like a profile created from the Instagram account).
+- **Security Center — "Action needed":** no trusted domains for peer approval; **1 user without a passkey**. Done: peer approval on ad accounts, full-control users ≤ 10, two-factor authentication.
+- **Billing:** ad account — funds ₹0, no payment method, no recent spend (GST verified). **The WABA has a payment method on file (VISA ending 2994)** — enabling LIVE/marketing WhatsApp sending would bill that card (see `docs/WHATSAPP_READINESS.md`). Nothing activated.
+- **Old campaigns:** 3, all switched On with "Payment error" ("Keep your glass maintain and clean…", "INDEPENDENCE DAY SALE", "Sahara Cleaning Services was live."). Adding funds would let them spend immediately — review/switch off first. Not changed.
+- **Safe transition plan (nothing executed):** (1) owner confirms who owns ad account 343079872519451; (2) if it is the owner's personal one, claim it into the portfolio (Business settings → Ad accounts → Add → Claim — owner approval, effectively permanent); (3) create a dataset/pixel in the portfolio and connect the domain(s) `booking.` / `www.` (domain verification needs a DNS TXT record = DNS change, owner approval); (4) add trusted domains + remove/secure the user without a passkey; (5) start Business Verification (documents are owner-only); (6) only then add a payment method and build fresh campaigns from the approved landing pages. Pixel/Conversion API on the sites is also not firing today (see digital-channel findings under SOS-14).
 
 ### SOS-09 — Staff operations + mobile QA · P1
 - `STAFF_APP_DEVICE_QA.md` exists. **NOT TESTED** on real staff devices in this pass. Next: QA checklist on actual phones (attendance, job card, consent tap, sound/alerts).
