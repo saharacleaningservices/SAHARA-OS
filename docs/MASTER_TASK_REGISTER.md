@@ -43,6 +43,7 @@ No secrets appear here (names/locations only). Production boundary: no push to `
 - **BLOCKED:** pushing to `coolify-deploy` / the workflow branch was denied by the tool's production-deploy rule. Needs the owner to allow it (explicit instruction or Bash permission rule) — one decision.
 - **Encryption assessment (2026-10-14, throwaway key, synthetic archive, temp files deleted):** the exact `openssl enc -aes-256-cbc -pbkdf2 -salt` commands planned for the workflow encrypt and decrypt back to a byte-identical archive; a wrong key fails (`bad decrypt`, exit 1); ciphertext is salted (`Salted__`). So the mechanism works; only the owner-held key is missing.
 - **PENDING OWNER (security decisions):** (a) backup encryption key (`BACKUP_ENCRYPTION_KEY` was never created; all Drive backups are plaintext) — plan in runbook §9a; (b) second independent off-site copy — options in §9b (nothing purchased).
+- **Retention verified (2026-10-14):** Drive holds 32 backups (30 daily + 2 monthly keepers), oldest 2026-09-30; daily tier is count-based so many manual runs shorten real history (8 Oct had ~17) — see runbook §2.
 - **Not verified:** real GitHub Actions run of the new workflow, live alert e-mail, new-VPS rebuild time (RTO is an estimate), Coolify-config backup.
 - **Rollback:** CRM — redeploy `f81fbdb`; workflow — revert on `main`; no schema change.
 - **Acceptance:** deployed + a green run that writes a `DELIVERED` row + a real failure alert received + encrypted copy restore-tested + second copy restore-tested.
