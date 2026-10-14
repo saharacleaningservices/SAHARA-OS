@@ -78,3 +78,44 @@ Note: the old stream URL is `saharacleaningservices.in` (different domain) and h
 3. Approve adding ad account 343079872519451 to the Sahara portfolio.
 4. Approve setting the public tracking IDs in Coolify + redeploy (production change).
 5. Later: approve the test budget for Google Ads / Meta.
+
+## 9. Update 2026-10-15 (later) — existing landing pages, VPS and test results
+### What already exists (verified)
+- **Sahara-owned landing pages already exist and are LIVE in production** on the Sahara VPS (Coolify app `s-a-h-a-r-a--o-s`, branch `coolify-deploy` = `f81fbdb`; built in commit `a24a7b7`, 2026-10-10):
+  - `https://booking.saharacleaningservices.com/landing/home-deep-cleaning-pune`
+  - `https://booking.saharacleaningservices.com/landing/office-commercial-cleaning-pune`
+  - `https://booking.saharacleaningservices.com/landing/interior-painting-pune`
+  - `https://booking.saharacleaningservices.com/landing/pest-control-services-pune`
+  These are ad pages: `noindex,nofollow`, canonical set, one service each, sticky lead form, Call + WhatsApp CTAs, trust numbers read from CRM settings (not typed in code), prices from the pricing master. The indexable service hub pages also exist: `/home-deep-cleaning-pune`, `/commercial-cleaning-pune`, `/interior-painting-pune`, `/pest-control-pune` (title, description, canonical, FAQ + LocalBusiness schema). **No duplicate landing page is needed.**
+- Lead form → `publicBookLead` server action (Sahara OS CRM): validation, honeypot, server-side duplicate safety, UTM/gclid/fbclid/landing page captured by `AttributionCapture`; `trackLead` fires GA4 `generate_lead` and one Google Ads conversion. **No EmailJS or other third-party form service.**
+- **Gap:** `marketing-tags.tsx` only loads GA4 / Google Ads / Meta Pixel when `NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`, `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL`, `NEXT_PUBLIC_META_PIXEL_ID` are set at build time — on production nothing loads today.
+- **Coolify:** 1 project ("My first project"), 1 environment ("production"), 1 application (Running). **No staging environment.** TLS by Traefik/Let's Encrypt; domains crm./booking./app. on the same app.
+
+### Isolated end-to-end test (local dev server, scratch database, fake tracking IDs `G-TESTQA0000` / `AW-111111111` / `QA_TEST_LABEL` / pixel `1111111111111111`; WhatsApp/SMS/e-mail/sheet credentials blanked, WhatsApp TEST mode)
+| Check | Result |
+|---|---|
+| Page renders (`/landing/home-deep-cleaning-pune?utm_source=google&utm_medium=cpc&utm_campaign=qa_test_campaign&utm_term=…&gclid=QA-TEST-GCLID-123`) | 200 |
+| Tags load when IDs are set | gtag `config` for GA4 + Ads, Meta `fbevents.js` + `fbq` present |
+| Attribution stored client-side | `sahara_attr_first` / `sahara_attr_latest` in localStorage |
+| Empty submit | "Please enter your name." |
+| Invalid mobile (12345) | "Enter a valid 10-digit mobile number." |
+| Valid submit (QA Test Lead, 9000000099, Kharadi) | Thank-you state "Request LD-2026-0001 received" |
+| CRM lead (scratch DB) | stage NEW, service HOME_DEEP_CLEANING, **source GOOGLE, acquisitionChannel "Google Ads", utmSource google, utmMedium cpc, utmCampaign qa_test_campaign, utmTerm "home deep cleaning", gclid QA-TEST-GCLID-123, landingPage /landing/home-deep-cleaning-pune**, 1 follow-up, customer record created |
+| Conversions fired | GA4 `generate_lead` ×1 and Ads `conversion` ×1 (send_to AW-111111111/QA_TEST_LABEL) — **no double counting** |
+| Outbound messages | WhatsApp row CANCELLED by TEST mode — nothing left the machine |
+| Marketing consent | `UNKNOWN` — the landing form had no opt-in → fixed on branch `feat/landing-consent` `e2a79cf` (optional, unticked checkbox, booking-wizard wording; `tsc` clean; not E2E-tested; not deployed) |
+| Mobile layout (built-in browser, true 375 px viewport) | All 4 landing pages: `scrollWidth = 375` (no horizontal overflow) |
+Scratch DB deleted and test server stopped after the run. Production CRM was not touched.
+
+### Correction
+The Brand Make audit (Drive `Brand-Make-Landing-Page-Audit.md`, §7 item 2) said the Vercel page's mobile headline overflows. Re-measured in a real 375 px mobile viewport: **no overflow** (`scrollWidth 375`, H1 fits) — the earlier screenshot cut-off was an artefact of headless Edge on Windows. That Drive file was not edited (Drive is frozen); this section is the correction.
+
+### Open items found on the live pages (owner decisions, not changed)
+- Landing-page **Call** buttons use **+91 89565 67130** (`CONTACT.call[0]`); WhatsApp uses 7083347130. Older notes describe 8956567130 as "operations/internal" while the GBP lists 8956567130 — owner to confirm which number ads should call.
+- Hub pages show "1,800+ reviews", "4.9 Rated" and "guaranteed" wording; the numbers come from CRM settings — owner to keep them in line with the live Google profile.
+
+### Safest way to finish on the VPS
+1. Owner approves the public IDs → set in Coolify (`NEXT_PUBLIC_GOOGLE_ADS_ID=AW-765890204`, `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL=MiIICNWVx_UbEJydmu0C`, GA4 ID (old or new property), Meta Pixel ID of a new Sahara dataset) → redeploy (production change).
+2. Merge `feat/landing-consent` with the same deploy.
+3. Optional staging: a second Coolify application on the same server with its **own empty database volume** and an sslip.io hostname (no DNS change) — creates a new live resource, so it needs approval.
+4. Verify with Tag Assistant / Meta Test Events on the live page using one internal test lead marked as test (owner approval), then switch Google Ads final URLs from promo. to `/landing/*`.
