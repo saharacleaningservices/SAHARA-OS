@@ -6,6 +6,8 @@ import { notFound, redirect } from "next/navigation";
 import { Pencil, FileText, ClipboardList, Wallet } from "lucide-react";
 import { getLeadDetail, canAccessLead } from "@/server/leads";
 import { requireUser } from "@/lib/current-user";
+import { db } from "@/lib/db";
+import { InquiryOutcomeButtons } from "@/components/leads/inquiry-outcome-buttons";
 import { getStaffForAssignment } from "@/server/staff";
 import { getCompanySettings } from "@/server/settings";
 import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
@@ -73,6 +75,11 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
   const requestedServiceDate = lead.serviceDate ? lead.serviceDate.toISOString().slice(0, 10) : "";
   const requestedTimeSlot = lead.timeSlot ?? "";
 
+  // Direct (owner-entered) inquiries get the one-click outcome panel for the office roles.
+  const showOutcomes =
+    ["ADMIN", "ACCOUNTS", "OPERATIONS"].includes(session.role) &&
+    (await db.auditLog.count({ where: { entityType: "Lead", entityId: lead.id, action: { in: ["INQUIRY_CREATED_BY_OWNER", "INQUIRY_REOPENED", "INQUIRY_ALERT_RESENT"] } } })) > 0;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -131,6 +138,17 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
         <div className="space-y-4 lg:col-span-2">
           <BookedScopeCard priceType={lead.priceType} festivalName={lead.festivalName} scopeOfWork={lead.scopeOfWork} services={compactServiceLines(rawLead)} />
           <PackageScopeCard service={lead.service} packageName={lead.packageName} serviceVariant={lead.serviceVariant} />
+          {showOutcomes && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Inquiry follow-up</CardTitle>
+                <p className="text-xs text-muted-foreground">Record what happened with one click. This is a report for Altaf&apos;s tracker — it does not change the stage or create a quotation, booking or payment.</p>
+              </CardHeader>
+              <CardContent>
+                <InquiryOutcomeButtons leadId={lead.id} />
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Conversation</CardTitle>
