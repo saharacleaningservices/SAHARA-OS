@@ -6305,6 +6305,7 @@ export const OpsReminderScalarFieldEnum = {
   id: 'id',
   kind: 'kind',
   jobId: 'jobId',
+  isBacklog: 'isBacklog',
   quotationId: 'quotationId',
   followUpId: 'followUpId',
   status: 'status',

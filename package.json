@@ -11,7 +11,7 @@
     "test:pricing": "tsx --test tests/pricing.test.ts",
     "test:public": "tsx --test tests/public-input.test.ts",
     "test:ops": "tsx --test tests/ops-reminders.test.ts",
-    "test:eod": "tsx --test tests/eod-reminders.test.ts",
+    "test:eod": "tsx --test tests/eod-reminders.test.ts tests/reminder-baseline.test.ts tests/reminder-fresh-install.test.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:setup": "node scripts/db-setup.mjs",

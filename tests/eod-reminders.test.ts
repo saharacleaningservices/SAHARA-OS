@@ -136,7 +136,7 @@ test("EOD summary reads live data; fires once per IST day at the configured time
   assert.ok(summary.overdueFollowUps.count >= 1);
   assert.ok(ops.eodTotal(summary) >= 2);
 
-  await db.opsReminderSettings.update({ where: { id: "default" }, data: { eodSummaryTime: "18:30", lastEodSummaryDay: null } });
+  await db.opsReminderSettings.update({ where: { id: "default" }, data: { eodSummaryTime: "18:30", lastEodSummaryDay: "2026-10-13" } });
   await ops.runOpsReminderSweep(NOON); // 12:00 IST — too early
   assert.equal(await notifs("OPS_EOD_SUMMARY"), 0);
   const evening = new Date("2026-10-14T13:05:00Z"); // 18:35 IST
