@@ -14,7 +14,7 @@ No secrets appear here (names/locations only). Production boundary: no push to `
 | SOS-04 | GitHub, Coolify, production deployment | P1 | PARTIALLY COMPLETE; exposed ports risk open |
 | SOS-05 | WhatsApp Cloud API + customer messages | P1 | PARTIALLY COMPLETE (TEST MODE); campaign launch gated |
 | SOS-06 | Cognito forms → CRM → WhatsApp | P1 | BLOCKED/PENDING OWNER — bridge script not installed; recent enquiries not in CRM |
-| SOS-07 | Google Ads — Brand Make unlink + support | P1 | PENDING OWNER DECISION — manager still linked; Sahara admin access verified |
+| SOS-07 | Google Ads — Brand Make unlink + support | P1 | PENDING OWNER PASSKEY — unlink dialog reached Google's passkey gate; manager still linked |
 | SOS-08 | Meta Business assets + ads ownership | P1 | PARTIALLY COMPLETE (inventory + access audit done 2026-10-15; ad account outside portfolio; owner decisions needed) |
 | SOS-09 | Staff operations + mobile QA | P1 | NOT TESTED on real devices |
 | SOS-10 | Google Workspace email migration | P1 | PENDING (no verified work in this context) |
@@ -78,10 +78,11 @@ Report separately (per directive):
 - **Acceptance:** a new Cognito enquiry appears in CRM Leads within ~5 min, de-duplicated, with Admin/Accounts/Operations alerts.
 
 ### SOS-07 — Google Ads: Brand Make unlink + support · P1
-- **Verified 2026-10-14 (read-only in the owner's signed-in Google Ads, customer account "Sahara Cleaning"):** manager **Brand Make Digital Marketing Solution** is still linked (since 30 Jan 2026, type Google Ads, **Owner: No**). The account has **1 user, 1 admin (Sahara's own)**, 0 passkey-disabled users, so Sahara's access is intact. Balance is exhausted (account not spending). Gmail holds only the link confirmation (30 Jan 2026) and Brand Make invoices (to Jul 2026); **no Google Ads support case exists** and none was opened by Claude.
-- **Official route:** an account admin can remove a manager himself: Admin → Access and security → Managers → "Remove access" (Google's documented self-service flow; a support case is only needed if the admin cannot do it). That click removes a third party's access — **explicit owner decision**, and the tool layer previously denied it. Claude did not click it.
-- **Owner step (one):** decide "remove Brand Make now" — then either click **Remove access** on the Managers tab and confirm with your passkey, or tell Claude to do the click (the passkey prompt, if shown, is yours). Before removal: ask Brand Make (accounts@brandmake.in) for any assets they hold (conversion tracking, reports, billing) — nothing in Gmail shows they own any.
-- **Not done / not claimed:** unlink not completed; no support case reference. Do not add funds or change billing.
+**Status: PENDING OWNER PASSKEY — everything else done (2026-10-15).**
+- **Pre-checks VERIFIED (read-only):** Sahara keeps its own access (1 user, 1 admin, 0 users without passkey); manager Brand Make Digital Marketing Solution (898-956-9172) linked since 2026-01-30, type Google Ads, **Owner: No**. **Billing is Sahara's own** (manual payments by Visa ending 2994; last payment ₹5,000 on 27 Jul; balance ₹0.37, funds exhausted; net cost Feb–Aug 2026 ≈ ₹107k; no spend since August). **Conversion goals live inside Sahara's account** (Submit lead form, Phone call lead – "needs attention", Contact, Get directions, Leads from messages), so unlinking does not delete them. Gmail has no Google support case; none was needed — the account admin can unlink himself.
+- **Official removal started:** Access and security → Managers → "Remove access" → dialog "Unlink this account from Brand Make…" (Google states: "1 account will continue serving ads"; "Data shared from Brand Make won't be available after unlinking"; "another admin may need to approve… request expires in 20 days"). Clicking **Unlink** triggered Google's **"Confirm it's you — Confirm with a passkey"** gate. Claude stopped there (never bypassed). The dialog was left open in the automation Chrome tab.
+- **Owner step (one):** in that Chrome tab press **Confirm with a passkey** and approve with your device/Windows Hello. If the dialog was closed: Google Ads → Admin → Access and security → Managers → Remove access → Unlink → Confirm with a passkey. Then tell Claude; Claude verifies the Managers list is empty and the account/conversions/billing are unchanged. If Google reports "pending approval", the request stays valid for 20 days.
+- **Not done:** unlink is **not completed** until the passkey is approved. Brand Make's Meta Ads access (if any) is a separate matter (SOS-08: no agency partner is in the Meta portfolio).
 
 ### SOS-08 — Meta Business assets + ads ownership · P1
 **Status: PARTIALLY COMPLETE — ownership inventory + access audit done (read-only, 2026-10-15, owner's signed-in Meta Business Suite); Sahara-controlled setup needs owner decisions.**
