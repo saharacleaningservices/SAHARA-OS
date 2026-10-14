@@ -13,9 +13,9 @@ No secrets appear here (names/locations only). Production boundary: no push to `
 | SOS-03 | Backup, disaster recovery, hosting security | P0 | PARTIALLY COMPLETE — backup + restore VERIFIED; alerts built locally, NOT deployed; encryption + 2nd copy pending owner |
 | SOS-04 | GitHub, Coolify, production deployment | P1 | PARTIALLY COMPLETE; exposed ports risk open |
 | SOS-05 | WhatsApp Cloud API + customer messages | P1 | PARTIALLY COMPLETE (TEST MODE); campaign launch gated |
-| SOS-06 | Cognito forms → CRM → WhatsApp | P1 | PARTIALLY COMPLETE (CRM endpoint exists); Cognito side NOT TESTED |
-| SOS-07 | Google Ads — Brand Make unlink + support | P1 | BLOCKED (owner identity / official flow) |
-| SOS-08 | Meta Business assets + ads ownership | P1 | PARTIALLY COMPLETE (audit only, carried over) |
+| SOS-06 | Cognito forms → CRM → WhatsApp | P1 | BLOCKED/PENDING OWNER — bridge script not installed; recent enquiries not in CRM |
+| SOS-07 | Google Ads — Brand Make unlink + support | P1 | PENDING OWNER DECISION — manager still linked; Sahara admin access verified |
+| SOS-08 | Meta Business assets + ads ownership | P1 | PARTIALLY COMPLETE (account audited 2026-10-14; billing owner-only) |
 | SOS-09 | Staff operations + mobile QA | P1 | NOT TESTED on real devices |
 | SOS-10 | Google Workspace email migration | P1 | PENDING (no verified work in this context) |
 | SOS-11 | Google Business Profile + marketing assets | P2 | PARTIALLY COMPLETE (audit done; corrections need owner login) |
@@ -41,6 +41,7 @@ No secrets appear here (names/locations only). Production boundary: no push to `
 - **VERIFIED (2026-10-14):** nightly workflow green (run #86 manual, many scheduled runs); Drive file `sahara-os-20261014-174048.tar.gz` 5,301,551 B; isolated restore RESTORABLE, `integrity_check` ok before/after migration, 15 users / 4,231 customers / 227 leads / 247 jobs / 224 payments / 47 quotations / 23 invoices / 9 upload files; CRM pages (Leads, Jobs, Payments, Quotations, Invoices, Customers) load on the restored scratch copy; Leads 221 vs 204 explained (17 soft-deleted). Evidence: `docs/BACKUP_ALERTS_ROLLOUT_PLAN.md` §5, `docs/DISASTER_RECOVERY_RUNBOOK.md`.
 - **Done locally, NOT deployed:** backup-failure GitHub Issue alert + size-verified Drive upload (`feat/backup-alerts-workflow` `957e7f1`, based on `main`); CRM 26-hour stale-backup alert + `/api/backup/confirm` (`feat/backup-alerts` `dfa1073`, `a5531ab`, `567f29d`, `32e0904` badge fix). Tests: `test:backup` 10/10, Python 16/16, `tsc` clean, `npm run build` ok. Read-only pre-deployment review: fast-forward safe from `f81fbdb`, no schema change.
 - **BLOCKED:** pushing to `coolify-deploy` / the workflow branch was denied by the tool's production-deploy rule. Needs the owner to allow it (explicit instruction or Bash permission rule) — one decision.
+- **Encryption assessment (2026-10-14, throwaway key, synthetic archive, temp files deleted):** the exact `openssl enc -aes-256-cbc -pbkdf2 -salt` commands planned for the workflow encrypt and decrypt back to a byte-identical archive; a wrong key fails (`bad decrypt`, exit 1); ciphertext is salted (`Salted__`). So the mechanism works; only the owner-held key is missing.
 - **PENDING OWNER (security decisions):** (a) backup encryption key (`BACKUP_ENCRYPTION_KEY` was never created; all Drive backups are plaintext) — plan in runbook §9a; (b) second independent off-site copy — options in §9b (nothing purchased).
 - **Not verified:** real GitHub Actions run of the new workflow, live alert e-mail, new-VPS rebuild time (RTO is an estimate), Coolify-config backup.
 - **Rollback:** CRM — redeploy `f81fbdb`; workflow — revert on `main`; no schema change.
@@ -61,13 +62,22 @@ Report separately (per directive):
 - **Campaign launch — NOT AUTHORISED:** live sends stay OFF until the owner approves; a small test audience (approved test number 9921215250) first. Guardrails: never touch the old WABA; AI/auto-replies OFF.
 
 ### SOS-06 — Cognito forms → CRM → WhatsApp · P1
-- CRM intake endpoint `/api/webhook/email-lead` exists (commit `aeab587`, token auth, dedupe). **Not verified:** the Cognito form/email side and an end-to-end test without creating fake customer leads. **Next:** read-only config check; end-to-end test only with the approved test number and owner OK.
+- **Status: BLOCKED / PENDING OWNER (found 2026-10-14, read-only).** CRM intake `/api/webhook/email-lead` exists, fails closed (production returns 401 without the bearer token). But the **sender is missing**: the contact@ account has **no Apps Script projects**, so Cognito enquiries reach Gmail only. Gmail shows 201 Cognito threads, latest 13 Oct 2026; five consecutive enquiries from 7–13 Oct were searched in the live CRM leads list (210 leads) by name and number and **none were found** — enquiries are probably being handled outside the CRM or missed.
+- **Done (local):** ready-to-install bridge `docs/cognito-email-lead.gs` (reads only Cognito notification mails, labels processed threads `CRM-synced`, token from Script Properties; parser checked on made-up samples; no customer data in the repo).
+- **Owner steps (one at a time):** (1) in Coolify confirm/set `EMAIL_LEAD_TOKEN` (secret — owner only); (2) install the script per its header (Google asks the owner to authorise Gmail access); (3) tell Claude, who then verifies with the next real enquiry (no fake leads).
+- **Acceptance:** a new Cognito enquiry appears in CRM Leads within ~5 min, de-duplicated, with Admin/Accounts/Operations alerts.
 
 ### SOS-07 — Google Ads: Brand Make unlink + support · P1
-- **BLOCKED:** the unlink click was denied by the tool layer; the official flow needs the owner's own authenticated confirmation/passkey. **Owner step (one):** sign in to Google Ads and complete the official "unlink manager" confirmation, or authorise a support case. Do not add funds or change billing. Do not claim completion until the relationship shows removed.
+- **Verified 2026-10-14 (read-only in the owner's signed-in Google Ads, customer account "Sahara Cleaning"):** manager **Brand Make Digital Marketing Solution** is still linked (since 30 Jan 2026, type Google Ads, **Owner: No**). The account has **1 user, 1 admin (Sahara's own)**, 0 passkey-disabled users, so Sahara's access is intact. Balance is exhausted (account not spending). Gmail holds only the link confirmation (30 Jan 2026) and Brand Make invoices (to Jul 2026); **no Google Ads support case exists** and none was opened by Claude.
+- **Official route:** an account admin can remove a manager himself: Admin → Access and security → Managers → "Remove access" (Google's documented self-service flow; a support case is only needed if the admin cannot do it). That click removes a third party's access — **explicit owner decision**, and the tool layer previously denied it. Claude did not click it.
+- **Owner step (one):** decide "remove Brand Make now" — then either click **Remove access** on the Managers tab and confirm with your passkey, or tell Claude to do the click (the passkey prompt, if shown, is yours). Before removal: ask Brand Make (accounts@brandmake.in) for any assets they hold (conversion tracking, reports, billing) — nothing in Gmail shows they own any.
+- **Not done / not claimed:** unlink not completed; no support case reference. Do not add funds or change billing.
 
 ### SOS-08 — Meta Business assets + ads ownership · P1
-- Audit recorded in Drive "Technical Master — UPDATE 2" (carried over, not re-verified). Remaining: verify admin roles/ad account ownership/pixel; owner-only items need login/2FA. Meta Pixel ID is an env variable (`NEXT_PUBLIC_META_PIXEL_ID`).
+- **Verified 2026-10-14 (read-only, owner's signed-in Meta):** Sahara-owned ad account `343079872519451`; business name Sahara Cleaning Services, INR, GST verified. **Funds ₹0.00, no payment method, no recent spend.** Campaigns (last 30 days): 3 — "Post: Keep your glass maintain and clean…", "INDEPENDENCE DAY SALE", "Post: Sahara Cleaning Services was live." — all switched **On** but delivery = **Payment error**, no results/spend.
+- **Risk:** as soon as a payment method/funds are added these three On campaigns could start spending. Review and switch off/replace before adding billing (not changed by Claude — no publish/activate/schedule/spend).
+- **Legitimate reuse:** the three are old boosted posts/sale creative — reuse creative as inspiration only; new campaigns should be built fresh from the approved landing pages with Pixel/CAPI checks. Not started.
+- **Owner steps (later, one at a time):** add a payment method (owner only), then approve a budget; until then SOS-14 stays blocked. Note the ad account business address shows Magarpatta — an ad-account setting, left unchanged.
 
 ### SOS-09 — Staff operations + mobile QA · P1
 - `STAFF_APP_DEVICE_QA.md` exists. **NOT TESTED** on real staff devices in this pass. Next: QA checklist on actual phones (attendance, job card, consent tap, sound/alerts).
