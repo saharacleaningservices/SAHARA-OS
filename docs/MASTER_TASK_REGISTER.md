@@ -110,6 +110,7 @@ Report separately (per directive):
 
 ### SOS-16 — cPanel access audit for Brand Make (added 2026-10-14, read-only) — PENDING OWNER ACCESS
 - **Blocked:** `https://saharacleaningservices.com:2083` shows the cPanel login page in the automation browser; the owner's already-open cPanel tab is outside the tab group the extension may use and cPanel sessions are bound to a tokenised URL. Claude will not ask for or enter the cPanel password. **Owner step (one):** in your cPanel tab, click the Claude extension icon and add that tab to the Claude group (or tell Claude to wait while you sign in on the tab Claude opened) — then the read-only audit (FTP/SSH accounts, subdomains, databases/users, cron, redirects, agency-named folders/landing pages) runs.
+- **Live-site read-only check (2026-10-14 ~18:55 IST):** `www`/apex → 200, `booking…/` and `/booking` → 200, `crm…/login` → 200, `app…` → login 200. Nothing on the website, DNS, hosting or cPanel was changed by Claude.
 - **Rules:** read-only; no website/WordPress/DNS/MX/SSL/redirect/hosting change; ambiguous or shared access is only documented; the primary cPanel password is not changed without the owner. Live website only checked read-only.
 
 ## Current git state (2026-10-14)
