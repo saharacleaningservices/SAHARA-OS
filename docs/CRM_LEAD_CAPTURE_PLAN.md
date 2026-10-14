@@ -75,3 +75,75 @@ GA4 (account 383708287) — administrator unknown, contact@ is not Administrator
 
 ## 10. Next safest step
 Approve one small production deploy (consent checkbox + Sheets retry; no schema/env change) with the backup-verified rollback above — or first approve the free staging app and run the same tests there. Claude will then verify with one internal test lead on the live page.
+
+---
+# 11. Decision report — pre-deployment review (2026-10-15, nothing deployed or created)
+
+## 11.1 Diff review against production `f81fbdb` (both branches are exactly 1 commit ahead, 0 behind)
+| Branch | Files | Content |
+|---|---|---|
+| `feat/landing-consent` `e2a79cf` | `src/components/public/category-lead-form.tsx` (+9/−1) | optional, unticked checkbox; `marketingOptIn: false` becomes a state value; same wording as the booking wizard |
+| `feat/lead-sheet-retry` `2ff0a60` | `src/server/lead-sheet.ts`, `tests/lead-sheet.test.ts`, `scripts/google-sheets-lead-webhook.gs`, `package.json` (+1 script) | 3-attempt retry, idempotency key, AuditLog on final failure; tests; optional Apps Script duplicate check |
+Checked: **no** prisma/schema, `db-setup`, migration, `.env`, pricing, middleware, `next.config`, lock-file or `dev.db` change; no secret (only the fake test value `unit-test-secret-not-real`); no booking/pricing logic touched. The two commits cherry-pick onto production cleanly (temporary local branch `qa/combined`).
+Review notes: (a) the Apps Script change adds an `idempotency_key` column — an existing sheet's header row has only 10 columns, so the new column has no header cell (cosmetic; the duplicate check still works); (b) only an explicit `{ok:false}` from the script counts as a failure — an HTML error page with HTTP 200 is treated as success (same as before this change).
+
+## 11.2 Tests and build (run on `qa/combined` = production + both branches, 2026-10-15)
+| Command | Result |
+|---|---|
+| `npx tsc --noEmit` | clean (one transient error came from a stale `.next/types` file of an earlier build; clean after rebuild) |
+| `npm run build` (Next.js Turbopack production build) | exit 0, "Compiled successfully in 71s", 51/51 static pages |
+| `npm run test:sheet` | 5/5 |
+| `npm run test:ops` | 7/7 |
+| `npm run test:inquiry` | 15/15 |
+| `npm run test:eod` | 16/16 |
+| `npm run test:public` | 5/5 |
+| `npm run test:pricing` | 61/61 |
+Plus the manual local E2E in section 3 (landing form to CRM lead, attribution, dedupe, consent checkbox). All LOCAL; no staging; no production verification.
+
+## 11.3 VPS resources (read-only: Hostinger hPanel usage charts, Coolify server pages) — KVM 2: 2 vCPU, 8 GB RAM, 100 GB disk
+| Metric | Evidence |
+|---|---|
+| CPU | idle baseline about **8%**; the one deploy/build seen in the last 24 h (~1 PM) peaked at about **34%** for a few minutes |
+| RAM | steady **2.0–2.3 GB** of 8 GB; about 2.5 GB peak during that build (1-minute sampling, so the true build peak may be higher) |
+| Disk | **about 23.5 GB of 100 GB** now; it was about 6 GB in the early morning and jumped by about **17 GB** around that build (images + build cache) |
+| Docker cleanup | Coolify runs it **daily at 00:00 UTC (05:30 IST)** ("Run on every schedule") — this explains the nightly return to about 6–11 GB |
+| Coolify | 1 server ("localhost"), 1 app. Server page shows **"Attention required / Changes pending – Restart Proxy"**; the Proxy page says **"Your configuration changed, please restart the proxy"**; a Traefik v3.7 update is also offered. Claude changed nothing; cause unknown. **Do not restart the proxy casually — it briefly takes every site (CRM, booking, app) offline.** |
+Per-container CPU/RAM was not available without a shell; the numbers above are server-wide.
+
+## 11.4 Can a staging app run safely on the existing VPS? — **Yes, with conditions; not created**
+Expected impact of a second Coolify app: first build ≈ the same ~34% CPU spike for several minutes (the live CRM may respond slower; schedule it after ~23:00 IST), runtime RAM about 0.3–0.5 GB (estimate), disk about +3–5 GB steady and up to about +17 GB during a build until the 05:30 IST cleanup — well inside 100 GB. Cash cost ₹0 (VPS prepaid to 2028-09-05). Conditions (all must hold):
+1. **Never clone the production app** — cloning copies production env vars (WhatsApp/SMS/VAPID/Sheet secrets). Create a fresh app from the repo with only: its own `DATABASE_URL` on its own new volume, a new `AUTH_SECRET` (owner-created), `OPS_REMINDERS_SCHEDULER=off`, `WHATSAPP_OUTBOUND_MODE=test`, and **no** WhatsApp/SMS/e-mail/Sheet/VAPID variables.
+2. **Demo-account risk found:** a fresh database is seeded with demo users and the bootstrap passwords printed in `prisma/seed.ts` (admin Sahara1, Sahara2, Sahara3 …), and the committed `dev.db` (5 demo users, 20 staff, 24 jobs, no real customers) is copied onto an empty external volume. On a public staging URL those logins would be guessable. Mitigation: switch on Coolify's HTTP Basic Auth for the staging app, change the demo passwords at first login, keep the app stopped except while testing.
+3. Do not touch the pending proxy change; a new application with a domain is normally picked up by Traefik dynamically (no proxy restart expected, but unverified until tried).
+4. Staging data stays synthetic; no copy of the production database or backups.
+**Decision: SAFE TO STAGE under these conditions; NOT created.** Fallback with no VPS impact: keep testing locally (what was done).
+
+## 11.5 Google Sheets — exactly what happens on a restart (experiment)
+Test: a child process starts a copy and is killed (SIGKILL, same effect as a container stop for in-flight work) while the copy is running; scratch DB, fake fetch.
+| Moment of the kill | Result |
+|---|---|
+| attempt 1 in flight (answer never arrives) | no Sheet row, **no `LEAD_SHEET_COPY_FAILED` record** (AuditLog count 0) |
+| attempt 1 failed, waiting in back-off before attempt 2/3 | no Sheet row, **no failure record** (count 0) |
+| CRM lead | already committed before the copy starts — **safe** in every case |
+**Remaining failure window:** from the moment the lead is committed until the copy succeeds or logs its failure — about 0.3 s normally, up to about 15 s in the worst case (3 × 4 s timeout + 0.5 s + 2.5 s back-off). A deploy/restart inside that window silently skips the Sheet row and nothing records it. The CRM is the source of truth, so no lead is lost, but the Sheet can miss a row. Closing it fully needs a persistent outbox (a schema change — deliberately not done) or a periodic CRM-to-Sheet reconciliation; a cheap interim: after each deploy, compare the Sheet row count with that day's CRM leads. A timed-out request that the Sheet did store is retried with the same key — with the updated Apps Script the duplicate is skipped; with the old script it would be added twice.
+
+## 11.6 WhatsApp consent checkbox — facts
+- **Optional:** the form submits without it (tested). **Unchecked by default:** DOM `checked=false` on page load (tested). Ticked by a real click gives `marketingConsent=OPTED_IN` + timestamp; unticked gives `UNKNOWN` (tested, scratch DB).
+- Ticking sends nothing; it only stores consent. No external message was sent in any test (all 4 WhatsApp rows CANCELLED by TEST mode; Cloud API, SMS, e-mail, Sheet and VAPID variables were blank).
+- Gates that stop marketing messages today (production `f81fbdb`): broadcast only to numbers with a recorded opt-in and no STOP; live campaigns need `WHATSAPP_CAMPAIGNS=on`; outbound TEST/transactional mode (the env value is not visible to Claude; the 2026-10-14 backup shows 1,488 of 1,509 messages blocked). **Not yet on production:** the extra guard inside `sendWhatsAppTemplate` (branch `feat/whatsapp-consent-guard` `38862c5`, 8 tests) that refuses any MARKETING template without a recorded opt-in even from other code paths — recommended to deploy together with the checkbox.
+- Transactional booking messages (utility templates) are separate from marketing and unaffected by the checkbox.
+
+## 11.7 Native lead forms — NOT IMPLEMENTED
+Google Ads lead-form webhook and Meta Instant-Form (`leadgen`) webhook: **not implemented, not tested, no credentials or permissions granted.** They stay "possible, ₹0, pending authorized API/webhook tests" (section 4).
+
+## 11.8 Backup / rollback readiness
+Last backup #86 (2026-10-14 17:40 IST) green and restore-verified; the 02:00 IST run had not yet appeared at 02:27 IST. Rollback for any deploy: Coolify, Deployments, redeploy `f81fbdb`, or revert commit (no force push). Neither branch changes the schema, so rollback never needs a data restore.
+
+## 11.9 Costs
+Unavoidable cost for the next step: **₹0.** Not purchased: Hostinger daily backups (₹589/month), any connector/subscription, any ad spend.
+
+## 11.10 Precise approval needed for the next step
+Choose one:
+- **A (recommended):** approve creating **one free staging app** on the existing VPS under the conditions in 11.4 (fresh app, no cloned env, Basic Auth, TEST mode, built after about 23:00 IST). Claude then runs the section 3 tests there and reports STAGING-verified results.
+- **B:** approve a small **production deploy** of `feat/landing-consent` + `feat/lead-sheet-retry` (+ optionally `feat/whatsapp-consent-guard`), no schema/env change, rollback as in 11.8.
+- **C:** do nothing yet.
