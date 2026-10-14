@@ -56,7 +56,8 @@ Report separately (per directive):
 - **API readiness — VERIFIED (carried over + webhook probes):** WABA connected, number quality High, outbound in TEST MODE, webhook rejects bad token (403) and unsigned/bad-signature posts (401); delivered/read ticks visible in the Inbox.
 - **Template approval — carried over:** booking/review/reactivation/Diwali templates Active in Meta.
 - **Consent readiness — NOT READY:** 1 opted-in of 4,312 contacts. Promotions are allowed only to recorded opt-ins.
-- **Opt-out/duplicate/delivery reporting — PENDING CLAUDE:** audit and tests of STOP suppression, duplicate prevention and the Message Log (shows no delivered/read, only the Inbox does).
+- **Opt-out / duplicate prevention — VERIFIED locally (code audit + tests, 2026-10-14):** webhook STOP/UNSUBSCRIBE (whole-message match; CANCEL is never an opt-out) sets `WhatsAppConsent.optedOut` and the lead's `marketingConsent`; broadcast is Admin-only, needs Cloud API ready, LIVE needs `WHATSAPP_CAMPAIGNS=on`, uploads never grant consent (only recorded opt-in and no STOP), contacts are de-duplicated, each send re-checks STOP (fail-closed), a campaign never re-sends to a number already SENT/QUEUED, one broadcast at a time. Tests: branch `feat/whatsapp-optout-tests` `9cd004f` (`npm run test:whatsapp`, 4/4; no production code changed; not pushed).
+- **Delivery reporting — PENDING CLAUDE:** the Message Log shows no delivered/read status (only the Inbox does). Small fix candidate; not started.
 - **Campaign launch — NOT AUTHORISED:** live sends stay OFF until the owner approves; a small test audience (approved test number 9921215250) first. Guardrails: never touch the old WABA; AI/auto-replies OFF.
 
 ### SOS-06 — Cognito forms → CRM → WhatsApp · P1
@@ -95,7 +96,7 @@ Report separately (per directive):
 - Never committed: `dev.db`, `.claude/launch.json`, marketing images, `CLAUDE.md`, `SAHARA_OS_MASTER_CONTEXT.docx`, `WHATSAPP_CAMPAIGN_REVIEW.md`, `audits/`.
 
 ## Next ready work (no owner needed)
-1. SOS-05: audit/tests for STOP opt-out suppression, duplicate prevention, delivery reporting (local code + tests).
+1. SOS-05: delivery status (delivered/read) in the Message Log; recording more marketing opt-ins needs real customer consent (owner/staff).
 2. SOS-09: QA checklist for staff devices (prepare; real-device run needs people).
 3. SOS-06: read-only check of the Cognito → CRM path.
 4. Keep SOS-03 push blocked item visible; resume the moment the owner permits.
