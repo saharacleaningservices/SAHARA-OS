@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -84,6 +85,51 @@ class RetentionScope(unittest.TestCase):
         self.assertTrue(g.same_kind("sahara-os-1.tar.gz.enc", "sahara-os-2.tar.gz.enc"))
         self.assertFalse(g.same_kind("sahara-os-1.tar.gz", "sahara-os-2.tar.gz.enc"))
         self.assertFalse(g.same_kind("sahara-os-1.tar.gz.enc", "sahara-os-2.tar.gz"))
+
+
+class RetentionPolicy(unittest.TestCase):
+    NOW = datetime(2026, 10, 14, 12, 0, tzinfo=timezone.utc)
+
+    @staticmethod
+    def item(i, dt):
+        return {"id": str(i), "createdTime": dt.strftime("%Y-%m-%dT%H:%M:%S.000Z")}
+
+    def daily(self, days, hour=20, minute=30):
+        # nightly 02:00 IST run = 20:30 UTC of the previous day; one per day for `days` days back from NOW
+        return [self.item(f"d{n}", (self.NOW - timedelta(days=n)).replace(hour=hour, minute=minute)) for n in range(days)]
+
+    def test_manual_runs_do_not_push_daily_history_out(self):
+        items = self.daily(40)
+        # 25 manual test runs crammed into one old day (the 2026-10-08 situation)
+        day = self.NOW - timedelta(days=6)
+        items += [self.item(f"m{n}", day.replace(hour=5, minute=0) + timedelta(minutes=20 * n)) for n in range(25)]
+        keep = g.select_retained(items, self.NOW)
+        by_id = {f["id"]: f for f in items}
+        kept_days = {g._created(by_id[k]).date() for k in keep}
+        for n in range(30):
+            day = g._created(self.item("x", self.NOW - timedelta(days=n, hours=-8))).date()  # the IST day of nightly run n
+            self.assertIn(day, kept_days, f"some backup from the day {n} days ago must survive")
+        self.assertEqual(sum(1 for k in keep if k.startswith("m")), 1, "only the newest manual run of that busy day is kept")
+
+    def test_everything_in_the_last_48_hours_is_kept(self):
+        items = [self.item(n, self.NOW - timedelta(hours=h)) for n, h in enumerate([1, 2, 3, 5, 20, 40, 47])]
+        self.assertEqual(g.select_retained(items, self.NOW), {str(n) for n in range(7)})
+
+    def test_monthly_tier_beyond_the_daily_window(self):
+        items = self.daily(30)
+        old = [self.item(f"o{n}", datetime(2026, m, d, 20, 30, tzinfo=timezone.utc)) for n, (m, d) in enumerate([(8, 30), (8, 12), (7, 25), (7, 3), (6, 20)])]
+        keep = g.select_retained(items + old, self.NOW)
+        self.assertEqual({k for k in keep if k.startswith("o")}, {"o0", "o2", "o4"}, "newest archive of Aug, Jul and Jun only")
+
+    def test_keep_months_cap(self):
+        old = [self.item(f"o{n}", datetime(2025, 1, 1, 20, 30, tzinfo=timezone.utc) + timedelta(days=31 * n)) for n in range(20)]
+        keep = g.select_retained(self.daily(3) + old, self.NOW, keep_months=12)
+        self.assertEqual(len({k for k in keep if k.startswith("o")}), 12)
+
+    def test_newest_is_never_deleted_and_empty_is_safe(self):
+        self.assertEqual(g.select_retained([], self.NOW), set())
+        stale_only = [self.item("x", self.NOW - timedelta(days=500))]
+        self.assertEqual(g.select_retained(stale_only, self.NOW), {"x"})
 
 
 @unittest.skipUnless(shutil.which("bash"), "bash required")

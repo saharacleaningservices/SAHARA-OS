@@ -87,6 +87,45 @@ jobs:
             -d "{\"fileName\":\"${ARCHIVE}\",\"sizeBytes\":${size},\"destination\":\"google-drive\"}" \
             "${BACKUP_URL%/}/confirm"
 
+      # ── Encrypted copy + second independent off-site copy ────────────────────────────────────────────
+      # Needs the owner-created secret BACKUP_ENCRYPTION_KEY. Without it this step only warns (the plaintext Drive
+      # copy above is unaffected). With it: AES-256 (PBKDF2) encrypt, PROVE it decrypts to the identical archive,
+      # upload the .enc to the same Drive folder (retention is scoped per file kind), and keep the .enc as a GitHub
+      # Actions artifact for 30 days — a second, separately-operated location (GitHub, not Google, not the VPS).
+      # Only the ENCRYPTED file ever leaves Drive; plaintext customer data is never stored in GitHub.
+      - name: Encrypted copy (needs BACKUP_ENCRYPTION_KEY)
+        id: enc
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          KEEP_DAILY: "30"
+          KEEP_MONTHLY: "12"
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKUP_ENCRYPTION_KEY:-}" ]; then
+            echo "::warning::BACKUP_ENCRYPTION_KEY is not set - only the plaintext Drive copy exists (no encrypted or second off-site copy)."
+            echo "encrypted=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          encrypted="${ARCHIVE}.enc"
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in "$ARCHIVE" -out "$encrypted" -pass env:BACKUP_ENCRYPTION_KEY
+          openssl enc -d -aes-256-cbc -pbkdf2 -in "$encrypted" -out "$encrypted.check" -pass env:BACKUP_ENCRYPTION_KEY
+          cmp "$ARCHIVE" "$encrypted.check"
+          rm -f "$encrypted.check"
+          ls -lh "$encrypted"
+          python .github/scripts/gdrive_backup.py "$encrypted"
+          echo "encrypted=true" >> "$GITHUB_OUTPUT"
+
+      - name: Second off-site copy - GitHub artifact (encrypted file only)
+        if: ${{ steps.enc.outputs.encrypted == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahara-os-backup-encrypted
+          path: ${{ env.ARCHIVE }}.enc
+          retention-days: 30
+          if-no-files-found: error
+
       # Runs whether the job succeeded or a step above failed — the app's own
       # BackupEvent logging (src/app/api/backup/route.ts) only knows about
       # the download step; this is the one place that can also see a failure
