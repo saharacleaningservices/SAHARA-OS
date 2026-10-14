@@ -20,6 +20,7 @@ import { CompanyLogo } from "@/components/shared/company-logo";
 import { GlobalSearch } from "@/components/shared/global-search";
 import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import { EodSummaryModal } from "@/components/notifications/eod-summary-modal";
+import { NewInquiryAlert } from "@/components/notifications/new-inquiry-alert";
 import { ROLE_LABELS } from "@/lib/constants";
 import { canSearchGlobally } from "@/lib/permissions";
 
@@ -68,6 +69,7 @@ export function Topbar({
         <p className="hidden truncate text-sm font-semibold text-foreground md:block">{pageLabel}</p>
       )}
 
+      {(role === "ACCOUNTS" || role === "OPERATIONS") && <NewInquiryAlert />}
       <NotificationsBell />
       {(role === "ADMIN" || role === "ACCOUNTS") && <EodSummaryModal />}
 
