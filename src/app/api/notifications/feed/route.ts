@@ -25,6 +25,8 @@ export async function GET() {
   // Older rows may still carry a customer number — withhold it from restricted roles.
   const mask = (t: string | null) => (t && !canSeeCustomerContact(session.role) ? t.replace(/(\+?91[\s-]?)?\b\d{10}\b/g, "(number hidden)") : t);
   return NextResponse.json({
+    // Build id baked into this server bundle; open tabs compare it with their own and reload when it differs.
+    build: process.env.NEXT_PUBLIC_BUILD_ID ?? null,
     unreadCount,
     // Reminder sound = global switch AND this user's own switch; notifications = this user's own switch.
     opsSound: (ops?.soundEnabled ?? true) && (me?.soundEnabled ?? true),

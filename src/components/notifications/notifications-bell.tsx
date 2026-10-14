@@ -60,6 +60,9 @@ export function NotificationsBell() {
   // Reminder alert preferences (own account). `canConfigure` = Super Admin / Accounts.
   const [prefs, setPrefs] = useState<{ sound: boolean; userSound: boolean; notifications: boolean; canConfigure: boolean }>({ sound: true, userSound: true, notifications: true, canConfigure: false });
   const [audioReady, setAudioReady] = useState(false);
+  // A newer deployment exists than the one this tab loaded (stale JavaScript → old Server Action ids fail).
+  const [stale, setStale] = useState(false);
+  const staleSince = useRef<number | null>(null);
   const prefsRef = useRef(prefs);
   prefsRef.current = prefs;
   const lastSeenRef = useRef<string>("");
@@ -92,11 +95,46 @@ export function NotificationsBell() {
     }
   }, []);
 
+  const markStale = useCallback(() => {
+    setStale(true);
+    if (staleSince.current === null) staleSince.current = Date.now();
+  }, []);
+
+  // A Server Action that no longer exists on the server means this tab is older than the deployment.
+  useEffect(() => {
+    const onRejection = (e: PromiseRejectionEvent) => {
+      const msg = String((e.reason && (e.reason.message ?? e.reason)) || "");
+      if (/server action/i.test(msg) && /(not found|older or newer|unrecognized)/i.test(msg)) markStale();
+    };
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => window.removeEventListener("unhandledrejection", onRejection);
+  }, [markStale]);
+
+  // Reload by itself when it is safe: the tab comes back to the foreground, or after 2 minutes while nobody is typing.
+  useEffect(() => {
+    if (!stale) return;
+    const reload = () => window.location.reload();
+    const typing = () => {
+      const el = document.activeElement as HTMLElement | null;
+      return Boolean(el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable));
+    };
+    const onVisible = () => document.visibilityState === "visible" && !typing() && reload();
+    document.addEventListener("visibilitychange", onVisible);
+    const id = setInterval(() => {
+      if (staleSince.current && Date.now() - staleSince.current > 120_000 && !typing()) reload();
+    }, 10_000);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      clearInterval(id);
+    };
+  }, [stale]);
+
   const poll = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications/feed", { cache: "no-store" });
       if (!res.ok) return;
-      const data: { unreadCount: number; items: Item[]; opsSound?: boolean; opsNotifications?: boolean; userSound?: boolean; canConfigure?: boolean } = await res.json();
+      const data: { build?: string | null; unreadCount: number; items: Item[]; opsSound?: boolean; opsNotifications?: boolean; userSound?: boolean; canConfigure?: boolean } = await res.json();
+      if (data.build && process.env.NEXT_PUBLIC_BUILD_ID && data.build !== process.env.NEXT_PUBLIC_BUILD_ID) markStale();
       setPrefs({ sound: data.opsSound !== false, userSound: data.userSound !== false, notifications: data.opsNotifications !== false, canConfigure: Boolean(data.canConfigure) });
       setUnread(data.unreadCount);
       setItems(data.items);
@@ -141,7 +179,7 @@ export function NotificationsBell() {
     } catch {
       /* offline — will retry on next tick */
     }
-  }, [router]);
+  }, [router, markStale]);
 
   useEffect(() => {
     setPerm(typeof Notification !== "undefined" ? Notification.permission : "denied");
@@ -233,6 +271,17 @@ export function NotificationsBell() {
   }
 
   return (
+    <>
+      {stale && (
+        <div className="fixed inset-x-0 bottom-4 z-[60] flex justify-center px-4" role="status">
+          <div className="flex items-center gap-3 rounded-lg border border-primary/40 bg-card px-4 py-2 text-sm shadow-lg">
+            <span>A newer version of Sahara OS is ready.</span>
+            <Button size="sm" onClick={() => window.location.reload()}>
+              Reload now
+            </Button>
+          </div>
+        </div>
+      )}
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
@@ -324,5 +373,6 @@ export function NotificationsBell() {
         </div>
       </PopoverContent>
     </Popover>
+    </>
   );
 }
