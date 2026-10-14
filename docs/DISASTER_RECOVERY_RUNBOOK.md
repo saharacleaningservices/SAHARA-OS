@@ -9,7 +9,7 @@ Last verified: 2026-10-14 (real-backup restore drill, CRM page test, alert desig
 | Source code, branches, commits | GitHub `saharacleaningservices/SAHARA-OS` (`coolify-deploy` = production, `coolify-deploy-current` = dev, `main` = backup workflows) | GitHub itself only (NOT a backup of data) | Code is reproducible from GitHub |
 | Production SQLite DB | Docker volume `…-sahara-os-data` → `/app/data` on the VPS | Daily GitHub Action → `/api/backup` → Google Drive | VERIFIED |
 | Uploads (logo, signatures, photos) | Docker volume `…-sahara-os-uploads` → `/app/public/uploads` | Same archive (`uploads/`) | VERIFIED (9 files, 3.1 MB restored) |
-| VPS (Hostinger KVM 2, Ubuntu) | Hostinger | Hostinger weekly backup + 2 snapshots | Not restore-tested |
+| VPS (Hostinger KVM 2, Ubuntu) | Hostinger | Hostinger weekly auto-backup (separate storage; older ones replaced automatically) | **Copies VERIFIED 2026-10-15 in hPanel:** 2026-10-10 16:09 (52.30 GB) and 2026-10-03 10:05 (6.63 GB), Ubuntu 26.04; Hostinger's restore estimate 39 min. Not restore-tested (restoring replaces the live VPS). Daily backups would be a paid upgrade (₹589/mo shown) - not enabled |
 | Coolify config (app, domains, env values, volumes) | Coolify DB on the VPS | NOT backed up off-VPS | GAP — see §8 |
 | Env variable VALUES | Coolify → app → Environment | Owner's password manager (must be kept) | Owner action |
 | DNS | Domain registrar / DNS host | Zone export recommended | Not exported |
@@ -31,6 +31,7 @@ Last verified: 2026-10-14 (real-backup restore drill, CRM page test, alert desig
 ## 3. RPO / RTO
 
 - **RPO (data loss at worst): up to ~24 hours** (last 02:00 IST backup). Reduce by running a manual backup before risky changes (Settings → Download Backup Now, or run the workflow manually).
+- **VPS-level restore (Hostinger weekly backup):** Hostinger estimates **39 minutes** to restore the whole VPS from the 2026-10-10 backup (up to 7 days of data older than the nightly Drive backup, then restore the nightly Drive backup on top). Same provider as the VPS, so it is not an independent copy.
 - **RTO (time to be back online): estimated 1–3 hours** if the VPS is intact (redeploy + restore). **If the VPS is lost, estimated 3–6 hours**, dominated by building a new VPS + Coolify + DNS. These are estimates — the drill measured only the restore (≈1 s DB restore, app boot ≈30 s); a full new-VPS rebuild has NOT been rehearsed.
 
 ## 4. Verify a backup (any machine, never production)
@@ -87,6 +88,7 @@ GitHub Actions secrets: `BACKUP_URL` `BACKUP_TOKEN` `GDRIVE_CREDENTIALS` `GDRIVE
 The backup holds 221 `Lead` rows; 17 have `deletedAt` set (soft-deleted). The Leads page filters `deletedAt = null`, so it correctly shows 204 (`getAllLeadsForList`, no pagination). Verified by counting the real backup read-only; no records changed. Nothing is missing.
 
 ## 8. Gaps and risks
+0. **VPS size jump (investigate):** Hostinger weekly backups grew from 6.63 GB (2026-10-03) to 52.30 GB (2026-10-10). Likely Docker images/build cache or logs; a full disk would stop the CRM and the backup export. Needs a read-only look at disk usage on the VPS (owner/SSH) - not done; pruning is a production change and needs approval.
 
 1. **Single off-site provider** (Google Drive only). See independent-copy proposal (§9).
 2. **No failure alert** on the backup workflow beyond GitHub's default email; **no in-app "backup is stale" alert**. Proposal in §10.
