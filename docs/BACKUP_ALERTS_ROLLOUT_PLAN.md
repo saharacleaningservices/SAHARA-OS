@@ -64,3 +64,12 @@ Check the 02:00 IST run, the Drive file (size), the `DELIVERED` row, absence of 
 - Local commits ready for review: `feat/backup-alerts` (CRM), `feat/backup-alerts-workflow` `957e7f1` (workflow).
 - Tests passing: `npm run test:backup` (10), `python -I .github/scripts/test_backup_guards.py` (16), `test:ops` 7, `test:inquiry` 15, `test:eod` 16, `tsc --noEmit` clean.
 - End-to-end GitHub Actions behaviour: **NOT TESTED until Stage 3.**
+
+## 5. Stage 1 result (2026-10-14) — VERIFIED
+- Run #86 of the existing workflow on `main` (`595d9b3`), started manually in the authorized browser: **Success**, 29 s; summary "Backup succeeded — sahara-os-20261014-174048.tar.gz verified and uploaded to Google Drive".
+- Drive file present: 5,301,551 bytes; the downloaded copy had the same size.
+- Isolated restore (`restore:drill`): RESTORABLE; `integrity_check` ok before and after migration; 63 tables; 15 users, 4,231 customers, 227 leads, 247 jobs, 224 payments, 47 quotations, 23 invoices; 9 upload files (3,146,088 B). Downloaded archive and temp folders deleted afterwards.
+- Pre-deploy checks: `tsc --noEmit` clean, `npm run build` succeeds, `test:backup` 10/10.
+- Baseline before Stage 2: `crm` `/login` 200, `GET /api/backup` 401, `POST /api/backup/confirm` 404 (new code not live).
+- Watch item: GitHub warns `ubuntu-latest` moves to Ubuntu 26 on 2026-10-19 (Python 3.12 is pinned); re-check the run after that date.
+- **Stage 2 / Stage 3 pushes were not made**: the tool's permission layer denied them (production-deploy rule). Pending explicit permission.
