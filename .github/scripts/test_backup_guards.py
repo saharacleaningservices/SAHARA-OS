@@ -126,6 +126,13 @@ class RetentionPolicy(unittest.TestCase):
         keep = g.select_retained(self.daily(3) + old, self.NOW, keep_months=12)
         self.assertEqual(len({k for k in keep if k.startswith("o")}), 12)
 
+    def test_deletion_cap_deletes_nothing_when_plan_is_too_large(self):
+        items = [self.item(f"i{n}", self.NOW - timedelta(days=n)) for n in range(50)]
+        keep = {"i0"}
+        self.assertEqual(g.plan_deletions(items, keep, max_delete=40), [], "49 > 40 -> nothing is deleted")
+        self.assertEqual(len(g.plan_deletions(items, keep, max_delete=60)), 49)
+        self.assertNotIn("i0", {f["id"] for f in g.plan_deletions(items, keep, max_delete=60)}, "kept files are never planned for deletion")
+
     def test_newest_is_never_deleted_and_empty_is_safe(self):
         self.assertEqual(g.select_retained([], self.NOW), set())
         stale_only = [self.item("x", self.NOW - timedelta(days=500))]

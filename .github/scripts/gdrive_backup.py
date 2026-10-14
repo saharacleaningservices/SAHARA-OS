@@ -139,6 +139,12 @@ def select_retained(items, now, keep_days=30, keep_months=12, keep_recent_hours=
     return keep
 
 
+def plan_deletions(items, kept_ids, max_delete):
+    """Files to delete: everything not kept - unless that is more than max_delete, then NOTHING (safety cap)."""
+    stale = [f for f in items if f["id"] not in kept_ids]
+    return [] if len(stale) > max_delete else stale
+
+
 def month_key(created_time: str) -> str:
     # createdTime looks like "2026-09-04T20:30:12.345Z"
     dt = datetime.fromisoformat(created_time.replace("Z", "+00:00"))
@@ -208,10 +214,9 @@ def main() -> int:
         items, datetime.now(timezone.utc), keep_days=keep_daily, keep_months=keep_monthly, keep_recent_hours=keep_recent_hours
     )
     kept_ids.add(created["id"])  # the archive we just uploaded is never a deletion candidate
-    stale = [f for f in items if f["id"] not in kept_ids]
-    if len(stale) > max_delete:
-        print(f"::warning::Retention would delete {len(stale)} files (cap {max_delete}); deleting nothing this run. Review manually.")
-        stale = []
+    stale = plan_deletions(items, kept_ids, max_delete)
+    if not stale and len([f for f in items if f["id"] not in kept_ids]) > max_delete:
+        print(f"::warning::Retention would delete more than {max_delete} files; deleting nothing this run. Review manually.")
 
     for f in stale:
         svc.files().delete(fileId=f["id"], supportsAllDrives=True).execute()
