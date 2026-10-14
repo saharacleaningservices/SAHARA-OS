@@ -229,6 +229,9 @@ model User {
   isActive            Boolean  @default(true)
   mustChangePassword  Boolean  @default(false) // force a policy-compliant reset on next login
   sessionVersion      Int      @default(0) // bumped to revoke every session (password reset, access disabled)
+  // Ops-reminder alert preferences (own account only). Never change reminder tracking itself.
+  soundEnabled         Boolean  @default(true)
+  notificationsEnabled Boolean  @default(true)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -602,6 +605,7 @@ model Quotation {
   pdfUrl      String?
   status      QuotationStatus @default(SENT)
   invoice     Invoice?
+  opsReminders OpsReminder[]
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -630,6 +634,7 @@ model FollowUp {
   doneAt       DateTime?
   assignedToId String?
   assignedTo   User?            @relation("FollowUpAssignedTo", fields: [assignedToId], references: [id])
+  opsReminders OpsReminder[]
   createdAt    DateTime         @default(now())
 
   @@index([dueDate])
@@ -1672,8 +1677,14 @@ model KhataImportLog {
 
 model OpsReminder {
   id             String    @id @default(cuid())
-  kind           String // JOB_CLOSURE | PAYMENT_COLLECTION
+  kind           String // JOB_CLOSURE | PAYMENT_COLLECTION | QUOTATION_FOLLOWUP | FOLLOWUP_DUE
+  // JOB_CLOSURE / PAYMENT_COLLECTION: the job id. QUOTATION_FOLLOWUP / FOLLOWUP_DUE: a synthetic
+  // subject key ("Q:<quotationId>" / "F:<followUpId>") so @@unique([kind, jobId]) still holds.
   jobId          String
+  quotationId    String?
+  quotation      Quotation? @relation(fields: [quotationId], references: [id], onDelete: SetNull)
+  followUpId     String?
+  followUp       FollowUp?  @relation(fields: [followUpId], references: [id], onDelete: SetNull)
   status         String    @default("OPEN") // OPEN | RESOLVED
   dueAt          DateTime
   nextAlertAt    DateTime
@@ -1695,15 +1706,18 @@ model OpsReminder {
 
   @@unique([kind, jobId])
   @@index([status, nextAlertAt])
+  @@index([quotationId])
+  @@index([followUpId])
 }
 
 model OpsReminderEvent {
   id         String      @id @default(cuid())
   reminderId String?
   reminder   OpsReminder? @relation(fields: [reminderId], references: [id], onDelete: Cascade)
-  type       String // ALERT | ESCALATED | ACK | SNOOZE | DELAY | FOLLOW_UP | RESOLVED | DAILY_SUMMARY
+  type       String // ALERT | ESCALATED | ACK | SNOOZE | DELAY | FOLLOW_UP | RESOLVED | DAILY_SUMMARY | EOD_SUMMARY | EOD_ACK | PREF_CHANGE
   note       String?
   actorName  String?
+  userId     String? // acting user (null = system sweep)
   createdAt  DateTime    @default(now())
 
   @@index([reminderId])
@@ -1724,6 +1738,10 @@ model OpsReminderSettings {
   maxSnoozeMin            Int      @default(120)
   dailySummaryHour        Int      @default(9) // IST hour, -1 = off
   lastDailySummaryDay     String?
+  eodSummaryTime          String   @default("18:30") // IST HH:MM, "off" = disabled
+  lastEodSummaryDay       String?
+  quotationFollowUpDays   Int      @default(2) // SENT quotation older than this needs a follow-up
+  followUpIntervalMin     Int      @default(120) // repeat for quotation / customer follow-up reminders
   staffSignupNeedsApproval Boolean @default(true)
   updatedByName           String?
   updatedAt               DateTime @updatedAt

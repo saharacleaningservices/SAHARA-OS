@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { AlarmClock, CheckCircle2, Clock, IndianRupee, Settings2, BellOff, Bell } from "lucide-react";
+import { AlarmClock, CheckCircle2, Clock, IndianRupee, Settings2, BellOff, Bell, Volume2, VolumeX, FileText, PhoneCall, ClipboardList } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,13 +15,17 @@ import {
   recordJobDelay,
   completeJobFromReminder,
   recordPaymentFollowUp,
+  setMyReminderPrefs,
 } from "@/server/actions/ops-reminders";
 
 type Data = NonNullable<Awaited<ReturnType<typeof getPendingActions>>>;
 type Item = Data["items"][number];
+type QuoteItem = Data["quotes"][number];
+type FollowUpItem = Data["followUps"][number];
 
 const REFRESH_MS = 60_000;
-export const OPS_MUTE_KEY = "sahara-ops-sound-muted";
+/** The EOD summary modal (topbar) listens for this event. */
+export const OPEN_EOD_EVENT = "sahara:open-eod-summary";
 
 const since = (iso: string) => {
   const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
@@ -37,7 +41,6 @@ const fmt = (iso: string) => new Date(iso).toLocaleString("en-IN", { day: "numer
 export function PendingActionsPanel() {
   const [data, setData] = useState<Data | null>(null);
   const [open, setOpen] = useState<{ id: string; mode: "delay" | "followup" } | null>(null);
-  const [muted, setMuted] = useState(false);
   const [pending, start] = useTransition();
 
   const load = useCallback(async () => {
@@ -46,24 +49,19 @@ export function PendingActionsPanel() {
   }, []);
 
   useEffect(() => {
-    try {
-      setMuted(localStorage.getItem(OPS_MUTE_KEY) === "1");
-    } catch {
-      /* storage blocked */
-    }
     void load();
     const id = setInterval(load, REFRESH_MS);
     return () => clearInterval(id);
   }, [load]);
 
-  function toggleMute() {
-    const next = !muted;
-    setMuted(next);
-    try {
-      localStorage.setItem(OPS_MUTE_KEY, next ? "1" : "0");
-    } catch {
-      /* ignore */
-    }
+  // Per-user switches (stored on the account). They only change alerts — tracking and the list below are unaffected.
+  function savePref(patch: { soundEnabled?: boolean; notificationsEnabled?: boolean }) {
+    start(async () => {
+      const res = await setMyReminderPrefs(patch);
+      if ("error" in res && res.error) return void toast.error(res.error);
+      toast.success(patch.soundEnabled !== undefined ? `Reminder sound ${patch.soundEnabled ? "ON" : "OFF"}` : `Reminder notifications ${patch.notificationsEnabled ? "ON" : "OFF"}`);
+      await load();
+    });
   }
 
   const run = (fn: () => Promise<{ error?: string } | { success: true }>, ok: string) =>
@@ -78,8 +76,10 @@ export function PendingActionsPanel() {
   if (!data) return null;
   const jobs = data.items.filter((i) => i.kind === "JOB_CLOSURE");
   const pays = data.items.filter((i) => i.kind === "PAYMENT_COLLECTION");
+  const quotes = data.quotes;
+  const followUps = data.followUps;
   const outstanding = pays.reduce((a, p) => a + p.balance, 0);
-  const total = jobs.length + pays.length;
+  const total = jobs.length + pays.length + quotes.length + followUps.length;
 
   return (
     <Card id="pending-actions" className={total ? "border-warning/60 shadow-sm" : ""}>
@@ -91,9 +91,16 @@ export function PendingActionsPanel() {
             {total > 0 && <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">{total}</span>}
           </span>
           <span className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={toggleMute} title={muted ? "Reminder sound off on this device" : "Reminder sound on"}>
-              {muted ? <BellOff className="size-4" /> : <Bell className="size-4" />}
-              <span className="hidden sm:inline">{muted ? "Sound off" : "Sound on"}</span>
+            <Button variant="ghost" size="sm" onClick={() => window.dispatchEvent(new Event(OPEN_EOD_EVENT))} title="Open the end-of-day summary">
+              <ClipboardList className="size-4" /> <span className="hidden sm:inline">EOD summary</span>
+            </Button>
+            <Button variant="ghost" size="sm" disabled={pending} onClick={() => savePref({ soundEnabled: !data.userSoundEnabled })} title={data.userSoundEnabled ? "Reminder sound is ON for your account" : "Reminder sound is OFF for your account"}>
+              {data.userSoundEnabled ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+              <span className="hidden sm:inline">{data.userSoundEnabled ? "Sound on" : "Sound off"}</span>
+            </Button>
+            <Button variant="ghost" size="sm" disabled={pending} onClick={() => savePref({ notificationsEnabled: !data.notificationsEnabled })} title={data.notificationsEnabled ? "Reminder notifications are ON" : "Reminder notifications are OFF"}>
+              {data.notificationsEnabled ? <Bell className="size-4" /> : <BellOff className="size-4" />}
+              <span className="hidden sm:inline">{data.notificationsEnabled ? "Alerts on" : "Alerts off"}</span>
             </Button>
             {data.role === "ADMIN" && (
               <Button asChild variant="ghost" size="sm">
@@ -109,8 +116,16 @@ export function PendingActionsPanel() {
             ? "Reminders are switched off in settings."
             : total === 0
               ? `All caught up.${data.upcomingClosures ? ` ${data.upcomingClosures} started job(s) not yet due.` : ""}`
-              : `${jobs.length} job closure${jobs.length === 1 ? "" : "s"} · ${pays.length} unpaid job${pays.length === 1 ? "" : "s"}${pays.length ? ` (${formatINR(outstanding)} outstanding)` : ""}. Work status and payment status are tracked separately.`}
+              : `${jobs.length} job closure${jobs.length === 1 ? "" : "s"} · ${pays.length} unpaid job${pays.length === 1 ? "" : "s"}${pays.length ? ` (${formatINR(outstanding)} outstanding)` : ""} · ${quotes.length} quotation${quotes.length === 1 ? "" : "s"} · ${followUps.length} follow-up${followUps.length === 1 ? "" : "s"}. Work status and payment status are tracked separately.`}
         </p>
+        {!data.notificationsEnabled && (
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-warning/50 bg-warning/10 px-3 py-1.5 text-xs font-semibold text-warning" role="status">
+            <BellOff className="size-3.5" /> Notifications Disabled — no sound or pop-ups, but every pending item stays listed here.
+            <Button size="sm" variant="outline" className="ml-auto h-7" disabled={pending} onClick={() => savePref({ notificationsEnabled: true })}>
+              Turn on
+            </Button>
+          </div>
+        )}
       </CardHeader>
       {total > 0 && (
         <CardContent className="space-y-4">
@@ -178,9 +193,70 @@ export function PendingActionsPanel() {
               ))}
             </Section>
           )}
+          {quotes.length > 0 && (
+            <Section title="Quotations — follow-up needed" icon={<FileText className="size-3.5" />}>
+              {quotes.map((q) => (
+                <SubjectRow key={q.id} item={q} href={`/leads/${q.leadId}`} label={q.quoteNumber} title={q.leadName}>
+                  <div className="text-xs text-muted-foreground">
+                    {formatINR(q.amount)} · follow-up due {since(q.dueAt)} ago{q.followUpNote ? ` · last note: ${q.followUpNote}` : ""}. Closes when the quotation is accepted, rejected, expired or cancelled.
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    <Button asChild size="sm">
+                      <Link href={`/leads/${q.leadId}`}>Open lead</Link>
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={pending} onClick={() => setOpen({ id: q.id, mode: "followup" })}>
+                      Log follow-up
+                    </Button>
+                    <Common item={q} max={data.maxSnoozeMin} pending={pending} run={run} />
+                  </div>
+                  {open?.id === q.id && open.mode === "followup" && <FollowUpForm pending={pending} onSubmit={(v) => run(() => recordPaymentFollowUp(q.id, v), "Follow-up noted — reminders paused until then")} />}
+                </SubjectRow>
+              ))}
+            </Section>
+          )}
+          {followUps.length > 0 && (
+            <Section title="Customer follow-ups — due" icon={<PhoneCall className="size-3.5" />}>
+              {followUps.map((f) => (
+                <SubjectRow key={f.id} item={f} href={`/leads/${f.leadId}`} label={f.type} title={f.leadName}>
+                  <div className="text-xs text-muted-foreground">
+                    Due {since(f.dueAt)} ago{f.notes ? ` · ${f.notes}` : ""}. Closes when the follow-up is marked done on the lead.
+                  </div>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    <Button asChild size="sm">
+                      <Link href={`/leads/${f.leadId}`}>Open lead</Link>
+                    </Button>
+                    <Button size="sm" variant="outline" disabled={pending} onClick={() => setOpen({ id: f.id, mode: "followup" })}>
+                      Log note
+                    </Button>
+                    <Common item={f} max={data.maxSnoozeMin} pending={pending} run={run} />
+                  </div>
+                  {open?.id === f.id && open.mode === "followup" && <FollowUpForm pending={pending} onSubmit={(v) => run(() => recordPaymentFollowUp(f.id, v), "Note saved — reminders paused until then")} />}
+                </SubjectRow>
+              ))}
+            </Section>
+          )}
         </CardContent>
       )}
     </Card>
+  );
+}
+
+function SubjectRow({ item, href, label, title, children }: { item: QuoteItem | FollowUpItem; href: string; label: string; title: string; children: React.ReactNode }) {
+  return (
+    <li className="p-2.5 text-sm">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+        <Link href={href} className="font-mono text-xs font-semibold text-primary hover:underline">
+          {label}
+        </Link>
+        <span className="font-medium">{title}</span>
+        {item.escalated && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">Escalated</span>}
+        {item.snoozedUntil && <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">Snoozed till {fmt(item.snoozedUntil)}</span>}
+        {item.followUpUntil && <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">Follow-up {fmt(item.followUpUntil)}</span>}
+        {item.alertCount > 0 && <span className="text-[10px] text-muted-foreground">· {item.alertCount} reminder{item.alertCount === 1 ? "" : "s"}</span>}
+        {item.acknowledgedBy && <span className="text-[10px] text-muted-foreground">· seen by {item.acknowledgedBy}</span>}
+      </div>
+      {children}
+    </li>
   );
 }
 
@@ -214,7 +290,7 @@ function Row({ item, children }: { item: Item; children: React.ReactNode }) {
   );
 }
 
-function Common({ item, max, pending, run }: { item: Item; max: number; pending: boolean; run: (fn: () => Promise<{ error?: string } | { success: true }>, ok: string) => void }) {
+function Common({ item, max, pending, run }: { item: { id: string; acknowledgedBy: string | null }; max: number; pending: boolean; run: (fn: () => Promise<{ error?: string } | { success: true }>, ok: string) => void }) {
   const options = [15, 30, 60, 120].filter((m) => m <= max);
   return (
     <>

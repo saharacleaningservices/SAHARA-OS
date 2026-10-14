@@ -58,8 +58,102 @@ export function jobDueAt(job: { scheduledDate: Date; scheduledTime: string; star
   return new Date((job.startedAt ?? istDayRange(job.scheduledDate).from).getTime() + (job.startedAt ? 0 : 9 * 60 * MIN) + span);
 }
 
-async function event(reminderId: string | null, type: string, note?: string | null, actorName?: string | null) {
-  await db.opsReminderEvent.create({ data: { reminderId, type, note: note ?? null, actorName: actorName ?? null } }).catch(() => {});
+async function event(reminderId: string | null, type: string, note?: string | null, actorName?: string | null, userId?: string | null) {
+  await db.opsReminderEvent.create({ data: { reminderId, type, note: note ?? null, actorName: actorName ?? null, userId: userId ?? null } }).catch(() => {});
+}
+
+export const QUOTATION_KIND = "QUOTATION_FOLLOWUP";
+export const FOLLOWUP_KIND = "FOLLOWUP_DUE";
+/** Older items are not tracked (they stay visible on their own CRM pages) so going live never floods anyone. */
+const QUOTE_LOOKBACK_DAYS = 60;
+const FOLLOWUP_LOOKBACK_DAYS = 30;
+const DAY_MS = 24 * 60 * MIN;
+const quoteKey = (id: string) => `Q:${id}`;
+const followKey = (id: string) => `F:${id}`;
+
+function intervalFor(kind: string, s: OpsSettings) {
+  return kind === "JOB_CLOSURE" ? s.jobIntervalMin : kind === "PAYMENT_COLLECTION" ? s.paymentIntervalMin : s.followUpIntervalMin;
+}
+
+async function resolveOpen(id: string, reason: string, now: Date) {
+  const done = await db.opsReminder.updateMany({ where: { id, status: "OPEN" }, data: { status: "RESOLVED", resolvedAt: now, resolvedReason: reason } });
+  if (done.count) await event(id, "RESOLVED", reason);
+}
+
+/**
+ * Quotation follow-ups: tracked while the quotation is still SENT. Only a status change
+ * (accepted / rejected / expired / cancelled) or a deleted/cancelled lead closes the reminder —
+ * acknowledge / snooze never touch the quotation.
+ */
+async function syncQuotations(now: Date, s: OpsSettings) {
+  const kindFirstRun = (await db.opsReminder.count({ where: { kind: QUOTATION_KIND } })) === 0;
+  const dueBefore = new Date(now.getTime() - s.quotationFollowUpDays * DAY_MS);
+  const since = new Date(now.getTime() - QUOTE_LOOKBACK_DAYS * DAY_MS);
+  const quotes = await db.quotation.findMany({
+    where: { status: "SENT", createdAt: { lte: dueBefore, gte: since }, lead: { deletedAt: null, stage: { not: "CANCELLED" } } },
+    select: { id: true, createdAt: true },
+    take: 500,
+  });
+  const have = await db.opsReminder.findMany({ where: { kind: QUOTATION_KIND, jobId: { in: quotes.map((q) => quoteKey(q.id)) } }, select: { jobId: true } });
+  for (const q of quotes) {
+    if (have.some((r) => r.jobId === quoteKey(q.id))) continue;
+    const dueAt = new Date(q.createdAt.getTime() + s.quotationFollowUpDays * DAY_MS);
+    // First deployment of this kind: record the backlog silently, first repeat one interval later.
+    const next = kindFirstRun ? new Date(now.getTime() + s.followUpIntervalMin * MIN) : dueAt;
+    await db.opsReminder.create({ data: { kind: QUOTATION_KIND, jobId: quoteKey(q.id), quotationId: q.id, dueAt, nextAlertAt: next } }).catch(() => {});
+  }
+  const open = await db.opsReminder.findMany({ where: { kind: QUOTATION_KIND, status: "OPEN" }, select: { id: true, quotationId: true } });
+  const live = new Set(quotes.map((q) => q.id));
+  const stale = open.filter((r) => !r.quotationId || !live.has(r.quotationId));
+  if (!stale.length) return;
+  const rows = await db.quotation.findMany({
+    where: { id: { in: stale.flatMap((r) => (r.quotationId ? [r.quotationId] : [])) } },
+    select: { id: true, status: true, lead: { select: { deletedAt: true, stage: true } } },
+  });
+  for (const r of stale) {
+    const q = rows.find((x) => x.id === r.quotationId);
+    let reason: string | null;
+    if (!q) reason = "Quotation deleted";
+    else if (q.status !== "SENT") reason = `Quotation ${q.status.toLowerCase()}`;
+    else if (q.lead.deletedAt || q.lead.stage === "CANCELLED") reason = "Lead closed";
+    else reason = null; // still SENT but not yet old enough / outside the look-back window → keep it
+    if (reason) await resolveOpen(r.id, reason, now);
+  }
+}
+
+/** Customer follow-ups: due/overdue and not done. Closed only when marked done (or the lead closes / is deleted). */
+async function syncFollowUps(now: Date, s: OpsSettings) {
+  const kindFirstRun = (await db.opsReminder.count({ where: { kind: FOLLOWUP_KIND } })) === 0;
+  const since = new Date(now.getTime() - FOLLOWUP_LOOKBACK_DAYS * DAY_MS);
+  const fups = await db.followUp.findMany({
+    where: { isDone: false, dueDate: { lte: now, gte: since }, lead: { deletedAt: null, stage: { notIn: ["CANCELLED", "COMPLETED"] } } },
+    select: { id: true, dueDate: true },
+    take: 500,
+  });
+  const have = await db.opsReminder.findMany({ where: { kind: FOLLOWUP_KIND, jobId: { in: fups.map((f) => followKey(f.id)) } }, select: { jobId: true } });
+  for (const f of fups) {
+    if (have.some((r) => r.jobId === followKey(f.id))) continue;
+    // The existing one-shot FOLLOWUP_DUE ping fires first; this repeat starts one interval after the due time.
+    const base = kindFirstRun ? now.getTime() : f.dueDate.getTime();
+    await db.opsReminder.create({ data: { kind: FOLLOWUP_KIND, jobId: followKey(f.id), followUpId: f.id, dueAt: f.dueDate, nextAlertAt: new Date(base + s.followUpIntervalMin * MIN) } }).catch(() => {});
+  }
+  const open = await db.opsReminder.findMany({ where: { kind: FOLLOWUP_KIND, status: "OPEN" }, select: { id: true, followUpId: true } });
+  const live = new Set(fups.map((f) => f.id));
+  const stale = open.filter((r) => !r.followUpId || !live.has(r.followUpId));
+  if (!stale.length) return;
+  const rows = await db.followUp.findMany({
+    where: { id: { in: stale.flatMap((r) => (r.followUpId ? [r.followUpId] : [])) } },
+    select: { id: true, isDone: true, lead: { select: { deletedAt: true, stage: true } } },
+  });
+  for (const r of stale) {
+    const f = rows.find((x) => x.id === r.followUpId);
+    let reason: string | null;
+    if (!f) reason = "Follow-up deleted";
+    else if (f.isDone) reason = "Follow-up marked done";
+    else if (f.lead.deletedAt || f.lead.stage === "CANCELLED" || f.lead.stage === "COMPLETED") reason = "Lead closed";
+    else reason = null; // rescheduled to the future or outside the look-back window → keep it
+    if (reason) await resolveOpen(r.id, reason, now);
+  }
 }
 
 /**
@@ -137,6 +231,9 @@ async function syncReminders(now: Date, s: OpsSettings) {
     }
   }
 
+  await syncQuotations(now, s);
+  await syncFollowUps(now, s);
+
   if (firstRun) {
     const tracked = await db.opsReminder.count({ where: { status: "OPEN" } });
     await db.opsReminderSettings.update({ where: { id: "default" }, data: { lastDailySummaryDay: istDayKey(now) } });
@@ -175,6 +272,29 @@ async function loadDetails(rows: { id: string; jobId: string; dueAt: Date }[]): 
   });
 }
 
+export type QuoteDetail = { id: string; quotationId: string; quoteNumber: string; leadId: string; leadName: string; amount: number; dueAt: Date };
+export type FollowUpDetail = { id: string; followUpId: string; leadId: string; leadName: string; type: string; notes: string | null; dueAt: Date };
+
+export async function loadQuoteDetails(rows: { id: string; quotationId: string | null; dueAt: Date }[]): Promise<QuoteDetail[]> {
+  const ids = rows.flatMap((r) => (r.quotationId ? [r.quotationId] : []));
+  if (!ids.length) return [];
+  const qs = await db.quotation.findMany({ where: { id: { in: ids } }, select: { id: true, quoteNumber: true, totalAmount: true, lead: { select: { id: true, name: true } } } });
+  return rows.flatMap((r) => {
+    const q = qs.find((x) => x.id === r.quotationId);
+    return q ? [{ id: r.id, quotationId: q.id, quoteNumber: q.quoteNumber, leadId: q.lead.id, leadName: q.lead.name, amount: q.totalAmount, dueAt: r.dueAt }] : [];
+  });
+}
+
+export async function loadFollowUpDetails(rows: { id: string; followUpId: string | null; dueAt: Date }[]): Promise<FollowUpDetail[]> {
+  const ids = rows.flatMap((r) => (r.followUpId ? [r.followUpId] : []));
+  if (!ids.length) return [];
+  const fs = await db.followUp.findMany({ where: { id: { in: ids } }, select: { id: true, type: true, notes: true, lead: { select: { id: true, name: true } } } });
+  return rows.flatMap((r) => {
+    const f = fs.find((x) => x.id === r.followUpId);
+    return f ? [{ id: r.id, followUpId: f.id, leadId: f.lead.id, leadName: f.lead.name, type: String(f.type), notes: f.notes, dueAt: r.dueAt }] : [];
+  });
+}
+
 const list = (items: string[]) => items.slice(0, 3).join(" · ") + (items.length > 3 ? ` · +${items.length - 3} more` : "");
 
 /** Send the due repeats (claimed atomically) — one notification per kind. */
@@ -192,7 +312,7 @@ async function sendDueAlerts(now: Date, s: OpsSettings, extraUserIds?: string[])
   });
   const claimed: typeof due = [];
   for (const r of due) {
-    const interval = (r.kind === "JOB_CLOSURE" ? s.jobIntervalMin : s.paymentIntervalMin) * MIN;
+    const interval = intervalFor(r.kind, s) * MIN;
     const ok = await db.opsReminder.updateMany({
       where: { id: r.id, status: "OPEN", nextAlertAt: r.nextAlertAt },
       data: { lastAlertAt: now, nextAlertAt: new Date(now.getTime() + interval), alertCount: { increment: 1 } },
@@ -201,6 +321,8 @@ async function sendDueAlerts(now: Date, s: OpsSettings, extraUserIds?: string[])
   }
   const jobs = await loadDetails(claimed.filter((r) => r.kind === "JOB_CLOSURE"));
   const pays = await loadDetails(claimed.filter((r) => r.kind === "PAYMENT_COLLECTION"));
+  const quotes = await loadQuoteDetails(claimed.filter((r) => r.kind === QUOTATION_KIND));
+  const fups = await loadFollowUpDetails(claimed.filter((r) => r.kind === FOLLOWUP_KIND));
 
   if (jobs.length) {
     const one = jobs[0];
@@ -233,7 +355,31 @@ async function sendDueAlerts(now: Date, s: OpsSettings, extraUserIds?: string[])
     });
     for (const p of pays) await event(p.id, "ALERT", `Collection reminder sent (balance ${formatINR(p.balance)})`);
   }
-  return { jobAlerts: jobs.length, paymentAlerts: pays.length };
+  if (quotes.length) {
+    const one = quotes[0];
+    await notify({
+      kind: "OPS_QUOTATION_FOLLOWUP",
+      title: quotes.length === 1 ? `Follow up quotation ${one.quoteNumber} — ${one.leadName}` : `${quotes.length} quotations need a follow-up`,
+      body: quotes.length === 1 ? `Follow-up due ${ago(one.dueAt, now)} ago · ${formatINR(one.amount)}. Call the customer, then update the quotation status.` : list(quotes.map((q) => `${q.quoteNumber} ${q.leadName} ${formatINR(q.amount)}`)),
+      href: quotes.length === 1 ? `/leads/${one.leadId}` : "/dashboard#pending-actions",
+      tag: "ops-quotation",
+      extraUserIds,
+    });
+    for (const q of quotes) await event(q.id, "ALERT", `Quotation follow-up reminder sent (${q.quoteNumber})`);
+  }
+  if (fups.length) {
+    const one = fups[0];
+    await notify({
+      kind: "OPS_FOLLOWUP_DUE",
+      title: fups.length === 1 ? `Follow-up overdue — ${one.leadName}` : `${fups.length} customer follow-ups overdue`,
+      body: fups.length === 1 ? `${one.type.toLowerCase()} was due ${ago(one.dueAt, now)} ago${one.notes ? ` · ${one.notes}` : ""}. Mark it done once you have spoken to the customer.` : list(fups.map((f) => `${f.leadName} (${f.type.toLowerCase()})`)),
+      href: fups.length === 1 ? `/leads/${one.leadId}` : "/dashboard#pending-actions",
+      tag: "ops-followup",
+      extraUserIds,
+    });
+    for (const f of fups) await event(f.id, "ALERT", `Follow-up reminder sent (${f.leadName})`);
+  }
+  return { jobAlerts: jobs.length, paymentAlerts: pays.length, quotationAlerts: quotes.length, followUpAlerts: fups.length };
 }
 
 /** One escalation per reminder to the Super Admin once it has been open too long. */
@@ -252,7 +398,11 @@ async function sendEscalations(now: Date, s: OpsSettings) {
   const details = await loadDetails(claimed);
   const jobs = details.filter((d) => claimed.find((c) => c.id === d.id)?.kind === "JOB_CLOSURE");
   const pays = details.filter((d) => claimed.find((c) => c.id === d.id)?.kind === "PAYMENT_COLLECTION");
+  const nQuotes = claimed.filter((c) => c.kind === QUOTATION_KIND).length;
+  const nFups = claimed.filter((c) => c.kind === FOLLOWUP_KIND).length;
   const parts = [
+    nQuotes ? `${nQuotes} quotation${nQuotes > 1 ? "s" : ""} awaiting follow-up` : "",
+    nFups ? `${nFups} customer follow-up${nFups > 1 ? "s" : ""} overdue` : "",
     jobs.length ? `${jobs.length} job${jobs.length > 1 ? "s" : ""} not closed: ${list(jobs.map((j) => j.jobNumber))}` : "",
     pays.length ? `${pays.length} unpaid (${formatINR(pays.reduce((a, p) => a + p.balance, 0))}): ${list(pays.map((p) => p.jobNumber))}` : "",
   ].filter(Boolean);
@@ -276,7 +426,109 @@ export async function openReminderTotals() {
     jobClosures: open.filter((r) => r.kind === "JOB_CLOSURE").length,
     payments: pays.length,
     outstanding: pays.reduce((a, p) => a + p.balance, 0),
+    quotations: open.filter((r) => r.kind === QUOTATION_KIND).length,
+    followUps: open.filter((r) => r.kind === FOLLOWUP_KIND).length,
   };
+}
+
+const EOD_LIST_MAX = 10;
+
+/**
+ * End-of-day picture, read LIVE from the CRM tables (not from reminder rows), so a snoozed or
+ * acknowledged reminder never hides an unresolved item. Office roles only (money figures) —
+ * the caller enforces that.
+ */
+export async function getEodSummary(now: Date = new Date(), s?: Pick<OpsSettings, "paymentLookbackDays">) {
+  const lookback = s?.paymentLookbackDays ?? (await getOpsSettings()).paymentLookbackDays;
+  const started = await db.job.findMany({
+    where: { status: "STARTED", deletedAt: null, isDemo: false },
+    orderBy: { scheduledDate: "asc" },
+    select: { id: true, jobNumber: true, customerName: true, scheduledDate: true, scheduledTime: true },
+  });
+  const completed = await db.job.findMany({
+    where: { status: "COMPLETED", deletedAt: null, isDemo: false, jobValue: { gt: 0 }, completedAt: { gte: new Date(now.getTime() - lookback * DAY_MS) } },
+    orderBy: { completedAt: "asc" },
+    select: { id: true, jobNumber: true, customerName: true, jobValue: true, payments: { where: { deletedAt: null }, select: { paidAmount: true } } },
+  });
+  const unpaid = completed.flatMap((j) => {
+    const balance = jobPaymentSummary(j.jobValue, j.payments).balance;
+    return balance > 0 ? [{ id: j.id, jobNumber: j.jobNumber, customerName: j.customerName, balance }] : [];
+  });
+  const quotes = await db.quotation.findMany({
+    where: { status: "SENT", createdAt: { gte: new Date(now.getTime() - QUOTE_LOOKBACK_DAYS * DAY_MS) }, lead: { deletedAt: null, stage: { not: "CANCELLED" } } },
+    orderBy: { createdAt: "asc" },
+    select: { id: true, quoteNumber: true, totalAmount: true, lead: { select: { id: true, name: true } } },
+  });
+  const fups = await db.followUp.findMany({
+    where: { isDone: false, dueDate: { lte: now, gte: new Date(now.getTime() - FOLLOWUP_LOOKBACK_DAYS * DAY_MS) }, lead: { deletedAt: null, stage: { notIn: ["CANCELLED", "COMPLETED"] } } },
+    orderBy: { dueDate: "asc" },
+    select: { id: true, dueDate: true, type: true, lead: { select: { id: true, name: true } } },
+  });
+  return {
+    generatedAt: now.toISOString(),
+    incompleteJobs: { count: started.length, items: started.slice(0, EOD_LIST_MAX).map((j) => ({ id: j.id, jobNumber: j.jobNumber, customerName: j.customerName, scheduledTime: j.scheduledTime, scheduledDate: j.scheduledDate.toISOString() })) },
+    unpaidJobs: { count: unpaid.length, outstanding: unpaid.reduce((a, u) => a + u.balance, 0), items: unpaid.slice(0, EOD_LIST_MAX) },
+    openQuotations: { count: quotes.length, total: quotes.reduce((a, q) => a + q.totalAmount, 0), items: quotes.slice(0, EOD_LIST_MAX).map((q) => ({ id: q.id, quoteNumber: q.quoteNumber, leadId: q.lead.id, leadName: q.lead.name, amount: q.totalAmount })) },
+    overdueFollowUps: { count: fups.length, items: fups.slice(0, EOD_LIST_MAX).map((f) => ({ id: f.id, leadId: f.lead.id, leadName: f.lead.name, type: String(f.type), dueDate: f.dueDate.toISOString() })) },
+  };
+}
+
+export type EodSummary = Awaited<ReturnType<typeof getEodSummary>>;
+export const eodTotal = (e: EodSummary) => e.incompleteJobs.count + e.unpaidJobs.count + e.openQuotations.count + e.overdueFollowUps.count;
+
+/** Minutes after midnight for a valid "HH:MM" (IST); null when disabled ("off") or malformed. */
+export function parseEodTime(v: string | null | undefined): number | null {
+  if (!v || !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) return null;
+  return hm(v);
+}
+
+/** Once per India day at eodSummaryTime → Admin + Accounts (claimed atomically; first sweep after the time wins). */
+async function maybeEodSummary(now: Date, s: OpsSettings) {
+  const at = parseEodTime(s.eodSummaryTime);
+  if (at === null || istMinuteOfDay(now) < at) return false;
+  const day = istDayKey(now);
+  if (s.lastEodSummaryDay === day) return false;
+  const claim = await db.opsReminderSettings.updateMany({
+    where: { id: "default", OR: [{ lastEodSummaryDay: null }, { lastEodSummaryDay: { not: day } }] },
+    data: { lastEodSummaryDay: day },
+  });
+  if (claim.count !== 1) return false;
+  const e = await getEodSummary(now, s);
+  const total = eodTotal(e);
+  await notify({
+    kind: "OPS_EOD_SUMMARY",
+    title: total === 0 ? "End of day: nothing pending" : `End of day: ${total} item${total === 1 ? "" : "s"} still open`,
+    body:
+      total === 0
+        ? "All started jobs closed, payments collected, quotations and follow-ups up to date."
+        : `${e.incompleteJobs.count} incomplete job${e.incompleteJobs.count === 1 ? "" : "s"} · ${e.unpaidJobs.count} unpaid (${formatINR(e.unpaidJobs.outstanding)}) · ${e.openQuotations.count} open quotation${e.openQuotations.count === 1 ? "" : "s"} · ${e.overdueFollowUps.count} overdue follow-up${e.overdueFollowUps.count === 1 ? "" : "s"}`,
+    href: "/dashboard#pending-actions",
+    tag: "ops-eod",
+  });
+  await event(null, "EOD_SUMMARY", `EOD ${day}: ${e.incompleteJobs.count} incomplete, ${e.unpaidJobs.count} unpaid (${formatINR(e.unpaidJobs.outstanding)}), ${e.openQuotations.count} quotations, ${e.overdueFollowUps.count} follow-ups`);
+  return true;
+}
+
+/**
+ * Per-user alert preferences (own account only — the action wrapper passes the session user).
+ * Neither switch touches reminder tracking: items stay in the queue and on the dashboard.
+ */
+export async function setUserReminderPrefs(user: { id: string; name: string }, prefs: { soundEnabled?: boolean; notificationsEnabled?: boolean }) {
+  const data: { soundEnabled?: boolean; notificationsEnabled?: boolean } = {};
+  if (typeof prefs.soundEnabled === "boolean") data.soundEnabled = prefs.soundEnabled;
+  if (typeof prefs.notificationsEnabled === "boolean") data.notificationsEnabled = prefs.notificationsEnabled;
+  if (!Object.keys(data).length) return null;
+  const updated = await db.user.update({ where: { id: user.id }, data, select: { soundEnabled: true, notificationsEnabled: true } });
+  const parts = [data.soundEnabled !== undefined ? `sound ${data.soundEnabled ? "ON" : "OFF"}` : "", data.notificationsEnabled !== undefined ? `notifications ${data.notificationsEnabled ? "ON" : "OFF"}` : ""].filter(Boolean);
+  await event(null, "PREF_CHANGE", `${user.name}: ${parts.join(", ")}`, user.name, user.id);
+  return updated;
+}
+
+/** Marks the user's EOD popup notification(s) as seen. Never changes any CRM record or reminder. */
+export async function acknowledgeEod(user: { id: string; name: string }) {
+  const r = await db.notification.updateMany({ where: { userId: user.id, kind: "OPS_EOD_SUMMARY", readAt: null }, data: { readAt: new Date() } });
+  if (r.count) await event(null, "EOD_ACK", `EOD summary acknowledged by ${user.name}`, user.name, user.id);
+  return r.count;
 }
 
 async function maybeDailySummary(now: Date, s: OpsSettings) {
@@ -314,7 +566,8 @@ export async function runOpsReminderSweep(now: Date = new Date()) {
     const alerts = await sendDueAlerts(now, s, extra);
     const escalated = await sendEscalations(now, s);
     const dailySummary = await maybeDailySummary(now, s);
-    return { ...alerts, escalated, dailySummary };
+    const eodSummary = await maybeEodSummary(now, s);
+    return { ...alerts, escalated, dailySummary, eodSummary };
   } finally {
     running = false;
   }

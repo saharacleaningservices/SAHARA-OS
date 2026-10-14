@@ -34,6 +34,8 @@ export type OpsReminderSettingsAvgAggregateOutputType = {
   paymentLookbackDays: number | null
   maxSnoozeMin: number | null
   dailySummaryHour: number | null
+  quotationFollowUpDays: number | null
+  followUpIntervalMin: number | null
 }
 
 export type OpsReminderSettingsSumAggregateOutputType = {
@@ -44,6 +46,8 @@ export type OpsReminderSettingsSumAggregateOutputType = {
   paymentLookbackDays: number | null
   maxSnoozeMin: number | null
   dailySummaryHour: number | null
+  quotationFollowUpDays: number | null
+  followUpIntervalMin: number | null
 }
 
 export type OpsReminderSettingsMinAggregateOutputType = {
@@ -60,6 +64,10 @@ export type OpsReminderSettingsMinAggregateOutputType = {
   maxSnoozeMin: number | null
   dailySummaryHour: number | null
   lastDailySummaryDay: string | null
+  eodSummaryTime: string | null
+  lastEodSummaryDay: string | null
+  quotationFollowUpDays: number | null
+  followUpIntervalMin: number | null
   staffSignupNeedsApproval: boolean | null
   updatedByName: string | null
   updatedAt: Date | null
@@ -79,6 +87,10 @@ export type OpsReminderSettingsMaxAggregateOutputType = {
   maxSnoozeMin: number | null
   dailySummaryHour: number | null
   lastDailySummaryDay: string | null
+  eodSummaryTime: string | null
+  lastEodSummaryDay: string | null
+  quotationFollowUpDays: number | null
+  followUpIntervalMin: number | null
   staffSignupNeedsApproval: boolean | null
   updatedByName: string | null
   updatedAt: Date | null
@@ -98,6 +110,10 @@ export type OpsReminderSettingsCountAggregateOutputType = {
   maxSnoozeMin: number
   dailySummaryHour: number
   lastDailySummaryDay: number
+  eodSummaryTime: number
+  lastEodSummaryDay: number
+  quotationFollowUpDays: number
+  followUpIntervalMin: number
   staffSignupNeedsApproval: number
   updatedByName: number
   updatedAt: number
@@ -113,6 +129,8 @@ export type OpsReminderSettingsAvgAggregateInputType = {
   paymentLookbackDays?: true
   maxSnoozeMin?: true
   dailySummaryHour?: true
+  quotationFollowUpDays?: true
+  followUpIntervalMin?: true
 }
 
 export type OpsReminderSettingsSumAggregateInputType = {
@@ -123,6 +141,8 @@ export type OpsReminderSettingsSumAggregateInputType = {
   paymentLookbackDays?: true
   maxSnoozeMin?: true
   dailySummaryHour?: true
+  quotationFollowUpDays?: true
+  followUpIntervalMin?: true
 }
 
 export type OpsReminderSettingsMinAggregateInputType = {
@@ -139,6 +159,10 @@ export type OpsReminderSettingsMinAggregateInputType = {
   maxSnoozeMin?: true
   dailySummaryHour?: true
   lastDailySummaryDay?: true
+  eodSummaryTime?: true
+  lastEodSummaryDay?: true
+  quotationFollowUpDays?: true
+  followUpIntervalMin?: true
   staffSignupNeedsApproval?: true
   updatedByName?: true
   updatedAt?: true
@@ -158,6 +182,10 @@ export type OpsReminderSettingsMaxAggregateInputType = {
   maxSnoozeMin?: true
   dailySummaryHour?: true
   lastDailySummaryDay?: true
+  eodSummaryTime?: true
+  lastEodSummaryDay?: true
+  quotationFollowUpDays?: true
+  followUpIntervalMin?: true
   staffSignupNeedsApproval?: true
   updatedByName?: true
   updatedAt?: true
@@ -177,6 +205,10 @@ export type OpsReminderSettingsCountAggregateInputType = {
   maxSnoozeMin?: true
   dailySummaryHour?: true
   lastDailySummaryDay?: true
+  eodSummaryTime?: true
+  lastEodSummaryDay?: true
+  quotationFollowUpDays?: true
+  followUpIntervalMin?: true
   staffSignupNeedsApproval?: true
   updatedByName?: true
   updatedAt?: true
@@ -283,6 +315,10 @@ export type OpsReminderSettingsGroupByOutputType = {
   maxSnoozeMin: number
   dailySummaryHour: number
   lastDailySummaryDay: string | null
+  eodSummaryTime: string
+  lastEodSummaryDay: string | null
+  quotationFollowUpDays: number
+  followUpIntervalMin: number
   staffSignupNeedsApproval: boolean
   updatedByName: string | null
   updatedAt: Date
@@ -325,6 +361,10 @@ export type OpsReminderSettingsWhereInput = {
   maxSnoozeMin?: Prisma.IntFilter<"OpsReminderSettings"> | number
   dailySummaryHour?: Prisma.IntFilter<"OpsReminderSettings"> | number
   lastDailySummaryDay?: Prisma.StringNullableFilter<"OpsReminderSettings"> | string | null
+  eodSummaryTime?: Prisma.StringFilter<"OpsReminderSettings"> | string
+  lastEodSummaryDay?: Prisma.StringNullableFilter<"OpsReminderSettings"> | string | null
+  quotationFollowUpDays?: Prisma.IntFilter<"OpsReminderSettings"> | number
+  followUpIntervalMin?: Prisma.IntFilter<"OpsReminderSettings"> | number
   staffSignupNeedsApproval?: Prisma.BoolFilter<"OpsReminderSettings"> | boolean
   updatedByName?: Prisma.StringNullableFilter<"OpsReminderSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"OpsReminderSettings"> | Date | string
@@ -344,6 +384,10 @@ export type OpsReminderSettingsOrderByWithRelationInput = {
   maxSnoozeMin?: Prisma.SortOrder
   dailySummaryHour?: Prisma.SortOrder
   lastDailySummaryDay?: Prisma.SortOrderInput | Prisma.SortOrder
+  eodSummaryTime?: Prisma.SortOrder
+  lastEodSummaryDay?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotationFollowUpDays?: Prisma.SortOrder
+  followUpIntervalMin?: Prisma.SortOrder
   staffSignupNeedsApproval?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -366,6 +410,10 @@ export type OpsReminderSettingsWhereUniqueInput = Prisma.AtLeast<{
   maxSnoozeMin?: Prisma.IntFilter<"OpsReminderSettings"> | number
   dailySummaryHour?: Prisma.IntFilter<"OpsReminderSettings"> | number
   lastDailySummaryDay?: Prisma.StringNullableFilter<"OpsReminderSettings"> | string | null
+  eodSummaryTime?: Prisma.StringFilter<"OpsReminderSettings"> | string
+  lastEodSummaryDay?: Prisma.StringNullableFilter<"OpsReminderSettings"> | string | null
+  quotationFollowUpDays?: Prisma.IntFilter<"OpsReminderSettings"> | number
+  followUpIntervalMin?: Prisma.IntFilter<"OpsReminderSettings"> | number
   staffSignupNeedsApproval?: Prisma.BoolFilter<"OpsReminderSettings"> | boolean
   updatedByName?: Prisma.StringNullableFilter<"OpsReminderSettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"OpsReminderSettings"> | Date | string
@@ -385,6 +433,10 @@ export type OpsReminderSettingsOrderByWithAggregationInput = {
   maxSnoozeMin?: Prisma.SortOrder
   dailySummaryHour?: Prisma.SortOrder
   lastDailySummaryDay?: Prisma.SortOrderInput | Prisma.SortOrder
+  eodSummaryTime?: Prisma.SortOrder
+  lastEodSummaryDay?: Prisma.SortOrderInput | Prisma.SortOrder
+  quotationFollowUpDays?: Prisma.SortOrder
+  followUpIntervalMin?: Prisma.SortOrder
   staffSignupNeedsApproval?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -412,6 +464,10 @@ export type OpsReminderSettingsScalarWhereWithAggregatesInput = {
   maxSnoozeMin?: Prisma.IntWithAggregatesFilter<"OpsReminderSettings"> | number
   dailySummaryHour?: Prisma.IntWithAggregatesFilter<"OpsReminderSettings"> | number
   lastDailySummaryDay?: Prisma.StringNullableWithAggregatesFilter<"OpsReminderSettings"> | string | null
+  eodSummaryTime?: Prisma.StringWithAggregatesFilter<"OpsReminderSettings"> | string
+  lastEodSummaryDay?: Prisma.StringNullableWithAggregatesFilter<"OpsReminderSettings"> | string | null
+  quotationFollowUpDays?: Prisma.IntWithAggregatesFilter<"OpsReminderSettings"> | number
+  followUpIntervalMin?: Prisma.IntWithAggregatesFilter<"OpsReminderSettings"> | number
   staffSignupNeedsApproval?: Prisma.BoolWithAggregatesFilter<"OpsReminderSettings"> | boolean
   updatedByName?: Prisma.StringNullableWithAggregatesFilter<"OpsReminderSettings"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OpsReminderSettings"> | Date | string
@@ -431,6 +487,10 @@ export type OpsReminderSettingsCreateInput = {
   maxSnoozeMin?: number
   dailySummaryHour?: number
   lastDailySummaryDay?: string | null
+  eodSummaryTime?: string
+  lastEodSummaryDay?: string | null
+  quotationFollowUpDays?: number
+  followUpIntervalMin?: number
   staffSignupNeedsApproval?: boolean
   updatedByName?: string | null
   updatedAt?: Date | string
@@ -450,6 +510,10 @@ export type OpsReminderSettingsUncheckedCreateInput = {
   maxSnoozeMin?: number
   dailySummaryHour?: number
   lastDailySummaryDay?: string | null
+  eodSummaryTime?: string
+  lastEodSummaryDay?: string | null
+  quotationFollowUpDays?: number
+  followUpIntervalMin?: number
   staffSignupNeedsApproval?: boolean
   updatedByName?: string | null
   updatedAt?: Date | string
@@ -469,6 +533,10 @@ export type OpsReminderSettingsUpdateInput = {
   maxSnoozeMin?: Prisma.IntFieldUpdateOperationsInput | number
   dailySummaryHour?: Prisma.IntFieldUpdateOperationsInput | number
   lastDailySummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eodSummaryTime?: Prisma.StringFieldUpdateOperationsInput | string
+  lastEodSummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationFollowUpDays?: Prisma.IntFieldUpdateOperationsInput | number
+  followUpIntervalMin?: Prisma.IntFieldUpdateOperationsInput | number
   staffSignupNeedsApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -488,6 +556,10 @@ export type OpsReminderSettingsUncheckedUpdateInput = {
   maxSnoozeMin?: Prisma.IntFieldUpdateOperationsInput | number
   dailySummaryHour?: Prisma.IntFieldUpdateOperationsInput | number
   lastDailySummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eodSummaryTime?: Prisma.StringFieldUpdateOperationsInput | string
+  lastEodSummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationFollowUpDays?: Prisma.IntFieldUpdateOperationsInput | number
+  followUpIntervalMin?: Prisma.IntFieldUpdateOperationsInput | number
   staffSignupNeedsApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -507,6 +579,10 @@ export type OpsReminderSettingsCreateManyInput = {
   maxSnoozeMin?: number
   dailySummaryHour?: number
   lastDailySummaryDay?: string | null
+  eodSummaryTime?: string
+  lastEodSummaryDay?: string | null
+  quotationFollowUpDays?: number
+  followUpIntervalMin?: number
   staffSignupNeedsApproval?: boolean
   updatedByName?: string | null
   updatedAt?: Date | string
@@ -526,6 +602,10 @@ export type OpsReminderSettingsUpdateManyMutationInput = {
   maxSnoozeMin?: Prisma.IntFieldUpdateOperationsInput | number
   dailySummaryHour?: Prisma.IntFieldUpdateOperationsInput | number
   lastDailySummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eodSummaryTime?: Prisma.StringFieldUpdateOperationsInput | string
+  lastEodSummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationFollowUpDays?: Prisma.IntFieldUpdateOperationsInput | number
+  followUpIntervalMin?: Prisma.IntFieldUpdateOperationsInput | number
   staffSignupNeedsApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -545,6 +625,10 @@ export type OpsReminderSettingsUncheckedUpdateManyInput = {
   maxSnoozeMin?: Prisma.IntFieldUpdateOperationsInput | number
   dailySummaryHour?: Prisma.IntFieldUpdateOperationsInput | number
   lastDailySummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eodSummaryTime?: Prisma.StringFieldUpdateOperationsInput | string
+  lastEodSummaryDay?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quotationFollowUpDays?: Prisma.IntFieldUpdateOperationsInput | number
+  followUpIntervalMin?: Prisma.IntFieldUpdateOperationsInput | number
   staffSignupNeedsApproval?: Prisma.BoolFieldUpdateOperationsInput | boolean
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -564,6 +648,10 @@ export type OpsReminderSettingsCountOrderByAggregateInput = {
   maxSnoozeMin?: Prisma.SortOrder
   dailySummaryHour?: Prisma.SortOrder
   lastDailySummaryDay?: Prisma.SortOrder
+  eodSummaryTime?: Prisma.SortOrder
+  lastEodSummaryDay?: Prisma.SortOrder
+  quotationFollowUpDays?: Prisma.SortOrder
+  followUpIntervalMin?: Prisma.SortOrder
   staffSignupNeedsApproval?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -577,6 +665,8 @@ export type OpsReminderSettingsAvgOrderByAggregateInput = {
   paymentLookbackDays?: Prisma.SortOrder
   maxSnoozeMin?: Prisma.SortOrder
   dailySummaryHour?: Prisma.SortOrder
+  quotationFollowUpDays?: Prisma.SortOrder
+  followUpIntervalMin?: Prisma.SortOrder
 }
 
 export type OpsReminderSettingsMaxOrderByAggregateInput = {
@@ -593,6 +683,10 @@ export type OpsReminderSettingsMaxOrderByAggregateInput = {
   maxSnoozeMin?: Prisma.SortOrder
   dailySummaryHour?: Prisma.SortOrder
   lastDailySummaryDay?: Prisma.SortOrder
+  eodSummaryTime?: Prisma.SortOrder
+  lastEodSummaryDay?: Prisma.SortOrder
+  quotationFollowUpDays?: Prisma.SortOrder
+  followUpIntervalMin?: Prisma.SortOrder
   staffSignupNeedsApproval?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -612,6 +706,10 @@ export type OpsReminderSettingsMinOrderByAggregateInput = {
   maxSnoozeMin?: Prisma.SortOrder
   dailySummaryHour?: Prisma.SortOrder
   lastDailySummaryDay?: Prisma.SortOrder
+  eodSummaryTime?: Prisma.SortOrder
+  lastEodSummaryDay?: Prisma.SortOrder
+  quotationFollowUpDays?: Prisma.SortOrder
+  followUpIntervalMin?: Prisma.SortOrder
   staffSignupNeedsApproval?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -625,6 +723,8 @@ export type OpsReminderSettingsSumOrderByAggregateInput = {
   paymentLookbackDays?: Prisma.SortOrder
   maxSnoozeMin?: Prisma.SortOrder
   dailySummaryHour?: Prisma.SortOrder
+  quotationFollowUpDays?: Prisma.SortOrder
+  followUpIntervalMin?: Prisma.SortOrder
 }
 
 
@@ -643,6 +743,10 @@ export type OpsReminderSettingsSelect<ExtArgs extends runtime.Types.Extensions.I
   maxSnoozeMin?: boolean
   dailySummaryHour?: boolean
   lastDailySummaryDay?: boolean
+  eodSummaryTime?: boolean
+  lastEodSummaryDay?: boolean
+  quotationFollowUpDays?: boolean
+  followUpIntervalMin?: boolean
   staffSignupNeedsApproval?: boolean
   updatedByName?: boolean
   updatedAt?: boolean
@@ -662,6 +766,10 @@ export type OpsReminderSettingsSelectCreateManyAndReturn<ExtArgs extends runtime
   maxSnoozeMin?: boolean
   dailySummaryHour?: boolean
   lastDailySummaryDay?: boolean
+  eodSummaryTime?: boolean
+  lastEodSummaryDay?: boolean
+  quotationFollowUpDays?: boolean
+  followUpIntervalMin?: boolean
   staffSignupNeedsApproval?: boolean
   updatedByName?: boolean
   updatedAt?: boolean
@@ -681,6 +789,10 @@ export type OpsReminderSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime
   maxSnoozeMin?: boolean
   dailySummaryHour?: boolean
   lastDailySummaryDay?: boolean
+  eodSummaryTime?: boolean
+  lastEodSummaryDay?: boolean
+  quotationFollowUpDays?: boolean
+  followUpIntervalMin?: boolean
   staffSignupNeedsApproval?: boolean
   updatedByName?: boolean
   updatedAt?: boolean
@@ -700,12 +812,16 @@ export type OpsReminderSettingsSelectScalar = {
   maxSnoozeMin?: boolean
   dailySummaryHour?: boolean
   lastDailySummaryDay?: boolean
+  eodSummaryTime?: boolean
+  lastEodSummaryDay?: boolean
+  quotationFollowUpDays?: boolean
+  followUpIntervalMin?: boolean
   staffSignupNeedsApproval?: boolean
   updatedByName?: boolean
   updatedAt?: boolean
 }
 
-export type OpsReminderSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enabled" | "jobIntervalMin" | "paymentIntervalMin" | "escalateAfterMin" | "defaultJobHours" | "paymentLookbackDays" | "quietStart" | "quietEnd" | "soundEnabled" | "maxSnoozeMin" | "dailySummaryHour" | "lastDailySummaryDay" | "staffSignupNeedsApproval" | "updatedByName" | "updatedAt", ExtArgs["result"]["opsReminderSettings"]>
+export type OpsReminderSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enabled" | "jobIntervalMin" | "paymentIntervalMin" | "escalateAfterMin" | "defaultJobHours" | "paymentLookbackDays" | "quietStart" | "quietEnd" | "soundEnabled" | "maxSnoozeMin" | "dailySummaryHour" | "lastDailySummaryDay" | "eodSummaryTime" | "lastEodSummaryDay" | "quotationFollowUpDays" | "followUpIntervalMin" | "staffSignupNeedsApproval" | "updatedByName" | "updatedAt", ExtArgs["result"]["opsReminderSettings"]>
 
 export type $OpsReminderSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "OpsReminderSettings"
@@ -724,6 +840,10 @@ export type $OpsReminderSettingsPayload<ExtArgs extends runtime.Types.Extensions
     maxSnoozeMin: number
     dailySummaryHour: number
     lastDailySummaryDay: string | null
+    eodSummaryTime: string
+    lastEodSummaryDay: string | null
+    quotationFollowUpDays: number
+    followUpIntervalMin: number
     staffSignupNeedsApproval: boolean
     updatedByName: string | null
     updatedAt: Date
@@ -1163,6 +1283,10 @@ export interface OpsReminderSettingsFieldRefs {
   readonly maxSnoozeMin: Prisma.FieldRef<"OpsReminderSettings", 'Int'>
   readonly dailySummaryHour: Prisma.FieldRef<"OpsReminderSettings", 'Int'>
   readonly lastDailySummaryDay: Prisma.FieldRef<"OpsReminderSettings", 'String'>
+  readonly eodSummaryTime: Prisma.FieldRef<"OpsReminderSettings", 'String'>
+  readonly lastEodSummaryDay: Prisma.FieldRef<"OpsReminderSettings", 'String'>
+  readonly quotationFollowUpDays: Prisma.FieldRef<"OpsReminderSettings", 'Int'>
+  readonly followUpIntervalMin: Prisma.FieldRef<"OpsReminderSettings", 'Int'>
   readonly staffSignupNeedsApproval: Prisma.FieldRef<"OpsReminderSettings", 'Boolean'>
   readonly updatedByName: Prisma.FieldRef<"OpsReminderSettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"OpsReminderSettings", 'DateTime'>

@@ -12,7 +12,19 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { jobPaymentSummary } from "@/lib/payment-status";
-import { getOpsSettings, openReminderTotals, runOpsReminderSweep } from "@/server/ops-reminders";
+import {
+  getOpsSettings,
+  openReminderTotals,
+  runOpsReminderSweep,
+  getEodSummary,
+  eodTotal,
+  setUserReminderPrefs,
+  acknowledgeEod,
+  loadQuoteDetails,
+  loadFollowUpDetails,
+  QUOTATION_KIND,
+  FOLLOWUP_KIND,
+} from "@/server/ops-reminders";
 import { updateJobStatus } from "@/server/actions/jobs";
 
 async function requireOffice() {
@@ -21,7 +33,7 @@ async function requireOffice() {
 }
 
 async function log(reminderId: string, type: string, note: string, session: { name: string; email: string; sub: string }, jobId?: string) {
-  await db.opsReminderEvent.create({ data: { reminderId, type, note, actorName: session.name } });
+  await db.opsReminderEvent.create({ data: { reminderId, type, note, actorName: session.name, userId: session.sub } });
   await db.auditLog
     .create({ data: { entityType: "OpsReminder", entityId: reminderId, action: `OPS_REMINDER_${type}`, summary: note, actorName: session.name, actorEmail: session.email } })
     .catch(() => {});
@@ -31,7 +43,7 @@ async function log(reminderId: string, type: string, note: string, session: { na
 export async function getPendingActions() {
   const session = await requireOffice();
   if (!session) return null;
-  const settings = await getOpsSettings();
+  const [settings, me] = await Promise.all([getOpsSettings(), db.user.findUnique({ where: { id: session.sub }, select: { soundEnabled: true, notificationsEnabled: true } })]);
   const open = await db.opsReminder.findMany({ where: { status: "OPEN" }, orderBy: { dueAt: "asc" }, take: 100 });
   const jobs = await db.job.findMany({
     where: { id: { in: open.map((r) => r.jobId) } },
@@ -67,9 +79,39 @@ export async function getPendingActions() {
       },
     ];
   });
+  const shape = (r: (typeof open)[number]) => ({
+    id: r.id,
+    dueAt: r.dueAt.toISOString(),
+    overdue: r.dueAt.getTime() <= now,
+    alertCount: r.alertCount,
+    lastAlertAt: r.lastAlertAt?.toISOString() ?? null,
+    escalated: Boolean(r.escalatedAt),
+    snoozedUntil: r.snoozedUntil && r.snoozedUntil.getTime() > now ? r.snoozedUntil.toISOString() : null,
+    followUpUntil: r.followUpUntil && r.followUpUntil.getTime() > now ? r.followUpUntil.toISOString() : null,
+    followUpNote: r.followUpNote,
+    acknowledgedBy: r.acknowledgedBy,
+  });
+  const quoteRows = open.filter((r) => r.kind === QUOTATION_KIND);
+  const quoteInfo = await loadQuoteDetails(quoteRows);
+  const quotes = quoteRows.flatMap((r) => {
+    const d = quoteInfo.find((x) => x.id === r.id);
+    return d ? [{ ...shape(r), quoteNumber: d.quoteNumber, leadId: d.leadId, leadName: d.leadName, amount: d.amount }] : [];
+  });
+  const fuRows = open.filter((r) => r.kind === FOLLOWUP_KIND);
+  const fuInfo = await loadFollowUpDetails(fuRows);
+  const followUps = fuRows.flatMap((r) => {
+    const d = fuInfo.find((x) => x.id === r.id);
+    return d ? [{ ...shape(r), leadId: d.leadId, leadName: d.leadName, type: d.type, notes: d.notes }] : [];
+  });
   return {
     role: session.role,
-    soundEnabled: settings.soundEnabled,
+    // Effective sound = global switch AND this user's own switch. Neither affects tracking.
+    soundEnabled: settings.soundEnabled && (me?.soundEnabled ?? true),
+    userSoundEnabled: me?.soundEnabled ?? true,
+    globalSoundEnabled: settings.soundEnabled,
+    notificationsEnabled: me?.notificationsEnabled ?? true,
+    quotes: quotes.filter((q) => q.overdue),
+    followUps: followUps.filter((f) => f.overdue),
     maxSnoozeMin: settings.maxSnoozeMin,
     enabled: settings.enabled,
     // Overdue items, plus delayed jobs (so they can still be closed from here).
@@ -147,7 +189,7 @@ const followUpSchema = z.object({
   followUpDate: z.string().regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/, "Pick the follow-up date"),
 });
 
-/** Payment collection: a valid follow-up (what was agreed + when) pauses reminders until that time. */
+/** Payment / quotation / customer follow-up: a dated note (what was agreed + when) pauses reminders until that time. It never changes the underlying record. */
 export async function recordPaymentFollowUp(id: string, values: unknown) {
   const session = await requireOffice();
   if (!session) return { error: "Not authorized" };
@@ -160,9 +202,9 @@ export async function recordPaymentFollowUp(id: string, values: unknown) {
   if (Number.isNaN(until.getTime()) || until.getTime() <= now) return { error: "Follow-up must be in the future" };
   if (until.getTime() > now + 14 * 24 * 3600 * 1000) return { error: "Follow-up must be within 14 days" };
   const r = await loadOpen(id);
-  if (!r || r.kind !== "PAYMENT_COLLECTION") return { error: "This reminder is already closed" };
+  if (!r || !["PAYMENT_COLLECTION", QUOTATION_KIND, FOLLOWUP_KIND].includes(r.kind)) return { error: "This reminder is already closed" };
   await db.opsReminder.update({ where: { id }, data: { followUpNote: parsed.data.note, followUpUntil: until, nextAlertAt: until, snoozedUntil: null, acknowledgedAt: new Date(), acknowledgedBy: session.name } });
-  await log(id, "FOLLOW_UP", `Payment follow-up by ${session.name}: ${parsed.data.note} (next ${until.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })})`, session, r.jobId);
+  await log(id, "FOLLOW_UP", `Follow-up note by ${session.name}: ${parsed.data.note} (next ${until.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })})`, session, r.kind === "PAYMENT_COLLECTION" ? r.jobId : undefined);
   revalidatePath("/dashboard");
   return { success: true as const };
 }
@@ -182,6 +224,9 @@ const settingsSchema = z
     soundEnabled: z.boolean(),
     maxSnoozeMin: z.coerce.number().int().min(5).max(24 * 60),
     dailySummaryHour: z.coerce.number().int().min(-1).max(23),
+    eodSummaryTime: z.string().regex(/^(([01]\d|2[0-3]):[0-5]\d|off)$/, "Use HH:MM or off"),
+    quotationFollowUpDays: z.coerce.number().int().min(1).max(30),
+    followUpIntervalMin: z.coerce.number().int().min(15).max(24 * 60),
     staffSignupNeedsApproval: z.boolean(),
   })
   .strict();
@@ -229,4 +274,54 @@ export async function runOpsRemindersNow() {
   const session = await getSession();
   if (session?.role !== "ADMIN") return { error: "Not authorized" };
   return { success: true as const, result: await runOpsReminderSweep() };
+}
+
+// ── Per-user alert preferences + EOD summary popup (Super Admin + Accounts, own account only) ──
+
+export async function getMyReminderPrefs() {
+  const session = await requireOffice();
+  if (!session) return null;
+  const [me, settings] = await Promise.all([
+    db.user.findUnique({ where: { id: session.sub }, select: { soundEnabled: true, notificationsEnabled: true } }),
+    getOpsSettings(),
+  ]);
+  return { soundEnabled: me?.soundEnabled ?? true, notificationsEnabled: me?.notificationsEnabled ?? true, globalSoundEnabled: settings.soundEnabled };
+}
+
+const prefsSchema = z.object({ soundEnabled: z.boolean().optional(), notificationsEnabled: z.boolean().optional() }).strict();
+
+/** Sound and notifications are separate switches. Turning either off never stops reminder tracking. */
+export async function setMyReminderPrefs(values: unknown) {
+  const session = await requireOffice();
+  if (!session) return { error: "Not authorized" };
+  const parsed = prefsSchema.safeParse(values);
+  if (!parsed.success) return { error: "Invalid preference" };
+  const updated = await setUserReminderPrefs({ id: session.sub, name: session.name }, parsed.data);
+  if (!updated) return { error: "Nothing to change" };
+  await db.auditLog
+    .create({ data: { entityType: "User", entityId: session.sub, action: "OPS_REMINDER_PREFS", summary: `${session.name} set reminder sound ${updated.soundEnabled ? "ON" : "OFF"}, notifications ${updated.notificationsEnabled ? "ON" : "OFF"}`, actorName: session.name, actorEmail: session.email } })
+    .catch(() => {});
+  revalidatePath("/dashboard");
+  return { success: true as const, ...updated };
+}
+
+/** Live end-of-day picture. `showPopup` = there is an unseen EOD notification for this user AND they have notifications on. */
+export async function getEodSummaryForUser() {
+  const session = await requireOffice();
+  if (!session) return null;
+  const [summary, me, unseen] = await Promise.all([
+    getEodSummary(),
+    db.user.findUnique({ where: { id: session.sub }, select: { notificationsEnabled: true } }),
+    db.notification.count({ where: { userId: session.sub, kind: "OPS_EOD_SUMMARY", readAt: null } }),
+  ]);
+  const notificationsEnabled = me?.notificationsEnabled ?? true;
+  return { summary, total: eodTotal(summary), notificationsEnabled, showPopup: unseen > 0 && notificationsEnabled };
+}
+
+/** "Got it" on the EOD popup — marks the notification seen and logs who/when. Never resolves any item. */
+export async function dismissEodSummary() {
+  const session = await requireOffice();
+  if (!session) return { error: "Not authorized" };
+  await acknowledgeEod({ id: session.sub, name: session.name });
+  return { success: true as const };
 }
