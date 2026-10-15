@@ -57,7 +57,7 @@ Pattern: AI answers lean on Justdial, Urban Company and competitors' own service
 6. **Topic overlap and gap:** www and booking compete on the same topics; interior painting and pest control exist only on booking.
 7. Search Console not owned → no indexing/CWV/query data. [Blocked]
 8. No `llms.txt` (low priority, optional).
-Booking host: titles/descriptions/canonicals fine, 0 images without alt, sitemap/robots correct.
+Booking host: canonicals, H1, alt text, sitemap and robots are correct, but **titles are 72–86 characters and several descriptions exceed 160** (truncated in results) — see section 19D.
 
 ## 7. Organic lead attribution gaps
 - CRM stores source, UTM, gclid/fbclid, first/latest touch — good. But with no GA4/Ads/Pixel loading and no Search Console, organic search cannot be separated from direct/WhatsApp/phone leads beyond landing-page referrer.
@@ -144,7 +144,7 @@ Existing alts on shampoo/Corporate/a_image list all five localities — shorten 
 | Hypothesis | Finding | Status |
 |---|---|---|
 | Missing IDs | `marketing-tags.tsx` and `/book` render **nothing** unless `NEXT_PUBLIC_GA4_ID` / `_GOOGLE_ADS_ID` / `_META_PIXEL_ID` exist. The live booking HTML contains no gtag, fbq or googletagmanager reference. The CRM page `/profit/marketing` already shows each as "not set" when it is. | Most likely cause (production env not viewable by Claude) |
-| Build-time inlining | `NEXT_PUBLIC_*` values are baked into the client bundle at **build** time. The `Dockerfile` declares **no `ARG NEXT_PUBLIC_*`**, so setting them in Coolify only works if Coolify injects them as build variables for this build pack. **Unverified** — check read-only in Coolify (build pack, "Build Variable" flag) before asking for approval. A local, harmless fix is adding the ARG/ENV lines to the Dockerfile (needs deploy). | Open risk |
+| Build-time inlining | `NEXT_PUBLIC_*` values are baked into the client bundle at **build** time and the `Dockerfile` had no `ARG` lines. **Evidence that the platform already passes build variables:** the live sitemap lists `booking.saharacleaningservices.com` URLs although it is prerendered at build and the Dockerfile has no `ARG BOOKING_URL` (a local build without `BOOKING_URL` emits `app.*`). So Coolify injects build-time variables; set the IDs as Coolify *build-time* variables and redeploy. Still unproven for these four names until tried; see section 19 for the added `ARG` safety net. | Low risk, confirm at rollout |
 | Consent behaviour | No cookie/consent banner and no consent gating anywhere in `src` — once IDs exist, tags load for every visitor. Consider the India DPDP Act and Google consent-mode needs; decide before enabling (legal advice, not an engineering call). | Owner decision |
 | Blocked requests | Not testable until IDs exist; ad-blockers will hide a share of visitors regardless. No CSP header is set that would block Google/Meta (booking sends only X-Frame-Options and Permissions-Policy). | No blocker found |
 | Ownership/access | GA4 property: Administrator access not yet granted to Sahara; GTM-WPM2QXCX and the Pixel belong to the agency; Google Ads is Sahara's. www (WordPress) has **no analytics at all**. The only live page loading GTM is the old agency Vercel page. | Access blocked |
@@ -176,3 +176,92 @@ Latest measurements are the 2026-10-15 readings in `CRM_LEAD_CAPTURE_PLAN.md` §
 | 4 | Homepage no H1, bad title/alt | live HTML | §13 | clearer topic signal | low | ₹0 | WordPress change |
 | 5 | Absent from AI answers | 5 queries | strong service pages + consistent listings + reviews | possible citations (unproven) | none | ₹0 | GBP/listings |
 | 6 | Booking-host JS/LCP 4.5 s | Lighthouse | bundle trim (§15.3) | faster landing | regression | ₹0 | deploy |
+
+---
+# Phase 3 update (2026-10-15) — local-only technical work (uncommitted)
+Authorised: local work only. Nothing deployed, no Coolify/DNS/env/WordPress change, no real tracking IDs, nothing published. Files changed (uncommitted): `Dockerfile`, `package.json` (+1 script), `tests/seo.test.ts` (new); docs.
+
+## 19. Findings
+**A. Build-time tracking variables (item 1).** `NEXT_PUBLIC_*` are inlined at `next build`. Added to the builder stage of the `Dockerfile`: `ARG NEXT_PUBLIC_GA4_ID`, `_GOOGLE_ADS_ID`, `_GOOGLE_ADS_LEAD_LABEL`, `_META_PIXEL_ID` (ARG only, no ENV → unset stays unset and nothing reaches the runner stage; the IDs are public, not secrets). *Not tested with Docker (Docker is not installed on this PC).* **Safest rollout configuration (needs approval, not done):** (1) get Sahara-owned GA4 / Ads / Pixel access first (section 14); (2) add the four IDs in Coolify as **build-time** variables; (3) one redeploy; (4) verify in a browser (network: `gtag/js?id=`, `fbevents.js`) and in GA4 Realtime / Meta Test Events; (5) decide on a consent mechanism before enabling for all visitors; (6) rollback = remove the variables and redeploy. Never use the agency's GTM container (GTM-WPM2QXCX).
+**Local proof with fake IDs** (`G-TESTTEST00`, `AW-000000000`, `0000000000`; scratch DB copy; Turbopack dev server): in a real browser the landing page loaded `gtag/js`, `dataLayer` held `config` for both IDs, `fbq` was defined and `fbevents.js` loaded. With IDs unset, nothing loads (the new test checks this). Side effect: the fake Ads ID made the browser contact Google (`googleads.g.doubleclick.net … AW-000000000`), so never use real IDs in local tests.
+
+**B. HTTP 500 diagnosed (item 4).** Cause: the dev server had been started with `npx next dev` (webpack) instead of the project's `npm run dev` (`next dev --turbopack`). Under webpack the instrumentation compile fails — `Module not found: Can't resolve 'http'` from `agent-base` ← `web-push` ← `src/lib/webpush.ts` ← `notify.ts` (reached via `ops-reminders` / `backup-health` in `src/instrumentation.ts`) — and every page returns 500. With `npm run dev` the same page returns 200 (first compile 29 s). Production builds use `--turbopack` and the production build passed, so production is unaffected; webpack mode is simply unsupported. Not a regression from this work.
+
+**C. Booking hub JavaScript (item 3) — the "600 KiB" is mostly Google Maps, not Sahara code.** Lighthouse request breakdown for `/home-deep-cleaning-pune` (913 KiB, 42 requests):
+| Host | Requests | Transfer |
+|---|---|---|
+| booking.saharacleaningservices.com (Sahara HTML, CSS, JS, images) | 24 | 455 KiB |
+| **maps.googleapis.com + maps.gstatic.com (Google Maps embed)** | **15** | **456 KiB** |
+| other google.com | 3 | ~2 KiB |
+Source: the footer `<iframe src="https://www.google.com/maps?…&output=embed" loading="lazy">` in `src/components/public/campaign-kit.tsx` (`CampaignFooter`, used by the hub, commercial, pest and painting pages). On a short mobile page Chrome loads "lazy" iframes early, so the whole Maps application downloads on first visit.
+**Sahara's own JavaScript:** 15 chunks, ~655 KiB uncompressed / **~203 KiB gzip**; React/Next runtime is the bulk; the only identifiable app chunk is the booking wizard + price selector (~72 KiB raw / 19 KiB gzip), imported eagerly by `landing-kit.tsx`. Production chunks are minified without module names, so this split is by content markers, not exact.
+**Proposed minimal changes (not implemented):**
+1. *Map facade* in `CampaignFooter`: a static "View on Google Maps" card (address + the existing Google Business Profile link from `marketing-content.ts`) that mounts the iframe only on tap. Expected: **−456 KiB (about −50 % page weight) and −15 requests per visit**; no change to first-party JS, booking, CRM, pricing or tracking. Risk: map not visible until tapped; local-SEO signals (address text, LocalBusiness JSON-LD, GBP link) unchanged; check mobile layout.
+2. Load `BookingWizard` with `next/dynamic` where it is below the fold or behind a button: ~19 KiB gzip. Only after confirming it does not delay the booking flow; rerun `test:public`, `test:pricing`, `test:inquiry` plus a manual booking E2E.
+3. Do not touch the React/Next runtime, icons or tracking code for size: no worthwhile gain for the risk.
+**LCP effect is unproven.** Repeat Lighthouse runs on the same live URL gave performance 83, 81 (first pair) and 81, 59 (second pair), LCP 3.7–6.8 s, versus 69 / 4.5 s earlier: run-to-run noise exceeds any small gain. Judge the change by transferred bytes, request count and the median of ≥5 runs. My attempt to block the Maps hosts inside Lighthouse did not take effect (request count unchanged), so no "after" number exists.
+
+**D. Correction to section 6.** Booking-host titles are 72–86 characters (Google shows ~60) and descriptions go up to 282 characters (shown ~160) — 25 advisory items are printed by the new test. `/gallery` has a 41-char title, 70-char description and no structured data. Proposed: shorten title templates (keyword and price first, brand last; titles embed live pricing, so keep them data-driven). Wording needs owner approval.
+
+## 20. `npm run test:seo` (item 2)
+`tests/seo.test.ts`, node:test + tsx like the other suites. It starts the already-built app with `next start` on a free port, with a throwaway DB, `BOOKING_URL` / `CRM_URL` set to the production hosts and tracking IDs empty, then checks:
+1. sitemap = exactly the 14 indexable paths, one origin, no duplicates, none of `/landing /api /my /login /j`;
+2. robots: booking host allows `/` and blocks `/api/ /j/ /my /login /uploads/`, lists the sitemap; any other host disallows everything;
+3. each page: 200, indexable, unique title (20–90 chars), description (50–300), self-canonical;
+4. exactly one H1, it is the first heading, no skipped levels, no empty headings;
+5. JSON-LD parses and keeps `HomeAndConstructionBusiness` (+ `FAQPage` on service pages);
+6. every `<img>` has an alt attribute;
+7. the four `/landing/*` pages stay noindex;
+8. important routes stay 200, `/privacy` → 308 `/privacy-policy`, `/book?…` → 307 `/booking` with UTM and `service=` carried over;
+9. CRM routes (`/dashboard /leads /jobs /payments /settings /api/backup`) are not 200 on the booking host;
+10. no Google/Meta/GTM script while IDs are unset.
+Advisory only (printed, never failing): titles >60, descriptions >160, sitemap origin not the booking host. `SEO_STRICT_ORIGIN=1` makes the origin check a failure for pre-release use. **Finding while writing it:** the sitemap is prerendered at build time (canonicals are computed per request), so a build without `BOOKING_URL` silently emits `app.*` URLs. Needs `npm run build` first (fails with a clear message otherwise). Limits: static HTML only (no JavaScript rendering), localhost only.
+
+## 21. Commands and results (2026-10-15, branch feat/backup-alerts)
+| Command | Result |
+|---|---|
+| `npm run build` (Turbopack, no tracking IDs) | exit 0 (existing ESLint warnings only) |
+| `npm run test:seo` | 10/10 pass, 25 advisory items printed |
+| `SEO_STRICT_ORIGIN=1 npm run test:seo` (same build) | 9 pass, 1 fail as designed ("sitemap origin app.* — rebuild with BOOKING_URL=…") — shows the suite can fail |
+| `npx tsc --noEmit` | exit 0 |
+| `test:public` 5/5 · `test:pricing` 61/61 · `test:inquiry` 15/15 · `test:ops` 7/7 · `test:eod` 16/16 · `test:backup` 10/10 | pass |
+| `npm run dev -- -p 3098` + browser check with fake IDs | 200; gtag, dataLayer, fbq verified |
+| `npx next dev` (webpack mode) | 500, explained in 19B |
+Not run: Docker build (no Docker), a build with fake IDs, a Lighthouse "after" measurement (nothing implemented). Local test servers on ports 3097–3099 were stopped.
+
+## 22. Risks and next approval
+Risks: the Dockerfile ARG lines are untested in Docker (harmless if unused; revert = delete 4 lines); `test:seo` adds ~25 s and needs a prior build; it locks current routes, so an intentional route change must update the test. **Next approval needed — choose one:** (a) commit these three files locally (no push); (b) implement the map facade and optional wizard lazy-loading locally with before/after byte counts and tests; (c) anything that deploys, adds tracking IDs, touches DNS or WordPress stays blocked until separately approved.
+
+---
+# Phase 4 update (2026-10-15) — map-on-tap implemented locally and committed locally (not pushed, not deployed)
+## 23. Change
+`src/components/public/map-on-tap.tsx` (new client component) replaces the always-loading footer `<iframe>` in `CampaignFooter` (`src/components/public/campaign-kit.tsx`). Until the visitor taps **"Show map here"** the footer shows a static card: address, a clear **"View on Google Maps"** link (opens the existing Google Business Profile listing `GOOGLE_MAPS_URL`, `target=_blank`, `rel="noopener noreferrer"`) and the button. The card has the same height classes as the map, so layout does not jump (CLS 0 in every run). Pages affected: home-deep-cleaning-pune, commercial-cleaning-pune, pest-control-pune, interior-painting-pune. No tracking, consent, pricing, booking-form or CRM code was touched; no environment variable or tracking ID was added.
+Verified in a real browser (local production build): before the tap 0 iframes and 0 Maps requests; after the tap the iframe mounts (360 px high on desktop) and exactly one Maps request starts; mobile (375 px) shows the card without horizontal overflow. New test 10 in `npm run test:seo` guards it (it fails on today's live page, which still has the iframe).
+
+## 24. Before / after (measured, local)
+Method: Lighthouse CLI, mobile emulation, simulated throttling, Chrome headless on this PC, URL `http://localhost:3090/home-deep-cleaning-pune` served by `next start` from the local production build (scratch DB copy), 5 runs "before" (build of the unmodified code) then 5 runs "after" (build with the change), one after the other (not interleaved); real Google servers for third-party requests.
+| Metric (median of 5) | Before | After | Change |
+|---|---|---|---|
+| Requests | 42 | 24 | −18 (−43 %) — measured, identical in all 5 runs |
+| Transferred | 924.8 KiB | 467.6 KiB | −457 KiB (−49 %) — measured |
+| Google Maps requests / KiB | 17 / 458 | 0 / 0 | measured |
+| Script transfer | 607.8 KiB | 174.9 KiB | −433 KiB — measured |
+| Performance score | 56 (runs 74, 56, 71, 52, 51) | 86 (runs 68, 87, 88, 75, 86) | +30 median, runs overlap (68–74) |
+| LCP | 6.65 s (3.9, 6.7, 5.3, 6.8, 6.7) | 3.53 s (3.7, 3.5, 3.5, 3.5, 3.5) | −3.1 s median |
+| FCP | 3.69 s | 1.32 s | |
+| TBT | 401 ms | 225 ms | very noisy (65–576 vs 174–787) |
+| CLS | 0 | 0 | |
+**Reading the evidence:** bytes and request counts are exact and repeatable (they barely moved between runs). The LCP/score improvement is *consistent* — all 5 "after" runs had LCP ≤ 3.7 s while 4 of 5 "before" runs were ≥ 5.3 s — and plausible, because the 15–17 Maps requests compete for the same slow simulated connection as the hero image. But it is a **lab result from one machine, one URL, sequential runs**: absolute values are not what a customer in Pune on a real phone sees. Earlier runs against the live site varied between 59 and 83 for the unchanged page, so treat "+30 points" as indicative, not a promise. No field (real-user) data exists yet; after a deploy, compare Search Console / Chrome UX data (once owned) or repeat this same method on the live URL. Estimated, not measured: effect on conversions (none claimed).
+
+## 25. Booking-wizard lazy loading — evaluated, NOT implemented
+Measured size of the wizard chunk: ~72 KiB uncompressed / ~19 KiB gzip, i.e. about 2 % of the page's 925 KiB (4 % of the remaining first-party transfer). In this app the wizard is server-rendered inside `QuoteSection`; truly deferring it needs a client wrapper with `ssr:false` (or an on-scroll trigger), which (a) removes the form's server-rendered HTML for crawlers and no-JS visitors, (b) can shift the layout and break `#book` / `#price-selector` anchor jumps, and (c) touches validation, pricing props, tracking and navigation of the page's main conversion element. The possible gain (≤ 19 KiB gzip) is below the noise of the measurements above, so the risk is not justified. Decision: keep the wizard as is. Reconsider only if bundle analysis after deployment shows it blocking input responsiveness.
+
+## 26. Test results (after the change, 2026-10-15)
+| Command | Result |
+|---|---|
+| `npx tsc --noEmit` | exit 0 |
+| `BOOKING_URL=https://booking.saharacleaningservices.com CRM_URL=https://crm.saharacleaningservices.com npm run build` | exit 0 (existing ESLint warnings only) |
+| `SEO_STRICT_ORIGIN=1 npm run test:seo` | 11/11 |
+| `test:public` 5/5 · `test:pricing` 61/61 · `test:inquiry` 15/15 · `test:ops` 7/7 · `test:eod` 16/16 · `test:backup` 10/10 | pass |
+Not run: Docker build (no Docker on this PC); a full booking submission E2E (the change is footer-only and does not touch the wizard, form actions, pricing or tracking — verify once on staging/after deploy). Test servers on ports 3090–3099 stopped.
+**Remaining risks:** visitors must tap to see the interactive map (the address and a direct Google Maps link are visible); the Dockerfile `ARG` lines are untested in Docker; results above are lab numbers. **Next approval needed:** push of the local commit and any deployment (production deploy is a separate owner decision; suggested: staging first or off-peak small deploy with `git revert` as rollback).

@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import { MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { QuickLeadForm } from "@/components/public/quick-lead-form";
-import { CONTACT, LOCALITIES, WEBSITE_URL, inr } from "@/lib/marketing-content";
+import { MapOnTap } from "@/components/public/map-on-tap";
+import { CONTACT, GOOGLE_MAPS_URL, LOCALITIES, WEBSITE_URL, inr } from "@/lib/marketing-content";
 import { COMPANY } from "@/lib/constants";
 import { getCompanySettings } from "@/server/settings";
 import { toWhatsAppLink } from "@/lib/utils";
@@ -154,12 +155,11 @@ export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string |
               ))}
             </div>
           </div>
-          <iframe
+          <MapOnTap
             title="Sahara Cleaning Services on Google Maps"
-            src={`https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&output=embed`}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="h-52 w-full rounded-xl border-0 md:h-full md:min-h-56"
+            embedSrc={`https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&output=embed`}
+            mapsUrl={GOOGLE_MAPS_URL}
+            address={CONTACT.address}
           />
         </div>
         <div className="mt-5">
