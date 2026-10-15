@@ -153,3 +153,6 @@ Drive cleanup status: 17 duplicate copies created by Claude in "Sahara/Marketing
 2. SOS-09: QA checklist for staff devices (prepare; real-device run needs people).
 3. SOS-06: read-only check of the Cognito → CRM path.
 4. Keep SOS-03 push blocked item visible; resume the moment the owner permits.
+
+## SEO / AEO / GEO audit (2026-10-15)
+First audit report saved in docs/SEO_GROWTH_AUDIT_2026-10-15.md. Status: audit done (read-only); GA4/Search Console/GBP blocked; all fixes proposed, awaiting owner approval. Nothing deployed or published.
