@@ -58,7 +58,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
         </div>
       </div>
 
-      <div className={cn("rounded-3xl p-4 shadow-sm", due > 0 ? "bg-success text-white" : due < 0 ? "bg-destructive text-white" : "border border-border bg-card")}>
+      <div className={cn("rounded-2xl p-4 shadow-sm", due > 0 ? "bg-success text-white" : due < 0 ? "bg-destructive text-white" : "border border-border bg-card")}>
         <div className="text-sm font-semibold opacity-90">{due > 0 ? `🟢 ${t("salaryDue")}` : due < 0 ? `🔴 ${t("advanceTaken")}` : `✅ ${t("allSettled")}`}</div>
         <div className="text-4xl font-extrabold tabular-nums">{inr(due)}</div>
         {!isThisYear && (
@@ -81,7 +81,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
       </div>
 
       {tab === "salary" && (
-        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           {/* Fixed-width table: columns never overlap or wrap on a 360px phone. */}
           <table className="w-full table-fixed text-[13px] tabular-nums">
             <colgroup>
@@ -149,7 +149,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
       )}
 
       {tab === "ledger" && (
-        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           <div className="grid grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_5rem] gap-x-2 border-b border-border bg-muted/50 px-3 py-2 text-[11px] font-bold uppercase text-muted-foreground">
             <span>{t("date")}</span>
             <span className="text-right">{t("credit")}</span>
@@ -175,7 +175,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
       )}
 
       {tab === "paid" && (
-        <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           {data.paid.length === 0 && <p className="p-4 text-sm text-muted-foreground">{t("nothingYet")}</p>}
           <ul className="divide-y divide-border">
             {data.paid.map((e, i) => (
@@ -196,7 +196,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
       )}
 
       {tab === "loan" && (
-        <section className="space-y-3 rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-indigo-950/40">
+        <section className="space-y-3 rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-indigo-950/40">
           <div className="grid grid-cols-3 gap-1 text-center">
             {[
               [t("loanGiven"), money.loan.opening + money.loan.given],
