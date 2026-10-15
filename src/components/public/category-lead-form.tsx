@@ -41,6 +41,7 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
   const [locality, setLocality] = useState("");
   const [date, setDate] = useState("");
   const [website, setWebsite] = useState(""); // honeypot
+  const [marketingOptIn, setMarketingOptIn] = useState(false); // optional, never pre-ticked
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -85,7 +86,7 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
         serviceVariant: type,
         notes: `${campaignName} — ${schedule ? "site visit request" : "enquiry"} (landing form)${details.length ? ` · ${details.join(" · ")}` : ""}`,
         source: "", // derived server-side from the detected channel (Google Ads, Meta Ads…)
-        marketingOptIn: false,
+        marketingOptIn,
         website,
         attribution: getAttributionPayload(),
       }));
@@ -128,6 +129,13 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
         {showDate && <input className={field} type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} aria-label="Preferred visit date (optional)" />}
         <input className="hidden" tabIndex={-1} autoComplete="off" aria-hidden name="website" value={website} onChange={(e) => setWebsite(e.target.value)} />
       </div>
+      <label className="mt-2 flex cursor-pointer items-start gap-2 rounded-xl bg-[#f6f9fc] p-2.5 text-[12px] leading-snug text-[#0a2540]/85">
+        <input type="checkbox" className="mt-0.5 size-4 shrink-0" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} />
+        <span>
+          <span className="font-semibold">Send me WhatsApp updates and offers from Sahara Cleaning Services (optional).</span>{" "}
+          Your enquiry does not depend on this. You can reply STOP at any time to opt out.
+        </span>
+      </label>
       {error && <p className="mt-2 text-xs font-semibold text-red-600">{error}</p>}
       <button type="submit" disabled={pending} className="sahara-shimmer mt-3 min-h-11 w-full rounded-xl bg-primary text-sm font-bold text-white disabled:opacity-60">
         {pending ? "Sending…" : cta}
