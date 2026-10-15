@@ -284,7 +284,7 @@ export function NotificationsBell() {
       )}
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative size-11 rounded-xl md:size-9" aria-label="Notifications">
           {!prefs.notifications ? <BellOff className="size-5 text-muted-foreground" /> : unread > 0 ? <BellRing className="size-5" /> : <Bell className="size-5" />}
           {unread > 0 && (
             <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
