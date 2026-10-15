@@ -10,6 +10,7 @@ import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { getStaffLang } from "@/server/staff-lang";
 import { inrFor, staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { db } from "@/lib/db";
+import { StatusPill, JOB_STATUS_TONE } from "@/components/shared/status-pill";
 
 export const dynamic = "force-dynamic";
 
@@ -101,7 +102,7 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                       {j.packageName ? ` · ${j.packageName}` : ""}
                     </div>
                   </div>
-                  <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">{t(j.status as StaffKey)}</span>
+                  <StatusPill tone={JOB_STATUS_TONE[j.status] ?? "muted"}>{t(j.status as StaffKey)}</StatusPill>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="size-4 text-muted-foreground" /> {j.scheduledTime}
