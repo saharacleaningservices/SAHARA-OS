@@ -9,6 +9,7 @@ import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { inrFor, staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { initials, cn } from "@/lib/utils";
 import { NotifNudge } from "@/components/staff-app/notif-nudge";
+import { StatusPill, JOB_STATUS_TONE } from "@/components/shared/status-pill";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +57,7 @@ export default async function StaffHomePage() {
       </section>
 
       {/* 📅 Today's Work */}
-      <section className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="text-base font-bold">📅 {t("todaysWork")}</h2>
           <span className={cn("rounded-full px-3 py-1 text-xs font-bold", status ? STATUS_CLS[status] : "bg-muted text-muted-foreground")}>
@@ -72,7 +73,7 @@ export default async function StaffHomePage() {
               <li key={j.id} className="space-y-2 rounded-2xl border border-primary/25 bg-primary/[0.03] p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="text-base font-bold">{SERVICE_LABELS[j.service] ?? j.service}</div>
-                  <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">{t(j.status as StaffKey)}</span>
+                  <StatusPill tone={JOB_STATUS_TONE[j.status] ?? "muted"}>{t(j.status as StaffKey)}</StatusPill>
                 </div>
                 {(j.packageName || j.serviceVariant) && <div className="text-sm font-medium">{j.packageName || j.serviceVariant}</div>}
                 <div className="flex items-center gap-2 text-sm">
@@ -129,7 +130,7 @@ export default async function StaffHomePage() {
       )}
 
       {/* 📆 Attendance this month */}
-      <Link href="/my/calendar" className="block rounded-3xl border border-border bg-card p-4 shadow-sm">
+      <Link href="/my/calendar" className="block rounded-2xl border border-border bg-card p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-base font-bold">
             <CalendarDays className="size-5 text-primary" /> 📆 {t("attendance")} · {t("thisMonth")}
@@ -165,7 +166,7 @@ export default async function StaffHomePage() {
         <Link
           href="/my/records"
           className={cn(
-            "flex items-center justify-between rounded-3xl p-4 shadow-sm",
+            "flex items-center justify-between rounded-2xl p-4 shadow-sm",
             due > 0 ? "bg-success text-white" : due < 0 ? "bg-destructive text-white" : "bg-card border border-border",
           )}
         >
@@ -180,7 +181,7 @@ export default async function StaffHomePage() {
       </section>
 
       {/* 🏦 My Loan — separate from salary */}
-      <section className="rounded-3xl border-2 border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-indigo-950/40">
+      <section className="rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-900 dark:bg-indigo-950/40">
         <h2 className="mb-2 flex items-center gap-2 text-base font-bold text-indigo-900 dark:text-indigo-200">
           <Landmark className="size-5" /> 🏦 {t("myLoan")}
         </h2>
@@ -199,8 +200,8 @@ export default async function StaffHomePage() {
       </section>
 
       {/* 📢 Announcements (office messages only) */}
-      <section className="rounded-3xl border border-border bg-card p-4 shadow-sm">
-        <Link href="/my/announcements" className="mb-2 flex items-center justify-between">
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <Link href="/my/announcements" className="-my-2 mb-0 flex min-h-11 items-center justify-between">
           <h2 className="flex items-center gap-2 text-base font-bold">
             <Megaphone className="size-5 text-primary" /> {t("announcements")}
           </h2>
@@ -214,8 +215,8 @@ export default async function StaffHomePage() {
           <ul className="divide-y divide-border">
             {home.announcements.map((a) => (
               <li key={a.id}>
-                <Link href={`/my/announcements#a-${a.id}`} className="flex items-start gap-2 py-2">
-                  {!a.read && <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-label={t("unreadNew")} />}
+                <Link href={`/my/announcements#a-${a.id}`} className="flex min-h-11 items-center gap-2 py-2">
+                  {!a.read && <span className="size-2 shrink-0 rounded-full bg-primary" aria-label={t("unreadNew")} />}
                   <span className={cn("min-w-0 flex-1 text-sm", !a.read && "font-semibold")}>
                     {a.important && <span className="mr-1 text-destructive">●</span>}
                     {a.title}
@@ -239,7 +240,7 @@ function directionsHref(address: string, mapLink: string | null) {
 
 function MoneyCard({ icon, emoji, label, sub, value, tone }: { icon: React.ReactNode; emoji: string; label: string; sub: string; value: string; tone: "green" | "red" }) {
   return (
-    <div className={cn("rounded-3xl border p-3.5 shadow-sm", tone === "green" ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5")}>
+    <div className={cn("rounded-2xl border p-3.5 shadow-sm", tone === "green" ? "border-success/30 bg-success/5" : "border-destructive/30 bg-destructive/5")}>
       <div className={cn("flex items-center gap-1.5 text-sm font-bold", tone === "green" ? "text-success" : "text-destructive")}>
         {icon} {emoji} {label}
       </div>

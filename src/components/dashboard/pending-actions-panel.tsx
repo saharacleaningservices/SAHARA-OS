@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatINR } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { StatusPill } from "@/components/shared/status-pill";
 import {
   getPendingActions,
   acknowledgeReminder,
@@ -359,11 +360,16 @@ function Category({
 
 const Badges = ({ item }: { item: { escalated: boolean; snoozedUntil: string | null; followUpUntil: string | null; alertCount: number; acknowledgedBy: string | null } }) => (
   <>
-    {item.escalated && <span className="rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">Escalated</span>}
+    {item.escalated && <StatusPill tone="bad" className="px-2 text-[10px]">Escalated</StatusPill>}
     {item.snoozedUntil && <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">Snoozed till {fmt(item.snoozedUntil)}</span>}
     {item.followUpUntil && <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">Follow-up {fmt(item.followUpUntil)}</span>}
     {item.alertCount > 0 && <span className="text-[10px] text-muted-foreground">· {item.alertCount} reminder{item.alertCount === 1 ? "" : "s"}</span>}
-    {item.acknowledgedBy && <span className="text-[10px] text-muted-foreground">· seen by {item.acknowledgedBy}</span>}
+    {/* Only the acknowledger's name is stored (no role), so one colour for seen / not seen. */}
+    {item.acknowledgedBy ? (
+      <StatusPill tone="good" className="px-2 text-[10px]">{item.acknowledgedBy.split(" ")[0]} saw it</StatusPill>
+    ) : (
+      <StatusPill tone="warn" className="px-2 text-[10px]">Not seen yet</StatusPill>
+    )}
   </>
 );
 

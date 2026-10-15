@@ -6,6 +6,7 @@ import { CheckCircle2, Clock, ListChecks, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getOwnerInquiryTracker } from "@/server/actions/owner-inquiry";
+import { StatusPill, seenTone } from "@/components/shared/status-pill";
 
 type Rows = NonNullable<Awaited<ReturnType<typeof getOwnerInquiryTracker>>>;
 
@@ -72,16 +73,21 @@ export function OwnerInquiryTracker() {
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {r.recipients.map((p) => (
-                      <span key={p.name} className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${p.seenAt ? "border-success/40 text-success" : "border-warning/50 text-warning"}`} title={p.seenAt ? `Seen ${fmt(p.seenAt)}` : "Alert not acknowledged yet"}>
-                        {p.seenAt ? <CheckCircle2 className="size-3" /> : <Clock className="size-3" />} {p.name.split(" ")[0]} {p.seenAt ? "saw it" : "pending"}
-                      </span>
+                      <StatusPill
+                        key={p.name}
+                        tone={seenTone(p.role, !!p.seenAt)}
+                        icon={p.seenAt ? <CheckCircle2 className="size-3" /> : <Clock className="size-3" />}
+                        title={p.seenAt ? `Seen ${fmt(p.seenAt)}` : "Alert not acknowledged yet"}
+                      >
+                        {p.name.split(" ")[0]} {p.seenAt ? "saw it" : "pending"}
+                      </StatusPill>
                     ))}
                     {latest ? (
-                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                      <StatusPill tone="muted" className="text-foreground">
                         {latest.label} · {latest.by.split(" ")[0]}
-                      </span>
+                      </StatusPill>
                     ) : (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">No outcome yet</span>
+                      <StatusPill>No outcome yet</StatusPill>
                     )}
                     {r.outcomes.length > 0 && (
                       <Button size="sm" variant="ghost" className="h-7 text-xs" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : r.leadId)}>

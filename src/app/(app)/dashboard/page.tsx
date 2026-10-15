@@ -40,8 +40,9 @@ import { SERVICE_LABELS, canAccess } from "@/lib/constants";
 import { requireUser } from "@/lib/current-user";
 import { canViewRevenue, canViewFinancials } from "@/lib/permissions";
 
-import { OwnerCommandCenter } from "@/components/dashboard/owner/owner-command-center";
-import { OperationsCommandCenter } from "@/components/dashboard/owner/operations-command-center";
+import { getOwnerDashboardSections } from "@/components/dashboard/owner/owner-command-center";
+import { getOperationsDashboardSections } from "@/components/dashboard/owner/operations-command-center";
+import { TabbedDashboard } from "@/components/dashboard/tabbed-dashboard";
 import { PendingActionsPanel } from "@/components/dashboard/pending-actions-panel";
 import { OwnerQuickInquiry } from "@/components/dashboard/owner-quick-inquiry";
 import { OwnerInquiryTracker } from "@/components/dashboard/owner-inquiry-tracker";
@@ -53,32 +54,49 @@ export default async function DashboardPage() {
 
   // Francis (OPERATIONS): Super Admin-style home with Operations data only
   // (yesterday → tomorrow, no money) — same canonical jobs/leads/calendar.
+  // Single tabbed home for Francis / Shoyab / owner (Inquiries · Operations · Finance).
+  // Each branch fetches once; the OPERATIONS branch never builds a finance section,
+  // so no money data reaches Francis's page at all (not just hidden in the UI).
   if (session.role === "OPERATIONS") {
     const newLeads = await getNewLeadsForDashboard(session.sub);
-    return (
-      <OperationsCommandCenter
-        name={session.name.split(" ")[0]}
-        userId={session.sub}
-        newLeads={newLeads ? <NewLeadsCard rows={newLeads.rows} newCount={newLeads.newCount} /> : null}
-      />
-    );
+    const s = await getOperationsDashboardSections({
+      name: session.name.split(" ")[0],
+      userId: session.sub,
+      newLeads: newLeads ? <NewLeadsCard rows={newLeads.rows} newCount={newLeads.newCount} /> : null,
+    });
+    return <TabbedDashboard role="OPERATIONS" hero={s.hero} inquiries={s.inquiries} operations={s.operations} />;
   }
 
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
+    const s = await getOwnerDashboardSections({
+      role: session.role,
+      ownerName: session.name.split(" ")[0],
+      showProfit: session.role === "ADMIN",
+      showBusinessTarget: session.role === "ADMIN",
+      // Owner-only: paste a number, alert Shoyab / Francis (src/server/owner-inquiry.ts)
+      inquiryTools:
+        session.role === "ADMIN" ? (
+          <div className="space-y-4">
+            <OwnerQuickInquiry />
+            <OwnerInquiryTracker />
+          </div>
+        ) : null,
+    });
     return (
-      <div className="space-y-4">
-        {/* Owner-only: paste a number, alert Shoyab / Francis (src/server/owner-inquiry.ts) */}
-        {session.role === "ADMIN" && <OwnerQuickInquiry />}
-        {session.role === "ADMIN" && <OwnerInquiryTracker />}
-        {/* Job-closure + payment-collection reminders (src/server/ops-reminders.ts) */}
-        <PendingActionsPanel />
-        <OwnerCommandCenter
-          role={session.role}
-          ownerName={session.name.split(" ")[0]}
-          showProfit={session.role === "ADMIN"}
-          showBusinessTarget={session.role === "ADMIN"}
-        />
-      </div>
+      <TabbedDashboard
+        role={session.role}
+       
+        hero={s.hero}
+        inquiries={s.inquiries}
+        operations={s.operations}
+        finance={
+          <>
+            {/* Job-closure + payment-collection reminders (src/server/ops-reminders.ts) */}
+            <PendingActionsPanel />
+            {s.finance}
+          </>
+        }
+      />
     );
   }
   // Calendar widget, now shown to every role (owner instruction
