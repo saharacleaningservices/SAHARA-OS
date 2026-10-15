@@ -159,3 +159,9 @@ First audit report saved in docs/SEO_GROWTH_AUDIT_2026-10-15.md. Status: audit d
 
 ### SEO phase 2 (2026-10-15)
 Docs/SEO_GROWTH_AUDIT_2026-10-15.md sections 11-18: Lighthouse causes, 78-page locality matrix (R7/I19/C34/X18, provisional), H1/alt proposals, tag-loading findings (IDs unset; Dockerfile has no NEXT_PUBLIC ARG - unverified in Coolify), Search Console options, local plan, staging review. Status: analysis only, Proposed / Requires owner approval. Nothing deployed or changed live.
+
+### SEO phase 3 - local technical work (2026-10-15, uncommitted)
+Dockerfile NEXT_PUBLIC ARG lines, `npm run test:seo` (tests/seo.test.ts, 10/10), hub JS analysis (456 KiB of 913 KiB is the Google Maps footer embed), webpack-dev 500 diagnosed (use `npm run dev`). Details: docs/SEO_GROWTH_AUDIT_2026-10-15.md sections 19-22. Status: In progress (local only); not deployed. Map facade / lazy wizard = Proposed; tracking IDs, DNS, WordPress, deploy = Requires owner approval.
+
+### SEO phase 4 - map-on-tap (2026-10-15)
+Footer Google Maps iframe replaced by tap-to-load card (src/components/public/map-on-tap.tsx, campaign-kit.tsx). Measured locally (5+5 Lighthouse runs): requests 42->24, transfer 925->468 KiB, Maps 458 KiB->0; LCP median 6.65->3.53 s (lab, indicative). test:seo 11/11, existing suites + tsc + build pass. Wizard lazy-loading evaluated and rejected (gain <=19 KiB gzip, SSR/conversion risk). Status: Completed and verified LOCALLY; committed locally, NOT pushed, NOT deployed. Requires owner approval: push and production deploy. See docs/SEO_GROWTH_AUDIT_2026-10-15.md sections 23-26.
