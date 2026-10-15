@@ -156,3 +156,6 @@ Drive cleanup status: 17 duplicate copies created by Claude in "Sahara/Marketing
 
 ## SEO / AEO / GEO audit (2026-10-15)
 First audit report saved in docs/SEO_GROWTH_AUDIT_2026-10-15.md. Status: audit done (read-only); GA4/Search Console/GBP blocked; all fixes proposed, awaiting owner approval. Nothing deployed or published.
+
+### SEO phase 2 (2026-10-15)
+Docs/SEO_GROWTH_AUDIT_2026-10-15.md sections 11-18: Lighthouse causes, 78-page locality matrix (R7/I19/C34/X18, provisional), H1/alt proposals, tag-loading findings (IDs unset; Dockerfile has no NEXT_PUBLIC ARG - unverified in Coolify), Search Console options, local plan, staging review. Status: analysis only, Proposed / Requires owner approval. Nothing deployed or changed live.
