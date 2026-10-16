@@ -65,7 +65,7 @@ export function TabbedDashboard({
       <div
         role="tablist"
         aria-label="Dashboard sections"
-        className="sticky top-16 z-20 -mx-4 flex gap-1 border-b border-border bg-background/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6"
+        className="sticky top-14 z-20 md:top-16 -mx-4 flex gap-1 border-b border-border bg-background/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6"
       >
         {visible.map(({ key, label, short, icon: Icon }) => {
           const on = active === key;
