@@ -327,3 +327,13 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - Template facts from code: Diwali promo = image header + name + "Book Festival Clean" URL + "Stop promotions";
   booking confirmation (utility) = "View Quotation", "Pay Now / Later", "Google Review".
 - New docs: `VPS_CAPACITY_AND_RESOURCE_AUDIT.md`, `ADS_CRM_INTEGRATION_RUNBOOK.md`; master report refreshed.
+
+### Update 2026-10-16 (GEO)
+- Release PR #5 head now `1f09a7c` (+ `feat/geo-ai-search`): `src/lib/seo-schema.ts` business JSON-LD (geo, Maps link,
+  slogan, service catalogue; no prices/ratings) used on all public pages; `public/llms.txt` served on booking.* (200).
+  Full run: 13 suites pass (geo 4/4, polling 2/2), tsc 0, eslint 0 errors, build exit 0, seo 11/11; built app verified.
+- `docs/AI_SEARCH_ENGINE_OPTIMIZATION_GEO.md`: how assistants find businesses, what was done, owner actions (GBP, NAP
+  conflict between the two Google profiles, Search Console + Bing Webmaster, directories, reviews), monthly check.
+- WhatsApp test-number change not retried (blocked twice by the safety guard) — owner's 2-line GitHub edit stands.
+- Polling guards re-verified: test:polling 2/2 (Pending Actions, inquiry tracker, EOD pause when hidden; new-inquiry
+  alert intentionally not paused).

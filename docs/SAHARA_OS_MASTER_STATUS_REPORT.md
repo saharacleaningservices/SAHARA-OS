@@ -8,7 +8,7 @@
 |---|---|---|
 | Tabbed role-based dashboard (Admin / Accounts / Operations), status pills, Staff App alignment | **Live** (PR #3 merged 15 Oct, production `ccdd93d`) | Browser-tested 360/430/1280 px; Francis's page carries no money data |
 | Google Ads — Brand Make manager access removed | **Verified** (15 Oct) | Managers list empty, 0 pending |
-| Release PR #5 (`07424e0`, 58 commits): backup confirm + stale alert, Cognito HMAC + de-dup, festival date guard, logo/hero image weight cut, booking one-hop redirect + **true 404**, 56 px mobile header, role tests, **image caching**, **hidden-tab polling paused**, **Meta Pixel double-count fixed** | **Ready** — not merged | Production build exit 0; cognito 25, pricing 63, domains 4, roles 9, cache 3, polling 2, leadtrack 2, public 5, ops 7, inquiry 15, backup 10, eod 16, **seo 11** — all pass; tsc 0 |
+| Release PR #5 (`1f09a7c`): backup confirm + stale alert, Cognito HMAC + de-dup, festival date guard, logo/hero image weight cut, booking one-hop redirect + **true 404**, 56 px mobile header, role tests, **image caching**, **hidden-tab polling paused**, **Meta Pixel double-count fixed**, **AI/local-search schema + /llms.txt** | **Ready** — not merged | Production build exit 0; cognito 25, pricing 63, domains 4, roles 9, cache 3, polling 2, leadtrack 2, geo 4, public 5, ops 7, inquiry 15, backup 10, eod 16, **seo 11** — all pass; tsc 0 |
 | PR #4 (`04aec43`): backup workflow — verified Drive upload, failure alert, retention, AES-256 encrypted copy | **Ready** — needs secret | 22/22 workflow tests; encrypt→decrypt byte-identical; restore drill RESTORABLE |
 | PR #6 (image cache) | Closed — included in PR #5 | — |
 | WhatsApp consent system (`qa/whatsapp-launch-v2` `1db01a8`): consent guard, STOP / "Stop promotions", opt-in checkbox, delivery receipts | **Ready** — owner deploy decision | test:whatsapp 11/11 (incl. Meta signature check) |
@@ -22,6 +22,8 @@
 | CRM light load | 3 background pollers now pause in hidden tabs; the urgent new-inquiry alert unchanged |
 | Ads → CRM | Single validated entry point (landing forms → `publicBookLead`), tracking fields sanitised; Meta double count fixed — `docs/ADS_CRM_INTEGRATION_RUNBOOK.md` |
 | WhatsApp templates (code) | Diwali promo: image header, name, **Book Festival Clean** (URL) + **Stop promotions**. Booking confirmation: **View Quotation**, **Pay Now / Later**, **Google Review**. test:whatsapp 11/11 |
+
+| AI search (GEO) | Business JSON-LD with geo, Maps link, slogan, service catalogue; `/llms.txt` — `docs/AI_SEARCH_ENGINE_OPTIMIZATION_GEO.md` (owner actions: GBP accuracy, NAP across the two Google profiles, Search Console + Bing Webmaster, directories, reviews) |
 
 ## 2. Pending owner actions (priority order)
 | # | Action | Deadline / why | Where |
