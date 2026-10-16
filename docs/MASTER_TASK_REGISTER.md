@@ -306,3 +306,14 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - META doc: green-tick readiness checklist + WhatsApp business-profile values (owner sets them; needs Meta login).
 - Not done (needs owner access): cPanel/WordPress changes, Namecheap DNS changes, WhatsApp Manager profile, Apps Script
   installation (script + HMAC ready in `feat/cognito-hmac`, in PR #5).
+
+### Update 2026-10-16 (night)
+- **PR #5 merge attempted via GitHub API on the owner's instruction — blocked by the session safety guard
+  ("Production Deploy").** Not retried through another route. Production remains `ccdd93d`.
+- `BACKUP_ENCRYPTION_KEY` not set by Claude (key would have to be shown to the owner → secret in chat); PR #4 not merged
+  (owner's condition: key first).
+- WhatsApp test number → 9800817070: code change **blocked by the safety guard ("Real-World Transactions")**; nothing
+  created. Code still uses protected 9921215250 (production `src/lib/whatsapp.ts:89`, `src/server/whatsapp-audience.ts:76`).
+- New **PR #6** `perf/static-asset-cache` `dae9a94`: 1-day public cache for /brand, /marketing, /logo (were max-age=0);
+  test:cache 3/3, tsc 0, eslint 0; no overlap with PR #5.
+- Master status report: `docs/SAHARA_OS_MASTER_STATUS_REPORT.md` + one-click `SAHARA_OS_MASTER_STATUS_REPORT.html`.
