@@ -37,3 +37,15 @@ Triggers → delete the trigger (stops everything). Mails labelled `CRM-synced` 
 - Parsing relies on the notification layout "Name … Phone … Subject … Email … Message us …"; a different Cognito form layout would end as `CRM-skipped` (visible in Gmail), never lost.
 - A retry after a CRM timeout can produce a duplicate *alert* (never a duplicate lead).
 - WhatsApp copy of a Cognito lead to the team: the CRM already attempts it (TEST mode: approved test number only). Real delivery to team numbers outside the 24-hour window needs an approved utility template (≈₹0.115 per message by third-party sources; confirm Meta's rate card) and a payment method — not enabled.
+
+## Optional: request signing (HMAC) — owner step
+Adds a signature so the CRM only accepts requests from this script, even if the Bearer token leaked.
+1. Generate one long random value (e.g. a password manager's 40+ character generator). Never put it in chat, docs or GitHub.
+2. Coolify → Sahara OS → Environment Variables → add `EMAIL_LEAD_HMAC_SECRET` = that value → redeploy.
+3. Apps Script → Project Settings → Script properties → add `HMAC_SECRET` = the same value.
+4. Do steps 2 and 3 together: once the CRM has the secret it rejects unsigned requests (401). Failed mails are not lost — they stay unlabelled and retry every 5 minutes.
+5. Verify: send a test Cognito entry; it should arrive as a lead and the Gmail thread should get `CRM-synced`.
+Signed requests are only accepted within ±5 minutes of their timestamp (replay protection).
+
+## Duplicate detection
+A new enquiry joins the existing open lead (or one created in the last 24 h) when the **phone number OR the e-mail** matches. E-mails are stored lower-cased on the lead; invalid e-mails are ignored.

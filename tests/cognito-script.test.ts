@@ -3,6 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHmac } from "node:crypto";
 import path from "node:path";
 
 const SRC = readFileSync(path.join(process.cwd(), "docs", "cognito-email-lead.gs"), "utf8");
@@ -51,7 +52,8 @@ function harness(opts: { props?: Record<string, string>; bodies: string[]; respo
     },
     MailApp: { sendEmail: (to: string, subject: string) => void mails.push({ to, subject }) },
     Session: { getActiveUser: () => ({ getEmail: () => "owner@example.com" }) },
-    Utilities: { formatDate: () => "2026-10-14" },
+    // computeHmacSha256Signature returns signed bytes (-128..127), like Google Apps Script.
+    Utilities: { formatDate: () => "2026-10-14", computeHmacSha256Signature: (v: string, k: string) => [...createHmac("sha256", k).update(v).digest()].map((b) => (b > 127 ? b - 256 : b)) },
     console: { log: () => {}, error: () => {} },
   };
   const api = new Function(...Object.keys(mocks), `${SRC}\nreturn { processCognitoEmails, parseCognito };`)(...Object.values(mocks)) as {
@@ -141,4 +143,22 @@ test("the token never appears in the script source or in the e-mails it sends", 
   const h = harness({ bodies: [mail("A", "9820011111")], responseCode: 500 });
   h.api.processCognitoEmails();
   assert.ok(!JSON.stringify(h.mails).includes("unit-test-token-not-real"));
+});
+
+test("HMAC_SECRET set: each request carries a timestamp and a sha256 signature of '<timestamp>.<exact payload>' that the CRM can verify", () => {
+  const secret = "unit-test-hmac-secret-not-real";
+  const h = harness({ props: { HMAC_SECRET: secret }, bodies: [mail("A One", "9820011111")] });
+  h.api.processCognitoEmails();
+  assert.equal(h.fetches.length, 1);
+  const { headers, payload } = h.fetches[0].opts;
+  assert.match(headers["X-Sahara-Timestamp"], /^\d{10}$/);
+  const expected = "sha256=" + createHmac("sha256", secret).update(`${headers["X-Sahara-Timestamp"]}.${payload}`).digest("hex");
+  assert.equal(headers["X-Sahara-Signature"], expected);
+  assert.equal(headers.Authorization, "Bearer unit-test-token-not-real");
+});
+
+test("HMAC_SECRET not set: no signature headers (unchanged behaviour)", () => {
+  const h = harness({ bodies: [mail("A One", "9820011111")] });
+  h.api.processCognitoEmails();
+  assert.equal(h.fetches[0].opts.headers["X-Sahara-Signature"], undefined);
 });
