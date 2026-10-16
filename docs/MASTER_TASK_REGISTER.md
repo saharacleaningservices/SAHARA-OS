@@ -212,3 +212,33 @@ workstream order; the SOS ID is authoritative.
 
 Out of scope by owner instruction: routine Google Business Profile work, manual social posting, WhatsApp Business catalogue.
 Pricing note: CLAUDE.md records the owner removed the ₹3,999 minimum on 2026-10-10 — not reintroduced.
+
+### Update 2026-10-16 (later) — verified state, new work, blockers
+**Repository state (git, verified):** production `coolify-deploy` = `ccdd93d` (unchanged); `main` = `595d9b3`.
+On GitHub: `feat/backup-alerts-workflow` `04aec43`, `feat/cognito-hmac` `2431caf`, `feat/public-site-fixes` `b641d97`,
+`feat/mobile-header-56` `233448a`, `test/role-permissions` `dc6c9e2`, `qa/whatsapp-launch-v2` `1db01a8`.
+PRs (from `refs/pull/*`): #3 dashboard (merged), **#4 backup → main (open)**. **No PR #5 exists** — the role-permissions
+PR was never created; the other branches have no PR yet. GitHub CLI is not installed, so PRs are opened by the owner
+(compare links) or after the owner installs/authorises `gh`.
+
+**New today**
+- `feat/public-site-fixes` `b641d97`: booking.* home now reaches `/booking` in one redirect (was `/ → /book → /booking`);
+  `tests/booking-host.test.ts` (`npm run test:domains`) 4/4, proven to fail on the old code; pricing 63/63, tsc 0, eslint 0.
+- PR #4 reviewed: 5 files (+456/−43); least-privilege permissions (contents: read, issues: write); no secret is printed;
+  official actions only; secrets used: BACKUP_URL, BACKUP_TOKEN, GDRIVE_CREDENTIALS, GDRIVE_FOLDER_ID (all set) +
+  **BACKUP_ENCRYPTION_KEY (not set)**. Repository has no required PR checks. Decision: add the key, then merge.
+- `docs/URGENT_OWNER_ACTIONS_2026-10-16.md`: exact steps for the Workspace payment and the website certificate.
+- Main website certificate re-checked: wildcard `*.saharacleaningservices.com`, issued 3 Aug, **expires 1 Nov 11:01 GMT**,
+  not renewed by 16 Oct (normal renewal ≈30 days before) → automatic renewal probably failing. Host 192.185.129.241 (cPanel).
+- `feat/backup-alerts` (this register's branch) pushed to GitHub as a backup — it held 34 commits that existed only on
+  this PC (docs plus backup-health / backup-confirm / map-on-tap code from earlier sessions). Secret scan: clean.
+
+**Blocked (owner) — priority order**
+1. Google Workspace payment (suspension 2 Nov) — admin.google.com billing.
+2. Main site certificate (expires 1 Nov) — cPanel AutoSSL / hosting provider.
+3. `BACKUP_ENCRYPTION_KEY` secret → then merge PR #4.
+4. WhatsApp: confirm the QA test recipient (9921215250 is on the protected list) and decide deployment of
+   `qa/whatsapp-launch-v2`; LIVE stays off (2 opted-in contacts).
+5. Cognito: `EMAIL_LEAD_TOKEN` in Coolify + Apps Script property/trigger.
+6. Open PRs for the five branches, or install/authorise GitHub CLI so Claude can.
+7. Real-device QA (Shoyab, Francis, one field staff) for SOS-02 / SOS-09.
