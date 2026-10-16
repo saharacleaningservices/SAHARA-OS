@@ -349,3 +349,11 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   and link to fix); YouTube/Facebook stats not visible without log-in; LinkedIn company page recommended for B2B.
 - B2B proposal builder: not built — quotations + AMC modules already exist (no duplicate system); proposed as its own
   scoped session.
+
+### Update 2026-10-16 (B2B proposals, live checks)
+- **PR #7** `feat/b2b-proposal` `2b85d5d` (stacked on release PR #5): B2B facility-management / housekeeping AMC
+  proposal builder on top of Quotations (no schema change). Browser-verified on QA data (QT-2026-0001, ₹79,060 incl.
+  GST, 15 days, PDF 200). **Owner to approve the draft B2B terms** in `src/lib/b2b-proposal.ts`.
+- Live read-only checks (owner's Chrome): Search Console has **no properties**; GA4 property shows **no events in 28
+  days**; Hostinger VPS CPU 8 %, RAM 27 %, disk 6/100 GB, **Kuala Lumpur**, **0 firewall rules**. Coolify dashboard
+  read was blocked by the session safety guard.
