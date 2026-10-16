@@ -337,3 +337,15 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - WhatsApp test-number change not retried (blocked twice by the safety guard) — owner's 2-line GitHub edit stands.
 - Polling guards re-verified: test:polling 2/2 (Pending Actions, inquiry tracker, EOD pause when hidden; new-inquiry
   alert intentionally not paused).
+
+### Update 2026-10-16 (expansion queue)
+- Release PR #5 head `68a9b9b`: schema + llms.txt now list every offered line (facility management AMC via the
+  housekeeping page, termite/cockroach/bed bug/ant, texture painting); exterior painting not added (no evidence).
+- `docs/WHATSAPP_SERVICE_CAMPAIGN_TEMPLATES.md`: 3 ready-to-submit MARKETING templates (pest, painting, facility
+  management); added to code only after Meta approval (code cannot create templates; unapproved ones would fail).
+- `docs/CAMPAIGN_AUDIT_AND_ADS_OPTIMIZATION.md`: Google/Meta findings from the 5 & 15 Oct read-only audits + live
+  landing check; verdict: fresh Sahara-owned structure, keep old account untouched.
+- `docs/SOCIAL_MEDIA_GROWTH_AND_LEAD_STRATEGY.md`: Instagram verified (84 followers / following 395; bio rating claim
+  and link to fix); YouTube/Facebook stats not visible without log-in; LinkedIn company page recommended for B2B.
+- B2B proposal builder: not built — quotations + AMC modules already exist (no duplicate system); proposed as its own
+  scoped session.
