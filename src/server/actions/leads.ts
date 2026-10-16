@@ -1072,6 +1072,9 @@ export async function createQuotation(
   services: { name: string; description: string; amount: number }[],
   gstPercent: number,
   discount = 0,
+  // Optional (B2B / AMC proposals, src/lib/b2b-proposal.ts): custom scope + terms text and validity.
+  // Omitted = the standard retail terms and 7-day validity, exactly as before.
+  opts: { terms?: string; validDays?: number } = {},
 ) {
   // Same rule as the UI (Quotation button only for roles that see contact + amounts):
   // a direct action call must not let Operations/Field roles price a lead.
@@ -1103,8 +1106,8 @@ export async function createQuotation(
       gstPercent,
       gstAmount,
       totalAmount,
-      terms: QUOTATION_TERMS,
-      validTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      terms: typeof opts.terms === "string" && opts.terms.trim() ? opts.terms.trim().slice(0, 6000) : QUOTATION_TERMS,
+      validTill: new Date(Date.now() + Math.min(60, Math.max(1, Math.round(opts.validDays ?? 7))) * 24 * 60 * 60 * 1000),
     },
   });
 
