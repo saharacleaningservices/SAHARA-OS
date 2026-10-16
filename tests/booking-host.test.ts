@@ -27,7 +27,7 @@ test("booking.*: home page goes straight to /booking in ONE redirect (not / → 
 const rewriteTo = (r: Response) => (r.headers.get("x-middleware-rewrite") ? new URL(r.headers.get("x-middleware-rewrite")!).pathname : null);
 
 test("booking.*: CRM and unknown paths are a true 404 — rewritten to the not-found page, never redirected", async () => {
-  for (const p of ["/dashboard", "/login", "/leads", "/settings", "/my", "/this-page-does-not-exist", "/ai-catalog.json", "/llms.txt"]) {
+  for (const p of ["/dashboard", "/login", "/leads", "/settings", "/my", "/this-page-does-not-exist", "/ai-catalog.json"]) {
     const r = await hit("booking.example.test", p);
     assert.equal(location(r), null, `${p} must not redirect`);
     assert.equal(rewriteTo(r), "/__booking-not-found", `${p} must be rewritten to the not-found page`);
@@ -35,7 +35,7 @@ test("booking.*: CRM and unknown paths are a true 404 — rewritten to the not-f
 });
 
 test("booking.*: public pages, robots and sitemap are served (no redirect)", async () => {
-  for (const p of ["/booking", "/home-deep-cleaning-pune", "/landing/home-deep-cleaning-pune", "/offers", "/robots.txt", "/sitemap.xml", "/privacy-policy"]) {
+  for (const p of ["/booking", "/home-deep-cleaning-pune", "/landing/home-deep-cleaning-pune", "/offers", "/robots.txt", "/sitemap.xml", "/llms.txt", "/privacy-policy"]) {
     const r = await hit("booking.example.test", p);
     assert.equal(location(r), null, `${p} should not redirect`);
   }
