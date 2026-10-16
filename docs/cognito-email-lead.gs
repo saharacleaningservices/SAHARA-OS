@@ -8,6 +8,9 @@
  *   LEAD_URL    https://crm.saharacleaningservices.com/api/webhook/email-lead   (not a secret)
  *   LEAD_TOKEN  same value as EMAIL_LEAD_TOKEN in Coolify (SECRET - never put it in this file or in GitHub)
  *   DRY_RUN     optional. "true" = parse and log what WOULD be sent (last 4 digits only), call nothing, label nothing.
+ *   HMAC_SECRET optional. Same value as EMAIL_LEAD_HMAC_SECRET in Coolify (SECRET). When set, every request is signed:
+ *               X-Sahara-Timestamp + X-Sahara-Signature (HMAC-SHA256 of "<timestamp>.<body>"). Set it here and in
+ *               Coolify together — once the CRM has the secret it rejects unsigned requests.
  *
  * Behaviour:
  *  - Reads only mails from notifications@cognitoforms.com from the last 14 days (LOOKBACK) that carry neither label.
@@ -47,11 +50,12 @@ function processCognitoEmails() {
         console.log("DRY_RUN: would send enquiry (phone ending " + lead.mobile.slice(-4) + ", service: " + lead.service + ")");
         return;
       }
+      var payload = JSON.stringify(lead);
       var res = UrlFetchApp.fetch(url, {
         method: "post",
         contentType: "application/json",
-        headers: { Authorization: "Bearer " + token },
-        payload: JSON.stringify(lead),
+        headers: signedHeaders(token, payload, props.getProperty("HMAC_SECRET")),
+        payload: payload,
         muteHttpExceptions: true,
       });
       var code = res.getResponseCode();
@@ -66,6 +70,23 @@ function processCognitoEmails() {
   } finally {
     lock.releaseLock();
   }
+}
+
+/** Bearer header, plus the HMAC signature headers when a secret is configured (signs the exact payload sent). */
+function signedHeaders(token, payload, secret) {
+  var headers = { Authorization: "Bearer " + token };
+  if (!secret) return headers;
+  var ts = String(Math.floor(Date.now() / 1000));
+  var bytes = Utilities.computeHmacSha256Signature(ts + "." + payload, secret);
+  var hex = bytes
+    .map(function (b) {
+      var v = (b < 0 ? b + 256 : b).toString(16);
+      return v.length === 1 ? "0" + v : v;
+    })
+    .join("");
+  headers["X-Sahara-Timestamp"] = ts;
+  headers["X-Sahara-Signature"] = "sha256=" + hex;
+  return headers;
 }
 
 function alertOwner(count) {
