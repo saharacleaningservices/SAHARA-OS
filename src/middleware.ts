@@ -31,6 +31,9 @@ const BOOKING_HOST_ALLOWED_PREFIXES = ["/robots.txt", "/sitemap.xml", "/book","/
 // linked directly from the public Booking Form (src/app/book/page.tsx) for
 // anonymous customers — also missing from this list, also confirmed live as
 // blocked for a logged-out visitor before being added here.
+// A path with no page: rewriting to it makes Next render its not-found page with HTTP 404.
+const BOOKING_HOST_NOT_FOUND_PATH = "/__booking-not-found";
+
 const PUBLIC_PATHS = [
   "/login",
   "/forgot-password",
@@ -119,13 +122,20 @@ export async function middleware(request: NextRequest) {
     host === PUBLIC_BOOKING_HOST &&
     !isStaticAssetPath(pathname)
   ) {
-    const allowed = pathname === "/" || BOOKING_HOST_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p));
-    if (!allowed || pathname === "/") {
+    if (pathname === "/") {
       const url = request.nextUrl.clone();
       // Straight to /booking (the /book page only redirects there) — one redirect instead of two.
       url.pathname = "/booking";
       url.search = "";
       return NextResponse.redirect(url);
+    }
+    if (!BOOKING_HOST_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p))) {
+      // CRM and unknown paths never render here — and they get a true 404 (Next's not-found page), not a redirect
+      // to /booking, so search engines don't index soft-404s. Rewrites don't re-enter middleware.
+      const url = request.nextUrl.clone();
+      url.pathname = BOOKING_HOST_NOT_FOUND_PATH;
+      url.search = "";
+      return NextResponse.rewrite(url);
     }
     return NextResponse.next();
   }
