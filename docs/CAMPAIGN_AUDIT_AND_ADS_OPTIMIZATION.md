@@ -35,6 +35,15 @@ Service". Server response 0.26–0.42 s. Mobile PageSpeed (booking.) Performance
 Recommendations: keep one primary CTA ("Book Now"/form) above the fold; show the Google rating only from the Settings
 value that matches the live Google profile; add the same `utm_content` zone tag to every ad (attribution).
 
+## 3b. Search Console & GA4 — live check 16 Oct (read-only, contact@ account)
+- **Search Console: no properties** for contact@ → no indexing, sitemap or Core Web Vitals reports for any Sahara site.
+  Fix (owner): add a **Domain property** for `saharacleaningservices.com` (DNS TXT in Namecheap) — covers www, booking,
+  crm; submit `https://booking.saharacleaningservices.com/sitemap.xml` and the WordPress `sitemap_index.xml`.
+- **GA4 property 523634206: no events in the last 28 days** (Events page empty) → no `generate_lead`, no call-click
+  events are being recorded. Cause: Sahara OS loads GA4/Ads/Pixel only when `NEXT_PUBLIC_GA4_ID` etc. are set at build
+  time in Coolify (not set); the WordPress site's tags are not sending to this property either. Fix: set the IDs, redeploy,
+  verify in GA4 DebugView with one tagged test lead, then mark `generate_lead` as a **Key event**.
+
 ## 4. Verdict — optimise the old campaigns or start fresh?
 **Start a fresh, Sahara-owned structure; keep the old account and history untouched.**
 Reasons: conversion data is inflated by call-leads, location targeting leaked ~58% of spend, landing pages and tracking

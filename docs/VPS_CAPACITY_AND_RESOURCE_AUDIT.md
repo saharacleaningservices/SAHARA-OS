@@ -13,6 +13,18 @@ Metrics or a terminal. Nothing was changed on the server.
 | Proxy | Traefik (Coolify). Coolify showed "Restart proxy required" on 15 Oct — restarting briefly takes all three sites offline; do it in a quiet window |
 | Firewall | Hostinger firewall has 0 rules; Coolify admin ports 8000/6001/6002 open (owner decision pending) |
 
+## 1b. Live check — Hostinger hPanel, 16 Oct (read-only)
+| Item | Value |
+|---|---|
+| Status / uptime | Running, 41 days 6 h |
+| CPU / Memory / Disk | **8 %** / **27 %** (~2.2 GB of 8) / **6 GB of 100 GB** |
+| Bandwidth | 0.029 TB of 8 TB |
+| OS / location | Ubuntu 26.04 LTS · **Malaysia – Kuala Lumpur** (not India — consider an India data centre at renewal or before a second platform; today's 0.3 s response time is acceptable) |
+| Backups | Weekly, 2 snapshots; malware scanner active; daily backups not purchased (₹589/mo) |
+| Firewall rules | **0** — Coolify ports 8000/6001/6002 reachable from the internet (owner decision) |
+| Plan | KVM 2, expires 2028-09-05, auto-renewal on |
+Coolify container health could not be read (the session safety guard blocked opening the Coolify dashboard).
+
 ## 2. Usage (15 Oct, server-wide)
 | Metric | Normal | Peak | Headroom |
 |---|---|---|---|
