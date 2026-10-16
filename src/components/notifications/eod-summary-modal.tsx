@@ -35,7 +35,8 @@ export function EodSummaryModal() {
 
   useEffect(() => {
     void load();
-    const id = setInterval(() => void load(), POLL_MS);
+    // Poll only while visible — the popup can only be seen then; onVisible catches up immediately on return.
+    const id = setInterval(() => document.visibilityState === "visible" && void load(), POLL_MS);
     const onVisible = () => document.visibilityState === "visible" && void load();
     const onOpen = () => void load(true);
     document.addEventListener("visibilitychange", onVisible);
