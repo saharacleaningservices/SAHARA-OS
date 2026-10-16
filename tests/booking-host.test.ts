@@ -24,10 +24,13 @@ test("booking.*: home page goes straight to /booking in ONE redirect (not / → 
   assert.equal(location(r), "/booking");
 });
 
-test("booking.*: CRM and unknown paths never render there — redirected to /booking", async () => {
-  for (const p of ["/dashboard", "/login", "/leads", "/settings", "/my", "/this-page-does-not-exist"]) {
+const rewriteTo = (r: Response) => (r.headers.get("x-middleware-rewrite") ? new URL(r.headers.get("x-middleware-rewrite")!).pathname : null);
+
+test("booking.*: CRM and unknown paths are a true 404 — rewritten to the not-found page, never redirected", async () => {
+  for (const p of ["/dashboard", "/login", "/leads", "/settings", "/my", "/this-page-does-not-exist", "/ai-catalog.json", "/llms.txt"]) {
     const r = await hit("booking.example.test", p);
-    assert.equal(location(r), "/booking", p);
+    assert.equal(location(r), null, `${p} must not redirect`);
+    assert.equal(rewriteTo(r), "/__booking-not-found", `${p} must be rewritten to the not-found page`);
   }
 });
 
