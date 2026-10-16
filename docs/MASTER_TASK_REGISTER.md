@@ -317,3 +317,13 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - New **PR #6** `perf/static-asset-cache` `dae9a94`: 1-day public cache for /brand, /marketing, /logo (were max-age=0);
   test:cache 3/3, tsc 0, eslint 0; no overlap with PR #5.
 - Master status report: `docs/SAHARA_OS_MASTER_STATUS_REPORT.md` + one-click `SAHARA_OS_MASTER_STATUS_REPORT.html`.
+
+### Update 2026-10-16 (late night)
+- Release PR #5 now `07424e0` (58 commits): + image caching (PR #6, now closed as included), + pause hidden-tab polling
+  (`perf/pause-hidden-polling` `b22618b`), + Meta Pixel double-count fix (`fix/meta-lead-double-count` `0c6c346`: the
+  booking form sent Meta Lead twice per booking). Full re-run: 12 suites pass, tsc 0, build exit 0, seo 11/11.
+- WhatsApp test number change retried with the owner present — blocked again by the safety guard
+  ("Real-World Transactions"); owner makes the 2-line edit.
+- Template facts from code: Diwali promo = image header + name + "Book Festival Clean" URL + "Stop promotions";
+  booking confirmation (utility) = "View Quotation", "Pay Now / Later", "Google Review".
+- New docs: `VPS_CAPACITY_AND_RESOURCE_AUDIT.md`, `ADS_CRM_INTEGRATION_RUNBOOK.md`; master report refreshed.

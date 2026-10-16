@@ -37,7 +37,7 @@
 <body>
 <div class="wrap">
   <header>
-    <div><h1>Sahara OS — <span>Master Status</span></h1><div class="asof">As of 16 Oct 2026, night · detail: <code>docs/MASTER_TASK_REGISTER.md</code></div></div>
+    <div><h1>Sahara OS — <span>Master Status</span></h1><div class="asof">As of 16 Oct 2026, late night · detail: <code>docs/MASTER_TASK_REGISTER.md</code></div></div>
     <button onclick="window.print()">Save as PDF</button>
   </header>
 
@@ -53,12 +53,12 @@
           <div class="ev">15 Oct · Managers list empty, 0 pending</div></li>
         <li><span class="t">Nightly backups</span><span class="pill live">Live</span>
           <div class="ev">Scheduled runs succeed (GitHub may start them late)</div></li>
-        <li><span class="t">Release PR #5 — backup alert, Cognito security, SEO/404, faster images, mobile header</span><span class="pill ready">Ready</span>
-          <div class="ev"><code>411879c</code> · production build OK · all 10 test suites pass (SEO 11/11) · real 404s confirmed on the built app</div></li>
+        <li><span class="t">Release PR #5 — backup alert, Cognito security, SEO/404, faster images, image caching, lighter background polling, Meta double-count fix, mobile header</span><span class="pill ready">Ready</span>
+          <div class="ev"><code>07424e0</code> · production build OK · all 12 test suites pass (SEO 11/11) · real 404s confirmed on the built app</div></li>
         <li><span class="t">PR #4 — encrypted, verified off-site backups</span><span class="pill ready">Ready</span>
           <div class="ev"><code>04aec43</code> · 22/22 tests · encrypt→decrypt identical · restore drill RESTORABLE</div></li>
-        <li><span class="t">PR #6 — browser caching for logo &amp; images</span><span class="pill ready">Ready</span>
-          <div class="ev"><code>dae9a94</code> · 3/3 tests</div></li>
+        <li><span class="t">VPS capacity</span><span class="pill live">Checked</span>
+          <div class="ev">2 vCPU / 8 GB / 100 GB · RAM ~2.3 GB used · server responds in 0.24–0.42 s · room for a second site (own PostgreSQL)</div></li>
         <li><span class="t">WhatsApp consent system (STOP, "Stop promotions", opt-in checkbox)</span><span class="pill ready">Ready</span>
           <div class="ev"><code>qa/whatsapp-launch-v2</code> · 11/11 tests · LIVE campaigns stay off</div></li>
         <li><span class="t">Guides written</span>
@@ -73,14 +73,14 @@
           <div class="ev">admin.google.com → Billing → update card → Pay now</div></li>
         <li><span class="t">2. Renew website certificate</span><span class="pill urgent">by 1 Nov</span>
           <div class="ev">cPanel → SSL/TLS Status → Run AutoSSL (domain + www)</div></li>
-        <li><span class="t">3. Merge PR #5 (goes live)</span>
+        <li><span class="t">3. Merge PR #5 (goes live; includes the image-cache change)</span>
           <div class="ev"><a href="https://github.com/saharacleaningservices/SAHARA-OS/pull/5">github.com/…/pull/5</a> · Claude's merge was blocked by the safety guard</div></li>
-        <li><span class="t">4. Merge PR #6</span>
-          <div class="ev"><a href="https://github.com/saharacleaningservices/SAHARA-OS/pull/6">github.com/…/pull/6</a></div></li>
+        <li><span class="t">4. WhatsApp test number → 9800817070</span>
+          <div class="ev">2-line edit in <code>src/lib/whatsapp.ts</code> and <code>src/server/whatsapp-audience.ts</code> (Claude was blocked by the safety guard)</div></li>
         <li><span class="t">5. Backup key, then merge PR #4</span>
           <div class="ev">GitHub → Settings → Secrets and variables → Actions → <code>BACKUP_ENCRYPTION_KEY</code> (keep a copy safe) → <a href="https://github.com/saharacleaningservices/SAHARA-OS/pull/4">pull/4</a></div></li>
-        <li><span class="t">6. WhatsApp: approve test number 9800817070 in the code</span>
-          <div class="ev">Claude's change was blocked by the safety guard; code still uses a protected number. Also decide the consent-system deploy.</div></li>
+        <li><span class="t">6. WhatsApp consent-system deploy decision</span>
+          <div class="ev">Branch <code>qa/whatsapp-launch-v2</code> (opt-in checkbox, consent guard)</div></li>
         <li><span class="t">7. Cognito → CRM</span>
           <div class="ev">Set <code>EMAIL_LEAD_TOKEN</code> in Coolify · install the Apps Script</div></li>
         <li><span class="t">8. E-mail DNS (after #1)</span>
