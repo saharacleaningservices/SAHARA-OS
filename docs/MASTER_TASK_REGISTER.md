@@ -279,3 +279,15 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   requires opt-in *before* any business-initiated message. Opt-in to be collected via forms (built,
   `qa/whatsapp-launch-v2`), job-card consent, inbound chats, SMS (DLT) / e-mail. LIVE stays off.
 - Stages 1–3 unchanged (verified state; PR #4 and #5 open, mergeable).
+
+### Update 2026-10-16 (fresh re-verification, no code change)
+- S1 `04aec43`: workflow tests 22/22; AES-256 round-trip byte-identical; restore drill RESTORABLE. PR #4 open, mergeable.
+- S2 `2431caf`: test:cognito 25/25.
+- S3 `a4f2d00`: test:domains 4/4; logo 29,063 B; test:pricing 63/63 on 6 of 7 runs this pass.
+- S4 `1db01a8`: test:whatsapp 11/11.
+- Release `411879c`: production build exit 0 (compiled in 71 s); test:seo 11/11. PR #5 open, mergeable.
+- **Known flaky test:** `tests/pricing.test.ts` "staff app (real DB) …" failed 2 of ~12 runs, each time the first run on a
+  freshly linked node_modules (cold cache); 3 parallel runs under load all passed. Not reproduced, root cause unknown —
+  next failure should be captured with full output before changing the test. Not a product defect signal so far.
+- S5 docs present on `feat/backup-alerts`: META_BUSINESS_GREEN_TICK_SETUP.md, WORKSPACE_EMAIL_DNS_RUNBOOK.md,
+  ads-audit-east-pune.md. Brand Make removal: SOS-07 VERIFIED COMPLETE (15 Oct).
