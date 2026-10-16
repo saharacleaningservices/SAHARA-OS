@@ -32,6 +32,8 @@
 // Meta's error message (never thrown).
 
 import { db } from "@/lib/db";
+import { templateByName } from "@/lib/whatsapp-cloud-templates";
+import { filterToMarketingOptIn } from "@/server/whatsapp-audience";
 import { getResolvedIntegrations } from "@/server/integrations";
 
 export type WhatsAppKind =
@@ -135,6 +137,7 @@ export function isOutboundAllowed(mobile: string, msg?: { templateName?: string 
 // ─────────────────────────────────────────────────────────────────────────
 
 export const WHATSAPP_OPT_OUT_ERROR = "Recipient opted out of WhatsApp messages";
+export const WHATSAPP_NO_MARKETING_CONSENT_ERROR = "No recorded WhatsApp marketing opt-in for this number (marketing templates need explicit consent)";
 
 /** True if this number has opted out — checked by sendWhatsApp() before every send. */
 export async function isOptedOut(mobile: string): Promise<boolean> {
@@ -560,6 +563,17 @@ export async function sendWhatsAppTemplate(input: {
       },
     });
     return { sent: false as const, id: blockedRow.id, error: WHATSAPP_TEST_MODE_BLOCK };
+  }
+  // Defence in depth: a MARKETING-category template only ever goes to a number with a recorded explicit opt-in
+  // (broadcast/customer campaigns already filter; this stops any other code path). The approved QA number is exempt.
+  if (templateByName(input.templateName)?.category === "MARKETING" && !WHATSAPP_TEST_MODE_NUMBERS.includes(toNumber)) {
+    const { allowed } = await filterToMarketingOptIn([{ mobile: toNumber }]);
+    if (!allowed.length) {
+      const row = await db.whatsAppMessage.create({
+        data: { kind: input.kind, toNumber, toName: input.toName ?? null, body: input.preview, templateName: input.templateName, relatedType: input.relatedType ?? null, relatedId: input.relatedId ?? null, status: "CANCELLED", errorMessage: WHATSAPP_NO_MARKETING_CONSENT_ERROR },
+      });
+      return { sent: false as const, id: row.id, error: WHATSAPP_NO_MARKETING_CONSENT_ERROR };
+    }
   }
   const { whatsapp } = await getResolvedIntegrations();
   if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
