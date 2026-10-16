@@ -5,6 +5,7 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
+import { campaignFestivalNames, todayIST } from "@/lib/pricing-master";
 
 // Customer booking page in the approved transparent-pricing landing design.
 // /booking                → pick a package, date, available slot, payment preference
@@ -14,10 +15,12 @@ import { getPublicPricing } from "@/server/pricing";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ quote?: string }> }): Promise<Metadata> {
-  const { quote } = await searchParams;
+  const [{ quote }, pricing] = await Promise.all([searchParams, getPublicPricing()]);
+  // Festival mention only while the Settings → Pricing campaign runs (same windows as the prices).
+  const festivals = campaignFestivalNames(pricing.festivals, todayIST());
   return {
     title: "Book Professional Cleaning in Pune & PCMC – Available Slots | Sahara Cleaning Services",
-    description: "Book home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC: transparent prices, real available slots, pay advance or after service. Festival cleaning slots for Navratri, Dussehra and Diwali.",
+    description: `Book home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC: transparent prices, real available slots, pay advance or after service.${festivals ? ` Festival cleaning slots for ${festivals.replace(/ • (?=[^•]*$)/, " and ").replace(/ • /g, ", ")}.` : ""}`,
     alternates: { canonical: `${BASE_URL}/booking` },
     robots: quote ? { index: false, follow: false } : undefined,
     openGraph: {
@@ -64,6 +67,7 @@ export default async function BookingPage({
 }) {
   const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
   const [settings, quote, pricing] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing()]);
+  const festivalEyebrow = campaignFestivalNames(pricing.festivals, todayIST());
 
   return (
     // On a quotation link, Book Now scrolls to the wizard on THIS page (keeps ?quote=).
@@ -73,7 +77,7 @@ export default async function BookingPage({
         image={CAROUSEL.team.src}
         alt={CAROUSEL.team.alt}
         images={ALL_SERVICES_SLIDES}
-        eyebrow={quote ? `Quotation ${quote.quoteNumber}` : "Navratri • Dussehra • Diwali · Festival cleaning"}
+        eyebrow={quote ? `Quotation ${quote.quoteNumber}` : festivalEyebrow ? `${festivalEyebrow} · Festival cleaning` : "Serving Pune Since 2012"}
         badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
         title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Pune's Most Trusted Cleaning Service Provider — Residential & Commercial"}
         subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Verified Staff | Transparent Pricing | Pay After Service"}
