@@ -88,7 +88,7 @@ export function normalizeNumber(mobile: string): string {
 // The allowlist is deliberately code, not env, so it cannot widen silently.
 // ─────────────────────────────────────────────────────────────────────────
 
-export const WHATSAPP_TEST_MODE_NUMBERS: readonly string[] = ["919921215250"];
+export const WHATSAPP_TEST_MODE_NUMBERS: readonly string[] = ["919800817070"];
 export const WHATSAPP_TEST_MODE_BLOCK = "Blocked — WhatsApp TEST MODE (only the approved test number may receive messages)";
 
 // WHATSAPP_OUTBOUND_MODE=transactional (owner 2026-10-08): customers receive ONLY the
