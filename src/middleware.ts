@@ -122,7 +122,8 @@ export async function middleware(request: NextRequest) {
     const allowed = pathname === "/" || BOOKING_HOST_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p));
     if (!allowed || pathname === "/") {
       const url = request.nextUrl.clone();
-      url.pathname = "/book";
+      // Straight to /booking (the /book page only redirects there) — one redirect instead of two.
+      url.pathname = "/booking";
       url.search = "";
       return NextResponse.redirect(url);
     }
