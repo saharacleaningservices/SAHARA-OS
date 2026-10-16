@@ -64,6 +64,23 @@ Steps (after Part B is approved):
 3. Add 3–5 links that show independent coverage of Sahara (news/directories that are not paid listings).
 4. If rejected: Meta allows a new request after **30 days** — improve the evidence, then resubmit.
 
+### Green-tick readiness checklist (tick each before requesting)
+- [ ] Business Verification approved (Part B)
+- [ ] +91 91752 20270 registered on the Cloud API for ≥ 30 days
+- [ ] Display name "Sahara Cleaning Services" shows **Approved** in WhatsApp Manager
+- [ ] Two-step verification PIN set on the number (WhatsApp Manager → Phone numbers → Settings → Two-step verification)
+- [ ] Business profile complete (below)
+- [ ] 3–5 independent, unpaid press/directory mentions collected
+- [ ] No quality warnings or messaging restrictions on the number
+
+### WhatsApp business profile (owner, WhatsApp Manager → Phone numbers → +91 91752 20270 → Profile)
+- Display name: **Sahara Cleaning Services** (must match the business; changes need Meta review)
+- Category: Home services / Cleaning service
+- Description (≤ 512 chars): "Home, office, sofa and deep cleaning, pest control and interior painting across Pune & PCMC. Trained in-house staff, transparent prices, pay after service. Serving Pune since 2012."
+- Address: the business address on the GST document; Website: https://www.saharacleaningservices.com and https://booking.saharacleaningservices.com/booking
+- E-mail: contact@saharacleaningservices.com; Profile picture: square logo, 640×640 px
+- Claude cannot set these (needs the owner's Meta login); none are secrets.
+
 ## Part D — Compliant opt-in for the existing contact list (≈4,295 contacts, ~2 opted in)
 WhatsApp rule: a business needs **opt-in before** sending any business-initiated (template) message, and the opt-in
 must clearly name the business and say the person agrees to receive its messages. Therefore Sahara **must not**

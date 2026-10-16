@@ -291,3 +291,18 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   next failure should be captured with full output before changing the test. Not a product defect signal so far.
 - S5 docs present on `feat/backup-alerts`: META_BUSINESS_GREEN_TICK_SETUP.md, WORKSPACE_EMAIL_DNS_RUNBOOK.md,
   ads-audit-east-pune.md. Brand Make removal: SOS-07 VERIFIED COMPLETE (15 Oct).
+
+### Update 2026-10-16 (evening) — website audit, Brand Make page, WhatsApp profile
+- `docs/WEBSITE_SPEED_AND_SEO_AUDIT.md` (read-only): TTFB **5.8 s cold / ~1.7 s warm**, no page cache, HTTP/1.1,
+  45 stylesheets + 22 scripts, 4 Elementor add-on packs, all Roboto weights; SEO: **no H1**, keyword-stuffed
+  Kharadi-only title, Organization-only schema; Yoast/sitemap/robots OK. Prioritised fixes for the website admin.
+- **Brand Make page = `promo.saharacleaningservices.com` on a different server (82.180.143.191)**, not in Sahara's
+  cPanel — nothing to delete there. Only a Namecheap A record; page loads GTM-WPM2QXCX (owner unknown). Safe order:
+  save a copy → move Google Ads final URLs to booking `/landing/*` (after PR #5 live) → repoint `promo` to the VPS with a
+  301 (recommended) or delete the record. Nothing changed.
+- WhatsApp template structure verified in code (`qa/whatsapp-launch-v2`): image header, body variables, URL button;
+  marketing templates blocked without recorded opt-in. **Risk:** `WHATSAPP_TEST_MODE_NUMBERS` still contains
+  9921215250 (owner's protected list) — owner must name another test number before any TEST send.
+- META doc: green-tick readiness checklist + WhatsApp business-profile values (owner sets them; needs Meta login).
+- Not done (needs owner access): cPanel/WordPress changes, Namecheap DNS changes, WhatsApp Manager profile, Apps Script
+  installation (script + HMAC ready in `feat/cognito-hmac`, in PR #5).
