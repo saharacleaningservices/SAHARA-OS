@@ -17,7 +17,7 @@ import {
   unitPriceFor,
   type FestivalWindow,
 } from "../src/lib/pricing-master";
-import { activeCampaign, homeFromPrice, FESTIVAL_PACKAGE_IDS, maskPaintingPrices, PAINTING_PUBLIC_NOTE } from "../src/lib/pricing-master";
+import { activeCampaign, campaignFestivalNames, homeFromPrice, FESTIVAL_PACKAGE_IDS, maskPaintingPrices, PAINTING_PUBLIC_NOTE } from "../src/lib/pricing-master";
 import { livePkgs, reviewCountLabel } from "../src/lib/marketing-content";
 import { publicPaymentState, resolvePublicEstimate } from "../src/lib/booking-payment";
 import { resolvePackageEstimate } from "../src/lib/lead-estimate";
@@ -1124,4 +1124,19 @@ test("Customer WhatsApp links all route to the primary WABA number 7083347130 (o
   for (const f of ["src/components/public/public-booking-form.tsx", "src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx", "src/app/gallery/page.tsx"]) {
     assert.doesNotMatch(read(f), /wa\.me\/918956567130|WHATSAPP_NUMBER = "8956567130"|waLink\(waText, n\)/, f);
   }
+});
+
+test("festival copy date-guard: names shown only while the campaign runs (mock dates incl. the day after Diwali)", () => {
+  assert.equal(campaignFestivalNames(WINDOWS, "2026-09-30"), null); // before
+  assert.equal(campaignFestivalNames(WINDOWS, "2026-10-09"), "Navratri • Dussehra • Diwali");
+  assert.equal(campaignFestivalNames(WINDOWS, "2026-11-10"), "Navratri • Dussehra • Diwali"); // last Diwali day
+  assert.equal(campaignFestivalNames(WINDOWS, "2026-11-11"), null); // day after → no festival wording
+  assert.equal(campaignFestivalNames(WINDOWS, "2027-03-01"), null);
+  assert.equal(campaignFestivalNames([], "2026-10-09"), null); // no offers configured
+});
+
+test("booking page never hard-codes festival names: copy comes from the Settings → Pricing windows", () => {
+  const src = readFileSync(path.join(process.cwd(), "src/app/booking/page.tsx"), "utf8");
+  for (const name of ["Navratri", "Dussehra", "Diwali"]) assert.ok(!src.includes(name), `booking page hard-codes "${name}"`);
+  assert.match(src, /campaignFestivalNames\(/);
 });

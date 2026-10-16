@@ -16,7 +16,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CompanyLogo } from "@/components/shared/company-logo";
 import { GlobalSearch } from "@/components/shared/global-search";
 import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import { EodSummaryModal } from "@/components/notifications/eod-summary-modal";
@@ -45,22 +44,30 @@ export function Topbar({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/95 px-4 backdrop-blur sm:px-6">
+    // 56px on phones (more room for content), 64px from md up. The dashboard's sticky
+    // tab bar (tabbed-dashboard.tsx) sits at top-14 / md:top-16 — keep the two in step.
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-1.5 border-b border-border bg-card/95 px-2 backdrop-blur sm:px-4 md:h-16 md:gap-3 md:px-6">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-72 p-0">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <SidebarNav role={role} logoUrl={logoUrl} onNavigate={() => setOpen(false)} />
         </SheetContent>
-        <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setOpen(true)}>
-          <Menu />
+        <Button variant="ghost" size="icon" className="size-11 rounded-xl md:size-9 lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
+          <Menu className="size-5" />
         </Button>
       </Sheet>
+
+      {/* Text wordmark — no image to load. Desktop (lg+) already shows the brand in the sidebar. */}
+      <Link href="/dashboard" className="flex min-h-11 shrink-0 select-none items-center text-lg font-extrabold tracking-tight text-foreground lg:hidden" aria-label="Sahara OS home">
+        Sahara<span className="text-primary">OS</span>
+      </Link>
 
       <div className="min-w-0 flex-1">
         {canSearchGlobally(role) ? (
           <GlobalSearch />
         ) : (
-          <p className="truncate text-sm font-semibold text-foreground sm:text-base">
+          // Phones show the wordmark instead; the page name returns from sm up.
+          <p className="hidden truncate text-sm font-semibold text-foreground sm:block sm:text-base">
             {pageLabel ?? "Sahara OS"}
           </p>
         )}
@@ -75,8 +82,10 @@ export function Topbar({
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-md py-1 pl-1 pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <CompanyLogo logoUrl={logoUrl} className="h-7 w-auto max-w-[120px] sm:h-8 sm:max-w-[150px]" showTm />
+          <button className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl px-1.5 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring md:min-h-0 md:py-1" aria-label="Account menu">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent text-xs font-bold text-accent-foreground">
+              {name.trim().charAt(0).toUpperCase() || <UserIcon className="size-4" />}
+            </span>
             <span className="hidden text-left sm:block">
               <span className="block text-sm font-medium leading-tight text-foreground">{name}</span>
               <span className="block text-xs leading-tight text-muted-foreground">

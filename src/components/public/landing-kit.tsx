@@ -10,6 +10,7 @@ import { ServiceCards } from "@/components/public/service-cards";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import type { HomeRow } from "@/components/public/price-selector";
 import { CONTACT, EQUIPMENT, GOOGLE_MAPS_URL, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
+import { buildBusinessJsonLd } from "@/lib/seo-schema";
 import { PriceSelector } from "@/components/public/price-selector";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
 import { SERVICE_AREA_NOTICE, activeCampaign, todayIST } from "@/lib/pricing-master";
@@ -64,20 +65,9 @@ function heroImages(image: string, alt: string): CarouselImage[] {
   return [{ src: image, alt }];
 }
 
+/** Business JSON-LD for every public page — built in src/lib/seo-schema.ts (single source for NAP + services). */
 export function businessJsonLd(extra: Record<string, unknown> = {}) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "HomeAndConstructionBusiness",
-    name: "Sahara Cleaning Services",
-    url: "https://www.saharacleaningservices.com",
-    telephone: CONTACT.call.map((n) => `+91${n}`),
-    email: CONTACT.email,
-    foundingDate: "2012",
-    address: { "@type": "PostalAddress", streetAddress: "Opposite South Gate, Magarpatta City, Hadapsar", addressLocality: "Pune", postalCode: "411028", addressRegion: "Maharashtra", addressCountry: "IN" },
-    areaServed: ["Pune", "Pimpri-Chinchwad (PCMC)"],
-    sameAs: SOCIAL.map((s) => s.href),
-    ...extra,
-  };
+  return buildBusinessJsonLd({ sameAs: SOCIAL.map((s) => s.href), extra });
 }
 
 export function faqJsonLd(faqs: { q: string; a: string }[]) {

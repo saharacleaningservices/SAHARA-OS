@@ -27,7 +27,7 @@ const fbq = (): Gtag | null =>
 
 /** Fire once after a successful booking/lead form submission. */
 export function trackLead(details: { category?: string; variant?: string }) {
-  fbq()?.("track", "Lead", { content_category: details.category });
+  fbq()?.("track", "Lead", { content_name: details.variant, content_category: details.category });
   const g = gtag();
   if (!g) return;
   g("event", "generate_lead", { service_category: details.category, service_variant: details.variant });
