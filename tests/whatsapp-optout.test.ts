@@ -8,6 +8,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "../src/lib/whatsapp-keywords";
+import { createHmac } from "node:crypto";
 
 const dir = mkdtempSync(path.join(tmpdir(), "sahara-wa-optout-"));
 const dbFile = path.join(dir, "test.db");
@@ -122,4 +123,58 @@ test("utility (transactional) templates are not blocked by the marketing-consent
 test("the approved QA number is exempt from the marketing-consent guard", async () => {
   const r = await sendLive("sahara_customer_reactivation", "9921215250");
   assert.match(r.error ?? "", /not connected/i);
+});
+
+// ── Inbound webhook: Meta signature + the marketing template's "Stop promotions" button ──
+const APP_SECRET = "unit-test-app-secret-not-real";
+async function webhook(body: unknown, sign: "good" | "bad" | "none" = "good") {
+  const { POST } = await import("../src/app/api/webhooks/whatsapp/route");
+  const { NextRequest } = await import("next/server");
+  const raw = JSON.stringify(body);
+  const headers: Record<string, string> = { "content-type": "application/json" };
+  if (sign !== "none") headers["x-hub-signature-256"] = "sha256=" + createHmac("sha256", sign === "good" ? APP_SECRET : "wrong").update(raw).digest("hex");
+  return POST(new NextRequest("http://localhost/api/webhooks/whatsapp", { method: "POST", headers, body: raw }));
+}
+const buttonTap = (from: string, text: string, id: string) => ({
+  entry: [{ changes: [{ value: { messages: [{ from, id, type: "button", timestamp: String(Math.floor(Date.now() / 1000)), button: { text, payload: text } }] } }] }],
+});
+
+test("webhook: with the App Secret set, a wrong or missing X-Hub-Signature-256 is 401; a valid one is 200", async () => {
+  process.env.WHATSAPP_APP_SECRET = APP_SECRET;
+  try {
+    const body = buttonTap("919820000777", "Hello", "wamid.sig1");
+    assert.equal((await webhook(body, "none")).status, 401);
+    assert.equal((await webhook(body, "bad")).status, 401);
+    assert.equal((await webhook(body, "good")).status, 200);
+  } finally {
+    delete process.env.WHATSAPP_APP_SECRET;
+  }
+});
+
+test("'Stop promotions' button: the customer's lead becomes marketing OPTED_OUT (booking messages unaffected)", async () => {
+  process.env.WHATSAPP_APP_SECRET = APP_SECRET;
+  try {
+    await db.lead.create({
+      data: { leadNumber: "LD-T-STOPPROMO", name: "Promo Tester", mobile: "9820000888", whatsapp: "9820000888", area: "x", service: "HOME_DEEP_CLEANING" as never, source: "WEBSITE" as never, stage: "NEW" as never, marketingConsent: "OPTED_IN" as never, marketingConsentAt: new Date() },
+    });
+    const r = await webhook(buttonTap("919820000888", "Stop promotions", "wamid.stop1"));
+    assert.equal(r.status, 200);
+    const lead = (await db.lead.findUnique({ where: { leadNumber: "LD-T-STOPPROMO" } }))!;
+    assert.equal(lead.marketingConsent, "OPTED_OUT");
+    // Marketing-only opt-out: not a full STOP, so booking/service updates still reach the customer.
+    assert.equal(await wa.isOptedOut("9820000888"), false);
+  } finally {
+    delete process.env.WHATSAPP_APP_SECRET;
+  }
+});
+
+test("'Stop promotions' from a number with no lead is answered 200 and creates nothing", async () => {
+  process.env.WHATSAPP_APP_SECRET = APP_SECRET;
+  try {
+    const before = await db.lead.count();
+    assert.equal((await webhook(buttonTap("919820000999", "Stop Promotions", "wamid.stop2"))).status, 200);
+    assert.equal(await db.lead.count(), before);
+  } finally {
+    delete process.env.WHATSAPP_APP_SECRET;
+  }
 });
