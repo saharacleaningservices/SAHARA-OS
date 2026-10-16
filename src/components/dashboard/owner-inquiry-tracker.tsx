@@ -30,11 +30,15 @@ export function OwnerInquiryTracker() {
 
   useEffect(() => {
     void load();
-    const id = setInterval(() => void load(), 60_000);
+    // Poll only while the tab is visible (saves phone data/battery and server load); catch up on return.
+    const id = setInterval(() => document.visibilityState === "visible" && void load(), 60_000);
+    const onVisible = () => document.visibilityState === "visible" && void load();
     const onChanged = () => void load();
+    document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("sahara:pending-changed", onChanged);
     return () => {
       clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("sahara:pending-changed", onChanged);
     };
   }, [load]);
