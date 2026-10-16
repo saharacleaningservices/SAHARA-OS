@@ -19,9 +19,14 @@ export const SCHEMA_SERVICES = [
   { name: "Bathroom Deep Cleaning", path: "/home-deep-cleaning-pune" },
   { name: "Mattress and Carpet Cleaning", path: "/home-deep-cleaning-pune" },
   { name: "Office and Commercial Cleaning", path: "/commercial-cleaning-pune" },
-  { name: "Housekeeping Services", path: "/housekeeping-services" },
-  { name: "Pest Control (cockroach, termite, bed bug, ant)", path: "/pest-control-pune" },
+  { name: "Residential and Commercial Housekeeping", path: "/housekeeping-services" },
+  { name: "Facility Management and Housekeeping AMC (offices, residential societies, commercial complexes)", path: "/housekeeping-services" },
+  { name: "Termite Control", path: "/pest-control-pune" },
+  { name: "Cockroach Control", path: "/pest-control-pune" },
+  { name: "Bed Bug Treatment", path: "/pest-control-pune" },
+  { name: "Ant Control", path: "/pest-control-pune" },
   { name: "Interior Painting", path: "/interior-painting-pune" },
+  { name: "Texture Painting", path: "/interior-painting-pune" },
 ] as const;
 
 export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: string[]; extra?: Record<string, unknown> } = {}) {
@@ -32,7 +37,7 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
     name: "Sahara Cleaning Services",
     slogan: "Serving Pune Since 2012",
     description:
-      "Home deep cleaning, sofa and kitchen cleaning, office and commercial cleaning, housekeeping, pest control and interior painting across Pune and Pimpri-Chinchwad (PCMC). Trained in-house staff; serving Pune since 2012.",
+      "Home deep cleaning, sofa and kitchen cleaning, office and commercial cleaning, housekeeping and facility management (AMC), pest control (termite, cockroach, bed bug) and interior painting across Pune and Pimpri-Chinchwad (PCMC). Trained in-house staff; serving Pune since 2012.",
     url: "https://www.saharacleaningservices.com",
     logo: `${SCHEMA_SITE}/brand/sahara-logo.png`,
     image: `${SCHEMA_SITE}/marketing/hero-home.webp`,
