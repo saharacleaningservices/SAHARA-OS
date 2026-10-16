@@ -59,11 +59,15 @@ export function PendingActionsPanel() {
 
   useEffect(() => {
     void load();
-    const id = setInterval(load, REFRESH_MS);
+    // Poll only while the tab is visible (no sounds/notifications come from this panel); catch up on return.
+    const id = setInterval(() => document.visibilityState === "visible" && void load(), REFRESH_MS);
+    const onVisible = () => document.visibilityState === "visible" && void load();
     const onChanged = () => void load();
+    document.addEventListener("visibilitychange", onVisible);
     window.addEventListener(PENDING_CHANGED_EVENT, onChanged);
     return () => {
       clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener(PENDING_CHANGED_EVENT, onChanged);
     };
   }, [load]);
