@@ -14,6 +14,9 @@ const securityHeaders = [
 // can tell (via /api/notifications/feed) that a newer deployment exists and reload itself — see notifications-bell.tsx.
 const BUILD_ID = (process.env.SOURCE_COMMIT || "").slice(0, 12) || String(Date.now());
 
+const STATIC_IMAGE_DIRS = ["brand", "marketing", "logo"] as const;
+const STATIC_IMAGE_CACHE = "public, max-age=86400, stale-while-revalidate=604800";
+
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD_ID: BUILD_ID },
   // Short legal URL some links and ad forms use. 308 = permanent, method-preserving.
@@ -26,6 +29,13 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      // Brand + marketing images in /public were served with max-age=0 (re-validated on every page view).
+      // File names are not content-hashed, so keep it short: 1 day fresh, then served stale while refreshing.
+      // Not applied to /uploads (customer/staff files) or /sw.js (service worker must always be fresh).
+      ...STATIC_IMAGE_DIRS.map((dir) => ({
+        source: `/${dir}/:path*`,
+        headers: [{ key: "Cache-Control", value: STATIC_IMAGE_CACHE }],
+      })),
     ];
   },
 };
