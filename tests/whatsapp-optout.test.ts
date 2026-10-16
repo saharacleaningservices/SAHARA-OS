@@ -121,7 +121,7 @@ test("utility (transactional) templates are not blocked by the marketing-consent
 });
 
 test("the approved QA number is exempt from the marketing-consent guard", async () => {
-  const r = await sendLive("sahara_customer_reactivation", "9921215250");
+  const r = await sendLive("sahara_customer_reactivation", "9800817070");
   assert.match(r.error ?? "", /not connected/i);
 });
 

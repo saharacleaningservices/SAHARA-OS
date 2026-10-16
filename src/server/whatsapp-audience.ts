@@ -73,4 +73,4 @@ export async function filterToMarketingOptIn<T extends { mobile: string }>(recip
 }
 
 /** Controlled QA numbers approved by the owner for WhatsApp test sends. */
-export const WHATSAPP_TEST_NUMBERS = ["9921215250"];
+export const WHATSAPP_TEST_NUMBERS = ["9800817070"];

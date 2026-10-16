@@ -30,7 +30,7 @@ The four things are reported **separately**:
 - Needs a payment method on the WABA (owner-only) before LIVE messaging; none activated. Example: 500 consented marketing messages ≈ ₹400–450 at those quoted rates (estimate, not a quote).
 
 ## Controlled test plan (no cost beyond the single test message; owner present)
-1. Keep `WHATSAPP_OUTBOUND_MODE` as is (test number only). From Admin → Marketing → WhatsApp Broadcast choose TEST: the audience is forced to 9921215250. Confirm: one message, status SENT → DELIVERED/READ in the Message Log.
+1. Keep `WHATSAPP_OUTBOUND_MODE` as is (test number only). From Admin → Marketing → WhatsApp Broadcast choose TEST: the audience is forced to 9800817070. Confirm: one message, status SENT → DELIVERED/READ in the Message Log.
 2. Reply STOP from the test phone: expect an opt-out confirmation, a `WhatsAppConsent` row, and a second TEST send refused. Reply START: reinstated.
 3. Send the same TEST campaign name twice: the second is skipped (duplicate prevention).
 4. Only after ≥50 genuine opt-ins exist and the owner approves LIVE + budget: a pilot to 10–20 opted-in contacts with `WHATSAPP_CAMPAIGNS=on`, then review failures/blocks/quality before scaling. Never to the existing contact list without opt-in.
