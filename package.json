@@ -10,6 +10,7 @@
     "lint": "eslint",
     "test:pricing": "tsx --test tests/pricing.test.ts",
     "test:domains": "tsx --test tests/booking-host.test.ts",
+    "test:roles": "tsx --test tests/role-permissions.test.ts",
     "test:public": "tsx --test tests/public-input.test.ts",
     "test:ops": "tsx --test tests/ops-reminders.test.ts",
     "test:inquiry": "tsx --test tests/owner-inquiry.test.ts tests/owner-inquiry-outcomes.test.ts",
