@@ -34,6 +34,11 @@ certificate `*.saharacleaningservices.com`, issued 3 Aug 2026, **expires 1 Nov 2
 **not** renewed by 16 Oct, so automatic renewal is probably failing. From 1 Nov visitors would see a
 "Not secure" warning and Google Ads / social links would break.
 
+DNS for the domain is hosted at **Namecheap** (`registrar-servers.com`), not in cPanel — so cPanel cannot renew a
+*wildcard* certificate by itself (that needs DNS validation). The `www` A record points to the cPanel server, so
+cPanel AutoSSL **can** issue a normal certificate for `saharacleaningservices.com` + `www` by HTTP validation — that
+is the recommended fix (step 2).
+
 Not affected: `app.`, `booking.`, `crm.` (Sahara OS on the VPS, separate certificate, valid to 7 Dec,
 renewed automatically by Coolify).
 

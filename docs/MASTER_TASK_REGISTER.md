@@ -205,7 +205,7 @@ workstream order; the SOS ID is authoritative.
 | 3 | Direct inquiry, CRM & staff workflow | SOS-02 | **CODE COMPLETE — REAL-DEVICE CHECK PENDING** | Live since `f81fbdb`; `test:inquiry` 15/15 | Shoyab/Francis acknowledge a real inquiry on their phones |
 | 4 | WhatsApp webhook, template & customer actions | SOS-05 | **CODE COMPLETE (TEST mode)** | Webhook verifies `X-Hub-Signature-256` (constant time), fails closed in production; Pay After Service / Stop promotions handlers tested | Controlled TEST send (owner present) |
 | 5 | Cognito lead intake | SOS-06 | **CODE COMPLETE — BLOCKED on owner steps** | `feat/cognito-hmac` `2431caf`: optional HMAC (`X-Sahara-Signature`), constant-time token, phone-or-email de-dup; 25/25, tsc 0, eslint 0 | Owner sets `EMAIL_LEAD_TOKEN` (+ optional HMAC secret) and runs/triggers the Apps Script |
-| 6 | Google Ads / Brand Make access | SOS-07 | **PASS — VERIFIED COMPLETE** (15 Oct) | Managers list empty, 0 pending; negatives + attribution plan in `GOOGLE_ADS_NEGATIVES_AND_ATTRIBUTION.md` | Monthly access check; no spend without approval |
+| 6 | Google Ads / Brand Make access | SOS-07 | **PASS — VERIFIED COMPLETE** (15 Oct) | Managers list empty, 0 pending; negatives + attribution plan in `ads-audit-east-pune.md` | Monthly access check; no spend without approval |
 | 7 | Meta Ads audit | SOS-08 | **PARTIALLY COMPLETE — owner decisions** | Inventory/access audit done 15 Oct | Owner confirms the second full-access person; ad-account ownership |
 | 8 | Staff operations & role permissions | SOS-09 | **CODE COMPLETE — REAL-DEVICE QA PENDING** | `test/role-permissions` `dc6c9e2`: 9/9 matrix incl. typo guard; dashboard roles browser-tested 15 Oct (Francis payload has no money) | Real-phone QA with Shoyab/Francis/one staff member |
 | 9 | Website SEO, redesign/migration, VPS | SOS-12/13 | **PARTIALLY COMPLETE** | booking. SEO 100 / perf 70 (mobile); WordPress perf 66, CWV failed; "0+ Years" = Elementor counter (owner steps in `MAIN_WEBSITE_TECH_SEO_2026-10-16.md`); `feat/public-site-fixes` (festival wording guard + logo 85.8→29.1 KB, pricing 63/63) | Owner/web admin fixes counters; decide VPS migration; deploy public fixes |
@@ -257,3 +257,15 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - PR #4 re-checked: still 5 backup-workflow files only (incl. `.gitignore` python cache), mergeable/clean.
 - **Status:** SOS-03 CRM side, SOS-06 code, SOS-09 tests, SOS-13 fixes = CODE COMPLETE — DEPLOYMENT PENDING (merge PR #5).
 - **Not live** until merged + Coolify build + live check (steps in the PR description).
+
+### Update 2026-10-16 (Stage 5) — e-mail DNS, ads doc
+- **SOS-10:** read-only DNS: MX already Google Workspace → **no MX cutover needed** (and the register's rule "no MX change"
+  stands). Findings: SPF lacks `include:_spf.google.com`; no DKIM (`google._domainkey`); no DMARC. DNS host is
+  **Namecheap**, not cPanel. Owner runbook: `docs/WORKSPACE_EMAIL_DNS_RUNBOOK.md` (SPF edit, DKIM via Admin console,
+  DMARC p=none, verify, rollback). Do after the Workspace payment is fixed. Status: BLOCKED — owner DNS/Admin action.
+- **SOS-07/14:** ads doc renamed to `docs/ads-audit-east-pune.md` (Brand Make removal verified 15 Oct; negatives;
+  Presence-only targeting for 5 East Pune zones; UTM→CRM attribution map). No change made in Google Ads.
+- Certificate note updated: wildcard cannot auto-renew from cPanel while DNS is at Namecheap → use AutoSSL for
+  domain + www (HTTP validation).
+- Stages 1–4 re-confirmed by state, not re-run: branches unchanged since the full verification on `release/2026-10-16`
+  `411879c` (build exit 0, all suites green, seo 11/11); PR #4 and PR #5 open, mergeable.
