@@ -242,3 +242,18 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 5. Cognito: `EMAIL_LEAD_TOKEN` in Coolify + Apps Script property/trigger.
 6. Open PRs for the five branches, or install/authorise GitHub CLI so Claude can.
 7. Real-device QA (Shoyab, Francis, one field staff) for SOS-02 / SOS-09.
+
+### Update 2026-10-16 (release) — PR #5 ready to merge
+- **PR #5** `release/2026-10-16` → `coolify-deploy` (created via GitHub REST API; `411879c`; 52 commits / 38 files; GitHub:
+  mergeable, clean; repo has no CI checks). Contains: backup confirm endpoint + stale-backup alert (`feat/backup-alerts`),
+  Cognito HMAC/de-dup (`feat/cognito-hmac` `2431caf`), landing/SEO/perf (`feat/public-site-fixes` `a4f2d00`), mobile header
+  (`feat/mobile-header-56` `233448a`), role-permission tests (`test/role-permissions` `dc6c9e2`). Excludes `qa/whatsapp-launch-v2`.
+- New in this pass (`feat/public-site-fixes`): `95971b3` service-hub hero via next/image (phones ~30 KB vs 145 KB);
+  `a4f2d00` booking.* unknown/CRM paths → **true 404** (owner rule 2026-10-16; was a redirect to /booking).
+- Evidence on the release branch: production `npm run build` exit 0; tests cognito 25, pricing 63, domains 4, roles 9,
+  public 5, ops 7, inquiry 15, backup 10, eod 16, seo 11 (built app) — all pass; tsc 0; eslint 0 errors (13 old warnings).
+  Built app with the real host split: booking `/`→`/booking`; public pages 200; unknown, /dashboard, /login, /llms.txt,
+  /ai-catalog.json, missing image → 404; crm signed-out → /login.
+- PR #4 re-checked: still 5 backup-workflow files only (incl. `.gitignore` python cache), mergeable/clean.
+- **Status:** SOS-03 CRM side, SOS-06 code, SOS-09 tests, SOS-13 fixes = CODE COMPLETE — DEPLOYMENT PENDING (merge PR #5).
+- **Not live** until merged + Coolify build + live check (steps in the PR description).
