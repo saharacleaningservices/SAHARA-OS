@@ -222,6 +222,18 @@ export function activeCampaign(festivals: FestivalWindow[], todayYmd: string): C
   return current ? { current, windows, start, end } : null;
 }
 
+/**
+ * Festival names for customer-facing copy ("Navratri • Dussehra • Diwali") while the campaign runs, else
+ * null — so hero lines and meta descriptions stop mentioning a festival the day after it ends, driven by
+ * the same Settings → Pricing windows as the prices (no hard-coded dates).
+ */
+export function campaignFestivalNames(festivals: FestivalWindow[], todayYmd: string): string | null {
+  const campaign = activeCampaign(festivals, todayYmd);
+  if (!campaign) return null;
+  const names = [...new Set(campaign.windows.map((w) => w.name))];
+  return names.length ? names.join(" • ") : null;
+}
+
 /** Lowest Premium home package price a customer actually pays (festival price during a festival window). */
 export function homeFromPrice(items: PriceItem[], festival: FestivalWindow | null = null): number {
   const v = items.filter((p) => p.group === "PREMIUM").map((p) => unitPriceFor(p, festival)).filter((n): n is number => n != null);

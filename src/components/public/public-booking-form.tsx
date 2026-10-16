@@ -462,19 +462,9 @@ export function PublicBookingForm({
       setError(res.error ?? "Something went wrong");
       return;
     }
-    // Meta Pixel readiness (Phase 6, 2026-09-21): fires only if the Pixel
-    // script actually loaded (see app/book/page.tsx — gated on
-    // NEXT_PUBLIC_META_PIXEL_ID), a no-op otherwise. This is the
-    // client-side half of ad-conversion tracking; the server-side
-    // Conversion API half needs a Pixel access token the owner adds once
-    // Meta Business Manager access is set up — see
-    // SAHARA_OS_META_READINESS.md.
-    if (typeof window !== "undefined" && typeof (window as { fbq?: (...args: unknown[]) => void }).fbq === "function") {
-      (window as unknown as { fbq: (...args: unknown[]) => void }).fbq("track", "Lead", {
-        content_name: variant,
-        content_category: category,
-      });
-    }
+    // One lead = one event per platform: trackLead sends GA4 generate_lead, the Google Ads conversion and the
+    // Meta Pixel Lead event (no-ops when an ID is not configured). A second, direct Meta Lead call here used to
+    // count every booking twice in Meta (fixed 2026-10-16).
     trackLead({ category, variant });
     setDone({ leadNumber: res.leadNumber, advancePaid });
   }

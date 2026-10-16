@@ -1,9 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { QuickLeadForm } from "@/components/public/quick-lead-form";
-import { CONTACT, LOCALITIES, WEBSITE_URL, inr } from "@/lib/marketing-content";
+import { MapOnTap } from "@/components/public/map-on-tap";
+import { CONTACT, GOOGLE_MAPS_URL, LOCALITIES, WEBSITE_URL, inr } from "@/lib/marketing-content";
 import { COMPANY } from "@/lib/constants";
 import { getCompanySettings } from "@/server/settings";
 import { toWhatsAppLink } from "@/lib/utils";
@@ -48,7 +50,9 @@ export async function CampaignHero({ title, subtitle, service, serviceLabel, cam
   const call = CONTACT.call[0];
   return (
     <section className="relative isolate overflow-hidden bg-[#0a2540] text-white">
-      <img src={image} alt={alt} className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30" fetchPriority="high" />
+      {/* next/image: phones get a resized AVIF/WebP instead of the full 1170px original; priority = preloaded
+          as the likely LCP element. Quality 50 is plenty for a 30%-opacity background. */}
+      <Image src={image} alt={alt} fill priority sizes="100vw" quality={50} className="-z-10 object-cover opacity-30" />
       <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
         <p className="text-[11px] font-bold tracking-wide text-amber-300 sm:text-xs">{trust.join("  |  ")}</p>
         <h1 className="mt-1.5 text-2xl font-extrabold leading-tight sm:text-4xl">{title}</h1>
@@ -154,12 +158,11 @@ export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string |
               ))}
             </div>
           </div>
-          <iframe
+          <MapOnTap
             title="Sahara Cleaning Services on Google Maps"
-            src={`https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&output=embed`}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="h-52 w-full rounded-xl border-0 md:h-full md:min-h-56"
+            embedSrc={`https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&output=embed`}
+            mapsUrl={GOOGLE_MAPS_URL}
+            address={CONTACT.address}
           />
         </div>
         <div className="mt-5">

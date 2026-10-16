@@ -1,3 +1,4 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
@@ -28,16 +29,52 @@ function serviceFrom(text: string) {
 
 const str = (v: unknown, max = 400) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
+/** Constant-time string comparison (no early exit on the first differing byte). */
+function safeEqual(a: string, b: string) {
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
+}
+
+/** Max clock difference accepted for a signed request — limits replay of a captured request. */
+const SIGNATURE_MAX_AGE_SECONDS = 300;
+
+/**
+ * Optional HMAC-SHA256 request signing. When EMAIL_LEAD_HMAC_SECRET is set (Coolify, and the same value as
+ * HMAC_SECRET in the Apps Script properties), every request must carry
+ *   X-Sahara-Timestamp: <unix seconds>   and   X-Sahara-Signature: sha256=<hex HMAC of "<timestamp>.<raw body>">
+ * within ±5 minutes. Unset = Bearer token only (unchanged behaviour), so the live script keeps working until
+ * the owner adds the secret on both sides.
+ */
+function signatureOk(req: NextRequest, rawBody: string): boolean {
+  const secret = process.env.EMAIL_LEAD_HMAC_SECRET;
+  if (!secret) return true;
+  const ts = req.headers.get("x-sahara-timestamp") ?? "";
+  const sig = req.headers.get("x-sahara-signature") ?? "";
+  if (!/^\d{9,11}$/.test(ts)) return false;
+  if (Math.abs(Date.now() / 1000 - Number(ts)) > SIGNATURE_MAX_AGE_SECONDS) return false;
+  const expected = "sha256=" + createHmac("sha256", secret).update(`${ts}.${rawBody}`).digest("hex");
+  return safeEqual(sig, expected);
+}
+
 export async function POST(req: NextRequest) {
   const token = process.env.EMAIL_LEAD_TOKEN || process.env.CRON_TOKEN;
   const provided = req.headers.get("authorization") ?? "";
-  if (!token || provided !== `Bearer ${token}`) {
+  if (!token || !safeEqual(provided, `Bearer ${token}`)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Read the body once as text: the signature covers these exact bytes.
+  const rawBody = await req.text();
+  if (!signatureOk(req, rawBody)) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   let raw: Record<string, unknown> = {};
   try {
-    raw = await req.json();
+    const parsed: unknown = JSON.parse(rawBody);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("not an object");
+    raw = parsed as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
@@ -49,21 +86,27 @@ export async function POST(req: NextRequest) {
   const serviceText = str(raw.service, 200);
   const message = str(raw.message, 1000);
   const location = str(raw.location, 200);
-  const email = str(raw.email, 200);
+  const emailRaw = str(raw.email, 200).toLowerCase();
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRaw) ? emailRaw : "";
   const sourceLabel = str(raw.source, 60) || "Email / Cognito Form";
   const service = serviceFrom(`${serviceText} ${message}`);
 
-  // Reuse an open / very recent lead for the same number instead of creating a duplicate.
+  // Reuse an open / very recent lead for the same number — or the same e-mail (a customer who types a
+  // different number) — instead of creating a duplicate. E-mails are stored lower-cased (see create below).
   const recent = await db.lead.findFirst({
     where: {
-      mobile,
-      deletedAt: null,
-      OR: [{ stage: { notIn: ["COMPLETED"] } }, { createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }],
+      AND: [
+        { OR: [{ mobile }, ...(email ? [{ email }] : [])] },
+        { deletedAt: null },
+        { OR: [{ stage: { notIn: ["COMPLETED"] } }, { createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } }] },
+      ],
     },
     orderBy: { createdAt: "desc" },
   });
   if (recent) {
     await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: `New enquiry via ${sourceLabel}: ${serviceText || "—"} ${message}`.trim() }).catch(() => {});
+    // A repeat enquiry must not be silent: the team gets an in-app/push alert pointing at the existing lead.
+    await notify({ kind: "NEW_INQUIRY", title: `🔁 Repeat enquiry — ${recent.name}`, body: `Repeat enquiry on ${recent.leadNumber} · ${serviceText || "new message"}`, href: `/leads/${recent.id}` }).catch(() => {});
     return NextResponse.json({ ok: true, matchedExisting: recent.leadNumber });
   }
 
@@ -75,6 +118,7 @@ export async function POST(req: NextRequest) {
       name: existingCustomer?.name || name,
       mobile,
       whatsapp: mobile,
+      email: email || existingCustomer?.email || null,
       area: location || existingCustomer?.area || "—",
       address: existingCustomer?.address || null,
       service: service as never,

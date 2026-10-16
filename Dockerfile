@@ -28,6 +28,17 @@ RUN apt-get update \
 COPY . .
 
 RUN npm ci
+
+# Public marketing IDs are inlined into the browser bundle at BUILD time
+# (src/components/public/marketing-tags.tsx, app/book/page.tsx), so setting them
+# only as runtime env vars has no effect. Declared here so a build-time variable
+# of the same name reaches `next build` on any Docker host. ARG only (no ENV):
+# unset stays genuinely unset, tags stay off, and nothing leaks into the runner
+# stage. These are public IDs, never secrets.
+ARG NEXT_PUBLIC_GA4_ID
+ARG NEXT_PUBLIC_GOOGLE_ADS_ID
+ARG NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL
+ARG NEXT_PUBLIC_META_PIXEL_ID
 RUN npm run build
 
 FROM node:20-bookworm-slim AS runner
