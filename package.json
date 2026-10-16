@@ -9,6 +9,7 @@
     "start:next": "next start",
     "lint": "eslint",
     "test:cognito": "tsx --test tests/email-lead.test.ts tests/cognito-script.test.ts",
+    "test:whatsapp": "tsx --test tests/whatsapp-optout.test.ts",
     "test:pricing": "tsx --test tests/pricing.test.ts",
     "test:b2b": "tsx --test tests/b2b-proposal.test.ts",
     "test:geo": "tsx --test tests/geo-schema.test.ts",
