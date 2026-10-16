@@ -19,6 +19,7 @@ import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-b
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StageSelect } from "@/components/leads/stage-select";
 import { QuotationDialog } from "@/components/leads/quotation-dialog";
+import { B2bProposalDialog } from "@/components/leads/b2b-proposal-dialog";
 import { SendQuotationButton } from "@/components/leads/send-quotation-button";
 import { ScheduleVisitDialog } from "@/components/leads/schedule-visit-dialog";
 import { ConfirmBookingDialog } from "@/components/leads/confirm-booking-dialog";
@@ -114,6 +115,10 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
             )}
             {showContact && showMoney && (
               <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} serviceItems={lead.serviceItems} discountAmount={lead.discountAmount} />
+            )}
+            {/* Facility-management / housekeeping AMC proposal (B2B): same access rule as quotations. */}
+            {showContact && showMoney && (lead.service === "HOUSEKEEPING" || lead.service === "COMMERCIAL_CLEANING") && (
+              <B2bProposalDialog leadId={lead.id} leadName={lead.name} area={lead.area} />
             )}
             {canConfirm && (
               <ConfirmBookingDialog
