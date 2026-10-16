@@ -217,7 +217,7 @@ export function BackupsCard({ events }: { events: BackupEventRow[] }) {
                   </span>
                   <span className="flex items-center gap-2">
                     <span className="text-muted-foreground">{formatBytes(e.sizeBytes)}</span>
-                    <Badge variant={e.status === "SUCCESS" ? "success" : "destructive"}>{e.status}</Badge>
+                    <Badge variant={e.status === "SUCCESS" || e.status === "DELIVERED" ? "success" : "destructive"}>{e.status}</Badge>
                   </span>
                 </div>
               ))}
