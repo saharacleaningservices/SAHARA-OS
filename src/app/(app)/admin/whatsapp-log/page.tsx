@@ -33,7 +33,8 @@ export default async function MessageLogPage() {
       kind: m.kind,
       to: `${m.toName ? `${m.toName} · ` : ""}${m.toNumber}`,
       body: m.body,
-      status: m.status,
+      // Delivery receipts from the Meta webhook (the same data the Inbox ticks use).
+      status: m.readAt ? "READ" : m.deliveredAt ? "DELIVERED" : m.status,
       error: m.errorMessage ?? null,
     })),
     ...smsMsgs.map((m) => ({
@@ -93,7 +94,7 @@ export default async function MessageLogPage() {
             <li key={`${m.channel}-${m.id}`} className="space-y-0.5 px-3 py-2">
               <div className="flex items-center justify-between gap-2 text-xs">
                 <span className="min-w-0 truncate font-semibold">{m.kind.replaceAll("_", " ")} · {m.to}</span>
-                <Badge variant={m.status === "SENT" ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>{m.status}</Badge>
+                <Badge variant={["SENT", "DELIVERED", "READ"].includes(m.status) ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>{m.status}</Badge>
               </div>
               <p className="line-clamp-1 text-xs text-muted-foreground" title={m.body}>{m.body}</p>
               <p className="line-clamp-2 text-[11px] text-muted-foreground">{m.channel} · {formatDateTime(m.createdAt)}{m.error ? <span className="text-destructive"> · {m.error}</span> : null}</p>
@@ -108,7 +109,7 @@ export default async function MessageLogPage() {
             <li key={`${m.channel}-${m.id}`} className="space-y-0.5 px-3 py-2">
               <div className="flex items-center justify-between gap-2 text-xs">
                 <span className="min-w-0 truncate font-semibold">{m.kind.replaceAll("_", " ")} · {m.to}</span>
-                <Badge variant={m.status === "SENT" ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>{m.status}</Badge>
+                <Badge variant={["SENT", "DELIVERED", "READ"].includes(m.status) ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>{m.status}</Badge>
               </div>
               <p className="line-clamp-1 text-xs text-muted-foreground" title={m.body}>{m.body}</p>
               <p className="line-clamp-2 text-[11px] text-muted-foreground">{m.channel} · {formatDateTime(m.createdAt)}{m.error ? <span className="text-destructive"> · {m.error}</span> : null}</p>
@@ -143,7 +144,7 @@ export default async function MessageLogPage() {
                   {m.body}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={m.status === "SENT" ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>
+                  <Badge variant={["SENT", "DELIVERED", "READ"].includes(m.status) ? "success" : m.status === "FAILED" ? "destructive" : "muted"}>
                     {m.status}
                   </Badge>
                   {m.error && <p className="mt-1 max-w-[200px] truncate text-xs text-destructive" title={m.error}>{m.error}</p>}
