@@ -269,3 +269,13 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   domain + www (HTTP validation).
 - Stages 1–4 re-confirmed by state, not re-run: branches unchanged since the full verification on `release/2026-10-16`
   `411879c` (build exit 0, all suites green, seo 11/11); PR #4 and PR #5 open, mergeable.
+
+### Update 2026-10-16 (Meta / WhatsApp consent)
+- `docs/META_BUSINESS_GREEN_TICK_SETUP.md`: owned ad account (switch old campaigns Off → check owner of
+  343079872519451 → claim only if Altaf's own, else create new INR/Asia-Kolkata account), Business Verification,
+  green-tick eligibility from Meta's current developer docs (30 days on platform, verified portfolio, 2-step
+  verification, approved display name; API numbers only — native app line not eligible), compliant opt-in plan.
+- **Declined (policy):** sending an opt-in or "utility" broadcast to the ~4,295 non-consented contacts — WhatsApp
+  requires opt-in *before* any business-initiated message. Opt-in to be collected via forms (built,
+  `qa/whatsapp-launch-v2`), job-card consent, inbound chats, SMS (DLT) / e-mail. LIVE stays off.
+- Stages 1–3 unchanged (verified state; PR #4 and #5 open, mergeable).
