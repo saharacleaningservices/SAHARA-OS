@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { categoryLabel } from "@/lib/contact-category";
 import { ensureCustomer, isContactType, normalizeMobile } from "@/server/customer-db";
 import { getCustomersPage, type CustomerFilters } from "@/server/customers";
 
@@ -93,7 +94,7 @@ export async function exportCustomerRows(filters: CustomerFilters) {
   return rows.map((c) => ({
     Name: c.name,
     Mobile: c.mobile,
-    Type: c.contactType,
+    Category: categoryLabel(c.contactType),
     Repeat: c.isRepeat ? "Yes" : "",
     Area: c.area ?? "",
     Sites: c.siteCount,

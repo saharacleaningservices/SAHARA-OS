@@ -1,18 +1,20 @@
-import { Briefcase, Building, Building2, DraftingCompass, Palette, Star, User, type LucideIcon } from "lucide-react";
+import { Briefcase, Building, Building2, DraftingCompass, FileCheck2, Palette, Star, Truck, User, type LucideIcon } from "lucide-react";
 
 // Contact type + repeat badges — one compact visual language for the
 // customer list, customer page and New Lead lookup.
 
 const TYPES: Record<string, { label: string; icon: LucideIcon; tone: string }> = {
-  CUSTOMER: { label: "Customer", icon: User, tone: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200" },
+  CUSTOMER: { label: "Direct Customer", icon: User, tone: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200" },
   BROKER: { label: "Broker", icon: Building2, tone: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200" },
   ARCHITECT: { label: "Architect", icon: DraftingCompass, tone: "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-200" },
   INTERIOR_DESIGNER: { label: "Interior Designer", icon: Palette, tone: "bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-200" },
+  VENDOR: { label: "Vendor", icon: Truck, tone: "bg-lime-100 text-lime-800 dark:bg-lime-950 dark:text-lime-200" },
+  AMC_CLIENT: { label: "AMC Client", icon: FileCheck2, tone: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200" },
   SOCIETY: { label: "Society / Facility", icon: Building, tone: "bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-200" },
-  CORPORATE: { label: "Corporate / Other", icon: Briefcase, tone: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200" },
+  CORPORATE: { label: "Commercial / B2B Partner", icon: Briefcase, tone: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200" },
 };
 
-export const contactTypeLabel = (t: string | null | undefined) => TYPES[t ?? "CUSTOMER"]?.label ?? "Customer";
+export const contactTypeLabel = (t: string | null | undefined) => TYPES[t ?? "CUSTOMER"]?.label ?? "Direct Customer";
 
 export function ContactTypeIcon({ type, className = "size-4" }: { type: string | null | undefined; className?: string }) {
   const Icon = (TYPES[type ?? "CUSTOMER"] ?? TYPES.CUSTOMER).icon;

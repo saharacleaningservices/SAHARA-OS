@@ -6,17 +6,8 @@ import { db } from "@/lib/db";
 // existing contact is reused and only empty fields are filled in; nothing is
 // ever deleted, merged or overwritten.
 
-export const CONTACT_TYPES = ["CUSTOMER", "BROKER", "ARCHITECT", "INTERIOR_DESIGNER", "SOCIETY", "CORPORATE"] as const;
-export type ContactType = (typeof CONTACT_TYPES)[number];
-export const CONTACT_TYPE_LABEL: Record<ContactType, string> = {
-  CUSTOMER: "Customer",
-  BROKER: "Broker",
-  ARCHITECT: "Architect",
-  INTERIOR_DESIGNER: "Interior Designer",
-  SOCIETY: "Society / Facility",
-  CORPORATE: "Corporate / Other",
-};
-export const isContactType = (v: unknown): v is ContactType => typeof v === "string" && (CONTACT_TYPES as readonly string[]).includes(v);
+import { CONTACT_TYPES, CONTACT_TYPE_LABEL, isContactType, type ContactType } from "@/lib/contact-category";
+export { CONTACT_TYPES, CONTACT_TYPE_LABEL, isContactType, type ContactType };
 
 /** Last 10 digits — the duplicate key used everywhere for a mobile number. */
 export function normalizeMobile(mobile: string | null | undefined): string | null {

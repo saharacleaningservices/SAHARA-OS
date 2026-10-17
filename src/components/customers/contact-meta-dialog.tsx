@@ -9,16 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CONTACT_TYPE_LABEL, categoryChoices } from "@/lib/contact-category";
 import { updateContactMeta } from "@/server/actions/customer-sites";
 
-const TYPES = [
-  ["CUSTOMER", "Customer"],
-  ["BROKER", "Broker"],
-  ["ARCHITECT", "Architect"],
-  ["INTERIOR_DESIGNER", "Interior Designer"],
-  ["SOCIETY", "Society / Facility"],
-  ["CORPORATE", "Corporate / Other"],
-] as const;
+
 
 /** Contact type, Repeat flag, name and email for one contact (Super Admin, Accounts). */
 export function ContactMetaDialog({ mobile, initial }: { mobile: string; initial: { name: string; email: string | null; contactType: string; isRepeat: boolean } }) {
@@ -55,9 +49,9 @@ export function ContactMetaDialog({ mobile, initial }: { mobile: string; initial
           </div>
           <div className="flex items-end gap-2">
             <div className="min-w-0 flex-1 space-y-1">
-              <Label>Contact type</Label>
+              <Label>Category</Label>
               <select value={f.contactType} onChange={(e) => setF({ ...f, contactType: e.target.value })} className="h-9 w-full rounded-md border bg-background px-2 text-sm">
-                {TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                {categoryChoices(initial.contactType).map((v) => <option key={v} value={v}>{CONTACT_TYPE_LABEL[v]}</option>)}
               </select>
             </div>
             <label className="flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-medium">
