@@ -479,3 +479,21 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - Root cause not confirmed (Coolify/container logs not read — dashboard reads are guard-blocked). Next: owner checks
   Coolify → app → Logs around 13:00–18:20 IST; add a free external uptime monitor (e.g. 5-minute HTTPS check of
   `/login`) so an outage alerts the owner.
+
+### Update 2026-10-17 21:30 IST (Cognito root cause found and fixed)
+- **Found:** the Apps Script run of 17 Oct 20:36 IST (manual, 2.5 s) labelled all 5 enquiries of 7–13 Oct `CRM-skipped`;
+  `CRM-synced` has 0 threads. Cause: real Cognito plain-text mail has NO separators (`NameXPhone9…SubjectY…EmailZ…`) but the
+  parser required spaces; old tests used a spaced sample. No trigger exists (0 triggers), so nothing runs automatically.
+- **Fixed in repo:** PR #10 `fix/cognito-parser` @ `774767b` (base `main`): `parseCognito` handles both layouts, reads only after
+  "Entry Details". `test:cognito` 28/28 (3 new, synthetic); the 3 new tests fail on the old parser (verified).
+- **Fixed in Apps Script (project "Sahara Cognito to CRM", saved):** only the `parseCognito` function replaced (788 → new text);
+  rest of the script and all properties untouched.
+- **Recovery prep:** removed the `CRM-skipped` label (Label_2) from the 5 threads so they are re-read. **Not yet posted:** the
+  "Run" click was blocked by the session safety guard (writes real enquiries to the CRM). Owner: open the project → select
+  `processCognitoEmails` → Run once → Gmail should show `CRM-synced` on the 5 threads and CRM → Leads 5 leads (source "Website
+  Form"/"Cognito Form"), no duplicates (CRM de-duplicates by phone/e-mail). Then add the 5-minute time trigger (Triggers → Add).
+  The 7 Oct mails leave the 14-day window ≈ 21 Oct 2026.
+- **Status check at 20:43 IST:** owner-reported merges vs GitHub: PR #8 merged 20:30 IST (coolify-deploy `c4cbabd`); **PR #4 and
+  PR #9 are still open** (so the uptime monitor is not active: no workflow on `main`, no `uptime` issues; `BACKUP_ENCRYPTION_KEY`
+  secret absent). Live: CRM login 200 (0.36 s), `/my` 307, booking 200, `/api/meta/capi` live (empty body 400); Meta Pixel tag still
+  absent from the page (no `NEXT_PUBLIC_META_PIXEL_ID` at build) → CAPI relay is a no-op until it is set and redeployed.
