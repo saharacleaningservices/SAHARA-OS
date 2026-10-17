@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { customerNumbersByMobile, normalizeMobile } from "@/server/customer-db";
 import { Plus, ClipboardList, BellRing, AlertTriangle, IndianRupee } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -22,6 +23,7 @@ export default async function LeadsPage() {
     getLeadsPageStats(),
   ]);
   const showRevenue = canViewRevenue(session.role);
+  const custIds = await customerNumbersByMobile(leads.map((l) => l.mobile));
 
   return (
     <div className="space-y-4">
@@ -80,7 +82,7 @@ export default async function LeadsPage() {
         )}
       </div>
 
-      <LeadsExplorer leads={leads.map((l) => redactLead(l, session.role))} />
+      <LeadsExplorer leads={leads.map((l) => ({ ...redactLead(l, session.role), customerNumber: custIds.get(normalizeMobile(l.mobile) ?? "") ?? null }))} />
     </div>
   );
 }

@@ -64,6 +64,11 @@ function makeStyles(k: number) {
   kvR: { fontSize: z(8.5) },
   kvBold: { fontSize: z(8.5), fontFamily: "Helvetica-Bold" },
   words: { fontSize: z(8.5), color: MUTED, marginBottom: z(8) },
+  splitBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 4, padding: z(4), marginTop: z(4), marginBottom: z(6) },
+  footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderColor: GOLD, paddingVertical: z(4), marginTop: "auto" },
+  bookQr: { width: z(46), height: z(46), marginRight: z(8) },
+  footerTitle: { fontSize: z(9), fontFamily: "Helvetica-Bold", color: NAVY },
+  footerUrl: { fontSize: z(7.5), color: MUTED },
   signBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(64), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(8), marginTop: z(4) },
   signLbl: { fontFamily: "Helvetica-Bold", fontSize: z(8.5) },
   signName: { fontSize: z(8), color: MUTED },
@@ -89,7 +94,12 @@ export type BillDocumentProps = {
   extraMeta?: { label: string; value: string }[];
   company: { name: string; tagline?: string; phone: string; email: string; address: string; website: string; gstin?: string | null };
   logoDataUrl?: string | null;
-  billTo: { name: string; address?: string | null; mobile?: string | null };
+  billTo: { name: string; address?: string | null; mobile?: string | null; email?: string | null; details?: { label: string; value: string }[] };
+  /** 20% advance / 80% balance (owner rule 2026-10-18), from paymentSplit() in lib/booking-payment. */
+  paymentSplit?: { advance: number; balance: number; percent: number; balancePercent: number } | null;
+  /** Footer QR to the public booking form ("Scan to Book Service Online"). */
+  bookQrDataUrl?: string | null;
+  bookUrl?: string | null;
   rows: BillRow[];
   subtotalRow: { qty: number; disc: number; total: number };
   totals: { subtotal: number; discount: number; complimentary?: number; gstPercent?: number; gstAmount?: number; total: number; received?: number; balance?: number };
@@ -107,15 +117,18 @@ export type BillDocumentProps = {
 };
 
 /** Rough line count of the longest column + table rows → scale factor for a single A4 page. Verified by tests/quotation-pdf.test.mts. */
-export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms">): number {
+export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms"> & Partial<Pick<BillDocumentProps, "paymentSplit" | "bookQrDataUrl" | "billTo">>): number {
   const wrap = (t: string, per: number) => Math.max(1, Math.ceil(t.length / per)) * 1;
   const left = p.notes.reduce((n, t) => n + wrap(t, 66), 0) + p.kindlyNote.reduce((n, t) => n + wrap(t, 66), 0) + p.terms.split("\n").reduce((n, t) => n + wrap(t, 66), 0);
   const table = p.rows.reduce((n, r) => n + (r.detail ? 2.6 : 1.7), 0);
-  const load = left + table * 1.4;
+  // Payment-terms box, booking QR footer and the extra Bill To lines (email, property / service) take fixed space.
+  const extra = (p.paymentSplit ? 4 : 0) + (p.bookQrDataUrl ? 5 : 0) + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0);
+  const load = left + table * 1.4 + extra;
   if (load <= 40) return 1;
   if (load <= 50) return 0.92;
   if (load <= 62) return 0.84;
-  return 0.76;
+  if (load <= 74) return 0.76;
+  return 0.7;
 }
 
 export function SaharaBillDocument(p: BillDocumentProps) {
@@ -168,6 +181,23 @@ export function SaharaBillDocument(p: BillDocumentProps) {
               <Text style={s.billLine}>
                 <Text style={{ fontFamily: "Helvetica-Bold", color: NAVY }}>Mobile </Text>
                 {p.billTo.mobile}
+              </Text>
+            ) : null}
+            {p.billTo.email ? (
+              <Text style={s.billLine}>
+                <Text style={{ fontFamily: "Helvetica-Bold", color: NAVY }}>Email </Text>
+                {p.billTo.email}
+              </Text>
+            ) : null}
+            {(p.billTo.details ?? []).length > 0 ? (
+              <Text style={s.billLine}>
+                {(p.billTo.details ?? []).map((d, i) => (
+                  <Text key={d.label}>
+                    {i > 0 ? "   ·   " : ""}
+                    <Text style={{ fontFamily: "Helvetica-Bold", color: NAVY }}>{d.label} </Text>
+                    {d.value}
+                  </Text>
+                ))}
               </Text>
             ) : null}
           </View>
@@ -239,6 +269,12 @@ export function SaharaBillDocument(p: BillDocumentProps) {
                 <Text style={s.totalLbl}>Total Amount</Text>
                 <Text style={s.totalVal}>{rs(p.totals.total)}</Text>
               </View>
+              {p.totals.discount > 0 ? (
+                <>
+                  <View style={s.kv}><Text style={s.kvL}>Base Amount</Text><Text style={s.kvR}>{rs(p.totals.subtotal)}</Text></View>
+                  <View style={s.kv}><Text style={s.kvL}>Discount</Text><Text style={s.kvR}>- {rs(p.totals.discount)}</Text></View>
+                </>
+              ) : null}
               {p.totals.complimentary ? (
                 <View style={s.kv}><Text style={s.kvL}>Complimentary (free)</Text><Text style={s.kvR}>{rs(p.totals.complimentary)}</Text></View>
               ) : null}
@@ -251,6 +287,13 @@ export function SaharaBillDocument(p: BillDocumentProps) {
                   <View style={[s.kv, { marginBottom: 8 }]}><Text style={s.kvBold}>Balance</Text><Text style={s.kvBold}>{rs(p.totals.balance ?? 0)}</Text></View>
                 </>
               )}
+              {p.paymentSplit ? (
+                <View style={s.splitBox} wrap={false}>
+                  <Text style={[s.secTitle, { marginTop: 0 }]}>Payment Terms</Text>
+                  <View style={s.kv}><Text style={s.kvBold}>Advance ({p.paymentSplit.percent}%) — to confirm booking</Text><Text style={s.kvBold}>{rs(p.paymentSplit.advance)}</Text></View>
+                  <View style={s.kv}><Text style={s.kvL}>Balance ({p.paymentSplit.balancePercent}%) — after work completion</Text><Text style={s.kvR}>{rs(p.paymentSplit.balance)}</Text></View>
+                </View>
+              ) : null}
               <Text style={s.secTitle}>Total Amount (in words)</Text>
               <Text style={s.words}>{p.amountInWords}</Text>
               <View style={s.signBox}>
@@ -283,6 +326,15 @@ export function SaharaBillDocument(p: BillDocumentProps) {
             </View>
           </View>
 
+          {p.bookQrDataUrl ? (
+            <View style={s.footer} wrap={false}>
+              <Image src={p.bookQrDataUrl} style={s.bookQr} />
+              <View>
+                <Text style={s.footerTitle}>Scan to Book Service Online</Text>
+                {p.bookUrl ? <Text style={s.footerUrl}>{p.bookUrl.replace(/^https?:\/\//, "")}</Text> : null}
+              </View>
+            </View>
+          ) : null}
         </View>
       </Page>
     </Document>

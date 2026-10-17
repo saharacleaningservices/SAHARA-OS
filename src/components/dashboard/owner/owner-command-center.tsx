@@ -23,6 +23,8 @@ import { RevenueIntelligence } from "./revenue-intelligence";
 import { QuickDispatch } from "./quick-dispatch";
 import { DashboardModules } from "@/components/dashboard/dashboard-modules";
 import { HeroStats } from "@/components/dashboard/hero-stats";
+import { BookingQrCard } from "@/components/dashboard/booking-qr-card";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { CollapsibleList, ListRow } from "@/components/dashboard/tabbed-dashboard";
 import { StatusPill } from "@/components/shared/status-pill";
 import { getSlotBoard } from "@/server/actions/slot-control";
@@ -193,6 +195,7 @@ export async function getOwnerDashboardSections({
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-4">
         <DashboardModules role={role} />
+        <BookingQrCard url={`${PUBLIC_BOOKING_URL}/booking`} />
         <Fold
           open={alerts.unassignedJobsToday.length > 0}
           title="Quick Dispatch"

@@ -410,6 +410,9 @@ model Customer {
   // Customer CRM (2026-10-08, additive): one contact per mobile, many sites.
   email              String?
   contactType        String    @default("CUSTOMER") // CUSTOMER | BROKER | ARCHITECT | INTERIOR_DESIGNER | SOCIETY | CORPORATE
+  // Permanent customer ID shown on CRM views, quotations and invoices (CUST-0001…, owner 2026-10-18).
+  // Assigned on create; existing rows are backfilled in creation order by scripts/db-setup.mjs.
+  customerNumber     String?   @unique
   isRepeat           Boolean   @default(false)
   sites              CustomerSite[]
   createdAt          DateTime  @default(now())

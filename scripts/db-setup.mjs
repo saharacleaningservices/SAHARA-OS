@@ -9,6 +9,7 @@
 // standard `npx prisma migrate dev` / `npx prisma migrate deploy` instead —
 // both approaches produce an identical schema. See README.md.
 
+import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
@@ -1736,4 +1737,52 @@ db.close();
   addCol("OpsReminderSettings", "followUpIntervalMin", "INTEGER NOT NULL DEFAULT 120");
   console.log("Staff registration + ops reminders migration complete.");
   oDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Customer ID (2026-10-18, additive): Customer.customerNumber "CUST-0001"…
+// Backfills only rows that have none, in creation order, continuing after the
+// highest number already issued — re-running never renumbers anyone.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const kDb = new Database(dbPath);
+  const kCols = kDb.prepare(`PRAGMA table_info("Customer")`).all().map((c) => c.name);
+  if (!kCols.includes("customerNumber")) kDb.exec(`ALTER TABLE "Customer" ADD COLUMN "customerNumber" TEXT`);
+  kDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Customer_customerNumber_key" ON "Customer"("customerNumber")`);
+  // Every contact on a live Lead / Job gets a Customer master row (keyed by the last 10 digits of the mobile,
+  // same rule as src/server/customer-db.ts) so it can carry a Customer ID. Only missing rows are inserted;
+  // existing Customer rows, leads and jobs are never changed.
+  {
+    const norm = (m) => { const d = String(m ?? "").replace(/\D/g, "").slice(-10); return d.length === 10 ? d : null; };
+    const have = new Set(kDb.prepare(`SELECT "mobile" FROM "Customer"`).all().map((r) => r.mobile));
+    const contacts = new Map();
+    const seen = (mobile, name, area, createdAt) => {
+      const key = norm(mobile);
+      if (!key || have.has(key)) return;
+      const c = contacts.get(key);
+      if (!c) contacts.set(key, { name, area, first: createdAt, last: createdAt });
+      else {
+        if (String(createdAt) < String(c.first)) c.first = createdAt;
+        if (String(createdAt) > String(c.last)) { c.last = createdAt; c.name = name || c.name; c.area = area || c.area; }
+      }
+    };
+    for (const r of kDb.prepare(`SELECT "mobile", "name", "area", "createdAt" FROM "Lead" WHERE "deletedAt" IS NULL AND COALESCE("isDemo", 0) = 0`).all()) seen(r.mobile, r.name, r.area, r.createdAt);
+    for (const r of kDb.prepare(`SELECT "customerMobile" AS mobile, "customerName" AS name, "area", "createdAt" FROM "Job" WHERE "deletedAt" IS NULL AND COALESCE("isDemo", 0) = 0`).all()) seen(r.mobile, r.name, r.area, r.createdAt);
+    if (contacts.size) {
+      const ins = kDb.prepare(`INSERT OR IGNORE INTO "Customer" ("id", "name", "mobile", "area", "source", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, 'CRM_HISTORY', ?, ?)`);
+      kDb.transaction(() => {
+        for (const [mobile, c] of contacts) ins.run(`c${randomUUID().replace(/-/g, "").slice(0, 24)}`, String(c.name || "Customer").trim() || "Customer", mobile, c.area || null, c.first, c.first);
+      })();
+      console.log(`Customer master rows added for existing leads/jobs: ${contacts.size}.`);
+    }
+  }
+  const issued = kDb.prepare(`SELECT "customerNumber" AS n FROM "Customer" WHERE "customerNumber" LIKE 'CUST-%'`).all();
+  let next = issued.reduce((m, r) => { const v = Number(String(r.n).slice(5)); return Number.isInteger(v) && v > m ? v : m; }, 0);
+  const missing = kDb.prepare(`SELECT "id" FROM "Customer" WHERE "customerNumber" IS NULL ORDER BY "createdAt" ASC, "id" ASC`).all();
+  if (missing.length) {
+    const upd = kDb.prepare(`UPDATE "Customer" SET "customerNumber" = ? WHERE "id" = ? AND "customerNumber" IS NULL`);
+    kDb.transaction(() => { for (const r of missing) upd.run(`CUST-${String(++next).padStart(4, "0")}`, r.id); })();
+    console.log(`Customer IDs assigned: ${missing.length} (up to CUST-${String(next).padStart(4, "0")}).`);
+  }
+  kDb.close();
 }

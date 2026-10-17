@@ -29,8 +29,18 @@ export const STANDARD_TERMS_LINES = [
   "Cabinets / wardrobes are cleaned internally ONLY if emptied by the customer before arrival.",
   "Customer to arrange electricity, continuous water supply and a stool / ladder.",
   "Old / hard stains are treated to the best of our ability (100% removal is not guaranteed without surface damage).",
-  "Final inspection is required before the team leaves. 100% payment immediately via UPI or Cash.",
+  "Final inspection is required before the team leaves. 20% advance confirms the booking; the 80% balance is payable after work completion via UPI or Cash.",
 ] as const;
+
+/** The standard terms as stored on quotations created 17 Oct 2026 (100%-immediately wording) — printed with the 20/80 line now. */
+const PREVIOUS_STANDARD_LINE4 = "Final inspection is required before the team leaves. 100% payment immediately via UPI or Cash.";
+
+/** Older default wording for the advance rule (50% / 100%) → the current 20% advance / 80% balance rule. Custom terms are otherwise untouched. */
+export function modernizePaymentTerms(text: string): string {
+  return text
+    .replace(PREVIOUS_STANDARD_LINE4, STANDARD_TERMS_LINES[3])
+    .replace(/50% advance payment confirms the booking; balance is due on job completion\./g, "20% advance payment confirms the booking; the 80% balance is payable after job completion.");
+}
 
 /** Stored on new quotations as the default terms. */
 export const STANDARD_TERMS_TEXT = STANDARD_TERMS_LINES.map((l, i) => `${i + 1}. ${l}`).join("\n");
@@ -48,6 +58,7 @@ export function packageScopeLines(tier: HomeTier): string[] {
  */
 export function resolveQuotationTerms(stored: string | null | undefined): { text: string; custom: boolean } {
   const t = (stored ?? "").trim();
-  if (!t || /^1\.\s*Prices are inclusive of standard materials/i.test(t) || t === STANDARD_TERMS_TEXT) return { text: STANDARD_TERMS_TEXT, custom: false };
-  return { text: t, custom: true };
+  const legacyStd = STANDARD_TERMS_LINES.map((l, i) => `${i + 1}. ${i === 3 ? PREVIOUS_STANDARD_LINE4 : l}`).join("\n");
+  if (!t || /^1\.\s*Prices are inclusive of standard materials/i.test(t) || t === STANDARD_TERMS_TEXT || t === legacyStd) return { text: STANDARD_TERMS_TEXT, custom: false };
+  return { text: modernizePaymentTerms(t), custom: true };
 }

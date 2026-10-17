@@ -18,6 +18,16 @@ export async function generateLeadNumber() {
   return nextNumber("LD", count, 4, rows.map((r) => r.leadNumber));
 }
 
+/** Permanent customer ID (not per year): CUST-0001, CUST-0002 … — highest issued + 1. */
+export async function generateCustomerNumber() {
+  const rows = await db.customer.findMany({ where: { customerNumber: { startsWith: "CUST-" } }, select: { customerNumber: true } });
+  const max = rows.reduce((m, r) => {
+    const v = Number((r.customerNumber ?? "").slice(5));
+    return Number.isInteger(v) && v > m ? v : m;
+  }, 0);
+  return `CUST-${String(max + 1).padStart(4, "0")}`;
+}
+
 export async function generateJobNumber() {
   const [count, rows] = await Promise.all([db.job.count(), db.job.findMany({ where: { jobNumber: thisYear("JOB") }, select: { jobNumber: true } })]);
   return nextNumber("JOB", count, 4, rows.map((r) => r.jobNumber));
