@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { crmT, useCrmLang } from "@/lib/crm-i18n";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
@@ -19,6 +20,7 @@ export function SidebarNav({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const lang = useCrmLang();
   const items = NAV_ITEMS.filter((item) => canAccess(role, item.section));
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
   // Accordion: five groups instead of one 30+ item list. Empty groups (nothing the role may open) are hidden;
@@ -60,7 +62,7 @@ export function SidebarNav({
                 aria-controls={`nav-group-${g.key}`}
                 className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
-                <span>{g.label}</span>
+                <span>{crmT(lang, g.label)}</span>
                 <span className="flex items-center gap-2">
                   <span className="rounded-full bg-sidebar-accent px-1.5 text-[10px] font-medium normal-case tracking-normal text-sidebar-foreground/70">{g.items.length}</span>
                   <ChevronDown className={cn("size-4 transition-transform", isOpen && "rotate-180")} />
@@ -84,7 +86,7 @@ export function SidebarNav({
                         )}
                       >
                         <Icon className="size-4 shrink-0" />
-                        {item.label}
+                        {crmT(lang, item.label)}
                       </Link>
                     );
                   })}
@@ -96,7 +98,7 @@ export function SidebarNav({
       </nav>
 
       <div className="mx-3 mb-4 rounded-lg bg-sidebar-accent/60 p-3 text-[11px] leading-relaxed text-sidebar-foreground/70">
-        <p className="font-semibold text-sidebar-foreground">Need help?</p>
+        <p className="font-semibold text-sidebar-foreground">{crmT(lang, "Need help?")}</p>
         <p>Call {`→`} 7083347130</p>
         <p>Opp. South Gate, Magarpatta City</p>
       </div>

@@ -43,9 +43,10 @@ export type NavItem = {
 
 /** Mobile / desktop sidebar accordion groups, in display order (a group with no items for the role is hidden). */
 export const NAV_GROUPS: { key: NavGroupKey; label: string }[] = [
+  // Fixed order (owner 2026-10-18): Dashboards first.
+  { key: "dashboards", label: "Dashboards & Reports" },
   { key: "operations", label: "Operations" },
   { key: "sales", label: "Sales & Finance" },
-  { key: "dashboards", label: "Dashboards & Reports" },
   { key: "tools", label: "Tools & AI" },
   { key: "admin", label: "Settings & Admin" },
 ];

@@ -161,3 +161,59 @@ test("Operations cannot open a lead outside its scope; offline users still see u
   assert.equal(f.find((a) => a.leadId === lead.id)?.canOpen ?? false, false, "acknowledged here, but also outside scope");
   assert.equal(s.find((a) => a.leadId === lead.id)!.canOpen, true, "Accounts still opens it (unread → shown on the next load)");
 });
+
+// ── 30-minute Super Admin escalation (2026-10-18) ──────────────────────────────────────────────
+async function freshInquiry(mobile: string) {
+  const r = await inq.createOwnerInquiry(admin as never, { mobile, note: "escalation test", assigneeIds: idsAll() });
+  assert.ok(r.ok && "leadId" in r);
+  return (r as { leadId: string }).leadId;
+}
+const ageAlerts = (leadId: string, minutes: number) =>
+  db.notification.updateMany({ where: { kind: "OWNER_INQUIRY", meta: { contains: leadId } }, data: { createdAt: new Date(Date.now() - minutes * 60_000) } });
+const escalations = (leadId: string) => db.notification.count({ where: { kind: "OPS_ESCALATION", userId: admin.id, meta: { contains: leadId } } });
+
+test("escalation: nothing before 30 minutes; after 30 unacknowledged minutes Altaf gets ONE high-priority alert", async () => {
+  const leadId = await freshInquiry("9820022201");
+  assert.equal(await inq.escalateUnhandledInquiries(), 0, "just created — not due");
+  await ageAlerts(leadId, 29);
+  assert.equal(await inq.escalateUnhandledInquiries(), 0, "29 min — not due");
+  await ageAlerts(leadId, 31);
+  assert.equal(await inq.escalateUnhandledInquiries(), 1);
+  const n = (await db.notification.findFirst({ where: { kind: "OPS_ESCALATION", userId: admin.id, meta: { contains: leadId } } }))!;
+  assert.equal(n.critical, true);
+  assert.match(n.title, /^URGENT: inquiry LD-\d{4}-\d{4} not picked up for \d+\+ min$/);
+  assert.equal(n.href, `/leads/${leadId}`);
+  assert.doesNotMatch(`${n.title} ${n.body}`, /9820022201/, "no customer number in the alert");
+  assert.equal(await escalations(leadId), 1);
+});
+
+test("escalation fires once only — repeat sweeps (scheduler + cron overlap, restarts) never duplicate it", async () => {
+  const leadId = await freshInquiry("9820022202");
+  await ageAlerts(leadId, 45);
+  const [a, b, c] = await Promise.all([inq.escalateUnhandledInquiries(), inq.escalateUnhandledInquiries(), inq.escalateUnhandledInquiries()]);
+  assert.equal(a + b + c, 1, "concurrent sweeps: exactly one wins");
+  assert.equal(await inq.escalateUnhandledInquiries(), 0);
+  assert.equal(await escalations(leadId), 1);
+});
+
+test("escalation skips an inquiry someone acknowledged, and one that is no longer an open enquiry", async () => {
+  const acked = await freshInquiry("9820022203");
+  await ageAlerts(acked, 60);
+  const mine = (await db.notification.findFirst({ where: { kind: "OWNER_INQUIRY", userId: shoyab.id, meta: { contains: acked } } }))!;
+  await inq.acknowledgeInquiryAlert(shoyab as never, mine.id);
+  const closed = await freshInquiry("9820022204");
+  await ageAlerts(closed, 60);
+  await db.lead.update({ where: { id: closed }, data: { stage: "CANCELLED" } });
+  const deleted = await freshInquiry("9820022205");
+  await ageAlerts(deleted, 60);
+  await db.lead.update({ where: { id: deleted }, data: { deletedAt: new Date() } });
+  await inq.escalateUnhandledInquiries();
+  assert.equal(await escalations(acked), 0, "acknowledged by Shoyab");
+  assert.equal(await escalations(closed), 0, "cancelled lead");
+  assert.equal(await escalations(deleted), 0, "deleted lead");
+});
+
+test("the in-process scheduler runs the inquiry escalation on every sweep", async () => {
+  const src = (await import("node:fs")).readFileSync("src/server/ops-reminders.ts", "utf8");
+  assert.ok(src.includes("escalateUnhandledInquiries(now)") && src.includes("inquiryEscalated"));
+});

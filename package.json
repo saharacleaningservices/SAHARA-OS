@@ -23,6 +23,8 @@
     "test:category": "tsx --test tests/contact-category.test.ts",
     "test:custid": "tsx --test tests/customer-id.test.ts",
     "test:webauthn": "tsx --test tests/webauthn.test.ts",
+    "test:sociallang": "tsx --test tests/social-lang.test.ts",
+    "test:stability": "tsx --test tests/stability.test.ts",
     "test:leadtrack": "tsx --test tests/lead-tracking.test.ts",
     "test:public": "tsx --test tests/public-input.test.ts",
     "test:ops": "tsx --test tests/ops-reminders.test.ts",
