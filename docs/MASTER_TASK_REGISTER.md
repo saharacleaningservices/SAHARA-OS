@@ -393,3 +393,31 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - Not merged / not deployed: production merge is owner-only; CAPI token + Pixel id not yet in Coolify.
 - `docs/WEBBRAND_SSL_RENEWAL_REQUEST.md`: main site (WebBrand, 192.185.129.241) certificate still expires 1 Nov 2026;
   ready-to-send renewal request.
+
+### Update 2026-10-17 (evening: verification sweep)
+- **PR #8** re-verified via GitHub API: head `e69c7bc`, base `coolify-deploy` `96329cb`, 2 commits, 12 files
+  (includes `src/lib/protected-numbers.ts`; no generated Prisma file), mergeable/clean, no CI configured, no secret
+  patterns in the patch. Not merged (owner approval).
+- **SSL / WebBrand:** www + apex certificate still expires 1 Nov 2026 (Let's Encrypt; host 192.185.129.241). Gmail
+  **draft** created to the WebBrand contact found in a 2022 thread — not sent; owner reviews and sends.
+- **Cognito → CRM:** Apps Script is NOT running — no `CRM-synced` / `CRM-skipped` label exists in Gmail, while 5 Cognito
+  enquiries arrived 7–13 Oct. Production webhook `/api/webhook/email-lead` exists and fails closed (401 without token).
+  `test:cognito` 25/25. Owner: set `EMAIL_LEAD_TOKEN` in Coolify, install `docs/cognito-email-lead.gs` (DRY_RUN first),
+  then reconcile the 7–13 Oct enquiries (script LOOKBACK = 14 days picks them up).
+- **WhatsApp templates (WhatsApp Manager, read-only):** 14 templates, all "Active – quality pending" (incl.
+  `sahara_festival_offer`, `sahara_diwali_festival_offer`, `sahara_customer_reactivation`). The 3 drafted marketing
+  templates (pest control, interior painting, facility management) are **not submitted**. `sahara_review_request`
+  is categorised Marketing (billed at marketing rates).
+- **Meta Ads (act 343079872519451, read-only):** 8 campaigns; the visible ones ("Keep your glass…", "INDEPENDENCE DAY
+  SALE", "Sahara Cleaning Services was live") show **Payment error**, no results 17 Sep–15 Oct.
+- **Google Ads (read-only):** two accounts visible — "Sahara Cleaning" 988-668-0860 and "Google Ads account"
+  995-688-3837. In 988-668-0860: banner **Balance exhausted**; 5 campaigns — 4 Paused ("Cleaning services" ₹2,000/day,
+  some ads disapproved; "Sahara Cleaning Services" Smart ₹657/day; "Sahara feb 2025" ₹1,023/day; "Search Campaign :
+  22 April, 2025" ₹660/day) and 1 Eligible ("Home Cleaning Search Camapign | Pune | Feb'26", ₹620/day, Maximize
+  conversions) — 0 impressions, 0 clicks, ₹0 in the last 7 days. User access/ownership not inspected.
+- **CRM role QA (local QA copy DB, localhost only):** ADMIN reaches every page; OPERATIONS (Francis) is redirected
+  from pricing settings, payments, expenses, profit, marketing, reports, audit log and users, and sees no ₹ figures on
+  dashboard, jobs, staff, attendance; ACCOUNTS (Shoyab Kazi) sees payments/expenses/reports but not profit, marketing,
+  audit log, users or pricing settings. Francis can open `/leads/price-list` (service prices — same as the public
+  pages; leads section owner-approved 2026-10-05). Mobile visual QA not done: browser login with the QA password was
+  blocked by the session safety guard.
