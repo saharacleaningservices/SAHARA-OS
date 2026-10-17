@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: "Corporate Housekeeping & AMC Services in Pune | Sahara Cleaning Services",
   description: "Housekeeping staff and annual maintenance contracts (AMC) for offices, societies and commercial facilities across Pune & PCMC. Site visit and written proposal.",
   alternates: { canonical: `${BASE_URL}/housekeeping-services` },
+  openGraph: { title: "Corporate Housekeeping & AMC in Pune — Sahara Cleaning Services", description: "Housekeeping staff and AMC for offices, societies and commercial facilities. Site visit and written proposal.", url: `${BASE_URL}/housekeeping-services`, images: [`${BASE_URL}/marketing/carousel-team.webp`], type: "website" },
 };
 
 const WA = "Hi Sahara, I'd like a housekeeping AMC proposal for our facility.";
