@@ -491,7 +491,7 @@ export function BookingWizard({
         attribution: getAttributionPayload(),
       });
       if ("error" in res && res.error) return setError(res.error);
-      trackLead({ category: m.serviceCategory, variant: m.serviceVariant });
+      trackLead({ category: m.serviceCategory, variant: m.serviceVariant, mobile });
       trackFunnel("booking_confirmation", { service: m.serviceCategory, variant: m.serviceVariant });
       setDone("leadNumber" in res ? (res.leadNumber ?? "") : "");
       } catch {

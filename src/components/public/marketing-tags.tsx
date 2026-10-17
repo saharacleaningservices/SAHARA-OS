@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { useEffect } from "react";
+import { isProtectedNumber } from "@/lib/protected-numbers";
 
 // Sahara-owned marketing tags for the public pages. Everything is gated on
 // env vars, so nothing loads until the owner sets IDs from Sahara's OWN
@@ -25,9 +26,34 @@ const gtag = (): Gtag | null =>
 const fbq = (): Gtag | null =>
   typeof window !== "undefined" && typeof (window as { fbq?: Gtag }).fbq === "function" ? (window as unknown as { fbq: Gtag }).fbq : null;
 
+function newEventId(): string {
+  const c = typeof crypto !== "undefined" ? crypto : undefined;
+  return c?.randomUUID ? c.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+/** Conversions API relay (the server adds IP / user agent / fbp / fbc). Fire-and-forget; skipped outside a browser page. */
+function sendServerEvent(eventName: "Lead" | "Schedule", eventId: string, d: { category?: string; variant?: string; mobile?: string }) {
+  if (!PIXEL || typeof window === "undefined" || !window.location || typeof fetch !== "function") return;
+  try {
+    void fetch("/api/meta/capi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eventName, eventId, mobile: d.mobile, category: d.category, variant: d.variant }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    /* tracking must never break the form */
+  }
+}
+
 /** Fire once after a successful booking/lead form submission. */
-export function trackLead(details: { category?: string; variant?: string }) {
-  fbq()?.("track", "Lead", { content_name: details.variant, content_category: details.category });
+export function trackLead(details: { category?: string; variant?: string; mobile?: string }) {
+  // Owner-protected / internal numbers never reach any ad or analytics platform.
+  if (isProtectedNumber(details.mobile)) return;
+  // One shared id: the browser Pixel and the server (Conversions API) both send it, so Meta counts the lead once.
+  const eventId = newEventId();
+  fbq()?.("track", "Lead", { content_name: details.variant, content_category: details.category }, { eventID: eventId });
+  sendServerEvent("Lead", eventId, details);
   const g = gtag();
   if (!g) return;
   g("event", "generate_lead", { service_category: details.category, service_variant: details.variant });
@@ -35,7 +61,8 @@ export function trackLead(details: { category?: string; variant?: string }) {
 }
 
 /** Site-visit / inspection requests (commercial, painting, pest, housekeeping): Meta "Schedule" + GA4. */
-export function trackSchedule(details: { category?: string }) {
+export function trackSchedule(details: { category?: string; mobile?: string }) {
+  if (isProtectedNumber(details.mobile)) return;
   fbq()?.("track", "Schedule", { content_category: details.category });
   gtag()?.("event", "schedule_inspection", { service_category: details.category });
 }
