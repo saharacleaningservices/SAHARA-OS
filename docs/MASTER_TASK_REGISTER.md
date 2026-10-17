@@ -530,3 +530,14 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - `EMAIL_LEAD_TOKEN` / `CRON_TOKEN` not found among Coolify app variables although the CRM accepted the Apps Script posts — unexplained.
   Old `META_PIXEL_ID` (no NEXT_PUBLIC_) variable also exists; untouched.
 - **Meta Business Verification: Unverified** (read-only). Documents checklist: `docs/META_VERIFICATION_DOCUMENTS_CHECKLIST.md`.
+
+### Update 2026-10-17 22:00 IST (CAPI live test attempt, Meta verification state)
+- **Test lead created by Claude on request** (browser, /pest-control-pune "Quick quote"): name "QA TEST Do Not Call", mobile = owner's approved test number
+  (not protected), locality Other → **lead LD-2026-0256** (owner to move it to Trash after the test). The site then redirected the browser to a
+  prefilled "Share on WhatsApp" page; nothing was sent from there. Browser Pixel was initialised before submit; CAPI relay fires with the same event id.
+- **Meta side NOT yet confirmed:** Events Manager (dataset 2014299429231265, range "Today") showed no activity ~10 min after the submit
+  (Meta allows ≤30 min; the owner's Chrome may also run an ad-blocker that stops browser Pixel requests, which would not affect the server CAPI event).
+  Deduplication (Browser + Server on one event id) therefore remains UNVERIFIED — re-check Overview/Diagnostics after ~30 min.
+- **Business verification page:** Security Center → "Business Verification — Eligible for verification — Start verification": **no documents submitted**.
+  **WhatsApp +91 91752 20270:** display name "Sahara Cleaning Services" set; "Official business account → Submit request" button present (not used);
+  profile incomplete (category "Professional Services"; Address/Email/Website empty). Last 30 days: 11 messages delivered, 10 marketing, ≈₹8.63 total.
