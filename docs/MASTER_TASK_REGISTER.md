@@ -440,3 +440,17 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   permanently closed/suspended (Paint Master duplicate).
 - **Backup:** Drive holds daily archives (latest 17 Oct 04:24 IST, 5.4 MB, plus 14–16 Oct); workflow verifies SQLite before
   upload. Restore into an isolated copy not yet performed (`scripts/restore-drill.mjs` exists).
+
+### Update 2026-10-17 (late night: queue, ads access, PR #4)
+- **SMS queue (BLOCKED, verified target):** the 187 rows are `SmsMessage` (status QUEUED, kind ATTENDANCE). Only reader is the
+  Message Log (shows newest 200 → true count may be higher); only sender is `flushSmsQueue`, which runs only when SMS
+  credentials exist. No existing cancel tool: "Cancel stale queue" updates `WhatsAppMessage` only and would touch the 1 failed
+  WhatsApp row instead. Left unchanged. Safe state: do not save SMS credentials.
+- **Google Ads 988-668-0860 access (read-only):** page opened despite the ad-blocker banner (extension setting not touched).
+  1 user (Admin), **0 linked managers** (agency not linked), balance exhausted. Account 995-688-3837 = The Paint Master
+  painting account (3 campaigns, all Paused/Ended, 0 delivery).
+- **Correction:** PR #4 without `BACKUP_ENCRYPTION_KEY` only logs a warning (plaintext Drive copy continues) — earlier note
+  that it would break the backup was wrong. PR #4 merge attempt was blocked by the session safety guard ("Production Deploy").
+- **Cognito deadline:** script reads the last 14 days; the 7 Oct enquiries drop out about 21 Oct. Exact owner steps in
+  `docs/OWNER_SETUP_STEPS_2026-10-17.md`.
+- PR #4 and #8 still open/clean; production `96329cb`; live: GA4 only, `/api/meta/capi` 404, email-lead webhook 401.
