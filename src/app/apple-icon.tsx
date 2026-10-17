@@ -16,7 +16,7 @@ export const contentType = "image/png";
 //      does not exist yet.
 async function readBrandPngDataUrl(): Promise<string | null> {
   try {
-    const filePath = path.join(process.cwd(), "public", "brand", "sahara-logo.png");
+    const filePath = path.join(process.cwd(), "public", "brand", "sahara-logo-hires.png"); // 1102x465 — keep its aspect ratio below
     const buf = await readFile(filePath);
     return `data:image/png;base64,${buf.toString("base64")}`;
   } catch {
@@ -45,7 +45,7 @@ export default async function AppleIcon() {
           <img
             src={brandDataUrl}
             width={150}
-            height={150}
+            height={63} // 150 × 465 / 1102: the logo's real aspect ratio — never forced into a square (that stretched it into an oval)
             style={{ objectFit: "contain" }}
           />
         </div>

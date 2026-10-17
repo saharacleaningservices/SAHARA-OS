@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { CustomerHistoryButton } from "@/components/customers/customer-history-drawer";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { MapPin, ChevronDown } from "lucide-react";
@@ -194,9 +195,12 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                         </TableCell>
                       )}
                       <TableCell>
-                        <Link href={`/jobs/${job.id}`} className="font-medium text-foreground hover:underline">
-                          {job.customerName}
-                        </Link>
+                        <span className="flex items-center gap-1">
+                          <Link href={`/jobs/${job.id}`} className="font-medium text-foreground hover:underline">
+                            {job.customerName}
+                          </Link>
+                          <CustomerHistoryButton jobId={job.id} name={job.customerName} />
+                        </span>
                         <p className="text-xs text-muted-foreground">
                           {job.jobNumber} · {job.area}
                         </p>
@@ -296,9 +300,12 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                           }
                         />
                       )}
-                      <Link href={`/jobs/${job.id}`} className="block truncate font-medium text-foreground hover:underline">
-                        {job.customerName}
-                      </Link>
+                      <span className="flex items-center gap-1">
+                        <Link href={`/jobs/${job.id}`} className="block min-w-0 truncate font-medium text-foreground hover:underline">
+                          {job.customerName}
+                        </Link>
+                        <CustomerHistoryButton jobId={job.id} name={job.customerName} />
+                      </span>
                       <p className="truncate text-xs text-muted-foreground">
                         {job.jobNumber} · {job.area}
                       </p>

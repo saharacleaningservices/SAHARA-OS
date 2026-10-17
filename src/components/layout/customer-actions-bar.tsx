@@ -3,13 +3,12 @@
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Phone, MessageCircle, Megaphone, UserPlus, X, Search, Loader2, Send } from "lucide-react";
-import { toTelLink, toWhatsAppLink } from "@/lib/utils";
+import { Megaphone, UserPlus, X, Search, Loader2, Send } from "lucide-react";
 import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { searchCustomersQuick, bulkSendWhatsAppCampaign } from "@/server/actions/customer-actions";
 
 type Cust = { name: string; mobile: string; leadId?: string };
-type Intent = "CALL" | "WHATSAPP" | "OFFER";
+type Intent = "OFFER"; // Call / WhatsApp quick buttons were removed (owner request 2026-10-17): top priority is Package Calculator, New Lead, Send Offer
 
 /**
  * Top action bar, sitting just under the Topbar on every authenticated
@@ -47,16 +46,6 @@ export function CustomerActionsBar() {
   }
 
   function pick(c: Cust) {
-    if (intent === "CALL") {
-      window.location.href = toTelLink(c.mobile);
-      reset();
-      return;
-    }
-    if (intent === "WHATSAPP") {
-      window.open(toWhatsAppLink(c.mobile), "_blank", "noopener");
-      reset();
-      return;
-    }
     setPicked(c);
     setOfferMessage(`Hi {name}, `);
   }
@@ -74,26 +63,9 @@ export function CustomerActionsBar() {
     });
   }
 
-  const QUICK_ACTIONS = [
-    { key: "CALL" as const, label: "Call", icon: Phone },
-    { key: "WHATSAPP" as const, label: "WhatsApp", icon: MessageCircle },
-    { key: "OFFER" as const, label: "Send Offer", icon: Megaphone },
-  ];
-
   return (
     <>
       <div className="flex items-center gap-2 overflow-x-auto border-b border-border bg-card/60 px-4 py-2 sm:px-6">
-        {QUICK_ACTIONS.map((a) => (
-          <button
-            key={a.key}
-            type="button"
-            onClick={() => setIntent(a.key)}
-            className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
-          >
-            <a.icon className="size-3.5 text-primary" /> {a.label}
-          </button>
-        ))}
-        <span className="mx-0.5 h-4 w-px shrink-0 bg-border" />
         <PackageCalculatorButton />
         <Link
           href="/leads/new"
@@ -101,6 +73,13 @@ export function CustomerActionsBar() {
         >
           <UserPlus className="size-3.5 text-primary" /> New Lead
         </Link>
+        <button
+          type="button"
+          onClick={() => setIntent("OFFER")}
+          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:border-primary/40"
+        >
+          <Megaphone className="size-3.5 text-primary" /> Send Offer
+        </button>
       </div>
 
       {intent && (
@@ -111,7 +90,7 @@ export function CustomerActionsBar() {
           >
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <p className="text-sm font-semibold text-foreground">
-                {picked ? picked.name : intent === "CALL" ? "Call a customer" : intent === "WHATSAPP" ? "WhatsApp a customer" : "Send an offer"}
+                {picked ? picked.name : "Send an offer"}
               </p>
               <button onClick={reset} className="text-muted-foreground hover:text-foreground">
                 <X className="size-4" />

@@ -14,63 +14,68 @@ const NAVY = "#24325a";
 const MUTED = "#5b6478";
 const BEIGE = "#faf3e6";
 
-const s = StyleSheet.create({
-  page: { padding: 22, fontSize: 9, color: NAVY, fontFamily: "Helvetica" },
+// k < 1 only for single-page quotations (see fitFactor); invoices render at k = 1, exactly as before.
+function makeStyles(k: number) {
+  const z = (n: number) => Math.round(n * k * 10) / 10;
+  return StyleSheet.create({
+  page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: "Helvetica" },
   frame: { borderWidth: 1.5, borderColor: GOLD, flexGrow: 1 },
-  header: { flexDirection: "row", paddingHorizontal: 18, paddingTop: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: GOLD },
+  header: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(16), paddingBottom: z(12), borderBottomWidth: 1, borderBottomColor: GOLD },
   logoCol: { width: 120, justifyContent: "center" },
   logo: { width: 104, height: "auto" },
   companyCol: { width: 262, paddingRight: 8 },
-  companyName: { fontFamily: "Times-Bold", fontSize: 19, letterSpacing: 0.5, lineHeight: 1.15, color: NAVY },
-  tagline: { fontSize: 9, color: MUTED, marginTop: 2, marginBottom: 6 },
-  contact: { fontSize: 8.5, color: NAVY, marginBottom: 2 },
+  companyName: { fontFamily: "Times-Bold", fontSize: z(19), letterSpacing: z(0.5), lineHeight: 1.15, color: NAVY },
+  tagline: { fontSize: z(9), color: MUTED, marginTop: z(2), marginBottom: z(6) },
+  contact: { fontSize: z(8.5), color: NAVY, marginBottom: z(2) },
   titleCol: { flexGrow: 1, alignItems: "flex-end" },
-  title: { fontSize: 13, fontFamily: "Helvetica-Bold", color: NAVY },
-  copyBox: { marginTop: 4, borderWidth: 0.8, borderColor: MUTED, paddingHorizontal: 5, paddingVertical: 2, fontSize: 6.5, color: MUTED },
-  metaStrip: { flexDirection: "row", paddingHorizontal: 18, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: GOLD },
-  metaCell: { marginRight: 32 },
-  metaLabel: { fontFamily: "Helvetica-Bold", fontSize: 8.5, marginBottom: 2 },
-  metaValue: { fontSize: 8.5, color: MUTED },
-  billTo: { paddingHorizontal: 18, paddingVertical: 10 },
-  billToLabel: { fontFamily: "Helvetica-Bold", fontSize: 9.5, marginBottom: 2 },
-  billName: { fontSize: 10.5, marginBottom: 2 },
-  billLine: { fontSize: 8.5, color: MUTED, marginBottom: 2 },
-  tHead: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: 6, paddingHorizontal: 18 },
-  tRow: { flexDirection: "row", paddingVertical: 6, paddingHorizontal: 18 },
-  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: 6, paddingHorizontal: 18, fontFamily: "Helvetica-Bold" },
+  title: { fontSize: z(13), fontFamily: "Helvetica-Bold", color: NAVY },
+  copyBox: { marginTop: z(4), borderWidth: 0.8, borderColor: MUTED, paddingHorizontal: z(5), paddingVertical: z(2), fontSize: z(6.5), color: MUTED },
+  metaStrip: { flexDirection: "row", paddingHorizontal: z(18), paddingVertical: z(9), borderBottomWidth: 1, borderBottomColor: GOLD },
+  metaCell: { marginRight: z(32) },
+  metaLabel: { fontFamily: "Helvetica-Bold", fontSize: z(8.5), marginBottom: z(2) },
+  metaValue: { fontSize: z(8.5), color: MUTED },
+  billTo: { paddingHorizontal: z(18), paddingVertical: z(10) },
+  billToLabel: { fontFamily: "Helvetica-Bold", fontSize: z(9.5), marginBottom: z(2) },
+  billName: { fontSize: z(10.5), marginBottom: z(2) },
+  billLine: { fontSize: z(8.5), color: MUTED, marginBottom: z(2) },
+  tHead: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), paddingHorizontal: z(18) },
+  tRow: { flexDirection: "row", paddingVertical: z(6), paddingHorizontal: z(18) },
+  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), paddingHorizontal: z(18), fontFamily: "Helvetica-Bold" },
   cNo: { width: "7%" },
   cName: { width: "41%", paddingRight: 6 },
   cQty: { width: "10%", textAlign: "right" },
   cRate: { width: "14%", textAlign: "right" },
   cDisc: { width: "13%", textAlign: "right" },
   cTotal: { width: "15%", textAlign: "right" },
-  headTxt: { fontSize: 8.5, fontFamily: "Helvetica-Bold" },
-  rowName: { fontSize: 9 },
-  rowDetail: { fontSize: 7.5, color: MUTED, marginTop: 1 },
-  pct: { fontSize: 7, color: MUTED },
-  bottom: { flexDirection: "row", paddingHorizontal: 18, paddingTop: 12, paddingBottom: 10 },
+  headTxt: { fontSize: z(8.5), fontFamily: "Helvetica-Bold" },
+  rowName: { fontSize: z(9) },
+  rowDetail: { fontSize: z(7.5), color: MUTED, marginTop: z(1) },
+  pct: { fontSize: z(7), color: MUTED },
+  bottom: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(10) },
   left: { width: "52%", paddingRight: 14 },
   right: { width: "48%" },
-  secTitle: { fontFamily: "Helvetica-Bold", fontSize: 9, marginBottom: 3, marginTop: 6 },
-  para: { fontSize: 7.5, color: MUTED, lineHeight: 1.4, marginBottom: 1.5 },
-  totalBox: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: GOLD, paddingVertical: 6, flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
-  totalLbl: { fontFamily: "Helvetica-Bold", fontSize: 11 },
-  totalVal: { fontFamily: "Helvetica-Bold", fontSize: 11 },
-  kv: { flexDirection: "row", justifyContent: "space-between", marginBottom: 2 },
-  kvL: { fontSize: 8.5, color: MUTED },
-  kvR: { fontSize: 8.5 },
-  kvBold: { fontSize: 8.5, fontFamily: "Helvetica-Bold" },
-  words: { fontSize: 8.5, color: MUTED, marginBottom: 8 },
-  signBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: 64, justifyContent: "flex-end", alignItems: "center", paddingBottom: 8, marginTop: 4 },
-  signLbl: { fontFamily: "Helvetica-Bold", fontSize: 8.5 },
-  signName: { fontSize: 8, color: MUTED },
-  payRow: { flexDirection: "row", alignItems: "center", marginTop: 10 },
-  qr: { width: 74, height: 74, borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: 3, marginRight: 12 },
-  bankGrid: { flexDirection: "row", marginBottom: 1 },
-  bankK: { width: 64, fontSize: 8, fontFamily: "Helvetica-Bold" },
-  bankV: { fontSize: 8, color: MUTED, flexShrink: 1 },
+  secTitle: { fontFamily: "Helvetica-Bold", fontSize: z(9), marginBottom: z(3), marginTop: z(6) },
+  para: { fontSize: z(7.5), color: MUTED, lineHeight: 1.4, marginBottom: z(1.5) },
+  totalBox: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: GOLD, paddingVertical: z(6), flexDirection: "row", justifyContent: "space-between", marginBottom: z(6) },
+  totalLbl: { fontFamily: "Helvetica-Bold", fontSize: z(11) },
+  totalVal: { fontFamily: "Helvetica-Bold", fontSize: z(11) },
+  kv: { flexDirection: "row", justifyContent: "space-between", marginBottom: z(2) },
+  kvL: { fontSize: z(8.5), color: MUTED },
+  kvR: { fontSize: z(8.5) },
+  kvBold: { fontSize: z(8.5), fontFamily: "Helvetica-Bold" },
+  words: { fontSize: z(8.5), color: MUTED, marginBottom: z(8) },
+  signBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(64), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(8), marginTop: z(4) },
+  signLbl: { fontFamily: "Helvetica-Bold", fontSize: z(8.5) },
+  signName: { fontSize: z(8), color: MUTED },
+  payRow: { flexDirection: "row", alignItems: "center", marginTop: z(10) },
+  qr: { width: 74, height: z(74), borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: z(3), marginRight: z(12) },
+  bankGrid: { flexDirection: "row", marginBottom: z(1) },
+  bankK: { width: 64, fontSize: z(8), fontFamily: "Helvetica-Bold" },
+  bankV: { fontSize: z(8), color: MUTED, flexShrink: 1 },
 });
+}
 
+type Styles = ReturnType<typeof makeStyles>;
 const rs = (n: number) => `Rs. ${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — never rounded
 const num = (n: number) => n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
@@ -95,9 +100,26 @@ export type BillDocumentProps = {
   bank?: { name?: string | null; ifsc?: string | null; account?: string | null; bankName?: string | null } | null;
   upiId?: string | null;
   qrDataUrl?: string | null;
+  /** Quotations: fit everything on ONE A4 page (fonts / spacing scale down with the amount of text). */
+  singlePage?: boolean;
+  /** When set, the kindly-note lines print under this heading (before Terms) as bullets, e.g. "Not Included (Exclusions)". */
+  exclusionsTitle?: string;
 };
 
+/** Rough line count of the longest column + table rows → scale factor for a single A4 page. Verified by tests/quotation-pdf.test.mts. */
+export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms">): number {
+  const wrap = (t: string, per: number) => Math.max(1, Math.ceil(t.length / per)) * 1;
+  const left = p.notes.reduce((n, t) => n + wrap(t, 66), 0) + p.kindlyNote.reduce((n, t) => n + wrap(t, 66), 0) + p.terms.split("\n").reduce((n, t) => n + wrap(t, 66), 0);
+  const table = p.rows.reduce((n, r) => n + (r.detail ? 2.6 : 1.7), 0);
+  const load = left + table * 1.4;
+  if (load <= 40) return 1;
+  if (load <= 50) return 0.92;
+  if (load <= 62) return 0.84;
+  return 0.76;
+}
+
 export function SaharaBillDocument(p: BillDocumentProps) {
+  const s: Styles = makeStyles(p.singlePage ? fitFactor(p) : 1);
   const hasBank = !!(p.bank?.account || p.bank?.ifsc);
   return (
     <Document title={`${p.title} ${p.number}`}>
@@ -193,8 +215,16 @@ export function SaharaBillDocument(p: BillDocumentProps) {
                   ))}
                 </>
               )}
+              {p.exclusionsTitle && p.kindlyNote.length > 0 && (
+                <>
+                  <Text style={s.secTitle}>{p.exclusionsTitle}</Text>
+                  {p.kindlyNote.map((n, i) => (
+                    <Text key={i} style={s.para}>• {n}</Text>
+                  ))}
+                </>
+              )}
               <Text style={s.secTitle}>Terms &amp; Conditions</Text>
-              {p.kindlyNote.length > 0 && (
+              {!p.exclusionsTitle && p.kindlyNote.length > 0 && (
                 <>
                   <Text style={s.para}>Kindly Note:</Text>
                   {p.kindlyNote.map((n, i) => (

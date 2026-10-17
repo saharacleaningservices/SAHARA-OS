@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CONTACT_TYPE_LABEL, categoryChoices } from "@/lib/contact-category";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,8 +23,6 @@ import { createLead, updateLead } from "@/server/actions/leads";
 import { getRepeatCustomerSummary, searchCustomersQuick } from "@/server/actions/customer-actions";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { ServiceQuantityFields } from "@/components/shared/service-quantity-fields";
-import { MapsLocationInput } from "@/components/shared/maps-location-input";
-import { parseMapLink } from "@/lib/maps";
 import { TeamSelect } from "@/components/shared/team-select";
 import { ACQUISITION_CHANNELS } from "@/lib/attribution";
 import { PackageCalculator } from "@/components/shared/package-calculator";
@@ -56,7 +55,7 @@ export function LeadForm({
   userOptions,
   defaultValues,
   leadId,
-  mapsApiKey = null,
+  mapsApiKey: _mapsApiKey = null, // kept for callers; the map picker was replaced by a paste-a-link field
   canEditPricing = false,
   book = false,
 }: {
@@ -420,19 +419,14 @@ export function LeadForm({
           {!leadId && (
             <div className="flex flex-wrap items-end gap-3 sm:col-span-2">
               <div className="min-w-0 flex-1 space-y-1.5">
-                <Label htmlFor="contactType">Contact Type</Label>
+                <Label htmlFor="contactType">Category</Label>
                 <select
                   id="contactType"
                   value={watch("contactType") || "CUSTOMER"}
                   onChange={(e) => setValue("contactType", e.target.value, { shouldDirty: true })}
                   className="h-9 w-full rounded-md border bg-background px-2 text-sm"
                 >
-                  <option value="CUSTOMER">Customer</option>
-                  <option value="BROKER">Broker</option>
-                  <option value="ARCHITECT">Architect</option>
-                  <option value="INTERIOR_DESIGNER">Interior Designer</option>
-                  <option value="SOCIETY">Society / Facility</option>
-                  <option value="CORPORATE">Corporate / Other</option>
+                  {categoryChoices(watch("contactType")).map((v) => <option key={v} value={v}>{CONTACT_TYPE_LABEL[v]}</option>)}
                 </select>
               </div>
               <label className="flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-medium">
@@ -477,25 +471,13 @@ export function LeadForm({
               </div>
             </div>
           )}
-          <div className="space-y-1.5">
-            <Label htmlFor="pinCode">PIN Code</Label>
-            <Input id="pinCode" {...register("pinCode")} placeholder="411028" inputMode="numeric" maxLength={6} />
-            {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
-          </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="address">Site Address / Work Location</Label>
             <Textarea id="address" {...register("address")} rows={2} placeholder="Where the work will be done — flat / house no, building, street, landmark, area" />
           </div>
-          <div className="sm:col-span-2">
-            <MapsLocationInput
-              apiKey={mapsApiKey}
-              value={{
-                mapLink: watch("mapLink") || "",
-                lat: parseMapLink(watch("mapLink"))?.lat ?? null,
-                lng: parseMapLink(watch("mapLink"))?.lng ?? null,
-              }}
-              onChange={(next) => setValue("mapLink", next.mapLink, { shouldDirty: true })}
-            />
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="mapLink">Google Maps location (paste link)</Label>
+            <Input id="mapLink" {...register("mapLink")} inputMode="url" autoComplete="off" placeholder="Paste the Google Maps link copied from WhatsApp / Maps" />
           </div>
         </CardContent>
       </Card>

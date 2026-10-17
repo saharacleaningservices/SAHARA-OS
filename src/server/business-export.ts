@@ -14,6 +14,8 @@
 // should not silently drop.
 
 import * as XLSX from "xlsx";
+import { categoryLabel } from "@/lib/contact-category";
+import { normalizeMobile } from "@/server/customer-db";
 import { unparse } from "papaparse";
 import { db } from "@/lib/db";
 import { COMPANY } from "@/lib/constants";
@@ -44,6 +46,7 @@ export async function collectBusinessExportDatasets(): Promise<ExportDataset[]> 
     "Customer ID": c.id,
     Name: c.name,
     "Primary Mobile": c.mobile,
+    Category: categoryLabel(c.contactType),
     "Alternative Mobile": c.alternateMobile ?? "",
     Address: c.address ?? "",
     Area: c.area ?? "",
@@ -54,11 +57,13 @@ export async function collectBusinessExportDatasets(): Promise<ExportDataset[]> 
     "Created At": csvDateTime(c.createdAt),
   }));
 
+  const categoryByMobile = new Map(customers.map((c) => [normalizeMobile(c.mobile), categoryLabel(c.contactType)] as const));
   const leadsRows = leads.map((l) => ({
     "Lead ID": l.id,
     "Lead Number": l.leadNumber,
     Name: l.name,
     Mobile: l.mobile,
+    Category: categoryByMobile.get(normalizeMobile(l.mobile)) ?? categoryLabel(null),
     "Alternative Mobile": l.alternateMobile ?? "",
     Email: l.email ?? "",
     Address: l.address ?? "",
