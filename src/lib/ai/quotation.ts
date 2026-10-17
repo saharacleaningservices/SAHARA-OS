@@ -89,7 +89,7 @@ export function draftQuotation(lead: {
       : []),
     `Total: ${formatINR(total)}`,
     ``,
-    `This quote is valid for 7 days. 50% advance confirms your booking; the balance is due on completion.`,
+    `This quote is valid for 7 days. 20% advance confirms your booking; the 80% balance is payable after the work is completed.`,
     `Reply here or call us on ${COMPANY.phones[0]} to confirm — we'd love to get you booked in!`,
   ].join("\n");
 

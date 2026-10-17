@@ -19,7 +19,7 @@ import { deleteJob, bulkDeleteJobs } from "@/server/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
-import { formatDateShort, formatINR, dayBucket, todayTomorrowFirst, cn } from "@/lib/utils";
+import { formatDateShort, formatINR, dayBucket, cn } from "@/lib/utils";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
 type Job = {
@@ -41,6 +41,7 @@ type Job = {
   assignments: { staff: { name: string } }[];
   payments: { status: string; amount: number; paidAmount: number }[];
   vehicle?: { name: string; plateNumber: string } | null;
+  lead?: { leadNumber: string } | null;
 };
 
 const PAGE_SIZE = 12;
@@ -86,7 +87,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const matches = jobs.filter((job) => {
-      if (q && !`${job.customerName} ${job.jobNumber} ${job.area}`.toLowerCase().includes(q)) return false;
+      if (q && !`${job.customerName} ${job.jobNumber} ${job.lead?.leadNumber ?? ""} ${job.area}`.toLowerCase().includes(q)) return false;
       if (statusFilter !== "ALL" && job.status !== statusFilter) return false;
       if (whenParam === "yesterday" && !isYesterday(job.scheduledDate)) return false;
       if (whenParam === "today" && dayBucket(job.scheduledDate) !== "TODAY") return false;
@@ -94,7 +95,8 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
       if (serviceParam && job.service !== serviceParam) return false;      
       return true;
     });
-    return todayTomorrowFirst(matches, (j) => j.scheduledDate, (j) => j.scheduledTime);
+    // Server order is kept: strict date-wise, newest first.
+    return matches;
   }, [jobs, search, statusFilter, whenParam, serviceParam]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -202,7 +204,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                           <CustomerHistoryButton jobId={job.id} name={job.customerName} />
                         </span>
                         <p className="text-xs text-muted-foreground">
-                          {job.jobNumber} · {job.area}
+                          {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""} · {job.area}
                         </p>
                       </TableCell>
                       <TableCell className="text-sm">
@@ -307,7 +309,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                         <CustomerHistoryButton jobId={job.id} name={job.customerName} />
                       </span>
                       <p className="truncate text-xs text-muted-foreground">
-                        {job.jobNumber} · {job.area}
+                        {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""} · {job.area}
                       </p>
                       <p className="mt-1 text-xs text-foreground">
                         {isToday ? <span className="font-semibold text-success">Today</span> : formatDateShort(job.scheduledDate)} ·{" "}

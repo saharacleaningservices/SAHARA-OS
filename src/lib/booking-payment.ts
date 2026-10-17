@@ -4,11 +4,18 @@
 // verification until staff record it in the CRM (authenticated actions only).
 
 /**
- * Advance rule: the standard booking terms say "50% advance payment confirms the booking; balance is
- * due on job completion" (QUOTATION_TERMS). One number, used by the booking summary and confirmation.
+ * Advance rule (owner decision 2026-10-18): 20% advance confirms the booking, the 80% balance is payable
+ * after work completion. One number, used by the booking summary, confirmation, quotation and invoice PDFs.
  * Display only — the server re-prices, and a payment is never marked paid until staff record it.
  */
-export const ADVANCE_PERCENT = 50;
+export const ADVANCE_PERCENT = 20;
+
+/** Advance / balance split printed on quotations and invoices. Advance is rounded; balance is the exact remainder. */
+export function paymentSplit(total: number) {
+  const t = Math.max(0, Math.round((Number.isFinite(total) ? total : 0) * 100) / 100);
+  const advance = Math.round((t * ADVANCE_PERCENT) / 100 * 100) / 100;
+  return { total: t, advance, balance: Math.round((t - advance) * 100) / 100, percent: ADVANCE_PERCENT, balancePercent: 100 - ADVANCE_PERCENT };
+}
 
 /**
  * Customer-facing payment details from CRM Settings (owner-maintained). Null when nothing is set up,

@@ -6,7 +6,9 @@ import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, rupeesInWords } from "@/lib/document-scope";
 import { getSession } from "@/lib/session";
 import { formatDate } from "@/lib/utils";
-import { QUOTATION_TERMS } from "@/lib/constants";
+import { QUOTATION_TERMS, SERVICE_LABELS } from "@/lib/constants";
+import { paymentSplit } from "@/lib/booking-payment";
+import { modernizePaymentTerms } from "@/lib/quotation-template";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Previously had NO auth check at all — anyone with the (hard-to-guess but
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       payment: true,
       job: {
         select: {
-          jobNumber: true, service: true, packageName: true, serviceVariant: true, serviceItems: true, scopeOfWork: true, completedAt: true, scheduledDate: true,
+          jobNumber: true, propertyType: true, lead: { select: { leadNumber: true, email: true } }, service: true, packageName: true, serviceVariant: true, serviceItems: true, scopeOfWork: true, completedAt: true, scheduledDate: true,
           payments: { where: { deletedAt: null }, select: { paidAmount: true } },
         },
       },
@@ -66,8 +68,17 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       copyLabel: "ORIGINAL FOR RECIPIENT",
       number: invoice.invoiceNumber,
       date: formatDate(invoice.createdAt),
-      extraMeta: invoice.job ? [{ label: "Job ID", value: invoice.job.jobNumber }] : [],
-      billTo: { name: invoice.customerName, address: invoice.customerAddress, mobile: invoice.customerMobile },
+      extraMeta: invoice.job ? [{ label: "Job ID", value: invoice.job.jobNumber }, ...(invoice.job.lead ? [{ label: "Lead ID", value: invoice.job.lead.leadNumber }] : [])] : [],
+      billTo: {
+        name: invoice.customerName,
+        address: invoice.customerAddress,
+        mobile: invoice.customerMobile,
+        email: invoice.job?.lead?.email ?? null,
+        details: invoice.job
+          ? [...(invoice.job.propertyType ? [{ label: "Property", value: invoice.job.propertyType }] : []), { label: "Service", value: SERVICE_LABELS[invoice.job.service as keyof typeof SERVICE_LABELS] ?? invoice.job.service }]
+          : [],
+      },
+      paymentSplit: paymentSplit(invoice.totalAmount),
       rows: table.rows,
       subtotalRow: table.subtotal,
       totals: { subtotal: invoice.subTotal, discount: invoice.discount, gstPercent: invoice.gstPercent, gstAmount: invoice.gstAmount, total: invoice.totalAmount, received, balance },
@@ -75,7 +86,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       notes: scope.notes,
       kindlyNote: scope.kindlyNote,
       // Approved terms, minus the quotation-validity line (not meaningful on an invoice).
-      terms: (invoice.terms || QUOTATION_TERMS)
+      terms: modernizePaymentTerms(invoice.terms || QUOTATION_TERMS)
         .split("\n")
         .filter((l) => !/quotation is valid/i.test(l))
         .join("\n"),

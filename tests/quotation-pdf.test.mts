@@ -17,6 +17,8 @@ import {
   resolveQuotationTerms,
 } from "../src/lib/quotation-template";
 import type { BillDocumentProps } from "../src/lib/pdf/sahara-bill-document";
+import { paymentSplit } from "../src/lib/booking-payment";
+import { modernizePaymentTerms } from "../src/lib/quotation-template";
 
 // @react-pdf ships ESM-only subpaths that plain CJS require() cannot resolve, so the PDF component is bundled
 // (own source only, packages external) into a native ESM file inside the project and imported from there.
@@ -46,7 +48,10 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
     date: "17/10/2026",
     extraMeta: [{ label: "Valid Till", value: "24/10/2026" }],
     company: { name: "Sahara Cleaning Services", tagline: "Deep Cleaning & Painting Service.", phone: "7083347130", email: "contact@saharacleaningservices.com", address: "Opposite of South gate, Magarpatta city Hadapsar Pune 411028", website: "www.saharacleaningservices.com", gstin: "27DMTPS3584R2ZJ" },
-    billTo: { name: "Test Customer", address: "Flat 501, Test Society, Wadgaonsheri, Pune, Maharashtra, 411014", mobile: "9000000001" },
+    billTo: { name: "Test Customer", address: "Flat 501, Test Society, Wadgaonsheri, Pune, Maharashtra, 411014", mobile: "9000000001", email: "test.customer@example.com", details: [{ label: "Property", value: "2 BHK Flat" }, { label: "Service", value: "Full Home Cleaning" }] },
+    paymentSplit: paymentSplit(total),
+    bookQrDataUrl: await QRCode.toDataURL("https://booking.example.test/booking", { margin: 1, width: 200 }),
+    bookUrl: "https://booking.example.test/booking",
     rows: table.rows,
     subtotalRow: table.subtotal,
     totals: { subtotal: subTotal, discount, gstPercent: opts.gstPercent ?? 0, gstAmount, total },
@@ -81,6 +86,7 @@ test("owner wording: premium scope, platinum adds wall wet cleaning, 3 exclusion
   const terms = STANDARD_TERMS_LINES.join(" ").toLowerCase();
   assert.ok(terms.includes("emptied") && terms.includes("ladder") && terms.includes("100%") && terms.includes("upi or cash") && terms.includes("final inspection"));
   assert.ok(!terms.includes("minimum job value") && !terms.includes("50% advance"));
+  assert.ok(terms.includes("20% advance") && terms.includes("80% balance"));
   assert.equal(FREE_FRIDGE_NOTE, "(Single Fridge Internal Deep Cleaning Included FREE for this booking)");
 });
 
@@ -123,4 +129,18 @@ test("non-package quote (painting) fits one page; invoice mode (singlePage off) 
   const paint = { service: "INTERIOR_PAINTING", scopeOfWork: "Two coats of paint with putty and primer. Furniture covered. Free site inspection." };
   assert.equal(pages(await render({ lines: [{ name: "Interior Painting — 2 BHK", description: "", amount: 38000 }], lead: paint })), 1);
   assert.ok(pages(await render({ lines: ONE, singlePage: false })) >= 1);
+});
+
+test("20% advance / 80% balance: split adds up; old 50% and 100%-immediately wording prints as 20/80", () => {
+  for (const t of [7000, 4499, 12345.5, 0]) {
+    const p = paymentSplit(t);
+    assert.equal(p.percent, 20);
+    assert.equal(p.balancePercent, 80);
+    assert.equal(Math.round((p.advance + p.balance) * 100), Math.round(t * 100));
+  }
+  assert.equal(paymentSplit(7000).advance, 1400);
+  assert.equal(paymentSplit(7000).balance, 5600);
+  const old17 = STANDARD_TERMS_LINES.map((l, i) => `${i + 1}. ${i === 3 ? "Final inspection is required before the team leaves. 100% payment immediately via UPI or Cash." : l}`).join("\n");
+  assert.equal(resolveQuotationTerms(old17).text, STANDARD_TERMS_TEXT);
+  assert.ok(modernizePaymentTerms("3. 50% advance payment confirms the booking; balance is due on job completion.").includes("20% advance"));
 });
