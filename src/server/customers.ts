@@ -99,7 +99,7 @@ export async function getCustomersList(): Promise<CustomerRow[]> {
     .sort((a, b) => b.lastActivity.getTime() - a.lastActivity.getTime());
 }
 
-export const CUSTOMER_FILTERS = ["ALL", "CUSTOMER", "REPEAT", "BROKER", "ARCHITECT", "INTERIOR_DESIGNER", "SOCIETY", "CORPORATE", "ACTIVE", "INACTIVE", "DUPLICATES"] as const;
+export const CUSTOMER_FILTERS = ["ALL", "CUSTOMER", "REPEAT", "BROKER", "INTERIOR_DESIGNER", "VENDOR", "AMC_CLIENT", "CORPORATE", "ARCHITECT", "SOCIETY", "ACTIVE", "INACTIVE", "DUPLICATES"] as const;
 export type CustomerFilter = (typeof CUSTOMER_FILTERS)[number];
 export type CustomerFilters = { q?: string; filter?: string; page?: number; pageSize?: number };
 
@@ -109,7 +109,7 @@ function matchesFilter(c: CustomerRow, filter: string, activeSince: number) {
   switch (filter) {
     case "CUSTOMER": return c.contactType === "CUSTOMER";
     case "REPEAT": return c.isRepeat;
-    case "BROKER": case "ARCHITECT": case "INTERIOR_DESIGNER": case "SOCIETY": case "CORPORATE": return c.contactType === filter;
+    case "BROKER": case "ARCHITECT": case "INTERIOR_DESIGNER": case "VENDOR": case "AMC_CLIENT": case "SOCIETY": case "CORPORATE": return c.contactType === filter;
     case "ACTIVE": return c.lastActivity.getTime() >= activeSince;
     case "INACTIVE": return c.lastActivity.getTime() < activeSince;
     case "DUPLICATES": return c.variants > 1;

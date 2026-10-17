@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CONTACT_TYPE_LABEL, categoryChoices } from "@/lib/contact-category";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -418,19 +419,14 @@ export function LeadForm({
           {!leadId && (
             <div className="flex flex-wrap items-end gap-3 sm:col-span-2">
               <div className="min-w-0 flex-1 space-y-1.5">
-                <Label htmlFor="contactType">Contact Type</Label>
+                <Label htmlFor="contactType">Category</Label>
                 <select
                   id="contactType"
                   value={watch("contactType") || "CUSTOMER"}
                   onChange={(e) => setValue("contactType", e.target.value, { shouldDirty: true })}
                   className="h-9 w-full rounded-md border bg-background px-2 text-sm"
                 >
-                  <option value="CUSTOMER">Customer</option>
-                  <option value="BROKER">Broker</option>
-                  <option value="ARCHITECT">Architect</option>
-                  <option value="INTERIOR_DESIGNER">Interior Designer</option>
-                  <option value="SOCIETY">Society / Facility</option>
-                  <option value="CORPORATE">Corporate / Other</option>
+                  {categoryChoices(watch("contactType")).map((v) => <option key={v} value={v}>{CONTACT_TYPE_LABEL[v]}</option>)}
                 </select>
               </div>
               <label className="flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-medium">

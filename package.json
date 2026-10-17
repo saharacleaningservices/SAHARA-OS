@@ -20,6 +20,7 @@
     "test:capi": "tsx --test tests/meta-capi.test.ts",
     "test:quote": "tsx --test tests/quotation-pdf.test.mts",
     "test:nav": "tsx --test tests/nav-groups.test.ts",
+    "test:category": "tsx --test tests/contact-category.test.ts",
     "test:leadtrack": "tsx --test tests/lead-tracking.test.ts",
     "test:public": "tsx --test tests/public-input.test.ts",
     "test:ops": "tsx --test tests/ops-reminders.test.ts",
