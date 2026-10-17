@@ -424,3 +424,19 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - 2026-10-17 late: WebBrand SSL renewal e-mail **sent** (Gmail, with signature) to the WebBrand contact from the
   2022 thread (Ritesh Wankhade, RN WebBrand Solutions); earlier draft deleted. Awaiting reply. Handover saved in
   `docs/SESSION_HANDOVER.md`.
+
+### Update 2026-10-17 (night: audits, WebBrand report sent)
+- **Website audit (read-only) sent to WebBrand** (Gmail msg `1a149096f0d1f662`, signature included; SSL mail earlier
+  `1a148fbf1bac8ce5`; no bounce / reply yet). Full write-up: `docs/WEBBRAND_WEBSITE_SEO_SSL_AUDIT.md` (13 findings: no
+  analytics/ad tags, no booking CTA, keyword-stuffed title, TTFB 1.3–2.1 s, no H1 and no meta description on inner pages,
+  no asset cache headers, 10/16 images without alt, generic schema, missing security headers/HSTS). PageSpeed API
+  quota exceeded — curl timings only. Nothing on the main site was changed.
+- **Booking-site fix:** `/housekeeping-services` had no Open Graph tags; fixed on `fix/housekeeping-og` (`test:og` 1/1,
+  tsc/eslint/build OK). Not merged.
+- **Google Ads (988-668-0860):** conversions summary shows no data / no goals measured in last 7 days; Access page could
+  not be opened (Chrome ad-blocker banner) → ownership/MCC status BLOCKED. **Meta dataset 2014299429231265 "Sahara
+  Cleaning Services": no activity received** (Pixel not on the site, CAPI not live). **Google Business Profile:**
+  5 businesses, 4 verified (2 Sahara profiles with different addresses — NAP conflict; Paint Master, Twin Decor), 1
+  permanently closed/suspended (Paint Master duplicate).
+- **Backup:** Drive holds daily archives (latest 17 Oct 04:24 IST, 5.4 MB, plus 14–16 Oct); workflow verifies SQLite before
+  upload. Restore into an isolated copy not yet performed (`scripts/restore-drill.mjs` exists).
