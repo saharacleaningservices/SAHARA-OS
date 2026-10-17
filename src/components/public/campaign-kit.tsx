@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { bookingLink } from "@/lib/social-links";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
@@ -152,6 +153,7 @@ export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string |
             <p className="text-xs">GSTIN: {COMPANY.gstin}</p>
             <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">{CONTACT.email}</a>
             <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">www.saharacleaningservices.com</a>
+            <a href={bookingLink("sahara_site", "site_footer", "book_online")} className="flex min-h-11 items-center gap-1.5 text-xs font-bold text-primary hover:underline">Book online — pick a date &amp; slot →</a>
             <div className="flex gap-2 pt-1">
               {social.map(({ href, label, icon: Icon }) => (
                 <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white"><Icon className="size-4" /></a>

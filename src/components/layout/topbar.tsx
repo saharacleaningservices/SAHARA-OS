@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { CrmLanguageSwitcher } from "./crm-language-switcher";
+import { crmT, useCrmLang } from "@/lib/crm-i18n";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Menu, LogOut, User as UserIcon, Settings } from "lucide-react";
@@ -36,7 +38,8 @@ export function Topbar({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const pageLabel = NAV_ITEMS.find((item) => pathname === item.href || pathname.startsWith(item.href + "/"))?.label ?? "Sahara OS";
+  const lang = useCrmLang();
+  const pageLabel = crmT(lang, NAV_ITEMS.find((item) => pathname === item.href || pathname.startsWith(item.href + "/"))?.label ?? "Sahara OS");
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -53,7 +56,7 @@ export function Topbar({
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <SidebarNav role={role} logoUrl={logoUrl} onNavigate={() => setOpen(false)} />
         </SheetContent>
-        <Button variant="ghost" size="icon" className="size-11 rounded-xl md:size-9 lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
+        <Button variant="ghost" size="icon" className="size-11 rounded-xl md:size-9 lg:hidden" onClick={() => setOpen(true)} aria-label={crmT(lang, "Open navigation")}>
           <Menu className="size-5" />
         </Button>
       </Sheet>
@@ -77,6 +80,7 @@ export function Topbar({
         <p className="hidden truncate text-sm font-semibold text-foreground md:block">{pageLabel}</p>
       )}
 
+      <CrmLanguageSwitcher />
       {(role === "ACCOUNTS" || role === "OPERATIONS") && <NewInquiryAlert />}
       <NotificationsBell />
       {(role === "ADMIN" || role === "ACCOUNTS") && <EodSummaryModal />}
@@ -103,19 +107,19 @@ export function Topbar({
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link href="/profile">
-              <UserIcon /> My Profile
+              <UserIcon /> {crmT(lang, "My Profile")}
             </Link>
           </DropdownMenuItem>
           {role === "ADMIN" && (
             <DropdownMenuItem asChild>
               <Link href="/settings">
-                <Settings /> Settings
+                <Settings /> {crmT(lang, "Settings")}
               </Link>
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
-            <LogOut /> Log out
+            <LogOut /> {crmT(lang, "Log out")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
