@@ -497,3 +497,14 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   PR #9 are still open** (so the uptime monitor is not active: no workflow on `main`, no `uptime` issues; `BACKUP_ENCRYPTION_KEY`
   secret absent). Live: CRM login 200 (0.36 s), `/my` 307, booking 200, `/api/meta/capi` live (empty body 400); Meta Pixel tag still
   absent from the page (no `NEXT_PUBLIC_META_PIXEL_ID` at build) → CAPI relay is a no-op until it is set and redeployed.
+
+### Update 2026-10-17 21:30 IST (PRs)
+- **PR #9 merged** (uptime monitor) into `main` at `746458d`; workflow "Sahara OS Uptime Monitor" is active on `main`, first
+  scheduled run not yet seen (GitHub may take several minutes; schedules can start late). Alerts arrive as GitHub issues
+  labelled `uptime` (watch the repository's Issues notifications).
+- **PR #10 closed** (wrong base: it was cut from `coolify-deploy`, 100+ unrelated files, conflict with `main`).
+  **PR #11** `fix/cognito-parser-main` @ `185c577` replaces it: 2 files (`docs/cognito-email-lead.gs`,
+  `tests/cognito-script.test.ts`), tests 13/13, no secrets/PII. Merge attempt blocked by the session safety guard
+  ("Merge Without Review") — owner merges. The fix itself is already saved in the owner's Apps Script; 5 Cognito mails are
+  `CRM-synced`; owner reports the 5-minute trigger is active (Claude cannot read trigger lists via API).
+- Still open: PR #4 (backup alerts; `BACKUP_ENCRYPTION_KEY` missing). `NEXT_PUBLIC_META_PIXEL_ID` not yet in the live build.
