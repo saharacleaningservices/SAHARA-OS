@@ -7,6 +7,7 @@ import { Menu, LogOut, User as UserIcon, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { SidebarNav } from "./sidebar-nav";
+import { CompanyLogo } from "@/components/shared/company-logo";
 import { NAV_ITEMS } from "./nav-config";
 import {
   DropdownMenu,
@@ -57,9 +58,9 @@ export function Topbar({
         </Button>
       </Sheet>
 
-      {/* Text wordmark — no image to load. Desktop (lg+) already shows the brand in the sidebar. */}
-      <Link href="/dashboard" className="flex min-h-11 shrink-0 select-none items-center text-lg font-extrabold tracking-tight text-foreground lg:hidden" aria-label="Sahara OS home">
-        Sahara<span className="text-primary">OS</span>
+      {/* Brand logo on phones / tablets (owner 2026-10-18). Desktop (lg+) shows it in the sidebar. */}
+      <Link href="/dashboard" className="flex min-h-11 shrink-0 select-none items-center lg:hidden" aria-label="Sahara OS home">
+        <CompanyLogo logoUrl={logoUrl} className="h-8 w-auto max-w-[96px] sm:max-w-[120px]" />
       </Link>
 
       <div className="min-w-0 flex-1">

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { verifyPassword } from "@/lib/auth";
-import { createSessionToken, setSessionCookie } from "@/lib/session";
+import { DEVICE_GATED_ROLES, finishLogin } from "@/server/login-session";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { getDeviceToken, setDeviceCookie, generateDeviceToken, generateOtp, labelFromUserAgent } from "@/lib/device";
 import { sendWhatsApp } from "@/lib/whatsapp";
@@ -15,11 +15,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-// Roles that require the Super Admin (Altaf) to approve every new device
-// before a session is issued — the Operations Manager (Shoyab, OPERATIONS),
-// the Field Coordinator (Francis, SUPERVISOR) and any future Office Assistant
-// (ACCOUNTS). Not ADMIN (Altaf approves himself), not plain STAFF.
-const DEVICE_GATED_ROLES = new Set(["OPERATIONS", "ACCOUNTS", "SUPERVISOR"]);
+// DEVICE_GATED_ROLES (Operations, Accounts, Supervisor need the owner to approve each new device): server/login-session.ts
 const OTP_TTL_MINUTES = 15;
 
 export async function POST(request: NextRequest) {
@@ -182,44 +178,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const token = await createSessionToken({
-    sub: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    avatarUrl: user.avatarUrl,
-    ...(DEVICE_GATED_ROLES.has(user.role) ? { deviceId: (await getDeviceToken()) ?? undefined } : {}),
-  });
-
-  await setSessionCookie(token);
-
-  // Persistent login-history trail (2026-09-21 security audit finding — no
-  // successful login of any role, including ADMIN's own, was ever recorded
-  // anywhere before this; only device-approval requests were). Every
-  // successful login now shows up on /admin/audit-log.
-  await db.auditLog
-    .create({
-      data: {
-        entityType: "Login",
-        entityId: user.id,
-        action: "LOGIN_SUCCESS",
-        summary: `${user.name} (${user.role}) signed in from ${labelFromUserAgent(request.headers.get("user-agent"))} · ${ip}`,
-        actorName: user.name,
-        actorEmail: user.email,
-      },
-    })
-    .catch(() => {});
-
-  // Instant sign-in alert to the Super Admin for the two gated office accounts.
-  if (DEVICE_GATED_ROLES.has(user.role)) {
-    await notify({
-      kind: "LOGIN_ATTEMPT",
-      title: `${user.name} signed in`,
-      body: `${user.email} signed in from ${labelFromUserAgent(request.headers.get("user-agent"))} (${ip}).`,
-      href: "/admin/audit-log",
-      whatsappToAdmin: false,
-    });
-  }
+  // Session, audit trail and owner alert — shared with biometric sign-in (server/login-session.ts).
+  await finishLogin(user, request, "password");
 
   return NextResponse.json({
     user: { id: user.id, name: user.name, role: user.role, email: user.email },

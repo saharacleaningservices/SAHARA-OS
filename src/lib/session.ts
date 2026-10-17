@@ -64,9 +64,13 @@ export async function getSession(): Promise<SessionPayload | null> {
   return (await isSessionCurrent(payload.sub, payload.sv ?? 0)) ? payload : null;
 }
 
-/** Sign a user out of every device (password reset, access disabled). */
+/** Sign a user out of every device (password reset, access disabled). Their biometric passkeys are removed too,
+ *  so a lost / shared phone can't sign back in after a reset — they re-enable it after the next password sign-in. */
 export async function revokeUserSessions(userId: string) {
-  await db.user.update({ where: { id: userId }, data: { sessionVersion: { increment: 1 } } });
+  await db.$transaction([
+    db.user.update({ where: { id: userId }, data: { sessionVersion: { increment: 1 } } }),
+    db.webAuthnCredential.deleteMany({ where: { userId } }),
+  ]);
 }
 
 export async function setSessionCookie(token: string) {

@@ -247,6 +247,7 @@ model User {
   paymentsRecorded      Payment[]     @relation("PaymentRecordedBy")
   timelineEntries        TimelineEntry[] @relation("TimelineAuthor")
   devices               Device[]
+  webauthnCredentials   WebAuthnCredential[]
 
   @@index([role])
 }
@@ -1751,4 +1752,22 @@ model OpsReminderSettings {
   staffSignupNeedsApproval Boolean @default(true)
   updatedByName           String?
   updatedAt               DateTime @updatedAt
+}
+
+// Biometric / passkey sign-in (WebAuthn, 2026-10-18). One row per device a user enabled Face ID /
+// fingerprint / screen lock on. Only the PUBLIC key is stored — biometric data never leaves the phone.
+// Removed with the user, and when their sessions are revoked (password / PIN reset, access disabled).
+model WebAuthnCredential {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialId String    @unique // base64url
+  publicKey    String // base64url COSE public key
+  counter      Int       @default(0)
+  transports   String? // JSON array, e.g. ["internal","hybrid"]
+  label        String? // "Android · Chrome" — from the browser at registration
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([userId])
 }

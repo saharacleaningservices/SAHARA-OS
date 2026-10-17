@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BiometricSettings } from "@/components/profile/biometric-settings";
+import { listMyPasskeys } from "@/server/actions/webauthn";
 import { getStaffLang } from "@/server/staff-lang";
 import { staffLocale, staffT } from "@/lib/staff-i18n";
 import { KeyRound } from "lucide-react";
@@ -49,6 +51,10 @@ export default async function StaffAccountPage() {
         <>
       <Section title={t("notifications")}>
         <PushControl />
+      </Section>
+
+      <Section title="Face ID / Fingerprint">
+        <BiometricSettings initial={await listMyPasskeys()} />
       </Section>
 
       <Section
