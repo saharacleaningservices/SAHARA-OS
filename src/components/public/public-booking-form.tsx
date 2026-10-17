@@ -465,7 +465,7 @@ export function PublicBookingForm({
     // One lead = one event per platform: trackLead sends GA4 generate_lead, the Google Ads conversion and the
     // Meta Pixel Lead event (no-ops when an ID is not configured). A second, direct Meta Lead call here used to
     // count every booking twice in Meta (fixed 2026-10-16).
-    trackLead({ category, variant });
+    trackLead({ category, variant, mobile });
     setDone({ leadNumber: res.leadNumber, advancePaid });
   }
 
