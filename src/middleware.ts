@@ -45,6 +45,8 @@ const PUBLIC_PATHS = [
   "/data-deletion",
   "/api/auth/login",
   "/api/auth/device-status",
+  // Biometric sign-in (public challenge + verify only; register / unlock need a session).
+  "/api/auth/webauthn/login",
   "/api/backup",
   "/api/cron",
   "/api/booking-link",
