@@ -232,7 +232,6 @@ export function BookingWizard({
   const [altMobile, setAltMobile] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
-  const [pinCode, setPinCode] = useState("");
   const [mapLink, setMapLink] = useState("");
   const [locating, setLocating] = useState(false);
   const [pay, setPay] = useState<"PAY_ADVANCE" | "PAY_AFTER_SERVICE" | "">("");
@@ -363,7 +362,6 @@ export function BookingWizard({
       /^\d{10}$/.test(mobile.replace(/\D/g, "").slice(-10)) &&
       address.trim().length >= 5 &&
       (!altDigits || altDigits.length >= 10) &&
-      (!pinCode.trim() || /^\d{6}$/.test(pinCode.trim())) &&
       (!email.trim() || /^\S+@\S+\.\S+$/.test(email.trim())));
 
   function useCurrentLocation() {
@@ -468,7 +466,7 @@ export function BookingWizard({
         email: email.trim(),
         area: address.trim().slice(0, 80),
         address: address.trim(),
-        pinCode: pinCode.trim(),
+        pinCode: "", // PIN is part of the address text now
         mapLink,
         ...m,
         comboServices: lines.filter((l) => COMBOS.some((c) => c.name === l.label)).map((l) => l.label),
@@ -1174,8 +1172,6 @@ export function BookingWizard({
           {step(5, "Service address", address.trim().length >= 5)}
           <textarea className={`${input} mt-3 h-24 py-2.5`} autoComplete="street-address" placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
           <FieldHint show={!!address && address.trim().length < 5}>Add flat, building / society and area</FieldHint>
-          <input className={`${input} mt-2`} autoComplete="postal-code" placeholder="PIN code (6 digits, optional)" inputMode="numeric" maxLength={6} value={pinCode} onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))} />
-          <FieldHint show={!!pinCode.trim() && !/^\d{6}$/.test(pinCode.trim())}>PIN code must be 6 digits</FieldHint>
           <button
             type="button"
             onClick={useCurrentLocation}
@@ -1184,6 +1180,14 @@ export function BookingWizard({
             {locating ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
             {mapLink ? "Google Maps location added ✓" : "Add Google Maps location (optional)"}
           </button>
+          <input
+            className={`${input} mt-2`}
+            inputMode="url"
+            autoComplete="off"
+            placeholder="Or paste Google Maps link (optional)"
+            value={mapLink}
+            onChange={(e) => setMapLink(e.target.value.trim().slice(0, 500))}
+          />
           <label htmlFor="bk-marketing-optin" className="mt-3 flex cursor-pointer items-start gap-2.5 rounded-xl bg-[#f6f9fc] p-3 text-[13px] leading-snug text-[#0a2540]/85">
             <input id="bk-marketing-optin" type="checkbox" className="mt-0.5 size-5 shrink-0" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} />
             <span>
