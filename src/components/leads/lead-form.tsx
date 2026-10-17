@@ -22,8 +22,6 @@ import { createLead, updateLead } from "@/server/actions/leads";
 import { getRepeatCustomerSummary, searchCustomersQuick } from "@/server/actions/customer-actions";
 import { ServiceCategoryPicker } from "@/components/shared/service-category-picker";
 import { ServiceQuantityFields } from "@/components/shared/service-quantity-fields";
-import { MapsLocationInput } from "@/components/shared/maps-location-input";
-import { parseMapLink } from "@/lib/maps";
 import { TeamSelect } from "@/components/shared/team-select";
 import { ACQUISITION_CHANNELS } from "@/lib/attribution";
 import { PackageCalculator } from "@/components/shared/package-calculator";
@@ -56,7 +54,7 @@ export function LeadForm({
   userOptions,
   defaultValues,
   leadId,
-  mapsApiKey = null,
+  mapsApiKey: _mapsApiKey = null, // kept for callers; the map picker was replaced by a paste-a-link field
   canEditPricing = false,
   book = false,
 }: {
@@ -477,25 +475,13 @@ export function LeadForm({
               </div>
             </div>
           )}
-          <div className="space-y-1.5">
-            <Label htmlFor="pinCode">PIN Code</Label>
-            <Input id="pinCode" {...register("pinCode")} placeholder="411028" inputMode="numeric" maxLength={6} />
-            {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
-          </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="address">Site Address / Work Location</Label>
             <Textarea id="address" {...register("address")} rows={2} placeholder="Where the work will be done — flat / house no, building, street, landmark, area" />
           </div>
-          <div className="sm:col-span-2">
-            <MapsLocationInput
-              apiKey={mapsApiKey}
-              value={{
-                mapLink: watch("mapLink") || "",
-                lat: parseMapLink(watch("mapLink"))?.lat ?? null,
-                lng: parseMapLink(watch("mapLink"))?.lng ?? null,
-              }}
-              onChange={(next) => setValue("mapLink", next.mapLink, { shouldDirty: true })}
-            />
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="mapLink">Google Maps location (paste link)</Label>
+            <Input id="mapLink" {...register("mapLink")} inputMode="url" autoComplete="off" placeholder="Paste the Google Maps link copied from WhatsApp / Maps" />
           </div>
         </CardContent>
       </Card>
