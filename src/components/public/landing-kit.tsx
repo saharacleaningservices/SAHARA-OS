@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { socialLinks } from "@/lib/social-links";
 import type { ReactNode } from "react";
 import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe } from "lucide-react";
-import { FaFacebookF, FaGoogle, FaInstagram, FaYoutube } from "react-icons/fa";
+import { FaFacebookF, FaGoogle, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
@@ -28,11 +29,8 @@ export const BASE_URL = "https://booking.saharacleaningservices.com";
 const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAppLink(number)}?text=${encodeURIComponent(text)}`;
 
 // Verified public profiles (checked 30 Sep 2026) — only these are linked.
-export const SOCIAL = [
-  { href: "https://www.facebook.com/saharacleaningservices", label: "Facebook", icon: FaFacebookF },
-  { href: "https://www.instagram.com/saharacleaningservices.pune/", label: "Instagram", icon: FaInstagram },
-  { href: "https://www.youtube.com/channel/UCHfIf88WCd5HE0L1CU5iBXA", label: "YouTube", icon: FaYoutube },
-];
+const SOCIAL_ICON = { facebook: FaFacebookF, instagram: FaInstagram, youtube: FaYoutube, linkedin: FaLinkedinIn } as const;
+export const SOCIAL = socialLinks("site_footer").map((s) => ({ href: s.href, label: s.label, icon: SOCIAL_ICON[s.key as keyof typeof SOCIAL_ICON] }));
 
 // Service pages, for internal linking between the campaign landings.
 export const SERVICE_LINKS = [
