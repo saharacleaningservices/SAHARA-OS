@@ -565,3 +565,18 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   Connected App"); owner submits it himself. Before that confirm: number registered ≥ 30 days, display name Approved, two-step verification on (not checked) —
   a rejection blocks a new request for about 30 days; Meta also judges notability (independent, unpaid coverage).
 - One-hour timer started 22:30 IST for the CAPI/dedup recheck (Events Manager dataset 2014299429231265, LD-2026-0256 and live leads).
+
+### Update 2026-10-17 23:35 IST (release 2026-10-17b + Events Manager check)
+- **PR #13** `release/2026-10-17b` → `coolify-deploy` (head `fb2ff8e`; supersedes #12): single-page quotation; PIN field removed from CRM lead form and public wizard +
+  paste-a-link Google Maps field; Jobs/Leads lists newest-ID-first (today/tomorrow still pinned); sidebar = 5 accordion groups; action bar = Package Calculator,
+  New Lead, Send Offer; greeting banner = stat cards; PWA icons fixed (manifest used the 415×140 logo as 512×512 maskable; apple-icon forced it into a square).
+  Checks: tsc 0, eslint 0 errors, `next build` OK; tests quote 6, b2b 5, capi 9, cognito 25, roles 9, nav 6, domains 4, public 5, pricing 63, leadtrack 2, polling 2.
+  Browser check at 375 px on a QA DB copy: hero cards, accordion, icons. **Merge blocked by the session safety guard ("Production Deploy") → owner merges; Coolify
+  auto-deploys the webhook.** Backups before deploy: Drive archive 17 Oct 04:24 IST, Hostinger snapshot 17 Oct 13:12.
+- **Not built (owner decision):** discount (% / flat ₹) and complimentary add-on dropdown on the lead form — discounts/complimentary lines are stored only through the
+  package draft with pricing enforcement and role checks; quote terms now say 100% payment on completion while `booking-payment.ts` still computes a 50% advance.
+- **Meta Events Manager (dataset 2014299429231265, 23:27 IST):** integrations "Conversions API • Meta Pixel"; `Lead` active, source "Multiple", event match quality 4.9/10,
+  4 events (browser 1, server 3); `PageView` 3 (Pixel). Diagnostics: no errors. Meta shows "Improve deduplication for this event" → **deduplication NOT confirmed**
+  (1 browser vs 3 server events; two server events are Claude's relay tests). Test lead LD-2026-0256 still to be trashed by the owner. Next check: after real leads arrive
+  (each should show one Lead with Browser+Server and no "improve deduplication" hint); EMQ should rise once _fbp/_fbc or e-mail are sent.
+- Local QA only: `.claude/launch.json` got a `sahara-dev-capi` entry (port 3006, QA DB copy); throwaway QA password lives only in that scratch DB.
