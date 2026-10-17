@@ -22,6 +22,7 @@ import { BusinessTargetCard } from "./business-target-card";
 import { RevenueIntelligence } from "./revenue-intelligence";
 import { QuickDispatch } from "./quick-dispatch";
 import { DashboardModules } from "@/components/dashboard/dashboard-modules";
+import { HeroStats } from "@/components/dashboard/hero-stats";
 import { CollapsibleList, ListRow } from "@/components/dashboard/tabbed-dashboard";
 import { StatusPill } from "@/components/shared/status-pill";
 import { getSlotBoard } from "@/server/actions/slot-control";
@@ -113,22 +114,7 @@ export async function getOwnerDashboardSections({
     }
   }
 
-  const hero = (
-    <div className="sahara-gradient rounded-2xl p-4 text-white sm:p-5">
-      <h1 className="text-xl font-semibold text-white sm:text-2xl">{getGreeting()}, {ownerName}</h1>
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {chips.map((c) => (
-          <Link
-            key={c.label}
-            href={c.href}
-            className={`rounded-full px-2.5 py-1 text-xs font-medium ${c.count > 0 ? "bg-white text-foreground" : "bg-white/15 text-white/80"}`}
-          >
-            <span className="font-bold">{c.count}</span> {c.label}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+  const hero = <HeroStats greeting={getGreeting()} name={ownerName} chips={chips} />;
 
   const inquiries = (
     <>
