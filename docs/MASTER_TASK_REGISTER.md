@@ -467,3 +467,15 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   expired) is not met — the failing test was 09:27 IST 17 Oct, now 14:40 IST; earliest ~09:30 IST 18 Oct. Also the draft's
   "furniture covered" claim (painting) needs owner confirmation, and header images must be uploaded.
 - **WebBrand:** audit e-mail already sent (`1a149096f0d1f662`); no reply or bounce in Gmail yet. Not resent.
+
+### Incident 2026-10-17 — VPS unreachable, restored by reboot
+- ~18:10 IST: crm./booking./app. all timed out (no HTTP status); VPS 187.53.134.175 ports 22/80/443/8000 timed out,
+  ping 100 % loss, also from an external checker. Owner had seen 502 on mobile earlier. hPanel showed "Running"
+  (CPU 9 %, RAM 26 %, disk 11/100 GB, 0 firewall rules, no DDoS events); only action that day: weekly Hostinger
+  snapshot `backup_create` 13:12 (Success). Claude's reboot click was blocked by the session safety guard.
+- Owner rebooted from hPanel. 18:21 IST: crm `/` 307 → /login, `/login` 200 (TTFB 0.60 s), `/dashboard` and `/my` 307 → login,
+  booking `/booking` 200, unknown page 404, app. 307, ports 80/443/8000 open, certificate valid to 22 Dec 2026,
+  email-lead webhook 401 (fails closed), GA4 tag present.
+- Root cause not confirmed (Coolify/container logs not read — dashboard reads are guard-blocked). Next: owner checks
+  Coolify → app → Logs around 13:00–18:20 IST; add a free external uptime monitor (e.g. 5-minute HTTPS check of
+  `/login`) so an outage alerts the owner.
