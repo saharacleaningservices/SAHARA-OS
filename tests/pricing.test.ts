@@ -396,7 +396,8 @@ test("staff app (real DB): own job shows ONLY balance to collect; no phone, toke
     const inv = await generateInvoiceNumber();
     const standalone = await generateStandaloneInvoiceNumber();
     assert.equal(inv, `INV-${yr}-0008`, "payment invoice number skips past issued numbers");
-    assert.equal(standalone, `INV-${yr}-0008`);
+    // A number handed out is reserved at once (2026-10-18 race fix), so the next caller gets the next one even before the first is saved.
+    assert.equal(standalone, `INV-${yr}-0009`);
     await db.lead.create({ data: { leadNumber: `LD-${yr}-0050`, name: "T", mobile: "9000000003", area: "x", service: "HOME_DEEP_CLEANING", source: "WEBSITE" } });
     assert.equal(await generateLeadNumber(), `LD-${yr}-0051`, "lead number never collides with an existing one");
 

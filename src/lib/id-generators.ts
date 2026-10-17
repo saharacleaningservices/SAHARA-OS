@@ -1,5 +1,16 @@
 import { db } from "@/lib/db";
 
+// Numbers handed out by THIS process, per sequence. Reading the highest number from the database and inserting
+// later is a race: with 25 simultaneous submissions only 1 saved and 24 failed on the unique number
+// (measured 2026-10-18). Reserving in memory — in one synchronous step, so no two callers can get the same
+// value — fixes it. Sahara OS runs as a single instance (SQLite), so one process owns every sequence.
+const issued = new Map<string, number>();
+const reserve = (seqKey: string, fromDb: number) => {
+  const n = Math.max(fromDb, (issued.get(seqKey) ?? 0) + 1);
+  issued.set(seqKey, n);
+  return n;
+};
+
 async function nextNumber(prefix: string, count: number, pad = 4, existing: (string | null)[] = []): Promise<string> {
   const year = new Date().getFullYear();
   // Same sequence as before (row count + 1), but never below the highest number
@@ -7,7 +18,7 @@ async function nextNumber(prefix: string, count: number, pad = 4, existing: (str
   // sharing the sequence can't hand out a duplicate number.
   const head = `${prefix}-${year}-`;
   const maxIssued = existing.reduce((m, v) => (v && v.startsWith(head) && /^\d+$/.test(v.slice(head.length)) ? Math.max(m, Number(v.slice(head.length))) : m), 0);
-  const seq = String(Math.max(count, maxIssued) + 1).padStart(pad, "0");
+  const seq = String(reserve(head, Math.max(count, maxIssued) + 1)).padStart(pad, "0");
   return `${head}${seq}`;
 }
 
@@ -25,7 +36,7 @@ export async function generateCustomerNumber() {
     const v = Number((r.customerNumber ?? "").slice(5));
     return Number.isInteger(v) && v > m ? v : m;
   }, 0);
-  return `CUST-${String(max + 1).padStart(4, "0")}`;
+  return `CUST-${String(reserve("CUST-", max + 1)).padStart(4, "0")}`;
 }
 
 export async function generateJobNumber() {

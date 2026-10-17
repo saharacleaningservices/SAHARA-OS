@@ -1,10 +1,10 @@
 import { PageHeader } from "@/components/shared/page-header";
 import { requireUser } from "@/lib/current-user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { PRICE_GROUP_LABEL, type PriceGroup } from "@/lib/pricing-master";
+import { PriceListAccordion } from "@/components/pricing/price-list-accordion";
+import { buildShareGroups } from "@/lib/price-share";
+import { bookingLink } from "@/lib/social-links";
 import { getLivePricing } from "@/server/pricing";
-import { formatINR } from "@/lib/utils";
 import { getCompanySettings } from "@/server/settings";
 import Link from "next/link";
 
@@ -22,7 +22,7 @@ export default async function PriceListPage() {
   const hasPay = !!(pay && (pay.upiId || pay.upiQrUrl || pay.bankAccountNumber));
   const today = new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
   const upcoming = festivals.filter((f) => f.end >= today);
-  const groups = Object.keys(PRICE_GROUP_LABEL) as PriceGroup[];
+  const shareGroups = buildShareGroups(items, festivals, bookingLink("whatsapp", "share", "price_list"), today);
   return (
     <div className="space-y-4">
       <PageHeader title="Sahara Price List" description="Approved customer prices — the same on the landing pages, booking page, quotations and WhatsApp catalogue. Managed by Super Admin in Pricing & Packages." />
@@ -61,43 +61,7 @@ export default async function PriceListPage() {
           </CardContent>
         </Card>
       )}
-      {groups.map((g) => (
-        <Card key={g}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">{PRICE_GROUP_LABEL[g]}</CardTitle>
-          </CardHeader>
-          <CardContent className="overflow-x-auto p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Strike (MRP)</TableHead>
-                  {upcoming.map((f) => (
-                    <TableHead key={f.id}>{f.name} price</TableHead>
-                  ))}
-                  <TableHead>Unit / minimum</TableHead>
-                  <TableHead>Catalogue ID</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.filter((p) => p.group === g).map((p) => (
-                  <TableRow key={p.contentId}>
-                    <TableCell className="font-medium">{p.name}</TableCell>
-                    <TableCell className="font-semibold">{p.price == null ? "After inspection" : formatINR(p.price)}</TableCell>
-                    <TableCell className="text-muted-foreground line-through">{p.mrp ? formatINR(p.mrp) : ""}</TableCell>
-                    {upcoming.map((f) => (
-                      <TableCell key={f.id} className="font-semibold text-amber-800">{f.prices[p.contentId] != null ? formatINR(f.prices[p.contentId]) : "—"}</TableCell>
-                    ))}
-                    <TableCell className="text-sm text-muted-foreground">{[p.unit, p.rule].filter(Boolean).join(" · ") || "—"}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{p.contentId}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      ))}
+      <PriceListAccordion groups={shareGroups} />
     </div>
   );
 }

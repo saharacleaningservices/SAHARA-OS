@@ -25,6 +25,7 @@ import { IST_MS, istDayKey, istDayRange } from "@/lib/ist-days";
 import { slotStartMinutes, formatINR } from "@/lib/utils";
 import { jobPaymentSummary } from "@/lib/payment-status";
 import { notify } from "@/server/notify";
+import { escalateUnhandledInquiries } from "@/server/owner-inquiry";
 
 export type OpsSettings = Awaited<ReturnType<typeof getOpsSettings>>;
 
@@ -590,9 +591,13 @@ export async function runOpsReminderSweep(now: Date = new Date()) {
     const extra = await recipientsFallback();
     const alerts = await sendDueAlerts(now, s, extra);
     const escalated = await sendEscalations(now, s);
+    const inquiryEscalated = await escalateUnhandledInquiries(now).catch((e) => {
+      console.error("[ops-reminders] inquiry escalation failed:", e);
+      return 0;
+    });
     const dailySummary = await maybeDailySummary(now, s);
     const eodSummary = await maybeEodSummary(now, s);
-    return { ...alerts, escalated, dailySummary, eodSummary };
+    return { ...alerts, escalated, inquiryEscalated, dailySummary, eodSummary };
   } finally {
     running = false;
   }

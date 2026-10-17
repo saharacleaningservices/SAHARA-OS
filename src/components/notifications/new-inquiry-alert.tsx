@@ -11,6 +11,7 @@ import { InquiryOutcomeButtons } from "@/components/leads/inquiry-outcome-button
 
 type Alert = NonNullable<Awaited<ReturnType<typeof getMyInquiryAlerts>>>[number];
 
+const REPEAT_MS = 60_000; // chime repeats while an inquiry stays unacknowledged
 const POLL_MS = 10_000; // fallback latency when no Web Push subscription delivers it sooner
 
 const ago = (iso: string) => {
@@ -63,6 +64,19 @@ export function NewInquiryAlert() {
       window.removeEventListener("online", wake);
     };
   }, [load]);
+
+  // Recurring alert (owner 2026-10-18): while an inquiry is still unacknowledged the chime repeats every
+  // minute until someone acknowledges it or silences the sound. The first chime is the one in load().
+  const pending = alerts.length;
+  useEffect(() => {
+    if (!pending || muted) return;
+    const id = setInterval(() => {
+      if (mutedRef.current) return;
+      if (!playChime(true)) setSoundBlocked(true);
+      else if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+    }, REPEAT_MS);
+    return () => clearInterval(id);
+  }, [pending, muted]);
 
   async function ack(a: Alert, openAfter: boolean) {
     setBusy(a.id);

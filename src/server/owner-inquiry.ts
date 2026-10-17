@@ -285,6 +285,76 @@ export async function acknowledgeInquiryAlert(user: { id: string; name: string; 
   return { ok: true as const, already: done.count === 0 };
 }
 
+/** An inquiry alert nobody has acknowledged this long is escalated to the Super Admin (owner rule 2026-10-18). */
+export const INQUIRY_ESCALATE_MIN = 30;
+const ESCALATION_LOOKBACK_H = 48;
+
+/**
+ * 30-minute escalation: for every inquiry whose alerts are ALL still unacknowledged after INQUIRY_ESCALATE_MIN,
+ * send ONE high-priority alert to Altaf (OPS_ESCALATION → Super Admin: in-app, push and the critical copy).
+ * "Handled" = any assignee acknowledged it, or the lead was deleted / is no longer an open enquiry.
+ * Each alert row is claimed with a conditional update of its own `meta` before sending, so overlapping sweeps
+ * (the in-process scheduler and the cron endpoint) can never double-escalate, and a restart never repeats it.
+ * Returns how many inquiries were escalated.
+ */
+export async function escalateUnhandledInquiries(now: Date = new Date()): Promise<number> {
+  const cutoff = new Date(now.getTime() - INQUIRY_ESCALATE_MIN * 60_000);
+  const since = new Date(now.getTime() - ESCALATION_LOOKBACK_H * 3_600_000);
+  const rows = await db.notification.findMany({
+    where: { kind: OWNER_INQUIRY_KIND, createdAt: { gte: since } },
+    select: { id: true, userId: true, readAt: true, meta: true, createdAt: true },
+  });
+  const byLead = new Map<string, { id: string; readAt: Date | null; meta: string | null; createdAt: Date; payload: Record<string, unknown> }[]>();
+  for (const r of rows) {
+    let payload: Record<string, unknown> = {};
+    try {
+      payload = r.meta ? JSON.parse(r.meta) : {};
+    } catch {
+      continue;
+    }
+    const leadId = typeof payload.leadId === "string" ? payload.leadId : "";
+    if (!leadId) continue;
+    (byLead.get(leadId) ?? byLead.set(leadId, []).get(leadId)!).push({ ...r, payload });
+  }
+
+  let escalated = 0;
+  for (const [leadId, alerts] of byLead) {
+    if (alerts.some((a) => a.readAt)) continue; // someone picked it up
+    if (alerts.some((a) => a.payload.escalatedAt)) continue; // already escalated
+    if (alerts.every((a) => a.createdAt > cutoff)) continue; // newest alert still inside its 30 minutes — wait
+    const oldest = alerts.reduce((m, a) => (a.createdAt < m ? a.createdAt : m), alerts[0].createdAt);
+    if (oldest > cutoff) continue;
+    const lead = await db.lead.findUnique({ where: { id: leadId }, select: { leadNumber: true, name: true, stage: true, deletedAt: true } });
+    if (!lead || lead.deletedAt || !(OPEN_STAGES as readonly string[]).includes(lead.stage)) continue;
+
+    // Claim every alert row of this inquiry; only the sweep that wins all claims sends.
+    let claimed = 0;
+    for (const a of alerts) {
+      const next = JSON.stringify({ ...a.payload, escalatedAt: now.toISOString() });
+      const r = await db.notification.updateMany({ where: { id: a.id, meta: a.meta, readAt: null }, data: { meta: next } });
+      claimed += r.count;
+    }
+    if (claimed !== alerts.length) continue;
+
+    const mins = Math.max(INQUIRY_ESCALATE_MIN, Math.round((now.getTime() - oldest.getTime()) / 60_000));
+    const names = Array.isArray(alerts[0].payload.assignees) ? (alerts[0].payload.assignees as string[]).join(", ") : "the team";
+    await notify({
+      kind: "OPS_ESCALATION",
+      title: `URGENT: inquiry ${lead.leadNumber} not picked up for ${mins}+ min`,
+      body: `${lead.name}'s inquiry was assigned to ${names} and nobody has responded. Open it and follow up now.`,
+      href: `/leads/${leadId}`,
+      critical: true,
+      tag: `inquiry-escalation-${leadId}`,
+      meta: { leadId, leadNumber: lead.leadNumber, kind: "INQUIRY_ESCALATION" },
+    });
+    await db.auditLog
+      .create({ data: { entityType: "Lead", entityId: leadId, action: "INQUIRY_ESCALATED", summary: `Inquiry ${lead.leadNumber} unacknowledged for ${mins} min — escalated to the Super Admin` } })
+      .catch(() => {});
+    escalated += 1;
+  }
+  return escalated;
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // One-click follow-up outcomes + the owner's tracker

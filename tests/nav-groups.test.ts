@@ -10,7 +10,7 @@ const groupsFor = (role: string) =>
   NAV_GROUPS.map((g) => ({ key: g.key, label: g.label, items: itemsFor(role).filter((i) => i.group === g.key) })).filter((g) => g.items.length > 0);
 
 test("five groups with the owner's names, in order", () => {
-  assert.deepEqual(NAV_GROUPS.map((g) => g.label), ["Operations", "Sales & Finance", "Dashboards & Reports", "Tools & AI", "Settings & Admin"]);
+  assert.deepEqual(NAV_GROUPS.map((g) => g.label), ["Dashboards & Reports", "Operations", "Sales & Finance", "Tools & AI", "Settings & Admin"]);
 });
 
 test("every nav item belongs to exactly one known group (nothing lost, nothing duplicated)", () => {
