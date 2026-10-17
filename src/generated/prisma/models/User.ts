@@ -300,6 +300,7 @@ export type UserWhereInput = {
   paymentsRecorded?: Prisma.PaymentListRelationFilter
   timelineEntries?: Prisma.TimelineEntryListRelationFilter
   devices?: Prisma.DeviceListRelationFilter
+  webauthnCredentials?: Prisma.WebAuthnCredentialListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -329,6 +330,7 @@ export type UserOrderByWithRelationInput = {
   paymentsRecorded?: Prisma.PaymentOrderByRelationAggregateInput
   timelineEntries?: Prisma.TimelineEntryOrderByRelationAggregateInput
   devices?: Prisma.DeviceOrderByRelationAggregateInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -361,6 +363,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   paymentsRecorded?: Prisma.PaymentListRelationFilter
   timelineEntries?: Prisma.TimelineEntryListRelationFilter
   devices?: Prisma.DeviceListRelationFilter
+  webauthnCredentials?: Prisma.WebAuthnCredentialListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -432,6 +435,7 @@ export type UserCreateInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -461,6 +465,7 @@ export type UserUncheckedCreateInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -490,6 +495,7 @@ export type UserUpdateInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -519,6 +525,7 @@ export type UserUncheckedUpdateInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -855,6 +862,20 @@ export type UserUpdateOneRequiredWithoutPushSubscriptionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPushSubscriptionsInput, Prisma.UserUpdateWithoutPushSubscriptionsInput>, Prisma.UserUncheckedUpdateWithoutPushSubscriptionsInput>
 }
 
+export type UserCreateNestedOneWithoutWebauthnCredentialsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWebauthnCredentialsInput, Prisma.UserUncheckedCreateWithoutWebauthnCredentialsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWebauthnCredentialsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutWebauthnCredentialsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutWebauthnCredentialsInput, Prisma.UserUncheckedCreateWithoutWebauthnCredentialsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWebauthnCredentialsInput
+  upsert?: Prisma.UserUpsertWithoutWebauthnCredentialsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWebauthnCredentialsInput, Prisma.UserUpdateWithoutWebauthnCredentialsInput>, Prisma.UserUncheckedUpdateWithoutWebauthnCredentialsInput>
+}
+
 export type UserCreateWithoutDevicesInput = {
   id?: string
   name: string
@@ -881,6 +902,7 @@ export type UserCreateWithoutDevicesInput = {
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorInput
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDevicesInput = {
@@ -909,6 +931,7 @@ export type UserUncheckedCreateWithoutDevicesInput = {
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorInput
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDevicesInput = {
@@ -953,6 +976,7 @@ export type UserUpdateWithoutDevicesInput = {
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorNestedInput
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDevicesInput = {
@@ -981,6 +1005,7 @@ export type UserUncheckedUpdateWithoutDevicesInput = {
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorNestedInput
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutStaffProfileInput = {
@@ -1009,6 +1034,7 @@ export type UserCreateWithoutStaffProfileInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStaffProfileInput = {
@@ -1037,6 +1063,7 @@ export type UserUncheckedCreateWithoutStaffProfileInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStaffProfileInput = {
@@ -1081,6 +1108,7 @@ export type UserUpdateWithoutStaffProfileInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStaffProfileInput = {
@@ -1109,6 +1137,7 @@ export type UserUncheckedUpdateWithoutStaffProfileInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLeadsAssignedInput = {
@@ -1137,6 +1166,7 @@ export type UserCreateWithoutLeadsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLeadsAssignedInput = {
@@ -1165,6 +1195,7 @@ export type UserUncheckedCreateWithoutLeadsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLeadsAssignedInput = {
@@ -1198,6 +1229,7 @@ export type UserCreateWithoutLeadsCreatedInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLeadsCreatedInput = {
@@ -1226,6 +1258,7 @@ export type UserUncheckedCreateWithoutLeadsCreatedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLeadsCreatedInput = {
@@ -1270,6 +1303,7 @@ export type UserUpdateWithoutLeadsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeadsAssignedInput = {
@@ -1298,6 +1332,7 @@ export type UserUncheckedUpdateWithoutLeadsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutLeadsCreatedInput = {
@@ -1337,6 +1372,7 @@ export type UserUpdateWithoutLeadsCreatedInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeadsCreatedInput = {
@@ -1365,6 +1401,7 @@ export type UserUncheckedUpdateWithoutLeadsCreatedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFollowUpsAssignedInput = {
@@ -1393,6 +1430,7 @@ export type UserCreateWithoutFollowUpsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowUpsAssignedInput = {
@@ -1421,6 +1459,7 @@ export type UserUncheckedCreateWithoutFollowUpsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowUpsAssignedInput = {
@@ -1465,6 +1504,7 @@ export type UserUpdateWithoutFollowUpsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowUpsAssignedInput = {
@@ -1493,6 +1533,7 @@ export type UserUncheckedUpdateWithoutFollowUpsAssignedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTimelineEntriesInput = {
@@ -1521,6 +1562,7 @@ export type UserCreateWithoutTimelineEntriesInput = {
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorInput
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTimelineEntriesInput = {
@@ -1549,6 +1591,7 @@ export type UserUncheckedCreateWithoutTimelineEntriesInput = {
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorInput
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTimelineEntriesInput = {
@@ -1593,6 +1636,7 @@ export type UserUpdateWithoutTimelineEntriesInput = {
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorNestedInput
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTimelineEntriesInput = {
@@ -1621,6 +1665,7 @@ export type UserUncheckedUpdateWithoutTimelineEntriesInput = {
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorNestedInput
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPhotosUploadedInput = {
@@ -1649,6 +1694,7 @@ export type UserCreateWithoutPhotosUploadedInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPhotosUploadedInput = {
@@ -1677,6 +1723,7 @@ export type UserUncheckedCreateWithoutPhotosUploadedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPhotosUploadedInput = {
@@ -1721,6 +1768,7 @@ export type UserUpdateWithoutPhotosUploadedInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPhotosUploadedInput = {
@@ -1749,6 +1797,7 @@ export type UserUncheckedUpdateWithoutPhotosUploadedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPaymentsRecordedInput = {
@@ -1777,6 +1826,7 @@ export type UserCreateWithoutPaymentsRecordedInput = {
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsRecordedInput = {
@@ -1805,6 +1855,7 @@ export type UserUncheckedCreateWithoutPaymentsRecordedInput = {
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsRecordedInput = {
@@ -1849,6 +1900,7 @@ export type UserUpdateWithoutPaymentsRecordedInput = {
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsRecordedInput = {
@@ -1877,6 +1929,7 @@ export type UserUncheckedUpdateWithoutPaymentsRecordedInput = {
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutExpensesAddedInput = {
@@ -1905,6 +1958,7 @@ export type UserCreateWithoutExpensesAddedInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutExpensesAddedInput = {
@@ -1933,6 +1987,7 @@ export type UserUncheckedCreateWithoutExpensesAddedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutExpensesAddedInput = {
@@ -1977,6 +2032,7 @@ export type UserUpdateWithoutExpensesAddedInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExpensesAddedInput = {
@@ -2005,6 +2061,7 @@ export type UserUncheckedUpdateWithoutExpensesAddedInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActivityLogsInput = {
@@ -2033,6 +2090,7 @@ export type UserCreateWithoutActivityLogsInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -2061,6 +2119,7 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -2105,6 +2164,7 @@ export type UserUpdateWithoutActivityLogsInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -2133,6 +2193,7 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -2161,6 +2222,7 @@ export type UserCreateWithoutNotificationsInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -2189,6 +2251,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -2233,6 +2296,7 @@ export type UserUpdateWithoutNotificationsInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -2261,6 +2325,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPushSubscriptionsInput = {
@@ -2289,6 +2354,7 @@ export type UserCreateWithoutPushSubscriptionsInput = {
   paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
@@ -2317,6 +2383,7 @@ export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
   paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
   timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
   devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPushSubscriptionsInput = {
@@ -2361,6 +2428,7 @@ export type UserUpdateWithoutPushSubscriptionsInput = {
   paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
   timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
   devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
@@ -2379,6 +2447,139 @@ export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  leadsCreated?: Prisma.LeadUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadsAssigned?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
+  followUpsAssigned?: Prisma.FollowUpUncheckedUpdateManyWithoutAssignedToNestedInput
+  expensesAdded?: Prisma.ExpenseUncheckedUpdateManyWithoutAddedByNestedInput
+  photosUploaded?: Prisma.PhotoUncheckedUpdateManyWithoutUploadedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorNestedInput
+  paymentsRecorded?: Prisma.PaymentUncheckedUpdateManyWithoutRecordedByNestedInput
+  timelineEntries?: Prisma.TimelineEntryUncheckedUpdateManyWithoutAuthorNestedInput
+  devices?: Prisma.DeviceUncheckedUpdateManyWithoutUserNestedInput
+  webauthnCredentials?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutWebauthnCredentialsInput = {
+  id?: string
+  name: string
+  email: string
+  phone?: string | null
+  passwordHash: string
+  role: $Enums.Role
+  avatarUrl?: string | null
+  isActive?: boolean
+  mustChangePassword?: boolean
+  sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  staffProfile?: Prisma.StaffCreateNestedOneWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  leadsCreated?: Prisma.LeadCreateNestedManyWithoutCreatedByInput
+  leadsAssigned?: Prisma.LeadCreateNestedManyWithoutAssignedToInput
+  followUpsAssigned?: Prisma.FollowUpCreateNestedManyWithoutAssignedToInput
+  expensesAdded?: Prisma.ExpenseCreateNestedManyWithoutAddedByInput
+  photosUploaded?: Prisma.PhotoCreateNestedManyWithoutUploadedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorInput
+  paymentsRecorded?: Prisma.PaymentCreateNestedManyWithoutRecordedByInput
+  timelineEntries?: Prisma.TimelineEntryCreateNestedManyWithoutAuthorInput
+  devices?: Prisma.DeviceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutWebauthnCredentialsInput = {
+  id?: string
+  name: string
+  email: string
+  phone?: string | null
+  passwordHash: string
+  role: $Enums.Role
+  avatarUrl?: string | null
+  isActive?: boolean
+  mustChangePassword?: boolean
+  sessionVersion?: number
+  soundEnabled?: boolean
+  notificationsEnabled?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  staffProfile?: Prisma.StaffUncheckedCreateNestedOneWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  leadsCreated?: Prisma.LeadUncheckedCreateNestedManyWithoutCreatedByInput
+  leadsAssigned?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedToInput
+  followUpsAssigned?: Prisma.FollowUpUncheckedCreateNestedManyWithoutAssignedToInput
+  expensesAdded?: Prisma.ExpenseUncheckedCreateNestedManyWithoutAddedByInput
+  photosUploaded?: Prisma.PhotoUncheckedCreateNestedManyWithoutUploadedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorInput
+  paymentsRecorded?: Prisma.PaymentUncheckedCreateNestedManyWithoutRecordedByInput
+  timelineEntries?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutAuthorInput
+  devices?: Prisma.DeviceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutWebauthnCredentialsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutWebauthnCredentialsInput, Prisma.UserUncheckedCreateWithoutWebauthnCredentialsInput>
+}
+
+export type UserUpsertWithoutWebauthnCredentialsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutWebauthnCredentialsInput, Prisma.UserUncheckedUpdateWithoutWebauthnCredentialsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutWebauthnCredentialsInput, Prisma.UserUncheckedCreateWithoutWebauthnCredentialsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutWebauthnCredentialsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutWebauthnCredentialsInput, Prisma.UserUncheckedUpdateWithoutWebauthnCredentialsInput>
+}
+
+export type UserUpdateWithoutWebauthnCredentialsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffProfile?: Prisma.StaffUpdateOneWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  leadsCreated?: Prisma.LeadUpdateManyWithoutCreatedByNestedInput
+  leadsAssigned?: Prisma.LeadUpdateManyWithoutAssignedToNestedInput
+  followUpsAssigned?: Prisma.FollowUpUpdateManyWithoutAssignedToNestedInput
+  expensesAdded?: Prisma.ExpenseUpdateManyWithoutAddedByNestedInput
+  photosUploaded?: Prisma.PhotoUpdateManyWithoutUploadedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorNestedInput
+  paymentsRecorded?: Prisma.PaymentUpdateManyWithoutRecordedByNestedInput
+  timelineEntries?: Prisma.TimelineEntryUpdateManyWithoutAuthorNestedInput
+  devices?: Prisma.DeviceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutWebauthnCredentialsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mustChangePassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  soundEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffProfile?: Prisma.StaffUncheckedUpdateOneWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   leadsCreated?: Prisma.LeadUncheckedUpdateManyWithoutCreatedByNestedInput
   leadsAssigned?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
@@ -2408,6 +2609,7 @@ export type UserCountOutputType = {
   paymentsRecorded: number
   timelineEntries: number
   devices: number
+  webauthnCredentials: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2422,6 +2624,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   paymentsRecorded?: boolean | UserCountOutputTypeCountPaymentsRecordedArgs
   timelineEntries?: boolean | UserCountOutputTypeCountTimelineEntriesArgs
   devices?: boolean | UserCountOutputTypeCountDevicesArgs
+  webauthnCredentials?: boolean | UserCountOutputTypeCountWebauthnCredentialsArgs
 }
 
 /**
@@ -2511,6 +2714,13 @@ export type UserCountOutputTypeCountDevicesArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.DeviceWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountWebauthnCredentialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WebAuthnCredentialWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2539,6 +2749,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   paymentsRecorded?: boolean | Prisma.User$paymentsRecordedArgs<ExtArgs>
   timelineEntries?: boolean | Prisma.User$timelineEntriesArgs<ExtArgs>
   devices?: boolean | Prisma.User$devicesArgs<ExtArgs>
+  webauthnCredentials?: boolean | Prisma.User$webauthnCredentialsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2607,6 +2818,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   paymentsRecorded?: boolean | Prisma.User$paymentsRecordedArgs<ExtArgs>
   timelineEntries?: boolean | Prisma.User$timelineEntriesArgs<ExtArgs>
   devices?: boolean | Prisma.User$devicesArgs<ExtArgs>
+  webauthnCredentials?: boolean | Prisma.User$webauthnCredentialsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2627,6 +2839,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     paymentsRecorded: Prisma.$PaymentPayload<ExtArgs>[]
     timelineEntries: Prisma.$TimelineEntryPayload<ExtArgs>[]
     devices: Prisma.$DevicePayload<ExtArgs>[]
+    webauthnCredentials: Prisma.$WebAuthnCredentialPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3049,6 +3262,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   paymentsRecorded<T extends Prisma.User$paymentsRecordedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$paymentsRecordedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   timelineEntries<T extends Prisma.User$timelineEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$timelineEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TimelineEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   devices<T extends Prisma.User$devicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  webauthnCredentials<T extends Prisma.User$webauthnCredentialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$webauthnCredentialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebAuthnCredentialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3758,6 +3972,30 @@ export type User$devicesArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.DeviceScalarFieldEnum | Prisma.DeviceScalarFieldEnum[]
+}
+
+/**
+ * User.webauthnCredentials
+ */
+export type User$webauthnCredentialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WebAuthnCredential
+   */
+  select?: Prisma.WebAuthnCredentialSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WebAuthnCredential
+   */
+  omit?: Prisma.WebAuthnCredentialOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WebAuthnCredentialInclude<ExtArgs> | null
+  where?: Prisma.WebAuthnCredentialWhereInput
+  orderBy?: Prisma.WebAuthnCredentialOrderByWithRelationInput | Prisma.WebAuthnCredentialOrderByWithRelationInput[]
+  cursor?: Prisma.WebAuthnCredentialWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WebAuthnCredentialScalarFieldEnum | Prisma.WebAuthnCredentialScalarFieldEnum[]
 }
 
 /**

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BiometricSettings } from "@/components/profile/biometric-settings";
+import { listMyPasskeys } from "@/server/actions/webauthn";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,9 +13,10 @@ import { ROLE_LABELS, COMPANY } from "@/lib/constants";
 
 export default async function ProfilePage() {
   const session = await requireUser();
-  const [user, settings] = await Promise.all([
+  const [user, settings, passkeys] = await Promise.all([
     db.user.findUnique({ where: { id: session.sub } }),
     getCompanySettings(),
+    listMyPasskeys(),
   ]);
 
   const name = user?.name ?? session.name;
@@ -78,6 +81,15 @@ export default async function ProfilePage() {
           <div className="border-t border-border pt-4">
             <ChangePasswordDialog />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Biometric / Face Lock</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <BiometricSettings initial={passkeys} />
         </CardContent>
       </Card>
     </div>

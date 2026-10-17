@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { AppLock } from "@/components/auth/app-lock";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { requireMyStaff } from "@/server/staff-portal-session";
@@ -77,6 +78,7 @@ export default async function StaffAppLayout({ children }: { children: ReactNode
 
       {staff && <StaffBottomNav unread={unread} labels={{ home: t("navHome"), jobs: t("navJobs"), money: t("navMoney"), alerts: t("navAlerts"), profile: t("navProfile") }} />}
       {!preview && <StaffPushListener />}
+      {!preview && <AppLock />}
       <HashHighlight />
       <Toaster position="top-center" richColors />
     </div>
