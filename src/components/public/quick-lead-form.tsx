@@ -60,7 +60,7 @@ export function QuickLeadForm({ service, serviceLabel, campaignName, packageLabe
         attribution: getAttributionPayload(),
       }));
       if ("error" in res && res.error) return setError(res.error);
-      trackLead({ category: service, variant: packageLabel });
+      trackLead({ category: service, variant: packageLabel, mobile: phone });
       const lead = "leadNumber" in res ? (res.leadNumber ?? "") : "";
       setDone(lead);
       window.location.href = waHref(lead);
