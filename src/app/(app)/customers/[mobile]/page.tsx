@@ -50,7 +50,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             {isRepeat && <RepeatBadge partner={contactType !== "CUSTOMER"} />}
           </span>
         }
-        description={[digits, alternate ? `Alt ${alternate}` : null, email].filter(Boolean).join(" · ")}
+        description={[master?.customerNumber ?? null, digits, alternate ? `Alt ${alternate}` : null, email].filter(Boolean).join(" · ")}
         actions={
           <>
             <CallButton mobile={digits} />

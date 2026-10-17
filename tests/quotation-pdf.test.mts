@@ -46,7 +46,7 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
     title: "QUOTATION",
     number: "SC/QO/26-27/0001",
     date: "17/10/2026",
-    extraMeta: [{ label: "Valid Till", value: "24/10/2026" }],
+    extraMeta: [{ label: "Valid Till", value: "24/10/2026" }, { label: "Lead ID", value: "LD-2026-0123" }, { label: "Customer ID", value: "CUST-0042" }],
     company: { name: "Sahara Cleaning Services", tagline: "Deep Cleaning & Painting Service.", phone: "7083347130", email: "contact@saharacleaningservices.com", address: "Opposite of South gate, Magarpatta city Hadapsar Pune 411028", website: "www.saharacleaningservices.com", gstin: "27DMTPS3584R2ZJ" },
     billTo: { name: "Test Customer", address: "Flat 501, Test Society, Wadgaonsheri, Pune, Maharashtra, 411014", mobile: "9000000001", email: "test.customer@example.com", details: [{ label: "Property", value: "2 BHK Flat" }, { label: "Service", value: "Full Home Cleaning" }] },
     paymentSplit: paymentSplit(total),

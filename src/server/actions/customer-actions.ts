@@ -240,6 +240,7 @@ export async function getRepeatCustomerSummary(mobile: string) {
 
   return {
         name,
+        customerNumber: master?.customerNumber ?? null,
         jobCount: jobs.length,
         leadCount: leads.length,
         lastServiceDate,

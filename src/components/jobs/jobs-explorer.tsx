@@ -42,6 +42,7 @@ type Job = {
   payments: { status: string; amount: number; paidAmount: number }[];
   vehicle?: { name: string; plateNumber: string } | null;
   lead?: { leadNumber: string } | null;
+  customerNumber?: string | null;
 };
 
 const PAGE_SIZE = 12;
@@ -87,7 +88,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const matches = jobs.filter((job) => {
-      if (q && !`${job.customerName} ${job.jobNumber} ${job.lead?.leadNumber ?? ""} ${job.area}`.toLowerCase().includes(q)) return false;
+      if (q && !`${job.customerName} ${job.jobNumber} ${job.lead?.leadNumber ?? ""} ${job.customerNumber ?? ""} ${job.area}`.toLowerCase().includes(q)) return false;
       if (statusFilter !== "ALL" && job.status !== statusFilter) return false;
       if (whenParam === "yesterday" && !isYesterday(job.scheduledDate)) return false;
       if (whenParam === "today" && dayBucket(job.scheduledDate) !== "TODAY") return false;
@@ -204,7 +205,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                           <CustomerHistoryButton jobId={job.id} name={job.customerName} />
                         </span>
                         <p className="text-xs text-muted-foreground">
-                          {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""} · {job.area}
+                          {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""}{job.customerNumber ? ` · ${job.customerNumber}` : ""} · {job.area}
                         </p>
                       </TableCell>
                       <TableCell className="text-sm">
@@ -309,7 +310,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                         <CustomerHistoryButton jobId={job.id} name={job.customerName} />
                       </span>
                       <p className="truncate text-xs text-muted-foreground">
-                        {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""} · {job.area}
+                        {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""}{job.customerNumber ? ` · ${job.customerNumber}` : ""} · {job.area}
                       </p>
                       <p className="mt-1 text-xs text-foreground">
                         {isToday ? <span className="font-semibold text-success">Today</span> : formatDateShort(job.scheduledDate)} ·{" "}

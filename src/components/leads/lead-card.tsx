@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 
 type LeadCardData = {
   id: string;
+  leadNumber?: string;
+  customerNumber?: string | null;
   name: string;
   mobile: string;
   area: string;
@@ -41,6 +43,9 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
       <div className="flex items-start justify-between gap-2">
         <Link href={`/leads/${lead.id}`} className="min-w-0 hover:underline">
           <p className="truncate text-sm font-semibold text-foreground">{lead.name}</p>
+          {(lead.leadNumber || lead.customerNumber) && (
+            <p className="truncate text-[11px] font-medium text-muted-foreground">{[lead.leadNumber, lead.customerNumber].filter(Boolean).join(" · ")}</p>
+          )}
         </Link>
         <Badge variant="outline" className="shrink-0 text-[10px]">
           {LEAD_SOURCE_LABELS[lead.source]}

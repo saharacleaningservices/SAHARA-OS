@@ -1,6 +1,7 @@
 "use server";
 
 // Bulk CSV import for Leads and Staff. Mirrors createLead/createStaff's
+import { createWithCustomerNumber } from "@/server/customer-db";
 // write logic (see src/server/actions/leads.ts and staff.ts) but processes
 // rows sequentially in one transaction-free loop — so LD-/SCS- numbering
 // stays correctly sequential — and revalidates paths once at the end
@@ -208,8 +209,8 @@ export async function importCustomers(rows: CustomerImportRow[]): Promise<Import
       continue;
     }
 
-    await db.customer.create({
-      data: {
+    await createWithCustomerNumber((customerNumber) => ({
+        customerNumber,
         name: r.name,
         mobile,
         alternateMobile: r.alternateMobile ?? null,
@@ -220,8 +221,7 @@ export async function importCustomers(rows: CustomerImportRow[]): Promise<Import
         outstandingBalance: r.outstandingBalance ?? 0,
         source: r.source ?? null,
         importBatchId: batchId,
-      },
-    });
+    }));
     results.push({ row: rowNum, status: "created", message: `${r.name} imported` });
     created++;
   }

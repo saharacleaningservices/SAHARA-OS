@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
   const showJobAmount = canViewJobAmount(role);
 
   const [master, jobsRaw, payments] = await Promise.all([
-    db.customer.findUnique({ where: { mobile: key }, select: { name: true, contactType: true, outstandingBalance: true } }).catch(() => null),
+    db.customer.findUnique({ where: { mobile: key }, select: { name: true, contactType: true, outstandingBalance: true, customerNumber: true } }).catch(() => null),
     db.job.findMany({
       where: { customerMobile: { contains: tail }, deletedAt: null },
       orderBy: { scheduledDate: "desc" },
@@ -96,6 +96,7 @@ export async function GET(request: NextRequest) {
       name: master?.name || jobs[0]?.customerName || "Customer",
       category: master?.contactType || "CUSTOMER",
       categoryLabel: categoryLabel(master?.contactType),
+      customerNumber: master?.customerNumber ?? null,
       bookings: jobs.length,
       ...(office ? { mobile: key } : {}),
       ...(showMoney ? { lifetimeValue: lifetime, outstanding: master?.outstandingBalance ?? 0 } : {}),

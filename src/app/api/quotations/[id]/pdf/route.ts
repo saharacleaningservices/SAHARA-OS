@@ -6,6 +6,7 @@ import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, rupeesInWords } from "@/lib/document-scope";
 import { resolveQuotationTerms } from "@/lib/quotation-template";
 import { paymentSplit } from "@/lib/booking-payment";
+import { customerNumberFor } from "@/server/customer-db";
 import { SERVICE_CATEGORY_LABELS, SERVICE_LABELS } from "@/lib/constants";
 import { getSession } from "@/lib/session";
 import { formatDate } from "@/lib/utils";
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     scopeOfWork: lead.scopeOfWork,
     scheduleDate: lead.serviceDate ? formatDate(lead.serviceDate) : null,
   }, { standard: true }); // single-page standard quotation template (owner wording)
-  const chrome = await billChrome(quotation.totalAmount, quotation.quoteNumber);
+  const [chrome, customerNumber] = await Promise.all([billChrome(quotation.totalAmount, quotation.quoteNumber), customerNumberFor(lead.mobile)]);
   const buffer = await renderToBuffer(
     SaharaBillDocument({
       ...chrome,
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       title: "QUOTATION",
       number: quotation.quoteNumber,
       date: formatDate(quotation.createdAt),
-      extraMeta: [...(quotation.validTill ? [{ label: "Valid Till", value: formatDate(quotation.validTill) }] : []), { label: "Lead ID", value: lead.leadNumber }],
+      extraMeta: [...(quotation.validTill ? [{ label: "Valid Till", value: formatDate(quotation.validTill) }] : []), { label: "Lead ID", value: lead.leadNumber }, ...(customerNumber ? [{ label: "Customer ID", value: customerNumber }] : [])],
       billTo: {
         name: lead.name,
         address: lead.address || lead.area,

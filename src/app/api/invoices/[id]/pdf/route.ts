@@ -8,6 +8,7 @@ import { getSession } from "@/lib/session";
 import { formatDate } from "@/lib/utils";
 import { QUOTATION_TERMS, SERVICE_LABELS } from "@/lib/constants";
 import { paymentSplit } from "@/lib/booking-payment";
+import { customerNumberFor } from "@/server/customer-db";
 import { modernizePaymentTerms } from "@/lib/quotation-template";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         scheduleDate: formatDate(invoice.job.completedAt ?? invoice.job.scheduledDate),
       })
     : { notes: invoice.notes ? [invoice.notes] : [], kindlyNote: [] };
-  const chrome = await billChrome(balance, invoice.invoiceNumber);
+  const [chrome, customerNumber] = await Promise.all([billChrome(balance, invoice.invoiceNumber), customerNumberFor(invoice.customerMobile)]);
   const buffer = await renderToBuffer(
     SaharaBillDocument({
       ...chrome,
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       copyLabel: "ORIGINAL FOR RECIPIENT",
       number: invoice.invoiceNumber,
       date: formatDate(invoice.createdAt),
-      extraMeta: invoice.job ? [{ label: "Job ID", value: invoice.job.jobNumber }, ...(invoice.job.lead ? [{ label: "Lead ID", value: invoice.job.lead.leadNumber }] : [])] : [],
+      extraMeta: (invoice.job ? [{ label: "Job ID", value: invoice.job.jobNumber }, ...(invoice.job.lead ? [{ label: "Lead ID", value: invoice.job.lead.leadNumber }] : [])] : []).concat(customerNumber ? [{ label: "Customer ID", value: customerNumber }] : []),
       billTo: {
         name: invoice.customerName,
         address: invoice.customerAddress,

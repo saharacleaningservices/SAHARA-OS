@@ -27,6 +27,8 @@ export type QuotePrefill = {
   quoteNumber: string;
   customerName: string;
   mobile: string;
+  /** Customer ID from the CRM record (CUST-####) — the profile is locked on a quotation link. */
+  customerNumber?: string | null;
   services: string[];
   totalAmount: number;
 };
@@ -658,6 +660,12 @@ export function BookingWizard({
         <div className={card}>
           {step(1, "Your quotation", true)}
           <p className="mt-2 text-sm">Quotation <span className="font-semibold">{quote.quoteNumber}</span> · {quote.customerName}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-[#0a2540]/70" aria-label="Your saved details (locked)">
+            <span aria-hidden>🔒</span>
+            {quote.customerNumber && <span className="font-semibold">{quote.customerNumber}</span>}
+            <span>Mobile ••••••{quote.mobile.replace(/\D/g, "").slice(-4)}</span>
+            <span>· Saved details are used — just pick your date &amp; time</span>
+          </p>
           <ul className="mt-1 list-disc pl-5 text-sm text-[#0a2540]/80">{quote.services.map((s) => <li key={s}>{s}</li>)}</ul>
           <p className="mt-2 text-xl font-extrabold text-primary">{inr(quote.totalAmount)}</p>
         </div>
