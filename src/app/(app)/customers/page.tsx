@@ -21,7 +21,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
   // Only what the list shows — site search text never leaves the server.
   const rows = data.rows.map((r) => ({
     mobile: r.mobile, name: r.name, leadCount: r.leadCount, jobCount: r.jobCount, revenue: r.revenue, lastActivity: r.lastActivity,
-    area: r.area, outstanding: r.outstanding, contactType: r.contactType, isRepeat: r.isRepeat, siteCount: r.siteCount, variants: r.variants,
+    area: r.area, outstanding: r.outstanding, contactType: r.contactType, customerNumber: r.customerNumber ?? null, isRepeat: r.isRepeat, siteCount: r.siteCount, variants: r.variants,
   }));
 
   return (

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { customerNumbersByMobile, normalizeMobile } from "@/server/customer-db";
 import { ClipboardList, CalendarClock, Clock, CheckCircle2, Wallet, Route } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -22,7 +23,9 @@ export default async function JobsPage() {
   // Job amount / paid / balance per job — no revenue totals, profit or costs.
   const showRevenue = canViewJobAmount(session.role);
   // Restricted roles never receive customer contact or money figures, not even in the payload.
-  const visibleJobs = jobs.map((j) => redactJob(j, session.role));
+  // Customer ID (CUST-####) is a reference, not contact data — every role that sees the job sees it.
+  const custIds = await customerNumbersByMobile(jobs.map((j) => j.customerMobile));
+  const visibleJobs = jobs.map((j) => ({ ...redactJob(j, session.role), customerNumber: custIds.get(normalizeMobile(j.customerMobile) ?? "") ?? null }));
 
   const scopeNote =
     session.role === "OPERATIONS"

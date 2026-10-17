@@ -732,7 +732,7 @@ export const ATTENDANCE_STATUS_LABELS: Record<string, string> = {
 
 export const QUOTATION_TERMS = `1. Prices are inclusive of standard materials & labour unless stated otherwise.
 2. GST as applicable will be charged extra.
-3. 50% advance payment confirms the booking; balance is due on job completion.
+3. 20% advance payment confirms the booking; the 80% balance is payable after job completion.
 4. Rescheduling requires at least 24 hours' notice.
 5. This quotation is valid for 7 days from the date of issue.`;
 

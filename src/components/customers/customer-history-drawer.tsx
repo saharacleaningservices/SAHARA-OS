@@ -11,7 +11,7 @@ type Timeline = {
   jobValue?: number; paid?: number; quotation?: { number: string; href: string };
 };
 type Data = {
-  name: string; category: string; categoryLabel: string; bookings: number; mobile?: string;
+  name: string; category: string; categoryLabel: string; customerNumber?: string | null; bookings: number; mobile?: string;
   lifetimeValue?: number; outstanding?: number; timeline: Timeline[];
 };
 
@@ -54,6 +54,7 @@ export function CustomerHistoryButton({ mobile, jobId, name }: { mobile?: string
             <SheetTitle>{data?.name ?? name}</SheetTitle>
             <SheetDescription className="flex flex-wrap items-center gap-2">
               {data && <ContactTypeBadge type={data.category} />}
+              {data?.customerNumber && <span className="font-semibold text-foreground">{data.customerNumber}</span>}
               {data?.mobile && <span className="tabular-nums">{data.mobile}</span>}
             </SheetDescription>
           </SheetHeader>

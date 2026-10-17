@@ -2,6 +2,7 @@ import QRCode from "qrcode";
 import { getCompanySettings } from "@/server/settings";
 import { publicFileToDataUrl, resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { COMPANY } from "@/lib/constants";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import type { BillDocumentProps } from "@/lib/pdf/sahara-bill-document";
 
 /**
@@ -12,7 +13,7 @@ import type { BillDocumentProps } from "@/lib/pdf/sahara-bill-document";
 export async function billChrome(
   amountDue: number,
   ref: string,
-): Promise<Pick<BillDocumentProps, "company" | "logoDataUrl" | "bank" | "upiId" | "qrDataUrl">> {
+): Promise<Pick<BillDocumentProps, "company" | "logoDataUrl" | "bank" | "upiId" | "qrDataUrl" | "bookQrDataUrl" | "bookUrl">> {
   const settings = await getCompanySettings();
   const company = {
     name: settings.name || COMPANY.name,
@@ -24,7 +25,8 @@ export async function billChrome(
     gstin: COMPANY.gstin,
   };
   const upiId = settings.upiId?.trim() || null;
-  const [logoDataUrl, qrDataUrl] = await Promise.all([
+  const bookUrl = `${PUBLIC_BOOKING_URL}/booking`;
+  const [logoDataUrl, qrDataUrl, bookQrDataUrl] = await Promise.all([
     resolveBrandLogoDataUrl(settings.logoUrl),
     upiId
       ? QRCode.toDataURL(
@@ -34,12 +36,16 @@ export async function billChrome(
       : settings.upiQrUrl
         ? publicFileToDataUrl(settings.upiQrUrl)
         : Promise.resolve(null),
+    // Footer "Scan to Book Service Online" QR — the public booking form.
+    QRCode.toDataURL(bookUrl, { margin: 1, width: 200 }).catch(() => null),
   ]);
   return {
     company,
     logoDataUrl,
     upiId,
     qrDataUrl,
+    bookQrDataUrl,
+    bookUrl,
     bank:
       settings.bankAccountNumber || settings.bankIfsc
         ? { name: settings.bankAccountName, ifsc: settings.bankIfsc, account: settings.bankAccountNumber, bankName: settings.bankName }

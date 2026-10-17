@@ -14,6 +14,7 @@ export type CustomerRow = {
   source?: string | null;
   imported?: boolean;
   contactType: string;
+  customerNumber?: string | null;
   isRepeat: boolean;
   siteCount: number;
   alternateMobile?: string | null;
@@ -42,7 +43,7 @@ export async function getCustomersList(): Promise<CustomerRow[]> {
     db.customer.findMany({
       select: {
         mobile: true, name: true, area: true, outstandingBalance: true, lastServiceDate: true, source: true, createdAt: true,
-        importBatchId: true, contactType: true, isRepeat: true, alternateMobile: true,
+        importBatchId: true, contactType: true, customerNumber: true, isRepeat: true, alternateMobile: true,
         sites: { select: { label: true, address: true, area: true } },
       },
     }),
@@ -88,6 +89,7 @@ export async function getCustomersList(): Promise<CustomerRow[]> {
     row.outstanding = (row.outstanding ?? 0) + (c.outstandingBalance ?? 0);
     row.source = row.source ?? c.source;
     row.contactType = c.contactType || "CUSTOMER";
+    row.customerNumber = c.customerNumber;
     row.isRepeat = row.isRepeat || c.isRepeat;
     row.alternateMobile = c.alternateMobile ?? row.alternateMobile;
     row.siteCount = c.sites.length;
@@ -127,7 +129,7 @@ export async function getCustomersPage(f: CustomerFilters) {
 
   const searched = q
     ? all.filter((c) =>
-        `${c.name} ${c.area ?? ""}`.toLowerCase().includes(q) ||
+        `${c.name} ${c.area ?? ""} ${c.customerNumber ?? ""}`.toLowerCase().includes(q) ||
         c.siteText.includes(q) ||
         (digits.length >= 3 && (c.mobile.includes(digits) || (c.alternateMobile ?? "").replace(/\D/g, "").includes(digits))),
       )

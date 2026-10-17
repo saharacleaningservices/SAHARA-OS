@@ -25,6 +25,7 @@ export type CustomerListRow = {
   area?: string | null;
   outstanding?: number;
   contactType: string;
+  customerNumber?: string | null;
   isRepeat: boolean;
   siteCount: number;
   variants: number;
@@ -233,7 +234,10 @@ export function CustomersExplorer({
                       </Link>
                       <CustomerHistoryButton mobile={c.mobile} name={c.name} />
                     </TableCell>
-                    <TableCell className="py-1.5 text-sm tabular-nums">{c.mobile}</TableCell>
+                    <TableCell className="py-1.5 text-sm tabular-nums">
+                      {c.mobile}
+                      {c.customerNumber && <span className="block text-[11px] font-semibold text-muted-foreground">{c.customerNumber}</span>}
+                    </TableCell>
                     <TableCell className="py-1.5 text-sm">
                       {c.siteCount > 1 ? `${c.siteCount} sites` : (c.area ?? "—")}
                     </TableCell>
@@ -264,6 +268,7 @@ export function CustomersExplorer({
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
                       <ContactTypeBadge type={c.contactType} />
                       <span className="tabular-nums">{c.mobile}</span>
+                      {c.customerNumber && <span className="font-semibold">{c.customerNumber}</span>}
                       {(c.area || c.siteCount > 1) && (
                         <span className="inline-flex items-center gap-0.5"><MapPin className="size-3" />{c.siteCount > 1 ? `${c.siteCount} sites` : c.area}</span>
                       )}
