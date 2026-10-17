@@ -4,15 +4,21 @@
 import { PRICING_MASTER } from "@/lib/pricing-master";
 import { parsePackage } from "@/lib/package-calc";
 import { CUSTOMER_REQUIREMENTS, conciseHomeExclusions, conciseHomeScope, homePleaseNote, isAutoScope, tierFromPackage } from "@/lib/service-scope";
+import { FREE_FRIDGE_NOTE, QUOTATION_EXCLUSIONS, packageScopeLines } from "@/lib/quotation-template";
 
-export function documentScope(input: {
-  service: string;
-  packageName?: string | null;
-  serviceVariant?: string | null;
-  serviceItems?: string | null;
-  scopeOfWork?: string | null;
-  scheduleDate?: string | null;
-}): { notes: string[]; kindlyNote: string[] } {
+export function documentScope(
+  input: {
+    service: string;
+    packageName?: string | null;
+    serviceVariant?: string | null;
+    serviceItems?: string | null;
+    scopeOfWork?: string | null;
+    scheduleDate?: string | null;
+  },
+  // standard = the single-page quotation template (owner wording, 17 Oct 2026): bullet scope, free-fridge highlight, explicit exclusions.
+  // Invoices keep the concise one-line scope.
+  opts: { standard?: boolean } = {},
+): { notes: string[]; kindlyNote: string[] } {
   const notes: string[] = [];
   const kindlyNote: string[] = [];
   const manual = (input.scopeOfWork ?? "").trim();
@@ -26,11 +32,19 @@ export function documentScope(input: {
       : null;
 
   if (tier && (!manual || isAutoScope(manual))) {
-    // One concise line — the full room-by-room checklist stays on the booking page.
     if (manual) notes.pop();
-    notes.push(`Full Home Cleaning — ${tier}: ${conciseHomeScope(tier)}`);
-    kindlyNote.push(conciseHomeExclusions(tier));
-    kindlyNote.push(...homePleaseNote(tier).slice(-3)); // stains, inaccessible areas, extra work
+    if (opts.standard) {
+      // Owner's standard Premium / Platinum scope as bullets, then the complimentary highlight and the exclusions.
+      notes.push(`${tier} Package — scope of work:`);
+      notes.push(...packageScopeLines(tier).map((l) => `• ${l}`));
+      if (FREE_FRIDGE_NOTE) notes.push(FREE_FRIDGE_NOTE);
+      kindlyNote.push(...QUOTATION_EXCLUSIONS);
+    } else {
+      // One concise line — the full room-by-room checklist stays on the booking page.
+      notes.push(`Full Home Cleaning — ${tier}: ${conciseHomeScope(tier)}`);
+      kindlyNote.push(conciseHomeExclusions(tier));
+      kindlyNote.push(...homePleaseNote(tier).slice(-3)); // stains, inaccessible areas, extra work
+    }
   }
 
   // Customized / add-on services: each item's approved scope / rule.
@@ -42,7 +56,8 @@ export function documentScope(input: {
   }
 
   if (input.scheduleDate) notes.push(`Schedule date: ${input.scheduleDate}`);
-  if (tier || lines.length) kindlyNote.push(`Customer to arrange: ${CUSTOMER_REQUIREMENTS.map((r) => r.replace(/\.$/, "").toLowerCase()).join("; ")}.`);
+  // The standard template carries the customer's obligations in its 4-line Terms, so the long "Customer to arrange" line is not repeated.
+  if (!opts.standard && (tier || lines.length)) kindlyNote.push(`Customer to arrange: ${CUSTOMER_REQUIREMENTS.map((r) => r.replace(/\.$/, "").toLowerCase()).join("; ")}.`);
   return { notes, kindlyNote };
 }
 

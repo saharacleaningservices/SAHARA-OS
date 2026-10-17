@@ -18,6 +18,7 @@
     "test:cache": "tsx --test tests/static-cache.test.ts",
     "test:polling": "tsx --test tests/polling-visibility.test.ts",
     "test:capi": "tsx --test tests/meta-capi.test.ts",
+    "test:quote": "tsx --test tests/quotation-pdf.test.mts",
     "test:leadtrack": "tsx --test tests/lead-tracking.test.ts",
     "test:public": "tsx --test tests/public-input.test.ts",
     "test:ops": "tsx --test tests/ops-reminders.test.ts",

@@ -74,6 +74,6 @@ test("createQuotation keeps its old behaviour when no options are passed (source
   const { readFileSync } = await import("node:fs");
   const src = readFileSync(path.join(process.cwd(), "src/server/actions/leads.ts"), "utf8");
   assert.match(src, /opts: \{ terms\?: string; validDays\?: number \} = \{\}/);
-  assert.match(src, /: QUOTATION_TERMS,/);
+  assert.match(src, /: STANDARD_TERMS_TEXT,/); // default terms = the standard single-page quotation terms (17 Oct 2026)
   assert.match(src, /opts\.validDays \?\? 7/);
 });

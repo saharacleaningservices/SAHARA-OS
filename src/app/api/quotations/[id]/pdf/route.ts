@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { SaharaBillDocument } from "@/lib/pdf/sahara-bill-document";
 import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, rupeesInWords } from "@/lib/document-scope";
+import { resolveQuotationTerms } from "@/lib/quotation-template";
 import { getSession } from "@/lib/session";
 import { formatDate } from "@/lib/utils";
 
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     serviceItems: lead.serviceItems,
     scopeOfWork: lead.scopeOfWork,
     scheduleDate: lead.serviceDate ? formatDate(lead.serviceDate) : null,
-  });
+  }, { standard: true }); // single-page standard quotation template (owner wording)
   const chrome = await billChrome(quotation.totalAmount, quotation.quoteNumber);
   const buffer = await renderToBuffer(
     SaharaBillDocument({
@@ -57,7 +58,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       amountInWords: rupeesInWords(quotation.totalAmount),
       notes: scope.notes,
       kindlyNote: scope.kindlyNote,
-      terms: quotation.terms,
+      terms: resolveQuotationTerms(quotation.terms).text,
+      singlePage: true,
+      exclusionsTitle: "Not Included (Exclusions)",
     }),
   );
 
