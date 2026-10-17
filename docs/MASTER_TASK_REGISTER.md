@@ -514,3 +514,19 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   follow-up read was blocked by the guard, so completeness unverified — note GA4 is live on the site, so some GA4 setting exists elsewhere).
   Pixel ID not set by Claude (writes to production env are guard-blocked). Meta dataset ID (= Pixel ID) is in Events Manager.
   Open question for owner: Coolify → application → General → which Git branch is deployed (`coolify-deploy` per docs; the app name says `main`).
+
+### Update 2026-10-17 22:00 IST (Pixel live, CAPI token hardened)
+- **PR #9** merged `746458d` (uptime monitor workflow active on `main`; first scheduled run not yet seen). **PR #11** merged `369e0e9`
+  (Cognito parser + script/tests on `main`). PR #10 closed. PR #4 still open.
+- **Coolify** (owner's session; app `sahara-os` on branch `coolify-deploy`, commit `c4cbabd`): 30 env variables (earlier "10" list was page 1).
+  `NEXT_PUBLIC_META_PIXEL_ID` and `NEXT_PUBLIC_GA4_ID` already existed; **`META_CAPI_TOKEN` switched to Runtime-only** (Buildtime off, value
+  untouched). Cached redeploy (44 s) did not bake the Pixel; **"Deploy (without cache)" succeeded (4m17s, ~21:42 IST)**.
+- **Live verified in a real browser (21:50 IST):** `/home-deep-cleaning-pune` and `/booking` → `fbq` loaded, pixel `2014299429231265`
+  initialised, `fbevents.js` loaded, GA4 + gtag present (curl HTML misses it: script is injected client-side). CRM `/login` 200,
+  `/my` 307, `/api/meta/capi`: empty body 400, protected number → `{ok:false}`, webhook without token 401.
+- **Not yet verified:** Meta side receiving events (Events Manager overview date range ended 16 Oct; allow ≤30 min) and CAPI server +
+  browser deduplication — needs one real test lead from a non-protected number with a Test Event Code
+  (`META_CAPI_TEST_CODE`, runtime var; remove afterwards). Not done by Claude to avoid creating a fake lead/conversion in production.
+- `EMAIL_LEAD_TOKEN` / `CRON_TOKEN` not found among Coolify app variables although the CRM accepted the Apps Script posts — unexplained.
+  Old `META_PIXEL_ID` (no NEXT_PUBLIC_) variable also exists; untouched.
+- **Meta Business Verification: Unverified** (read-only). Documents checklist: `docs/META_VERIFICATION_DOCUMENTS_CHECKLIST.md`.
