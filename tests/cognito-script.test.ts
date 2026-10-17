@@ -162,3 +162,35 @@ test("HMAC_SECRET not set: no signature headers (unchanged behaviour)", () => {
   h.api.processCognitoEmails();
   assert.equal(h.fetches[0].opts.headers["X-Sahara-Signature"], undefined);
 });
+
+// REAL Cognito plain-text layout (17 Oct 2026): labels and values run together with no separator, and the header
+// repeats the sender's e-mail. Synthetic values only. Before the fix every such mail ended up CRM-skipped.
+const REAL_LAYOUT = (name: string, phone: string, subject: string, email: string, message: string) =>
+  `         = ${email} =\n\n== Sahara Cleaning Form ==\n\n View full entry at CognitoForms.com.\n<https://www.cognitoforms.com/Example/133/entries/1>\n\n== Entry Details ==\n\nName${name}Phone${phone}Subject${subject}Email${email}Message us${message}\nPowered by\n<https://www.cognitoforms.com//?crs=abc&utm_source=notification>`;
+
+test("parser: the real no-separator Cognito layout is parsed (name, phone, service, e-mail, message)", () => {
+  const { api } = harness({ bodies: [] });
+  const p = api.parseCognito(REAL_LAYOUT("Test Person", "9000000001", "Deep cleaning of 1 bhk\nunfurnished flat", "test.person@example.com", "Deep cleaning"));
+  assert.equal(p.name, "Test Person");
+  assert.equal(p.mobile, "9000000001");
+  assert.equal(p.service, "Deep cleaning of 1 bhk unfurnished flat");
+  assert.equal(p.email, "test.person@example.com");
+  assert.equal(p.message, "Deep cleaning");
+});
+
+test("parser: real layout with +91 / spaces in the phone and a co.in e-mail", () => {
+  const { api } = harness({ bodies: [] });
+  const p = api.parseCognito(REAL_LAYOUT("Asha Patil", "+91 90000 00002", "Pest control", "asha.p@mail.co.in", "Need Sunday"));
+  assert.equal(p.mobile, "+919000000002");
+  assert.equal(p.email, "asha.p@mail.co.in");
+  assert.equal(p.message, "Need Sunday");
+  assert.equal(p.name, "Asha Patil");
+});
+
+test("real layout end to end: posted to the CRM and labelled CRM-synced, not skipped", () => {
+  const { api, fetches, threads } = harness({ bodies: [REAL_LAYOUT("Test Person", "9000000003", "Home cleaning", "t@example.com", "Hi")] });
+  api.processCognitoEmails();
+  assert.equal(fetches.length, 1);
+  assert.deepEqual(threads[0].labels, ["CRM-synced"]);
+  assert.equal(JSON.parse(fetches[0].opts.payload).mobile, "9000000003");
+});
