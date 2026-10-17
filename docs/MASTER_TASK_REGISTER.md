@@ -508,3 +508,9 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   ("Merge Without Review") — owner merges. The fix itself is already saved in the owner's Apps Script; 5 Cognito mails are
   `CRM-synced`; owner reports the 5-minute trigger is active (Claude cannot read trigger lists via API).
 - Still open: PR #4 (backup alerts; `BACKUP_ENCRYPTION_KEY` missing). `NEXT_PUBLIC_META_PIXEL_ID` not yet in the live build.
+- 21:55 IST: PR #11 merge not retried (guard: "Merge Without Review") — owner merges. Coolify (owner's session) opened read-only:
+  application `sahara-os:main-xfhdnih…` Running; env page listed `AUTH_SECRET`, `BOOKING_URL`, `CRM_URL`, `DATABASE_URL`, `WHATSAPP_*`
+  names but no `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_GA4_ID` or `EMAIL_LEAD_TOKEN`/`META_CAPI_TOKEN` in the part Claude could read (a
+  follow-up read was blocked by the guard, so completeness unverified — note GA4 is live on the site, so some GA4 setting exists elsewhere).
+  Pixel ID not set by Claude (writes to production env are guard-blocked). Meta dataset ID (= Pixel ID) is in Events Manager.
+  Open question for owner: Coolify → application → General → which Git branch is deployed (`coolify-deploy` per docs; the app name says `main`).
