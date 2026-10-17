@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { Prisma } from "@/generated/prisma/client";
+import { generateCustomerNumber } from "@/lib/id-generators";
 
 // One customer database for every intake (public booking, New Lead, manual
 // CRM): a contact per normalized mobile number (Customer.mobile is unique) and
@@ -52,8 +54,8 @@ export async function ensureCustomer(input: {
   if (!mobile) return null;
   const existing = await db.customer.findUnique({ where: { mobile } });
   if (!existing) {
-    return db.customer.create({
-      data: {
+    return createWithCustomerNumber((customerNumber) => ({
+        customerNumber,
         mobile,
         name: input.name.trim() || "Customer",
         alternateMobile: input.alternateMobile?.trim() || null,
@@ -63,10 +65,10 @@ export async function ensureCustomer(input: {
         source: input.source ?? null,
         contactType: isContactType(input.contactType) ? input.contactType : "CUSTOMER",
         isRepeat: !!input.isRepeat,
-      },
-    });
+    }));
   }
   const patch: Record<string, unknown> = {};
+  if (!existing.customerNumber) patch.customerNumber = await generateCustomerNumber();
   if (!existing.alternateMobile && input.alternateMobile?.trim()) patch.alternateMobile = input.alternateMobile.trim();
   if (!existing.email && input.email?.trim()) patch.email = input.email.trim();
   if (!existing.area && cleanArea(input.area)) patch.area = cleanArea(input.area);
@@ -77,6 +79,34 @@ export async function ensureCustomer(input: {
   if (input.isRepeat && !existing.isRepeat) patch.isRepeat = true;
   if (isContactType(input.contactType) && input.contactType !== existing.contactType && input.contactType !== "CUSTOMER") patch.contactType = input.contactType;
   return Object.keys(patch).length ? db.customer.update({ where: { id: existing.id }, data: patch }) : existing;
+}
+
+/** Customer IDs for a set of mobiles (any spelling) — one query, for lists and PDFs. */
+export async function customerNumbersByMobile(mobiles: (string | null | undefined)[]): Promise<Map<string, string>> {
+  const keys = [...new Set(mobiles.map((m) => normalizeMobile(m)).filter((k): k is string => !!k))];
+  if (!keys.length) return new Map();
+  const rows = await db.customer.findMany({ where: { mobile: { in: keys }, customerNumber: { not: null } }, select: { mobile: true, customerNumber: true } });
+  return new Map(rows.map((r) => [r.mobile, r.customerNumber as string]));
+}
+
+/** Customer ID for one mobile number, or null. */
+export async function customerNumberFor(mobile: string | null | undefined): Promise<string | null> {
+  return (await customerNumbersByMobile([mobile])).get(normalizeMobile(mobile) ?? "") ?? null;
+}
+
+/**
+ * Creates a Customer with the next CUST-#### number. Two bookings at the same moment could pick the same
+ * number; the unique index rejects the second, which then retries with a fresh number.
+ */
+export async function createWithCustomerNumber(data: (customerNumber: string) => Prisma.CustomerCreateInput) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await db.customer.create({ data: data(await generateCustomerNumber()) });
+    } catch (e) {
+      const dup = e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002" && String(e.meta?.target ?? "").includes("customerNumber");
+      if (!dup || attempt >= 4) throw e;
+    }
+  }
 }
 
 /** Reuses the contact's site with the same address, or adds a new one. */

@@ -34,6 +34,7 @@ import { formatINR, formatDateShort, dayBucket, todayTomorrowFirst, DAY_BUCKET_M
 type Lead = {
   id: string;
   leadNumber: string;
+  customerNumber?: string | null;
   name: string;
   mobile: string;
   area: string;
@@ -111,7 +112,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
     const q = search.trim().toLowerCase();
     const matches = leads.filter((lead) => {
       if (q) {
-        const haystack = `${lead.name} ${lead.mobile} ${lead.area} ${lead.leadNumber}`.toLowerCase();
+        const haystack = `${lead.name} ${lead.mobile} ${lead.area} ${lead.leadNumber} ${lead.customerNumber ?? ""}`.toLowerCase();
         if (!haystack.includes(q)) return false;
       }
       if (stageFilter !== "ALL" && lead.stage !== stageFilter) return false;
@@ -289,7 +290,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                           <CustomerHistoryButton mobile={lead.mobile} name={lead.name} />
                         </span>
                         <p className="text-xs text-muted-foreground">
-                          {lead.leadNumber} · {lead.area}
+                          {lead.leadNumber}{lead.customerNumber ? ` · ${lead.customerNumber}` : ""} · {lead.area}
                         </p>
                       </TableCell>
                       <TableCell className="text-sm">

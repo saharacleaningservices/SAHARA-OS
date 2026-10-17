@@ -5315,6 +5315,7 @@ export const CustomerScalarFieldEnum = {
   importBatchId: 'importBatchId',
   email: 'email',
   contactType: 'contactType',
+  customerNumber: 'customerNumber',
   isRepeat: 'isRepeat',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

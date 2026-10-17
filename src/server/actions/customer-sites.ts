@@ -92,6 +92,7 @@ export async function exportCustomerRows(filters: CustomerFilters) {
   if (!(await requireCustomerEditor())) return null;
   const { rows } = await getCustomersPage({ ...filters, page: 1, pageSize: 100_000 });
   return rows.map((c) => ({
+    "Customer ID": c.customerNumber ?? "",
     Name: c.name,
     Mobile: c.mobile,
     Category: categoryLabel(c.contactType),

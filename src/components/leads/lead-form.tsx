@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Check, ChevronDown, Loader2, MapPin, Plus } from "lucide-react";
+import { Check, ChevronDown, Loader2, Lock, MapPin, Plus } from "lucide-react";
 import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,12 +90,14 @@ export function LeadForm({
           const digits = (value || "").replace(/\D/g, "").slice(-10);
           if (digits.length !== 10) {
                   setRepeatCustomer(null);
+                  setProfileLocked(false);
                   return;
           }
           setCheckingRepeat(true);
           const summary = await getRepeatCustomerSummary(digits).catch(() => null);
           setCheckingRepeat(false);
           setRepeatCustomer(summary);
+          if (!summary) setProfileLocked(false);
           setSiteChoice(summary?.sites?.length ? "" : "NEW");
           if (summary) autoFillCustomer(summary);
     }
@@ -103,7 +105,13 @@ export function LeadForm({
     // Recognised contact → fill the stored basic profile straight away (blank fields only, so nothing the
     // user already typed is overwritten). Sites are still chosen below; the work-site address is never touched here.
     function autoFillCustomer(c: NonNullable<Awaited<ReturnType<typeof getRepeatCustomerSummary>>>) {
-      if (c.name && !(watch("name") || "").trim()) setValue("name", c.name, { shouldDirty: true });
+      // New lead for a saved contact: name / email come from the customer record and are locked (owner 2026-10-18);
+      // only the site address and the booking date / time are entered. "Edit" unlocks for a genuine correction.
+      if (!leadId && c.name) {
+        setValue("name", c.name, { shouldDirty: true });
+        if (c.email) setValue("email", c.email, { shouldDirty: true });
+        setProfileLocked(true);
+      } else if (c.name && !(watch("name") || "").trim()) setValue("name", c.name, { shouldDirty: true });
       if (c.alternateMobile && !(watch("alternateMobile") || "").trim()) setValue("alternateMobile", c.alternateMobile, { shouldDirty: true });
       if (c.email && !(watch("email") || "").trim()) setValue("email", c.email, { shouldDirty: true });
       if (c.officeAddress && !(watch("officeAddress") || "").trim()) setValue("officeAddress", c.officeAddress, { shouldDirty: true });
@@ -124,6 +132,7 @@ export function LeadForm({
   // Customer database (2026-10-08): reuse an existing contact and pick one of
   // its saved service sites, or add a new site — never re-type the profile.
   const [siteChoice, setSiteChoice] = useState<string>("NEW");
+  const [profileLocked, setProfileLocked] = useState(false);
   function applyExistingCustomer() {
     if (!repeatCustomer) return;
     if (repeatCustomer.name) setValue("name", repeatCustomer.name, { shouldDirty: true });
@@ -355,8 +364,17 @@ export function LeadForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-3 px-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="name">Customer Name</Label>
-            <Input id="name" {...register("name")} autoComplete="off" />
+            <Label htmlFor="name" className="flex items-center justify-between gap-2">
+              <span>Customer Name</span>
+              {profileLocked && (
+                <span className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                  <Lock className="size-3" aria-hidden />
+                  {repeatCustomer?.customerNumber ?? "Saved customer"}
+                  <button type="button" className="text-primary underline" onClick={() => setProfileLocked(false)}>Edit</button>
+                </span>
+              )}
+            </Label>
+            <Input id="name" {...register("name")} autoComplete="off" readOnly={profileLocked} className={profileLocked ? "bg-muted" : undefined} />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             {nameMatches.length > 0 && (
               <ul className="rounded-md border bg-card text-sm shadow-sm" aria-label="Existing customers matching this name">
@@ -413,7 +431,7 @@ export function LeadForm({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="email">Email (optional)</Label>
-            <Input id="email" type="email" {...register("email")} placeholder="name@example.com" />
+            <Input id="email" type="email" {...register("email")} placeholder="name@example.com" readOnly={profileLocked && !!watch("email")} className={profileLocked && watch("email") ? "bg-muted" : undefined} />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
           {!leadId && (

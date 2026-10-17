@@ -1,4 +1,5 @@
 import { paymentDetailsFrom } from "@/lib/booking-payment";
+import { customerNumberFor } from "@/server/customer-db";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
@@ -55,7 +56,8 @@ async function loadQuote(token?: string): Promise<QuotePrefill | null> {
   } catch {
     services = [];
   }
-  return { token, quoteNumber: q.quoteNumber, customerName: q.lead.name, mobile: q.lead.mobile, services: services.length ? services : ["As per quotation"], totalAmount: q.totalAmount };
+  const customerNumber = await customerNumberFor(q.lead.mobile);
+  return { token, quoteNumber: q.quoteNumber, customerName: q.lead.name, mobile: q.lead.mobile, customerNumber, services: services.length ? services : ["As per quotation"], totalAmount: q.totalAmount };
 }
 
 const CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { home: "HOME", commercial: "COMMERCIAL", pest: "PEST", painting: "PAINTING" };
