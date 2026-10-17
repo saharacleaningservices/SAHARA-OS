@@ -31,14 +31,41 @@ import {
     type LucideIcon,
 } from "lucide-react";
 
+export type NavGroupKey = "operations" | "sales" | "dashboards" | "tools" | "admin";
+
 export type NavItem = {
     label: string;
     href: string;
     section: string;
     icon: LucideIcon;
+    group: NavGroupKey;
 };
 
-export const NAV_ITEMS: NavItem[] = [
+/** Mobile / desktop sidebar accordion groups, in display order (a group with no items for the role is hidden). */
+export const NAV_GROUPS: { key: NavGroupKey; label: string }[] = [
+  { key: "operations", label: "Operations" },
+  { key: "sales", label: "Sales & Finance" },
+  { key: "dashboards", label: "Dashboards & Reports" },
+  { key: "tools", label: "Tools & AI" },
+  { key: "admin", label: "Settings & Admin" },
+];
+
+// Which accordion group each destination lives in (by href). Anything not listed falls under Tools & AI.
+const GROUP_BY_HREF: Record<string, NavGroupKey> = {
+  "/dashboard": "dashboards", "/revenue": "dashboards", "/profit": "dashboards", "/profit/marketing": "dashboards",
+  "/reports": "dashboards", "/reports/export-center": "dashboards",
+  "/leads": "sales", "/leads/price-list": "sales", "/quotations": "sales", "/invoices": "sales", "/payments": "sales",
+  "/expenses": "sales", "/customers": "sales",
+  "/jobs": "operations", "/jobs/dispatch": "operations", "/jobs/slots": "operations", "/staff": "operations",
+  "/vehicles": "operations", "/attendance": "operations", "/amc": "operations",
+  "/jobs?service=HOUSEKEEPING": "operations", "/jobs?service=PEST_CONTROL": "operations", "/jobs?service=INTERIOR_PAINTING": "operations",
+  "/assistant": "tools", "/admin/gallery": "tools", "/admin/announcements": "tools", "/admin/khata-import": "tools",
+  "/admin/whatsapp-inbox": "tools",
+  "/settings/pricing": "admin", "/admin/trash": "admin", "/admin/audit-log": "admin", "/admin/users": "admin",
+  "/admin/whatsapp-log": "admin", "/admin/device-approvals": "admin", "/admin/security-approvals": "admin",
+};
+
+const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   { label: "Dashboard", href: "/dashboard", section: "dashboard", icon: LayoutDashboard },
   { label: "Leads / CRM", href: "/leads", section: "leads", icon: Users },
   { label: "Price List", href: "/leads/price-list", section: "leads", icon: IndianRupee },
@@ -75,3 +102,5 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Device Approvals", href: "/admin/device-approvals", section: "device-approvals", icon: Smartphone },
   { label: "Security Approvals", href: "/admin/security-approvals", section: "security-approvals", icon: ShieldAlert },
   ];
+
+export const NAV_ITEMS: NavItem[] = RAW_NAV_ITEMS.map((i) => ({ ...i, group: GROUP_BY_HREF[i.href] ?? "tools" }));
