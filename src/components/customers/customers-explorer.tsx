@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { CustomerHistoryButton } from "@/components/customers/customer-history-drawer";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Download, Loader2, MapPin, MessageCircle, Phone, Search, X } from "lucide-react";
@@ -31,13 +32,15 @@ export type CustomerListRow = {
 
 const FILTERS: { key: string; label: string }[] = [
   { key: "ALL", label: "All" },
-  { key: "CUSTOMER", label: "Customers" },
+  { key: "CUSTOMER", label: "Direct Customer" },
   { key: "REPEAT", label: "Repeat" },
   { key: "BROKER", label: "Broker" },
-  { key: "ARCHITECT", label: "Architect" },
   { key: "INTERIOR_DESIGNER", label: "Interior Designer" },
-  { key: "SOCIETY", label: "Society / Facility" },
-  { key: "CORPORATE", label: "Corporate / Other" },
+  { key: "VENDOR", label: "Vendor" },
+  { key: "AMC_CLIENT", label: "AMC Client" },
+  { key: "CORPORATE", label: "Commercial / B2B Partner" },
+  { key: "ARCHITECT", label: "Architect (old)" },
+  { key: "SOCIETY", label: "Society / Facility (old)" },
   { key: "ACTIVE", label: "Active (6 months)" },
   { key: "INACTIVE", label: "No recent activity" },
   { key: "DUPLICATES", label: "Possible duplicates" },
@@ -228,6 +231,7 @@ export function CustomersExplorer({
                         {c.contactType !== "CUSTOMER" && <ContactTypeBadge type={c.contactType} />}
                         {c.variants > 1 && <span className="rounded bg-destructive/10 px-1 text-[10px] font-semibold text-destructive">Review duplicate</span>}
                       </Link>
+                      <CustomerHistoryButton mobile={c.mobile} name={c.name} />
                     </TableCell>
                     <TableCell className="py-1.5 text-sm tabular-nums">{c.mobile}</TableCell>
                     <TableCell className="py-1.5 text-sm">
@@ -271,9 +275,10 @@ export function CustomersExplorer({
                     <p className="text-[11px] text-muted-foreground">Last activity {formatDate(c.lastActivity)}</p>
                   </Link>
                 </div>
-                <div className="mt-2 grid grid-cols-3 gap-1.5 text-xs font-semibold">
+                <div className="mt-2 grid grid-cols-[1fr_1fr_auto_1fr] items-center gap-1.5 text-xs font-semibold">
                   <a href={toTelLink(c.mobile)} className="flex min-h-9 items-center justify-center gap-1 rounded-lg border"><Phone className="size-3.5" /> Call</a>
                   <a href={toWhatsAppLink(c.mobile)} target="_blank" rel="noreferrer" className="flex min-h-9 items-center justify-center gap-1 rounded-lg border text-emerald-700"><MessageCircle className="size-3.5" /> WhatsApp</a>
+                  <CustomerHistoryButton mobile={c.mobile} name={c.name} />
                   <Link href={`/customers/${c.mobile}`} className="flex min-h-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">Open</Link>
                 </div>
               </li>

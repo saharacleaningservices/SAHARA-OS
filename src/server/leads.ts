@@ -111,7 +111,7 @@ export async function getAllLeadsForList(session?: SessionPayload) {
 
   const leads = await db.lead.findMany({
     where,
-    orderBy: { createdAt: "desc" },
+    orderBy: { leadNumber: "desc" }, // newest Lead ID first (LD-2026-0256, 0255, …)
     include: {
       assignedStaff: { select: { name: true } },
       assignedTo: { select: { name: true } },

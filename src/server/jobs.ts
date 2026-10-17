@@ -54,7 +54,8 @@ export async function getAllJobsForList(session?: SessionPayload) {
 
   return db.job.findMany({
     where,
-    orderBy: { scheduledDate: "desc" },
+    // Newest Job ID first (JOB-2026-0269, 0268, …). The Jobs page still pins today / tomorrow on top by time slot (todayTomorrowFirst).
+    orderBy: { jobNumber: "desc" },
     include: {
       supervisor: { select: { name: true } },
       assignments: { include: { staff: { select: { name: true } } } },

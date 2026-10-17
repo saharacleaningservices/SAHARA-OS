@@ -20,9 +20,9 @@ import {
 } from "@/lib/validation";
 import { generateLeadNumber, generateQuoteNumber, generateJobNumber, generateInvoiceNumber } from "@/lib/id-generators";
 import { deriveArea } from "@/lib/utils";
+import { STANDARD_TERMS_TEXT } from "@/lib/quotation-template";
 import { notify } from "@/server/notify";
 import {
-  QUOTATION_TERMS,
   LEAD_STAGES,
   LEAD_STAGE_LABELS,
   FOLLOWUP_TYPE_LABELS,
@@ -166,7 +166,7 @@ async function autoQuotationForLead(leadId: string, actorId?: string) {
       gstPercent: 0,
       gstAmount: 0,
       totalAmount: subTotal - discount,
-      terms: QUOTATION_TERMS,
+      terms: STANDARD_TERMS_TEXT,
       validTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       status: "DRAFT",
     },
@@ -1106,7 +1106,7 @@ export async function createQuotation(
       gstPercent,
       gstAmount,
       totalAmount,
-      terms: typeof opts.terms === "string" && opts.terms.trim() ? opts.terms.trim().slice(0, 6000) : QUOTATION_TERMS,
+      terms: typeof opts.terms === "string" && opts.terms.trim() ? opts.terms.trim().slice(0, 6000) : STANDARD_TERMS_TEXT,
       validTill: new Date(Date.now() + Math.min(60, Math.max(1, Math.round(opts.validDays ?? 7))) * 24 * 60 * 60 * 1000),
     },
   });

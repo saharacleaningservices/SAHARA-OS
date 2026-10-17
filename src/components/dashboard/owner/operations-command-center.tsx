@@ -7,6 +7,7 @@ import { ExpandableCard } from "./expandable-card";
 import { LeadMonthCalendar } from "./lead-calendar";
 import { getSlotBoard } from "@/server/actions/slot-control";
 import { DashboardModules } from "@/components/dashboard/dashboard-modules";
+import { HeroStats } from "@/components/dashboard/hero-stats";
 import { JobStatusBadge } from "@/components/shared/status-badge";
 
 type OpsDay = Awaited<ReturnType<typeof getOperationsHome>>["today"];
@@ -100,20 +101,7 @@ export async function getOperationsDashboardSections({ name, userId, newLeads }:
   const todaySlot = board?.[0];
   if (todaySlot) chips.push({ href: "/jobs/slots", label: `teams · ${todaySlot.booked}/${todaySlot.dailyCapacity} booked today`, count: todaySlot.teams });
 
-  const hero = (
-    <div className="sahara-gradient rounded-2xl p-4 text-white sm:p-5">
-      <h1 className="text-xl font-semibold text-white sm:text-2xl">
-        {getGreeting()}, {name}
-      </h1>
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {chips.map((c) => (
-          <Link key={c.label} href={c.href} className={`rounded-full px-2.5 py-1 text-xs font-medium ${c.count > 0 ? "bg-white text-foreground" : "bg-white/15 text-white/80"}`}>
-            <span className="font-bold">{c.count}</span> {c.label}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
+  const hero = <HeroStats greeting={getGreeting()} name={name} chips={chips} />;
 
   const countLink = (href: string, label: string, value: number, icon: ReactNode) => (
     <Link key={label} href={href} className="rounded-2xl border border-border bg-card px-3 py-2 shadow-sm hover:border-primary/40">

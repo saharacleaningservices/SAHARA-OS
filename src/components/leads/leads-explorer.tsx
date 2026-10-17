@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { CustomerHistoryButton } from "@/components/customers/customer-history-drawer";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -281,9 +282,12 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                         />
                       </TableCell>
                       <TableCell>
-                        <Link href={`/leads/${lead.id}`} className="font-medium text-foreground hover:underline">
-                          {lead.name}
-                        </Link>
+                        <span className="flex items-center gap-1">
+                          <Link href={`/leads/${lead.id}`} className="font-medium text-foreground hover:underline">
+                            {lead.name}
+                          </Link>
+                          <CustomerHistoryButton mobile={lead.mobile} name={lead.name} />
+                        </span>
                         <p className="text-xs text-muted-foreground">
                           {lead.leadNumber} · {lead.area}
                         </p>
