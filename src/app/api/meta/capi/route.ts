@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
-import { CAPI_EVENTS, sendCapiEvent } from "@/lib/meta-capi";
+import { CAPI_EVENTS, normalizePhone, sendCapiEvent } from "@/lib/meta-capi";
 
 // Called by the browser right after a public form is submitted (see trackLead in marketing-tags.tsx).
 // Adds IP / user-agent / _fbp / _fbc server-side and relays to Meta. Public by design, so it is
@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });
+  // A real lead always has a valid Indian mobile; without one this public endpoint refuses to relay anything.
+  if (!normalizePhone(parsed.data.mobile)) return NextResponse.json({ ok: false }, { status: 400 });
 
   const referer = request.headers.get("referer");
   const result = await sendCapiEvent({

@@ -100,3 +100,44 @@ test("route is reachable on the booking host and the token is never NEXT_PUBLIC"
   const env = readFileSync(".env.example", "utf8");
   assert.ok(env.includes("META_CAPI_TOKEN=") && !env.includes("NEXT_PUBLIC_META_CAPI"));
 });
+
+test("protected numbers are matched across formats", async () => {
+  const { isProtectedNumber } = await import("../src/lib/protected-numbers");
+  for (const n of ["9921215250", "99212 15250", "+91 99212-15250", "919921215250", "09921215250", " 91-9168337130 ", "7083347130", "+917083347130", "9175220270"]) {
+    assert.equal(isProtectedNumber(n), true, n);
+  }
+  for (const n of ["9800817070", "9876543210", "", undefined, null, "12345"]) assert.equal(isProtectedNumber(n as string), false, String(n));
+});
+
+test("protected number: no Pixel, no GA4, no Ads conversion, no server relay (browser) and no Meta call (server)", async () => {
+  process.env.NEXT_PUBLIC_META_PIXEL_ID = "111";
+  process.env.META_CAPI_TOKEN = "t";
+  const calls: unknown[][] = [];
+  const g = globalThis as unknown as { window: unknown };
+  g.window = { fbq: (...a: unknown[]) => calls.push(["fbq", ...a]), gtag: (...a: unknown[]) => calls.push(["gtag", ...a]), location: { href: "https://booking.saharacleaningservices.com/booking" } };
+  const realFetch = globalThis.fetch;
+  let fetches = 0;
+  globalThis.fetch = (async () => { fetches++; return new Response("{}"); }) as typeof fetch;
+  try {
+    const mod = await import("../src/components/public/marketing-tags?protected=1");
+    mod.trackLead({ category: "X", variant: "Y", mobile: "+91 99212-15250" });
+    mod.trackSchedule({ category: "X", mobile: "9921215250" });
+    assert.equal(calls.length, 0, "no fbq/gtag calls");
+    assert.equal(fetches, 0, "no relay call");
+    const r = await sendCapiEvent({ eventName: "Lead", eventId: "evt-12345678", sourceUrl: "x", mobile: "09168337130" });
+    assert.deepEqual(r, { sent: false, reason: "protected" });
+    assert.equal(fetches, 0, "no Meta call");
+  } finally {
+    globalThis.fetch = realFetch;
+    delete (g as { window?: unknown }).window;
+    delete process.env.NEXT_PUBLIC_META_PIXEL_ID;
+    delete process.env.META_CAPI_TOKEN;
+  }
+});
+
+test("route refuses requests without a valid mobile and has a fixed event allow-list", () => {
+  const src = readFileSync("src/app/api/meta/capi/route.ts", "utf8");
+  assert.ok(src.includes("normalizePhone(parsed.data.mobile)"));
+  assert.ok(src.includes("z.enum(CAPI_EVENTS)"));
+  assert.ok(!/accessToken|META_CAPI_TOKEN/.test(src), "route never touches the token");
+});

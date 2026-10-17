@@ -3,6 +3,7 @@
 // (Meta's normalisation rules) and never logged. Needs NEXT_PUBLIC_META_PIXEL_ID + META_CAPI_TOKEN
 // (server-only secret, entered by the owner in Coolify). No-op while either is unset.
 import { createHash } from "node:crypto";
+import { isProtectedNumber } from "@/lib/protected-numbers";
 
 export const CAPI_EVENTS = ["Lead", "Schedule"] as const;
 export type CapiEventName = (typeof CAPI_EVENTS)[number];
@@ -67,6 +68,7 @@ export function buildCapiPayload(i: CapiInput, testEventCode?: string) {
 
 /** Best-effort send. Never throws; returns what happened so the route can answer without leaking details. */
 export async function sendCapiEvent(i: CapiInput): Promise<{ sent: boolean; reason?: string }> {
+  if (isProtectedNumber(i.mobile)) return { sent: false, reason: "protected" };
   const pixel = process.env.NEXT_PUBLIC_META_PIXEL_ID;
   const token = process.env.META_CAPI_TOKEN;
   if (!pixel || !token) return { sent: false, reason: "not-configured" };

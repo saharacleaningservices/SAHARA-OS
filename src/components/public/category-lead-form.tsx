@@ -92,7 +92,7 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
       }));
       if ("error" in res && res.error) return setError(res.error);
       trackLead({ category: service, variant: type || undefined, mobile: phone });
-      if (schedule) trackSchedule({ category: service });
+      if (schedule) trackSchedule({ category: service, mobile: phone });
       setDone("leadNumber" in res ? (res.leadNumber ?? "") : "");
     });
   }
