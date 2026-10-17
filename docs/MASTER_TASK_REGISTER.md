@@ -382,3 +382,14 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   Owner: create the CAPI token (Events Manager), set env in Coolify, merge, verify in Test events.
 - `docs/DIWALI_2026_BROADCAST_CHECKLIST.md`: opt-in-only audience segments, test → 50-contact batch → scale plan.
 - Main-site (www) certificate expires **1 Nov 2026**; booking/CRM certificate 22 Dec 2026.
+
+### Update 2026-10-17 (PR #8 finished, SSL request)
+- **PR #8 head `e69c7bc`** (base `coolify-deploy` `96329cb`, mergeable, no CI configured): protected-number
+  suppression added (9168337130, 9921215250, 7083347130, 9175220270; last-10-digit match) across Pixel Lead/Schedule,
+  GA4 `generate_lead`, Google Ads conversion and the CAPI relay; `/api/meta/capi` refuses requests without a valid
+  mobile. Local checks, all exit 0: test:capi 9/9, leadtrack 2/2, domains 4/4, cognito 25/25, tsc, eslint --quiet;
+  `next build` complete (BUILD_ID, CAPI route compiled). The `src/generated/prisma/internal/class.ts` diff after
+  `npm ci` was only the worktree path + key order from `prisma generate` — reverted, not committed.
+- Not merged / not deployed: production merge is owner-only; CAPI token + Pixel id not yet in Coolify.
+- `docs/WEBBRAND_SSL_RENEWAL_REQUEST.md`: main site (WebBrand, 192.185.129.241) certificate still expires 1 Nov 2026;
+  ready-to-send renewal request.
