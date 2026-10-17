@@ -421,3 +421,6 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
   audit log, users or pricing settings. Francis can open `/leads/price-list` (service prices — same as the public
   pages; leads section owner-approved 2026-10-05). Mobile visual QA not done: browser login with the QA password was
   blocked by the session safety guard.
+- 2026-10-17 late: WebBrand SSL renewal e-mail **sent** (Gmail, with signature) to the WebBrand contact from the
+  2022 thread (Ritesh Wankhade, RN WebBrand Solutions); earlier draft deleted. Awaiting reply. Handover saved in
+  `docs/SESSION_HANDOVER.md`.
