@@ -454,3 +454,16 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - **Cognito deadline:** script reads the last 14 days; the 7 Oct enquiries drop out about 21 Oct. Exact owner steps in
   `docs/OWNER_SETUP_STEPS_2026-10-17.md`.
 - PR #4 and #8 still open/clean; production `96329cb`; live: GA4 only, `/api/meta/capi` 404, email-lead webhook 401.
+
+### Update 2026-10-17 14:40 IST (queue run)
+- **PR #8** re-verified on `feat/meta-capi` @ `e69c7bc` (clean worktree, matches GitHub head): test:capi 9/9, leadtrack 2/2,
+  domains 4/4, tsc exit 0 (cognito 25/25 and og 1/1 on their branches). Protected-number suppression is in the pushed commit.
+  Not merged.
+- **Cognito script:** logic and token auth verified (test:cognito 25/25; production webhook 401 without token). Gmail shows no
+  `CRM-synced`/`CRM-skipped` label and no new Cognito mail since 13 Oct → script still not running (owner install pending;
+  14-day lookback — 7 Oct mails drop out about 21 Oct).
+- **WhatsApp templates:** `sahara_pest_control_offer`, `sahara_painting_offer`, `sahara_facility_management_offer` are NOT in
+  WhatsApp Manager (14 existing, none of these). Not submitted: the owner's own condition (Meta marketing-limit cooldown
+  expired) is not met — the failing test was 09:27 IST 17 Oct, now 14:40 IST; earliest ~09:30 IST 18 Oct. Also the draft's
+  "furniture covered" claim (painting) needs owner confirmation, and header images must be uploaded.
+- **WebBrand:** audit e-mail already sent (`1a149096f0d1f662`); no reply or bounce in Gmail yet. Not resent.
