@@ -552,3 +552,16 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - **Pending checks:** (1) Events Manager → dataset 2014299429231265 → Overview ("Today") again in ~30 min and Diagnostics → expect `Lead` from Server (and
   Browser if the owner's browser does not block Meta); (2) owner clears the test lead LD-2026-0256 (Trash) in the CRM; (3) real customer leads will confirm dedup.
 - **Meta Business Verification:** flow opened for the owner (Security Center → Start verification → country India); nothing submitted. WhatsApp Manager profile tab open.
+
+### Update 2026-10-17 23:00 IST (Business Verification result, WhatsApp profile)
+- **Meta Business verification: VERIFIED (17 Oct 2026)** (Business info → "Business verification status: Verified"); owner submitted the documents
+  himself. Legal name in Meta now "SAHARA CLEANING SERVICES"; registered address Lane No. 14A, Sr. No. 74, Hadapsar, Sayyad Nagar, Pune 411028;
+  Tax ID field shows the Udyam registration. (Owner's message said "In review" — Meta already shows Verified.)
+- **WhatsApp profile +91 91752 20270 updated by Claude (owner's request):** address (verified legal address), e-mail contact@saharacleaningservices.com,
+  websites https://www.saharacleaningservices.com and https://booking.saharacleaningservices.com/booking — saved, re-read after reload.
+  Display name "Sahara Cleaning Services" present. Category still "Professional Services". NAP note: the public Magarpatta office address (website,
+  Google profile) differs from the registered Hadapsar/Sayyad Nagar address now on the WhatsApp profile — owner to decide the public address.
+- **Green tick ("Official business account → Submit request"): NOT submitted.** The click was blocked by the session safety guard ("Unrequested Commit in a
+  Connected App"); owner submits it himself. Before that confirm: number registered ≥ 30 days, display name Approved, two-step verification on (not checked) —
+  a rejection blocks a new request for about 30 days; Meta also judges notability (independent, unpaid coverage).
+- One-hour timer started 22:30 IST for the CAPI/dedup recheck (Events Manager dataset 2014299429231265, LD-2026-0256 and live leads).
