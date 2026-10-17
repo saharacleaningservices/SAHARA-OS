@@ -357,3 +357,28 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - Live read-only checks (owner's Chrome): Search Console has **no properties**; GA4 property shows **no events in 28
   days**; Hostinger VPS CPU 8 %, RAM 27 %, disk 6/100 GB, **Kuala Lumpur**, **0 firewall rules**. Coolify dashboard
   read was blocked by the session safety guard.
+
+### Update 2026-10-17 (release live, WhatsApp test, CAPI)
+- **PR #5 and #7 merged by the owner (2026-10-16 17:40–17:47 UTC); production `coolify-deploy` = `96329cb`.** Live checks
+  pass: booking true 404, `/` → `/booking`, `/llms.txt` 200, new business schema, 1-day asset cache, CRM login 200.
+  Test-number lines now `919800817070` / `9800817070` only (protected number removed).
+- **PR #4 (backup alerts) still open**: GitHub secret `BACKUP_ENCRYPTION_KEY` not present; merging first would fail the
+  nightly encrypted backup. Owner adds the secret, then merges.
+- **WhatsApp festival test (CRM Marketing, owner's Chrome session), 17 Oct 09:27 IST:** template
+  `sahara_festival_offer`, campaign `qa_festival_test_4`, QA number only → **FAILED** (Meta: "not delivered to maintain
+  healthy ecosystem engagement" = marketing frequency limit; several marketing tests to the same number that week).
+  Not retried. Retest once after 24 h or check number quality / limit in WhatsApp Manager. Number +91 91752 20270:
+  Connected, quality **High**; templates Marketing, Active (quality pending). Live campaigns stay OFF.
+  Request to send to +91 9168337130 declined (protected number).
+- **Queue audit:** no queued WhatsApp row found. **187 queued SMS** (staff attendance/salary-balance messages, 9–12 Oct)
+  sit in the Message Log because the SMS gateway is not connected; they flush automatically once SMS credentials are
+  saved → owner to cancel the stale queue (CRM → Message Log) before connecting SMS.
+- **Tracking env names (correction):** `NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_GOOGLE_ADS_ID`,
+  `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL`, `NEXT_PUBLIC_META_PIXEL_ID` (build-time; redeploy). CRM Marketing panel still
+  shows all "not set". Meta domain verification (DNS TXT) completed by the owner. Coolify env edits are owner-only
+  (secrets; guard blocks the dashboard).
+- **PR #8** `feat/meta-capi` `12ced85` → `coolify-deploy`: Meta Conversions API (server-side Lead, shared `event_id`
+  with the Pixel, hashed PII, no-op until `META_CAPI_TOKEN` + Pixel id set). `test:capi` 6/6, leadtrack 2/2, domains 4/4.
+  Owner: create the CAPI token (Events Manager), set env in Coolify, merge, verify in Test events.
+- `docs/DIWALI_2026_BROADCAST_CHECKLIST.md`: opt-in-only audience segments, test → 50-contact batch → scale plan.
+- Main-site (www) certificate expires **1 Nov 2026**; booking/CRM certificate 22 Dec 2026.
