@@ -541,3 +541,14 @@ PR was never created; the other branches have no PR yet. GitHub CLI is not insta
 - **Business verification page:** Security Center → "Business Verification — Eligible for verification — Start verification": **no documents submitted**.
   **WhatsApp +91 91752 20270:** display name "Sahara Cleaning Services" set; "Official business account → Submit request" button present (not used);
   profile incomplete (category "Professional Services"; Address/Email/Website empty). Last 30 days: 11 messages delivered, 10 marketing, ≈₹8.63 total.
+
+### Update 2026-10-17 22:25 IST (CAPI relay test through Meta Test Events)
+- No Meta activity appeared 26 min after the real test lead LD-2026-0256 (Overview range "Today"). To separate "relay broken" from "Meta lag / Pixel
+  blocked by an ad-blocker", Claude temporarily set `META_CAPI_TEST_CODE` (Runtime-only), restarted the app (no rebuild), and POSTed two synthetic Lead events
+  directly to `/api/meta/capi` (event ids `qa-capi-verify-20261017-0001/0002`, owner's test number — not a protected number). The relay answered `{"ok":true}`
+  both times (it returns true only when the Graph API returns 2xx), so the token, dataset id and server path work. The Test Events page did not list the
+  events in the UI within ~2 min, so **Browser+Server deduplication is still unverified**.
+- **Cleanup done:** `META_CAPI_TEST_CODE` deleted (Production and Preview copies) and the app restarted again so real customer events are no longer routed to the test console.
+- **Pending checks:** (1) Events Manager → dataset 2014299429231265 → Overview ("Today") again in ~30 min and Diagnostics → expect `Lead` from Server (and
+  Browser if the owner's browser does not block Meta); (2) owner clears the test lead LD-2026-0256 (Trash) in the CRM; (3) real customer leads will confirm dedup.
+- **Meta Business Verification:** flow opened for the owner (Security Center → Start verification → country India); nothing submitted. WhatsApp Manager profile tab open.
