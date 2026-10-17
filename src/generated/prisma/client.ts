@@ -359,3 +359,8 @@ export type OpsReminderEvent = Prisma.OpsReminderEventModel
  * 
  */
 export type OpsReminderSettings = Prisma.OpsReminderSettingsModel
+/**
+ * Model WebAuthnCredential
+ * 
+ */
+export type WebAuthnCredential = Prisma.WebAuthnCredentialModel

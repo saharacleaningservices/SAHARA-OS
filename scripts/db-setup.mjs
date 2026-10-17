@@ -1786,3 +1786,28 @@ db.close();
   }
   kDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Biometric / passkey sign-in (2026-10-18, additive): WebAuthnCredential.
+// Public keys only; cascades with the user.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const wDb = new Database(dbPath);
+  wDb.exec(`
+    CREATE TABLE IF NOT EXISTS "WebAuthnCredential" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "userId" TEXT NOT NULL,
+      "credentialId" TEXT NOT NULL,
+      "publicKey" TEXT NOT NULL,
+      "counter" INTEGER NOT NULL DEFAULT 0,
+      "transports" TEXT,
+      "label" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "lastUsedAt" DATETIME,
+      CONSTRAINT "WebAuthnCredential_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "WebAuthnCredential_credentialId_key" ON "WebAuthnCredential"("credentialId");
+    CREATE INDEX IF NOT EXISTS "WebAuthnCredential_userId_idx" ON "WebAuthnCredential"("userId");
+  `);
+  wDb.close();
+}

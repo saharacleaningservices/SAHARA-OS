@@ -111,7 +111,8 @@ export const ModelName = {
   KhataImportLog: 'KhataImportLog',
   OpsReminder: 'OpsReminder',
   OpsReminderEvent: 'OpsReminderEvent',
-  OpsReminderSettings: 'OpsReminderSettings'
+  OpsReminderSettings: 'OpsReminderSettings',
+  WebAuthnCredential: 'WebAuthnCredential'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1324,6 +1325,21 @@ export const OpsReminderSettingsScalarFieldEnum = {
 } as const
 
 export type OpsReminderSettingsScalarFieldEnum = (typeof OpsReminderSettingsScalarFieldEnum)[keyof typeof OpsReminderSettingsScalarFieldEnum]
+
+
+export const WebAuthnCredentialScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  credentialId: 'credentialId',
+  publicKey: 'publicKey',
+  counter: 'counter',
+  transports: 'transports',
+  label: 'label',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt'
+} as const
+
+export type WebAuthnCredentialScalarFieldEnum = (typeof WebAuthnCredentialScalarFieldEnum)[keyof typeof WebAuthnCredentialScalarFieldEnum]
 
 
 export const SortOrder = {

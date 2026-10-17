@@ -6,10 +6,11 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Lock, Smartphone, ShieldCheck, XCircle, Eye, EyeOff } from "lucide-react";
+import { Loader2, Lock, Smartphone, ShieldCheck, XCircle, Eye, EyeOff, Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { biometricSupported, markActiveNow, passkeyOnThisDevice, signInWithBiometric } from "@/lib/webauthn-client";
 
 const schema = z.object({
   loginId: z.string().trim().min(3, "Enter your mobile number"),
@@ -28,6 +29,26 @@ export function LoginForm({ next }: { next?: string }) {
   const [denied, setDenied] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Biometric sign-in (Face ID / fingerprint / device PIN) — shown only where the device supports it.
+  const [bioReady, setBioReady] = useState(false);
+  const [bioHere, setBioHere] = useState(false);
+  const [bioLoading, setBioLoading] = useState(false);
+  useEffect(() => {
+    void biometricSupported().then((ok) => {
+      setBioReady(ok);
+      setBioHere(ok && passkeyOnThisDevice());
+    });
+  }, []);
+
+  async function onBiometric() {
+    setError(null);
+    setDenied(false);
+    setBioLoading(true);
+    const r = await signInWithBiometric();
+    setBioLoading(false);
+    if (r.ok) return goToDestination();
+    if (!r.cancelled) setError(r.error);
+  }
 
   const {
     register,
@@ -45,6 +66,7 @@ export function LoginForm({ next }: { next?: string }) {
   }, []);
 
   function goToDestination() {
+    markActiveNow();
     router.push(next && next.startsWith("/") ? next : "/dashboard");
     router.refresh();
   }
@@ -120,6 +142,20 @@ export function LoginForm({ next }: { next?: string }) {
 
   return (
     <div className="w-full max-w-sm space-y-6">
+      {bioReady && (
+        <div className="space-y-3">
+          <Button type="button" variant={bioHere ? "default" : "outline"} className="h-11 w-full" onClick={onBiometric} disabled={bioLoading || loading}>
+            {bioLoading ? <Loader2 className="animate-spin" /> : <Fingerprint className="size-5" />}
+            Sign in with Face ID / Fingerprint
+          </Button>
+          <p className="text-center text-[11px] text-muted-foreground">
+            {bioHere ? "Uses this phone's own Face ID, fingerprint or screen lock." : "Enable it once from My Profile after signing in with your password."}
+          </p>
+          <div className="flex items-center gap-3 text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="h-px flex-1 bg-border" /> or use password <span className="h-px flex-1 bg-border" />
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="loginId">Mobile Number</Label>

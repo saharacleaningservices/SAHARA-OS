@@ -34,9 +34,14 @@ export async function publicFileToDataUrl(publicPath: string): Promise<string | 
 
 /**
  * The brand logo for a PDF header: the admin-uploaded logo if it's a raster,
- * else the committed /brand/sahara-logo.png. Returns null → the document
+ * else the committed /brand/sahara-logo@2x.png. Returns null → the document
  * renders its styled text header instead (never a broken image).
  */
 export async function resolveBrandLogoDataUrl(logoUrl?: string | null): Promise<string | null> {
-  return (await publicFileToDataUrl(logoUrl ?? "")) ?? (await publicFileToDataUrl("/brand/sahara-logo.png"));
+  // 830 px official artwork first (sharp when printed); the 415 px file stays as a fallback.
+  return (
+    (await publicFileToDataUrl(logoUrl ?? "")) ??
+    (await publicFileToDataUrl("/brand/sahara-logo@2x.png")) ??
+    (await publicFileToDataUrl("/brand/sahara-logo.png"))
+  );
 }

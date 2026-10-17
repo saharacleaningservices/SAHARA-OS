@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { AppLock } from "@/components/auth/app-lock";
 import { SidebarNav } from "./sidebar-nav";
 import { Topbar } from "./topbar";
 import { CustomerActionsBar } from "./customer-actions-bar";
@@ -30,6 +31,7 @@ export function AppShell({
         </main>
       </div>
       <Toaster position="top-right" richColors />
+      <AppLock />
     </div>
   );
 }

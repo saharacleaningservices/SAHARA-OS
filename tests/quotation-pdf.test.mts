@@ -1,7 +1,7 @@
 // Single-page standard quotation (owner wording, 17 Oct 2026): content rules + real PDF render with page count. Run: npm run test:quote
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildSync } from "esbuild";
@@ -59,6 +59,7 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
     notes: scope.notes,
     kindlyNote: scope.kindlyNote,
     terms: resolveQuotationTerms(opts.terms ?? STANDARD_TERMS_TEXT).text,
+    logoDataUrl: `data:image/png;base64,${readFileSync("public/brand/sahara-logo@2x.png").toString("base64")}`,
     upiId: "test@upi",
     qrDataUrl,
     singlePage: opts.singlePage ?? true,
