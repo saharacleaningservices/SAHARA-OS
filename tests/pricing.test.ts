@@ -787,11 +787,11 @@ test("Google Ads landing pages (/landing/*): 4 isolated single-service routes wi
   assert.match(read("src/server/actions/gallery.ts"), /category: \{ contains: category \}/);
 });
 
-test("Advance payment: 50% rule, Total | Advance | Remaining, pay-after-service means no advance", async () => {
+test("Advance payment: 20% rule (owner 2026-10-18), Total | Advance | Remaining, pay-after-service means no advance", async () => {
   const { ADVANCE_PERCENT, advanceBreakdown, paymentDetailsFrom } = await import("../src/lib/booking-payment");
-  assert.equal(ADVANCE_PERCENT, 50);
-  assert.deepEqual(advanceBreakdown(4999, "PAY_ADVANCE"), { total: 4999, advance: 2500, remaining: 2499 });
-  assert.deepEqual(advanceBreakdown(6999, "PAY_ADVANCE"), { total: 6999, advance: 3500, remaining: 3499 });
+  assert.equal(ADVANCE_PERCENT, 20);
+  assert.deepEqual(advanceBreakdown(4999, "PAY_ADVANCE"), { total: 4999, advance: 1000, remaining: 3999 });
+  assert.deepEqual(advanceBreakdown(6999, "PAY_ADVANCE"), { total: 6999, advance: 1400, remaining: 5599 });
   assert.deepEqual(advanceBreakdown(5499, "PAY_AFTER_SERVICE"), { total: 5499, advance: 0, remaining: 5499 });
   assert.deepEqual(advanceBreakdown(5499, ""), { total: 5499, advance: 0, remaining: 5499 });
   assert.deepEqual(advanceBreakdown(-5, "PAY_ADVANCE"), { total: 0, advance: 0, remaining: 0 });
