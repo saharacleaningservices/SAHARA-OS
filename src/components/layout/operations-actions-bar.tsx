@@ -5,7 +5,7 @@ import { PackageCalculatorButton } from "@/components/layout/package-calculator-
 /**
  * Francis (OPERATIONS) top bar — the same Package Calculator + New Lead as the
  * Super Admin / Accounts CRM bar, without the customer-database search
- * (Call / WhatsApp / Send Offer), which Operations is not permitted to use.
+ * (Send Offer), which Operations is not permitted to use.
  * The calculator's server actions already scope him to his own leads and
  * list prices (no price/discount edits).
  */
