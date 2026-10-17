@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { useEffect } from "react";
+import { isProtectedNumber } from "@/lib/protected-numbers";
 
 // Sahara-owned marketing tags for the public pages. Everything is gated on
 // env vars, so nothing loads until the owner sets IDs from Sahara's OWN
@@ -47,6 +48,8 @@ function sendServerEvent(eventName: "Lead" | "Schedule", eventId: string, d: { c
 
 /** Fire once after a successful booking/lead form submission. */
 export function trackLead(details: { category?: string; variant?: string; mobile?: string }) {
+  // Owner-protected / internal numbers never reach any ad or analytics platform.
+  if (isProtectedNumber(details.mobile)) return;
   // One shared id: the browser Pixel and the server (Conversions API) both send it, so Meta counts the lead once.
   const eventId = newEventId();
   fbq()?.("track", "Lead", { content_name: details.variant, content_category: details.category }, { eventID: eventId });
@@ -58,7 +61,8 @@ export function trackLead(details: { category?: string; variant?: string; mobile
 }
 
 /** Site-visit / inspection requests (commercial, painting, pest, housekeeping): Meta "Schedule" + GA4. */
-export function trackSchedule(details: { category?: string }) {
+export function trackSchedule(details: { category?: string; mobile?: string }) {
+  if (isProtectedNumber(details.mobile)) return;
   fbq()?.("track", "Schedule", { content_category: details.category });
   gtag()?.("event", "schedule_inspection", { service_category: details.category });
 }
