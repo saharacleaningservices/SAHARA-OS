@@ -1,12 +1,14 @@
 import { BOOKING_BASE, bookingLink, socialLinks } from "@/lib/social-links";
 
+// Both public numbers (lib/constants COMPANY.phones) — kept literal here so this file stays free of server imports.
+const COMPANY_PHONES = ["7083347130", "8956567130"] as const;
+
 // Responsive, inline-styled HTML email signature (owner spec 2026-10-18).
 //
 //   header      sender's name + role (dynamic: Altaf / Francis / Shoyab …)
-//   left        official logo artwork (sahara-logo@2x.png)
-//   divider →   phone, email, booking URL, address
-//   social bar  Facebook · Instagram · YouTube · LinkedIn (only when set) · Book Now — all UTM-tagged
-//   trust       Google rating badge (from Settings) + Verified Staff
+//   boxed table left: official logo (sahara-logo@2x.png) | right: both phone numbers, email, booking URL, address
+//   CONNECT WITH US     Facebook · Instagram · YouTube · LinkedIn (only when set) · Book Now — all UTM-tagged
+//   TRUST & QUALITY     Google rating (from Settings) · Verified Staff · No Outsourced Work
 //
 // Email-client rules followed: table layout, every style inline, no web fonts / SVG / scripts, no external icon
 // images (nothing breaks with images blocked), one <style> media query only to stack the two columns on phones,
@@ -46,15 +48,37 @@ export function prettyPhone(raw: string): string {
   return d.length === 10 ? `+91 ${d.slice(0, 5)} ${d.slice(5)}` : raw;
 }
 
-const pill = (href: string, label: string, bg: string, fg = "#ffffff") =>
-  `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 6px 6px 0;padding:6px 11px;border-radius:14px;background:${bg};color:${fg};font:600 12px/16px Arial,Helvetica,sans-serif;text-decoration:none;">${esc(label)}</a>`;
+// Emoji are written as numeric entities so the HTML stays pure ASCII (safe in any charset / client).
+const E = { phone: "&#128222;", mail: "&#9993;&#65039;", web: "&#127760;", pin: "&#128205;", fb: "&#128309;", ig: "&#128248;", yt: "&#128308;", li: "&#128188;", book: "&#128197;", star: "&#11088;", tick: "&#10004;&#65039;", shield: "&#128737;&#65039;" };
+const SOCIAL_EMOJI: Record<string, string> = { facebook: E.fb, instagram: E.ig, youtube: E.yt, linkedin: E.li };
 
-const BRAND_BG: Record<string, string> = { facebook: "#1877F2", instagram: "#C13584", youtube: "#E02424", linkedin: "#0A66C2" };
+const pill = (href: string, emoji: string, label: string) =>
+  `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 6px 6px 0;padding:6px 12px;border:1px solid #c9d7ea;border-radius:16px;background:#ffffff;color:${NAVY};font:600 12px/16px Arial,Helvetica,sans-serif;text-decoration:none;">${emoji} ${esc(label)}</a>`;
+
+const tag = (text: string, border: string, bg: string, fg: string) =>
+  `<span style="display:inline-block;margin:0 8px 6px 0;padding:4px 10px;border:1px solid ${border};border-radius:12px;background:${bg};font:700 12px/16px Arial,Helvetica,sans-serif;color:${fg};">${text}</span>`;
+
+const heading = (t: string) => `<div style="margin:12px 0 6px 0;font:700 11px/14px Arial,Helvetica,sans-serif;letter-spacing:1px;color:${MUTED};">${t}</div>`;
+
+/** "+91 70833 47130" for each distinct number, joined with " / ". */
+function phoneLine(primary: string, extra: readonly string[]) {
+  const seen = new Set<string>();
+  const nums = [primary, ...extra].filter((n) => {
+    const d = digits(n).slice(-10);
+    if (d.length !== 10 || seen.has(d)) return false;
+    seen.add(d);
+    return true;
+  });
+  return nums
+    .slice(0, 2)
+    .map((n) => `<a href="tel:+91${digits(n).slice(-10)}" style="color:${BLUE};text-decoration:none;">${esc(prettyPhone(n))}</a>`)
+    .join(" / ");
+}
 
 export function renderSignatureHtml(i: SignatureInput = {}): string {
-  const phone = prettyPhone(i.phone || "7083347130");
   const email = i.email || "contact@saharacleaningservices.com";
-  const address = i.address || "Opp. South Gate, Magarpatta City, Hadapsar, Pune.";
+  const rawAddress = i.address || "Opp. South Gate, Magarpatta City, Hadapsar, Pune.";
+  const address = /maharashtra/i.test(rawAddress) ? rawAddress : `${rawAddress.replace(/[.\s]+$/, "")}, Maharashtra, India`;
   const logo = `${(i.assetBase || BOOKING_BASE).replace(/\/$/, "")}/brand/sahara-logo@2x.png`;
   const bookHref = bookingLink("email_signature", "email", "booking_cta");
   const bookText = BOOKING_BASE.replace(/^https?:\/\//, "");
@@ -63,46 +87,45 @@ export function renderSignatureHtml(i: SignatureInput = {}): string {
   const reviews = (i.googleReviewCount ?? "").trim();
 
   const header = i.name
-    ? `<tr><td colspan="2" style="padding:0 0 10px 0;font-family:Arial,Helvetica,sans-serif;">
-         <div style="font-size:16px;line-height:20px;font-weight:700;color:${NAVY};">${esc(i.name)}</div>
-         ${i.role ? `<div style="font-size:12px;line-height:16px;color:${MUTED};">${esc(i.role)} &middot; Sahara Cleaning Services</div>` : ""}
-       </td></tr>`
+    ? `<div style="font-family:Arial,Helvetica,sans-serif;padding:0 0 10px 0;">
+         <div style="font-size:17px;line-height:22px;font-weight:700;color:${NAVY};">${esc(i.name)}</div>
+         ${i.role ? `<div style="font-size:13px;line-height:18px;color:${MUTED};">${esc(i.role)} &mdash; Sahara Cleaning Services</div>` : ""}
+       </div>`
     : "";
 
-  const row = (label: string, value: string) =>
-    `<tr><td style="padding:0 8px 4px 0;font:700 12px/17px Arial,Helvetica,sans-serif;color:${NAVY};white-space:nowrap;vertical-align:top;">${label}</td><td style="padding:0 0 4px 0;font:12px/17px Arial,Helvetica,sans-serif;color:#26364a;">${value}</td></tr>`;
+  const row = (icon: string, value: string) =>
+    `<tr><td style="padding:0 8px 6px 0;font:14px/18px Arial,Helvetica,sans-serif;vertical-align:top;width:22px;">${icon}</td><td style="padding:0 0 6px 0;font:13px/18px Arial,Helvetica,sans-serif;color:#26364a;">${value}</td></tr>`;
 
   const trust = [
-    rating ? `<span style="display:inline-block;margin:0 8px 4px 0;padding:4px 9px;border:1px solid #f1c232;border-radius:12px;background:#fff8e1;font:700 12px/16px Arial,Helvetica,sans-serif;color:#7a5b00;">&#9733; ${esc(rating)} on Google${reviews ? ` &middot; ${esc(reviews)} reviews` : ""}</span>` : "",
-    `<span style="display:inline-block;margin:0 8px 4px 0;padding:4px 9px;border:1px solid #9bd3ae;border-radius:12px;background:#eefaf2;font:700 12px/16px Arial,Helvetica,sans-serif;color:#1d6b3a;">&#10004; Verified Staff</span>`,
+    rating ? tag(`${E.star} ${esc(rating)} on Google${reviews ? ` &middot; ${esc(reviews)} reviews` : ""}`, "#f1c232", "#fff8e1", "#7a5b00") : "",
+    tag(`${E.tick} Verified Staff`, "#9bd3ae", "#eefaf2", "#1d6b3a"),
+    tag(`${E.shield} No Outsourced Work`, "#b7c8e6", "#eef4fc", NAVY),
   ].join("");
 
   return `<!--[if mso]><table role="presentation"><tr><td><![endif]-->
-<style>@media only screen and (max-width:480px){.sh-col{display:block!important;width:100%!important;border-left:0!important;padding-left:0!important}.sh-logo{padding-bottom:10px!important}}</style>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;margin:16px 0 0 0;border-top:2px solid ${BLUE};">
-  <tr><td style="padding-top:12px;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
-      ${header}
-      <tr>
-        <td class="sh-col sh-logo" width="160" valign="middle" style="width:160px;padding:0 16px 0 0;">
-          <a href="${esc(bookHref)}" target="_blank"><img src="${esc(logo)}" width="150" alt="Sahara Cleaning Services" style="display:block;width:150px;max-width:100%;height:auto;border:0;"></a>
-        </td>
-        <td class="sh-col" valign="top" style="padding:0 0 0 16px;border-left:2px solid #d7e3f4;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-            ${row("Call", `<a href="tel:+91${digits(phone).slice(-10)}" style="color:${BLUE};text-decoration:none;">${esc(phone)}</a>`)}
-            ${row("Email", `<a href="mailto:${esc(email)}" style="color:${BLUE};text-decoration:none;">${esc(email)}</a>`)}
-            ${row("Book", `<a href="${esc(bookHref)}" target="_blank" style="color:${BLUE};text-decoration:none;">${esc(bookText)}</a>`)}
-            ${row("Visit", esc(address))}
-          </table>
-        </td>
-      </tr>
-      <tr><td colspan="2" style="padding:10px 0 0 0;">
-        ${links.map((l) => pill(l.href, l.label, BRAND_BG[l.key] ?? NAVY)).join("")}${pill(bookHref, "Book Now", NAVY)}
-      </td></tr>
-      <tr><td colspan="2" style="padding:6px 0 0 0;">${trust}</td></tr>
-    </table>
-  </td></tr>
-</table>
+<style>@media only screen and (max-width:480px){.sh-col{display:block!important;width:100%!important;border-left:0!important}.sh-logo{border-bottom:1px solid #d7e3f4!important;padding:12px!important}.sh-info{padding:12px!important}}</style>
+<div style="max-width:560px;margin:18px 0 0 0;border-top:3px solid ${BLUE};padding-top:12px;">
+  ${header}
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #d7e3f4;border-radius:8px;border-collapse:separate;">
+    <tr>
+      <td class="sh-col sh-logo" width="170" valign="middle" align="center" style="width:170px;padding:14px;">
+        <a href="${esc(bookHref)}" target="_blank"><img src="${esc(logo)}" width="150" alt="Sahara Cleaning Services" style="display:block;width:150px;max-width:100%;height:auto;border:0;"></a>
+      </td>
+      <td class="sh-col sh-info" valign="middle" style="padding:14px 14px 8px 16px;border-left:1px solid #d7e3f4;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+          ${row(E.phone, phoneLine(i.phone || COMPANY_PHONES[0], COMPANY_PHONES))}
+          ${row(E.mail, `<a href="mailto:${esc(email)}" style="color:${BLUE};text-decoration:none;">${esc(email)}</a>`)}
+          ${row(E.web, `<a href="${esc(bookHref)}" target="_blank" style="color:${BLUE};text-decoration:none;">${esc(bookText)}</a>`)}
+          ${row(E.pin, esc(address))}
+        </table>
+      </td>
+    </tr>
+  </table>
+  ${heading("CONNECT WITH US:")}
+  <div style="margin:0;">${links.map((l) => pill(l.href, SOCIAL_EMOJI[l.key] ?? "", l.label)).join("")}${pill(bookHref, E.book, "Book Now")}</div>
+  ${heading("TRUST &amp; QUALITY ASSURANCE:")}
+  <div style="margin:0;">${trust}</div>
+</div>
 <!--[if mso]></td></tr></table><![endif]-->`;
 }
 
@@ -111,7 +134,7 @@ export function renderSignatureText(i: SignatureInput = {}): string {
   const lines = [
     "--",
     ...(i.name ? [i.name + (i.role ? ` — ${i.role}` : ""), "Sahara Cleaning Services"] : ["Sahara Cleaning Services"]),
-    `Call: ${prettyPhone(i.phone || "7083347130")}`,
+    `Call: ${[...new Set([i.phone || "7083347130", "7083347130", "8956567130"].map((n) => prettyPhone(n)))].slice(0, 2).join(" / ")}`,
     `Email: ${i.email || "contact@saharacleaningservices.com"}`,
     `Book online: ${bookingLink("email_signature", "email", "booking_cta")}`,
     `Visit: ${i.address || "Opp. South Gate, Magarpatta City, Hadapsar, Pune."}`,

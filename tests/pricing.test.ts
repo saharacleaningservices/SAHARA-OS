@@ -378,8 +378,15 @@ test("staff app (real DB): own job shows ONLY balance to collect; no phone, toke
     assert.deepEqual(day.jobs[0].collect, { balanceDue: 4499 });
     for (const [label, payload] of [["job detail", job], ["day view", day.jobs]] as const) {
       const json = JSON.stringify(payload);
-      for (const leak of ["9876501234", "9876505678", "TOKEN-MINE-123", "SECRET-OFFICE-NOTE", "6499", "2000", "999", "/booking/"]) {
+      for (const leak of ["9876501234", "9876505678", "TOKEN-MINE-123", "SECRET-OFFICE-NOTE", "/booking/"]) {
         assert.ok(!json.includes(leak), `${label} leaks ${leak}`);
+      }
+      // Money amounts: match them as JSON numbers only. A plain substring search made this test flaky — random record
+      // ids (cuid) sometimes contain "2000" or "999" — while a real leak always appears as a bare number value.
+      const bareNumber = (n: number) => new RegExp(String.raw`[:\[,]${n}(?=[,}\]])`);
+      assert.ok(bareNumber(2000).test('{"a":2000}') && bareNumber(2000).test("[1,2000]") && !bareNumber(2000).test('{"id":"cm2000x"}'), "matcher sanity");
+      for (const amount of [6499, 2000, 999]) {
+        assert.ok(!bareNumber(amount).test(json), `${label} leaks the amount ${amount}`);
       }
       for (const key of ["jobValue", "jobAmount", "payments", "payment", "paid", "customerMobile", "alternateMobile", "publicToken", "notes", "serviceItems"]) {
         assert.ok(!new RegExp(`"${key}":`).test(json), `${label} exposes key ${key}`);
