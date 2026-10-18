@@ -28,7 +28,7 @@ export async function isEmailReady(): Promise<boolean> {
   return Boolean(process.env.EMAIL_API_KEY && process.env.EMAIL_ENDPOINT && process.env.EMAIL_FROM);
 }
 
-async function deliver(to: string, subject: string, body: string): Promise<{ ok: boolean; error?: string }> {
+async function deliver(to: string, subject: string, body: string, html?: string | null): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.EMAIL_API_KEY;
   const endpoint = process.env.EMAIL_ENDPOINT;
   const from = process.env.EMAIL_FROM;
@@ -37,7 +37,7 @@ async function deliver(to: string, subject: string, body: string): Promise<{ ok:
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ from, to: [to], subject, text: body }),
+      body: JSON.stringify({ from, to: [to], subject, text: body, ...(html ? { html } : {}) }),
     });
     if (!res.ok) return { ok: false, error: `HTTP ${res.status} ${await res.text().catch(() => "")}`.slice(0, 300) };
     return { ok: true };
@@ -52,6 +52,8 @@ export async function sendEmail(input: {
   toName?: string | null;
   subject: string;
   body: string;
+  /** Optional HTML part (see lib/email-signature.ts brandedEmail). Security / OTP mails stay plain text. */
+  html?: string;
   relatedType?: string;
   relatedId?: string;
 }) {
@@ -61,6 +63,7 @@ export async function sendEmail(input: {
       toName: input.toName ?? null,
       subject: input.subject,
       body: input.body,
+      bodyHtml: input.html ?? null,
       kind: input.kind,
       relatedType: input.relatedType ?? null,
       relatedId: input.relatedId ?? null,
@@ -70,7 +73,7 @@ export async function sendEmail(input: {
 
   if (!(await isEmailReady())) return { queued: true, sent: false, id: row.id };
 
-  const r = await deliver(input.toEmail, input.subject, input.body);
+  const r = await deliver(input.toEmail, input.subject, input.body, input.html);
   await db.emailMessage.update({
     where: { id: row.id },
     data: {
@@ -93,7 +96,7 @@ export async function flushEmailQueue({ includeFailed = true }: { includeFailed?
   });
   let sent = 0;
   for (const m of rows) {
-    const r = await deliver(m.toEmail, m.subject, m.body);
+    const r = await deliver(m.toEmail, m.subject, m.body, m.bodyHtml);
     await db.emailMessage.update({
       where: { id: m.id },
       data: {

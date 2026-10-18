@@ -47,6 +47,7 @@ const PUBLIC_PATHS = [
   "/api/auth/device-status",
   // Biometric sign-in (public challenge + verify only; register / unlock need a session).
   "/api/auth/webauthn/login",
+  "/api/health", // Coolify / uptime monitor — answers { status } only; details need Admin or HEALTH_TOKEN
   "/api/backup",
   "/api/cron",
   "/api/booking-link",

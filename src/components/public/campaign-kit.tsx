@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FooterSocial } from "@/components/public/footer-social";
 import { bookingLink } from "@/lib/social-links";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -122,7 +123,7 @@ const FOOTER_COLUMNS: { title: string; href?: string; items: string[] }[] = [
   { title: "Facility Management", items: ["Corporate Housekeeping", "Society Housekeeping", "Security Guard Services", "Manpower Augmentation"] },
 ];
 
-export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string | null; waText: string; social: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] }) {
+export function CampaignFooter({ logoUrl, waText }: { logoUrl?: string | null; waText: string }) {
   return (
     <footer className="mt-6 border-t-2 border-primary bg-white text-sm text-[#0a2540]/80">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
@@ -153,12 +154,8 @@ export function CampaignFooter({ logoUrl, waText, social }: { logoUrl?: string |
             <p className="text-xs">GSTIN: {COMPANY.gstin}</p>
             <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">{CONTACT.email}</a>
             <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">www.saharacleaningservices.com</a>
-            <a href={bookingLink("sahara_site", "site_footer", "book_online")} className="flex min-h-11 items-center gap-1.5 text-xs font-bold text-primary hover:underline">Book online — pick a date &amp; slot →</a>
-            <div className="flex gap-2 pt-1">
-              {social.map(({ href, label, icon: Icon }) => (
-                <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white"><Icon className="size-4" /></a>
-              ))}
-            </div>
+            <a href={bookingLink("footer", "social", "book_online")} className="flex min-h-11 items-center gap-1.5 text-xs font-bold text-primary hover:underline">Book online — pick a date &amp; slot →</a>
+            <FooterSocial className="flex gap-2 pt-1" iconClass="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white" />
           </div>
           <MapOnTap
             title="Sahara Cleaning Services on Google Maps"

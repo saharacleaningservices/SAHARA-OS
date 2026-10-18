@@ -6,7 +6,7 @@ import { getMyJob } from "@/server/staff-portal";
 import { getStaffLang } from "@/server/staff-lang";
 import { getCompanySettings } from "@/server/settings";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
-import { inrFor, staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
+import { staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { tierFromPackage } from "@/lib/service-scope";
 import { StaffJobStatusButtons } from "@/components/staff-app/job-status-buttons";
 import { StaffJobConsentToggle } from "@/components/staff-app/job-consent-toggle";
@@ -42,7 +42,6 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
   const [job, lang, settings] = await Promise.all([getMyJob(staff.id, id), getStaffLang(), getCompanySettings()]);
   if (!job) notFound();
   const t = staffT(lang);
-  const inr = (n: number) => inrFor(lang, n);
   const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
   const tier = job.service === "HOME_DEEP_CLEANING" ? tierFromPackage(job.packageName, job.serviceVariant) : null;
   const pkg = job.packageName || job.serviceVariant;
@@ -80,11 +79,12 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
         </a>
       </section>
 
-      {/* Balance to collect only — never the job amount or paid amount (least privilege). */}
-      <section className="rounded-2xl border border-border bg-card p-3 text-center">
-        <div className="text-[11px] text-muted-foreground">{t("balanceToCollect")}</div>
-        <div className={cn("text-2xl font-extrabold tabular-nums", job.collect.balanceDue > 0 ? "text-destructive" : "text-success")}>{inr(job.collect.balanceDue)}</div>
-      </section>
+      {/* No job amount, price or payment to collect for staff (owner rule 2026-10-18) — payment questions go to the office. */}
+      {officePhone && (
+        <a href={`tel:${officePhone}`} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-card text-base font-semibold">
+          <Phone className="size-5" /> {t("callOfficePayment")}
+        </a>
+      )}
 
       {/* Team */}
       <section className="rounded-2xl border border-border bg-card p-4">

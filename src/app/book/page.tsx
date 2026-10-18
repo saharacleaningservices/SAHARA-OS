@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { socialLinks } from "@/lib/social-links";
+import { FooterSocial } from "@/components/public/footer-social";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
@@ -16,7 +16,7 @@ import {
   CalendarClock,
   IndianRupee,
 } from "lucide-react";
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube, FaGoogle } from "react-icons/fa6";
+import { FaGoogle } from "react-icons/fa6";
 import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { BookingStickyBar } from "@/components/public/booking-sticky-bar";
 import { BookingLinkPing } from "@/components/public/booking-link-ping";
@@ -389,10 +389,7 @@ export default async function PublicBookingPage({
               )}
             </p>
             <div className="flex items-center gap-4 pt-1">
-              {socialLinks("site_footer").map((s) => {
-                const Icon = { facebook: FaFacebookF, instagram: FaInstagram, youtube: FaYoutube, linkedin: FaLinkedinIn }[s.key as "facebook"];
-                return <a key={s.key} href={s.href} target="_blank" rel="noreferrer" aria-label={s.label} className="hover:opacity-80"><Icon className="size-4" /></a>;
-              })}
+              <FooterSocial className="contents" iconClass="hover:opacity-80" />
               <a href={reviewUrl || "https://www.google.com/maps/search/Sahara+Cleaning+Services+Pune"} target="_blank" rel="noreferrer" aria-label="Google Business Profile" className="hover:opacity-80"><FaGoogle className="size-4" /></a>
             </div>
           </div>

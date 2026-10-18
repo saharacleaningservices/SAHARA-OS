@@ -902,6 +902,7 @@ model CompanySettings {
   googleReviewUrl   String?
   googleRating      String? @default("4.9")
   googleReviewCount String? @default("1800+")
+  linkedinUrl       String? // official LinkedIn page — footers + email signature (owner-entered in Settings)
   happyCustomers    String? @default("8000+")
   featuredReviews   String? // JSON [{ name, text, rating }] shown in the booking-page carousel
   bankBalance       Float? // owner-maintained; shown on the Owner Dashboard
@@ -1379,6 +1380,7 @@ model EmailMessage {
   toName      String?
   subject     String
   body        String
+  bodyHtml    String? // optional HTML part (branded emails with the signature); body stays the plain-text part
   kind        String    @default("OTHER")
   status      String    @default("QUEUED") // QUEUED | SENT | FAILED
   attempts    Int       @default(0)

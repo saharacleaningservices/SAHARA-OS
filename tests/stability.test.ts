@@ -94,3 +94,20 @@ test("price-list festival price appears in the share only where a public price e
   assert.ok(h.share.includes("Diwali offer: ₹3,999"));
   assert.ok(!p.share.includes("Diwali offer") && !/₹/.test(p.share));
 });
+
+test("staff app privacy (owner 2026-10-18): crew pages carry no job price / collection field; they have a Call Office button, schedule, address, map link and team", () => {
+  const portal = readFileSync("src/server/staff-portal.ts", "utf8");
+  const detail = portal.slice(portal.indexOf("export async function getMyJob"));
+  assert.ok(!/jobValue|paidAmount|priceType|festivalName|payments:/.test(detail.slice(0, detail.indexOf("\nexport async function", 10) > 0 ? detail.indexOf("\nexport async function", 10) : undefined)), "job detail selects no money field");
+  const day = portal.slice(portal.indexOf("export async function getMyDay"), portal.indexOf("export async function getMyDay") + 3200);
+  assert.ok(!/jobValue|paidAmount|priceType|payments: \{/.test(day), "day view selects no money field");
+  assert.ok(!portal.includes("staffBalanceToCollect"), "balance-to-collect is not computed for staff any more");
+  for (const f of ["src/app/my/day/[date]/page.tsx", "src/app/my/jobs/[id]/page.tsx"]) {
+    const src = readFileSync(f, "utf8");
+    assert.ok(src.includes('t("callOfficePayment")') && src.includes("tel:${officePhone}"), `${f}: Call Office for Payment Details`);
+    assert.ok(!/balanceToCollect|\.collect\b|balanceDue/.test(src), `${f}: no collection amount`);
+    assert.ok(src.includes("mapLink") || src.includes("directionsHref"), `${f}: Google Maps link`);
+  }
+  const i18n = readFileSync("src/lib/staff-i18n.ts", "utf8");
+  assert.match(i18n, /callOfficePayment: \["Call Office for Payment Details", "[^"]+", "[^"]+"\]/, "English + Hindi + Marathi");
+});
