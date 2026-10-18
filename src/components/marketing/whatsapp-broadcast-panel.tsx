@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, Send, FlaskConical, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isExcelFile, parseCsv, parseExcel } from "@/lib/csv-import";
+import { SERVICE_OFFERS } from "@/lib/whatsapp-service-offers";
 import { broadcastStatus, previewBroadcast, startBroadcast, stopBroadcast } from "@/server/actions/whatsapp-campaigns";
 
 type Contact = { mobile: string; name: string; service: string };
@@ -16,7 +17,13 @@ const TEMPLATES = [
   { value: "sahara_festival_offer", label: "Festival offer (Navratri · Dussehra · Diwali)" },
   { value: "sahara_diwali_festival_offer", label: "Diwali festival offer — image banner" },
   { value: "sahara_customer_reactivation", label: "Customer reactivation" },
+  { value: "sahara_pest_control_offer", label: SERVICE_OFFERS.sahara_pest_control_offer.label },
+  { value: "sahara_painting_offer", label: SERVICE_OFFERS.sahara_painting_offer.label },
+  { value: "sahara_facility_management_offer", label: SERVICE_OFFERS.sahara_facility_management_offer.label },
 ] as const;
+
+// The tracking name suggested for a template; replaced only while the field still holds a suggestion, so a name the owner typed is never overwritten.
+const suggestedCampaign = (t: string) => (t in SERVICE_OFFERS ? SERVICE_OFFERS[t as keyof typeof SERVICE_OFFERS].defaultCampaign : "sahara_broadcast_diwali_2026");
 
 /**
  * Admin → Marketing: CSV / Excel WhatsApp broadcast. The file only selects WHO from your
@@ -108,7 +115,11 @@ export function WhatsAppBroadcastPanel({ liveEnabled }: { liveEnabled: boolean }
       <div className="grid gap-2 sm:grid-cols-2">
         <label className="space-y-1 text-xs">
           <span className="text-muted-foreground">Approved template</span>
-          <select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={template} onChange={(e) => setTemplate(e.target.value as typeof template)}>
+          <select className="h-9 w-full rounded-md border bg-background px-2 text-sm" value={template} onChange={(e) => {
+            const next = e.target.value as typeof template;
+            setCampaign((c) => (c === suggestedCampaign(template) ? suggestedCampaign(next) : c));
+            setTemplate(next);
+          }}>
             {TEMPLATES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </label>
