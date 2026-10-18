@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, RoomScope, QuoteSection, Faqs, Terms, OtherServices, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd, buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
+import { LandingShell, RoomScope, QuoteSection, Faqs, Terms, OtherServices, BASE_URL, businessJsonLd, faqJsonLd, buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
 import { PriceSelector } from "@/components/public/price-selector";
 import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 import { livePkgs, liveSmallServices, liveCombos, inr } from "@/lib/marketing-content";
@@ -53,7 +53,7 @@ export default async function HomeDeepCleaningPage() {
       waText={WA}
       jsonLd={[businessJsonLd({ makesOffer: [...PREMIUM.map((p) => ({ ...p, tierName: "Premium" })), ...PLATINUM.map((p) => ({ ...p, tierName: "Platinum" }))].filter((p) => p.price != null).map((p) => ({ "@type": "Offer", name: `${p.bhk} ${p.tierName} Home Deep Cleaning`, price: p.price, priceCurrency: "INR" })) }), faqJsonLd(FAQS)]}
       bookHref="#quote"
-      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} />}
       mobileBar={<CampaignBar label="Home Deep Cleaning" priceNote="Select Your Package →" cta="Book Now →" />}
     >
       <CampaignStyles />

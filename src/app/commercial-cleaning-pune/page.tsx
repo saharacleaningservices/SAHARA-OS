@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
 import { OFFICE_SCOPE } from "@/lib/marketing-content";
-import { LandingShell, QuoteSection, Faqs, Terms, OtherServices, ScopeLists, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, QuoteSection, Faqs, Terms, OtherServices, ScopeLists, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 
 // Reads company settings from the DB, which is not available at image build time.
@@ -31,7 +31,7 @@ export default async function CommercialCleaningPage() {
       waText={WA}
       jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}
       bookHref="#quote"
-      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} />}
       mobileBar={<CampaignBar label="Office & Commercial Cleaning" priceNote="Quote after site visit" cta="Book Site Visit →" />}
     >
       <CampaignStyles />
