@@ -26,13 +26,13 @@ test("language switcher is in the header for all roles and the choice lives in l
   assert.ok(i18n.includes("localStorage") && i18n.includes('() => "en"'), "server snapshot is English so hydration matches");
 });
 
-test("outbound social links and the booking form carry UTM tags; no invented LinkedIn", () => {
-  const links = socialLinks("site_footer");
+test("outbound social links carry utm_source=footer / email_signature; the booking form is tagged; no invented LinkedIn", () => {
+  const links = socialLinks("footer");
   assert.deepEqual(links.map((l) => l.key), ["facebook", "instagram", "youtube"]);
   for (const l of links) {
     const u = new URL(l.href);
-    assert.equal(u.searchParams.get("utm_source"), "sahara_site");
-    assert.equal(u.searchParams.get("utm_medium"), "site_footer");
+    assert.equal(u.searchParams.get("utm_source"), "footer");
+    assert.equal(u.searchParams.get("utm_medium"), "social");
     assert.equal(u.searchParams.get("utm_campaign"), `${l.key}_profile`);
   }
   const b = new URL(bookingLink("instagram", "social", "ig_bio"));
@@ -40,5 +40,6 @@ test("outbound social links and the booking form carry UTM tags; no invented Lin
   assert.deepEqual([b.searchParams.get("utm_source"), b.searchParams.get("utm_medium"), b.searchParams.get("utm_campaign")], ["instagram", "social", "ig_bio"]);
   assert.equal(withUtm("not a url", { source: "a", medium: "b", campaign: "c" }), "not a url");
   const sig = emailSignature();
-  assert.ok(sig.includes("Book online:") && sig.includes("utm_medium=email_signature") && sig.includes("YouTube:"));
+  assert.ok(sig.includes("Book online:") && sig.includes("utm_source=email_signature") && sig.includes("YouTube:"));
 });
+

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { socialLinks } from "@/lib/social-links";
+import { socialProfileUrls } from "@/lib/social-links";
+import { FooterSocial } from "@/components/public/footer-social";
 import type { ReactNode } from "react";
 import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe } from "lucide-react";
-import { FaFacebookF, FaGoogle, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
@@ -29,8 +30,8 @@ export const BASE_URL = "https://booking.saharacleaningservices.com";
 const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAppLink(number)}?text=${encodeURIComponent(text)}`;
 
 // Verified public profiles (checked 30 Sep 2026) — only these are linked.
-const SOCIAL_ICON = { facebook: FaFacebookF, instagram: FaInstagram, youtube: FaYoutube, linkedin: FaLinkedinIn } as const;
-export const SOCIAL = socialLinks("site_footer").map((s) => ({ href: s.href, label: s.label, icon: SOCIAL_ICON[s.key as keyof typeof SOCIAL_ICON] }));
+// Clean (untagged) profile URLs for the business JSON-LD `sameAs` — UTM-tagged links are for visitors, not search engines.
+export const SOCIAL = socialProfileUrls().map((href) => ({ href }));
 
 // Service pages, for internal linking between the campaign landings.
 export const SERVICE_LINKS = [
@@ -130,13 +131,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
             </ul>
             <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
             <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Globe className="size-3.5 shrink-0" />www.saharacleaningservices.com</a>
-            <div className="flex items-center gap-2">
-              {SOCIAL.map(({ href, label, icon: Icon }) => (
-                <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label} className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white hover:text-[#0a2540]">
-                  <Icon className="size-4" />
-                </a>
-              ))}
-            </div>
+            <FooterSocial />
           </section>
           {/* Block 3 — Trust, legal */}
           <section aria-labelledby="ft-trust" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, ChevronRight, MapPin, Users, Clock, Lock, ExternalLink, Award } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Users, Clock, Lock, ExternalLink, Award, Phone } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
 import { getMyDay, parseIsoDay, toIsoDay } from "@/server/staff-portal";
-import { SERVICE_LABELS } from "@/lib/constants";
+import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
+import { getCompanySettings } from "@/server/settings";
 import { Section, StatusChip, EmptyNote } from "@/components/staff-app/ui";
 import { BOOKING_TERMS } from "@/lib/pricing-master";
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
@@ -23,7 +24,7 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
   const day = parseIsoDay(date);
   if (!day) notFound();
 
-  const [data, lang, khata] = await Promise.all([
+  const [data, lang, khata, settings] = await Promise.all([
     getMyDay(staff.id, day),
     getStaffLang(),
     // Imported Khata Book entries for this day (work + paid), shown as recorded.
@@ -31,7 +32,9 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
       where: { staffId: staff.id, deletedAt: null, date: { gte: day, lt: new Date(day.getTime() + 86_400_000) }, kind: { not: "OPENING_BALANCE" } },
       select: { id: true, kind: true, amount: true, signedAmount: true, description: true },
     }),
+    getCompanySettings(),
   ]);
+  const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
   const t = staffT(lang);
   const loc = staffLocale(lang);
   const formatINR = (n: number) => inrFor(lang, n);
@@ -127,20 +130,16 @@ export default async function StaffDayPage({ params }: { params: Promise<{ date:
                   <b>{j.packageName || j.serviceVariant || t("asPerOffice")}</b>
                   {j.packageName && j.serviceVariant ? <span className="text-muted-foreground"> · {j.serviceVariant}</span> : null}
                 </div>
-                {/* Balance to collect only — never the job amount or paid amount (least privilege). */}
-                <div className="flex items-center justify-between rounded-lg border border-border p-2 text-sm">
-                  <span className="text-[11px] text-muted-foreground">{t("balanceToCollect")}</span>
-                  <span className={`font-semibold ${j.collect.balanceDue > 0 ? "text-amber-700" : "text-emerald-700"}`}>{formatINR(j.collect.balanceDue)}</span>
-                </div>
-                {(j.scopeOfWork || j.priceType) && (
+                {/* Staff see no job amount, price or payment to collect (owner rule 2026-10-18) — payment questions go to the office. */}
+                {officePhone && (
+                  <a href={`tel:${officePhone}`} className="flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-semibold">
+                    <Phone className="size-4" /> {t("callOfficePayment")}
+                  </a>
+                )}
+                {j.scopeOfWork && (
                   <div className="rounded-lg border border-border p-2.5 text-sm">
                     <div className="text-xs font-semibold uppercase text-primary">{t("scope")}</div>
-                    {j.priceType && (
-                      <div className="text-xs text-muted-foreground">
-                        {t("price")}: {j.priceType === "FESTIVAL" ? `${t("priceFestival")}${j.festivalName ? ` · ${j.festivalName}` : ""}` : t("priceRegular")}
-                      </div>
-                    )}
-                    {j.scopeOfWork && <p className="mt-1 whitespace-pre-line">{j.scopeOfWork}</p>}
+                    <p className="mt-1 whitespace-pre-line">{j.scopeOfWork}</p>
                   </div>
                 )}
                 <PackageScopeCard service={j.service} packageName={j.packageName} serviceVariant={j.serviceVariant} />

@@ -352,7 +352,7 @@ test("WhatsApp: STOP-style replies opt out; a booking CANCEL never unsubscribes"
   assert.ok(!OPT_IN_KEYWORDS.test("cancel"));
 });
 
-test("staff app (real DB): own job shows ONLY balance to collect; no phone, token, notes, job amount or paid; other jobs denied", async () => {
+test("staff app (real DB): own job shows NO money at all (no amount, paid, balance to collect, price type); no phone, token or notes; other jobs denied", async () => {
   const dir = mkdtempSync(path.join(tmpdir(), "sahara-staff-"));
   const dbFile = path.join(dir, "s.db");
   const prevUrl = process.env.DATABASE_URL;
@@ -372,16 +372,28 @@ test("staff app (real DB): own job shows ONLY balance to collect; no phone, toke
 
     const job = await getMyJob(me.id, mine.id);
     assert.ok(job, "own assigned job is visible");
-    assert.deepEqual(job.collect, { balanceDue: 4499 });
+    assert.ok(!("collect" in job), "job detail has no balance-to-collect");
     const day = await getMyDay(me.id, new Date());
     assert.equal(day.jobs.length, 1, "day view lists only my job");
-    assert.deepEqual(day.jobs[0].collect, { balanceDue: 4499 });
+    assert.ok(!("collect" in day.jobs[0]), "day view has no balance-to-collect");
+    // What the crew DOES get: schedule, address, map link and team.
+    assert.equal(job.scheduledTime, "10:00 AM");
+    assert.equal(job.address, "1 Test Rd");
+    assert.ok(Array.isArray(job.team) && job.team.length >= 1);
+    assert.ok("mapLink" in job && "mapLink" in day.jobs[0]);
     for (const [label, payload] of [["job detail", job], ["day view", day.jobs]] as const) {
       const json = JSON.stringify(payload);
-      for (const leak of ["9876501234", "9876505678", "TOKEN-MINE-123", "SECRET-OFFICE-NOTE", "6499", "2000", "999", "/booking/"]) {
+      for (const leak of ["9876501234", "9876505678", "TOKEN-MINE-123", "SECRET-OFFICE-NOTE", "/booking/"]) {
         assert.ok(!json.includes(leak), `${label} leaks ${leak}`);
       }
-      for (const key of ["jobValue", "jobAmount", "payments", "payment", "paid", "customerMobile", "alternateMobile", "publicToken", "notes", "serviceItems"]) {
+      // Money amounts: match them as JSON numbers only. A plain substring search made this test flaky — random record
+      // ids (cuid) sometimes contain "2000" or "999" — while a real leak always appears as a bare number value.
+      const bareNumber = (n: number) => new RegExp(String.raw`[:\[,]${n}(?=[,}\]])`);
+      assert.ok(bareNumber(2000).test('{"a":2000}') && bareNumber(2000).test("[1,2000]") && !bareNumber(2000).test('{"id":"cm2000x"}'), "matcher sanity");
+      for (const amount of [6499, 2000, 999]) {
+        assert.ok(!bareNumber(amount).test(json), `${label} leaks the amount ${amount}`);
+      }
+      for (const key of ["jobValue", "jobAmount", "payments", "payment", "paid", "collect", "balanceDue", "priceType", "festivalName", "customerMobile", "alternateMobile", "publicToken", "notes", "serviceItems"]) {
         assert.ok(!new RegExp(`"${key}":`).test(json), `${label} exposes key ${key}`);
       }
     }

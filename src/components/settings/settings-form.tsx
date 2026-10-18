@@ -110,6 +110,11 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <Label htmlFor="googleRating">Google Rating</Label>
             <Input id="googleRating" placeholder="4.9" {...register("googleRating")} />
           </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="linkedinUrl">LinkedIn page link</Label>
+            <Input id="linkedinUrl" placeholder="https://www.linkedin.com/company/…" {...register("linkedinUrl")} />
+            <p className="text-xs text-muted-foreground">Shown as a LinkedIn icon in the website footers and the email signature once filled in.</p>
+          </div>
           <div className="space-y-1.5">
             <Label htmlFor="googleReviewCount">Google Review Count</Label>
             <Input id="googleReviewCount" placeholder="1800+" {...register("googleReviewCount")} />

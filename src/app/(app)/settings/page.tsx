@@ -38,6 +38,7 @@ export default async function SettingsPage() {
           logoUrl: settings.logoUrl ?? "",
           googleReviewUrl: settings.googleReviewUrl ?? "",
           googleRating: settings.googleRating ?? "",
+          linkedinUrl: settings.linkedinUrl ?? "",
           googleReviewCount: settings.googleReviewCount ?? "",
           happyCustomers: settings.happyCustomers ?? "",
           featuredReviews: settings.featuredReviews ?? "",

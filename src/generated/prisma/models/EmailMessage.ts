@@ -40,6 +40,7 @@ export type EmailMessageMinAggregateOutputType = {
   toName: string | null
   subject: string | null
   body: string | null
+  bodyHtml: string | null
   kind: string | null
   status: string | null
   attempts: number | null
@@ -56,6 +57,7 @@ export type EmailMessageMaxAggregateOutputType = {
   toName: string | null
   subject: string | null
   body: string | null
+  bodyHtml: string | null
   kind: string | null
   status: string | null
   attempts: number | null
@@ -72,6 +74,7 @@ export type EmailMessageCountAggregateOutputType = {
   toName: number
   subject: number
   body: number
+  bodyHtml: number
   kind: number
   status: number
   attempts: number
@@ -98,6 +101,7 @@ export type EmailMessageMinAggregateInputType = {
   toName?: true
   subject?: true
   body?: true
+  bodyHtml?: true
   kind?: true
   status?: true
   attempts?: true
@@ -114,6 +118,7 @@ export type EmailMessageMaxAggregateInputType = {
   toName?: true
   subject?: true
   body?: true
+  bodyHtml?: true
   kind?: true
   status?: true
   attempts?: true
@@ -130,6 +135,7 @@ export type EmailMessageCountAggregateInputType = {
   toName?: true
   subject?: true
   body?: true
+  bodyHtml?: true
   kind?: true
   status?: true
   attempts?: true
@@ -233,6 +239,7 @@ export type EmailMessageGroupByOutputType = {
   toName: string | null
   subject: string
   body: string
+  bodyHtml: string | null
   kind: string
   status: string
   attempts: number
@@ -272,6 +279,7 @@ export type EmailMessageWhereInput = {
   toName?: Prisma.StringNullableFilter<"EmailMessage"> | string | null
   subject?: Prisma.StringFilter<"EmailMessage"> | string
   body?: Prisma.StringFilter<"EmailMessage"> | string
+  bodyHtml?: Prisma.StringNullableFilter<"EmailMessage"> | string | null
   kind?: Prisma.StringFilter<"EmailMessage"> | string
   status?: Prisma.StringFilter<"EmailMessage"> | string
   attempts?: Prisma.IntFilter<"EmailMessage"> | number
@@ -288,6 +296,7 @@ export type EmailMessageOrderByWithRelationInput = {
   toName?: Prisma.SortOrderInput | Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrderInput | Prisma.SortOrder
   kind?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -307,6 +316,7 @@ export type EmailMessageWhereUniqueInput = Prisma.AtLeast<{
   toName?: Prisma.StringNullableFilter<"EmailMessage"> | string | null
   subject?: Prisma.StringFilter<"EmailMessage"> | string
   body?: Prisma.StringFilter<"EmailMessage"> | string
+  bodyHtml?: Prisma.StringNullableFilter<"EmailMessage"> | string | null
   kind?: Prisma.StringFilter<"EmailMessage"> | string
   status?: Prisma.StringFilter<"EmailMessage"> | string
   attempts?: Prisma.IntFilter<"EmailMessage"> | number
@@ -323,6 +333,7 @@ export type EmailMessageOrderByWithAggregationInput = {
   toName?: Prisma.SortOrderInput | Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrderInput | Prisma.SortOrder
   kind?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -347,6 +358,7 @@ export type EmailMessageScalarWhereWithAggregatesInput = {
   toName?: Prisma.StringNullableWithAggregatesFilter<"EmailMessage"> | string | null
   subject?: Prisma.StringWithAggregatesFilter<"EmailMessage"> | string
   body?: Prisma.StringWithAggregatesFilter<"EmailMessage"> | string
+  bodyHtml?: Prisma.StringNullableWithAggregatesFilter<"EmailMessage"> | string | null
   kind?: Prisma.StringWithAggregatesFilter<"EmailMessage"> | string
   status?: Prisma.StringWithAggregatesFilter<"EmailMessage"> | string
   attempts?: Prisma.IntWithAggregatesFilter<"EmailMessage"> | number
@@ -363,6 +375,7 @@ export type EmailMessageCreateInput = {
   toName?: string | null
   subject: string
   body: string
+  bodyHtml?: string | null
   kind?: string
   status?: string
   attempts?: number
@@ -379,6 +392,7 @@ export type EmailMessageUncheckedCreateInput = {
   toName?: string | null
   subject: string
   body: string
+  bodyHtml?: string | null
   kind?: string
   status?: string
   attempts?: number
@@ -395,6 +409,7 @@ export type EmailMessageUpdateInput = {
   toName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -411,6 +426,7 @@ export type EmailMessageUncheckedUpdateInput = {
   toName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -427,6 +443,7 @@ export type EmailMessageCreateManyInput = {
   toName?: string | null
   subject: string
   body: string
+  bodyHtml?: string | null
   kind?: string
   status?: string
   attempts?: number
@@ -443,6 +460,7 @@ export type EmailMessageUpdateManyMutationInput = {
   toName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -459,6 +477,7 @@ export type EmailMessageUncheckedUpdateManyInput = {
   toName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   attempts?: Prisma.IntFieldUpdateOperationsInput | number
@@ -475,6 +494,7 @@ export type EmailMessageCountOrderByAggregateInput = {
   toName?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -495,6 +515,7 @@ export type EmailMessageMaxOrderByAggregateInput = {
   toName?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -511,6 +532,7 @@ export type EmailMessageMinOrderByAggregateInput = {
   toName?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   status?: Prisma.SortOrder
   attempts?: Prisma.SortOrder
@@ -533,6 +555,7 @@ export type EmailMessageSelect<ExtArgs extends runtime.Types.Extensions.Internal
   toName?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   kind?: boolean
   status?: boolean
   attempts?: boolean
@@ -549,6 +572,7 @@ export type EmailMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   toName?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   kind?: boolean
   status?: boolean
   attempts?: boolean
@@ -565,6 +589,7 @@ export type EmailMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   toName?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   kind?: boolean
   status?: boolean
   attempts?: boolean
@@ -581,6 +606,7 @@ export type EmailMessageSelectScalar = {
   toName?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   kind?: boolean
   status?: boolean
   attempts?: boolean
@@ -591,7 +617,7 @@ export type EmailMessageSelectScalar = {
   createdAt?: boolean
 }
 
-export type EmailMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "toEmail" | "toName" | "subject" | "body" | "kind" | "status" | "attempts" | "error" | "relatedType" | "relatedId" | "sentAt" | "createdAt", ExtArgs["result"]["emailMessage"]>
+export type EmailMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "toEmail" | "toName" | "subject" | "body" | "bodyHtml" | "kind" | "status" | "attempts" | "error" | "relatedType" | "relatedId" | "sentAt" | "createdAt", ExtArgs["result"]["emailMessage"]>
 
 export type $EmailMessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EmailMessage"
@@ -602,6 +628,7 @@ export type $EmailMessagePayload<ExtArgs extends runtime.Types.Extensions.Intern
     toName: string | null
     subject: string
     body: string
+    bodyHtml: string | null
     kind: string
     status: string
     attempts: number
@@ -1038,6 +1065,7 @@ export interface EmailMessageFieldRefs {
   readonly toName: Prisma.FieldRef<"EmailMessage", 'String'>
   readonly subject: Prisma.FieldRef<"EmailMessage", 'String'>
   readonly body: Prisma.FieldRef<"EmailMessage", 'String'>
+  readonly bodyHtml: Prisma.FieldRef<"EmailMessage", 'String'>
   readonly kind: Prisma.FieldRef<"EmailMessage", 'String'>
   readonly status: Prisma.FieldRef<"EmailMessage", 'String'>
   readonly attempts: Prisma.FieldRef<"EmailMessage", 'Int'>
