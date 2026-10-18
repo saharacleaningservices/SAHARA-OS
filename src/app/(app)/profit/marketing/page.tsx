@@ -11,6 +11,7 @@ import { isWhatsAppReady } from "@/lib/whatsapp";
 import { getWhatsAppMarketingAudience, WHATSAPP_TEST_NUMBERS } from "@/server/whatsapp-audience";
 import { WhatsAppCampaignPanel } from "@/components/marketing/whatsapp-campaign-panel";
 import { WhatsAppBroadcastPanel } from "@/components/marketing/whatsapp-broadcast-panel";
+import { CtwaLeadsCard } from "@/components/marketing/ctwa-leads-card";
 import { formatINR } from "@/lib/utils";
 
 // Admin-only (inherits the Profit section's ADMIN restriction). The central
@@ -168,6 +169,10 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
         Interested = moved past New. Quotation = quoted or later. Booking = confirmed / job created. Revenue = value of completed jobs. One open enquiry per mobile —
         repeat enquiries update the existing lead. Leads created before 29 Sep 2026 show as &quot;{NOT_TRACKED}&quot;.
       </p>
+      </ResponsiveFold>
+
+      <ResponsiveFold title="Click-to-WhatsApp ads">
+        <CtwaLeadsCard cloudApiConnected={connected} />
       </ResponsiveFold>
 
       <ResponsiveFold title="WhatsApp marketing (9175220270)">
