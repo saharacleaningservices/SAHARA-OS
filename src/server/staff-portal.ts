@@ -12,7 +12,6 @@
 import { db } from "@/lib/db";
 import { dedupeByIstDay, isoOf, istDayKey, istDayRange, istDaysInMonth, istMonthOf, istMonthRange, istWeekday, istYearRange } from "@/lib/ist-days";
 import { packageSummary, parsePackage } from "@/lib/package-calc";
-import { staffBalanceToCollect } from "@/lib/payment-status";
 import type { SessionPayload } from "@/lib/session";
 import { computeEarned, type AttendanceCode } from "@/server/attendance";
 
@@ -370,20 +369,16 @@ export async function getMyDay(staffId: string, day: Date) {
     db.job.findMany({
       where: myJobsWhere(staffId, from, to),
       orderBy: { scheduledTime: "asc" },
-      // Scope, site and collection details for the crew. Owner rule
-      // 2026-10-10: only the balance to collect leaves this module — never
-      // the job amount, paid amount, customerMobile, profit or staff cost.
+      // Scope and site details for the crew. Owner rule 2026-10-18 (supersedes 2026-10-10): NO money of any kind —
+      // no job amount, paid amount, balance to collect or price type — and never the customer mobile, profit
+      // or staff cost. Money fields are not even read from the database here.
       select: {
         ...JOB_STAFF_SELECT,
         address: true,
         mapLink: true,
         customerName: true,
         comboServices: true,
-        jobValue: true,
-        priceType: true,
-        festivalName: true,
         scopeOfWork: true,
-        payments: { where: { deletedAt: null }, select: { paidAmount: true } },
       },
     }),
     db.advance.findMany({ where: { staffId, givenAt: { gte: from, lt: to } }, orderBy: { givenAt: "asc" }, select: { id: true, amount: true, reason: true, givenAt: true } }),
@@ -419,10 +414,7 @@ export async function getMyDay(staffId: string, day: Date) {
       mapLink: j.mapLink,
       customerName: j.customerName,
       comboServices: parseList(j.comboServices),
-      priceType: j.priceType,
-      festivalName: j.festivalName,
       scopeOfWork: j.scopeOfWork,
-      collect: staffBalanceToCollect(j.jobValue, j.payments),
       teamNumber: j.teamNumber,
       supervisorName: j.supervisor?.name ?? null,
       team: teamOf(j, staffId),
@@ -640,13 +632,9 @@ export async function getMyJob(staffId: string, jobId: string) {
       comboServices: true,
       serviceItems: true,
       scopeOfWork: true,
-      priceType: true,
-      festivalName: true,
-      jobValue: true,
       teamSnapshot: true,
       supervisor: { select: { name: true, employeeCode: true } },
       assignments: { select: { staffId: true, isLead: true, staff: { select: { name: true, employeeCode: true } } } },
-      payments: { where: { deletedAt: null }, select: { paidAmount: true } },
       lead: { select: { marketingConsent: true } },
     },
   });
@@ -658,8 +646,8 @@ export async function getMyJob(staffId: string, jobId: string) {
   }));
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  // Raw money fields (and raw serviceItems, which carry prices) never leave this function.
-  const { jobValue, payments, serviceItems, lead, ...safe } = job;
+  // No money fields are selected at all (owner rule 2026-10-18); raw serviceItems carry prices, so they never leave this function either.
+  const { serviceItems, lead, ...safe } = job;
   return {
     ...safe,
     // null = no linked customer record → the consent control is hidden.
@@ -668,7 +656,6 @@ export async function getMyJob(staffId: string, jobId: string) {
     // Package services: names + quantity only — never prices (staff see no internal pricing).
     packageServices: packageSummary(parsePackage(serviceItems)),
     team,
-    collect: staffBalanceToCollect(jobValue, payments),
     isToday: job.scheduledDate >= today,
   };
 }
