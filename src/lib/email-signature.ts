@@ -48,12 +48,12 @@ export function prettyPhone(raw: string): string {
   return d.length === 10 ? `+91 ${d.slice(0, 5)} ${d.slice(5)}` : raw;
 }
 
-// Emoji are written as numeric entities so the HTML stays pure ASCII (safe in any charset / client).
-const E = { phone: "&#128222;", mail: "&#9993;&#65039;", web: "&#127760;", pin: "&#128205;", fb: "&#128309;", ig: "&#128248;", yt: "&#128308;", li: "&#128188;", book: "&#128197;", star: "&#11088;", tick: "&#10004;&#65039;", shield: "&#128737;&#65039;" };
-const SOCIAL_EMOJI: Record<string, string> = { facebook: E.fb, instagram: E.ig, youtube: E.yt, linkedin: E.li };
+// Contact / trust emoji are written as numeric entities so the HTML stays pure ASCII (safe in any charset / client).
+const E = { phone: "&#128222;", mail: "&#9993;&#65039;", web: "&#127760;", pin: "&#128205;", star: "&#11088;", tick: "&#10004;&#65039;", shield: "&#128737;&#65039;" };
 
-const pill = (href: string, emoji: string, label: string) =>
-  `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 6px 6px 0;padding:6px 12px;border:1px solid #c9d7ea;border-radius:16px;background:#ffffff;color:${NAVY};font:600 12px/16px Arial,Helvetica,sans-serif;text-decoration:none;">${emoji} ${esc(label)}</a>`;
+/** Coloured brand icon (PNG hosted at /brand/social, 44 px shown at 20 px) + the label as live text, so the pill still reads with images blocked. */
+const pill = (href: string, iconUrl: string, label: string) =>
+  `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 6px 6px 0;padding:5px 12px 5px 7px;border:1px solid #c9d7ea;border-radius:18px;background:#ffffff;color:${NAVY};font:600 12px/20px Arial,Helvetica,sans-serif;text-decoration:none;white-space:nowrap;"><img src="${esc(iconUrl)}" width="20" height="20" alt="" style="display:inline-block;width:20px;height:20px;border:0;vertical-align:middle;margin:0 6px 0 0;">${esc(label)}</a>`;
 
 const tag = (text: string, border: string, bg: string, fg: string) =>
   `<span style="display:inline-block;margin:0 8px 6px 0;padding:4px 10px;border:1px solid ${border};border-radius:12px;background:${bg};font:700 12px/16px Arial,Helvetica,sans-serif;color:${fg};">${text}</span>`;
@@ -79,7 +79,9 @@ export function renderSignatureHtml(i: SignatureInput = {}): string {
   const email = i.email || "contact@saharacleaningservices.com";
   const rawAddress = i.address || "Opp. South Gate, Magarpatta City, Hadapsar, Pune.";
   const address = /maharashtra/i.test(rawAddress) ? rawAddress : `${rawAddress.replace(/[.\s]+$/, "")}, Maharashtra, India`;
-  const logo = `${(i.assetBase || BOOKING_BASE).replace(/\/$/, "")}/brand/sahara-logo@2x.png`;
+  const assets = (i.assetBase || BOOKING_BASE).replace(/\/$/, "");
+  const logo = `${assets}/brand/sahara-logo@2x.png`;
+  const icon = (name: string) => `${assets}/brand/social/${name}.png`;
   const bookHref = bookingLink("email_signature", "email", "booking_cta");
   const bookText = BOOKING_BASE.replace(/^https?:\/\//, "");
   const links = socialLinks("email_signature", i.linkedinUrl);
@@ -122,7 +124,7 @@ export function renderSignatureHtml(i: SignatureInput = {}): string {
     </tr>
   </table>
   ${heading("CONNECT WITH US:")}
-  <div style="margin:0;">${links.map((l) => pill(l.href, SOCIAL_EMOJI[l.key] ?? "", l.label)).join("")}${pill(bookHref, E.book, "Book Now")}</div>
+  <div style="margin:0;">${links.map((l) => pill(l.href, icon(l.key), l.label)).join("")}${pill(bookHref, icon("book"), "Book Now")}</div>
   ${heading("TRUST &amp; QUALITY ASSURANCE:")}
   <div style="margin:0;">${trust}</div>
 </div>

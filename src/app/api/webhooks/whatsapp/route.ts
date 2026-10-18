@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { parseCtwaReferral, ctwaLeadFields, describeCtwa, type CtwaReferral } from "@/lib/whatsapp-referral";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
@@ -125,6 +126,8 @@ type MetaInboundMessage = {
   id?: string;
   from?: string;
   type?: string;
+  /** Present on the first message of a Click-to-WhatsApp ad conversation. */
+  referral?: unknown;
   button?: { text?: string; payload?: string };
   text?: { body?: string };
   interactive?: { type?: string; list_reply?: { id?: string; title?: string }; button_reply?: { id?: string; title?: string } };
@@ -293,7 +296,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
         // missed-call/route.ts) — same dedup logic, same auto-lead shape —
         // so a customer already mid-conversation about an open enquiry or
         // job doesn't get a duplicate Lead created for every message.
-        await handleWhatsAppInquiry(m.from, body, profileName);
+        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral));
         await aiRespond(m.from, body);
       }
       return;
@@ -409,10 +412,11 @@ const isUniqueViolation = (e: unknown, field: string) => {
  *     win and the other becomes a timeline note on the winner.
  * Existing leads and jobs are never modified (only notes are added).
  */
-async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null) {
+async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null) {
   const mobile = last10Digits(from);
   if (mobile.length !== 10) return;
-  const note = `Inbound WhatsApp: "${body.slice(0, 300)}"`;
+  const adLine = ad ? ` · ${describeCtwa(ad)}` : "";
+  const note = `Inbound WhatsApp: "${body.slice(0, 300)}"${adLine}`;
 
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const recent = (await findLeadsForMobile(mobile)).find((l) => !["COMPLETED", "CANCELLED"].includes(l.stage) || l.createdAt >= dayAgo);
@@ -454,13 +458,17 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
           service: "HOME_DEEP_CLEANING" as never,
           source: "WHATSAPP" as never,
           // Attribution for the Marketing dashboard (was left empty → "Not tracked").
-          acquisitionChannel: "WhatsApp Direct",
-          firstTouchSource: "WhatsApp Direct",
-          firstTouchAt: new Date(),
-          latestTouchSource: "WhatsApp Direct",
-          latestTouchAt: new Date(),
+          ...(ad
+            ? ctwaLeadFields(ad)
+            : {
+                acquisitionChannel: "WhatsApp Direct",
+                firstTouchSource: "WhatsApp Direct",
+                firstTouchAt: new Date(),
+                latestTouchSource: "WhatsApp Direct",
+                latestTouchAt: new Date(),
+              }),
           stage: "NEW",
-          notes: `Auto-created from an inbound WhatsApp message: "${body.slice(0, 300)}"`,
+          notes: `Auto-created from an inbound WhatsApp message: "${body.slice(0, 300)}"${adLine}${ad?.ctwaClid ? ` · ctwa_clid ${ad.ctwaClid}` : ""}`,
         },
         select: { id: true, leadNumber: true },
       });
@@ -480,11 +488,11 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   await db.followUp
     .create({ data: { leadId: lead.id, dueDate: new Date(Date.now() + 15 * 60 * 1000), type: "WHATSAPP", priority: "HIGH", notes: "New WhatsApp inquiry — reply and qualify" } })
     .catch(() => {});
-  await addTimelineEntry({ leadId: lead.id, type: "NOTE", body: `Inbound WhatsApp — lead auto-created: "${body.slice(0, 300)}"` }).catch(() => {});
+  await addTimelineEntry({ leadId: lead.id, type: "NOTE", body: `Inbound WhatsApp — lead auto-created: "${body.slice(0, 300)}"${adLine}` }).catch(() => {});
   await notify({
     kind: "NEW_INQUIRY",
-    title: `💬 WhatsApp inquiry — ${displayName || mobile}`,
-    body: `Auto-lead ${leadNumber} · "${body.slice(0, 100)}"`,
+    title: ad ? `📣 Ad lead on WhatsApp — ${displayName || mobile}` : `💬 WhatsApp inquiry — ${displayName || mobile}`,
+    body: `Auto-lead ${leadNumber} · "${body.slice(0, 100)}"${ad ? ` · from a Meta ad${ad.headline ? `: ${ad.headline}` : ""}` : ""}`,
     href: `/leads/${lead.id}`,
   }).catch(() => {});
 
