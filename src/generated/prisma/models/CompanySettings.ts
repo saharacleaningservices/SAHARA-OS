@@ -45,6 +45,7 @@ export type CompanySettingsMinAggregateOutputType = {
   googleReviewUrl: string | null
   googleRating: string | null
   googleReviewCount: string | null
+  linkedinUrl: string | null
   happyCustomers: string | null
   featuredReviews: string | null
   bankBalance: number | null
@@ -68,6 +69,7 @@ export type CompanySettingsMaxAggregateOutputType = {
   googleReviewUrl: string | null
   googleRating: string | null
   googleReviewCount: string | null
+  linkedinUrl: string | null
   happyCustomers: string | null
   featuredReviews: string | null
   bankBalance: number | null
@@ -91,6 +93,7 @@ export type CompanySettingsCountAggregateOutputType = {
   googleReviewUrl: number
   googleRating: number
   googleReviewCount: number
+  linkedinUrl: number
   happyCustomers: number
   featuredReviews: number
   bankBalance: number
@@ -124,6 +127,7 @@ export type CompanySettingsMinAggregateInputType = {
   googleReviewUrl?: true
   googleRating?: true
   googleReviewCount?: true
+  linkedinUrl?: true
   happyCustomers?: true
   featuredReviews?: true
   bankBalance?: true
@@ -147,6 +151,7 @@ export type CompanySettingsMaxAggregateInputType = {
   googleReviewUrl?: true
   googleRating?: true
   googleReviewCount?: true
+  linkedinUrl?: true
   happyCustomers?: true
   featuredReviews?: true
   bankBalance?: true
@@ -170,6 +175,7 @@ export type CompanySettingsCountAggregateInputType = {
   googleReviewUrl?: true
   googleRating?: true
   googleReviewCount?: true
+  linkedinUrl?: true
   happyCustomers?: true
   featuredReviews?: true
   bankBalance?: true
@@ -280,6 +286,7 @@ export type CompanySettingsGroupByOutputType = {
   googleReviewUrl: string | null
   googleRating: string | null
   googleReviewCount: string | null
+  linkedinUrl: string | null
   happyCustomers: string | null
   featuredReviews: string | null
   bankBalance: number | null
@@ -326,6 +333,7 @@ export type CompanySettingsWhereInput = {
   googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleRating?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  linkedinUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   happyCustomers?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   featuredReviews?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   bankBalance?: Prisma.FloatNullableFilter<"CompanySettings"> | number | null
@@ -349,6 +357,7 @@ export type CompanySettingsOrderByWithRelationInput = {
   googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   googleRating?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   happyCustomers?: Prisma.SortOrderInput | Prisma.SortOrder
   featuredReviews?: Prisma.SortOrderInput | Prisma.SortOrder
   bankBalance?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -375,6 +384,7 @@ export type CompanySettingsWhereUniqueInput = Prisma.AtLeast<{
   googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleRating?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  linkedinUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   happyCustomers?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   featuredReviews?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   bankBalance?: Prisma.FloatNullableFilter<"CompanySettings"> | number | null
@@ -398,6 +408,7 @@ export type CompanySettingsOrderByWithAggregationInput = {
   googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   googleRating?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   happyCustomers?: Prisma.SortOrderInput | Prisma.SortOrder
   featuredReviews?: Prisma.SortOrderInput | Prisma.SortOrder
   bankBalance?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -429,6 +440,7 @@ export type CompanySettingsScalarWhereWithAggregatesInput = {
   googleReviewUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   googleRating?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   googleReviewCount?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  linkedinUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   happyCustomers?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   featuredReviews?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   bankBalance?: Prisma.FloatNullableWithAggregatesFilter<"CompanySettings"> | number | null
@@ -452,6 +464,7 @@ export type CompanySettingsCreateInput = {
   googleReviewUrl?: string | null
   googleRating?: string | null
   googleReviewCount?: string | null
+  linkedinUrl?: string | null
   happyCustomers?: string | null
   featuredReviews?: string | null
   bankBalance?: number | null
@@ -475,6 +488,7 @@ export type CompanySettingsUncheckedCreateInput = {
   googleReviewUrl?: string | null
   googleRating?: string | null
   googleReviewCount?: string | null
+  linkedinUrl?: string | null
   happyCustomers?: string | null
   featuredReviews?: string | null
   bankBalance?: number | null
@@ -498,6 +512,7 @@ export type CompanySettingsUpdateInput = {
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -521,6 +536,7 @@ export type CompanySettingsUncheckedUpdateInput = {
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -544,6 +560,7 @@ export type CompanySettingsCreateManyInput = {
   googleReviewUrl?: string | null
   googleRating?: string | null
   googleReviewCount?: string | null
+  linkedinUrl?: string | null
   happyCustomers?: string | null
   featuredReviews?: string | null
   bankBalance?: number | null
@@ -567,6 +584,7 @@ export type CompanySettingsUpdateManyMutationInput = {
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -590,6 +608,7 @@ export type CompanySettingsUncheckedUpdateManyInput = {
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -613,6 +632,7 @@ export type CompanySettingsCountOrderByAggregateInput = {
   googleReviewUrl?: Prisma.SortOrder
   googleRating?: Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrder
   happyCustomers?: Prisma.SortOrder
   featuredReviews?: Prisma.SortOrder
   bankBalance?: Prisma.SortOrder
@@ -640,6 +660,7 @@ export type CompanySettingsMaxOrderByAggregateInput = {
   googleReviewUrl?: Prisma.SortOrder
   googleRating?: Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrder
   happyCustomers?: Prisma.SortOrder
   featuredReviews?: Prisma.SortOrder
   bankBalance?: Prisma.SortOrder
@@ -663,6 +684,7 @@ export type CompanySettingsMinOrderByAggregateInput = {
   googleReviewUrl?: Prisma.SortOrder
   googleRating?: Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrder
   happyCustomers?: Prisma.SortOrder
   featuredReviews?: Prisma.SortOrder
   bankBalance?: Prisma.SortOrder
@@ -692,6 +714,7 @@ export type CompanySettingsSelect<ExtArgs extends runtime.Types.Extensions.Inter
   googleReviewUrl?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
+  linkedinUrl?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
   bankBalance?: boolean
@@ -715,6 +738,7 @@ export type CompanySettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   googleReviewUrl?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
+  linkedinUrl?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
   bankBalance?: boolean
@@ -738,6 +762,7 @@ export type CompanySettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   googleReviewUrl?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
+  linkedinUrl?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
   bankBalance?: boolean
@@ -761,6 +786,7 @@ export type CompanySettingsSelectScalar = {
   googleReviewUrl?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
+  linkedinUrl?: boolean
   happyCustomers?: boolean
   featuredReviews?: boolean
   bankBalance?: boolean
@@ -773,7 +799,7 @@ export type CompanySettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "website" | "logoUrl" | "googleReviewUrl" | "googleRating" | "googleReviewCount" | "happyCustomers" | "featuredReviews" | "bankBalance" | "upiId" | "upiQrUrl" | "bankName" | "bankAccountName" | "bankAccountNumber" | "bankIfsc" | "updatedAt", ExtArgs["result"]["companySettings"]>
+export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "website" | "logoUrl" | "googleReviewUrl" | "googleRating" | "googleReviewCount" | "linkedinUrl" | "happyCustomers" | "featuredReviews" | "bankBalance" | "upiId" | "upiQrUrl" | "bankName" | "bankAccountName" | "bankAccountNumber" | "bankIfsc" | "updatedAt", ExtArgs["result"]["companySettings"]>
 
 export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CompanySettings"
@@ -789,6 +815,7 @@ export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.Int
     googleReviewUrl: string | null
     googleRating: string | null
     googleReviewCount: string | null
+    linkedinUrl: string | null
     happyCustomers: string | null
     featuredReviews: string | null
     bankBalance: number | null
@@ -1232,6 +1259,7 @@ export interface CompanySettingsFieldRefs {
   readonly googleReviewUrl: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly googleRating: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly googleReviewCount: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly linkedinUrl: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly happyCustomers: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly featuredReviews: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly bankBalance: Prisma.FieldRef<"CompanySettings", 'Float'>

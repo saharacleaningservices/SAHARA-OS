@@ -9,9 +9,11 @@ export async function register() {
   if (flag === "off" || (process.env.NODE_ENV !== "production" && flag !== "on")) return;
   const { runOpsReminderSweep } = await import("@/server/ops-reminders");
   const { maybeBackupStaleAlert } = await import("@/server/backup-health");
+  const { maybeHealthAlert } = await import("@/server/health");
   const tick = () => {
     void runOpsReminderSweep().catch((e) => console.error("[ops-reminders] sweep failed:", e));
     void maybeBackupStaleAlert(); // never throws; one alert/day while the last verified backup is >26 h old
+    void maybeHealthAlert(); // never throws; one alert per 6 h when memory / DB / event loop turn unhealthy
   };
   setTimeout(tick, 30_000); // let the server finish booting first
   setInterval(tick, 60_000).unref?.();

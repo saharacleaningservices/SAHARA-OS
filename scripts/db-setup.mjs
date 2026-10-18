@@ -900,6 +900,7 @@ console.log("v2.0 batch-1 (attendance/salary) migration complete.");
 addColumnIfMissing("Lead", "propertyType", `"propertyType" TEXT`);
 addColumnIfMissing("Job", "propertyType", `"propertyType" TEXT`);
 addColumnIfMissing("CompanySettings", "googleRating", `"googleRating" TEXT`);
+addColumnIfMissing("CompanySettings", "linkedinUrl", `"linkedinUrl" TEXT`);
 addColumnIfMissing("CompanySettings", "googleReviewCount", `"googleReviewCount" TEXT`);
 addColumnIfMissing("CompanySettings", "happyCustomers", `"happyCustomers" TEXT`);
 addColumnIfMissing("CompanySettings", "featuredReviews", `"featuredReviews" TEXT`);
@@ -1015,6 +1016,7 @@ db.exec(`
 `);
 db.exec(`CREATE INDEX IF NOT EXISTS "EmailMessage_status_idx" ON "EmailMessage"("status");`);
 db.exec(`CREATE INDEX IF NOT EXISTS "EmailMessage_createdAt_idx" ON "EmailMessage"("createdAt");`);
+addColumnIfMissing("EmailMessage", "bodyHtml", `"bodyHtml" TEXT`); // branded HTML part (2026-10-18)
 console.log("Auth recovery (email queue) migration complete.");
 
 // ─────────────────────────────────────────────────────────────────────────

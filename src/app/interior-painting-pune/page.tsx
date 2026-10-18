@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, QuoteSection, Faqs, Terms, OtherServices, ScopeLists, SOCIAL, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, QuoteSection, Faqs, Terms, OtherServices, ScopeLists, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { Accordion, CampaignBar, CampaignFooter, CampaignHero, CampaignStyles } from "@/components/public/campaign-kit";
 import { PAINT_OPTIONS, PAINT_SCOPE } from "@/lib/marketing-content";
 
@@ -31,7 +31,7 @@ export default async function InteriorPaintingPage() {
       waText={WA}
       jsonLd={[businessJsonLd(), faqJsonLd(FAQS)]}
       bookHref="#quote"
-      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} social={SOCIAL} />}
+      footer={<CampaignFooter logoUrl={settings.logoUrl} waText={WA} />}
       mobileBar={<CampaignBar label="Interior Painting · Asian Paints" priceNote="Quote after free site inspection" cta="Book Free Site Inspection →" />}
     >
       <CampaignStyles />
