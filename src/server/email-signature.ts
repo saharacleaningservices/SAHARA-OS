@@ -16,6 +16,8 @@ export async function signatureFor(senderUserId?: string | null): Promise<Signat
     email: s.email,
     address: s.address,
     linkedinUrl: s.linkedinUrl,
+    logoWidth: s.signatureLogoWidth,
+    logoHeight: s.signatureLogoHeight,
     googleRating: s.googleRating,
     googleReviewCount: s.googleReviewCount,
   };

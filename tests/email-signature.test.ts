@@ -40,7 +40,7 @@ test("every item is a link opening in a new tab: call, email, web, map pin, each
   }
 });
 
-test("the logo is large and crisp: 220 px wide from the 830 px artwork, linked, on a 250 px column", () => {
+test("the logo is large and crisp: 220 px wide from the 830 px artwork, on a 250 px column", () => {
   const h = renderSignatureHtml(FULL);
   assert.ok(/<img src="[^"]*sahara-logo@2x\.png" width="220"/.test(h) && h.includes("width:220px"));
   assert.ok(h.includes('width="250"') && h.includes("width:250px"), "logo column wide enough for it");
@@ -136,4 +136,18 @@ test("pipeline: html is stored + sent when given; OTP / recovery mails stay plai
   assert.match(readFileSync("prisma/schema.prisma", "utf8"), /model EmailMessage \{[\s\S]*?bodyHtml\s+String\?/);
   assert.ok(readFileSync("scripts/db-setup.mjs", "utf8").includes(`addColumnIfMissing("EmailMessage", "bodyHtml"`));
   assert.match(readFileSync("prisma/schema.prisma", "utf8"), /model CompanySettings \{[\s\S]*?linkedinUrl\s+String\?/);
+});
+
+test("logo is not a hyperlink and its size follows the Settings values", () => {
+  const h = renderSignatureHtml(FULL);
+  const logoTag = /<img src="[^"]*sahara-logo@2x\.png"[^>]*>/.exec(h)![0];
+  assert.ok(!anchors(h).some((a) => a.inner.includes("sahara-logo")), "logo must not sit inside an <a>");
+  assert.ok(!/<a\b[^>]*>\s*<img src="[^"]*sahara-logo/.test(h));
+  assert.ok(logoTag.includes('width="220"') && !logoTag.includes("height=") && logoTag.includes("height:auto"), "default 220 wide, proportional");
+
+  const big = renderSignatureHtml({ ...FULL, logoWidth: 300, logoHeight: 120 });
+  assert.ok(big.includes('width="300" height="120"') && big.includes("width:300px;max-width:100%;height:120px") && big.includes('width="330"'), "custom size + wider column");
+  const clamped = renderSignatureHtml({ ...FULL, logoWidth: 9999, logoHeight: 1 });
+  assert.ok(clamped.includes('width="400" height="20"'), "values clamped to 400 / 20");
+  assert.ok(renderSignatureHtml({ ...FULL, logoWidth: null, logoHeight: null }).includes('width="220"'));
 });
