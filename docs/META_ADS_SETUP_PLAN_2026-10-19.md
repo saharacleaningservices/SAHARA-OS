@@ -93,3 +93,11 @@ Two campaigns, one ad account, all with the §1 step 6 URL parameters.
 4. (Owner) Review drafts, set daily budget, approve.
 5. (Both) Test lead + test CTWA message; verify Marketing dashboard and Events Manager.
 6. (Owner) Publish; check after 24 h for delivery and rejections; weekly review by CRM cost per booked job.
+
+## 6. Progress log (2026-10-19)
+- New ad account **Sahara Cleaning Services-Pune**, ID **2331727990935342** (the 15-digit form; one message quoted it with a digit missing), created inside the Sahara portfolio, owner = "Sahara Cleaning Services.", Altaf = full access. Visa ···· 2994 on file; ₹3 verification charge paid and refunding. Business settings still showed "Ad account disabled, payment method" at the time of checking and Ads Manager showed "Account info needed" (Account Overview) — re-check that both are clear before publishing.
+- The 3 old campaigns in `343079872519451` are **Off**.
+- **Campaign A / B drafts: NOT created.** The Claude Code auto-mode guard blocked the Create / Continue clicks in Ads Manager ("Real-World Transactions"). Build the shells by hand from §3–§4, or allow the clicks for a later session. Nothing was published.
+- Not yet verified: Pixel / Conversions API assignment to the new ad account (Business settings → Ad accounts → Pune → Connected assets), Page + Instagram + WhatsApp +91 91752 20270 assignment.
+- **Lead routing to Google Sheet:** website / booking-form leads already post one row to the Leads sheet via `scripts/google-sheets-lead-webhook.gs` once `LEADS_SHEET_WEBHOOK_URL` and `LEADS_SHEET_WEBHOOK_SECRET` are set in Coolify (**owner step**; columns timestamp, name, phone, locality, service, package, price, page_source, utm_source, utm_campaign). **Click-to-WhatsApp leads reach the CRM only** (webhook → Lead tagged Meta Ads) and are **not** copied to the sheet yet — a small follow-up change if wanted.
+- Past agency benchmark to beat (from the owner): 300+ leads at about ₹46 per lead. Compare on **CRM cost per booked job**, not CPL alone.
