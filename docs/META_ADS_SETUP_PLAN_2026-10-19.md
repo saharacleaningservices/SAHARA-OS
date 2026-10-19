@@ -101,3 +101,65 @@ Two campaigns, one ad account, all with the §1 step 6 URL parameters.
 - Not yet verified: Pixel / Conversions API assignment to the new ad account (Business settings → Ad accounts → Pune → Connected assets), Page + Instagram + WhatsApp +91 91752 20270 assignment.
 - **Lead routing to Google Sheet:** website / booking-form leads already post one row to the Leads sheet via `scripts/google-sheets-lead-webhook.gs` once `LEADS_SHEET_WEBHOOK_URL` and `LEADS_SHEET_WEBHOOK_SECRET` are set in Coolify (**owner step**; columns timestamp, name, phone, locality, service, package, price, page_source, utm_source, utm_campaign). **Click-to-WhatsApp leads reach the CRM only** (webhook → Lead tagged Meta Ads) and are **not** copied to the sheet yet — a small follow-up change if wanted.
 - Past agency benchmark to beat (from the owner): 300+ leads at about ₹46 per lead. Compare on **CRM cost per booked job**, not CPL alone.
+
+## 7. Execution runbook (prepared while the owner was away, 2026-10-19)
+Everything below is ready; nothing has been run against Meta and nothing is published.
+
+### 7.1 Branches waiting for the owner
+| Branch | Commit | What | Action |
+|---|---|---|---|
+| `feat/ctwa-sheet-sync` | `dd68259` | CTWA ad leads also copied to the Google Sheet webhook | Merge PR into `coolify-deploy` |
+| `feat/meta-draft-script` | `a511a77` | `scripts/meta-create-draft-campaigns.mjs` (PAUSED campaigns + ad sets) | No merge needed; run from the branch |
+| `docs/meta-ads-setup-plan` | this file | plan + audit + progress | Merge when convenient (docs only) |
+
+### 7.2 CTWA → Google Sheet: verification after the merge
+1. Coolify has **no new env var to add for code** — set the two existing ones: `LEADS_SHEET_WEBHOOK_URL` (the Apps Script `/exec` URL, must start `https://script.google.com/`) and `LEADS_SHEET_WEBHOOK_SECRET` (same value as the script property of the same name). The Apps Script is `scripts/google-sheets-lead-webhook.gs` (deploy as Web app, execute as owner, access "Anyone"). Names only here — values stay with the owner.
+2. Redeploy; `/api/health` must return `{"status":"ok"}`.
+3. Send a test message from a phone to **+91 91752 20270** — but a plain message only creates a normal WhatsApp lead (not copied). Only a message that arrives **through a Click-to-WhatsApp ad** carries the referral and is copied. So verify with the first real ad click, or use Meta's ad preview "Send message" test.
+4. Expected: a lead tagged **Meta Ads** in the CRM (Marketing → Click-to-WhatsApp ads), and one new row in the Sheet `Leads` tab: `phone`, `name`, `service` = ad headline, `page_source` = `click_to_whatsapp`, `utm_source` = facebook/instagram, `utm_campaign` = headline slug.
+5. Website/booking-form leads use the same webhook (columns timestamp, name, phone, locality, service, package, actual_price, page_source, utm_source, utm_campaign). If the Sheet stays empty: env vars missing/typo'd, Apps Script not redeployed after edits, or secret mismatch (the script then returns `unauthorized`).
+
+### 7.3 Create the PAUSED structure (owner runs it)
+Dry run (no token, no network):
+```bash
+node scripts/meta-create-draft-campaigns.mjs --budget-inr 300
+node scripts/meta-create-draft-campaigns.mjs --budget-inr 300 --zones all
+```
+Real run (owner sets a token with `ads_management`; the Conversions API token will not work; never paste it in chat or commit it):
+```bash
+META_ADS_TOKEN=<token> META_PIXEL_ID=<pixel id> node scripts/meta-create-draft-campaigns.mjs --budget-inr 300 --apply
+```
+Parameters: `--budget-inr` (required, ₹ per ad set per day, min 50), `--zones 1|all` (default `1`), env `AD_ACCOUNT_ID` (default 2331727990935342), `META_PAGE_ID` (default 1880762258603818 — confirm it is the Facebook Page id), `WA_NUMBER` (default +919175220270), `META_API_VERSION` (default v21.0). Every error prints Meta's message, code/subcode and fbtrace id plus the ids already created; re-running after a failure creates duplicates, so delete or reuse them first. Check the first run in Ads Manager before anything else.
+
+Structure created (all **PAUSED**):
+| Campaign | Objective | Ad sets (daily ₹ each) |
+|---|---|---|
+| `meta_ctwa_pune_2026_10` (A) | Engagement → WhatsApp | `ctwa_home`, `ctwa_pest`, `ctwa_painting`, `ctwa_facility` |
+| `meta_leads_pune_2026_10` (B) | Leads → Website (Pixel `Lead`) | `leads_home`, `leads_pest`, `leads_painting`, `leads_facility` |
+B landing pages: `/landing/home-deep-cleaning-pune`, `/landing/pest-control-services-pune`, `/landing/interior-painting-pune`, `/landing/office-commercial-cleaning-pune`.
+Then in Ads Manager (script does not create ads): add 2 ads per ad set with the copy in §3 / §7.5, paste the URL parameters (§1.6) into every ad, review, set the real budget and publish.
+
+### 7.4 Locality pins (3 km radius, "people living here", ages 25–55)
+- **Phase 1 (default, `--zones 1`, 11 pins):** Undri, NIBM, Kondhwa, Wanowrie · Hadapsar, Magarpatta, Amanora, Mundhwa · Kharadi, Viman Nagar, Kalyani Nagar.
+- **Phase 2 (`--zones all`, +16 pins, 27 total):** East: Wagholi, Chandan Nagar, Lohegaon, Dhanori · West/PCMC: Baner, Balewadi, Wakad, Hinjewadi, Aundh, Kothrud, Pashan, Bavdhan · South/Central: Bibwewadi, Swargate, Camp, Deccan.
+Coordinates are approximate. **Recommendation:** start with Phase 1 (the business base and where crews travel least), then switch to `--zones all` after 2–3 weeks of CRM data per zone; a wider start spreads a small test budget too thin. PAN-Pune is possible but compare per-zone **cost per booked job** first.
+
+### 7.5 Ad copy (final text)
+Rules: no price, no "lowest/best/top/#1" claims (Meta/Google policy and unprovable), no health or guarantee wording. Pre-filled WhatsApp message = the ad's CTA text.
+| Ad set | Primary text (≤125) | Headline (≤40) | Pre-filled message |
+|---|---|---|---|
+| Home deep cleaning | Spotless homes across Pune. Trained in-house team, 2 BHK to villas, pay after service. | Home Deep Cleaning in Pune | Hi, I want a quote for home deep cleaning |
+| Pest control | Cockroach, termite, bed bug & mosquito treatment in Pune. Trained staff, pay after service. | Pest Control in Pune | Hi, I want a quote for pest control |
+| Painting | Interior and exterior painting with waterproofing. Free site inspection and a written quote first. | Painting Services — Free Inspection | Hi, I want a quote for painting |
+| Facility / AMC | Trained housekeeping on monthly AMC for offices and societies. Site visit and written scope first. | Housekeeping & Facility Management | Hi, I need housekeeping staff for my office / society |
+Second variant per ad set: a short real before/after clip (15–25 s, vertical); stills from `public/marketing/` until clips exist. Hindi / Marathi versions after the English ads show results.
+
+### 7.6 Pune search phrases (for copy, landing headlines and the Google side)
+Use as themes, not as claims: "home deep cleaning Pune", "full house cleaning Pune", "flat deep cleaning Pune", "villa cleaning Pune", "pest control Pune", "cockroach control Pune", "termite treatment Pune", "bed bug treatment Pune", "interior painting Pune", "home painting service Pune", "waterproofing Pune", "housekeeping services Pune", "office cleaning Pune", "society housekeeping Pune", "facility management Pune". Add a locality (Magarpatta, Kharadi, Hadapsar, Baner, Wakad…) on Google, where keywords are bought; on Meta these only guide wording. Superlatives like "best" or "top" are left out on purpose.
+
+### 7.7 UTM parameters (every ad, Ad → Tracking → URL parameters)
+`utm_source=meta_ads&utm_medium=paid_social&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&utm_term={{adset.name}}`
+The CRM maps `utm_source=meta_ads` to **Meta Ads** (`src/lib/attribution.ts`). CTWA ads cannot carry UTMs; their attribution is the ad referral (id + headline) captured on the lead.
+
+### 7.8 Still blocked on the owner
+Pixel/CAPI/WhatsApp/Page/Instagram assignment check on the new ad account; "Account info needed" and the disabled flag cleared in Account Overview; a token with `ads_management`; Coolify env vars for the Sheet; merging the PRs above.
