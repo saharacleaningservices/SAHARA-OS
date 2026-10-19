@@ -8,6 +8,7 @@ import { isWhatsAppReady, normalizeNumber, sendWhatsAppTemplate } from "@/lib/wh
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 import { HOME_FROM_PRICE } from "@/lib/pricing-master";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+import { isServiceOffer, serviceOfferRecipient } from "@/lib/whatsapp-service-offers";
 import { getLivePricing } from "@/server/pricing";
 import { WHATSAPP_TEST_NUMBERS, getWhatsAppMarketingAudience } from "@/server/whatsapp-audience";
 
@@ -178,8 +179,8 @@ export async function recordMarketingConsent(values: unknown) {
 // sends only to the approved QA number(s), whatever the file contains.
 
 // Only templates Meta shows as Active for 9175220270 (festival offer + customer reactivation
-// verified Active in WhatsApp Manager 2026-10-10).
-const BROADCAST_TEMPLATES = ["sahara_festival_offer", "sahara_customer_reactivation", "sahara_diwali_festival_offer"] as const;
+// verified Active in WhatsApp Manager 2026-10-10; pest control + painting offers Active 2026-10-18).
+const BROADCAST_TEMPLATES = ["sahara_festival_offer", "sahara_customer_reactivation", "sahara_diwali_festival_offer", "sahara_pest_control_offer", "sahara_painting_offer", "sahara_facility_management_offer"] as const;
 const contactSchema = z.object({ mobile: z.string().max(30), name: z.string().max(80).optional().default(""), service: z.string().max(60).optional().default("") });
 const broadcastSchema = z.object({
   campaign: z.string().regex(/^[a-z0-9_]{3,60}$/, "Campaign name: 3–60 lowercase letters, numbers or _"),
@@ -255,6 +256,8 @@ export async function startBroadcast(values: unknown) {
   const recipients = list.map((r) => {
     const first = r.name.split(/\s+/)[0] || "there";
     if (template === "sahara_festival_offer") return { mobile: r.mobile, name: r.name, params: [first, festival!, price], buttonParam: utm("offers") };
+    // Service campaigns (pest control / interior painting): banner header + one name variable; the button opens that service's booking page.
+    if (isServiceOffer(template)) return serviceOfferRecipient(template, r, campaign);
     // Rich Diwali template: image header + one name variable; the button lands on the festival page.
     if (template === "sahara_diwali_festival_offer") return { mobile: r.mobile, name: r.name, params: [first], buttonParam: utm("offers"), headerImageUrl: `${PUBLIC_BOOKING_URL}/marketing/diwali-offer-banner.jpg` };
     return { mobile: r.mobile, name: r.name, params: [first, r.service || "home deep cleaning"], buttonParam: utm("home-deep-cleaning-pune") };

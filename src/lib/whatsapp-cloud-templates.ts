@@ -28,6 +28,8 @@ export type CloudTemplate = {
   /** Optional media header; the sample is what Meta's reviewer sees (the real image URL is passed per send). */
   header?: { type: "IMAGE"; sample: string };
   body: string;
+  /** Optional footer line shown under the body (plain text, ≤60 characters). */
+  footer?: string;
   /** Example value per {{n}} body placeholder, in order (Meta requires examples). */
   examples: string[];
   buttons?: TemplateButton[];
@@ -207,6 +209,58 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     examples: ["Priya"],
     buttons: [
       { type: "URL", text: "Book Festival Clean", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/offers?utm_source=whatsapp&utm_medium=broadcast&utm_campaign=sahara_broadcast_diwali_2026` },
+      { type: "QUICK_REPLY", text: "Stop promotions" },
+    ],
+  },
+  // ── Service campaigns (owner 2026-10-18): submitted in WhatsApp Manager on the production WABA and shown Active
+  // by Meta the same day. Image header, one name variable, one dynamic-path URL button, "Stop promotions".
+  // MARKETING category → the consent guard in sendWhatsAppTemplate only lets them reach a recorded opt-in;
+  // the header image link is passed per send (lib/whatsapp-service-offers.ts).
+  {
+    key: "15",
+    name: "sahara_pest_control_offer",
+    category: "MARKETING",
+    language: "en",
+    purpose: "Pest control campaign — image header, Book Pest Control + Stop promotions",
+    header: { type: "IMAGE", sample: `${PUBLIC_BOOKING_URL}/marketing/pest-control-offer-banner.jpg` },
+    body:
+      "Hi {{1}}, is your home ready for the season? 🐜 Sahara Cleaning Services offers cockroach, termite, bed bug and ant treatment across Pune & PCMC — trained in-house staff, transparent pricing, and pay after service. Book a visit in under a minute.",
+    footer: "Sahara Cleaning Services · Serving Pune since 2012",
+    examples: ["Priya"],
+    buttons: [
+      { type: "URL", text: "Book Pest Control", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/pest-control-pune?utm_source=whatsapp&utm_medium=broadcast&utm_campaign=sahara_pest_control_2026` },
+      { type: "QUICK_REPLY", text: "Stop promotions" },
+    ],
+  },
+  {
+    key: "16",
+    name: "sahara_painting_offer",
+    category: "MARKETING",
+    language: "en",
+    purpose: "Interior painting campaign — image header, Book Free Inspection + Stop promotions",
+    header: { type: "IMAGE", sample: `${PUBLIC_BOOKING_URL}/marketing/painting-offer-banner.jpg` },
+    body:
+      "Hi {{1}}, planning to repaint? 🎨 Sahara Cleaning Services does interior and texture painting in Pune & PCMC with a free site inspection and a written quote before work starts. Trained in-house team, clean finish, furniture covered.",
+    footer: "Sahara Cleaning Services · Serving Pune since 2012",
+    examples: ["Priya"],
+    buttons: [
+      { type: "URL", text: "Book Free Inspection", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/interior-painting-pune?utm_source=whatsapp&utm_medium=broadcast&utm_campaign=sahara_painting_2026` },
+      { type: "QUICK_REPLY", text: "Stop promotions" },
+    ],
+  },
+  {
+    key: "17",
+    name: "sahara_facility_management_offer",
+    category: "MARKETING",
+    language: "en",
+    purpose: "Facility management / housekeeping AMC (B2B) — image header, Request a Proposal + Stop promotions",
+    header: { type: "IMAGE", sample: `${PUBLIC_BOOKING_URL}/marketing/facility-management-offer-banner.jpg` },
+    body:
+      "Hi {{1}}, need reliable housekeeping for your office, society or commercial complex? 🏢 Sahara Cleaning Services provides trained housekeeping staff and facility management on monthly AMC across Pune & PCMC, with a site visit and a written scope before you decide.",
+    footer: "Sahara Cleaning Services · Serving Pune since 2012",
+    examples: ["Priya"],
+    buttons: [
+      { type: "URL", text: "Request a Proposal", url: `${PUBLIC_BOOKING_URL}/{{1}}`, example: `${PUBLIC_BOOKING_URL}/housekeeping-services?utm_source=whatsapp&utm_medium=broadcast&utm_campaign=sahara_facility_2026` },
       { type: "QUICK_REPLY", text: "Stop promotions" },
     ],
   },

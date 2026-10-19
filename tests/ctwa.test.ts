@@ -22,6 +22,8 @@ test.before(async () => {
   db = (await import("../src/lib/db")).db;
   POST = (await import("../src/app/api/webhooks/whatsapp/route")).POST;
   await db.user.create({ data: { name: "Altaf", email: "a@t", role: "ADMIN", passwordHash: "x" } });
+  await db.user.create({ data: { name: "Shoyab Kazi", email: "shoyab@t", role: "ACCOUNTS", passwordHash: "x" } });
+  await db.user.create({ data: { name: "Francis", email: "francis@t", role: "OPERATIONS", passwordHash: "x" } });
 });
 test.after(async () => {
   await db.$disconnect();
@@ -121,4 +123,14 @@ test("page wiring: the card is on the Marketing dashboard and lists what still n
   assert.ok(fs.readFileSync("src/app/(app)/profit/marketing/page.tsx", "utf8").includes("<CtwaLeadsCard"));
   const card = fs.readFileSync("src/components/marketing/ctwa-leads-card.tsx", "utf8");
   assert.ok(card.includes("PENDING USER ACTION") && card.includes("billing / payment method") && card.includes("WHATSAPP_CAMPAIGNS=on"));
+});
+
+test("an ad lead alerts Altaf, Shoyab (Accounts) and Francis (Operations) at once, with the ad named — and Francis never gets the customer's number", async () => {
+  await inbound("919000000331", "Interested in the offer", { ...AD, source_id: "777", headline: "Pest Control Pune" }, "Meera");
+  const mine = await db.notification.findMany({ where: { kind: "NEW_INQUIRY", title: { contains: "Ad lead on WhatsApp" }, body: { contains: "Pest Control Pune" } }, include: { user: { select: { name: true, role: true } } } });
+  assert.deepEqual(mine.map((n) => n.user.role).sort(), ["ACCOUNTS", "ADMIN", "OPERATIONS"]);
+  for (const n of mine) {
+    assert.match(n.body ?? "", /from a Meta ad: Pest Control Pune/);
+    if (n.user.role === "OPERATIONS") assert.doesNotMatch(`${n.title} ${n.body} ${n.href}`, /9000000331/, "no customer number for Operations");
+  }
 });

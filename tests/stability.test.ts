@@ -111,3 +111,12 @@ test("staff app privacy (owner 2026-10-18): crew pages carry no job price / coll
   const i18n = readFileSync("src/lib/staff-i18n.ts", "utf8");
   assert.match(i18n, /callOfficePayment: \["Call Office for Payment Details", "[^"]+", "[^"]+"\]/, "English + Hindi + Marathi");
 });
+
+test("staff 'Review / Pay QR' page: the payment QR carries NO amount; the page shows no price, balance or job total", () => {
+  const src = readFileSync("src/app/my/tools/page.tsx", "utf8");
+  const link = src.match(/upi:\/\/pay\?[^`]*/)?.[0] ?? "";
+  assert.ok(link.includes("pa=") && link.includes("cu=INR"), "a plain UPI link to the company ID");
+  assert.ok(!/[?&]am=|[?&]tn=|[?&]tr=/.test(link), "no pre-filled amount / note / reference");
+  assert.ok(!/formatINR|inrFor|₹|jobValue|balance|collect|\.amount/i.test(src.replace(/<IndianRupee[^>]*\/>/g, "").replace(/\/\/.*$/gm, "")), "no money values rendered");
+  assert.ok(!src.includes("getMyJob") && !src.includes("payments"), "does not load job money");
+});
