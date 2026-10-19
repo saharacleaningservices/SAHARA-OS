@@ -1,23 +1,24 @@
 import { BOOKING_BASE, bookingLink, socialLinks } from "@/lib/social-links";
 
-// Both public numbers (lib/constants COMPANY.phones) — kept literal here so this file stays free of server imports.
-const COMPANY_PHONES = ["7083347130", "8956567130"] as const;
+// Responsive, inline-styled HTML email signature (owner spec 2026-10-19 — high-trust, uncluttered).
+//
+//   header       sender's name + role (dynamic: Altaf / Francis / Shoyab …)
+//   boxed table  left: the official logo, large | right: call, email, web, map pin — every item a link (target=_blank)
+//   social row   Facebook · Instagram · YouTube · LinkedIn (only when set) · Book Now — coloured icons, UTM-tagged
+//   badges       ONE minimal row: Google rating · Verified Staff · No Outsourced Work
+//
+// No tagline / GSTIN line. Email-client rules: table layout, every style inline, no web fonts / SVG / scripts, one
+// <style> media query only to stack the two columns on phones, every dynamic value HTML-escaped. LinkedIn and the
+// rating badge simply do not appear until they are configured — the row closes up with no gap.
 
-// Responsive, inline-styled HTML email signature (owner spec 2026-10-18).
-//
-//   header      sender's name + role (dynamic: Altaf / Francis / Shoyab …)
-//   boxed table left: official logo (sahara-logo@2x.png) | right: both phone numbers, email, booking URL, address
-//   CONNECT WITH US     Facebook · Instagram · YouTube · LinkedIn (only when set) · Book Now — all UTM-tagged
-//   TRUST & QUALITY     Google rating (from Settings) · Verified Staff · No Outsourced Work
-//
-// Email-client rules followed: table layout, every style inline, no web fonts / SVG / scripts, no external icon
-// images (nothing breaks with images blocked), one <style> media query only to stack the two columns on phones,
-// every dynamic value HTML-escaped. LinkedIn and the rating badge simply do not appear until they are configured.
+// The two public numbers, in the order shown (operations line first). Kept literal so this file stays free of server imports.
+const PHONES = ["8956567130", "7083347130"] as const;
 
 export type SignatureInput = {
   /** Sender shown in the header; omit for a company-level signature. */
   name?: string | null;
   role?: string | null;
+  /** Kept for callers; the signature always shows both public numbers. */
   phone?: string | null;
   email?: string | null;
   address?: string | null;
@@ -48,37 +49,39 @@ export function prettyPhone(raw: string): string {
   return d.length === 10 ? `+91 ${d.slice(0, 5)} ${d.slice(5)}` : raw;
 }
 
+/** "+91 89565 67130 / 70833 47130" — the country code once, as written in the brand spec. */
+export function phonesDisplay(): string {
+  return PHONES.map((n, i) => (i === 0 ? prettyPhone(n) : prettyPhone(n).replace(/^\+91 /, ""))).join(" / ");
+}
+
+/** Settings address → "Opp. South Gate, Magarpatta City, Hadapsar, Pune 411028" (adds the PIN, drops a trailing full stop). */
+export function signatureAddress(raw?: string | null): string {
+  const base = (raw || "Opp. South Gate, Magarpatta City, Hadapsar, Pune.").replace(/[.\s]+$/, "").trim();
+  if (/\b\d{6}\b/.test(base)) return base;
+  return /Pune$/i.test(base) ? `${base} 411028` : `${base}, Pune 411028`;
+}
+
+export const mapsHref = (address: string) => `https://maps.google.com/?q=${encodeURIComponent(address)}`;
+
+/** "1800+" → "1,800+"; anything that is not a plain number (with optional +) is shown as typed. */
+export function formatCount(v: string): string {
+  const m = /^(\d{1,9})(\+?)$/.exec(v.trim());
+  return m ? `${Number(m[1]).toLocaleString("en-IN")}${m[2]}` : v.trim();
+}
+
 // Contact / trust emoji are written as numeric entities so the HTML stays pure ASCII (safe in any charset / client).
 const E = { phone: "&#128222;", mail: "&#9993;&#65039;", web: "&#127760;", pin: "&#128205;", star: "&#11088;", tick: "&#10004;&#65039;", shield: "&#128737;&#65039;" };
 
-/** Coloured brand icon (PNG hosted at /brand/social, 44 px shown at 20 px) + the label as live text, so the pill still reads with images blocked. */
+const link = (href: string, text: string) =>
+  `<a href="${esc(href)}" target="_blank" style="color:${BLUE};text-decoration:none;">${text}</a>`;
+
+/** Coloured brand icon (PNG hosted at /brand/social, 44 px shown at 22 px) + the label as live text, so the pill still reads with images blocked. */
 const pill = (href: string, iconUrl: string, label: string) =>
-  `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 6px 6px 0;padding:5px 12px 5px 7px;border:1px solid #c9d7ea;border-radius:18px;background:#ffffff;color:${NAVY};font:600 12px/20px Arial,Helvetica,sans-serif;text-decoration:none;white-space:nowrap;"><img src="${esc(iconUrl)}" width="20" height="20" alt="" style="display:inline-block;width:20px;height:20px;border:0;vertical-align:middle;margin:0 6px 0 0;">${esc(label)}</a>`;
-
-const tag = (text: string, border: string, bg: string, fg: string) =>
-  `<span style="display:inline-block;margin:0 8px 6px 0;padding:4px 10px;border:1px solid ${border};border-radius:12px;background:${bg};font:700 12px/16px Arial,Helvetica,sans-serif;color:${fg};">${text}</span>`;
-
-const heading = (t: string) => `<div style="margin:12px 0 6px 0;font:700 11px/14px Arial,Helvetica,sans-serif;letter-spacing:1px;color:${MUTED};">${t}</div>`;
-
-/** "+91 70833 47130" for each distinct number, joined with " / ". */
-function phoneLine(primary: string, extra: readonly string[]) {
-  const seen = new Set<string>();
-  const nums = [primary, ...extra].filter((n) => {
-    const d = digits(n).slice(-10);
-    if (d.length !== 10 || seen.has(d)) return false;
-    seen.add(d);
-    return true;
-  });
-  return nums
-    .slice(0, 2)
-    .map((n) => `<a href="tel:+91${digits(n).slice(-10)}" style="color:${BLUE};text-decoration:none;">${esc(prettyPhone(n))}</a>`)
-    .join(" / ");
-}
+  `<a href="${esc(href)}" target="_blank" style="display:inline-block;margin:0 6px 6px 0;padding:5px 12px 5px 7px;border:1px solid #c9d7ea;border-radius:18px;background:#ffffff;color:${NAVY};font:600 12px/22px Arial,Helvetica,sans-serif;text-decoration:none;white-space:nowrap;"><img src="${esc(iconUrl)}" width="22" height="22" alt="" style="display:inline-block;width:22px;height:22px;border:0;vertical-align:middle;margin:0 6px 0 0;">${esc(label)}</a>`;
 
 export function renderSignatureHtml(i: SignatureInput = {}): string {
   const email = i.email || "contact@saharacleaningservices.com";
-  const rawAddress = i.address || "Opp. South Gate, Magarpatta City, Hadapsar, Pune.";
-  const address = /maharashtra/i.test(rawAddress) ? rawAddress : `${rawAddress.replace(/[.\s]+$/, "")}, Maharashtra, India`;
+  const address = signatureAddress(i.address);
   const assets = (i.assetBase || BOOKING_BASE).replace(/\/$/, "");
   const logo = `${assets}/brand/sahara-logo@2x.png`;
   const icon = (name: string) => `${assets}/brand/social/${name}.png`;
@@ -90,43 +93,45 @@ export function renderSignatureHtml(i: SignatureInput = {}): string {
 
   const header = i.name
     ? `<div style="font-family:Arial,Helvetica,sans-serif;padding:0 0 10px 0;">
-         <div style="font-size:17px;line-height:22px;font-weight:700;color:${NAVY};">${esc(i.name)}</div>
+         <div style="font-size:18px;line-height:23px;font-weight:700;color:${NAVY};">${esc(i.name)}</div>
          ${i.role ? `<div style="font-size:13px;line-height:18px;color:${MUTED};">${esc(i.role)} &mdash; Sahara Cleaning Services</div>` : ""}
        </div>`
     : "";
 
   const row = (icon: string, value: string) =>
-    `<tr><td style="padding:0 8px 6px 0;font:14px/18px Arial,Helvetica,sans-serif;vertical-align:top;width:22px;">${icon}</td><td style="padding:0 0 6px 0;font:13px/18px Arial,Helvetica,sans-serif;color:#26364a;">${value}</td></tr>`;
+    `<tr><td style="padding:0 8px 7px 0;font:14px/19px Arial,Helvetica,sans-serif;vertical-align:top;width:22px;">${icon}</td><td style="padding:0 0 7px 0;font:13px/19px Arial,Helvetica,sans-serif;color:#26364a;">${value}</td></tr>`;
 
-  const trust = [
-    rating ? tag(`${E.star} ${esc(rating)} on Google${reviews ? ` &middot; ${esc(reviews)} reviews` : ""}`, "#f1c232", "#fff8e1", "#7a5b00") : "",
-    tag(`${E.tick} Verified Staff`, "#9bd3ae", "#eefaf2", "#1d6b3a"),
-    tag(`${E.shield} No Outsourced Work`, "#b7c8e6", "#eef4fc", NAVY),
+  const phones = PHONES.map((n, k) => link(`tel:+91${n}`, esc(k === 0 ? prettyPhone(n) : prettyPhone(n).replace(/^\+91 /, "")))).join(" / ");
+
+  // One minimal row; each badge is its own non-breaking unit so a phone can wrap between badges, never inside one.
+  const badge = (t: string) => `<span style="display:inline-block;margin:0 14px 4px 0;white-space:nowrap;font:600 12px/18px Arial,Helvetica,sans-serif;color:#26364a;">${t}</span>`;
+  const badges = [
+    rating ? badge(`${E.star} ${esc(rating)}/5${reviews ? ` (${esc(formatCount(reviews))} Google Reviews)` : " on Google"}`) : "",
+    badge(`${E.tick} Verified Staff`),
+    badge(`${E.shield} No Outsourced Work`),
   ].join("");
 
   return `<!--[if mso]><table role="presentation"><tr><td><![endif]-->
-<style>@media only screen and (max-width:480px){.sh-col{display:block!important;width:100%!important;border-left:0!important}.sh-logo{border-bottom:1px solid #d7e3f4!important;padding:12px!important}.sh-info{padding:12px!important}}</style>
-<div style="max-width:560px;margin:18px 0 0 0;border-top:3px solid ${BLUE};padding-top:12px;">
+<style>@media only screen and (max-width:520px){.sh-col{display:block!important;width:100%!important;border-left:0!important}.sh-logo{border-bottom:1px solid #d7e3f4!important;padding:14px!important}.sh-info{padding:14px!important}}</style>
+<div style="max-width:620px;margin:18px 0 0 0;border-top:3px solid ${BLUE};padding-top:12px;">
   ${header}
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #d7e3f4;border-radius:8px;border-collapse:separate;">
     <tr>
-      <td class="sh-col sh-logo" width="170" valign="middle" align="center" style="width:170px;padding:14px;">
-        <a href="${esc(bookHref)}" target="_blank"><img src="${esc(logo)}" width="150" alt="Sahara Cleaning Services" style="display:block;width:150px;max-width:100%;height:auto;border:0;"></a>
+      <td class="sh-col sh-logo" width="250" valign="middle" align="center" style="width:250px;padding:16px;">
+        <a href="${esc(bookHref)}" target="_blank"><img src="${esc(logo)}" width="220" alt="Sahara Cleaning Services" style="display:block;width:220px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
       </td>
-      <td class="sh-col sh-info" valign="middle" style="padding:14px 14px 8px 16px;border-left:1px solid #d7e3f4;">
+      <td class="sh-col sh-info" valign="middle" style="padding:16px 14px 9px 18px;border-left:1px solid #d7e3f4;">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-          ${row(E.phone, phoneLine(i.phone || COMPANY_PHONES[0], COMPANY_PHONES))}
-          ${row(E.mail, `<a href="mailto:${esc(email)}" style="color:${BLUE};text-decoration:none;">${esc(email)}</a>`)}
-          ${row(E.web, `<a href="${esc(bookHref)}" target="_blank" style="color:${BLUE};text-decoration:none;">${esc(bookText)}</a>`)}
-          ${row(E.pin, esc(address))}
+          ${row(E.phone, phones)}
+          ${row(E.mail, link(`mailto:${email}`, esc(email)))}
+          ${row(E.web, link(bookHref, esc(bookText)))}
+          ${row(E.pin, link(mapsHref(address), esc(address)))}
         </table>
       </td>
     </tr>
   </table>
-  ${heading("CONNECT WITH US:")}
-  <div style="margin:0;">${links.map((l) => pill(l.href, icon(l.key), l.label)).join("")}${pill(bookHref, icon("book"), "Book Now")}</div>
-  ${heading("TRUST &amp; QUALITY ASSURANCE:")}
-  <div style="margin:0;">${trust}</div>
+  <div style="margin:12px 0 0 0;">${links.map((l) => pill(l.href, icon(l.key), l.label)).join("")}${pill(bookHref, icon("book"), "Book Now")}</div>
+  <div style="margin:6px 0 0 0;">${badges}</div>
 </div>
 <!--[if mso]></td></tr></table><![endif]-->`;
 }
@@ -136,10 +141,10 @@ export function renderSignatureText(i: SignatureInput = {}): string {
   const lines = [
     "--",
     ...(i.name ? [i.name + (i.role ? ` — ${i.role}` : ""), "Sahara Cleaning Services"] : ["Sahara Cleaning Services"]),
-    `Call: ${[...new Set([i.phone || "7083347130", "7083347130", "8956567130"].map((n) => prettyPhone(n)))].slice(0, 2).join(" / ")}`,
+    `Call: ${phonesDisplay()}`,
     `Email: ${i.email || "contact@saharacleaningservices.com"}`,
     `Book online: ${bookingLink("email_signature", "email", "booking_cta")}`,
-    `Visit: ${i.address || "Opp. South Gate, Magarpatta City, Hadapsar, Pune."}`,
+    `Visit: ${signatureAddress(i.address)}`,
     ...socialLinks("email_signature", i.linkedinUrl).map((l) => `${l.label}: ${l.href}`),
   ];
   return lines.join("\n");
@@ -155,6 +160,6 @@ export function brandedEmail(message: string, sig: SignatureInput = {}): { html:
     .split(/\n{2,}/)
     .map((p) => `<p style="margin:0 0 12px 0;font:14px/21px Arial,Helvetica,sans-serif;color:#1c2b3d;">${esc(p).replace(/\n/g, "<br>")}</p>`)
     .join("");
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:16px;background:#ffffff;"><div style="max-width:600px;">${paras}${renderSignatureHtml(sig)}</div></body></html>`;
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:16px;background:#ffffff;"><div style="max-width:660px;">${paras}${renderSignatureHtml(sig)}</div></body></html>`;
   return { html, text: `${message.trim()}\n\n${renderSignatureText(sig)}` };
 }
