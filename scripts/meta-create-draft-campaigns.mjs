@@ -3,9 +3,9 @@
 // afterwards in Ads Manager, where the URL parameters below are pasted into each ad (Ad → Tracking → URL parameters).
 //
 //   Dry run (default, no token needed, makes no network call):
-//     node scripts/meta-create-draft-campaigns.mjs --budget-inr 300
+//     node scripts/meta-create-draft-campaigns.mjs --budget-inr 300 [--zones all]
 //   Create for real (YOU run this; the token is read from the environment and never printed or stored):
-//     META_ADS_TOKEN=<token with ads_management> META_PIXEL_ID=<pixel id> node scripts/meta-create-draft-campaigns.mjs --budget-inr 300 --apply
+//     META_ADS_TOKEN=<token with ads_management> META_PIXEL_ID=<pixel id> node scripts/meta-create-draft-campaigns.mjs --budget-inr 300 --apply [--zones all]
 //
 // Settings (env, all optional): AD_ACCOUNT_ID (default 2331727990935342), META_PAGE_ID (default 1880762258603818),
 // WA_NUMBER (default +919175220270), META_API_VERSION (default v21.0).
@@ -28,12 +28,29 @@ const PIXEL = process.env.META_PIXEL_ID || "";
 const VER = process.env.META_API_VERSION || "v21.0";
 const TOKEN = process.env.META_ADS_TOKEN || "";
 
-// Phase 1 zones (Z1–Z3). Approximate centres.
-const PLACES = [
+// Zones. Phase 1 (Z1–Z3) is the default — the business base; add the rest (--zones all) after 2–3 weeks of CRM data.
+// Approximate centres; PCMC is included in "all". Check the audience map in Ads Manager before publishing.
+const PHASE1 = [
   ["Undri", 18.4575, 73.9086], ["NIBM", 18.4731, 73.8995], ["Kondhwa", 18.4637, 73.8869], ["Wanowrie", 18.4894, 73.8963],
   ["Hadapsar", 18.5089, 73.9259], ["Magarpatta", 18.5167, 73.9272], ["Amanora", 18.5176, 73.9343], ["Mundhwa", 18.5304, 73.9226],
   ["Kharadi", 18.5515, 73.94], ["Viman Nagar", 18.5679, 73.9143], ["Kalyani Nagar", 18.5463, 73.9021],
 ];
+const PHASE2 = [
+  // East
+  ["Wagholi", 18.5800, 73.9800], ["Chandan Nagar", 18.5600, 73.9600], ["Lohegaon", 18.5900, 73.9200], ["Dhanori", 18.5900, 73.9000],
+  // West (incl. PCMC)
+  ["Baner", 18.5590, 73.7868], ["Balewadi", 18.5770, 73.7790], ["Wakad", 18.5990, 73.7600], ["Hinjewadi", 18.5910, 73.7380],
+  ["Aundh", 18.5580, 73.8075], ["Kothrud", 18.5074, 73.8077], ["Pashan", 18.5400, 73.7900], ["Bavdhan", 18.5190, 73.7800],
+  // South / Central
+  ["Bibwewadi", 18.4720, 73.8650], ["Swargate", 18.5010, 73.8630], ["Camp", 18.5120, 73.8780], ["Deccan", 18.5160, 73.8420],
+];
+const zi = args.indexOf("--zones");
+const zones = zi >= 0 ? args[zi + 1] : "1";
+if (!["1", "all"].includes(zones)) {
+  console.error("--zones must be 1 (default: Z1–Z3) or all (adds East, West/PCMC, South/Central).");
+  process.exit(1);
+}
+const PLACES = zones === "all" ? [...PHASE1, ...PHASE2] : PHASE1;
 const targeting = {
   age_min: 25,
   age_max: 55,
@@ -86,7 +103,7 @@ for (const [key, label] of SERVICES) {
 }
 
 function show() {
-  console.log(`Account act_${ACT} · Page ${PAGE_ID} · WhatsApp ${WA} · budget ₹${budgetInr}/day per ad set · all PAUSED`);
+  console.log(`Account act_${ACT} · ${PLACES.length} locality pins (zones ${zones}) · Page ${PAGE_ID} · WhatsApp ${WA} · budget ₹${budgetInr}/day per ad set · all PAUSED`);
   for (const s of plan) console.log(` - ${s.kind === "campaign" ? "CAMPAIGN " + s.body.name + " (" + s.body.objective + ")" : "  ad set " + s.of + "/" + s.body.name + (s.note ? " — " + s.note : "")}`);
   console.log(`\nURL parameters to paste into every ad (Ad → Tracking → URL parameters):\n  ${UTM}`);
 }
@@ -98,7 +115,11 @@ async function post(path, body, token) {
     body: JSON.stringify(body),
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok || json.error) throw new Error(`${path}: ${json.error?.message || res.status}`);
+  if (!res.ok || json.error) {
+    const e = json.error || {};
+    // Full Meta error (never includes the token) so a failed first run can be fixed without guessing.
+    throw new Error(`${path}: ${e.message || res.status}${e.error_user_msg ? ` — ${e.error_user_msg}` : ""} [code ${e.code ?? "?"}/${e.error_subcode ?? "?"}, fbtrace ${e.fbtrace_id ?? "?"}]`);
+  }
   return json.id;
 }
 
