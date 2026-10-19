@@ -134,3 +134,37 @@ test("an ad lead alerts Altaf, Shoyab (Accounts) and Francis (Operations) at onc
     if (n.user.role === "OPERATIONS") assert.doesNotMatch(`${n.title} ${n.body} ${n.href}`, /9000000331/, "no customer number for Operations");
   }
 });
+
+test("an ad lead is copied to the Google Sheet (when configured); plain WhatsApp inquiries and unset config are not", async () => {
+  const realFetch = globalThis.fetch;
+  const calls: { url: string; body: Record<string, unknown> }[] = [];
+  globalThis.fetch = (async (input: unknown, init?: { body?: string }) => {
+    const url = String(input);
+    if (url.startsWith("https://script.google.com/")) calls.push({ url, body: JSON.parse(init?.body ?? "{}") });
+    return new Response("{}", { status: 200 });
+  }) as typeof fetch;
+  try {
+    // not configured → nothing posted
+    await inbound("919811110001", "Hi, quote please", AD, "Sheet Off");
+    await new Promise((r) => setTimeout(r, 50));
+    assert.equal(calls.length, 0, "no env → no copy");
+
+    process.env.LEADS_SHEET_WEBHOOK_URL = "https://script.google.com/macros/s/test/exec";
+    process.env.LEADS_SHEET_WEBHOOK_SECRET = "s3cret";
+    await inbound("919811110002", "Hi, pest control quote", { ...AD, source_id: "120210000000002", headline: "Pest Control in Pune" }, "Sheet On");
+    await inbound("919811110003", "Hello, plain inquiry (no ad)", undefined, "No Ad");
+    await new Promise((r) => setTimeout(r, 50));
+    assert.equal(calls.length, 1, "only the ad lead is copied");
+    const b = calls[0].body;
+    assert.equal(b.secret, "s3cret");
+    assert.equal(b.phone, "9811110002");
+    assert.equal(b.name, "Sheet On");
+    assert.equal(b.page_source, "click_to_whatsapp");
+    assert.equal(b.service, "Pest Control in Pune");
+    assert.equal(b.utm_campaign, "pest_control_in_pune");
+  } finally {
+    globalThis.fetch = realFetch;
+    delete process.env.LEADS_SHEET_WEBHOOK_URL;
+    delete process.env.LEADS_SHEET_WEBHOOK_SECRET;
+  }
+});

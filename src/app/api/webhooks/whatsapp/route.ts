@@ -21,6 +21,7 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { notify } from "@/server/notify";
+import { copyLeadToSheet } from "@/server/lead-sheet";
 import { answerWhatsApp, HANDOFF_ACK } from "@/server/whatsapp-ai";
 import { setConversationMode } from "@/server/whatsapp-access";
 import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "@/lib/whatsapp-keywords";
@@ -495,6 +496,24 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
     body: `Auto-lead ${leadNumber} · "${body.slice(0, 100)}"${ad ? ` · from a Meta ad${ad.headline ? `: ${ad.headline}` : ""}` : ""}`,
     href: `/leads/${lead.id}`,
   }).catch(() => {});
+
+  // Click-to-WhatsApp ad leads are also copied to the owner's Google Sheet (off unless the webhook env vars are set;
+  // never blocks the reply). Same row shape as website leads: the ad headline/id stand in for the UTM campaign.
+  if (ad) {
+    const f = ctwaLeadFields(ad);
+    void copyLeadToSheet({
+      timestamp: new Date().toISOString(),
+      name: displayName || `WhatsApp inquiry ${mobile}`,
+      phone: mobile,
+      locality: "",
+      service: ad.headline ?? "Click-to-WhatsApp ad",
+      package: "",
+      actual_price: null,
+      page_source: "click_to_whatsapp",
+      utm_source: f.utmSource,
+      utm_campaign: f.utmCampaign,
+    });
+  }
 
   // When the grounded AI assistant is on, it answers instead (no double reply).
   if (AI_ENABLED) return;
