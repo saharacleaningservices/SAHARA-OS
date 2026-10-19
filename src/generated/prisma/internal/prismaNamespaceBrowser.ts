@@ -617,6 +617,8 @@ export const CompanySettingsScalarFieldEnum = {
   googleRating: 'googleRating',
   googleReviewCount: 'googleReviewCount',
   linkedinUrl: 'linkedinUrl',
+  signatureLogoWidth: 'signatureLogoWidth',
+  signatureLogoHeight: 'signatureLogoHeight',
   happyCustomers: 'happyCustomers',
   featuredReviews: 'featuredReviews',
   bankBalance: 'bankBalance',
