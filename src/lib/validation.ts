@@ -218,6 +218,8 @@ export const companySettingsSchema = z.object({
     .refine((v) => !v || /^https:\/\/([a-z0-9-]+\.)?linkedin\.com\/[^\s]+$/i.test(v), "Paste the full LinkedIn page link, e.g. https://www.linkedin.com/company/…")
     .optional()
     .or(z.literal("")),
+  signatureLogoWidth: z.string().trim().refine((v) => !v || (/^\d{2,3}$/.test(v) && +v >= 80 && +v <= 400), "Logo width must be 80–400 px").optional().or(z.literal("")),
+  signatureLogoHeight: z.string().trim().refine((v) => !v || (/^\d{2,3}$/.test(v) && +v >= 20 && +v <= 300), "Logo height must be 20–300 px").optional().or(z.literal("")),
   googleReviewCount: z.string().optional().or(z.literal("")),
   happyCustomers: z.string().optional().or(z.literal("")),
   featuredReviews: z.string().optional().or(z.literal("")),

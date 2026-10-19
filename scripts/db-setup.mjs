@@ -901,6 +901,8 @@ addColumnIfMissing("Lead", "propertyType", `"propertyType" TEXT`);
 addColumnIfMissing("Job", "propertyType", `"propertyType" TEXT`);
 addColumnIfMissing("CompanySettings", "googleRating", `"googleRating" TEXT`);
 addColumnIfMissing("CompanySettings", "linkedinUrl", `"linkedinUrl" TEXT`);
+addColumnIfMissing("CompanySettings", "signatureLogoWidth", `"signatureLogoWidth" INTEGER`);
+addColumnIfMissing("CompanySettings", "signatureLogoHeight", `"signatureLogoHeight" INTEGER`);
 addColumnIfMissing("CompanySettings", "googleReviewCount", `"googleReviewCount" TEXT`);
 addColumnIfMissing("CompanySettings", "happyCustomers", `"happyCustomers" TEXT`);
 addColumnIfMissing("CompanySettings", "featuredReviews", `"featuredReviews" TEXT`);

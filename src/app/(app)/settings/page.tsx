@@ -39,6 +39,8 @@ export default async function SettingsPage() {
           googleReviewUrl: settings.googleReviewUrl ?? "",
           googleRating: settings.googleRating ?? "",
           linkedinUrl: settings.linkedinUrl ?? "",
+          signatureLogoWidth: settings.signatureLogoWidth ? String(settings.signatureLogoWidth) : "",
+          signatureLogoHeight: settings.signatureLogoHeight ? String(settings.signatureLogoHeight) : "",
           googleReviewCount: settings.googleReviewCount ?? "",
           happyCustomers: settings.happyCustomers ?? "",
           featuredReviews: settings.featuredReviews ?? "",
