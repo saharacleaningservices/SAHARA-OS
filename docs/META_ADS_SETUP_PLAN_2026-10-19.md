@@ -5,10 +5,29 @@ switching campaigns on or off are owner actions. Builds on `docs/ADS_AUDIT_EXECU
 and `docs/ADS_RECOMMENDATIONS_2026-10-18.md` §2.
 
 ## 0. What the audit says is open for Meta
-1. Old ad account `343079872519451` is outside the Sahara business portfolio; 3 old campaigns show On with "payment error".
+1. Old ad account `343079872519451` is outside the Sahara business portfolio; 3 old campaigns show On with "payment error" (audited — see §0a: no spend history, no audiences).
 2. No Sahara-owned ad account with the owner's payment method yet.
 3. Already done and live: Pixel + Conversions API connected, domain verified, Business verification done (green tick pending), Click-to-WhatsApp (CTWA) lead capture in the CRM.
 4. Gaps: no localized video creative, generic audiences, ads not yet built.
+
+## 0a. Audit of existing Meta assets (live, read-only, 2026-10-19, signed in as the owner)
+Nothing was changed. Checked in Business Settings, Ads Manager, Billing and Events Manager.
+
+| Item | Finding |
+|---|---|
+| Business portfolio | **"Sahara Cleaning Services."** (business id 152082702561104) exists with the Facebook Page (~952 followers) and Instagram (~92 followers). **Ad accounts: none** ("No ad accounts added"). |
+| Old ad account `343079872519451` | Accessible with the owner login, but **not part of the business portfolio**: Events Manager returns "Your ad account is not a part of this business". Roles: Altaf Shaikh and "Sahara Cleaning Services" as ad account admins, **no external manager or agency listed**. Contact emails on it: saharaenterprises161@gmail.com and contact@ (pending confirmation), phone 7083347130. |
+| Campaigns | 3, all **On** with delivery "Payment error": a boosted post ("Keep your glass maintain and clean…"), "INDEPENDENCE DAY SALE", and a boosted post ("Sahara Cleaning Services was live."). |
+| Performance / learning data | **None.** Results and cost per result are blank for the whole account lifetime (Sep 2023 – Oct 2026); no recent spending. Nothing to carry over. |
+| Billing | Available funds ₹0.00, **no payment method**, no ad credits; Meta daily limit ₹14,087; business info and GSTIN 27DMTPS3584R2ZJ shown as verified. |
+| Custom audiences / lookalikes / saved audiences | **None** in the old account. |
+| Pixel / dataset | Not reachable from the old account (outside the portfolio). The live Pixel + Conversions API connected to booking.saharacleaningservices.com is in the portfolio and is what the new account should use. |
+
+**Recommendation: set up a new ad account inside the portfolio.** The old account has no spend history, no audiences and no learning to
+leverage, it sits outside the business (so the portfolio Pixel, dataset and WhatsApp number cannot be used with it), and all three campaigns
+are On with payment errors that would start delivering the moment a payment method is added. Resolving it would mean claiming it into the
+portfolio and adding payment for no benefit. Leave it untouched (do not add payment there); switch its 3 campaigns **Off** as a one-time
+owner tidy-up. Create "Sahara Cleaning — Pune" as in §1.
 
 ## 1. Link the Business portfolio to the CRM's tracking (one-time)
 Owner signs in; each step is in Meta Business Settings (business.facebook.com/settings).
