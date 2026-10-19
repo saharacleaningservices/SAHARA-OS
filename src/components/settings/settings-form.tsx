@@ -116,6 +116,17 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <p className="text-xs text-muted-foreground">Shown as a LinkedIn icon in the website footers and the email signature once filled in.</p>
           </div>
           <div className="space-y-1.5">
+            <Label htmlFor="signatureLogoWidth">Email signature logo width (px)</Label>
+            <Input id="signatureLogoWidth" inputMode="numeric" placeholder="220 (80–400)" {...register("signatureLogoWidth")} />
+            {errors.signatureLogoWidth && <p className="text-xs text-destructive">{errors.signatureLogoWidth.message}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="signatureLogoHeight">Email signature logo height (px, optional)</Label>
+            <Input id="signatureLogoHeight" inputMode="numeric" placeholder="auto (20–300)" {...register("signatureLogoHeight")} />
+            {errors.signatureLogoHeight && <p className="text-xs text-destructive">{errors.signatureLogoHeight.message}</p>}
+            <p className="text-xs text-muted-foreground">Leave height blank to keep the logo proportional. Applies to every email sent from now on.</p>
+          </div>
+          <div className="space-y-1.5">
             <Label htmlFor="googleReviewCount">Google Review Count</Label>
             <Input id="googleReviewCount" placeholder="1800+" {...register("googleReviewCount")} />
           </div>

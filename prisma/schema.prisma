@@ -903,6 +903,8 @@ model CompanySettings {
   googleRating      String? @default("4.9")
   googleReviewCount String? @default("1800+")
   linkedinUrl       String? // official LinkedIn page — footers + email signature (owner-entered in Settings)
+  signatureLogoWidth  Int? // email-signature logo width in px (Settings); blank = default 220
+  signatureLogoHeight Int? // optional fixed height in px; blank = proportional
   happyCustomers    String? @default("8000+")
   featuredReviews   String? // JSON [{ name, text, rating }] shown in the booking-page carousel
   bankBalance       Float? // owner-maintained; shown on the Owner Dashboard

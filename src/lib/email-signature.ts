@@ -23,6 +23,9 @@ export type SignatureInput = {
   email?: string | null;
   address?: string | null;
   linkedinUrl?: string | null;
+  /** Logo size in px from Settings (width 80–400, height 20–300). Blank = 220 wide, proportional. */
+  logoWidth?: number | null;
+  logoHeight?: number | null;
   /** Google rating text from Settings, e.g. "4.9" — badge hidden when empty. */
   googleRating?: string | null;
   googleReviewCount?: string | null;
@@ -61,6 +64,16 @@ export function signatureAddress(raw?: string | null): string {
   return /Pune$/i.test(base) ? `${base} 411028` : `${base}, Pune 411028`;
 }
 
+const clampPx = (v: number | null | undefined, min: number, max: number) =>
+  typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(min, Math.round(v))) : null;
+
+/** Logo box from Settings: width default 220, height only when set; the logo column grows with the logo. */
+export function logoSize(i: Pick<SignatureInput, "logoWidth" | "logoHeight">) {
+  const width = clampPx(i.logoWidth, 80, 400) ?? 220;
+  const height = clampPx(i.logoHeight, 20, 300);
+  return { width, height, column: width + 30 };
+}
+
 export const mapsHref = (address: string) => `https://maps.google.com/?q=${encodeURIComponent(address)}`;
 
 /** "1800+" → "1,800+"; anything that is not a plain number (with optional +) is shown as typed. */
@@ -85,6 +98,7 @@ export function renderSignatureHtml(i: SignatureInput = {}): string {
   const assets = (i.assetBase || BOOKING_BASE).replace(/\/$/, "");
   const logo = `${assets}/brand/sahara-logo@2x.png`;
   const icon = (name: string) => `${assets}/brand/social/${name}.png`;
+  const lg = logoSize(i);
   const bookHref = bookingLink("email_signature", "email", "booking_cta");
   const bookText = BOOKING_BASE.replace(/^https?:\/\//, "");
   const links = socialLinks("email_signature", i.linkedinUrl);
@@ -117,8 +131,8 @@ export function renderSignatureHtml(i: SignatureInput = {}): string {
   ${header}
   <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #d7e3f4;border-radius:8px;border-collapse:separate;">
     <tr>
-      <td class="sh-col sh-logo" width="250" valign="middle" align="center" style="width:250px;padding:16px;">
-        <a href="${esc(bookHref)}" target="_blank"><img src="${esc(logo)}" width="220" alt="Sahara Cleaning Services" style="display:block;width:220px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
+      <td class="sh-col sh-logo" width="${lg.column}" valign="middle" align="center" style="width:${lg.column}px;padding:16px;">
+        <img src="${esc(logo)}" width="${lg.width}"${lg.height ? ` height="${lg.height}"` : ""} alt="Sahara Cleaning Services" style="display:block;width:${lg.width}px;max-width:100%;height:${lg.height ? `${lg.height}px` : "auto"};border:0;margin:0 auto;">
       </td>
       <td class="sh-col sh-info" valign="middle" style="padding:16px 14px 9px 18px;border-left:1px solid #d7e3f4;">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0">
