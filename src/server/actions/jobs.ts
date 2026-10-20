@@ -13,12 +13,10 @@ import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } f
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
-import { sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
-import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
-import { premiumReviewRequestMessage } from "@/lib/whatsapp-templates";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
-import { bookingPageUrl, ensureJobToken, sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
+import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
+import { sendReviewIfDue } from "@/server/job-review";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 
 /**
@@ -308,65 +306,6 @@ const ALL_STATUSES = [
 type JobStatus = (typeof ALL_STATUSES)[number];
 
 /**
- * Sends the "Job Completed — leave a Google Review" WhatsApp message exactly
- * once per job, the moment its status becomes COMPLETED — regardless of
- * which completion action triggered it (the plain "Mark Completed" status
- * button via updateJobStatus below, or "Complete & Generate Certificate" via
- * completeJobWithCertificate), and regardless of the job's originating lead
- * source (website booking, manual CRM entry, or GMB — all leads funnel into
- * the same Job model). A WhatsAppMessage existence check guards against a
- * duplicate send if both completion paths somehow run for the same job,
- * mirroring the dedup pattern already used in src/server/reminders.ts.
- */
-async function sendJobCompletionReview(job: {
-  id: string;
-  jobNumber: string;
-  customerName: string;
-  customerMobile: string;
-  service: string;
-}) {
-  const already = await db.whatsAppMessage.findFirst({
-    where: { kind: "REVIEW_REQUEST", relatedType: "Job", relatedId: job.id },
-  });
-  if (already) return;
-
-  // WHATSAPP_REVIEW_TEMPLATE=v2 (with templates on) → approved-template review with a direct
-  // Google Review URL button (sahara_review_request_v2). Otherwise the existing message below.
-  if (process.env.WHATSAPP_USE_TEMPLATES === "on" && process.env.WHATSAPP_REVIEW_TEMPLATE === "v2") {
-    const t = templateByName("sahara_review_request_v2")!;
-    const params = [job.customerName, SERVICE_LABELS[job.service] ?? job.service];
-    await sendWhatsAppTemplate({
-      kind: "REVIEW_REQUEST",
-      toNumber: job.customerMobile,
-      toName: job.customerName,
-      templateName: t.name,
-      languageCode: t.language,
-      bodyParams: params,
-      preview: renderTemplatePreview(t, params),
-      relatedType: "Job",
-      relatedId: job.id,
-    });
-    return;
-  }
-
-  const settings = await db.companySettings.findUnique({ where: { id: "default" } });
-  await sendWhatsApp({
-    kind: "REVIEW_REQUEST",
-    toNumber: job.customerMobile,
-    toName: job.customerName,
-    body: premiumReviewRequestMessage({
-      customerName: job.customerName,
-      jobNumber: job.jobNumber,
-      service: SERVICE_LABELS[job.service] ?? job.service,
-      googleReviewUrl: settings?.googleReviewUrl ?? null,
-      bookingUrl: bookingPageUrl(await ensureJobToken(job.id)),
-    }),
-    relatedType: "Job",
-    relatedId: job.id,
-  });
-}
-
-/**
  * The job's Final Invoice — created once, the moment the job is COMPLETED, from
  * the job's own data (package lines / discount / complimentary, job value) and
  * linked to its payment record and the lead's quotation. Idempotent: a job that
@@ -516,7 +455,7 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
     await freezeJobTeam(jobId).catch(() => {});
     // Final invoice is generated + stored automatically on completion (any completion path).
     await createFinalInvoice(jobId, actorId).catch((e) => console.error("[invoice] auto-generate failed:", e));
-    void sendJobCompletionReview(job).catch(() => {}); // background — once-per-job guard inside
+    void sendReviewIfDue(job.id).catch(() => {}); // background — sends once, and only when nothing is left to collect
   }
   if (status === "CANCELLED") {
     void sendBookingChangeNotice(jobId, "CANCELLED").catch(() => {}); // background
@@ -642,7 +581,7 @@ export async function completeJobWithCertificate(jobId: string) {
 
   // Review request — sent once, right after completion (shared helper also
   // covers the plain "Mark Completed" status-button path in updateJobStatus).
-  void sendJobCompletionReview(job).catch(() => {}); // background — once-per-job guard inside
+  void sendReviewIfDue(job.id).catch(() => {}); // background — sends once, and only when nothing is left to collect
 
   await db.activityLog.create({
     data: { jobId, actorId: session?.sub, action: "Job marked complete — certificate generated" },
