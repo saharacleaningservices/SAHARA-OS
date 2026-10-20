@@ -11,7 +11,7 @@ import { BookingWizard } from "@/components/public/booking-wizard";
 import { ServiceCards } from "@/components/public/service-cards";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import type { HomeRow } from "@/components/public/price-selector";
-import { CONTACT, EQUIPMENT, GOOGLE_MAPS_URL, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
+import { CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
 import { buildBusinessJsonLd } from "@/lib/seo-schema";
 import { PriceSelector } from "@/components/public/price-selector";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
@@ -114,14 +114,6 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               referrerPolicy="no-referrer-when-downgrade"
               className="h-44 w-full rounded-xl border-0 bg-white/10"
             />
-            <a
-              href={GOOGLE_MAPS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-amber-400 px-3 text-sm font-bold text-[#0a2540]"
-            >
-              📍 Open in Google Maps
-            </a>
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-semibold text-white">
               {CONTACT.call.map((n) => <a key={n} href={`tel:+91${n}`} className="hover:text-amber-300">+91 {n.slice(0, 5)} {n.slice(5)}</a>)}
             </p>
@@ -585,24 +577,23 @@ export async function CompactPriceSelector() {
 
 /** The four service cards (same on /booking and /offers): tapping one opens that service in the booking form. */
 /**
- * Top-of-page festival notice. Dates come from the Settings → Pricing festival windows, so it only shows while a
- * festival is running or upcoming, and it never states a slot count or a price rise that is not true.
+ * Top-of-page festival notice for the owner's demand window (src/lib/festival-urgency.ts). It disappears after the
+ * window ends and never states a slot count or a price rise.
  */
-export async function FestivalUrgencyBar() {
-  const { festivals } = await getLivePricing();
-  const u = festivalUrgency(festivals, todayIST());
+export function FestivalUrgencyBar() {
+  const u = festivalUrgency(todayIST());
   if (!u) return null;
   return (
     <div role="note" className="bg-[#b45309] px-4 py-2 text-center text-xs font-semibold leading-snug text-white sm:text-sm">
-      🪔 Festival bookings: service dates {u.label} are our busiest days and carry festival pricing. Book early to lock your preferred slot and price.
+      ⚡ DIWALI SPECIAL: High demand for {u.label} dates! Book now to lock your preferred slot.
     </div>
   );
 }
 
 export async function FunnelCards() {
-  const [pricing, live] = await Promise.all([getPublicPricing(), getLivePricing()]);
+  const pricing = await getPublicPricing();
   const bathroom = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
-  const urgency = festivalUrgency(live.festivals, todayIST());
+  const urgency = festivalUrgency(todayIST());
   return (
     <ServiceCards
       badge={urgency ? `🔥 High demand ${urgency.label} — book early` : undefined}
