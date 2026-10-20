@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { updateJobStatus, completeJobWithCertificate, rescheduleJob } from "@/server/actions/jobs";
 import { JOB_STATUS_LABELS, TIME_SLOTS } from "@/lib/constants";
+import { getBrowserLocation } from "@/lib/geo";
 
 type Status = "PENDING" | "ASSIGNED" | "ON_THE_WAY" | "STARTED" | "COMPLETED" | "POSTPONED" | "CANCELLED" | "REACTIVATED";
 
@@ -37,7 +38,10 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime }: {
       router.refresh();
     });
   }
-  const setStatus = (next: Status) => run(() => updateJobStatus(jobId, next), `Status updated: ${JOB_STATUS_LABELS[next] ?? next}`);
+  // Work Started / Work Complete are the job check-in / check-out: the browser's own location is captured with them
+  // (free, never blocks — see src/lib/geo.ts) and written to the job's activity log.
+  const setStatus = (next: Status) =>
+    run(async () => updateJobStatus(jobId, next, next === "STARTED" ? await getBrowserLocation() : undefined), `Status updated: ${JOB_STATUS_LABELS[next] ?? next}`);
   const cancel = () => {
     if (confirm("Cancel this job? The customer and assigned team are informed.")) setStatus("CANCELLED");
   };
@@ -78,7 +82,7 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime }: {
         </Button>
       )}
       {s === "STARTED" && (
-        <Button size="sm" variant="success" onClick={() => run(() => completeJobWithCertificate(jobId), "Job completed — certificate & invoice generated")} disabled={pending}>
+        <Button size="sm" variant="success" onClick={() => run(async () => completeJobWithCertificate(jobId, await getBrowserLocation()), "Job completed — certificate & invoice generated")} disabled={pending}>
           {pending ? <Loader2 className="animate-spin" /> : <CheckCircle2 className="size-3.5" />} Work Complete
         </Button>
       )}
