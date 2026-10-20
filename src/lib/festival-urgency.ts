@@ -1,10 +1,10 @@
-import { activeCampaign, upcomingFestivals, type FestivalWindow } from "@/lib/pricing-master";
+// Festival demand notice for the public landing pages. The window is the owner's own statement of when service
+// dates are busiest (2026-10-20); it carries no slot counts and no price-rise figure, so everything shown is true.
+// Update DEMAND_WINDOW each festival season — after `end` the notice disappears by itself.
 
-// Festival booking urgency for the public landing pages. Everything shown is derived from the festival windows the
-// owner sets in Settings → Pricing (the same windows that switch festival prices on), so the dates and the
-// "festival prices apply" statement are always true. No invented slot counts and no price-hike amounts.
+export const DEMAND_WINDOW = { start: "2026-10-21", end: "2026-11-08" } as const;
 
-export type FestivalUrgency = { start: string; end: string; label: string; running: boolean };
+export type FestivalUrgency = { start: string; end: string; label: string };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -14,13 +14,8 @@ export function shortDate(ymd: string): string {
   return `${d} ${MONTHS[(m || 1) - 1]}`;
 }
 
-/** The festival campaign span (running now, or the next upcoming window), or null when none is configured. */
-export function festivalUrgency(festivals: FestivalWindow[], todayYmd: string): FestivalUrgency | null {
-  const campaign = activeCampaign(festivals, todayYmd);
-  if (campaign) return { start: campaign.start, end: campaign.end, label: `${shortDate(campaign.start)} – ${shortDate(campaign.end)}`, running: true };
-  const next = upcomingFestivals(festivals, todayYmd);
-  if (!next.length) return null;
-  const start = next[0].start;
-  const end = next.reduce((e, f) => (f.end > e ? f.end : e), next[0].end);
-  return { start, end, label: `${shortDate(start)} – ${shortDate(end)}`, running: false };
+/** The demand window while it is still running or ahead, otherwise null. */
+export function festivalUrgency(todayYmd: string, window: { start: string; end: string } = DEMAND_WINDOW): FestivalUrgency | null {
+  if (todayYmd > window.end) return null;
+  return { start: window.start, end: window.end, label: `${shortDate(window.start)} – ${shortDate(window.end)}` };
 }
