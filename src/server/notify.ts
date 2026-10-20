@@ -43,6 +43,7 @@ export type NotifKind =
   | "OPS_QUOTATION_FOLLOWUP"
   | "OPS_FOLLOWUP_DUE"
   | "OPS_EOD_SUMMARY"
+  | "OPS_TEAM_UNASSIGNED"
   | "OWNER_INQUIRY"
   | "BACKUP_STALE";
 
@@ -72,6 +73,8 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   OPS_QUOTATION_FOLLOWUP: ["ACCOUNTS"],
   OPS_FOLLOWUP_DUE: ["ACCOUNTS"],
   OPS_EOD_SUMMARY: ["ADMIN", "ACCOUNTS"],
+  // Upcoming jobs with no crew (src/server/team-alerts.ts): job ids + dates only, so Operations may see it.
+  OPS_TEAM_UNASSIGNED: ["ADMIN", "OPERATIONS"],
   // Owner Quick Add Inquiry (src/server/owner-inquiry.ts): delivered ONLY to the team members the owner picked
   // (extraUserIds) — no role routing, no WhatsApp copy.
   OWNER_INQUIRY: [],
