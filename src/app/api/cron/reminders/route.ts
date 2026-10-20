@@ -8,6 +8,7 @@ import { flushWhatsAppQueue } from "@/lib/whatsapp";
 import { flushSmsQueue } from "@/lib/sms";
 import { flushEmailQueue } from "@/lib/email";
 import { runRebookingReminders } from "@/server/rebooking";
+import { runUnassignedTeamAlert } from "@/server/team-alerts";
 
 // Runs the WhatsApp reminder sweeps: customer job reminders (tomorrow's
 // jobs), payment reminders (due-soon/overdue balances), AMC renewal
@@ -36,6 +37,7 @@ export async function GET(request: NextRequest) {
   const reminders = await runAllReminderSweeps();
   const attendance = await sendDailyAttendanceSummary();
   const dailySummary = await sendDailyBusinessSummary();
+  const teamAlert = await runUnassignedTeamAlert().catch(() => null); // upcoming jobs with no crew
   const rebooking = await runRebookingReminders().catch(() => null); // 3/6-month re-booking reminders (off unless REBOOKING_REMINDERS=on)
 
   // Monthly report fires automatically on the 1st (summarizing the month
@@ -55,5 +57,5 @@ export async function GET(request: NextRequest) {
     flushEmailQueue({ includeFailed: true }).catch(() => null),
   ]);
 
-  return NextResponse.json({ reminders, attendance, dailySummary, rebooking, monthlySummary, whatsappFlush, smsFlush, emailFlush });
+  return NextResponse.json({ reminders, attendance, dailySummary, rebooking, teamAlert, monthlySummary, whatsappFlush, smsFlush, emailFlush });
 }
