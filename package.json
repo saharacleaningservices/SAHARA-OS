@@ -33,6 +33,7 @@
     "test:savings": "tsx --test tests/savings.test.ts",
     "test:smallscope": "tsx --test tests/service-scope-small.test.ts",
     "test:rebooking": "tsx --test tests/rebooking.test.ts tests/review-trigger.test.ts",
+    "test:jobgeo": "tsx --test tests/job-geo.test.ts",
     "test:linkedin": "tsx --test tests/linkedin-optional.test.ts",
     "test:serviceoffers": "tsx --test tests/whatsapp-service-offers.test.ts",
     "test:leadtrack": "tsx --test tests/lead-tracking.test.ts",
