@@ -1,5 +1,6 @@
 "use client";
 
+import { savingsOf, savingsLabel } from "@/lib/savings";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Building2, Bug, Check, CheckCircle2, ChevronDown, Clock, Home, Loader2, LocateFixed, Paintbrush, Wallet, X } from "lucide-react";
 import { publicBookLead } from "@/server/actions/public-booking";
@@ -34,7 +35,7 @@ export type QuotePrefill = {
 };
 
 type Category = "HOME" | "COMMERCIAL" | "PEST" | "PAINTING";
-type Line = { label: string; amount: number | null; note?: string };
+type Line = { label: string; amount: number | null; note?: string; /** Owner-set MRP of the package (struck through only when above the price paid). */ mrp?: number };
 
 // Owner 2026-10-05: Property Type + 4 packages. Fixed prices exist only for
 // 1–4 BHK × Premium / Platinum; every other combination is "price on confirmation".
@@ -289,7 +290,7 @@ export function BookingWizard({
     const out: Line[] = [];
     if (category === "HOME" && homeType === "FULL" && bhk && pkg) {
       const item = items.find((p) => p.bhk === bhk && p.variant === pkg);
-      out.push(item ? { label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item) } : { label: `${bhk} ${pkg} Deep Cleaning`, amount: null, note: "Price on confirmation" });
+      out.push(item ? { label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item), mrp: item.mrp } : { label: `${bhk} ${pkg} Deep Cleaning`, amount: null, note: "Price on confirmation" });
       // Add-ons on top of the full-home package (same priced catalogue items).
       for (const it of ADDON_ITEMS) {
         const n = qty[it.contentId] ?? 0;
@@ -758,9 +759,10 @@ export function BookingWizard({
                                     return (
                                       <span className="shrink-0 text-right leading-tight">
                                         <span className="block text-[10px] font-semibold text-[#0a2540]/55">{fest != null ? "Festival price" : "Price"}</span>
-                                        {/* Struck-through MRP only when the owner set one above the price (Settings → Pricing). */}
-                                        {fest == null && it.mrp != null && it.mrp > it.price! && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(it.mrp)}</span>}
+                                        {/* Struck-through MRP only when the owner set one above the price paid (Settings → Pricing). */}
+                                        {savingsOf(it.mrp, fest ?? it.price) && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(it.mrp!)}</span>}
                                         <span className="block text-base font-extrabold text-primary">{inr(fest ?? it.price!)}</span>
+                                        {(() => { const sv = savingsOf(it.mrp, fest ?? it.price); return sv ? <span className="mt-0.5 block rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">🎉 {savingsLabel(sv)}</span> : null; })()}
                                       </span>
                                     );
                                   })()
@@ -998,6 +1000,15 @@ export function BookingWizard({
                 <span className="shrink-0 font-semibold">{l.amount != null ? inr(l.amount) : <span className="text-xs text-[#0a2540]/60">{l.note}</span>}</span>
               </p>
             ))}
+            {(() => {
+              const d = lines.find((l) => savingsOf(l.mrp, l.amount));
+              const sv = d ? savingsOf(d.mrp, d.amount) : null;
+              return d && sv ? (
+                <p className="mt-1 rounded-lg bg-emerald-50 px-2 py-1.5 text-xs font-semibold text-emerald-800">
+                  Original Price: <span className="line-through">{inr(d.mrp!)}</span> | {priceMode === "FESTIVAL" ? "Festival" : "Your"} Price: {inr(d.amount!)} | {savingsLabel(sv)}
+                </p>
+              ) : null;
+            })()}
             {pricedTotal > 0 && (
               <p className="mt-1.5 flex justify-between border-t border-[#0a2540]/10 pt-1.5 font-extrabold">
                 <span>Total</span>
