@@ -3,7 +3,7 @@ import { customerNumberFor } from "@/server/customer-db";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, FestivalUrgencyBar, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
 import { campaignFestivalNames, todayIST } from "@/lib/pricing-master";
@@ -74,6 +74,7 @@ export default async function BookingPage({
   return (
     // On a quotation link, Book Now scrolls to the wizard on THIS page (keeps ?quote=).
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} {...(quote ? { bookHref: "#book" } : {})}>
+      <FestivalUrgencyBar />
       <Hero
         {...(quote ? { bookHrefOverride: "#book" } : {})}
         image={CAROUSEL.team.src}

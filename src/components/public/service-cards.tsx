@@ -16,7 +16,7 @@ const SERVICES = [
 ] as const;
 
 /** starts: optional honest "starting from" line per service (from the live price list). */
-export function ServiceCards({ starts = {} }: { starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>> }) {
+export function ServiceCards({ starts = {}, badge }: { starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>>; /** Optional demand badge shown on every card (festival season). */ badge?: string }) {
   const [active, setActive] = useState<string>("");
   function open(key: string) {
     setActive(key);
@@ -40,6 +40,7 @@ export function ServiceCards({ starts = {} }: { starts?: Partial<Record<"HOME" |
               <span className="text-sm font-bold leading-tight sm:text-base">{s.title}</span>
               <span className="text-[11px] leading-snug text-[#0a2540]/65 sm:text-xs">{s.benefit}</span>
               {starts[s.key] && <span className="text-[11px] font-semibold leading-snug text-primary">{starts[s.key]}</span>}
+              {badge && <span className="w-fit rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold leading-snug text-amber-800">{badge}</span>}
               <span className="mt-auto flex min-h-9 items-center justify-center gap-0.5 rounded-lg bg-primary/10 pt-0 text-xs font-bold text-primary group-hover:bg-primary group-hover:text-white">
                 Book Now <ChevronRight className="size-3.5" />
               </span>
