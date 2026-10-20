@@ -92,9 +92,70 @@ export const CUSTOMER_REQUIREMENTS = [
   "Cash, jewellery and fragile valuables kept secured before the team starts.",
 ];
 
+/**
+ * Written scope of work for each customised (small) service — what is done, what is not, and what the customer
+ * prepares. Original wording drafted for Sahara (2026-10-21); no results, timings or warranties are promised. Owner to
+ * review before relying on it in contracts. Keyed by pricing-master contentId.
+ */
+export type SmallServiceScope = { includes: string[]; excludes: string[]; prep: string[] };
+const CONFIRM = "Final scope and price are confirmed before booking.";
+export const SMALL_SERVICE_SCOPE: Record<string, SmallServiceScope> = {
+  "SCS-09": {
+    includes: ["Dry vacuuming of each seat, cushion and arm rest", "Upholstery shampoo and extraction with our machine, seat by seat", "Visible stains treated on a best-effort basis"],
+    excludes: ["Guaranteed removal of old or set-in stains, dye transfer or fabric wear", "Leather or delicate-fabric treatment unless agreed in advance", "Cleaning of removable covers off site"],
+    prep: ["Clear cushions, throws and items from the sofa", "Allow drying time after shampooing and keep the area ventilated"],
+  },
+  "SCS-10": {
+    includes: ["Scrubbing of wall and floor tiles", "Cleaning of WC, wash basin, taps and fittings", "Mirror, glass and visible door surfaces", "Floor drain surface cleaning"],
+    excludes: ["Plumbing, leakage or tile repair", "Guaranteed removal of permanent hard-water or rust marks", "Contents of cabinets and shelves"],
+    prep: ["Remove personal items, toiletries and valuables", "Water supply available throughout"],
+  },
+  "SCS-12": {
+    includes: ["Kitchen platform, sink and wall tiles", "Exterior of cabinets, trolleys and shelves", "Exhaust fan, window glass and sliding channels", "Floor manual scrubbing and mopping"],
+    excludes: ["Chimney cleaning", "Interior of cabinets and appliances", "Removal of utensils, food items or crockery"],
+    prep: ["Kitchen emptied by the customer: utensils, food and valuables removed from work surfaces and cabinets", "Gas and electrical appliances switched off"],
+  },
+  "SCS-33": {
+    includes: ["Our team removes utensils and items from cabinets and shelves, cleans the interiors and places items back", "Kitchen platform, sink and wall tiles", "Exterior of cabinets, trolleys and shelves", "Exhaust fan, window glass and sliding channels", "Floor manual scrubbing and mopping"],
+    excludes: ["Chimney cleaning", "Interior of appliances (oven, microwave, refrigerator)", "Responsibility for fragile, antique or high-value items — please keep these aside"],
+    prep: ["Cash, jewellery and valuables kept secured", "Gas and electrical appliances switched off"],
+  },
+  "SCS-11": {
+    includes: ["Vacuuming of both sides", "Shampoo and extraction on the sleeping surface", "Spot treatment of visible stains on a best-effort basis"],
+    excludes: ["Guaranteed removal of old stains, urine odour or discolouration", "Cleaning of waterproof covers or protectors", "Repair of tears or damaged foam"],
+    prep: ["Bedding and covers removed", "Allow drying time and keep the room ventilated"],
+  },
+  "SCS-30": {
+    includes: ["Glass panes cleaned from the inside, and the outside where it can be reached safely", "Frames and sliding channels vacuumed and wiped"],
+    excludes: ["Exterior glass that cannot be reached safely from inside the home or a safe balcony", "Grill or net removal and re-fitting", "Repair of broken glass, seals or tracks"],
+    prep: ["Curtains and blinds moved aside", "Safe access to the window"],
+  },
+  "SCS-31": {
+    includes: ["Vacuuming and cleaning of curtains according to fabric", "Handling and re-hanging by our team where agreed"],
+    excludes: ["Guaranteed removal of old stains or fading", "Shrinkage or colour-run risk on delicate or unlabelled fabrics"],
+    prep: ["Advise fabric type and any care label", "Access to rods and a safe step"],
+  },
+  "SCS-32": {
+    includes: ["Exterior and door seals wiped", "Interior shelves, trays and walls cleaned once emptied"],
+    excludes: ["Repair, gas or compressor work", "Disposal of food", "Cleaning behind or under the unit if it cannot be moved safely"],
+    prep: ["Fridge emptied, switched off and defrosted by the customer in advance", "Space around the unit kept clear"],
+  },
+  "SCS-13": {
+    includes: ["Vacuuming of the carpet", "Shampoo and extraction using our machine", "Visible stains treated on a best-effort basis"],
+    excludes: ["Guaranteed removal of old or set-in stains or dye marks", "Repair of fraying, burns or damaged backing", "Cleaning of delicate, antique or hand-knotted carpets unless inspected first"],
+    prep: ["Furniture moved off the carpet, or access arranged", "Allow drying time and keep the room ventilated"],
+  },
+};
+
 /** Short scope/note lines for a customised (small) service from its pricing-master fields. */
 export function smallServiceNotes(item: { unit?: string; rule?: string; scope?: string; priceNote?: string }): string[] {
   return [item.unit && `Priced ${item.unit}`, item.rule, item.scope, item.priceNote].filter(Boolean) as string[];
+}
+
+/** Full written scope for a small service, or null when none is on file (the short notes above still apply). */
+export function smallServiceScope(contentId: string): (SmallServiceScope & { confirm: string }) | null {
+  const s = SMALL_SERVICE_SCOPE[contentId];
+  return s ? { ...s, confirm: CONFIRM } : null;
 }
 
 /**
