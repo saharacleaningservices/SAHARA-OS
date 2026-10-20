@@ -11,7 +11,7 @@ import { PaymentDetailsBox, type CompanyPaymentDetails } from "@/components/shar
 import { advanceBreakdown, ADVANCE_PERCENT } from "@/lib/booking-payment";
 import { trackFunnel, trackLead } from "@/components/public/marketing-tags";
 import { inr, EQUIPMENT, OFFICE_SCOPE, PAINT_SCOPE, PEST_SERVICES, TERMS } from "@/lib/marketing-content";
-import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, type HomeTier } from "@/lib/service-scope";
+import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, smallServiceNotes, smallServiceScope, type HomeTier } from "@/lib/service-scope";
 import { BOOKING_TERMS, INSPECTION_NOTE, PRICING_MASTER, activeCampaign, festivalForDate, inGroup, maskPaintingPrices, needsInspection, priceLabel, unitPriceFor, upcomingFestivals, type LivePricing, type PriceItem, type PriceType } from "@/lib/pricing-master";
 
 // Shown once, right under the service prices.
@@ -1061,7 +1061,20 @@ export function BookingWizard({
                 ) : category === "HOME" ? (
                   <ul className="space-y-1.5 text-[13px]">
                     {CUSTOMISED.filter((it) => (qty[it.contentId] ?? 0) > 0).map((it) => (
-                      <li key={it.contentId}><span className="font-semibold">{it.name}:</span> {smallServiceNotes(it).join(" · ") || "As listed"}</li>
+                      <li key={it.contentId}>
+                        <span className="font-semibold">{it.name}:</span> {smallServiceNotes(it).join(" · ") || "As listed"}
+                        {(() => {
+                          const sc = smallServiceScope(it.contentId);
+                          return sc ? (
+                            <span className="mt-1 block space-y-1 text-[12px] text-[#0a2540]/80">
+                              <span className="block"><b>Included:</b> {sc.includes.join("; ")}.</span>
+                              <span className="block"><b>Not included:</b> {sc.excludes.join("; ")}.</span>
+                              <span className="block"><b>Please arrange:</b> {sc.prep.join("; ")}.</span>
+                              <span className="block text-[#0a2540]/60">{sc.confirm}</span>
+                            </span>
+                          ) : null;
+                        })()}
+                      </li>
                     ))}
                     {COMBOS.filter((c) => combos[c.contentId]).map((c) => <li key={c.contentId}><span className="font-semibold">{c.name}:</span> combo package{c.rule ? ` · ${c.rule}` : ""}</li>)}
                   </ul>
