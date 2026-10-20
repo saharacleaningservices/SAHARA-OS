@@ -163,3 +163,44 @@ The CRM maps `utm_source=meta_ads` to **Meta Ads** (`src/lib/attribution.ts`). C
 
 ### 7.8 Still blocked on the owner
 Pixel/CAPI/WhatsApp/Page/Instagram assignment check on the new ad account; "Account info needed" and the disabled flag cleared in Account Overview; a token with `ads_management`; Coolify env vars for the Sheet; merging the PRs above.
+
+## 8. Draft campaigns built in Ads Manager (2026-10-20)
+Built by hand in Ads Manager (account 2331727990935342) with the owner signed in. **Everything is a draft ("In draft"); nothing is published, no spend.**
+
+### 8.1 What exists
+| Campaign | Objective | Ad sets (all drafts) |
+|---|---|---|
+| `meta_ctwa_pune_2026_10` (A) | Engagement, Message destinations = WhatsApp **+91 91752 20270** | `a1_home_deep_cleaning_z1_z3`, `a2_pest_control_z1_z3`, `a3_interior_painting_z1_z3`, `a4_facility_amc_z1_z3` |
+| `meta_leads_pune_2026_10` (B) | Leads, conversion location = Website | `b1_home_deep_cleaning_z1_z3`, `b2_pest_control_z1_z3`, `b3_interior_painting_z1_z3`, `b4_facility_amc_z1_z3` |
+
+Each ad set also has one empty placeholder ad (`*_ad_draft`) that is incomplete on purpose (no creative). A pre-existing placeholder campaign "New Engagement Campaign" (with its own draft ad set and ad) is still there and can be deleted by the owner.
+
+### 8.2 Audit against sections 2, 4 and 7 (honest status)
+| Item in the plan | Status in the drafts |
+|---|---|
+| Location | Done as **8 Pune postal codes** (Z1 to Z3: 411060, 411048, 411040, 411028, 412307, 411036, 411014, 411006), not the 11 radius pins of `scripts/meta-create-draft-campaigns.mjs`. Meta matched all 8 with 0 errors, and the India country entry was replaced. Radius pins need the script (owner token) or manual entry. |
+| Age 25 to 55 | **Not set.** The ad sets use Advantage+ audience (min age 18, unknown age on WhatsApp included). Setting 25 to 55 needs the original-audience controls: do it per ad set. |
+| Keywords | Not applicable on Meta (no keyword targeting). The plan's search phrases (7.6) are copy themes only. |
+| UTM parameters (7.7) | **Not set.** They are entered per ad (Ad, Tracking, URL parameters) and no real ads exist yet. CTWA ads cannot carry UTMs. |
+| Pixel / dataset (Campaign B) | **Missing.** Website leads shows "A dataset is required". The Pixel must be assigned to the ad account in Business settings first (7.8). |
+| Daily budget | Left at the Meta default (Advantage+ campaign budget, 1,000 rupees/day per campaign). **Owner to set the real budget before publishing.** |
+| Start date | Default start is today. Change it when publishing. |
+| Ads and creatives | Not built (images, copy 7.5, pre-filled WhatsApp messages). |
+| Blockers | "Account unsettled": the ad account has a balance to pay, which blocks Publish and Duplicate. Business info "Account info needed" also still shows. Both are owner actions. |
+
+### 8.3 CTWA to Google Sheet (`feat/ctwa-sheet-sync`, commit `dd68259`)
+- Diff: 53 lines in `src/app/api/webhooks/whatsapp/route.ts` and `tests/ctwa.test.ts`. The branch already contains current `coolify-deploy` (ancestry checked against 126204b), so the PR merges cleanly with no conflicts.
+- Behaviour: only a message that arrives through a Click-to-WhatsApp ad (referral present) is copied. It calls `copyLeadToSheet` after the lead is saved, never blocks the reply, and does nothing unless both env vars are set. A plain WhatsApp message is not copied.
+- Env vars (names only, values stay with the owner), set in Coolify then redeploy:
+  | Variable | Value comes from | Rule |
+  |---|---|---|
+  | `LEADS_SHEET_WEBHOOK_URL` | Apps Script web app `/exec` URL | must start with `https://script.google.com/` |
+  | `LEADS_SHEET_WEBHOOK_SECRET` | same as the Apps Script property of the same name | mismatch makes the script return `unauthorized` |
+- Row written: timestamp, name, phone, service = ad headline, page_source = `click_to_whatsapp`, utm_source, utm_campaign.
+
+### 8.4 QA: CRM WhatsApp broadcast test send
+1. Sign in to the CRM as Admin, open Marketing, WhatsApp broadcast panel.
+2. Choose `sahara_pest_control_offer`, `sahara_painting_offer` or `sahara_facility_management_offer`.
+3. Click **Send test (QA number only)**. TEST mode sends only to **9800817070**. Never to a protected number (9168337130, 9921215250, 7083347130, 9175220270).
+4. Check the delivery status in the panel log and Meta WhatsApp Manager. The 24-hour window opens only when the recipient replies.
+5. Live broadcasts stay off until `WHATSAPP_CAMPAIGNS=on` and only to recorded opt-ins.
