@@ -24,3 +24,18 @@ test("no saving unless MRP is genuinely above the price", () => {
 test("label format", () => {
   assert.equal(savingsLabel({ save: 1500, pct: 21 }), "You Save ₹1,500 (21% OFF)");
 });
+
+import { strikePrice } from "../src/lib/savings";
+
+test("festival: strike only a genuinely higher regular price, never an MRP", () => {
+  assert.equal(strikePrice({ festival: 4999, regular: 5499, mrp: 9999 }), 5499);
+  assert.equal(strikePrice({ festival: 5499, regular: 4499, mrp: 6999 }), null); // festival above regular → clean price, no anchor
+  assert.equal(strikePrice({ festival: 5499, regular: 5499 }), null);
+  assert.equal(strikePrice({ festival: 5499, regular: null }), null);
+});
+
+test("outside a festival the owner MRP applies only above the regular price", () => {
+  assert.equal(strikePrice({ festival: null, regular: 5499, mrp: 5999 }), 5999);
+  assert.equal(strikePrice({ festival: null, regular: 5499, mrp: 5499 }), null);
+  assert.equal(strikePrice({ festival: null, regular: 5499 }), null);
+});
