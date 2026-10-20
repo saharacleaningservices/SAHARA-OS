@@ -1,6 +1,6 @@
 "use client";
 
-import { savingsOf, savingsLabel } from "@/lib/savings";
+import { savingsOf, savingsLabel, strikePrice } from "@/lib/savings";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Building2, Bug, Check, CheckCircle2, ChevronDown, Clock, Home, Loader2, LocateFixed, Paintbrush, Wallet, X } from "lucide-react";
 import { publicBookLead } from "@/server/actions/public-booking";
@@ -290,7 +290,7 @@ export function BookingWizard({
     const out: Line[] = [];
     if (category === "HOME" && homeType === "FULL" && bhk && pkg) {
       const item = items.find((p) => p.bhk === bhk && p.variant === pkg);
-      out.push(item ? { label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item), mrp: item.mrp } : { label: `${bhk} ${pkg} Deep Cleaning`, amount: null, note: "Price on confirmation" });
+      out.push(item ? { label: `${bhk} ${pkg} Deep Cleaning`, amount: unit(item), mrp: strikePrice({ festival: unit(item) !== item.price ? unit(item) : null, regular: item.price, mrp: item.mrp }) ?? undefined } : { label: `${bhk} ${pkg} Deep Cleaning`, amount: null, note: "Price on confirmation" });
       // Add-ons on top of the full-home package (same priced catalogue items).
       for (const it of ADDON_ITEMS) {
         const n = qty[it.contentId] ?? 0;
@@ -760,9 +760,14 @@ export function BookingWizard({
                                       <span className="shrink-0 text-right leading-tight">
                                         <span className="block text-[10px] font-semibold text-[#0a2540]/55">{fest != null ? "Festival price" : "Price"}</span>
                                         {/* Struck-through MRP only when the owner set one above the price paid (Settings → Pricing). */}
-                                        {savingsOf(it.mrp, fest ?? it.price) && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(it.mrp!)}</span>}
+                                        {strikePrice({ festival: fest, regular: it.price, mrp: it.mrp }) != null && <span className="block text-[11px] text-[#0a2540]/45 line-through">{inr(strikePrice({ festival: fest, regular: it.price, mrp: it.mrp })!)}</span>}
                                         <span className="block text-base font-extrabold text-primary">{inr(fest ?? it.price!)}</span>
-                                        {(() => { const sv = savingsOf(it.mrp, fest ?? it.price); return sv ? <span className="mt-0.5 block rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">🎉 {savingsLabel(sv)}</span> : null; })()}
+                                        {(() => {
+                                          const sp = strikePrice({ festival: fest, regular: it.price, mrp: it.mrp });
+                                          const sv = savingsOf(sp, fest ?? it.price);
+                                          if (sv) return <span className="mt-0.5 block rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">🎉 {savingsLabel(sv)}</span>;
+                                          return fest != null ? <span className="mt-0.5 block rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">⚡ DIWALI SPECIAL</span> : null;
+                                        })()}
                                       </span>
                                     );
                                   })()
@@ -1005,7 +1010,7 @@ export function BookingWizard({
               const sv = d ? savingsOf(d.mrp, d.amount) : null;
               return d && sv ? (
                 <p className="mt-1 rounded-lg bg-emerald-50 px-2 py-1.5 text-xs font-semibold text-emerald-800">
-                  Original Price: <span className="line-through">{inr(d.mrp!)}</span> | {priceMode === "FESTIVAL" ? "Festival" : "Your"} Price: {inr(d.amount!)} | {savingsLabel(sv)}
+                  {priceMode === "FESTIVAL" ? "Regular" : "Original"} Price: <span className="line-through">{inr(d.mrp!)}</span> | {priceMode === "FESTIVAL" ? "Festival" : "Your"} Price: {inr(d.amount!)} | {savingsLabel(sv)}
                 </p>
               ) : null;
             })()}
