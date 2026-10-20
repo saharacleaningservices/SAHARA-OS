@@ -17,6 +17,7 @@ import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
 import { sendReviewIfDue } from "@/server/job-review";
+import { cleanFix, locationNote, type GeoFix } from "@/lib/geo";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 
 /**
@@ -421,15 +422,15 @@ export async function generateFinalInvoice(jobId: string) {
   return { success: true as const, invoiceNumber: invoice.invoiceNumber };
 }
 
-export async function updateJobStatus(jobId: string, status: JobStatus) {
+export async function updateJobStatus(jobId: string, status: JobStatus, location?: unknown) {
   if (!ALL_STATUSES.includes(status)) return { error: "Invalid status", success: false as const };
   const scopeError = await assertJobEditable(jobId);
   if (scopeError) return scopeError;
   const session = await getSession();
-  return updateJobStatusInternal(jobId, status, session?.sub);
+  return updateJobStatusInternal(jobId, status, session?.sub, status === "STARTED" ? cleanFix(location) ?? "none" : undefined);
 }
 
-async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId?: string) {
+async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId?: string, fix?: GeoFix | "none") {
   const session = { sub: actorId };
   const now = new Date();
   // Same status again (double tap / two people) → no duplicate log, message or alert.
@@ -448,7 +449,7 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
   });
 
   await db.activityLog.create({
-    data: { jobId, actorId: session?.sub, action: `Status changed to ${status.replaceAll("_", " ")}` },
+    data: { jobId, actorId: session?.sub, action: `Status changed to ${status.replaceAll("_", " ")}${fix === undefined ? "" : locationNote(fix === "none" ? null : fix)}` },
   });
 
   if (status === "COMPLETED") {
@@ -541,7 +542,7 @@ export async function addJobVideo(jobId: string, url: string, caption?: string) 
   return { success: true as const };
 }
 
-export async function completeJobWithCertificate(jobId: string) {
+export async function completeJobWithCertificate(jobId: string, location?: unknown) {
   const scopeError = await assertJobEditable(jobId);
   if (scopeError) return scopeError;
   const job = await db.job.findUnique({ where: { id: jobId }, include: { supervisor: true, certificate: true } });
@@ -584,7 +585,7 @@ export async function completeJobWithCertificate(jobId: string) {
   void sendReviewIfDue(job.id).catch(() => {}); // background — sends once, and only when nothing is left to collect
 
   await db.activityLog.create({
-    data: { jobId, actorId: session?.sub, action: "Job marked complete — certificate generated" },
+    data: { jobId, actorId: session?.sub, action: `Job marked complete — certificate generated${locationNote(cleanFix(location))}` },
   });
 
   revalidatePath(`/jobs/${jobId}`);
