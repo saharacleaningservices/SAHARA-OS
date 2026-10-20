@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { activeCampaign, homeFromPrice, todayIST } from "@/lib/pricing-master";
 import { getLivePricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, FunnelCards, CompactPriceSelector, AreasBadge, QuoteSection, Faqs, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, FestivalUrgencyBar, FunnelCards, CompactPriceSelector, AreasBadge, QuoteSection, Faqs, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { inr } from "@/lib/marketing-content";
 
 // Festival campaign hub (Navratri · Dussehra · Diwali) — the WhatsApp campaign
@@ -44,6 +44,7 @@ export default async function FestivalOffersPage() {
   const faqs = campaign ? FAQS.filter((f) => !/festival and regular/i.test(f.q)) : FAQS;
   return (
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(), faqJsonLd(faqs)]} bookHref="#book">
+      <FestivalUrgencyBar />
       <Hero
         bookHrefOverride="#book"
         image={CAROUSEL.team.src}

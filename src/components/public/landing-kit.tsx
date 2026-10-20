@@ -16,6 +16,7 @@ import { buildBusinessJsonLd } from "@/lib/seo-schema";
 import { PriceSelector } from "@/components/public/price-selector";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
 import { SERVICE_AREA_NOTICE, activeCampaign, todayIST } from "@/lib/pricing-master";
+import { festivalUrgency } from "@/lib/festival-urgency";
 import { getLivePricing, getPublicPricing } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
@@ -106,6 +107,13 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
           <section aria-labelledby="ft-location" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
             <h2 id="ft-location" className="text-base font-extrabold text-white">Visit us</h2>
             <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
+            <iframe
+              title="Sahara Cleaning Services on Google Maps"
+              src="https://www.google.com/maps?q=Opposite+South+Gate,+Magarpatta+City,+Hadapsar,+Pune+411028&output=embed"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="h-44 w-full rounded-xl border-0 bg-white/10"
+            />
             <a
               href={GOOGLE_MAPS_URL}
               target="_blank"
@@ -576,11 +584,28 @@ export async function CompactPriceSelector() {
 }
 
 /** The four service cards (same on /booking and /offers): tapping one opens that service in the booking form. */
+/**
+ * Top-of-page festival notice. Dates come from the Settings → Pricing festival windows, so it only shows while a
+ * festival is running or upcoming, and it never states a slot count or a price rise that is not true.
+ */
+export async function FestivalUrgencyBar() {
+  const { festivals } = await getLivePricing();
+  const u = festivalUrgency(festivals, todayIST());
+  if (!u) return null;
+  return (
+    <div role="note" className="bg-[#b45309] px-4 py-2 text-center text-xs font-semibold leading-snug text-white sm:text-sm">
+      🪔 Festival bookings: service dates {u.label} are our busiest days and carry festival pricing. Book early to lock your preferred slot and price.
+    </div>
+  );
+}
+
 export async function FunnelCards() {
-  const pricing = await getPublicPricing();
+  const [pricing, live] = await Promise.all([getPublicPricing(), getLivePricing()]);
   const bathroom = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
+  const urgency = festivalUrgency(live.festivals, todayIST());
   return (
     <ServiceCards
+      badge={urgency ? `🔥 High demand ${urgency.label} — book early` : undefined}
       starts={{
         HOME: bathroom ? `Starting from ₹${bathroom.price!.toLocaleString("en-IN")}` : undefined,
         // No painting rate is published: painting is quoted after a free site inspection.
