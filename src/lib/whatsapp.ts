@@ -31,6 +31,7 @@
 // business number in the last 24h and is otherwise logged as FAILED with
 // Meta's error message (never thrown).
 
+import { MAX_ATTEMPTS, backoffMs, isConnectError, isRetryableStatus } from "@/lib/send-retry";
 import { db } from "@/lib/db";
 import { templateByName } from "@/lib/whatsapp-cloud-templates";
 import { filterToMarketingOptIn } from "@/server/whatsapp-audience";
@@ -186,18 +187,33 @@ async function deliverPayload(toNumber: string, body: Record<string, unknown>, c
   // Last line of defence: nothing reaches Meta for a blocked number, whatever the caller.
   const templateName = (body.template as { name?: string } | undefined)?.name ?? null;
   if (!isOutboundAllowed(toNumber, { templateName, relatedType: cfg.relatedType ?? null })) return { ok: false as const, error: WHATSAPP_TEST_MODE_BLOCK };
-  const res = await fetch(
-    `https://graph.facebook.com/${cfg.apiVersion}/${cfg.phoneNumberId}/messages`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${cfg.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ messaging_product: "whatsapp", to: toNumber, ...body }),
+  const url = `https://graph.facebook.com/${cfg.apiVersion}/${cfg.phoneNumberId}/messages`;
+  const init = {
+    method: "POST",
+    headers: { Authorization: `Bearer ${cfg.accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ messaging_product: "whatsapp", to: toNumber, ...body }),
+    signal: undefined as AbortSignal | undefined,
+  };
+  let res: Response | null = null;
+  let payload: Record<string, unknown> = {};
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      res = await fetch(url, { ...init, signal: AbortSignal.timeout(15_000) });
+    } catch (e) {
+      const retry = isConnectError(e) && attempt < MAX_ATTEMPTS;
+      console.error(`[whatsapp] send error template=${templateName ?? "text"} attempt=${attempt} ${e instanceof Error ? e.name : "error"}${retry ? " — retrying" : ""}`);
+      if (retry) { await new Promise((r) => setTimeout(r, backoffMs(attempt))); continue; }
+      return { ok: false as const, error: e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError") ? "Timed out talking to WhatsApp — it may still be delivered; not retried to avoid a duplicate" : "Could not reach WhatsApp" };
     }
-  );
-  const payload = await res.json().catch(() => ({}) as Record<string, unknown>);
+    payload = await res.json().catch(() => ({}) as Record<string, unknown>);
+    if (res.ok) break;
+    const meta = (payload as { error?: { code?: number; message?: string } })?.error;
+    const retry = isRetryableStatus(res.status) && attempt < MAX_ATTEMPTS;
+    console.error(`[whatsapp] send rejected template=${templateName ?? "text"} status=${res.status} code=${meta?.code ?? "-"} attempt=${attempt}${retry ? " — retrying" : ""}`);
+    if (retry) { await new Promise((r) => setTimeout(r, backoffMs(attempt, res!.headers.get("retry-after")))); continue; }
+    break;
+  }
+  if (!res) return { ok: false as const, error: "Could not reach WhatsApp" };
   if (!res.ok) {
     const err =
       (payload as { error?: { message?: string } })?.error?.message || `HTTP ${res.status}`;
