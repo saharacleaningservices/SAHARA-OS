@@ -37,6 +37,7 @@
     "test:jobgeo": "tsx --test tests/job-geo.test.ts",
     "test:teamalerts": "tsx --test tests/team-alerts.test.ts",
     "test:envcheck": "tsx --test tests/env-check.test.ts",
+    "test:trackvalue": "tsx --test tests/tracking-value.test.ts",
     "test:linkedin": "tsx --test tests/linkedin-optional.test.ts",
     "test:serviceoffers": "tsx --test tests/whatsapp-service-offers.test.ts",
     "test:leadtrack": "tsx --test tests/lead-tracking.test.ts",
