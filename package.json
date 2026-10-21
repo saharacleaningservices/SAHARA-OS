@@ -8,6 +8,7 @@
     "start": "node scripts/render-start.mjs",
     "start:next": "next start",
     "lint": "eslint",
+    "test:ci": "tsx --test tests/savings.test.ts tests/festival-urgency.test.ts tests/service-scope-small.test.ts tests/job-geo.test.ts tests/review-trigger.test.ts tests/rebooking.test.ts tests/team-alerts.test.ts",
     "test:cognito": "tsx --test tests/email-lead.test.ts tests/cognito-script.test.ts",
     "test:whatsapp": "tsx --test tests/whatsapp-optout.test.ts",
     "test:pricing": "tsx --test tests/pricing.test.ts",
