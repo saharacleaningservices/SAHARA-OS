@@ -17,6 +17,7 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync, mkdirSync, copyFileSync } from "node:fs";
+import { checkEnv } from "./env-check.mjs";
 import Database from "better-sqlite3";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -26,6 +27,17 @@ function run(cmd, args) {
   const result = spawnSync(cmd, args, { cwd: root, stdio: "inherit", env: process.env });
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
+  }
+}
+
+// 0a. Fail fast on a missing essential variable; only warn about the rest (see scripts/env-check.mjs).
+{
+  const { errors, warnings } = checkEnv(process.env);
+  for (const w of warnings) console.warn(`[env] warning: ${w}`);
+  if (errors.length) {
+    for (const e of errors) console.error(`[env] ERROR: ${e}`);
+    console.error("[env] Refusing to start. Fix the variable(s) above in Coolify and redeploy.");
+    process.exit(1);
   }
 }
 
