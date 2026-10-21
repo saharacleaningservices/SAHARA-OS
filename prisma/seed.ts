@@ -10,6 +10,7 @@
 import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "node:crypto";
 import path from "node:path";
 
 const dbPath = path.resolve(process.cwd(), (process.env.DATABASE_URL || "file:./dev.db").replace(/^file:/, ""));
@@ -28,6 +29,13 @@ const BOOTSTRAP_PASSWORDS: Record<string, string> = {
   "supervisor@saharacleaningservices.com": "Suresh1",
   "staff@saharacleaningservices.com": "Vikas1",
 };
+
+// Production first boot: every bootstrap account gets a fresh random temporary password (printed once in the boot log,
+// forced through /set-password on first login) — the fixed development passwords above never exist in production.
+const PASSWORDS: Record<string, string> =
+  process.env.NODE_ENV === "production"
+    ? Object.fromEntries(Object.keys(BOOTSTRAP_PASSWORDS).map((email) => [email, randomBytes(9).toString("base64url")]))
+    : BOOTSTRAP_PASSWORDS;
 
 const AREAS = [
   "Magarpatta City",
@@ -91,7 +99,7 @@ async function main() {
   console.log("Seeding Sahara OS...");
 
   // ── Users ────────────────────────────────────────────────────────────
-  const hash = (email: string) => bcrypt.hash(BOOTSTRAP_PASSWORDS[email] ?? DEMO_PASSWORD, 10);
+  const hash = (email: string) => bcrypt.hash(PASSWORDS[email] ?? (process.env.NODE_ENV === "production" ? randomBytes(9).toString("base64url") : DEMO_PASSWORD), 10);
 
   const altaf = await db.user.upsert({
     where: { email: "admin@saharacleaningservices.com" },
@@ -351,7 +359,7 @@ async function main() {
 
   console.log("\nSeed complete.");
   console.log("Bootstrap logins (non-admin accounts must set a personal password on first login):");
-  for (const [email, pw] of Object.entries(BOOTSTRAP_PASSWORDS)) console.log(`  ${email.padEnd(42)} ${pw}`);
+  for (const [email, pw] of Object.entries(PASSWORDS)) console.log(`  ${email.padEnd(42)} ${pw}`);
   console.log([altaf, shoyab, francis, supervisorUser, staffUser].map((u) => `${u.role.padEnd(10)} ${u.email}`).join("\n"));
 }
 

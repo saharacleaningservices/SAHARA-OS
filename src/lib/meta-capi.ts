@@ -36,6 +36,8 @@ export type CapiInput = {
   userAgent?: string;
   category?: string;
   variant?: string;
+  /** Order value in INR (the booking total), sent as custom_data.value so Meta can optimise on revenue. */
+  value?: number;
   now?: number; // ms, for tests
 };
 
@@ -59,7 +61,7 @@ export function buildCapiPayload(i: CapiInput, testEventCode?: string) {
         action_source: "website",
         event_source_url: i.sourceUrl,
         user_data,
-        custom_data: { content_name: i.variant, content_category: i.category },
+        custom_data: { content_name: i.variant, content_category: i.category, ...(i.value && i.value > 0 ? { value: i.value, currency: "INR" } : {}) },
       },
     ],
     ...(testEventCode ? { test_event_code: testEventCode } : {}),

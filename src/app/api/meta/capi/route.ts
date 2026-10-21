@@ -13,6 +13,7 @@ const bodySchema = z.object({
   email: z.string().max(120).optional(),
   category: z.string().max(80).optional(),
   variant: z.string().max(120).optional(),
+  value: z.number().positive().max(10_000_000).optional(),
 });
 
 const SOURCE_URL = "https://booking.saharacleaningservices.com/booking";
