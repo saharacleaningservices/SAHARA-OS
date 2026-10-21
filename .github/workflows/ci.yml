@@ -1,0 +1,33 @@
+name: CI
+
+# Required check for pull requests into the deploy branches. With this in place, GitHub auto-merge (enabled per PR, once
+# branch protection requires "CI / typecheck-and-tests") waits for a green run instead of merging an unchecked change
+# straight to production. Read-only: no secrets, no deploy step — Coolify still deploys from the merged branch.
+
+on:
+  pull_request:
+    branches: [coolify-deploy, coolify-deploy-current]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck-and-tests:
+    name: typecheck-and-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Unit tests (pure logic, no database)
+        run: npm run test:ci
