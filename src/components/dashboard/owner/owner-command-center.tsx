@@ -77,6 +77,7 @@ export async function getOwnerDashboardSections({
   showProfit,
   showBusinessTarget = true,
   inquiryTools,
+  afterCashFlow,
 }: {
   role: string;
   ownerName: string;
@@ -84,6 +85,8 @@ export async function getOwnerDashboardSections({
   showBusinessTarget?: boolean;
   /** Quick Add + inquiry tracker etc., shown at the top of the Inquiries tab. */
   inquiryTools?: ReactNode;
+  /** Shown right under Cash Flow on the Finance tab (the pending job-closure / collection reminders). */
+  afterCashFlow?: ReactNode;
 }) {
   const [home, snapshot, settings, dashboard, board, invoices] = await Promise.all([
     getOwnerCommandCenterHome(),
@@ -301,6 +304,7 @@ export async function getOwnerDashboardSections({
           )}
         </CardContent>
       </Card>
+      {afterCashFlow}
       {alerts.overduePayments.length > 0 && (
         <CollapsibleList
           title="Overdue Payments"

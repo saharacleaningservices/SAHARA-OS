@@ -81,6 +81,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       showProfit: asRole === "ADMIN",
       showBusinessTarget: asRole === "ADMIN",
       // Owner-only: paste a number, alert Shoyab / Francis (src/server/owner-inquiry.ts)
+      // Job-closure + payment-collection reminders (src/server/ops-reminders.ts), right under Cash Flow.
+      afterCashFlow: <PendingActionsPanel />,
       inquiryTools:
         asRole === "ADMIN" ? (
           <div className="space-y-4">
@@ -95,13 +97,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         hero={<>{toggle}{s.hero}</>}
         inquiries={s.inquiries}
         operations={s.operations}
-        finance={
-          <>
-            {/* Job-closure + payment-collection reminders (src/server/ops-reminders.ts) */}
-            <PendingActionsPanel />
-            {s.finance}
-          </>
-        }
+        finance={s.finance}
       />
     );
   }

@@ -72,10 +72,10 @@ export default async function RevenueDashboardPage() {
 
       {/* Lists in three tabs instead of one long scroll (owner 2026-10-22). Same data, loaded once above. */}
       <Tabs defaultValue="services">
-        <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="services" className="max-sm:flex-1">Service Breakdown</TabsTrigger>
-          <TabsTrigger value="sources" className="max-sm:flex-1">Lead Sources</TabsTrigger>
-          <TabsTrigger value="monthly" className="max-sm:flex-1">Monthly Performance</TabsTrigger>
+        <TabsList className="w-full max-sm:flex-nowrap sm:w-auto">
+          <TabsTrigger value="services" className="max-sm:flex-1"><span className="sm:hidden">Services</span><span className="hidden sm:inline">Service Breakdown</span></TabsTrigger>
+          <TabsTrigger value="sources" className="max-sm:flex-1"><span className="sm:hidden">Sources</span><span className="hidden sm:inline">Lead Sources</span></TabsTrigger>
+          <TabsTrigger value="monthly" className="max-sm:flex-1"><span className="sm:hidden">Monthly</span><span className="hidden sm:inline">Monthly Performance</span></TabsTrigger>
         </TabsList>
         <TabsContent value="services">
         <Card>

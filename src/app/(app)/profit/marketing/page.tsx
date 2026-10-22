@@ -94,7 +94,7 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
           {activeFilters > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">{activeFilters}</span>}
         </summary>
         <div className="absolute left-0 z-30 mt-2 w-[min(92vw,28rem)] rounded-2xl border border-border bg-card p-4 shadow-lg">
-      <form className="grid grid-cols-2 gap-3 text-sm">
+      <form className="grid grid-cols-2 gap-3 text-sm [&_input[type=date]]:w-full [&_select]:w-full">
         <label className="grid gap-1">From<input type="date" name="from" defaultValue={sp.from} className="rounded border px-2 py-1" /></label>
         <label className="grid gap-1">To<input type="date" name="to" defaultValue={sp.to} className="rounded border px-2 py-1" /></label>
         <label className="grid gap-1">Source
@@ -139,7 +139,7 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
       <ConversionFunnel stages={stages} summary={summary} />
 
       <Tabs defaultValue="sources">
-        <TabsList className="w-full sm:w-auto">
+        <TabsList className="w-full max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto sm:w-auto">
           <TabsTrigger value="sources">Sources &amp; campaigns</TabsTrigger>
           <TabsTrigger value="ctwa">Click-to-WhatsApp</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp marketing</TabsTrigger>

@@ -94,9 +94,9 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
   return (
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="w-full sm:w-auto">
-          <TabLabel id="company">Company Details</TabLabel>
-          <TabLabel id="payment">Payment &amp; Billing</TabLabel>
+        <TabsList className="w-full max-sm:flex-nowrap sm:w-auto">
+          <TabLabel id="company"><span className="sm:hidden">Company</span><span className="hidden sm:inline">Company Details</span></TabLabel>
+          <TabLabel id="payment"><span className="sm:hidden">Payment</span><span className="hidden sm:inline">Payment &amp; Billing</span></TabLabel>
           <TabLabel id="social">Social Proof</TabLabel>
         </TabsList>
 
