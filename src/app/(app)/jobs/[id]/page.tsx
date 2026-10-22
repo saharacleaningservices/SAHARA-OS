@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { FileText, Pencil, Phone, MessageCircle, Navigation, Receipt, MapPin, Download } from "lucide-react";
@@ -95,6 +96,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   // cannot post into groups). Job ID, service & package, date/slot, location and team only — never the phone or an amount.
   const crewCard = canManage && !job.isDemo ? await getCrewCard(job.id) : null;
   const groupShareHref = crewCard ? `https://wa.me/?text=${encodeURIComponent(crewGroupMessage(crewCard, `${INTERNAL_CRM_URL}/crew-card/${crewCardToken(job.id)}`))}` : null;
+  // Owner 2026-10-23: show the booking-confirmation WhatsApp result right on the job, so a failed send is never silent.
+  const waConfirm = canManage
+    ? await db.whatsAppMessage.findFirst({ where: { kind: "BOOKING_CONFIRMATION", relatedType: "Job", relatedId: job.id }, orderBy: { createdAt: "desc" }, select: { status: true, errorMessage: true, templateName: true, createdAt: true } })
+    : null;
   const canSendDocs = canManage && showJobAmount && canSeeCustomerContact && !job.isDemo;
   const docToken = canSendDocs ? (job.publicToken ?? (await ensureJobToken(job.id))) : null;
   const quotationUrl = docToken ? `${PUBLIC_BOOKING_URL}/booking/quotation/${docToken}` : "";
@@ -275,6 +280,17 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               customerGstin={job.customerGstin}
               advance={advance}
             />
+          )}
+
+          {canManage && (
+            <p className={`mt-3 rounded-lg border px-2.5 py-1.5 text-xs ${!waConfirm ? "text-muted-foreground" : waConfirm.status === "SENT" ? "border-success/40 text-success" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
+              <span className="font-semibold">WhatsApp booking confirmation:</span>{" "}
+              {!waConfirm
+                ? "not sent yet"
+                : waConfirm.status === "SENT"
+                  ? `sent${waConfirm.templateName ? ` (template ${waConfirm.templateName})` : ""} · ${formatDate(waConfirm.createdAt)}`
+                  : `${waConfirm.status.toLowerCase()} — ${waConfirm.errorMessage ?? "waiting to be sent"}`}
+            </p>
           )}
 
           {/* Quotation → Invoice: the only place these controls live. */}

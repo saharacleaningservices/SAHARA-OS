@@ -4,6 +4,7 @@ import { publicFileToDataUrl, resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-
 import { COMPANY } from "@/lib/constants";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import type { BillDocumentProps } from "@/lib/pdf/sahara-bill-document";
+import { UPI_QR_OPTIONS, upiPayUri } from "@/lib/upi";
 
 /**
  * Header, payment details and QR shared by the quotation and invoice PDFs —
@@ -12,7 +13,7 @@ import type { BillDocumentProps } from "@/lib/pdf/sahara-bill-document";
  */
 export async function billChrome(
   amountDue: number,
-  ref: string,
+  _ref: string, // document number — kept for callers; the owner's UPI format carries no note
 ): Promise<Pick<BillDocumentProps, "company" | "logoDataUrl" | "bank" | "upiId" | "qrDataUrl" | "bookQrDataUrl" | "bookUrl">> {
   const settings = await getCompanySettings();
   const company = {
@@ -29,10 +30,7 @@ export async function billChrome(
   const [logoDataUrl, qrDataUrl, bookQrDataUrl] = await Promise.all([
     resolveBrandLogoDataUrl(settings.logoUrl),
     upiId
-      ? QRCode.toDataURL(
-          `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(company.name)}${amountDue > 0 ? `&am=${Number.isInteger(amountDue) ? amountDue : amountDue.toFixed(2)}` : ""}&cu=INR&tn=${encodeURIComponent(ref)}`,
-          { margin: 1, width: 240 },
-        )
+      ? QRCode.toDataURL(upiPayUri({ upiId, payeeName: company.name, amount: amountDue }), UPI_QR_OPTIONS)
       : settings.upiQrUrl
         ? publicFileToDataUrl(settings.upiQrUrl)
         : Promise.resolve(null),

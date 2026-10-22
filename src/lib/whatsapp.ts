@@ -92,6 +92,7 @@ export function normalizeNumber(mobile: string): string {
 // ─────────────────────────────────────────────────────────────────────────
 
 export const WHATSAPP_TEST_MODE_NUMBERS: readonly string[] = ["919800817070"];
+export const WHATSAPP_NOT_CONNECTED = "Not sent — WhatsApp Cloud API is not connected (access token / phone number ID missing in Settings → Integrations)";
 export const WHATSAPP_TEST_MODE_BLOCK = "Blocked — WhatsApp TEST MODE (only the approved test number may receive messages)";
 
 // WHATSAPP_OUTBOUND_MODE=transactional (owner 2026-10-08): customers receive ONLY the
@@ -311,7 +312,9 @@ export async function sendWhatsApp(input: {
 
   const { whatsapp } = await getResolvedIntegrations();
   if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
-    return { queued: true as const, sent: false as const, id: message.id };
+    // Not silent (owner 2026-10-23): the Message Log says why it is waiting.
+    await db.whatsAppMessage.update({ where: { id: message.id }, data: { errorMessage: WHATSAPP_NOT_CONNECTED } }).catch(() => {});
+    return { queued: true as const, sent: false as const, id: message.id, error: WHATSAPP_NOT_CONNECTED };
   }
 
   try {
@@ -387,7 +390,9 @@ export async function sendWhatsAppInteractiveList(input: {
 
   const { whatsapp } = await getResolvedIntegrations();
   if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
-    return { queued: true as const, sent: false as const, id: message.id };
+    // Not silent (owner 2026-10-23): the Message Log says why it is waiting.
+    await db.whatsAppMessage.update({ where: { id: message.id }, data: { errorMessage: WHATSAPP_NOT_CONNECTED } }).catch(() => {});
+    return { queued: true as const, sent: false as const, id: message.id, error: WHATSAPP_NOT_CONNECTED };
   }
 
   try {
@@ -600,10 +605,15 @@ export async function sendWhatsAppTemplate(input: {
     }
   }
   const { whatsapp } = await getResolvedIntegrations();
-  if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) {
-    return { sent: false as const, error: "WhatsApp Cloud API is not connected" };
-  }
-  if (await isOptedOut(toNumber)) return { sent: false as const, error: WHATSAPP_OPT_OUT_ERROR };
+  // Every refusal is written to the Message Log with its reason — a template send never fails silently (owner 2026-10-23).
+  const logRefusal = async (error: string) => {
+    const row = await db.whatsAppMessage.create({
+      data: { kind: input.kind, toNumber, toName: input.toName ?? null, body: input.preview, templateName: input.templateName, relatedType: input.relatedType ?? null, relatedId: input.relatedId ?? null, status: "FAILED", errorMessage: error },
+    });
+    return { sent: false as const, id: row.id, error };
+  };
+  if (!whatsapp.configured || !whatsapp.accessToken || !whatsapp.phoneNumberId) return logRefusal(WHATSAPP_NOT_CONNECTED);
+  if (await isOptedOut(toNumber)) return logRefusal(WHATSAPP_OPT_OUT_ERROR);
 
   const params = input.bodyParams ?? [];
   const components = [

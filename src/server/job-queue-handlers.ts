@@ -36,7 +36,7 @@ export async function sendQuotationNotice(quotationId: string) {
   }
   const body = `Hi ${q.lead.name}, thank you for your enquiry with Sahara Cleaning Services.\n\nYour estimate ${q.quoteNumber} (${formatINR(q.totalAmount)}) is ready:\n\u{1F4C4} View Estimate: ${PUBLIC_BOOKING_URL}/booking?quote=${token}\n\nYou can choose your date and slot on the same page.`;
   const res = await sendWhatsApp({ kind: "QUOTATION_NOTICE", toNumber: q.lead.whatsapp || q.lead.mobile, toName: q.lead.name, body, relatedType: "Quotation", relatedId: q.id });
-  if (!res.sent && "error" in res && res.error && !/test mode|opt/i.test(String(res.error))) throw new Error(String(res.error));
+  if (!res.sent && "error" in res && res.error && !/test mode|opt|not connected/i.test(String(res.error))) throw new Error(String(res.error));
 }
 
 /**
@@ -69,7 +69,7 @@ export async function sendJobCompletedNotice(jobId: string) {
     relatedType: "Job",
     relatedId: job.id,
   });
-  if (!res.sent && "error" in res && res.error && !/test mode|opt/i.test(String(res.error))) throw new Error(String(res.error));
+  if (!res.sent && "error" in res && res.error && !/test mode|opt|not connected/i.test(String(res.error))) throw new Error(String(res.error));
 }
 
 /**
@@ -97,7 +97,7 @@ export async function sendJobCompletedLinks(jobId: string, opts: { force?: boole
   ];
   const res = await sendWhatsApp({ kind: "JOB_COMPLETED", toNumber: job.customerMobile, toName: job.customerName, body: lines.join("\n"), relatedType: "Job", relatedId: job.id });
   if (opts.force) return res;
-  if (!res.sent && "error" in res && res.error && !/test mode|opt/i.test(String(res.error))) throw new Error(String(res.error));
+  if (!res.sent && "error" in res && res.error && !/test mode|opt|not connected/i.test(String(res.error))) throw new Error(String(res.error));
 }
 
 /** Called every minute by the scheduler (src/instrumentation.ts). */

@@ -332,7 +332,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
           {company.upiQrDataUrl && balance > 0 ? (
             <div className="shrink-0 text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={company.upiQrDataUrl} alt={`UPI QR for ${inr(balance)}`} className="size-28 rounded-md border bg-white object-contain print:size-24" />
+              <img src={company.upiQrDataUrl} alt={`UPI QR for ${inr(balance)}`} className="size-32 rounded-md border bg-white object-contain print:size-28" />
               <p className="mt-0.5 text-[10px] font-semibold text-[#0a2540]/70">Scan to pay {inr(balance)}</p>
             </div>
           ) : (

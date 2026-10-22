@@ -9,7 +9,7 @@ import { BookingChangeRequest } from "@/components/public/booking-change-request
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { CustomerDocument } from "@/components/public/customer-document";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
-import { upiPayUri } from "@/lib/upi";
+import { UPI_QR_OPTIONS, upiPayUri } from "@/lib/upi";
 import { getCatalogEntryForJob } from "@/server/service-catalog";
 import QRCode from "qrcode";
 
@@ -109,9 +109,10 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   const support = ["8956567130", "7083347130"];
   // Dynamic UPI QR for the exact balance (PhonePe / GPay / any UPI app scan it) — documents only.
   let upiQrDataUrl: string | null = null;
-  if ((focus === "invoice" || focus === "quotation") && settings?.upiId && pmt.due > 0) {
+  const upiUri = settings?.upiId && pmt.due > 0 ? upiPayUri({ upiId: settings.upiId, payeeName: settings.name || COMPANY.name, amount: pmt.due }) : null;
+  if ((focus === "invoice" || focus === "quotation" || focus === "pay") && upiUri) {
     try {
-      upiQrDataUrl = await QRCode.toDataURL(upiPayUri({ upiId: settings.upiId, payeeName: settings.name || COMPANY.name, amount: pmt.due, note: job.invoice?.invoiceNumber || job.jobNumber }), { margin: 1, width: 240 });
+      upiQrDataUrl = await QRCode.toDataURL(upiUri, UPI_QR_OPTIONS);
     } catch {
       upiQrDataUrl = null;
     }
@@ -128,6 +129,11 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   }
 
   const docView = focus === "quotation" || focus === "invoice";
+  const payNowBar = (
+    <a href={`/booking/pay/${token}`} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-base font-extrabold text-white shadow-sm print:hidden">
+      <Wallet className="size-5" /> Pay Now — {formatINR(pmt.due)}
+    </a>
+  );
   const paymentBlock = (
         <div id="payment" className="space-y-3 rounded-2xl bg-white p-5 text-sm shadow-sm">
           <p className="flex items-center justify-between font-semibold text-[#0a2540]">
@@ -144,7 +150,17 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               {hasPaymentDetails ? (
                 <>
                   {settings?.upiId && <p>UPI: <span className="font-medium">{settings.upiId}</span></p>}
-                  {settings?.upiQrUrl && <img src={settings.upiQrUrl} alt="Scan to pay" className="h-40 w-40 rounded-md border bg-white object-contain" />}
+                  {upiQrDataUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={upiQrDataUrl} alt={`Scan to pay ${formatINR(pmt.due)}`} className="h-44 w-44 rounded-md border bg-white object-contain" />
+                  ) : (
+                    settings?.upiQrUrl && <img src={settings.upiQrUrl} alt="Scan to pay" className="h-40 w-40 rounded-md border bg-white object-contain" />
+                  )}
+                  {upiUri && (
+                    <a href={upiUri} className="flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">
+                      Pay {formatINR(pmt.due)} with PhonePe / GPay / any UPI app
+                    </a>
+                  )}
                   <p className="text-xs text-[#0a2540]/70">
                     Please share the payment screenshot on WhatsApp. Your payment status updates once our team verifies it.
                   </p>
@@ -174,6 +190,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           </span>
         </div>
 
+        {docView && showPay && payNowBar}
         {(focus === "quotation" || focus === "invoice") && (
           <CustomerDocument
             kind={focus === "invoice" ? "INVOICE" : "QUOTATION"}
@@ -225,6 +242,8 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           />
         )}
         {focus === "pay" && paymentBlock}
+        {/* Quotation / invoice: one prominent Pay Now below the document (and above it, see payNowBar) — opens the payment page. */}
+        {docView && showPay && payNowBar}
         <div className="space-y-4 print:hidden">
 
         {/* Quotation / invoice view: the document above already carries the service, schedule,
