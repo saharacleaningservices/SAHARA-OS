@@ -21,13 +21,14 @@ function makeStyles(k: number) {
   page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: "Helvetica" },
   frame: { borderWidth: 1.5, borderColor: GOLD, flexGrow: 1 },
   header: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(16), paddingBottom: z(12), borderBottomWidth: 1, borderBottomColor: GOLD },
-  logoCol: { width: 120, justifyContent: "center" },
-  logo: { width: 104, height: "auto" },
-  companyCol: { width: 262, paddingRight: 8 },
+  // Logo in its own fixed box (scaled to fit, never overflowing), company text in the remaining width — they can't overlap.
+  logoCol: { width: z(112), height: z(60), marginRight: z(12), flexShrink: 0, justifyContent: "center", alignItems: "flex-start" },
+  logo: { width: z(108), height: z(56), objectFit: "contain" },
+  companyCol: { flexGrow: 1, flexShrink: 1, paddingRight: 8 },
   companyName: { fontFamily: "Times-Bold", fontSize: z(19), letterSpacing: z(0.5), lineHeight: 1.15, color: NAVY },
   tagline: { fontSize: z(9), color: MUTED, marginTop: z(2), marginBottom: z(6) },
   contact: { fontSize: z(8.5), color: NAVY, marginBottom: z(2) },
-  titleCol: { flexGrow: 1, alignItems: "flex-end" },
+  titleCol: { width: z(110), flexShrink: 0, alignItems: "flex-end" },
   title: { fontSize: z(13), fontFamily: "Helvetica-Bold", color: NAVY },
   copyBox: { marginTop: z(4), borderWidth: 0.8, borderColor: MUTED, paddingHorizontal: z(5), paddingVertical: z(2), fontSize: z(6.5), color: MUTED },
   metaStrip: { flexDirection: "row", paddingHorizontal: z(18), paddingVertical: z(9), borderBottomWidth: 1, borderBottomColor: GOLD },
@@ -69,11 +70,11 @@ function makeStyles(k: number) {
   bookQr: { width: z(46), height: z(46), marginRight: z(8) },
   footerTitle: { fontSize: z(9), fontFamily: "Helvetica-Bold", color: NAVY },
   footerUrl: { fontSize: z(7.5), color: MUTED },
-  signBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(64), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(8), marginTop: z(4) },
+  signBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(48), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(6), marginTop: z(2) },
   signLbl: { fontFamily: "Helvetica-Bold", fontSize: z(8.5) },
   signName: { fontSize: z(8), color: MUTED },
-  payRow: { flexDirection: "row", alignItems: "center", marginTop: z(10) },
-  qr: { width: 74, height: z(74), borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: z(3), marginRight: z(12) },
+  payRow: { flexDirection: "row", alignItems: "center", marginTop: z(6) },
+  qr: { width: z(70), height: z(70), borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: z(3), marginRight: z(10) },
   bankGrid: { flexDirection: "row", marginBottom: z(1) },
   bankK: { width: 64, fontSize: z(8), fontFamily: "Helvetica-Bold" },
   bankV: { fontSize: z(8), color: MUTED, flexShrink: 1 },
@@ -117,18 +118,22 @@ export type BillDocumentProps = {
 };
 
 /** Rough line count of the longest column + table rows → scale factor for a single A4 page. Verified by tests/quotation-pdf.test.mts. */
-export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms"> & Partial<Pick<BillDocumentProps, "paymentSplit" | "bookQrDataUrl" | "billTo">>): number {
+export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms"> & Partial<Pick<BillDocumentProps, "paymentSplit" | "bookQrDataUrl" | "billTo" | "bank" | "qrDataUrl" | "upiId" | "totals">>): number {
   const wrap = (t: string, per: number) => Math.max(1, Math.ceil(t.length / per)) * 1;
   const left = p.notes.reduce((n, t) => n + wrap(t, 66), 0) + p.kindlyNote.reduce((n, t) => n + wrap(t, 66), 0) + p.terms.split("\n").reduce((n, t) => n + wrap(t, 66), 0);
   const table = p.rows.reduce((n, r) => n + (r.detail ? 2.6 : 1.7), 0);
   // Payment-terms box, booking QR footer and the extra Bill To lines (email, property / service) take fixed space.
-  const extra = (p.paymentSplit ? 4 : 0) + (p.bookQrDataUrl ? 5 : 0) + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0);
+  const extra =
+    (p.paymentSplit ? 4 : 0) + (p.bookQrDataUrl ? 5 : 0) + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0) +
+    // Right column on invoices: bank details, payment QR, received / balance and GST lines.
+    (p.bank?.account || p.bank?.ifsc ? 5 : 0) + (p.qrDataUrl || p.upiId ? 6 : 0) + (p.totals?.received !== undefined ? 2 : 0) + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0);
   const load = left + table * 1.4 + extra;
   if (load <= 40) return 1;
   if (load <= 50) return 0.92;
   if (load <= 62) return 0.84;
   if (load <= 74) return 0.76;
-  return 0.7;
+  if (load <= 88) return 0.7;
+  return 0.64;
 }
 
 export function SaharaBillDocument(p: BillDocumentProps) {

@@ -174,7 +174,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
     ...(homeLabel ? [conciseHomeScope(tier), conciseHomeExclusions(tier)] : []),
     ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : []),
   ];
-  const hasPayment = !!(company.upiId || company.upiQrUrl || company.bankAccountNumber);
+  const hasPayment = !!(company.upiId || company.upiQrUrl || company.payUrl);
   const scopeItems = catalog ? [...catalog.scope, ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : [])] : scope;
   const termsItems = catalog && catalog.terms.length > 0 ? catalog.terms : COMPACT_TERMS;
 
@@ -294,7 +294,8 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
 
       {/* Quotation only: scope + equipment (left) and terms (right) side by side, so the whole quotation stays on one A4 page. */}
       {!isInvoice && (scopeItems.length > 0 || termsItems.length > 0) && (
-        <section className="grid gap-4 border-t-2 border-primary/30 p-4 sm:p-6 md:grid-cols-2 print:grid-cols-2 print:gap-3 print:px-4 print:py-2">
+        <section className={`grid gap-4 border-t-2 border-primary/30 p-4 sm:p-6 print:gap-3 print:px-4 print:py-2 ${scopeItems.length > 0 ? "md:grid-cols-2 print:grid-cols-2" : ""}`}>
+          {scopeItems.length > 0 && (
           <div className="min-w-0">
             <p className="border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary">Scope of Work{catalog ? ` — ${catalog.name}` : ""}</p>
             <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">{scopeItems.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
@@ -305,13 +306,14 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
               </>
             )}
           </div>
-          <div className="min-w-0 md:border-l md:border-[#0a2540]/15 md:pl-4 print:border-l print:pl-3">
+          )}
+          <div className={`min-w-0 ${scopeItems.length > 0 ? "md:border-l md:border-[#0a2540]/15 md:pl-4 print:border-l print:pl-3" : ""}`}>
             <p className="border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary">Terms &amp; Conditions</p>
             <ol className="mt-1.5 list-decimal space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">
               {termsItems.map((t) => <li key={t}>{t}</li>)}
             </ol>
             <p className="mt-1.5 text-xs text-[#0a2540]/80 print:text-[10px]">
-              <span className="font-semibold">Reschedule or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
+              <span className="font-semibold">Reschedule, postpone or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
             </p>
           </div>
         </section>
@@ -323,13 +325,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
           <div className="min-w-0 space-y-1 text-xs print:text-[10px]">
             <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Payment Details</p>
             {company.upiId && <p>UPI ID: <span className="font-semibold">{company.upiId}</span> <span className="text-[#0a2540]/55">(PhonePe / GPay / any UPI app)</span></p>}
-            {(company.bankAccountNumber || company.bankIfsc) && (
-              <p className="break-words">
-                Bank transfer: <span className="font-semibold">{[company.bankAccountName, company.bankName].filter(Boolean).join(" · ")}</span>
-                {company.bankAccountNumber && <> · A/c <span className="font-semibold">{company.bankAccountNumber}</span></>}
-                {company.bankIfsc && <> · IFSC <span className="font-semibold">{company.bankIfsc}</span></>}
-              </p>
-            )}
+            {/* Bank account details never appear on public pages (owner rule 2026-10-11); they are on the CRM PDF only. */}
             {company.payUrl && <p className="break-all">Card / online payment: <span className="font-semibold">{company.payUrl}</span></p>}
             <p className="text-[#0a2540]/60">Please share the payment screenshot on WhatsApp after paying.</p>
           </div>

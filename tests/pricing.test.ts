@@ -515,10 +515,12 @@ test("compact CRM service lines: full home = one line; small services = saved na
   assert.ok(isAutoScope("• Sofa Cleaning × 5") && isAutoScope(null) && !isAutoScope("Customer has a pet dog — keep gate closed"));
 });
 
-test("job card team copy keeps crew instructions but hides any phone number in them", () => {
+test("job card team copy (owner 2026-10-23): only job, service, package, slot, site and team — no name, phone, money, notes or instructions", () => {
   const base = { jobNumber: "J", logoDataUrl: null, customerName: "C", mobile: "9876501234", alternateMobile: null, address: "A", mapLink: null, date: "d", timeSlot: "t", service: "s", flatType: null, team: "T", supervisor: "S", paymentStatus: "Paid", jobValue: 1, advance: 1, balance: 0, notes: null, services: ["Sofa Cleaning × 5 seats"], instructions: "Call watchman 98765 01234 at the gate; pet dog" };
   const team = maskJobCardForAudience({ ...base, audience: "team" });
-  assert.ok(team.instructions?.includes("pet dog") && !/98765\s?01234/.test(team.instructions ?? ""));
+  assert.equal(team.instructions, null);
+  assert.equal(team.customerName, "");
+  assert.deepEqual([team.mobile, team.jobValue, team.advance, team.balance, team.paymentStatus], ["", 0, 0, 0, ""]);
   assert.deepEqual(team.services, ["Sofa Cleaning × 5 seats"]);
   assert.equal(maskJobCardForAudience({ ...base, audience: "office" }).instructions, base.instructions);
 });
@@ -880,7 +882,8 @@ test("CRM lead form: auto-fill of a recognised client, name lookup, separate Sit
   assert.match(doc, /Registered \/ Office Address/);
   assert.match(read("src/lib/pdf/job-card-mask.ts"), /officeAddress: null/, "team copy never carries the registered address");
   const route = read("src/app/api/jobs/[id]/card/pdf/route.ts");
-  assert.match(route, /audience === "office"\s*\?/, "registered address loaded for the office copy only");
+  assert.match(route, /const audience = "team" as const;/, "the downloadable Job Card is always the team copy (owner 2026-10-23)");
+  assert.match(route, /const officeAddress = null;/, "registered address never loaded for the job card");
 });
 
 test("Lead flow (real DB, fresh process): registered address saved on the client, work site kept as a separate CustomerSite; old flow unchanged", () => {

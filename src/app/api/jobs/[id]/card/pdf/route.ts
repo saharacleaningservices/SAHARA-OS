@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { startOfDay, endOfDay } from "date-fns";
-import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { getJobDetail, canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { getCompanySettings } from "@/server/settings";
@@ -11,7 +10,6 @@ import { resolveBrandLogoDataUrl } from "@/lib/pdf/file-to-data-url";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { compactServiceLines, isAutoScope } from "@/lib/service-scope";
 import { formatDate } from "@/lib/utils";
-import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 
 export const runtime = "nodejs";
 
@@ -42,17 +40,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const paymentStatus =
     balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partly Paid" : "Pending";
 
-  // Field crew always get the team copy (no customer phone / payment figures).
-  // Operations too (owner rule 2026-10-08): no customer phone / job amounts.
-  const fieldRole = !canSeeCustomerContact(session.role) || !canViewJobAmount(session.role);
-  const audience: "team" | "office" =
-    fieldRole || _request.nextUrl.searchParams.get("team") === "1" ? "team" : "office";
-
-  // Client's registered / office address (customer record) — office copy only; the work site is job.address.
-  const officeAddress =
-    audience === "office"
-      ? ((await db.customer.findUnique({ where: { mobile: job.customerMobile.replace(/\D/g, "").slice(-10) }, select: { address: true } }).catch(() => null))?.address ?? null)
-      : null;
+  // Owner 2026-10-23: the downloadable Job Card is a FIELD document, so it is always the team copy — for every role,
+  // Super Admin included. Customer phone and money stay in the office CRM screens, never on the PDF.
+  const audience = "team" as const;
+  const officeAddress = null;
 
   const buffer = await renderToBuffer(
     JobCardDocument(maskJobCardForAudience({

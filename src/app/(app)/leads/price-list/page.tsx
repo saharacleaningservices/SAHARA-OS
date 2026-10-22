@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { SectionTabs, PRICE_TABS } from "@/components/shared/section-tabs";
 import { requireUser } from "@/lib/current-user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +27,7 @@ export default async function PriceListPage() {
   const shareGroups = buildShareGroups(items, festivals, bookingLink("whatsapp", "share", "price_list"), today);
   return (
     <div className="space-y-4">
-      <PageHeader title="Sahara Price List" description="Approved customer prices — the same on the landing pages, booking page, quotations and WhatsApp catalogue. Managed by Super Admin in Pricing & Packages." />
+      <PageHeader title="Sahara Price List" description="Approved customer prices — the same on the landing pages, booking page, quotations and WhatsApp catalogue. Managed by Super Admin in Pricing & Packages." actions={<PackageCalculatorButton variant="button" />} />
       <SectionTabs tabs={PRICE_TABS} active="/leads/price-list" />
       {upcoming.length > 0 && (
         <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">

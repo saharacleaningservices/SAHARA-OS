@@ -64,6 +64,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     SaharaBillDocument({
       ...chrome,
       kind: "INVOICE",
+      // Owner 2026-10-23: the invoice (with bank details and QR) must fit ONE A4 page too.
+      singlePage: true,
       // No tax charged → Bill of Supply (as on Sahara's existing invoices); with GST → Tax Invoice.
       title: invoice.gstAmount > 0 ? "TAX INVOICE" : "BILL OF SUPPLY",
       copyLabel: "ORIGINAL FOR RECIPIENT",

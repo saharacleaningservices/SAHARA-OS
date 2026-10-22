@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { SectionTabs, PRICE_TABS } from "@/components/shared/section-tabs";
 import { requireUser } from "@/lib/current-user";
 import { getServiceCatalog } from "@/server/service-catalog";
@@ -15,7 +16,7 @@ export default async function ServiceCatalogPage() {
   const canEdit = session.role === "ADMIN";
   return (
     <div className="space-y-4">
-      <PageHeader title="Service Catalog" description="Scope of work, terms & conditions and equipment for every major service — the wording quotations and job cards use. Prices live in the Price List." />
+      <PageHeader title="Service Catalog" description="Scope of work, terms & conditions and equipment for every major service — the wording quotations and job cards use. Prices live in the Price List." actions={<PackageCalculatorButton variant="button" />} />
       <SectionTabs tabs={PRICE_TABS} active="/service-catalog" />
       <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
         Entries marked <b>Draft</b> use wording prepared for Sahara and still need the owner&apos;s read-through. Approved scope for the Premium / Platinum packages and the customised services is reused exactly from the booking page.

@@ -109,9 +109,9 @@ export function JobCardDocument(props: JobCardPdfProps) {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Customer</Text>
+          <Text style={styles.sectionTitle}>{team ? "Site" : "Customer"}</Text>
           <View style={styles.row}>
-            <Field label="Name" value={props.customerName} />
+            {team ? null : <Field label="Name" value={props.customerName} />}
             {team ? null : <Field label="Mobile" value={props.mobile} />}
             {team ? null : <Field label="Alternate Number" value={props.alternateMobile || "—"} />}
             <Field label="Google Maps" value={props.mapLink ? "See link below" : "Not shared"} />

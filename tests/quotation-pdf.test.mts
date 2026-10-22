@@ -32,7 +32,7 @@ const { renderToBuffer } = (await import("@react-pdf/renderer")) as { renderToBu
 const pages = (buf: Buffer) => (buf.toString("latin1").match(/\/Type\s*\/Page(?![s\w])/g) ?? []).length;
 
 type Line = { name: string; description: string; amount: number };
-async function render(opts: { lines: Line[]; discount?: number; gstPercent?: number; terms?: string; lead?: Parameters<typeof documentScope>[0]; singlePage?: boolean; dumpName?: string }) {
+async function render(opts: { lines: Line[]; discount?: number; gstPercent?: number; terms?: string; lead?: Parameters<typeof documentScope>[0]; singlePage?: boolean; dumpName?: string; invoice?: boolean }) {
   const lead = opts.lead ?? { service: "HOME_DEEP_CLEANING", packageName: "Platinum", serviceVariant: "2 BHK Platinum" };
   const scope = documentScope(lead, { standard: true });
   const discount = opts.discount ?? 0;
@@ -42,8 +42,10 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
   const total = subTotal - discount + gstAmount;
   const qrDataUrl = await QRCode.toDataURL("upi://pay?pa=test@upi&pn=Test&am=1&cu=INR", { margin: 1, width: 240 });
   const props: BillDocumentProps = {
-    kind: "QUOTATION",
-    title: "QUOTATION",
+    kind: opts.invoice ? "INVOICE" : "QUOTATION",
+    title: opts.invoice ? "TAX INVOICE" : "QUOTATION",
+    copyLabel: opts.invoice ? "ORIGINAL FOR RECIPIENT" : undefined,
+    bank: opts.invoice ? { name: "Sahara Cleaning Services", ifsc: "TEST0000001", account: "000011112222333", bankName: "Test Bank" } : null,
     number: "SC/QO/26-27/0001",
     date: "17/10/2026",
     extraMeta: [{ label: "Valid Till", value: "24/10/2026" }, { label: "Lead ID", value: "LD-2026-0123" }, { label: "Customer ID", value: "CUST-0042" }],
@@ -54,7 +56,7 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
     bookUrl: "https://booking.example.test/booking",
     rows: table.rows,
     subtotalRow: table.subtotal,
-    totals: { subtotal: subTotal, discount, gstPercent: opts.gstPercent ?? 0, gstAmount, total },
+    totals: { subtotal: subTotal, discount, gstPercent: opts.gstPercent ?? 0, gstAmount, total, ...(opts.invoice ? { received: Math.round(total * 0.2), balance: total - Math.round(total * 0.2) } : {}) },
     amountInWords: rupeesInWords(total),
     notes: scope.notes,
     kindlyNote: scope.kindlyNote,
@@ -154,6 +156,13 @@ test("non-package quote (painting) fits one page; invoice mode (singlePage off) 
   const paint = { service: "INTERIOR_PAINTING", scopeOfWork: "Two coats of paint with putty and primer. Furniture covered. Free site inspection." };
   assert.equal(pages(await render({ lines: [{ name: "Interior Painting — 2 BHK", description: "", amount: 38000 }], lead: paint })), 1);
   assert.ok(pages(await render({ lines: ONE, singlePage: false })) >= 1);
+});
+
+test("invoice with bank details, payment QR, received/balance, discount and GST fits ONE A4 page (owner 2026-10-23)", async () => {
+  assert.equal(pages(await render({ lines: ONE, invoice: true, discount: 700, gstPercent: 18, dumpName: "invoice" })), 1);
+  const long = "2 × ₹599 per bathroom — extra fixtures, balcony grills, kitchen trolley, exhaust fan, chimney outer body and wardrobe tops cleaned as agreed with the customer at the time of booking";
+  const lines = Array.from({ length: 6 }, (_, i) => ({ name: `Add-on service number ${i + 1}`, description: long, amount: 1198 + i }));
+  assert.equal(pages(await render({ lines: [...ONE, ...lines], invoice: true, discount: 500, gstPercent: 18, dumpName: "invoice-worst" })), 1, "invoice must not spill to page 2");
 });
 
 test("20% advance / 80% balance: split adds up; old 50% and 100%-immediately wording prints as 20/80", () => {

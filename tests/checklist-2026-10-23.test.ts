@@ -47,11 +47,12 @@ const read = (f: string) => readFileSync(path.join(process.cwd(), f), "utf8");
 const walk = (d: string): string[] => readdirSync(d).flatMap((n) => { const p = path.join(d, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
 
 // 1. Sidebar cleanup ------------------------------------------------------------------------------------------------------
-test("sidebar: no duplicate entries; Service Catalog is a Price List tab; Message Log and Inbox are linked by tabs", () => {
+test("sidebar: no duplicate entries; Price List + Service Catalog grouped (and tabbed); Message Log and Inbox linked by tabs", () => {
   const hrefs = NAV_ITEMS.map((i) => i.href);
   assert.equal(new Set(hrefs).size, hrefs.length, "no duplicate destinations");
   assert.equal(new Set(NAV_ITEMS.map((i) => i.label)).size, NAV_ITEMS.length, "no duplicate labels");
-  assert.ok(!hrefs.includes("/service-catalog"), "catalog left the sidebar");
+  const prices = NAV_ITEMS.filter((i) => i.cluster === "Prices & Service Catalog").map((i) => i.href);
+  assert.deepEqual(prices, ["/leads/price-list", "/service-catalog"], "Price List + Service Catalog grouped under one entry");
   for (const h of ["/jobs", "/invoices", "/customers", "/admin/whatsapp-log", "/leads/price-list"]) assert.ok(hrefs.includes(h), `${h} stays one click away`);
   assert.deepEqual(PRICE_TABS.map((t) => t.href), ["/leads/price-list", "/service-catalog"]);
   assert.deepEqual(WHATSAPP_TABS.map((t) => t.href), ["/admin/whatsapp-log", "/admin/whatsapp-inbox"]);
@@ -105,7 +106,7 @@ test("quotation, invoice and crew card print as A4 with page-break avoidance; CR
   const doc = read("src/components/public/customer-document.tsx");
   assert.match(doc, /@page\{size:A4;margin:7mm\}/);
   assert.match(doc, /page-break-inside:avoid/);
-  assert.match(doc, /md:grid-cols-2 print:grid-cols-2/, "scope and terms side by side");
+  assert.match(doc, /md:grid-cols-2 print:grid-cols-2/, "scope and terms side by side (when there is scope)");
   assert.match(read("src/app/crew-card/[token]/page.tsx"), /@page\{size:A4/);
   assert.match(read("src/components/public/document-actions.tsx"), /get\("print"\) !== "1"/);
 });

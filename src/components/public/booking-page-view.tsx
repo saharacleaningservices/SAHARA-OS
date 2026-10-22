@@ -98,7 +98,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   const settings = await db.companySettings.findUnique({
     where: { id: "default" },
     select: {
-      googleReviewUrl: true, upiId: true, upiQrUrl: true, bankName: true, bankAccountName: true, bankAccountNumber: true, bankIfsc: true,
+      googleReviewUrl: true, upiId: true, upiQrUrl: true,
       name: true, phone: true, email: true, address: true, website: true, logoUrl: true,
     },
   });
@@ -188,10 +188,10 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               logoUrl: settings?.logoUrl ?? "/brand/sahara-logo.png",
               upiId: settings?.upiId ?? null,
               upiQrUrl: settings?.upiQrUrl ?? null,
-              bankName: settings?.bankName ?? null,
-              bankAccountName: settings?.bankAccountName ?? null,
-              bankAccountNumber: settings?.bankAccountNumber ?? null,
-              bankIfsc: settings?.bankIfsc ?? null,
+              bankName: null,
+              bankAccountName: null,
+              bankAccountNumber: null,
+              bankIfsc: null,
               upiQrDataUrl,
               payUrl: `${PUBLIC_BOOKING_URL}/booking/pay/${token}`,
             }}
