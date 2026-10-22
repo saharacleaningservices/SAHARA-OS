@@ -66,7 +66,13 @@ export type CustomerDocJob = {
   gstEnabled?: boolean;
   gstAmount?: number;
   customerGstin?: string | null;
+  /** Reference IDs straight from the database (owner 2026-10-22: one consistent set across every document). */
+  customerNumber?: string | null;
+  quotationNumber?: string | null;
 };
+
+/** Written scope / equipment / terms from the Service Catalog — shown on the quotation only. */
+export type CustomerDocCatalog = { name: string; scope: string[]; equipment: string[]; terms: string[] };
 
 export type CustomerDocCompany = {
   name: string;
@@ -100,7 +106,7 @@ export function qtyLabel(qty: number, unit: string | null | undefined): string {
   return `× ${qty} ${qty === 1 ? u : /(s|x|ch|sh)$/i.test(u) ? `${u}es` : `${u}s`}`;
 }
 
-export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOTATION" | "INVOICE"; job: CustomerDocJob; company: CustomerDocCompany; shareUrl: string }) {
+export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { kind: "QUOTATION" | "INVOICE"; job: CustomerDocJob; company: CustomerDocCompany; shareUrl: string; catalog?: CustomerDocCatalog | null }) {
   const isInvoice = kind === "INVOICE";
   const pkg = parsePackage(job.serviceItems, job.discountAmount);
   const discount = Math.max(0, job.discountAmount ?? 0);
@@ -161,6 +167,8 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
     ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : []),
   ];
   const hasPayment = !!(company.upiId || company.upiQrUrl);
+  const scopeItems = catalog ? [...catalog.scope, ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : [])] : scope;
+  const termsItems = catalog && catalog.terms.length > 0 ? catalog.terms : COMPACT_TERMS;
 
   return (
     <article id="document" className="overflow-hidden rounded-2xl bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:text-[12px] print:shadow-none">
@@ -169,13 +177,16 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
       {/* Header */}
       <header className="flex items-start justify-between gap-3 border-b border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
         <div className="min-w-0">
-          {company.logoUrl ? (
-             
-            <img src={company.logoUrl} alt={company.name} className="h-9 w-auto max-w-[150px] object-contain sm:h-11" />
-          ) : (
-            <p className="text-base font-extrabold uppercase tracking-wide text-primary">{company.name}</p>
-          )}
-          <p className="mt-1 text-[11px] font-semibold text-[#0a2540]/70">Deep Cleaning · Pest Control · Interior Painting</p>
+          <div className="flex items-center gap-3 sm:gap-4">
+            {company.logoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={company.logoUrl} alt={company.name} className="h-14 w-auto max-w-[170px] shrink-0 object-contain sm:h-[4.5rem] sm:max-w-[220px] print:h-14" />
+            )}
+            <div className="min-w-0">
+              <p className="break-words text-base font-extrabold uppercase leading-tight tracking-wide text-[#0a2540] sm:text-xl">{company.name}</p>
+              <p className="mt-0.5 text-[11px] font-semibold text-primary">Deep Cleaning · Pest Control · Interior Painting</p>
+            </div>
+          </div>
           <p className="mt-1 break-words text-[11px] leading-snug text-[#0a2540]/70">{company.address}</p>
           <p className="break-words text-[11px] leading-snug text-[#0a2540]/70">
             {company.phone} · {company.email}
@@ -190,6 +201,18 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
           <p className="text-xs font-bold">{formatDate(docDate)}</p>
         </div>
       </header>
+
+      {/* Reference IDs — all read from the database, so a quotation, booking and invoice always agree. */}
+      <section className="grid grid-cols-2 gap-x-4 gap-y-1 border-b border-[#0a2540]/10 bg-[#0a2540]/[0.03] px-4 py-2 text-[11px] sm:grid-cols-4 sm:px-6 print:px-4">
+        {[
+          ["Customer ID", job.customerNumber],
+          ["Booking / Job ID", job.jobNumber],
+          ["Quotation ID", job.quotationNumber ?? `QO-${job.jobNumber}`],
+          ["Invoice ID", isInvoice ? docNo : job.invoiceNumber],
+        ].map(([label, value]) => (
+          <p key={label as string}><span className="block text-[9px] font-semibold uppercase tracking-wide text-[#0a2540]/55">{label}</span><span className="font-bold">{value || "—"}</span></p>
+        ))}
+      </section>
 
       {/* Bill to + service schedule */}
       <section className="grid gap-3 border-b border-[#0a2540]/10 p-4 sm:grid-cols-2 sm:p-6 print:grid-cols-2 print:px-4 print:py-2">
@@ -255,24 +278,30 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
         </div>
       </section>
 
-      {/* Scope / notes */}
-      {scope.length > 0 && (
-        <section className="border-t border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Scope of Work</p>
-          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">{scope.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
+      {/* Quotation only: scope, equipment and terms (the invoice shows line items, tax and the payment QR only). */}
+      {!isInvoice && scopeItems.length > 0 && (
+        <section className="border-t-2 border-[#0a2540]/15 p-4 sm:p-6 print:px-4 print:py-2">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Scope of Work{catalog ? ` — ${catalog.name}` : ""}</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">{scopeItems.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
         </section>
       )}
-
-      {/* Terms */}
-      <section className="border-t border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
-        <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Terms &amp; Conditions</p>
-        <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">
-          {COMPACT_TERMS.map((t) => <li key={t}>{t}</li>)}
-        </ol>
-        <p className="mt-1.5 text-xs text-[#0a2540]/80">
-          <span className="font-semibold">Reschedule, postpone or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
-        </p>
-      </section>
+      {!isInvoice && catalog && catalog.equipment.length > 0 && (
+        <section className="border-t-2 border-[#0a2540]/15 p-4 sm:p-6 print:px-4 print:py-2">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Equipment Used</p>
+          <ul className="mt-1 grid list-disc gap-x-6 pl-5 text-xs leading-relaxed text-[#0a2540]/80 sm:grid-cols-2">{catalog.equipment.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
+        </section>
+      )}
+      {!isInvoice && (
+        <section className="border-t-2 border-[#0a2540]/15 p-4 sm:p-6 print:px-4 print:py-2">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Terms &amp; Conditions</p>
+          <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">
+            {termsItems.map((t) => <li key={t}>{t}</li>)}
+          </ol>
+          <p className="mt-1.5 text-xs text-[#0a2540]/80">
+            <span className="font-semibold">Reschedule, postpone or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
+          </p>
+        </section>
+      )}
 
       {/* Payment details */}
       {hasPayment && (!isInvoice || balance > 0) && (

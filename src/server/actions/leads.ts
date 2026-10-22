@@ -32,7 +32,7 @@ import {
 } from "@/lib/constants";
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
-import { enqueueTeamDispatch } from "@/server/job-queue-handlers";
+import { enqueueQuotationNotice, enqueueTeamDispatch } from "@/server/job-queue-handlers";
 import { sendBookingConfirmation } from "@/server/booking-messages";
 import { canAccessLead } from "@/server/leads";
 import { channelForManualLead } from "@/lib/attribution";
@@ -1124,6 +1124,7 @@ export async function createQuotation(
     authorId: session?.sub,
   });
 
+  void enqueueQuotationNotice(quotation.id); // View Estimate link to the customer, queued
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/leads");
   return { success: true, quotationId: quotation.id };

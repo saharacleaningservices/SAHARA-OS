@@ -124,9 +124,33 @@ test("crew dispatch message (the one sent to each crew member) links the card an
   assert.ok(!msg!.body.includes(PHONE) && !msg!.body.includes("7777") && !/₹/.test(msg!.body), "phone and amount hidden");
 });
 
-test("completion notice is a quiet no-op while the template is not switched on", async () => {
+test("job completion: ONE message with View Invoice and Pay Balance links; TEST mode keeps it from a real customer; kill-switch works", async () => {
   const job = await makeJob();
   await db.job.update({ where: { id: job.id }, data: { status: "COMPLETED" } });
+  await db.invoice.create({ data: { invoiceNumber: `INV-Q-${job.id.slice(-5)}`, jobId: job.id, customerName: "Asha", lineItems: "[]", subTotal: 7777, totalAmount: 7777 } as never });
+  process.env.WHATSAPP_DOC_LINKS = "off";
   await handlers.sendJobCompletedNotice(job.id);
-  assert.equal(await db.whatsAppMessage.count({ where: { kind: "JOB_COMPLETED", relatedId: job.id } }), 0);
+  assert.equal(await db.whatsAppMessage.count({ where: { kind: "JOB_COMPLETED", relatedId: job.id } }), 0, "kill-switch off -> nothing");
+  delete process.env.WHATSAPP_DOC_LINKS;
+  await handlers.sendJobCompletedNotice(job.id);
+  await handlers.sendJobCompletedNotice(job.id); // repeat is skipped
+  const msgs = await db.whatsAppMessage.findMany({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
+  assert.equal(msgs.length, 1);
+  const token = (await db.job.findUnique({ where: { id: job.id } }))!.publicToken!;
+  assert.ok(msgs[0].body.includes(`/booking/invoice/${token}`) && msgs[0].body.includes(`/booking/pay/${token}`) && msgs[0].body.includes("INV-Q-"));
+  assert.notEqual(msgs[0].status, "SENT", "TEST mode: a real customer number is never messaged");
+});
+
+test("quotation created: ONE estimate message with the secure link, once per quotation", async () => {
+  const lead = await db.lead.create({ data: { leadNumber: `LD-Q-${++n}`, name: "Bina", mobile: "9876500011", area: "Baner", service: "HOME_DEEP_CLEANING", source: "WEBSITE" } as never });
+  const quote = await db.quotation.create({ data: { quoteNumber: `QT-Q-${n}`, leadId: lead.id, services: "[]", subTotal: 5000, totalAmount: 5000, terms: "t" } as never });
+  assert.equal((await handlers.enqueueQuotationNotice(quote.id)).queued, true);
+  assert.equal((await handlers.enqueueQuotationNotice(quote.id)).queued, false, "one unfinished notice per quotation");
+  await handlers.runQueueSweep();
+  await handlers.sendQuotationNotice(quote.id); // a second send is skipped
+  const msgs = await db.whatsAppMessage.findMany({ where: { kind: "QUOTATION_NOTICE", relatedId: quote.id } });
+  assert.equal(msgs.length, 1);
+  const token = (await db.quotation.findUnique({ where: { id: quote.id } }))!.publicToken!;
+  assert.ok(token && msgs[0].body.includes(`/booking?quote=${token}`) && msgs[0].body.includes(`QT-Q-${n}`));
+  assert.notEqual(msgs[0].status, "SENT");
 });

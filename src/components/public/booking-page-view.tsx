@@ -10,6 +10,7 @@ import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { CustomerDocument } from "@/components/public/customer-document";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { upiPayUri } from "@/lib/upi";
+import { getCatalogEntryForJob } from "@/server/service-catalog";
 import QRCode from "qrcode";
 
 // Customer-facing booking page body, reached only through the unguessable token in
@@ -85,6 +86,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
       gstEnabled: true,
       gstAmount: true,
       customerGstin: true,
+      lead: { select: { quotations: { orderBy: { createdAt: "desc" }, take: 1, select: { quoteNumber: true } } } },
       invoice: { select: { invoiceNumber: true } },
       payments: { where: { deletedAt: null }, select: { amount: true, paidAmount: true } },
     },
@@ -114,6 +116,9 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
       upiQrDataUrl = null;
     }
   }
+  // Reference IDs and (quotation only) the Service Catalog wording — read from the database, never retyped.
+  const customer = focus === "invoice" || focus === "quotation" ? await db.customer.findFirst({ where: { mobile: job.customerMobile }, select: { customerNumber: true } }) : null;
+  const catalogEntry = focus === "quotation" ? await getCatalogEntryForJob({ service: job.service, packageName: job.packageName, serviceVariant: job.serviceVariant }) : null;
   let included: string[] = [];
   try {
     const v = job.comboServices ? JSON.parse(job.comboServices) : [];
@@ -173,6 +178,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           <CustomerDocument
             kind={focus === "invoice" ? "INVOICE" : "QUOTATION"}
             shareUrl={`${PUBLIC_BOOKING_URL}/booking/${focus}/${token}`}
+            catalog={catalogEntry ? { name: catalogEntry.name, scope: catalogEntry.scopeOfWork, equipment: catalogEntry.equipmentsUsed, terms: catalogEntry.termsConditions } : null}
             company={{
               name: settings?.name || COMPANY.name,
               phone: settings?.phone || COMPANY.phones[0],
@@ -212,6 +218,8 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               gstEnabled: job.gstEnabled,
               gstAmount: job.gstAmount,
               customerGstin: job.customerGstin,
+              customerNumber: customer?.customerNumber ?? null,
+              quotationNumber: job.lead?.quotations[0]?.quoteNumber ?? null,
             }}
           />
         )}

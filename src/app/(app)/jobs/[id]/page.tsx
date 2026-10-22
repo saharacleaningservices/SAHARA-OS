@@ -276,6 +276,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                       <a href={quotationUrl} target="_blank" rel="noreferrer"><FileText className="size-3.5" /> View</a>
                     </Button>
                     <Button size="sm" variant="outline" asChild>
+                      <a href={`${quotationUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> A4 PDF</a>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
                       <a href={toWhatsAppLink(job.customerMobile, docMessage("quotation", quotationUrl))} target="_blank" rel="noreferrer">
                         <MessageCircle className="size-3.5" /> Send
                       </a>
@@ -292,6 +295,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <span className="flex gap-1.5">
                     <Button size="sm" variant="outline" asChild>
                       <a href={invoiceUrl} target="_blank" rel="noreferrer"><Receipt className="size-3.5" /> View</a>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`${invoiceUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> A4 PDF</a>
                     </Button>
                     <Button size="sm" variant="outline" asChild>
                       <a href={`/api/invoices/${job.invoice.id}/pdf`} target="_blank" rel="noreferrer"><FileText className="size-3.5" /> PDF</a>
