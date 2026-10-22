@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
 markAttendanceDay,
+clearAttendanceDay,
 bulkMarkAttendance,
 closeAttendanceMonth,
 reopenAttendanceMonth,
@@ -92,6 +93,7 @@ canReopen: boolean;
 const router = useRouter();
 const [pending, startTransition] = useTransition();
 const [openDay, setOpenDay] = useState<string | null>(null);
+const [clearReason, setClearReason] = useState("");
 const [bulk, setBulk] = useState({ from: "", to: "", status: "PRESENT" });
 
 function go(y: number, m: number) {
@@ -112,6 +114,21 @@ toast.error(res.error);
 return;
 }
 toast.success("Attendance saved");
+router.refresh();
+});
+}
+
+// Clear (unmark) a day — reason required; salary dues recalculate on their own (owner 2026-10-22).
+function clearDay(iso: string) {
+setOpenDay(null);
+startTransition(async () => {
+const res = await clearAttendanceDay(staffId, iso, clearReason);
+if (res?.error) {
+toast.error(res.error);
+return;
+}
+setClearReason("");
+toast.success("Day cleared — salary recalculated");
 router.refresh();
 });
 }
@@ -203,7 +220,7 @@ if (!editable || d.isFuture) return <div key={d.iso}>{cell}</div>;
 return (
 <Popover key={d.iso} open={openDay === d.iso} onOpenChange={(o) => setOpenDay(o ? d.iso : null)}>
 <PopoverTrigger asChild>{cell}</PopoverTrigger>
-<PopoverContent className="w-40 p-1.5">
+<PopoverContent className="w-52 p-1.5">
 <p className="px-2 pb-1 pt-1 text-xs font-medium text-muted-foreground">
 {new Date(d.iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
 </p>
@@ -219,6 +236,25 @@ className="flex items-center justify-between rounded-md px-2 py-1.5 text-left te
 </button>
 ))}
 </div>
+{d.status && (
+<div className="mt-1 space-y-1 border-t border-border pt-1.5">
+<input
+value={clearReason}
+onChange={(e) => setClearReason(e.target.value)}
+placeholder="Reason to clear this day"
+aria-label="Reason to clear this day"
+className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+/>
+<button
+type="button"
+disabled={clearReason.trim().length < 3}
+onClick={() => clearDay(d.iso)}
+className="w-full rounded-md px-2 py-1.5 text-left text-sm text-destructive hover:bg-destructive/10 disabled:opacity-40"
+>
+Clear day (unmark)
+</button>
+</div>
+)}
 </PopoverContent>
 </Popover>
 );

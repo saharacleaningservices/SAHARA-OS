@@ -12,6 +12,7 @@ import {
   checkIn,
   checkOut,
   setAttendanceForDate,
+  clearAttendanceForDate,
   bulkSetAttendance,
   officeCheckIn as officeCheckInSrv,
   officeCheckOut as officeCheckOutSrv,
@@ -131,6 +132,20 @@ export async function markAttendanceDay(staffId: string, dateIso: string, status
     await pushStaffAttendance(staffId, status, new Date(y, m - 1, d));
   }
   bump();
+  return { success: true as const };
+}
+
+/** Clear (unmark) one day — Super Admin + Accounts, reason required, refused for a closed month, fully audited. */
+export async function clearAttendanceDay(staffId: string, dateIso: string, reason: string) {
+  const session = await getSession();
+  if (!session || !canEditCalendar(session.role)) return { error: "Not authorized" };
+  const why = (reason ?? "").trim();
+  if (why.length < 3) return { error: "Give a reason (3+ characters)" };
+  if (!/^\d{4}-\d{2}-\d{2}/.test(dateIso)) return { error: "Invalid date" };
+  const res = await clearAttendanceForDate({ staffId, date: dateIso, actorName: session.name, actorEmail: session.email, actorId: session.sub, reason: why });
+  if ("error" in res) return { error: res.error };
+  bump();
+  revalidatePath(`/staff/${staffId}`);
   return { success: true as const };
 }
 

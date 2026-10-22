@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { CrmLanguageSwitcher } from "./crm-language-switcher";
 import { crmT, useCrmLang } from "@/lib/crm-i18n";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -80,7 +79,6 @@ export function Topbar({
         <p className="hidden truncate text-sm font-semibold text-foreground md:block">{pageLabel}</p>
       )}
 
-      <CrmLanguageSwitcher />
       {(role === "ACCOUNTS" || role === "OPERATIONS") && <NewInquiryAlert />}
       <NotificationsBell />
       {(role === "ADMIN" || role === "ACCOUNTS") && <EodSummaryModal />}

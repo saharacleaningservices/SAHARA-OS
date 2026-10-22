@@ -19,9 +19,11 @@ test("Hindi and Marathi cover every sidebar group + item label and the header st
   }
 });
 
-test("language switcher is in the header for all roles and the choice lives in localStorage", () => {
+test("language switcher lives on My Profile for every role (removed from the header bar, owner 2026-10-22) and the choice lives in localStorage", () => {
   const top = readFileSync("src/components/layout/topbar.tsx", "utf8");
-  assert.ok(top.includes("<CrmLanguageSwitcher />") && !/role === .*CrmLanguageSwitcher/.test(top));
+  assert.ok(!top.includes("CrmLanguageSwitcher"), "no language selector in the top header bar");
+  const profile = readFileSync("src/app/(app)/profile/page.tsx", "utf8");
+  assert.ok(profile.includes("<CrmLanguageSwitcher />") && !/isAdmin && .*CrmLanguageSwitcher/.test(profile), "on the profile page, not role-gated");
   const i18n = readFileSync("src/lib/crm-i18n.ts", "utf8");
   assert.ok(i18n.includes("localStorage") && i18n.includes('() => "en"'), "server snapshot is English so hydration matches");
 });

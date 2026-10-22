@@ -6,6 +6,7 @@ import {
   STAFF_AVAILABILITY_LABELS,
   ATTENDANCE_STATUS_LABELS,
 } from "@/lib/constants";
+import { jobDisplayStatus, JOB_DISPLAY_LABELS, type JobDisplayStatus } from "@/lib/job-display";
 
 const LEAD_STAGE_VARIANT: Record<string, "muted" | "info" | "warning" | "success" | "default" | "secondary"> = {
   NEW: "muted",
@@ -55,8 +56,20 @@ export function LeadStageBadge({ stage }: { stage: string }) {
   return <Badge variant={LEAD_STAGE_VARIANT[stage] ?? "muted"}>{LEAD_STAGE_LABELS[stage] ?? stage}</Badge>;
 }
 
+// Six display statuses (owner 2026-10-22), see src/lib/job-display.ts. Unknown values fall back to the stored label.
+const JOB_DISPLAY_VARIANT: Record<JobDisplayStatus, "muted" | "info" | "warning" | "success" | "destructive"> = {
+  CONFIRMED: "info",
+  WORK_STARTED: "warning",
+  COMPLETED: "success",
+  POSTPONED: "muted",
+  CANCELLED: "destructive",
+  PENDING_WORK: "warning",
+};
+
 export function JobStatusBadge({ status }: { status: string }) {
-  return <Badge variant={JOB_STATUS_VARIANT[status] ?? "muted"}>{JOB_STATUS_LABELS[status] ?? status}</Badge>;
+  const d = jobDisplayStatus(status);
+  if (!d) return <Badge variant={JOB_STATUS_VARIANT[status] ?? "muted"}>{JOB_STATUS_LABELS[status] ?? status}</Badge>;
+  return <Badge variant={JOB_DISPLAY_VARIANT[d]}>{JOB_DISPLAY_LABELS[d]}</Badge>;
 }
 
 export function PaymentStatusBadge({ status }: { status: string }) {

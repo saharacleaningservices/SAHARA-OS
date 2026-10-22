@@ -5,7 +5,7 @@ import { crmT, useCrmLang } from "@/lib/crm-i18n";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import { NAV_GROUPS, NAV_ITEMS } from "./nav-config";
+import { NAV_GROUPS, NAV_ITEMS, type NavItem } from "./nav-config";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { canAccess } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,45 @@ export function SidebarNav({
   useEffect(() => {
     if (activeGroup) setOpen((prev) => (prev.has(activeGroup) ? prev : new Set(prev).add(activeGroup)));
   }, [activeGroup]);
+  // Clusters: consecutive items sharing `cluster` fold under one collapsible entry (open while one of them is active).
+  type Entry = { kind: "item"; item: NavItem } | { kind: "cluster"; label: string; items: NavItem[] };
+  const entriesOf = (list: NavItem[]) =>
+    list.reduce<Entry[]>((acc, item) => {
+      const last = acc[acc.length - 1];
+      if (item.cluster && last?.kind === "cluster" && last.label === item.cluster) last.items.push(item);
+      else acc.push(item.cluster ? { kind: "cluster", label: item.cluster, items: [item] } : { kind: "item", item });
+      return acc;
+    }, []);
+  const [openClusters, setOpenClusters] = useState<Set<string>>(new Set());
+  const toggleCluster = (key: string) =>
+    setOpenClusters((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  const linkFor = (item: NavItem, nested = false) => {
+    const active = isActive(item.href);
+    const Icon = item.icon;
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        onClick={onNavigate}
+        className={cn(
+          "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          nested && "pl-9",
+          active
+            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        )}
+      >
+        <Icon className="size-4 shrink-0" />
+        {crmT(lang, item.label)}
+      </Link>
+    );
+  };
+
   const toggle = (key: string) =>
     setOpen((prev) => {
       const next = new Set(prev);
@@ -64,30 +103,32 @@ export function SidebarNav({
               >
                 <span>{crmT(lang, g.label)}</span>
                 <span className="flex items-center gap-2">
-                  <span className="rounded-full bg-sidebar-accent px-1.5 text-[10px] font-medium normal-case tracking-normal text-sidebar-foreground/70">{g.items.length}</span>
+                  <span className="rounded-full bg-sidebar-accent px-1.5 text-[10px] font-medium normal-case tracking-normal text-sidebar-foreground/70">{entriesOf(g.items).length}</span>
                   <ChevronDown className={cn("size-4 transition-transform", isOpen && "rotate-180")} />
                 </span>
               </button>
               {isOpen && (
                 <div id={`nav-group-${g.key}`} className="mt-0.5 space-y-0.5">
-                  {g.items.map((item) => {
-                    const active = isActive(item.href);
-                    const Icon = item.icon;
+                  {entriesOf(g.items).map((e) => {
+                    if (e.kind === "item") return linkFor(e.item);
+                    const key = `${g.key}:${e.label}`;
+                    const hasActive = e.items.some((i) => isActive(i.href));
+                    const clusterOpen = hasActive || openClusters.has(key);
+                    const Icon = e.items[0].icon;
                     return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={onNavigate}
-                        className={cn(
-                          "flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                          active
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        )}
-                      >
-                        <Icon className="size-4 shrink-0" />
-                        {crmT(lang, item.label)}
-                      </Link>
+                      <div key={key}>
+                        <button
+                          type="button"
+                          onClick={() => toggleCluster(key)}
+                          aria-expanded={clusterOpen}
+                          className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        >
+                          <Icon className="size-4 shrink-0" />
+                          <span className="flex-1 text-left">{crmT(lang, e.label)}</span>
+                          <ChevronDown className={cn("size-4 transition-transform", clusterOpen && "rotate-180")} />
+                        </button>
+                        {clusterOpen && <div className="space-y-0.5">{e.items.map((i) => linkFor(i, true))}</div>}
+                      </div>
                     );
                   })}
                 </div>

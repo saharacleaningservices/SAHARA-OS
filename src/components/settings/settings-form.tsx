@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CompanyLogo } from "@/components/shared/company-logo";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FeaturedReviewsEditor } from "@/components/settings/featured-reviews-editor";
 import { companySettingsSchema, type CompanySettingsFormValues } from "@/lib/validation";
 import { updateCompanySettings } from "@/server/actions/settings";
 
@@ -31,6 +33,7 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
     defaultValues,
   });
 
+  const [tab, setTab] = useState("company");
   const logoUrl = watch("logoUrl");
   const upiQrUrl = watch("upiQrUrl");
 
@@ -56,6 +59,26 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
   }
   const handleLogoUpload = (file: File) => handleUpload(file, "logo", "logoUrl", "Logo");
 
+  // Every field lives in ONE form across the three tabs (inactive tabs stay mounted), so one Save keeps working exactly as
+  // before. A field error on a hidden tab is flagged on its tab and that tab is opened.
+  const TAB_FIELDS: Record<string, (keyof CompanySettingsFormValues)[]> = {
+    company: ["name", "phone", "email", "website", "address", "signatureLogoWidth", "signatureLogoHeight", "logoUrl"],
+    payment: ["upiId", "upiQrUrl", "bankAccountName", "bankAccountNumber", "bankIfsc", "bankName"],
+    social: ["googleReviewUrl", "googleRating", "googleReviewCount", "happyCustomers", "linkedinUrl", "featuredReviews"],
+  };
+  const tabHasError = (t: string) => TAB_FIELDS[t].some((f) => errors[f]);
+  const onInvalid = () => {
+    const first = Object.keys(TAB_FIELDS).find((t) => tabHasError(t) || TAB_FIELDS[t].some((f) => f in errors));
+    if (first) setTab(first);
+    toast.error("Please fix the highlighted field.");
+  };
+  const TabLabel = ({ id, children }: { id: string; children: ReactNode }) => (
+    <TabsTrigger value={id} className="max-sm:flex-1">
+      {children}
+      {tabHasError(id) && <span className="size-1.5 rounded-full bg-destructive" aria-label="has an error" />}
+    </TabsTrigger>
+  );
+
   async function onSubmit(values: CompanySettingsFormValues) {
     setSubmitting(true);
     const res = await updateCompanySettings(values);
@@ -69,7 +92,15 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList className="w-full max-sm:flex-nowrap sm:w-auto">
+          <TabLabel id="company"><span className="sm:hidden">Company</span><span className="hidden sm:inline">Company Details</span></TabLabel>
+          <TabLabel id="payment"><span className="sm:hidden">Payment</span><span className="hidden sm:inline">Payment &amp; Billing</span></TabLabel>
+          <TabLabel id="social">Social Proof</TabLabel>
+        </TabsList>
+
+      <TabsContent value="company" forceMount className="space-y-4 data-[state=inactive]:hidden">
       <Card>
         <CardHeader>
           <CardTitle>Company Details</CardTitle>
@@ -99,22 +130,6 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             <Textarea id="address" rows={2} {...register("address")} />
             {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
           </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="googleReviewUrl">Google Review Link (optional)</Label>
-            <Input id="googleReviewUrl" placeholder="https://g.page/r/.../review" {...register("googleReviewUrl")} />
-            <p className="text-xs text-muted-foreground">
-              Opened by the &ldquo;View Google Reviews&rdquo; buttons on the booking page and after job completion.
-            </p>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="googleRating">Google Rating</Label>
-            <Input id="googleRating" placeholder="4.9" {...register("googleRating")} />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="linkedinUrl">LinkedIn page link</Label>
-            <Input id="linkedinUrl" placeholder="https://www.linkedin.com/company/…" {...register("linkedinUrl")} />
-            <p className="text-xs text-muted-foreground">Shown as a LinkedIn icon in the website footers and the email signature once filled in.</p>
-          </div>
           <div className="space-y-1.5">
             <Label htmlFor="signatureLogoWidth">Email signature logo width (px)</Label>
             <Input id="signatureLogoWidth" inputMode="numeric" placeholder="220 (80–400)" {...register("signatureLogoWidth")} />
@@ -126,30 +141,52 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
             {errors.signatureLogoHeight && <p className="text-xs text-destructive">{errors.signatureLogoHeight.message}</p>}
             <p className="text-xs text-muted-foreground">Leave height blank to keep the logo proportional. Applies to every email sent from now on.</p>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="googleReviewCount">Google Review Count</Label>
-            <Input id="googleReviewCount" placeholder="1800+" {...register("googleReviewCount")} />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="happyCustomers">Happy Customers</Label>
-            <Input id="happyCustomers" placeholder="8000+" {...register("happyCustomers")} />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="featuredReviews">Featured Reviews (booking-page carousel)</Label>
-            <Textarea
-              id="featuredReviews"
-              rows={4}
-              placeholder='[{"name":"Priya S.","text":"Excellent deep cleaning, team was on time.","rating":5}]'
-              {...register("featuredReviews")}
-            />
-            <p className="text-xs text-muted-foreground">
-              JSON array of {`{ name, text, rating }`}. Leave blank to show just the rating + &ldquo;View all&rdquo; button.
-              Live Google Business Profile sync is planned separately.
-            </p>
-          </div>
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Logo</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/30 p-4">
+            <CompanyLogo logoUrl={logoUrl} className="h-12 w-auto max-w-[220px]" showTm />
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={uploading}
+              onClick={() => document.getElementById("logo-file")?.click()}
+            >
+              {uploading ? <Loader2 className="animate-spin" /> : <Upload className="size-4" />}
+              Upload New Logo
+            </Button>
+            <input
+              id="logo-file"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleLogoUpload(file);
+                e.target.value = "";
+              }}
+            />
+            <p className="text-xs text-muted-foreground">PNG, JPG or SVG · up to 8MB</p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            This logo now appears everywhere — sidebar, header, login page, booking page, footer, browser
+            favicon and app icon — right after the official file at <code>/brand/sahara-logo.png</code> if
+            that has been added (that one always wins when present). If this upload is ever lost, missing or
+            fails to load, every surface falls back to the built-in Sahara mark automatically, so nothing
+            ever shows a broken image.
+          </p>
+        </CardContent>
+      </Card>
+      </TabsContent>
+
+      <TabsContent value="payment" forceMount className="space-y-4 data-[state=inactive]:hidden">
       <Card>
         <CardHeader>
           <CardTitle>Payment Collection</CardTitle>
@@ -218,46 +255,51 @@ export function SettingsForm({ defaultValues }: { defaultValues: CompanySettings
         </CardContent>
       </Card>
 
+      </TabsContent>
+
+      <TabsContent value="social" forceMount className="space-y-4 data-[state=inactive]:hidden">
       <Card>
         <CardHeader>
-          <CardTitle>Logo</CardTitle>
+          <CardTitle>Social Proof</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center gap-4 rounded-lg border border-border bg-muted/30 p-4">
-            <CompanyLogo logoUrl={logoUrl} className="h-12 w-auto max-w-[220px]" showTm />
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="googleReviewUrl">Google Review Link (optional)</Label>
+            <Input id="googleReviewUrl" placeholder="https://g.page/r/.../review" {...register("googleReviewUrl")} />
+            <p className="text-xs text-muted-foreground">
+              Opened by the &ldquo;View Google Reviews&rdquo; buttons on the booking page and after job completion.
+            </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={uploading}
-              onClick={() => document.getElementById("logo-file")?.click()}
-            >
-              {uploading ? <Loader2 className="animate-spin" /> : <Upload className="size-4" />}
-              Upload New Logo
-            </Button>
-            <input
-              id="logo-file"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleLogoUpload(file);
-                e.target.value = "";
-              }}
+          <div className="space-y-1.5">
+            <Label htmlFor="googleRating">Google Rating</Label>
+            <Input id="googleRating" placeholder="4.9" {...register("googleRating")} />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="linkedinUrl">LinkedIn page link</Label>
+            <Input id="linkedinUrl" placeholder="https://www.linkedin.com/company/…" {...register("linkedinUrl")} />
+            <p className="text-xs text-muted-foreground">Shown as a LinkedIn icon in the website footers and the email signature once filled in.</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="googleReviewCount">Google Review Count</Label>
+            <Input id="googleReviewCount" placeholder="1800+" {...register("googleReviewCount")} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="happyCustomers">Happy Customers</Label>
+            <Input id="happyCustomers" placeholder="8000+" {...register("happyCustomers")} />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Featured Reviews (booking-page carousel)</Label>
+            <input type="hidden" {...register("featuredReviews")} />
+            <FeaturedReviewsEditor
+              value={watch("featuredReviews") ?? ""}
+              onChange={(json) => setValue("featuredReviews", json, { shouldDirty: true })}
             />
-            <p className="text-xs text-muted-foreground">PNG, JPG or SVG · up to 8MB</p>
+            <p className="text-xs text-muted-foreground">Live Google Business Profile sync is planned separately.</p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            This logo now appears everywhere — sidebar, header, login page, booking page, footer, browser
-            favicon and app icon — right after the official file at <code>/brand/sahara-logo.png</code> if
-            that has been added (that one always wins when present). If this upload is ever lost, missing or
-            fails to load, every surface falls back to the built-in Sahara mark automatically, so nothing
-            ever shows a broken image.
-          </p>
         </CardContent>
       </Card>
+      </TabsContent>
+      </Tabs>
 
       <div className="flex justify-end">
         <Button type="submit" disabled={submitting || uploading}>

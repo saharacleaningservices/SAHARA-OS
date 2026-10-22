@@ -73,19 +73,27 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
 
 const ONE = [{ name: "Full House Cleaning Service 2 BHK Platinum package", description: "Deep cleaning", amount: 7000 }];
 
-test("owner wording: premium scope, platinum adds wall wet cleaning, 3 exclusions, 4 terms lines, free fridge note", () => {
-  assert.equal(PREMIUM_SCOPE.length, 7);
-  assert.ok(packageScopeLines("Premium").join(" ").includes("cobweb"));
+test("owner wording (22 Oct): premium adds appliance/chimney exterior + dry vacuuming; platinum adds wall wet + full chimney; 5 terms lines", () => {
+  assert.equal(PREMIUM_SCOPE.length, 8);
+  const prem = packageScopeLines("Premium").join(" ").toLowerCase();
+  assert.ok(prem.includes("cobweb"));
+  assert.ok(prem.includes("refrigerator") && prem.includes("microwave"), "fridge + microwave exterior");
+  assert.ok(prem.includes("chimney exterior"), "Premium includes the chimney exterior");
+  for (const w of ["sofa", "mattresses", "curtains", "carpets"]) assert.ok(prem.includes(w), `Premium dry-vacuums ${w}`);
+  assert.ok(!prem.includes("wall wet") && !prem.includes("chimney cleaning (full)"));
   const plat = packageScopeLines("Platinum");
-  assert.equal(plat.length, PREMIUM_SCOPE.length + 1);
-  assert.ok(plat.at(-1)!.toLowerCase().includes("wall wet cleaning"));
-  assert.ok(!packageScopeLines("Premium").join(" ").toLowerCase().includes("wall wet"));
+  assert.equal(plat.length, PREMIUM_SCOPE.length + 2);
+  const platText = plat.join(" ").toLowerCase();
+  assert.ok(platText.includes("wall wet cleaning") && platText.includes("chimney cleaning (full)"));
+  assert.ok(PREMIUM_SCOPE.every((l) => plat.includes(l)), "Platinum keeps the full Premium scope");
   assert.equal(QUOTATION_EXCLUSIONS.length, 3);
   const ex = QUOTATION_EXCLUSIONS.join(" | ").toLowerCase();
   assert.ok(ex.includes("plastic wrap") && ex.includes("glue") && ex.includes("cement") && ex.includes("foam") && ex.includes("shampoo") && ex.includes("excluded"));
-  assert.equal(STANDARD_TERMS_LINES.length, 4);
+  assert.ok(!ex.includes("chimney"), "chimney is no longer an exclusion");
+  assert.equal(STANDARD_TERMS_LINES.length, 5);
   const terms = STANDARD_TERMS_LINES.join(" ").toLowerCase();
-  assert.ok(terms.includes("emptied") && terms.includes("ladder") && terms.includes("100%") && terms.includes("upi or cash") && terms.includes("final inspection"));
+  assert.ok(terms.includes("emptied") && terms.includes("step-ladder") && terms.includes("water") && terms.includes("electricity") && terms.includes("100%") && terms.includes("upi or cash") && terms.includes("final inspection"));
+  assert.ok(terms.includes("valuables") && terms.includes("locked under key"));
   assert.ok(!terms.includes("minimum job value") && !terms.includes("50% advance"));
   assert.ok(terms.includes("20% advance") && terms.includes("80% balance"));
   assert.equal(FREE_FRIDGE_NOTE, "(Single Fridge Internal Deep Cleaning Included FREE for this booking)");
@@ -112,6 +120,22 @@ test("legacy default terms (50% advance / minimum value) print the standard term
   const b2b = resolveQuotationTerms("FACILITY MANAGEMENT AMC PROPOSAL\nTERMS\n1. Monthly billing in advance.");
   assert.equal(b2b.custom, true);
   assert.ok(b2b.text.startsWith("FACILITY MANAGEMENT"));
+});
+
+test("quotations that stored the earlier 4-line standard terms (17 Oct and 18 Oct wording) still count as standard", () => {
+  const four18 = [
+    "1. Cabinets / wardrobes are cleaned internally ONLY if emptied by the customer before arrival.",
+    "2. Customer to arrange electricity, continuous water supply and a stool / ladder.",
+    "3. Old / hard stains are treated to the best of our ability (100% removal is not guaranteed without surface damage).",
+    "4. Final inspection is required before the team leaves. 20% advance confirms the booking; the 80% balance is payable after work completion via UPI or Cash.",
+  ].join("\n");
+  const four17 = four18.replace(/4\. Final inspection[^\n]*/, "4. Final inspection is required before the team leaves. 100% payment immediately via UPI or Cash.");
+  for (const stored of [four18, four17]) {
+    const r = resolveQuotationTerms(stored);
+    assert.equal(r.custom, false);
+    assert.equal(r.text, STANDARD_TERMS_TEXT, "prints the current standard terms (now with the valuables line)");
+  }
+  assert.ok(STANDARD_TERMS_TEXT.includes("5. Cash, jewellery and valuables must be kept locked under key"));
 });
 
 test("typical Platinum quote renders on exactly ONE A4 page", async () => {

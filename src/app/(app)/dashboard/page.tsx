@@ -46,36 +46,45 @@ import { TabbedDashboard } from "@/components/dashboard/tabbed-dashboard";
 import { PendingActionsPanel } from "@/components/dashboard/pending-actions-panel";
 import { OwnerQuickInquiry } from "@/components/dashboard/owner-quick-inquiry";
 import { OwnerInquiryTracker } from "@/components/dashboard/owner-inquiry-tracker";
+import { RoleViewToggle, dashboardViewFor } from "@/components/dashboard/role-view-toggle";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ as?: string }> }) {
   const session = await requireUser();
   // Field staff use the mobile Staff App, not the office dashboard.
   if (session.role === "STAFF") redirect("/my");
+  // Super Admin "view as" (Finance / Operations) — ignored for every other role. The previewed role's own branch below
+  // builds the page, so an Operations preview never loads money data either.
+  const view = dashboardViewFor(session.role, (await searchParams).as);
+  const toggle = session.role === "ADMIN" ? <RoleViewToggle view={view} /> : null;
 
   // Francis (OPERATIONS): Super Admin-style home with Operations data only
   // (yesterday → tomorrow, no money) — same canonical jobs/leads/calendar.
   // Single tabbed home for Francis / Shoyab / owner (Inquiries · Operations · Finance).
   // Each branch fetches once; the OPERATIONS branch never builds a finance section,
   // so no money data reaches Francis's page at all (not just hidden in the UI).
-  if (session.role === "OPERATIONS") {
+  if (session.role === "OPERATIONS" || view === "operations") {
     const newLeads = await getNewLeadsForDashboard(session.sub);
     const s = await getOperationsDashboardSections({
       name: session.name.split(" ")[0],
       userId: session.sub,
       newLeads: newLeads ? <NewLeadsCard rows={newLeads.rows} newCount={newLeads.newCount} /> : null,
     });
-    return <TabbedDashboard role="OPERATIONS" hero={s.hero} inquiries={s.inquiries} operations={s.operations} />;
+    return <TabbedDashboard role="OPERATIONS" hero={<>{toggle}{s.hero}</>} inquiries={s.inquiries} operations={s.operations} />;
   }
 
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
+    // Finance preview renders the Accounts dashboard exactly (no profit, no business target, no owner tools).
+    const asRole = view === "finance" ? "ACCOUNTS" : session.role;
     const s = await getOwnerDashboardSections({
-      role: session.role,
+      role: asRole,
       ownerName: session.name.split(" ")[0],
-      showProfit: session.role === "ADMIN",
-      showBusinessTarget: session.role === "ADMIN",
+      showProfit: asRole === "ADMIN",
+      showBusinessTarget: asRole === "ADMIN",
       // Owner-only: paste a number, alert Shoyab / Francis (src/server/owner-inquiry.ts)
+      // Job-closure + payment-collection reminders (src/server/ops-reminders.ts), right under Cash Flow.
+      afterCashFlow: <PendingActionsPanel />,
       inquiryTools:
-        session.role === "ADMIN" ? (
+        asRole === "ADMIN" ? (
           <div className="space-y-4">
             <OwnerQuickInquiry />
             <OwnerInquiryTracker />
@@ -84,18 +93,11 @@ export default async function DashboardPage() {
     });
     return (
       <TabbedDashboard
-        role={session.role}
-       
-        hero={s.hero}
+        role={asRole}
+        hero={<>{toggle}{s.hero}</>}
         inquiries={s.inquiries}
         operations={s.operations}
-        finance={
-          <>
-            {/* Job-closure + payment-collection reminders (src/server/ops-reminders.ts) */}
-            <PendingActionsPanel />
-            {s.finance}
-          </>
-        }
+        finance={s.finance}
       />
     );
   }

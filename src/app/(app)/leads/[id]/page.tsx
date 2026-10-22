@@ -31,6 +31,7 @@ import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 import { HIDDEN_CONTACT, maskText, redactLead } from "@/lib/redact";
+import { CustomerServiceHistoryCard } from "@/components/leads/customer-service-history-card";
 
 export default async function LeadDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ confirm?: string }> }) {
   const { confirm } = await searchParams;
@@ -247,6 +248,9 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               )}
             </CardContent>
           </Card>
+
+          {/* Past Service History & Invoices (owner 2026-10-22): money + contact, Super Admin / Accounts only. */}
+          {showContact && showMoney && <CustomerServiceHistoryCard mobile={rawLead.mobile} />}
 
           {showContact && showMoney && (
           <Card>

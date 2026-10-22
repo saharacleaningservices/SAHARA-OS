@@ -123,6 +123,41 @@ export async function getMonthMatrix(staffId: string, year: number, month: numbe
   return { staff, year, month, days, totals, closed };
 }
 
+/**
+ * Clear one marked day (owner 2026-10-22): the day becomes unmarked again, so payable days and the salary due — both
+ * derived on read — update at once. Refused for a closed month. The removed row is kept as a full snapshot in the Audit
+ * History (AuditLog, with who / when / reason) and in AttendanceAudit (old status -> "CLEARED").
+ */
+export async function clearAttendanceForDate(input: { staffId: string; date: string | Date; actorName: string; actorEmail?: string | null; actorId?: string | null; reason: string }) {
+  const date = dayKey(input.date);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  if (await isMonthClosed(year, month)) {
+    return { error: `${year}-${String(month).padStart(2, "0")} is closed. Ask the Super Admin to reopen it.` as string };
+  }
+  const staff = await db.staff.findUnique({ where: { id: input.staffId }, select: { name: true } });
+  if (!staff) return { error: "Staff not found" };
+  const existing = await db.attendance.findUnique({ where: { staffId_date: { staffId: input.staffId, date } } });
+  if (!existing) return { error: "That day has no attendance marked" };
+  const iso = `${year}-${String(month).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  await db.$transaction([
+    db.attendance.delete({ where: { id: existing.id } }),
+    db.attendanceAudit.create({ data: { staffId: input.staffId, staffName: staff.name, date, oldStatus: existing.status, newStatus: "CLEARED", editedByName: input.actorName } }),
+    db.auditLog.create({
+      data: {
+        entityType: "Staff",
+        entityId: input.staffId,
+        action: "ATTENDANCE_CLEARED",
+        summary: `Attendance cleared for ${iso} (was ${existing.status})`,
+        actorName: input.actorName,
+        actorEmail: input.actorEmail ?? null,
+        meta: JSON.stringify({ actorId: input.actorId ?? null, reason: input.reason.slice(0, 300), old: { ...existing, date: iso }, next: null }),
+      },
+    }),
+  ]);
+  return { success: true as const };
+}
+
 /** Upsert one day's attendance, write the audit row, recompute the day wage. */
 export async function setAttendanceForDate(input: {
   staffId: string;

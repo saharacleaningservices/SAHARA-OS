@@ -15,6 +15,21 @@ export function formatINR(amount: number | null | undefined): string {
   }).format(value);
 }
 
+/**
+ * Short Indian-unit money for tight mobile cards: ₹6.81L, ₹1.25Cr (owner 2026-10-22). Below one lakh it is the normal
+ * whole-rupee amount (₹45,500). Display only — totals and documents keep formatINR's exact value.
+ */
+export function formatCompactINR(amount: number | null | undefined): string {
+  const value = amount ?? 0;
+  if (!Number.isFinite(value)) return formatINR(0);
+  const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  const unit = (n: number, suffix: string) => `${sign}₹${(Math.round(n * 100) / 100).toFixed(2).replace(/\.?0+$/, "")}${suffix}`;
+  if (abs >= 1e7) return unit(abs / 1e7, "Cr");
+  if (abs >= 1e5) return unit(abs / 1e5, "L");
+  return `${sign}${formatINR(Math.round(abs))}`;
+}
+
 export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "-";
   const d = typeof date === "string" ? new Date(date) : date;

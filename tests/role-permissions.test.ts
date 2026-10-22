@@ -84,7 +84,8 @@ test("Super Admin only: every owner-only section is closed to Accounts, Operatio
 
 test("guard: every section named in this file is a real nav section (a typo must not pass silently)", () => {
   const nav = readFileSync(path.join(process.cwd(), "src/components/layout/nav-config.tsx"), "utf8");
-  const real = new Set([...nav.matchAll(/section: "([a-z-]+)"/g)].map((m) => m[1]).concat(["my"]));
+  // "admin" is still a real section (the /admin/gallery page and ROLE_NAV_ACCESS use it) although Gallery left the menu (2026-10-22).
+  const real = new Set([...nav.matchAll(/section: "([a-z-]+)"/g)].map((m) => m[1]).concat(["my", "admin"]));
   const src = readFileSync(path.join(process.cwd(), "tests/role-permissions.test.ts"), "utf8");
   const named = new Set([...src.matchAll(/canAccess\("[A-Z]+", "([a-z-]+)"\)/g)].map((m) => m[1]));
   for (const list of src.matchAll(/(?:for \(const section of |OWNER_ONLY = )\[([^\]]+)\]/g)) for (const s of list[1].matchAll(/"([a-z-]+)"/g)) named.add(s[1]);

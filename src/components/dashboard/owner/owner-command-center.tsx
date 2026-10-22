@@ -11,6 +11,8 @@ import {
   PauseCircle,
   MapPin,
   ChevronDown,
+  FileStack,
+  Target,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { getOwnerCommandCenterHome } from "@/server/owner-command-center";
@@ -30,7 +32,9 @@ import { StatusPill } from "@/components/shared/status-pill";
 import { getSlotBoard } from "@/server/actions/slot-control";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { formatINR, formatDate } from "@/lib/utils";
+import { formatINR, formatCompactINR, formatDate } from "@/lib/utils";
+import { getInvoiceStatusSummary } from "@/server/dashboard-extras";
+import { cleanCustomerName } from "@/lib/job-display";
 
 /** Collapsible dashboard section — secondary content stays one tap away. */
 function Fold({ title, badge, open = false, children }: { title: ReactNode; badge?: ReactNode; open?: boolean; children: ReactNode }) {
@@ -73,6 +77,7 @@ export async function getOwnerDashboardSections({
   showProfit,
   showBusinessTarget = true,
   inquiryTools,
+  afterCashFlow,
 }: {
   role: string;
   ownerName: string;
@@ -80,13 +85,16 @@ export async function getOwnerDashboardSections({
   showBusinessTarget?: boolean;
   /** Quick Add + inquiry tracker etc., shown at the top of the Inquiries tab. */
   inquiryTools?: ReactNode;
+  /** Shown right under Cash Flow on the Finance tab (the pending job-closure / collection reminders). */
+  afterCashFlow?: ReactNode;
 }) {
-  const [home, snapshot, settings, dashboard, board] = await Promise.all([
+  const [home, snapshot, settings, dashboard, board, invoices] = await Promise.all([
     getOwnerCommandCenterHome(),
     getOwnerSnapshot(),
     getCompanySettings(),
     getDashboardData(),
     getSlotBoard(1),
+    getInvoiceStatusSummary(),
   ]);
 
   const { today, businessTarget, revenue, staffList, vehicleList, alerts, calendar, followUpsToday, siteVisitsToday } =
@@ -97,11 +105,14 @@ export async function getOwnerDashboardSections({
     { href: "/leads?due=today", label: "follow-ups", count: followUpsToday.length },
     { href: "/leads?stage=SITE_VISIT", label: "site visits", count: siteVisitsToday.length },
     { href: "/payments?filter=pending", label: "overdue payments", count: alerts.overduePayments.length },
-    { href: "/jobs?when=today", label: "jobs without staff", count: alerts.unassignedJobsToday.length },
   ];
-  // Team capacity today (same numbers as Slot Availability).
-  const todaySlot = board?.[0];
-  if (todaySlot) chips.push({ href: "/jobs/slots", label: `teams · ${todaySlot.booked}/${todaySlot.dailyCapacity} booked today`, count: todaySlot.teams });
+  // Shoyab's (ACCOUNTS) primary view is finance (owner 2026-10-22): team-assignment and capacity chips are owner-only.
+  if (role !== "ACCOUNTS") {
+    chips.push({ href: "/jobs?when=today", label: "jobs without staff", count: alerts.unassignedJobsToday.length });
+    // Team capacity today (same numbers as Slot Availability).
+    const todaySlot = board?.[0];
+    if (todaySlot) chips.push({ href: "/jobs/slots", label: `teams · ${todaySlot.booked}/${todaySlot.dailyCapacity} booked today`, count: todaySlot.teams });
+  }
   const collectionPercent =
     snapshot.collected + snapshot.pendingCollections > 0
       ? Math.round((snapshot.collected / (snapshot.collected + snapshot.pendingCollections)) * 100)
@@ -209,21 +220,21 @@ export async function getOwnerDashboardSections({
             icon={<UserX className="size-4 text-destructive" />}
             href="/jobs?when=today"
             empty="Every job today has staff."
-            items={alerts.unassignedJobsToday.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={j.customerName} right={j.scheduledTime} />)}
+            items={alerts.unassignedJobsToday.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={cleanCustomerName(j.customerName)} right={j.scheduledTime} />)}
           />
           <CollapsibleList
             title="Cancelled · 3 days"
             icon={<XCircle className="size-4 text-destructive" />}
             href="/jobs"
             empty="No cancellations."
-            items={alerts.cancelledJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={j.customerName} right={formatDate(j.scheduledDate)} />)}
+            items={alerts.cancelledJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={cleanCustomerName(j.customerName)} right={formatDate(j.scheduledDate)} />)}
           />
           <CollapsibleList
             title="Postponed · 3 days"
             icon={<PauseCircle className="size-4 text-warning" />}
             href="/jobs"
             empty="No postponements."
-            items={alerts.postponedJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={j.customerName} right={formatDate(j.scheduledDate)} />)}
+            items={alerts.postponedJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={cleanCustomerName(j.customerName)} right={formatDate(j.scheduledDate)} />)}
           />
         </div>
       </div>
@@ -237,9 +248,94 @@ export async function getOwnerDashboardSections({
     </div>
   );
 
+  const invoiceTile = (label: string, v: { count: number; amount: number }, tone: string) => (
+    <Link href="/invoices" className="rounded-lg border border-border p-3 hover:border-primary/40">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-lg font-semibold ${tone}`}>{v.count}</p>
+      <p className="text-[11px] text-muted-foreground">{formatCompactINR(v.amount)}</p>
+    </Link>
+  );
+  const targetSet = businessTarget.targetAmount != null && businessTarget.targetAmount > 0;
+
+  // Finance tab (owner 2026-10-22): Cash Flow first, then what needs collecting, then invoices. Cards with nothing to
+  // show are left out (no overdue list when none are overdue); an unset business target folds away.
   const finance = (
     <>
-      {showBusinessTarget && <BusinessTargetCard businessTarget={businessTarget} />}
+      {/* Cash Flow */}
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <PiggyBank className="size-4 text-primary" /> Cash Flow
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">Collected (month)</p>
+            <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.collected)}</p>
+          </div>
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">Expenses (month)</p>
+            <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.expenses)}</p>
+          </div>
+          {showProfit && (
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-xs text-muted-foreground">Net Profit</p>
+              <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.netProfit)}</p>
+            </div>
+          )}
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">Pending Collections</p>
+            <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.pendingCollections)}</p>
+          </div>
+          <div className="col-span-2 rounded-lg border border-border p-3 sm:col-span-4">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Collection rate</span>
+              <span className="font-medium text-foreground">{collectionPercent}%</span>
+            </div>
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-success" style={{ width: `${collectionPercent}%` }} />
+            </div>
+          </div>
+          {showProfit && snapshot.bankBalance != null && (
+            <div className="col-span-2 rounded-lg border border-border p-3 sm:col-span-4">
+              <p className="text-xs text-muted-foreground">Bank Balance</p>
+              <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.bankBalance)}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      {afterCashFlow}
+      {alerts.overduePayments.length > 0 && (
+        <CollapsibleList
+          title="Overdue Payments"
+          icon={<Wallet className="size-4 text-destructive" />}
+          href="/payments?filter=pending"
+          items={alerts.overduePayments.map((p) => (
+            <ListRow key={p.id} left={p.clientName} right={<StatusPill tone="bad">{formatINR(p.outstanding)}</StatusPill>} />
+          ))}
+        />
+      )}
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <FileStack className="size-4 text-primary" /> Invoice Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {invoiceTile("Issued (unpaid)", invoices.issued, "text-warning")}
+          {invoiceTile("Partially paid", invoices.partiallyPaid, "text-warning")}
+          {invoiceTile("Paid", invoices.paid, "text-success")}
+          {invoiceTile("Draft", invoices.draft, "text-foreground")}
+        </CardContent>
+      </Card>
+      {showBusinessTarget &&
+        (targetSet ? (
+          <BusinessTargetCard businessTarget={businessTarget} />
+        ) : (
+          <Fold title={<><Target className="size-4 text-primary" /> Set monthly business target</>}>
+            <BusinessTargetCard businessTarget={businessTarget} />
+          </Fold>
+        ))}
       <RevenueIntelligence
         revenue={{
           monthlyRevenue: revenue.monthlyRevenue,
@@ -249,60 +345,6 @@ export async function getOwnerDashboardSections({
         }}
         overduePayments={alerts.overduePayments}
       />
-      <div className="grid items-start gap-4 lg:grid-cols-2">
-        <CollapsibleList
-          title="Overdue Payments"
-          icon={<Wallet className="size-4 text-destructive" />}
-          href="/payments?filter=pending"
-          empty="No overdue payments."
-          items={alerts.overduePayments.map((p) => (
-            <ListRow key={p.id} left={p.clientName} right={<StatusPill tone="bad">{formatINR(p.outstanding)}</StatusPill>} />
-          ))}
-        />
-        {/* Cash Flow */}
-        <Card className="rounded-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <PiggyBank className="size-4 text-primary" /> Cash Flow
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">Collected (month)</p>
-              <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.collected)}</p>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">Expenses (month)</p>
-              <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.expenses)}</p>
-            </div>
-            {showProfit && (
-              <div className="rounded-lg border border-border p-3">
-                <p className="text-xs text-muted-foreground">Net Profit</p>
-                <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.netProfit)}</p>
-              </div>
-            )}
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">Pending Collections</p>
-              <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.pendingCollections)}</p>
-            </div>
-            <div className="col-span-2 rounded-lg border border-border p-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Collection rate</span>
-                <span className="font-medium text-foreground">{collectionPercent}%</span>
-              </div>
-              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
-                <div className="h-full rounded-full bg-success" style={{ width: `${collectionPercent}%` }} />
-              </div>
-            </div>
-            {showProfit && snapshot.bankBalance != null && (
-              <div className="col-span-2 rounded-lg border border-border p-3">
-                <p className="text-xs text-muted-foreground">Bank Balance</p>
-                <p className="text-lg font-semibold text-foreground">{formatINR(snapshot.bankBalance)}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
       <Fold title={<><BarChart3 className="size-4 text-primary" /> Service Performance</>}>
         <div className="space-y-2.5">
           {snapshot.topServices.length === 0 ? (

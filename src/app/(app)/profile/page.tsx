@@ -10,6 +10,7 @@ import { requireUser } from "@/lib/current-user";
 import { getCompanySettings } from "@/server/settings";
 import { db } from "@/lib/db";
 import { ROLE_LABELS, COMPANY } from "@/lib/constants";
+import { CrmLanguageSwitcher } from "@/components/layout/crm-language-switcher";
 
 export default async function ProfilePage() {
   const session = await requireUser();
@@ -28,6 +29,17 @@ export default async function ProfilePage() {
   return (
     <div className="max-w-2xl space-y-6">
       <PageHeader title="My Profile" description="Your account details and company branding." />
+
+      {/* CRM language (EN / हिंदी / मराठी) — moved here from the top header bar (owner 2026-10-22). Saved per browser. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Language</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center gap-3">
+          <CrmLanguageSwitcher />
+          <p className="text-xs text-muted-foreground">Menu and page labels in English, Hindi or Marathi. Saved on this device.</p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
