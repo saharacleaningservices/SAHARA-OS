@@ -89,6 +89,8 @@ export type CustomerDocCompany = {
   bankIfsc: string | null;
   /** Data-URL QR for the exact balance due (upi://pay link), built on the server. */
   upiQrDataUrl?: string | null;
+  /** Secure online / card payment page for this booking (/booking/pay/{token}). */
+  payUrl?: string | null;
 };
 
 /** Compact customer terms — the material conditions of BOOKING_TERMS + customer requirements, in 4 lines. */
@@ -134,8 +136,8 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
       ? pkg.lines.map((l) => {
           const isHome = !!homeLabel && /premium|platinum/i.test(l.name);
           return l.complimentary
-            ? { name: `${l.name} (Complimentary)`, detail: `${qtyLabel(l.qty, l.unit)} · free (value ${inr(lineAmount(l))})`, qty: l.qty, rate: l.unitPrice, disc: lineAmount(l), total: 0 }
-            : { name: isHome ? homeLabel! : l.name, detail: isHome ? property ?? "" : qtyLabel(l.qty, l.unit), qty: l.qty, rate: l.unitPrice, disc: 0, total: lineAmount(l) };
+            ? { name: l.name, free: true, detail: `${qtyLabel(l.qty, l.unit)} · free (value ${inr(lineAmount(l))})`, qty: l.qty, rate: l.unitPrice, disc: lineAmount(l), total: 0 }
+            : { name: isHome ? homeLabel! : l.name, free: false, detail: isHome ? property ?? "" : qtyLabel(l.qty, l.unit), qty: l.qty, rate: l.unitPrice, disc: 0, total: lineAmount(l) };
         })
       : [
           {
@@ -145,6 +147,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
               : comboTitle
                 ? job.included.map((c) => [c, comboParts(c)].filter(Boolean).join(": ")).join(" | ")
                 : packageLabel,
+            free: false,
             qty: 1,
             rate: baseValue + discount,
             disc: discount,
@@ -156,8 +159,13 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
   const subtotal = rows.reduce((s, r) => s + r.total, 0);
   const complimentary = pkg.lines.filter((l) => l.complimentary).reduce((s, l) => s + lineAmount(l), 0);
   const total = job.jobValue > 0 ? job.jobValue : Math.max(0, subtotal - itemsDiscount);
+  // Discount shown once, in the totals: gross value, the discount and its percentage, and what the customer saves.
+  const gross = pkg.lines.length > 0 ? subtotal : baseValue + discount;
+  const discountPct = gross > 0 && discount > 0 ? Math.round((discount / gross) * 1000) / 10 : 0;
+  const taxable = Math.max(0, total - gst);
   const balance = Math.max(0, total - job.paid);
-  const docNo = isInvoice ? job.invoiceNumber || `INV-${job.jobNumber}` : `QO-${job.jobNumber}`;
+  // One number everywhere: the stored invoice / quotation number when there is one (the reference strip shows the same).
+  const docNo = isInvoice ? job.invoiceNumber || `INV-${job.jobNumber}` : job.quotationNumber || `QO-${job.jobNumber}`;
   const docDate = isInvoice ? (job.completedAt ?? new Date()) : job.createdAt;
   // Concise scope: one line for a full-house package + anything staff actually typed; item
   // bookings need nothing more (each item and quantity is already in the table above).
@@ -166,16 +174,16 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
     ...(homeLabel ? [conciseHomeScope(tier), conciseHomeExclusions(tier)] : []),
     ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : []),
   ];
-  const hasPayment = !!(company.upiId || company.upiQrUrl);
+  const hasPayment = !!(company.upiId || company.upiQrUrl || company.bankAccountNumber);
   const scopeItems = catalog ? [...catalog.scope, ...(customScope ? customScope.split(/\n+/).map((x) => x.replace(/^[•\-\s]+/, "").trim()).filter(Boolean).slice(0, 4) : [])] : scope;
   const termsItems = catalog && catalog.terms.length > 0 ? catalog.terms : COMPACT_TERMS;
 
   return (
-    <article id="document" className="overflow-hidden rounded-2xl bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:text-[12px] print:shadow-none">
+    <article id="document" className="overflow-hidden rounded-2xl border border-[#0a2540]/15 bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:border-0 print:text-[10.5px] print:leading-snug print:shadow-none">
       {/* Saved / printed PDF: A4 with slim margins so a normal quotation fits on one page. */}
-      <style>{"@media print{@page{size:A4;margin:8mm}html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}"}</style>
+      <style>{"@media print{@page{size:A4;margin:7mm}html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}#document{break-inside:avoid;page-break-inside:avoid}#document section,#document li,#document footer{break-inside:avoid;page-break-inside:avoid}}"}</style>
       {/* Header */}
-      <header className="flex items-start justify-between gap-3 border-b border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
+      <header className="flex flex-col gap-3 border-b border-[#0a2540]/10 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6 print:flex-row print:items-start print:justify-between print:px-4 print:py-2">
         <div className="min-w-0">
           <div className="flex items-center gap-3 sm:gap-4">
             {company.logoUrl && (
@@ -193,8 +201,8 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
           </p>
           <p className="text-[11px] text-[#0a2540]/70">GSTIN {COMPANY.gstin}</p>
         </div>
-        <div className="shrink-0 text-right">
-          <p className="rounded-md bg-primary px-2 py-1 text-[11px] font-extrabold tracking-widest text-white sm:text-xs">{isInvoice ? "INVOICE" : "QUOTATION"}</p>
+        <div className="shrink-0 sm:text-right print:text-right">
+          <p className="inline-block rounded-md bg-primary px-2 py-1 text-[11px] font-extrabold tracking-widest text-white sm:text-xs">{isInvoice ? "INVOICE" : "QUOTATION"}</p>
           <p className="mt-2 text-[10px] uppercase text-[#0a2540]/55">{isInvoice ? "Invoice No." : "Quotation No."}</p>
           <p className="text-xs font-bold">{docNo}</p>
           <p className="mt-1 text-[10px] uppercase text-[#0a2540]/55">Date</p>
@@ -241,7 +249,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
             <li key={i} className="py-2.5 sm:grid sm:grid-cols-[2rem_1fr_3rem_5.5rem_5rem_6rem] sm:gap-2">
               <span className="hidden text-xs text-[#0a2540]/60 sm:block">{i + 1}</span>
               <span className="block min-w-0">
-                <span className="block break-words font-semibold">{r.name}</span>
+                <span className="block break-words font-semibold">{r.free && <span className="mr-1.5 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-emerald-700">COMPLEMENTARY</span>}{r.name}</span>
                 {r.detail && <span className="block break-words text-xs text-[#0a2540]/65">{r.detail}</span>}
                 {i === 0 && showIncludes && job.included.length > 0 &&<span className="block break-words text-xs text-[#0a2540]/65">Includes: {job.included.join(", ")}</span>}
               </span>
@@ -259,18 +267,24 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
         </ol>
 
         {/* Totals */}
-        <div className="mt-2 space-y-1 border-t border-[#0a2540]/15 pt-3 sm:ml-auto sm:max-w-xs">
-          <p className="flex justify-between"><span className="text-[#0a2540]/70">{complimentary > 0 || itemsDiscount > 0 ? "Actual Value" : "Subtotal"}</span><span className="tabular-nums">{inr(subtotal)}</span></p>
-          {itemsDiscount > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Discount</span><span className="tabular-nums">− {inr(itemsDiscount)}</span></p>}
+        <div className="mt-2 space-y-1 border-t border-[#0a2540]/15 pt-3 sm:ml-auto sm:max-w-sm">
+          <p className="flex justify-between"><span className="text-[#0a2540]/70">{complimentary > 0 || discount > 0 ? "Base price" : "Subtotal"}</span><span className="tabular-nums">{inr(gross)}</span></p>
+          {discount > 0 && (
+            <p className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[#0a2540]/70">Discount <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700">{discountPct}% OFF</span></span>
+              <span className="tabular-nums font-semibold text-emerald-700">− {inr(discount)}</span>
+            </p>
+          )}
+          {complimentary > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Complimentary services (free)</span><span className="tabular-nums text-emerald-700">{inr(complimentary)}</span></p>}
           {gst > 0 && (
             <>
-              <p className="flex justify-between"><span className="text-[#0a2540]/70">Taxable value</span><span className="tabular-nums">{inr(baseValue)}</span></p>
+              <p className="flex justify-between"><span className="text-[#0a2540]/70">Taxable value</span><span className="tabular-nums">{inr(taxable)}</span></p>
               <p className="flex justify-between"><span className="text-[#0a2540]/70">CGST 9%</span><span className="tabular-nums">{inr(cgst)}</span></p>
               <p className="flex justify-between"><span className="text-[#0a2540]/70">SGST 9%</span><span className="tabular-nums">{inr(sgst)}</span></p>
             </>
           )}
-          {complimentary > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Complimentary (free)</span><span className="tabular-nums">{inr(complimentary)}</span></p>}
-          <p className="flex justify-between rounded-lg bg-primary/10 px-2 py-1.5 text-base font-extrabold"><span>{isInvoice ? "Total Amount" : "Final Payable"}</span><span className="tabular-nums">{inr(total)}</span></p>
+          {discount > 0 && <p className="rounded-md bg-emerald-50 px-2 py-1 text-center text-xs font-bold text-emerald-700">You save {inr(discount)}{discountPct > 0 ? ` (${discountPct}%)` : ""}</p>}
+          <p className="flex items-baseline justify-between rounded-lg border-2 border-primary/40 bg-primary/10 px-3 py-2 text-xl font-black"><span className="text-sm font-extrabold uppercase tracking-wide">{isInvoice ? "Total Payable" : "Final Payable"}</span><span className="tabular-nums">{inr(total)}</span></p>
           {/* Advance / balance from recorded payments only — on the quotation too. */}
           <p className="flex justify-between"><span className="text-[#0a2540]/70">{isInvoice ? "Received" : "Advance Paid"}</span><span className="tabular-nums">{inr(job.paid)}</span></p>
           <p className="flex justify-between font-bold"><span>Balance Due</span><span className="tabular-nums">{inr(balance)}</span></p>
@@ -278,49 +292,57 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
         </div>
       </section>
 
-      {/* Quotation only: scope, equipment and terms (the invoice shows line items, tax and the payment QR only). */}
-      {!isInvoice && scopeItems.length > 0 && (
-        <section className="border-t-2 border-[#0a2540]/15 p-4 sm:p-6 print:px-4 print:py-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Scope of Work{catalog ? ` — ${catalog.name}` : ""}</p>
-          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">{scopeItems.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
-        </section>
-      )}
-      {!isInvoice && catalog && catalog.equipment.length > 0 && (
-        <section className="border-t-2 border-[#0a2540]/15 p-4 sm:p-6 print:px-4 print:py-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Equipment Used</p>
-          <ul className="mt-1 grid list-disc gap-x-6 pl-5 text-xs leading-relaxed text-[#0a2540]/80 sm:grid-cols-2">{catalog.equipment.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
-        </section>
-      )}
-      {!isInvoice && (
-        <section className="border-t-2 border-[#0a2540]/15 p-4 sm:p-6 print:px-4 print:py-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Terms &amp; Conditions</p>
-          <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-xs leading-relaxed text-[#0a2540]/80">
-            {termsItems.map((t) => <li key={t}>{t}</li>)}
-          </ol>
-          <p className="mt-1.5 text-xs text-[#0a2540]/80">
-            <span className="font-semibold">Reschedule, postpone or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
-          </p>
+      {/* Quotation only: scope + equipment (left) and terms (right) side by side, so the whole quotation stays on one A4 page. */}
+      {!isInvoice && (scopeItems.length > 0 || termsItems.length > 0) && (
+        <section className="grid gap-4 border-t-2 border-primary/30 p-4 sm:p-6 md:grid-cols-2 print:grid-cols-2 print:gap-3 print:px-4 print:py-2">
+          <div className="min-w-0">
+            <p className="border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary">Scope of Work{catalog ? ` — ${catalog.name}` : ""}</p>
+            <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">{scopeItems.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
+            {catalog && catalog.equipment.length > 0 && (
+              <>
+                <p className="mt-3 border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary print:mt-2">Equipment Used</p>
+                <p className="mt-1 text-xs leading-snug text-[#0a2540]/80 print:text-[10px]">{catalog.equipment.join(" · ")}</p>
+              </>
+            )}
+          </div>
+          <div className="min-w-0 md:border-l md:border-[#0a2540]/15 md:pl-4 print:border-l print:pl-3">
+            <p className="border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary">Terms &amp; Conditions</p>
+            <ol className="mt-1.5 list-decimal space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">
+              {termsItems.map((t) => <li key={t}>{t}</li>)}
+            </ol>
+            <p className="mt-1.5 text-xs text-[#0a2540]/80 print:text-[10px]">
+              <span className="font-semibold">Reschedule or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
+            </p>
+          </div>
         </section>
       )}
 
-      {/* Payment details */}
+      {/* Payment details: UPI, bank transfer, online / card, and the exact-balance QR */}
       {hasPayment && (!isInvoice || balance > 0) && (
-        <section className="flex flex-wrap items-start gap-4 border-t border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
-          <div className="min-w-0 flex-1 text-xs">
+        <section className="mx-4 mb-3 grid gap-3 rounded-xl border-2 border-[#0a2540]/15 bg-[#0a2540]/[0.02] p-3 sm:mx-6 sm:grid-cols-[1fr_auto] print:mx-4 print:mb-2 print:p-2">
+          <div className="min-w-0 space-y-1 text-xs print:text-[10px]">
             <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Payment Details</p>
-            {company.upiId && <p className="mt-1">UPI ID: <span className="font-semibold">{company.upiId}</span></p>}
-            <p className="mt-1 text-[#0a2540]/60">Please share the payment screenshot on WhatsApp after paying.</p>
+            {company.upiId && <p>UPI ID: <span className="font-semibold">{company.upiId}</span> <span className="text-[#0a2540]/55">(PhonePe / GPay / any UPI app)</span></p>}
+            {(company.bankAccountNumber || company.bankIfsc) && (
+              <p className="break-words">
+                Bank transfer: <span className="font-semibold">{[company.bankAccountName, company.bankName].filter(Boolean).join(" · ")}</span>
+                {company.bankAccountNumber && <> · A/c <span className="font-semibold">{company.bankAccountNumber}</span></>}
+                {company.bankIfsc && <> · IFSC <span className="font-semibold">{company.bankIfsc}</span></>}
+              </p>
+            )}
+            {company.payUrl && <p className="break-all">Card / online payment: <span className="font-semibold">{company.payUrl}</span></p>}
+            <p className="text-[#0a2540]/60">Please share the payment screenshot on WhatsApp after paying.</p>
           </div>
           {company.upiQrDataUrl && balance > 0 ? (
             <div className="shrink-0 text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={company.upiQrDataUrl} alt={`UPI QR for ${inr(balance)}`} className="size-28 rounded-md border bg-white object-contain" />
+              <img src={company.upiQrDataUrl} alt={`UPI QR for ${inr(balance)}`} className="size-28 rounded-md border bg-white object-contain print:size-24" />
               <p className="mt-0.5 text-[10px] font-semibold text-[#0a2540]/70">Scan to pay {inr(balance)}</p>
             </div>
           ) : (
             company.upiQrUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={company.upiQrUrl} alt="Payment QR code" className="size-28 shrink-0 rounded-md border bg-white object-contain" />
+              <img src={company.upiQrUrl} alt="Payment QR code" className="size-28 shrink-0 rounded-md border bg-white object-contain print:size-24" />
             )
           )}
         </section>

@@ -1,11 +1,11 @@
-// Service Catalog defaults (owner 2026-10-22): scope of work, terms & conditions and equipment for every major service.
+// Service Catalog defaults (owner 2026-10-22, compacted 2026-10-23): scope of work, terms & conditions and equipment for every
+// major service, written to fit a single A4 page — a few grouped scope bullets and exactly five core terms.
 //
-// Where Sahara already has approved wording (the Premium/Platinum home scope, the customised-service scopes, the booking
-// terms) it is reused verbatim, so the catalog can never disagree with the booking page. Everything else is ORIGINAL draft
-// wording written for Sahara — it promises no results, timings or warranties — and is seeded with `reviewed: false` so the
-// owner sees which entries still need a read-through before they are relied on. No prices live here (pricing master only).
-import { BOOKING_TERMS } from "@/lib/pricing-master";
-import { CUSTOMER_REQUIREMENTS, SMALL_SERVICE_SCOPE, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
+// Where Sahara already has approved wording (the Premium/Platinum home scope, the customised-service scopes) it is reused and
+// only grouped, so the catalog can never disagree with the booking page. Everything else is ORIGINAL draft wording written for
+// Sahara — it promises no results, timings or warranties — and is seeded with `reviewed: false` so the owner sees which entries
+// still need a read-through. No prices live here (pricing master only).
+import { SMALL_SERVICE_SCOPE, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
 
 export type CatalogGroup = "HOME" | "COMMERCIAL" | "PEST_CONTROL" | "PAINTING";
 export type CatalogSeed = {
@@ -17,36 +17,27 @@ export type CatalogSeed = {
   equipmentsUsed: string[];
 };
 
-/** Clauses that apply to every service document (quotation, owner brief 2026-10-22). */
-export const POST_INTERIOR_DISCLAIMER =
-  "After interior work (painting, carpentry, tiling or polishing), dried paint, glue, adhesive, putty or cement marks on glass, tiles, wood or metal may not be fully removable. Our team makes a best effort without damaging the surface; complete removal is not guaranteed.";
-export const VALUABLES_CLAUSE =
-  "Please keep cash, jewellery and other valuables locked under key before the team starts. Sahara Cleaning Services is not responsible for items left unsecured.";
-export const HIGH_RISE_CLAUSE =
-  "For high-rise homes and offices, our team cleans windows and glass only from safe, reachable positions inside the premises or a secure balcony. Exterior glass beyond safe reach is excluded, and no work is done at height where safety arrangements are not available.";
-export const COMMON_TERMS: string[] = [...BOOKING_TERMS, VALUABLES_CLAUSE, HIGH_RISE_CLAUSE, POST_INTERIOR_DISCLAIMER];
+/** The three clauses the owner requires on every quotation (2026-10-22). */
+export const VALUABLES_CLAUSE = "Valuables: keep cash, jewellery and valuables locked under key before the team starts; Sahara is not responsible for items left unsecured.";
+export const HIGH_RISE_CLAUSE = "High-rise safety: windows and glass are cleaned only from safe, reachable positions inside the premises or a secure balcony; no work is done at height without safety arrangements.";
+export const POST_INTERIOR_DISCLAIMER = "Results: old, permanent or stubborn stains, and dried paint, glue, putty or cement marks left after interior work, cannot be guaranteed to come off fully; we make a best effort without damaging the surface.";
 
-const HOME_EQUIPMENT = [
-  "Industrial wet-and-dry vacuum cleaner",
-  "Floor scrubbing and mopping kit",
-  "Microfibre cloths, brushes and scrapers",
-  "Surface-appropriate cleaning chemicals",
-  "Glass-cleaning squeegee set",
-  "Step ladders for reachable heights",
-];
+const SCOPE_CLAUSE = "Scope & charges: the price covers the scope listed here; extra work is done only after your approval and charged separately, and distant, urgent or festival-day bookings may carry an extra charge.";
+const CUSTOMER_CLAUSE = "Customer to arrange: water and electricity, a step-ladder where needed and access to all areas; heavy furniture is moved only if agreed.";
 
-const homeScope = (tier: HomeTier) => homeScopeByArea(tier).flatMap((a) => a.items.map((i) => `${a.area} — ${i.item}: ${i.method}`));
+/** Exactly five core clauses; the second is tailored to the service. */
+const terms = (customer: string = CUSTOMER_CLAUSE): string[] => [SCOPE_CLAUSE, customer, VALUABLES_CLAUSE, HIGH_RISE_CLAUSE, POST_INTERIOR_DISCLAIMER];
 
-const small = (id: string) => {
-  const s = SMALL_SERVICE_SCOPE[id];
-  return s ? { scope: s.includes, excludes: s.excludes.map((x) => `Not included: ${x}`), prep: s.prep.map((x) => `Customer to arrange: ${x}`) } : { scope: [], excludes: [], prep: [] };
-};
+const HOME_EQUIPMENT = ["Industrial wet-and-dry vacuum", "Floor scrubbing & mopping kit", "Microfibre cloths, brushes & scrapers", "Surface-appropriate cleaning chemicals", "Glass-cleaning squeegee set", "Step ladders for reachable heights"];
 
-const bathroom = small("SCS-10");
-const kitchen = small("SCS-12");
-const kitchenFull = small("SCS-33");
-const sofa = small("SCS-09");
-const carpet = small("SCS-13");
+const group = (label: string, items: string[]) => `${label}: ${items.join("; ")}.`;
+const lower = (s: string) => (/^[A-Z]{2}/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1)); // keeps acronyms such as WC
+
+const homeScope = (tier: HomeTier) => homeScopeByArea(tier).map((a) => group(a.area, a.items.map((i) => `${lower(i.item)}: ${lower(i.method)}`)));
+
+const incl = (id: string) => SMALL_SERVICE_SCOPE[id]?.includes ?? [];
+const prep = (id: string) => (SMALL_SERVICE_SCOPE[id]?.prep ?? []).map(lower).join("; ");
+const excl = (id: string) => (SMALL_SERVICE_SCOPE[id]?.excludes ?? []).map(lower).join("; ");
 
 export const SERVICE_CATALOG_SEED: CatalogSeed[] = [
   {
@@ -54,7 +45,7 @@ export const SERVICE_CATALOG_SEED: CatalogSeed[] = [
     name: "Full House Deep Cleaning — Premium",
     group: "HOME",
     scopeOfWork: homeScope("Premium"),
-    termsConditions: [...homePleaseNote("Premium"), ...CUSTOMER_REQUIREMENTS.map((x) => `Customer to arrange: ${x}`), ...COMMON_TERMS],
+    termsConditions: terms(`${CUSTOMER_CLAUSE.replace(/\.$/, "")}. Sofa, carpet and mattress shampooing are separate services; dry vacuuming is included.`),
     equipmentsUsed: HOME_EQUIPMENT,
   },
   {
@@ -62,7 +53,7 @@ export const SERVICE_CATALOG_SEED: CatalogSeed[] = [
     name: "Full House Deep Cleaning — Platinum",
     group: "HOME",
     scopeOfWork: homeScope("Platinum"),
-    termsConditions: [...homePleaseNote("Platinum"), ...CUSTOMER_REQUIREMENTS.map((x) => `Customer to arrange: ${x}`), ...COMMON_TERMS],
+    termsConditions: terms(`${CUSTOMER_CLAUSE.replace(/\.$/, "")}. Sofa, carpet and mattress shampooing are separate services; dry vacuuming is included.`),
     equipmentsUsed: [...HOME_EQUIPMENT, "Wall wet-cleaning kit", "Chimney degreasing kit"],
   },
   {
@@ -70,95 +61,80 @@ export const SERVICE_CATALOG_SEED: CatalogSeed[] = [
     name: "Unfurnished Flat Cleaning (move-in / post-possession)",
     group: "HOME",
     scopeOfWork: [
-      "All rooms — floors: dust removal, manual scrubbing and mopping",
-      "Windows, glass and sliding channels: cleaning (safe, reachable areas)",
-      "Kitchen — platform, sink and wall tiles cleaning; exterior of fixed cabinets",
-      "Bathrooms — WC, wash basin, taps, fittings, wall and floor tiles",
-      "Doors, switch boards, light fixtures and fans: dusting and wiping",
-      "Balcony and utility area: floor cleaning",
-      "Loose construction dust and visible debris removal",
+      "All rooms: floors dusted, scrubbed & mopped; doors, switch boards, light fixtures & fans wiped; loose construction dust removed.",
+      "Kitchen: platform, sink & wall tiles; exterior of fixed cabinets.",
+      "Bathrooms & balcony: WC, wash basin, taps & fittings; wall & floor tiles; balcony floor.",
+      "Windows: glass & sliding channels in safe, reachable areas.",
     ],
-    termsConditions: ["Priced for an empty (unfurnished) home; furnished homes are quoted under the full house packages.", "Heavy construction debris, cement slabs and paint-bucket residue are not removed.", ...COMMON_TERMS],
-    equipmentsUsed: [...HOME_EQUIPMENT, "Scrapers for loose dried material (surface-safe)"],
+    termsConditions: terms(`${CUSTOMER_CLAUSE.replace(/\.$/, "")}. Priced for an empty home; heavy debris and cement slabs are not removed.`),
+    equipmentsUsed: [...HOME_EQUIPMENT, "Surface-safe scrapers"],
   },
   {
     slug: "bathroom-cleaning",
     name: "Bathroom Cleaning",
     group: "HOME",
-    scopeOfWork: bathroom.scope,
-    termsConditions: [...bathroom.excludes, ...bathroom.prep, ...COMMON_TERMS],
-    equipmentsUsed: ["Descaling and disinfecting solutions suited to tiles and fittings", "Scrubbing brushes and pads", "Wet vacuum", "Microfibre cloths"],
+    scopeOfWork: [group("Includes", incl("SCS-10")), group("Not included", (SMALL_SERVICE_SCOPE["SCS-10"]?.excludes ?? []).map(lower))],
+    termsConditions: terms(`Customer to arrange: ${prep("SCS-10")}.`),
+    equipmentsUsed: ["Descaling & disinfecting solutions", "Scrubbing brushes & pads", "Wet vacuum", "Microfibre cloths"],
   },
   {
     slug: "kitchen-cleaning",
     name: "Kitchen Cleaning",
     group: "HOME",
-    scopeOfWork: [...kitchen.scope, "Kitchen Cleaning with cabinet interiors (on request):", ...kitchenFull.scope],
-    termsConditions: [...kitchen.excludes, ...kitchen.prep, ...kitchenFull.excludes, ...COMMON_TERMS],
-    equipmentsUsed: ["Food-safe degreasing solutions", "Scrubbing pads and brushes", "Wet-and-dry vacuum", "Microfibre cloths", "Step ladder"],
+    scopeOfWork: [
+      group("Standard", incl("SCS-12")),
+      group("With cabinet interiors (on request)", incl("SCS-33")),
+      `Not included: ${excl("SCS-12")}.`,
+    ],
+    termsConditions: terms(`Customer to arrange: ${prep("SCS-12")}.`),
+    equipmentsUsed: ["Food-safe degreasing solutions", "Scrubbing pads & brushes", "Wet-and-dry vacuum", "Microfibre cloths", "Step ladder"],
   },
   {
     slug: "sofa-carpet-shampooing",
     name: "Sofa & Carpet Shampooing",
     group: "HOME",
-    scopeOfWork: [...sofa.scope.map((x) => `Sofa — ${x}`), ...carpet.scope.map((x) => `Carpet — ${x}`)],
-    termsConditions: [...sofa.excludes, ...sofa.prep, ...carpet.excludes, ...carpet.prep, ...COMMON_TERMS],
-    equipmentsUsed: ["Upholstery shampoo and extraction machine", "Vacuum cleaner", "Soft brushes", "Fabric-safe shampoo and stain-treatment products"],
+    scopeOfWork: [group("Sofa", incl("SCS-09")), group("Carpet", incl("SCS-13")), `Not included: ${excl("SCS-09")}.`],
+    termsConditions: terms(`Customer to arrange: ${prep("SCS-09")}; furniture moved off carpets or access arranged.`),
+    equipmentsUsed: ["Upholstery shampoo & extraction machine", "Vacuum cleaner", "Soft brushes", "Fabric-safe shampoo & stain treatment"],
   },
   {
     slug: "office-cleaning",
     name: "Office & Commercial Cleaning",
     group: "COMMERCIAL",
     scopeOfWork: [
-      "Work areas — desks, partitions and shelves: dusting and wiping (items left on desks are not moved)",
-      "Floors — vacuuming of carpet, mopping or machine scrubbing of hard floor",
-      "Pantry / kitchenette — platform, sink and exterior of appliances",
-      "Washrooms — WC, wash basins, taps, mirrors, tiles and floor",
-      "Glass doors, partitions and reachable windows",
-      "Reception, meeting rooms and common areas",
-      "Dustbins emptied and cleaned; waste collected to the building collection point",
+      "Work areas: desks, partitions & shelves dusted and wiped (desk items not moved); carpet vacuumed, hard floors mopped or machine-scrubbed.",
+      "Pantry & washrooms: platform, sink, WC, wash basins, taps, mirrors, tiles & floor.",
+      "Glass doors, partitions & reachable windows; reception, meeting rooms & common areas.",
+      "Dustbins emptied and cleaned; waste taken to the building collection point.",
     ],
-    termsConditions: ["Scope, timings and frequency are fixed in writing before the first visit; recurring service is covered by an AMC.", "Cleaning of IT equipment, servers and confidential documents is excluded.", "Building access, parking and permits are arranged by the client.", ...COMMON_TERMS],
-    equipmentsUsed: ["Commercial vacuum cleaner", "Single-disc floor scrubbing machine", "Colour-coded microfibre cloths and mops", "Washroom disinfecting solutions", "Glass-cleaning kit", "Caution signboards"],
+    termsConditions: terms("Customer to arrange: building access, parking and permits; scope, timings and frequency are fixed in writing (recurring service via AMC). IT equipment, servers and confidential documents are not cleaned."),
+    equipmentsUsed: ["Commercial vacuum cleaner", "Single-disc floor scrubbing machine", "Colour-coded microfibre cloths & mops", "Washroom disinfectants", "Glass-cleaning kit"],
   },
   {
     slug: "pest-control",
     name: "Pest Control",
     group: "PEST_CONTROL",
     scopeOfWork: [
-      "Inspection of the premises and the pest problem to be treated",
-      "Treatment of the agreed pest category in the agreed areas using approved products",
-      "Application at entry points, cracks, drains and other likely harbourage areas",
-      "Safety briefing: what to cover, how long to stay out and when to re-enter",
+      "Inspection of the premises and the pest problem to be treated.",
+      "Treatment of the agreed pest category in the agreed areas with approved products, including entry points, cracks and drains.",
+      "Safety briefing: what to cover, how long to stay out and when to re-enter.",
     ],
-    termsConditions: [
-      "Treatment is carried out for the pest category named in the quotation only.",
-      "Food, utensils, aquariums, pets and plants must be covered or moved before the treatment; occupants and pets stay out for the time the technician advises.",
-      "Results depend on the infestation and on follow-up hygiene; no complete or permanent elimination is guaranteed. Any follow-up visit is as written in the quotation.",
-      "Access to all areas to be treated, including inside cabinets and beds where relevant, is the customer's responsibility.",
-      ...COMMON_TERMS,
-    ],
-    equipmentsUsed: ["Sprayers and fogging equipment", "Gel and bait applicators", "Approved pest-control products", "Protective gear for technicians"],
+    termsConditions: terms("Customer to arrange: access to all areas to be treated; food, utensils, aquariums, pets and plants covered or moved, and occupants out for the time the technician advises. Treatment covers only the pest named in the quotation; no permanent elimination is guaranteed."),
+    equipmentsUsed: ["Sprayers & fogging equipment", "Gel & bait applicators", "Approved pest-control products", "Technician protective gear"],
   },
   {
     slug: "interior-painting",
     name: "Interior Painting",
     group: "PAINTING",
     scopeOfWork: [
-      "Site inspection and measurement; shade and finish confirmed in writing",
-      "Covering and protection of floors, fittings and furniture",
-      "Surface preparation: scraping loose paint, filling cracks, putty and sanding as agreed",
-      "Primer coat where required",
-      "Finish coats in the agreed paint and shade",
-      "Touch-ups, removal of masking and basic cleaning of the painted area",
+      "Site inspection & measurement; shade, finish and number of coats confirmed in writing.",
+      "Preparation: floors, fittings & furniture covered; loose paint scraped, cracks filled, putty & sanding as agreed; primer where required.",
+      "Finish coats in the agreed paint & shade; touch-ups, masking removed and basic clean-up of the painted area.",
     ],
-    termsConditions: [
-      "Paint brand, shade, number of coats and areas are as written in the quotation; changes are chargeable separately.",
-      "Existing dampness, seepage or structural cracks are not repaired unless quoted.",
-      "Furniture is moved only where agreed; valuables and fragile items must be removed beforehand.",
-      "Minor shade variation between batches and under different lighting is normal.",
-      ...COMMON_TERMS,
-    ],
-    equipmentsUsed: ["Brushes, rollers and spray equipment", "Sanding tools and scrapers", "Putty and primer tools", "Masking material and floor sheets", "Scaffolding or ladders for reachable heights"],
+    termsConditions: terms("Customer to arrange: furniture and valuables cleared beforehand; dampness, seepage and structural cracks are not repaired unless quoted. Minor shade variation across batches and lighting is normal."),
+    equipmentsUsed: ["Brushes, rollers & spray equipment", "Sanding tools & scrapers", "Putty & primer tools", "Masking material & floor sheets", "Ladders / scaffolding for reachable heights"],
   },
 ];
+
+/** Kept for callers that want the shared clauses on their own. */
+export const COMMON_TERMS: string[] = terms();

@@ -47,7 +47,9 @@ test("the catalog covers every service in the owner's list, each with scope, equ
   const slugs = SERVICE_CATALOG_SEED.map((s) => s.slug);
   for (const want of ["full-home-premium", "full-home-platinum", "unfurnished-flat", "bathroom-cleaning", "kitchen-cleaning", "sofa-carpet-shampooing", "office-cleaning", "pest-control", "interior-painting"]) assert.ok(slugs.includes(want), want);
   for (const s of SERVICE_CATALOG_SEED) {
-    assert.ok(s.scopeOfWork.length >= 3, `${s.slug}: scope`);
+    assert.ok(s.scopeOfWork.length >= 2 && s.scopeOfWork.length <= 6, `${s.slug}: a few grouped scope bullets, not a long list`);
+    assert.ok(s.scopeOfWork.every((x) => x.length <= 520), `${s.slug}: each bullet stays compact`);
+    assert.equal(s.termsConditions.length, 5, `${s.slug}: exactly five core terms`);
     assert.ok(s.equipmentsUsed.length >= 3, `${s.slug}: equipment`);
     for (const clause of [VALUABLES_CLAUSE, HIGH_RISE_CLAUSE, POST_INTERIOR_DISCLAIMER]) assert.ok(s.termsConditions.includes(clause), `${s.slug}: required clause`);
     assert.ok(!/₹|\bRs\b|\bprice\b/i.test(s.scopeOfWork.join(" ")), `${s.slug}: no prices in the catalog`);
@@ -57,10 +59,10 @@ test("the catalog covers every service in the owner's list, each with scope, equ
 test("Premium and Platinum differ exactly where the approved scope says they do (walls, chimney)", () => {
   const premium = SERVICE_CATALOG_SEED.find((s) => s.slug === "full-home-premium")!.scopeOfWork.join("\n");
   const platinum = SERVICE_CATALOG_SEED.find((s) => s.slug === "full-home-platinum")!.scopeOfWork.join("\n");
-  assert.match(premium, /Walls: Dry dusting/);
-  assert.match(platinum, /Walls: Wet cleaning/);
-  assert.match(premium, /Chimney: Exterior cleaning/);
-  assert.match(platinum, /Chimney: Full cleaning/);
+  assert.match(premium, /walls: dry dusting/);
+  assert.match(platinum, /walls: wet cleaning/);
+  assert.match(premium, /chimney: exterior cleaning/);
+  assert.match(platinum, /chimney: full cleaning/);
 });
 
 test("a booking maps to its catalog entry by package, then by service", () => {

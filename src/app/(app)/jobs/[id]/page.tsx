@@ -15,6 +15,10 @@ import { StatusActions } from "@/components/jobs/status-actions";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
 import { JobBillingCard } from "@/components/jobs/job-billing-card";
+import { ResendInvoiceLinkButton } from "@/components/jobs/resend-invoice-link-button";
+import { crewGroupMessage, getCrewCard } from "@/server/crew-card";
+import { crewCardToken } from "@/lib/crew-card-token";
+import { INTERNAL_CRM_URL } from "@/lib/site-urls";
 import { canEditBilling, canViewRevenue, canViewJobAmount, canSeeCustomerContact as canSeeContact } from "@/lib/permissions";
 import { formatINR, formatDate, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
@@ -87,6 +91,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   // Customer documents (secure token links) — Super Admin, Operations and Accounts.
   // Sending opens WhatsApp with the message pre-filled; staff still press send themselves.
   // Sending opens WhatsApp to the customer's number — contact roles only.
+  // 1-click "WhatsApp Group": opens WhatsApp with the masked job card text so the office picks the team group (the Cloud API
+  // cannot post into groups). Job ID, service & package, date/slot, location and team only — never the phone or an amount.
+  const crewCard = canManage && !job.isDemo ? await getCrewCard(job.id) : null;
+  const groupShareHref = crewCard ? `https://wa.me/?text=${encodeURIComponent(crewGroupMessage(crewCard, `${INTERNAL_CRM_URL}/crew-card/${crewCardToken(job.id)}`))}` : null;
   const canSendDocs = canManage && showJobAmount && canSeeCustomerContact && !job.isDemo;
   const docToken = canSendDocs ? (job.publicToken ?? (await ensureJobToken(job.id))) : null;
   const quotationUrl = docToken ? `${PUBLIC_BOOKING_URL}/booking/quotation/${docToken}` : "";
@@ -192,6 +200,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <span className="flex items-center gap-2">
                   <span className="text-sm font-medium">{job.teamNumber ? `Team ${job.teamNumber}` : "No team"}</span>
                   {canManage && crew.length > 0 && <SendDispatchButton jobId={job.id} />}
+                  {groupShareHref && (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={groupShareHref} target="_blank" rel="noreferrer" title="Share the masked job card to the team WhatsApp group (no phone, no amounts)">
+                        <MessageCircle className="size-3.5" /> WhatsApp Group
+                      </a>
+                    </Button>
+                  )}
                 </span>
               </div>
               <div className="mt-1.5 flex flex-wrap justify-end gap-1">
@@ -243,6 +258,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               status={job.status}
               scheduledDate={new Date(job.scheduledDate.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)}
               scheduledTime={job.scheduledTime}
+              invoiceUrl={docToken ? `${PUBLIC_BOOKING_URL}/booking/invoice/${docToken}` : undefined}
+              canResendInvoice={canEditBilling(session.role) && !job.isDemo}
             />
           </div>
 
@@ -302,6 +319,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     <Button size="sm" variant="outline" asChild>
                       <a href={`/api/invoices/${job.invoice.id}/pdf`} target="_blank" rel="noreferrer"><FileText className="size-3.5" /> PDF</a>
                     </Button>
+                    {canEditBilling(session.role) && <ResendInvoiceLinkButton jobId={job.id} />}
                     <Button size="sm" variant="outline" asChild>
                       <a href={toWhatsAppLink(job.customerMobile, docMessage("final invoice", invoiceUrl))} target="_blank" rel="noreferrer">
                         <MessageCircle className="size-3.5" /> Send

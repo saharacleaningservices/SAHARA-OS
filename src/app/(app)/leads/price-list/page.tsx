@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { SectionTabs, PRICE_TABS } from "@/components/shared/section-tabs";
 import { requireUser } from "@/lib/current-user";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PriceListAccordion } from "@/components/pricing/price-list-accordion";
@@ -26,6 +27,7 @@ export default async function PriceListPage() {
   return (
     <div className="space-y-4">
       <PageHeader title="Sahara Price List" description="Approved customer prices — the same on the landing pages, booking page, quotations and WhatsApp catalogue. Managed by Super Admin in Pricing & Packages." />
+      <SectionTabs tabs={PRICE_TABS} active="/leads/price-list" />
       {upcoming.length > 0 && (
         <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
           Festival prices apply to service dates inside: {upcoming.map((f) => `${f.name} (${f.start} → ${f.end})`).join(" · ")}. Regular prices apply on all other dates.
