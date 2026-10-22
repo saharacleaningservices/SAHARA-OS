@@ -4,17 +4,23 @@
 
 import type { HomeTier } from "@/lib/service-scope";
 
+// Package scope updated by the owner on 22 Oct 2026: Premium adds refrigerator / microwave and chimney EXTERIOR cleaning and
+// dry vacuuming of sofa, mattresses, curtains and carpets; Platinum adds wall wet cleaning and full chimney cleaning.
 export const PREMIUM_SCOPE = [
   "Ceiling & wall dry dusting (cobweb / spider-web removal with brush)",
   "Fan, light and door dusting",
   "Window glass cleaning and sliding-channel vacuuming",
-  "Appliances: exterior cleaning",
-  "Sofa and mattress dry vacuuming",
+  "Refrigerator & microwave exterior cleaning",
+  "Kitchen chimney exterior cleaning",
+  "Dry vacuuming of sofa, mattresses, curtains and carpets",
   "Bathroom and kitchen deep cleaning",
   "Floor machine scrubbing",
 ] as const;
 
-export const PLATINUM_EXTRA_SCOPE = ["Wall wet cleaning / wipe-down (for washable paints)"] as const;
+export const PLATINUM_EXTRA_SCOPE = [
+  "Wall wet cleaning / wipe-down (for washable paints)",
+  "Kitchen chimney cleaning (full)",
+] as const;
 
 /** Complimentary offer highlight printed under a Premium / Platinum package. Set to "" to switch it off. */
 export const FREE_FRIDGE_NOTE = "(Single Fridge Internal Deep Cleaning Included FREE for this booking)";
@@ -26,6 +32,15 @@ export const QUOTATION_EXCLUSIONS = [
 ] as const;
 
 export const STANDARD_TERMS_LINES = [
+  "Cabinets / wardrobes are cleaned internally ONLY if emptied by the customer before arrival.",
+  "Customer to arrange electricity, continuous water supply and a step-ladder / stool where required.",
+  "Old / hard stains are treated to the best of our ability (100% removal is not guaranteed without surface damage).",
+  "Final inspection is required before the team leaves. 20% advance confirms the booking; the 80% balance is payable after work completion via UPI or Cash.",
+  "Cash, jewellery and valuables must be kept locked under key before the team starts.",
+] as const;
+
+/** The 4-line standard terms used until 22 Oct 2026 — quotations that stored them still count as "standard" and print the current terms. */
+const STANDARD_TERMS_LINES_2026_10_18 = [
   "Cabinets / wardrobes are cleaned internally ONLY if emptied by the customer before arrival.",
   "Customer to arrange electricity, continuous water supply and a stool / ladder.",
   "Old / hard stains are treated to the best of our ability (100% removal is not guaranteed without surface damage).",
@@ -45,7 +60,7 @@ export function modernizePaymentTerms(text: string): string {
 /** Stored on new quotations as the default terms. */
 export const STANDARD_TERMS_TEXT = STANDARD_TERMS_LINES.map((l, i) => `${i + 1}. ${l}`).join("\n");
 
-/** Scope bullets for a full-house package: Premium list, Platinum = Premium + wall wet cleaning. */
+/** Scope bullets for a full-house package: Premium list, Platinum = Premium + wall wet cleaning + full chimney cleaning. */
 export function packageScopeLines(tier: HomeTier): string[] {
   return tier === "Platinum" ? [...PREMIUM_SCOPE, ...PLATINUM_EXTRA_SCOPE] : [...PREMIUM_SCOPE];
 }
@@ -58,7 +73,9 @@ export function packageScopeLines(tier: HomeTier): string[] {
  */
 export function resolveQuotationTerms(stored: string | null | undefined): { text: string; custom: boolean } {
   const t = (stored ?? "").trim();
-  const legacyStd = STANDARD_TERMS_LINES.map((l, i) => `${i + 1}. ${i === 3 ? PREVIOUS_STANDARD_LINE4 : l}`).join("\n");
-  if (!t || /^1\.\s*Prices are inclusive of standard materials/i.test(t) || t === STANDARD_TERMS_TEXT || t === legacyStd) return { text: STANDARD_TERMS_TEXT, custom: false };
+  const numbered = (lines: readonly string[]) => lines.map((l, i) => `${i + 1}. ${l}`).join("\n");
+  const legacyStd = numbered(STANDARD_TERMS_LINES_2026_10_18.map((l, i) => (i === 3 ? PREVIOUS_STANDARD_LINE4 : l)));
+  const previousStd = numbered(STANDARD_TERMS_LINES_2026_10_18);
+  if (!t || /^1\.\s*Prices are inclusive of standard materials/i.test(t) || t === STANDARD_TERMS_TEXT || t === legacyStd || t === previousStd) return { text: STANDARD_TERMS_TEXT, custom: false };
   return { text: modernizePaymentTerms(t), custom: true };
 }

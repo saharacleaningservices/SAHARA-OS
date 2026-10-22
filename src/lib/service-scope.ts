@@ -15,6 +15,9 @@ const wall = (tier: HomeTier) =>
     ? { item: "Walls", method: "Wet cleaning" }
     : { item: "Walls", method: "Dry dusting" };
 const ceiling = { item: "Ceiling", method: "Dry dusting" };
+// Chimney (owner 2026-10-22): Platinum includes full chimney cleaning, Premium the exterior.
+const chimney = (tier: HomeTier) =>
+  tier === "Platinum" ? { item: "Chimney", method: "Full cleaning" } : { item: "Chimney", method: "Exterior cleaning" };
 
 export function homeScopeByArea(tier: HomeTier): ScopeArea[] {
   return [
@@ -25,6 +28,7 @@ export function homeScopeByArea(tier: HomeTier): ScopeArea[] {
         { item: "Window glass", method: "Cleaning · sliding channels vacuumed" },
         { item: "Furniture", method: "Exterior dusting" },
         { item: "Sofa", method: "Dry vacuuming (shampooing is a separate service)" },
+        { item: "Mattresses, curtains & carpets", method: "Dry vacuuming" },
         { item: "Lights, fans & doors", method: "Dusting" },
         { item: "Cobwebs & spider webs", method: "Removal" },
         wall(tier),
@@ -37,6 +41,8 @@ export function homeScopeByArea(tier: HomeTier): ScopeArea[] {
         { item: "Platform & wall tiles", method: "Cleaning" },
         { item: "Trolleys / cabinets", method: "Exterior cleaning" },
         { item: "Exhaust fan", method: "Cleaning" },
+        { item: "Refrigerator & microwave", method: "Exterior cleaning" },
+        chimney(tier),
         { item: "Window glass", method: "Cleaning · sliding channels vacuumed" },
         { item: "Floor", method: "Manual scrubbing & mopping" },
       ],
@@ -64,7 +70,7 @@ export function homeHighlights(tier: HomeTier): string[] {
   return [
     "Complete home: rooms, kitchen, bathrooms & balcony",
     "Floor manual scrubbing & mopping",
-    tier === "Platinum" ? "Wall wet cleaning + ceiling dry dusting" : "Wall dry dusting + ceiling dry dusting",
+    tier === "Platinum" ? "Wall wet cleaning + full chimney cleaning" : "Fridge, microwave & chimney exterior cleaning",
     "Estimated 7–8 hours · professional equipment",
   ];
 }
@@ -74,9 +80,8 @@ export const HOME_DURATION = "Estimated 7–8 hours";
 /** Not included / available at extra cost, per tier. */
 export function homePleaseNote(tier: HomeTier): string[] {
   return [
-    ...(tier === "Premium" ? ["Wall wet cleaning is not included (included in Platinum)."] : []),
-    "Sofa, carpet and mattress shampooing are separate services (see Customized).",
-    "Kitchen cleaning does not include chimney cleaning.",
+    ...(tier === "Premium" ? ["Wall wet cleaning and full chimney cleaning are included in Platinum (Premium covers the chimney exterior)."] : []),
+    "Sofa, carpet and mattress shampooing are separate services (see Customized); dry vacuuming is included.",
     "Inaccessible areas are excluded and heavy furniture is not moved unless agreed.",
     "Old, permanent or stubborn stains cannot be guaranteed for complete removal.",
     "Additional work outside the listed scope may be chargeable.",
@@ -87,9 +92,9 @@ export function homePleaseNote(tier: HomeTier): string[] {
 export const CUSTOMER_REQUIREMENTS = [
   "Adequate water supply during the service.",
   "Electricity supply for our equipment.",
-  "A suitable ladder / step ladder where required.",
+  "A step-ladder where required.",
   "Access to all areas to be cleaned.",
-  "Cash, jewellery and fragile valuables kept secured before the team starts.",
+  "Cash, jewellery and valuables kept locked under key before the team starts.",
 ];
 
 /**
@@ -167,7 +172,7 @@ export function smallServiceScope(contentId: string): (SmallServiceScope & { con
 export function scopeSnapshot(input: { packageName?: string | null; serviceVariant?: string | null; items: { name: string; qty: number; unit?: string }[] }): string | null {
   const tier = tierFromPackage(input.packageName, input.serviceVariant);
   if (tier && input.items.length === 1) {
-    return `${input.packageName || tier} Home Deep Cleaning — full ${tier} room-by-room package scope (${tier === "Platinum" ? "wall wet cleaning" : "wall dry dusting"} + ceiling dry dusting). Sofa/carpet/mattress shampooing and chimney not included.`;
+    return `${input.packageName || tier} Home Deep Cleaning — full ${tier} room-by-room package scope (${tier === "Platinum" ? "wall wet cleaning + full chimney cleaning" : "wall dry dusting + chimney exterior"} + ceiling dry dusting). Sofa/carpet/mattress shampooing not included (dry vacuuming included).`;
   }
   if (!input.items.length) return null;
   return input.items.map((i) => `• ${i.name}${i.unit ? ` × ${i.qty} (${i.unit})` : i.qty > 1 ? ` × ${i.qty}` : ""}`).join("\n");
@@ -263,12 +268,12 @@ export function conciseHomeScope(tier: HomeTier | null): string {
   const walls = tier === "Platinum" ? "wall wet cleaning" : tier === "Premium" ? "wall dry dusting" : null;
   return [
     "Living room, bedrooms, kitchen, bathrooms & balcony — floors scrubbed & mopped, window glass, fittings and furniture exterior cleaned",
-    [walls, "ceiling dry dusting"].filter(Boolean).join(" + "),
+    [walls, "ceiling dry dusting", tier === "Platinum" ? "full chimney cleaning" : tier === "Premium" ? "chimney exterior" : null].filter(Boolean).join(" + "),
     `${HOME_DURATION.replace(/^Estimated /, "approx. ")}`,
   ].join("; ") + ".";
 }
 
 /** Short "not included" line for a full-house package (from homePleaseNote). */
 export function conciseHomeExclusions(tier: HomeTier | null): string {
-  return `Not included: sofa / carpet / mattress shampooing, chimney${tier === "Premium" ? ", wall wet cleaning (Platinum only)" : ""}.`;
+  return `Not included: sofa / carpet / mattress shampooing${tier === "Premium" ? ", wall wet cleaning and full chimney cleaning (Platinum only)" : ""}.`;
 }
