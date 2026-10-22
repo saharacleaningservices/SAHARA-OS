@@ -200,6 +200,12 @@ addColumnIfMissing("Lead", "serviceVariant", `"serviceVariant" TEXT`);
 addColumnIfMissing("Lead", "mapLink", `"mapLink" TEXT`);
 addColumnIfMissing("Job", "mapLink", `"mapLink" TEXT`);
 addColumnIfMissing("Job", "vehicleId", `"vehicleId" TEXT`);
+// Billing: optional 18% GST, customer GSTIN, discount as entered (owner 2026-10-22).
+addColumnIfMissing("Job", "gstEnabled", `"gstEnabled" BOOLEAN NOT NULL DEFAULT 0`);
+addColumnIfMissing("Job", "gstAmount", `"gstAmount" REAL NOT NULL DEFAULT 0`);
+addColumnIfMissing("Job", "customerGstin", `"customerGstin" TEXT`);
+addColumnIfMissing("Job", "discountMode", `"discountMode" TEXT`);
+addColumnIfMissing("Job", "discountValue", `"discountValue" REAL`);
 
 // Soft-delete columns on every deletable entity. isDemo is tracked per table so
 // pre-existing rows can be marked as demo data exactly once, the moment the

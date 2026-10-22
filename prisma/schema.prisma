@@ -719,6 +719,13 @@ model Job {
   teamSnapshot String?
   serviceItems   String? // package lines carried from the enquiry (Package Calculator)
   discountAmount Float?
+  // Billing (owner 2026-10-22): optional 18% GST (B2B), the discount as entered, and the customer GSTIN.
+  // jobValue is always the FINAL payable total (discount applied, GST included when gstEnabled).
+  gstEnabled     Boolean @default(false)
+  gstAmount      Float   @default(0)
+  customerGstin  String?
+  discountMode   String? // FLAT | PERCENT
+  discountValue  Float?
 
   // Price snapshot frozen at booking (2026-10-05 pricing master): REGULAR |
   // FESTIVAL, the festival name, and the scope text the customer booked.

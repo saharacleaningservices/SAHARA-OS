@@ -45,3 +45,15 @@ export function computeInvoiceTotals(input: { subtotal: number; discount?: Disco
 /** 15-character GSTIN shape check (state code, PAN, entity, Z, checksum char) — format only, not a registry lookup. */
 export const GSTIN_PATTERN = /^[0-3][0-9][A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 export const isValidGstin = (g: string | null | undefined) => !!g && GSTIN_PATTERN.test(g.trim().toUpperCase());
+
+/**
+ * Re-bill a job from its stored numbers. Job.jobValue is the final payable total, so the gross subtotal is recovered as
+ * (jobValue − current GST) + current discount; changing the discount or the GST toggle never compounds on a previous edit.
+ */
+export function rebillJob(
+  current: { jobValue: number; gstAmount?: number | null; discountAmount?: number | null },
+  next: { discount: DiscountInput; gstEnabled: boolean; advancePaid?: number },
+): InvoiceTotals {
+  const subtotal = paisa(Math.max(0, current.jobValue - (current.gstAmount ?? 0) + (current.discountAmount ?? 0)));
+  return computeInvoiceTotals({ subtotal, discount: next.discount, gstEnabled: next.gstEnabled, advancePaid: next.advancePaid });
+}

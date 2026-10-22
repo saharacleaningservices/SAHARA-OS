@@ -30,12 +30,16 @@ export type JobAvgAggregateOutputType = {
   teamNumber: number | null
   jobValue: number | null
   discountAmount: number | null
+  gstAmount: number | null
+  discountValue: number | null
 }
 
 export type JobSumAggregateOutputType = {
   teamNumber: number | null
   jobValue: number | null
   discountAmount: number | null
+  gstAmount: number | null
+  discountValue: number | null
 }
 
 export type JobMinAggregateOutputType = {
@@ -71,6 +75,11 @@ export type JobMinAggregateOutputType = {
   teamSnapshot: string | null
   serviceItems: string | null
   discountAmount: number | null
+  gstEnabled: boolean | null
+  gstAmount: number | null
+  customerGstin: string | null
+  discountMode: string | null
+  discountValue: number | null
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
@@ -117,6 +126,11 @@ export type JobMaxAggregateOutputType = {
   teamSnapshot: string | null
   serviceItems: string | null
   discountAmount: number | null
+  gstEnabled: boolean | null
+  gstAmount: number | null
+  customerGstin: string | null
+  discountMode: string | null
+  discountValue: number | null
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
@@ -163,6 +177,11 @@ export type JobCountAggregateOutputType = {
   teamSnapshot: number
   serviceItems: number
   discountAmount: number
+  gstEnabled: number
+  gstAmount: number
+  customerGstin: number
+  discountMode: number
+  discountValue: number
   priceType: number
   festivalName: number
   scopeOfWork: number
@@ -182,12 +201,16 @@ export type JobAvgAggregateInputType = {
   teamNumber?: true
   jobValue?: true
   discountAmount?: true
+  gstAmount?: true
+  discountValue?: true
 }
 
 export type JobSumAggregateInputType = {
   teamNumber?: true
   jobValue?: true
   discountAmount?: true
+  gstAmount?: true
+  discountValue?: true
 }
 
 export type JobMinAggregateInputType = {
@@ -223,6 +246,11 @@ export type JobMinAggregateInputType = {
   teamSnapshot?: true
   serviceItems?: true
   discountAmount?: true
+  gstEnabled?: true
+  gstAmount?: true
+  customerGstin?: true
+  discountMode?: true
+  discountValue?: true
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
@@ -269,6 +297,11 @@ export type JobMaxAggregateInputType = {
   teamSnapshot?: true
   serviceItems?: true
   discountAmount?: true
+  gstEnabled?: true
+  gstAmount?: true
+  customerGstin?: true
+  discountMode?: true
+  discountValue?: true
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
@@ -315,6 +348,11 @@ export type JobCountAggregateInputType = {
   teamSnapshot?: true
   serviceItems?: true
   discountAmount?: true
+  gstEnabled?: true
+  gstAmount?: true
+  customerGstin?: true
+  discountMode?: true
+  discountValue?: true
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
@@ -448,6 +486,11 @@ export type JobGroupByOutputType = {
   teamSnapshot: string | null
   serviceItems: string | null
   discountAmount: number | null
+  gstEnabled: boolean
+  gstAmount: number
+  customerGstin: string | null
+  discountMode: string | null
+  discountValue: number | null
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
@@ -517,6 +560,11 @@ export type JobWhereInput = {
   teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
   serviceItems?: Prisma.StringNullableFilter<"Job"> | string | null
   discountAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableFilter<"Job"> | number | null
   priceType?: Prisma.StringNullableFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -575,6 +623,11 @@ export type JobOrderByWithRelationInput = {
   teamSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
   discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountValue?: Prisma.SortOrderInput | Prisma.SortOrder
   priceType?: Prisma.SortOrderInput | Prisma.SortOrder
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -636,6 +689,11 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
   serviceItems?: Prisma.StringNullableFilter<"Job"> | string | null
   discountAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableFilter<"Job"> | number | null
   priceType?: Prisma.StringNullableFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -694,6 +752,11 @@ export type JobOrderByWithAggregationInput = {
   teamSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
   discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountValue?: Prisma.SortOrderInput | Prisma.SortOrder
   priceType?: Prisma.SortOrderInput | Prisma.SortOrder
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -748,6 +811,11 @@ export type JobScalarWhereWithAggregatesInput = {
   teamSnapshot?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   serviceItems?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   discountAmount?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolWithAggregatesFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatWithAggregatesFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
   priceType?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
@@ -792,6 +860,11 @@ export type JobCreateInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -849,6 +922,11 @@ export type JobUncheckedCreateInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -902,6 +980,11 @@ export type JobUpdateInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -959,6 +1042,11 @@ export type JobUncheckedUpdateInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1014,6 +1102,11 @@ export type JobCreateManyInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -1058,6 +1151,11 @@ export type JobUpdateManyMutationInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1103,6 +1201,11 @@ export type JobUncheckedUpdateManyInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1159,6 +1262,11 @@ export type JobCountOrderByAggregateInput = {
   teamSnapshot?: Prisma.SortOrder
   serviceItems?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrder
+  discountMode?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
@@ -1176,6 +1284,8 @@ export type JobAvgOrderByAggregateInput = {
   teamNumber?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
 }
 
 export type JobMaxOrderByAggregateInput = {
@@ -1211,6 +1321,11 @@ export type JobMaxOrderByAggregateInput = {
   teamSnapshot?: Prisma.SortOrder
   serviceItems?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrder
+  discountMode?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
@@ -1257,6 +1372,11 @@ export type JobMinOrderByAggregateInput = {
   teamSnapshot?: Prisma.SortOrder
   serviceItems?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrder
+  discountMode?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
@@ -1274,6 +1394,8 @@ export type JobSumOrderByAggregateInput = {
   teamNumber?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
   discountAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
 }
 
 export type JobScalarRelationFilter = {
@@ -1581,6 +1703,11 @@ export type JobCreateWithoutSupervisorInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -1636,6 +1763,11 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -1719,6 +1851,11 @@ export type JobScalarWhereInput = {
   teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
   serviceItems?: Prisma.StringNullableFilter<"Job"> | string | null
   discountAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableFilter<"Job"> | number | null
   priceType?: Prisma.StringNullableFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -1763,6 +1900,11 @@ export type JobCreateWithoutLeadInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -1818,6 +1960,11 @@ export type JobUncheckedCreateWithoutLeadInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -1896,6 +2043,11 @@ export type JobCreateWithoutAssignmentsInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -1952,6 +2104,11 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2020,6 +2177,11 @@ export type JobUpdateWithoutAssignmentsInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2076,6 +2238,11 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2128,6 +2295,11 @@ export type JobCreateWithoutPhotosInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2184,6 +2356,11 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2252,6 +2429,11 @@ export type JobUpdateWithoutPhotosInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2308,6 +2490,11 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2360,6 +2547,11 @@ export type JobCreateWithoutCertificateInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2416,6 +2608,11 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2484,6 +2681,11 @@ export type JobUpdateWithoutCertificateInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2540,6 +2742,11 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2592,6 +2799,11 @@ export type JobCreateWithoutPaymentsInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2648,6 +2860,11 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2716,6 +2933,11 @@ export type JobUpdateWithoutPaymentsInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2772,6 +2994,11 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2824,6 +3051,11 @@ export type JobCreateWithoutExpensesInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2880,6 +3112,11 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -2948,6 +3185,11 @@ export type JobUpdateWithoutExpensesInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3004,6 +3246,11 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3056,6 +3303,11 @@ export type JobCreateWithoutActivityLogsInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3112,6 +3364,11 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3180,6 +3437,11 @@ export type JobUpdateWithoutActivityLogsInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3236,6 +3498,11 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3288,6 +3555,11 @@ export type JobCreateWithoutVehicleInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3344,6 +3616,11 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3421,6 +3698,11 @@ export type JobCreateWithoutMaterialIssuesInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3477,6 +3759,11 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3545,6 +3832,11 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3601,6 +3893,11 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3653,6 +3950,11 @@ export type JobCreateWithoutInvoiceInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3709,6 +4011,11 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3777,6 +4084,11 @@ export type JobUpdateWithoutInvoiceInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3833,6 +4145,11 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3885,6 +4202,11 @@ export type JobCreateWithoutVideosInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -3941,6 +4263,11 @@ export type JobUncheckedCreateWithoutVideosInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -4009,6 +4336,11 @@ export type JobUpdateWithoutVideosInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4065,6 +4397,11 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4118,6 +4455,11 @@ export type JobCreateManySupervisorInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -4162,6 +4504,11 @@ export type JobUpdateWithoutSupervisorInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4217,6 +4564,11 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4271,6 +4623,11 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4316,6 +4673,11 @@ export type JobCreateManyLeadInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -4360,6 +4722,11 @@ export type JobUpdateWithoutLeadInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4415,6 +4782,11 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4469,6 +4841,11 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4515,6 +4892,11 @@ export type JobCreateManyVehicleInput = {
   teamSnapshot?: string | null
   serviceItems?: string | null
   discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
@@ -4558,6 +4940,11 @@ export type JobUpdateWithoutVehicleInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4614,6 +5001,11 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4668,6 +5060,11 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4798,6 +5195,11 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   teamSnapshot?: boolean
   serviceItems?: boolean
   discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
@@ -4857,6 +5259,11 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   teamSnapshot?: boolean
   serviceItems?: boolean
   discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
@@ -4906,6 +5313,11 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   teamSnapshot?: boolean
   serviceItems?: boolean
   discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
@@ -4955,6 +5367,11 @@ export type JobSelectScalar = {
   teamSnapshot?: boolean
   serviceItems?: boolean
   discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
@@ -4968,7 +5385,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "gstEnabled" | "gstAmount" | "customerGstin" | "discountMode" | "discountValue" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -5044,6 +5461,11 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     teamSnapshot: string | null
     serviceItems: string | null
     discountAmount: number | null
+    gstEnabled: boolean
+    gstAmount: number
+    customerGstin: string | null
+    discountMode: string | null
+    discountValue: number | null
     priceType: string | null
     festivalName: string | null
     scopeOfWork: string | null
@@ -5522,6 +5944,11 @@ export interface JobFieldRefs {
   readonly teamSnapshot: Prisma.FieldRef<"Job", 'String'>
   readonly serviceItems: Prisma.FieldRef<"Job", 'String'>
   readonly discountAmount: Prisma.FieldRef<"Job", 'Float'>
+  readonly gstEnabled: Prisma.FieldRef<"Job", 'Boolean'>
+  readonly gstAmount: Prisma.FieldRef<"Job", 'Float'>
+  readonly customerGstin: Prisma.FieldRef<"Job", 'String'>
+  readonly discountMode: Prisma.FieldRef<"Job", 'String'>
+  readonly discountValue: Prisma.FieldRef<"Job", 'Float'>
   readonly priceType: Prisma.FieldRef<"Job", 'String'>
   readonly festivalName: Prisma.FieldRef<"Job", 'String'>
   readonly scopeOfWork: Prisma.FieldRef<"Job", 'String'>

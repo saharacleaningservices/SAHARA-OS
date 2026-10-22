@@ -376,7 +376,10 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
   // Multi-service package → one invoice line per service + the discount; else one line.
   const pkg = parsePackage(job.serviceItems, job.discountAmount);
   const pkgTotals = packageTotals(pkg);
-  const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - job.jobValue) < 0.01;
+  // GST (optional, B2B): jobValue already carries it, so the taxable base is jobValue minus the GST.
+  const gstAmt = job.gstEnabled ? job.gstAmount : 0;
+  const baseTotal = job.jobValue - gstAmt;
+  const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - baseTotal) < 0.01;
   const pkgName = [job.serviceVariant && job.serviceVariant !== job.packageName ? job.serviceVariant : null, job.packageName].filter(Boolean).join(" ");
   const title = [serviceLabel, pkgName].filter(Boolean).join(" — ");
   const areaText = job.area && !/^[\d\s-]+$/.test(job.area) ? job.area : null;
@@ -390,11 +393,11 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
       customerName: job.customerName,
       customerMobile: job.customerMobile,
       customerAddress: job.address,
-      lineItems: JSON.stringify(usePkg ? packageToQuoteItems(pkg) : [{ name: title, description: lineDetail, amount: job.jobValue }]),
-      subTotal: usePkg ? pkgTotals.subtotal : job.jobValue,
+      lineItems: JSON.stringify(usePkg ? packageToQuoteItems(pkg) : [{ name: title, description: lineDetail, amount: baseTotal }]),
+      subTotal: usePkg ? pkgTotals.subtotal : baseTotal,
       discount: usePkg ? pkgTotals.discount : 0,
-      gstPercent: 0,
-      gstAmount: 0,
+      gstPercent: gstAmt > 0 ? 18 : 0,
+      gstAmount: gstAmt,
       totalAmount: job.jobValue,
       notes: job.scopeOfWork || null,
       terms: quotation?.terms ?? null,

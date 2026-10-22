@@ -62,6 +62,10 @@ export type CustomerDocJob = {
   festivalName: string | null;
   paid: number;
   invoiceNumber: string | null;
+  /** Billing (owner 2026-10-22): jobValue already includes this GST when gstEnabled. */
+  gstEnabled?: boolean;
+  gstAmount?: number;
+  customerGstin?: string | null;
 };
 
 export type CustomerDocCompany = {
@@ -77,6 +81,8 @@ export type CustomerDocCompany = {
   bankAccountName: string | null;
   bankAccountNumber: string | null;
   bankIfsc: string | null;
+  /** Data-URL QR for the exact balance due (upi://pay link), built on the server. */
+  upiQrDataUrl?: string | null;
 };
 
 /** Compact customer terms — the material conditions of BOOKING_TERMS + customer requirements, in 4 lines. */
@@ -98,6 +104,11 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
   const isInvoice = kind === "INVOICE";
   const pkg = parsePackage(job.serviceItems, job.discountAmount);
   const discount = Math.max(0, job.discountAmount ?? 0);
+  // GST (optional, B2B): jobValue is the final total, so the taxable base is jobValue minus the GST it carries.
+  const gst = job.gstEnabled ? Math.max(0, job.gstAmount ?? 0) : 0;
+  const cgst = Math.round((gst / 2) * 100) / 100;
+  const sgst = Math.round((gst - cgst) * 100) / 100;
+  const baseValue = job.jobValue - gst;
   const packageLabel = [job.packageName, job.serviceVariant && job.serviceVariant !== job.packageName ? job.serviceVariant : null].filter(Boolean).join(" · ");
   // Full-house package -> one concise line ("Full Home Cleaning — Premium"), never the room checklist.
   const unfurnished = /unfurnished/i.test(`${job.packageName ?? ""} ${job.serviceVariant ?? ""}`);
@@ -129,9 +140,9 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
                 ? job.included.map((c) => [c, comboParts(c)].filter(Boolean).join(": ")).join(" | ")
                 : packageLabel,
             qty: 1,
-            rate: job.jobValue + discount,
+            rate: baseValue + discount,
             disc: discount,
-            total: job.jobValue,
+            total: baseValue,
           },
         ];
   const showIncludes = !comboTitle;
@@ -187,6 +198,7 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
           <p className="font-bold">{job.customerName}</p>
           <p className="break-words text-xs text-[#0a2540]/75">{job.address || job.area}</p>
           <p className="text-xs text-[#0a2540]/75">Mobile {job.customerMobile}</p>
+          {gst > 0 && job.customerGstin && <p className="text-xs text-[#0a2540]/75">GSTIN {job.customerGstin}</p>}
         </div>
         <div className="min-w-0 sm:text-right">
           <p className="text-[10px] font-bold uppercase tracking-wide text-primary">Service Schedule</p>
@@ -227,6 +239,13 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
         <div className="mt-2 space-y-1 border-t border-[#0a2540]/15 pt-3 sm:ml-auto sm:max-w-xs">
           <p className="flex justify-between"><span className="text-[#0a2540]/70">{complimentary > 0 || itemsDiscount > 0 ? "Actual Value" : "Subtotal"}</span><span className="tabular-nums">{inr(subtotal)}</span></p>
           {itemsDiscount > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Discount</span><span className="tabular-nums">− {inr(itemsDiscount)}</span></p>}
+          {gst > 0 && (
+            <>
+              <p className="flex justify-between"><span className="text-[#0a2540]/70">Taxable value</span><span className="tabular-nums">{inr(baseValue)}</span></p>
+              <p className="flex justify-between"><span className="text-[#0a2540]/70">CGST 9%</span><span className="tabular-nums">{inr(cgst)}</span></p>
+              <p className="flex justify-between"><span className="text-[#0a2540]/70">SGST 9%</span><span className="tabular-nums">{inr(sgst)}</span></p>
+            </>
+          )}
           {complimentary > 0 && <p className="flex justify-between"><span className="text-[#0a2540]/70">Complimentary (free)</span><span className="tabular-nums">{inr(complimentary)}</span></p>}
           <p className="flex justify-between rounded-lg bg-primary/10 px-2 py-1.5 text-base font-extrabold"><span>{isInvoice ? "Total Amount" : "Final Payable"}</span><span className="tabular-nums">{inr(total)}</span></p>
           {/* Advance / balance from recorded payments only — on the quotation too. */}
@@ -263,9 +282,17 @@ export function CustomerDocument({ kind, job, company, shareUrl }: { kind: "QUOT
             {company.upiId && <p className="mt-1">UPI ID: <span className="font-semibold">{company.upiId}</span></p>}
             <p className="mt-1 text-[#0a2540]/60">Please share the payment screenshot on WhatsApp after paying.</p>
           </div>
-          {company.upiQrUrl && (
-             
-            <img src={company.upiQrUrl} alt="Payment QR code" className="size-28 shrink-0 rounded-md border bg-white object-contain" />
+          {company.upiQrDataUrl && balance > 0 ? (
+            <div className="shrink-0 text-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={company.upiQrDataUrl} alt={`UPI QR for ${inr(balance)}`} className="size-28 rounded-md border bg-white object-contain" />
+              <p className="mt-0.5 text-[10px] font-semibold text-[#0a2540]/70">Scan to pay {inr(balance)}</p>
+            </div>
+          ) : (
+            company.upiQrUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={company.upiQrUrl} alt="Payment QR code" className="size-28 shrink-0 rounded-md border bg-white object-contain" />
+            )
           )}
         </section>
       )}

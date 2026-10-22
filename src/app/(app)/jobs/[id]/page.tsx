@@ -14,7 +14,8 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
-import { canViewRevenue, canViewJobAmount, canSeeCustomerContact as canSeeContact } from "@/lib/permissions";
+import { JobBillingCard } from "@/components/jobs/job-billing-card";
+import { canEditBilling, canViewRevenue, canViewJobAmount, canSeeCustomerContact as canSeeContact } from "@/lib/permissions";
 import { formatINR, formatDate, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
@@ -244,6 +245,20 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               scheduledTime={job.scheduledTime}
             />
           </div>
+
+          {canEditBilling(session.role) && job.status !== "CANCELLED" && !job.isDemo && (
+            <JobBillingCard
+              jobId={job.id}
+              jobValue={job.jobValue}
+              gstAmount={job.gstAmount}
+              discountAmount={job.discountAmount}
+              discountMode={job.discountMode}
+              discountValue={job.discountValue}
+              gstEnabled={job.gstEnabled}
+              customerGstin={job.customerGstin}
+              advance={advance}
+            />
+          )}
 
           {/* Quotation → Invoice: the only place these controls live. */}
           {canSendDocs && (
