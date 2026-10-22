@@ -164,7 +164,8 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
   const discountPct = gross > 0 && discount > 0 ? Math.round((discount / gross) * 1000) / 10 : 0;
   const taxable = Math.max(0, total - gst);
   const balance = Math.max(0, total - job.paid);
-  const docNo = isInvoice ? job.invoiceNumber || `INV-${job.jobNumber}` : `QO-${job.jobNumber}`;
+  // One number everywhere: the stored invoice / quotation number when there is one (the reference strip shows the same).
+  const docNo = isInvoice ? job.invoiceNumber || `INV-${job.jobNumber}` : job.quotationNumber || `QO-${job.jobNumber}`;
   const docDate = isInvoice ? (job.completedAt ?? new Date()) : job.createdAt;
   // Concise scope: one line for a full-house package + anything staff actually typed; item
   // bookings need nothing more (each item and quantity is already in the table above).
