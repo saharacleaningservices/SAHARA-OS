@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Truck, PlayCircle, CheckCircle2, UserCheck, XCircle, RotateCcw, CalendarClock } from "lucide-react";
+import { Loader2, Truck, PlayCircle, CheckCircle2, UserCheck, XCircle, RotateCcw, CalendarClock, Download, Receipt } from "lucide-react";
+import { ResendInvoiceLinkButton } from "@/components/jobs/resend-invoice-link-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,13 +21,16 @@ type Status = "PENDING" | "ASSIGNED" | "ON_THE_WAY" | "STARTED" | "COMPLETED" | 
  * "Postpone" is replaced by Reschedule; Work Complete is the single completion path
  * (certificate + invoice + review), so a job can't be completed twice.
  */
-export function StatusActions({ jobId, status, scheduledDate, scheduledTime }: { jobId: string; status: string; scheduledDate?: string; scheduledTime?: string }) {
+export function StatusActions({ jobId, status, scheduledDate, scheduledTime, invoiceUrl, canResendInvoice }: { jobId: string; status: string; scheduledDate?: string; scheduledTime?: string; invoiceUrl?: string; canResendInvoice?: boolean }) {
   const [pending, start] = useTransition();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(scheduledDate ?? "");
   const [time, setTime] = useState(scheduledTime ?? "");
   const [reason, setReason] = useState("");
+  // Owner 2026-10-23: completing a job converts the quotation into the Final Invoice (done on the server) and then asks the
+  // office what to do with it — open it, save the A4 PDF, or resend the link.
+  const [invoicePrompt, setInvoicePrompt] = useState(false);
   const s = status as Status;
 
   function run(fn: () => Promise<{ error?: string } | { success: true }>, ok: string, after?: () => void) {
@@ -82,7 +86,7 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime }: {
         </Button>
       )}
       {s === "STARTED" && (
-        <Button size="sm" variant="success" onClick={() => run(async () => completeJobWithCertificate(jobId, await getBrowserLocation()), "Job completed — certificate & invoice generated")} disabled={pending}>
+        <Button size="sm" variant="success" onClick={() => run(async () => completeJobWithCertificate(jobId, await getBrowserLocation()), "Job completed — certificate & invoice generated", () => setInvoicePrompt(true))} disabled={pending}>
           {pending ? <Loader2 className="animate-spin" /> : <CheckCircle2 className="size-3.5" />} Work Complete
         </Button>
       )}
@@ -94,6 +98,24 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime }: {
       <Button size="sm" variant="outline" className="text-destructive" onClick={cancel} disabled={pending}>
         <XCircle className="size-3.5" /> Cancel Job
       </Button>
+
+      <Dialog open={invoicePrompt} onOpenChange={setInvoicePrompt}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Job completed — Final Invoice ready</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">The quotation has been converted into the Final Invoice. Open it, save the A4 PDF, or send the link to the customer.</p>
+          <div className="flex flex-wrap gap-2">
+            {invoiceUrl && (
+              <>
+                <Button size="sm" asChild><a href={invoiceUrl} target="_blank" rel="noreferrer"><Receipt className="size-3.5" /> Open Invoice</a></Button>
+                <Button size="sm" variant="outline" asChild><a href={`${invoiceUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> Download A4 PDF</a></Button>
+              </>
+            )}
+            {canResendInvoice && <ResendInvoiceLinkButton jobId={jobId} />}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-sm">

@@ -72,11 +72,16 @@ export async function sendJobCompletedNotice(jobId: string) {
   if (!res.sent && "error" in res && res.error && !/test mode|opt/i.test(String(res.error))) throw new Error(String(res.error));
 }
 
-/** Plain-text completion message: View Invoice (+ Pay Balance when something is due). Used until the template is approved and on. */
-async function sendJobCompletedLinks(jobId: string) {
-  if (!docLinksOn()) return;
-  const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId }, select: { id: true } });
-  if (already) return;
+/**
+ * Plain-text completion message: View Invoice (+ Pay Balance when something is due). Used until the template is approved and on.
+ * `force` (the office's "Resend Invoice Link" button) skips the once-per-job guard and the kill-switch; it never throws.
+ */
+export async function sendJobCompletedLinks(jobId: string, opts: { force?: boolean } = {}) {
+  if (!opts.force && !docLinksOn()) return;
+  if (!opts.force) {
+    const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId }, select: { id: true } });
+    if (already) return;
+  }
   const job = await db.job.findFirst({
     where: { id: jobId, deletedAt: null, status: "COMPLETED" },
     select: { id: true, customerName: true, customerMobile: true, service: true, jobValue: true, paymentPreference: true, advanceRequestedAt: true, invoice: { select: { invoiceNumber: true } }, payments: { where: { deletedAt: null }, select: { amount: true, paidAmount: true } } },
@@ -91,6 +96,7 @@ async function sendJobCompletedLinks(jobId: string) {
     pmt.due > 0 ? `\u{1F4B3} Balance due ${formatINR(pmt.due)} — pay here: ${PUBLIC_BOOKING_URL}/booking/pay/${token}` : `Payment received in full — thank you.`,
   ];
   const res = await sendWhatsApp({ kind: "JOB_COMPLETED", toNumber: job.customerMobile, toName: job.customerName, body: lines.join("\n"), relatedType: "Job", relatedId: job.id });
+  if (opts.force) return res;
   if (!res.sent && "error" in res && res.error && !/test mode|opt/i.test(String(res.error))) throw new Error(String(res.error));
 }
 
@@ -98,6 +104,6 @@ async function sendJobCompletedLinks(jobId: string) {
 export const runQueueSweep = () =>
   runDueJobs({
     TEAM_DISPATCH: async (p) => void (await dispatchTeamForJob(String(p.jobId))),
-    JOB_COMPLETED_NOTICE: async (p) => sendJobCompletedNotice(String(p.jobId)),
+    JOB_COMPLETED_NOTICE: async (p) => void (await sendJobCompletedNotice(String(p.jobId))),
     QUOTATION_NOTICE: async (p) => sendQuotationNotice(String(p.quotationId)),
   });

@@ -99,13 +99,18 @@ test("crew card token: genuine links verify; tampered, forged or other-job token
   assert.equal(tok.verifyCrewCardToken("nonsense"), null);
 });
 
-test("crew card never carries the customer phone or any amount, but has the job facts", async () => {
+test("crew card carries ONLY job ID, service, package, date/slot, site address and team — no phone, amount, notes or scope", async () => {
   const job = await makeJob();
+  await db.job.update({ where: { id: job.id }, data: { packageName: "Platinum", serviceVariant: "3 BHK", teamNumber: 2 } });
   const c = (await card.getCrewCard(job.id))!;
   const json = JSON.stringify(c);
   assert.ok(!json.includes(PHONE) && !json.includes("7777") && !/jobValue|mobile|amount/i.test(json), "no phone, no amount");
-  assert.deepEqual([c.jobNumber, c.area, c.timeSlot, c.note], [job.jobNumber, "Kharadi", "10:00 AM", "Use side gate"]);
-  assert.deepEqual(c.scope, ["Kitchen deep clean", "Bathroom scrub"]);
+  assert.ok(!json.includes("Use side gate") && !json.includes("Kitchen deep clean"), "no internal notes or scope text");
+  assert.deepEqual(Object.keys(c).sort(), ["address", "area", "crew", "date", "jobNumber", "mapLink", "packageLabel", "service", "supervisor", "team", "timeSlot"]);
+  assert.deepEqual([c.jobNumber, c.packageLabel, c.team, c.timeSlot], [job.jobNumber, "3 BHK — Platinum", "Team 2", "10:00 AM"]);
+  const text = card.crewGroupMessage(c, "https://crm.example/crew-card/x.y");
+  assert.ok(text.includes(job.jobNumber) && text.includes("3 BHK — Platinum") && text.includes("Kharadi") && text.includes("10:00 AM"));
+  assert.ok(!text.includes(PHONE) && !/₹|7777/.test(text), "group text: no phone, no amount");
 });
 
 test("crew dispatch message (the one sent to each crew member) links the card and hides phone and amount", async () => {

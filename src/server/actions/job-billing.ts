@@ -7,6 +7,7 @@ import { getSession } from "@/lib/session";
 import { canEditBilling } from "@/lib/permissions";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { isValidGstin, rebillJob } from "@/lib/invoice-tax";
+import { sendJobCompletedLinks } from "@/server/job-queue-handlers";
 
 const billingSchema = z.object({
   discountMode: z.enum(["FLAT", "PERCENT"]).default("FLAT"),
@@ -75,4 +76,25 @@ export async function updateJobBilling(jobId: string, values: unknown) {
   }).catch(() => {});
   revalidatePath(`/jobs/${jobId}`);
   return { success: true as const, total: t.total, gst: t.gst, discount: t.discount, paymentsReview };
+}
+
+/**
+ * "Resend Invoice Link" on a completed job: sends the View Invoice (+ Pay Balance) WhatsApp again, e.g. when the first one
+ * failed. Admin, Accounts and Operations (the billing roles) only; outbound mode (TEST by default) still decides delivery.
+ */
+export async function resendInvoiceLink(jobId: string) {
+  const session = await getSession();
+  if (!session || !canEditBilling(session.role)) return { success: false as const, error: "Not authorized" };
+  const job = await db.job.findFirst({ where: { id: jobId, deletedAt: null }, select: { status: true, supervisorId: true, scheduledDate: true, assignments: { select: { staffId: true } } } });
+  if (!job) return { success: false as const, error: "Job not found" };
+  if (job.status !== "COMPLETED") return { success: false as const, error: "The invoice link is sent once the job is completed." };
+  if (session.role === "OPERATIONS") {
+    const own = await getOwnStaffId(session.sub);
+    if (!canAccessJob(session, job, own)) return { success: false as const, error: "Not authorized" };
+  }
+  const res = await sendJobCompletedLinks(jobId, { force: true });
+  await db.activityLog.create({ data: { jobId, actorId: session.sub, action: "Invoice link resent on WhatsApp" } }).catch(() => {});
+  revalidatePath(`/jobs/${jobId}`);
+  const sent = !!res && "sent" in res && res.sent;
+  return { success: true as const, message: sent ? "Invoice link sent on WhatsApp." : "Invoice link logged — WhatsApp outbound is in TEST mode or not configured, so the customer did not receive it. Use Send / A4 PDF instead." };
 }
