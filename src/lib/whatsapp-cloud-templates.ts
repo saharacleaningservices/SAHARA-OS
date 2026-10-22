@@ -17,7 +17,8 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
 export type TemplateButton =
   | { type: "URL"; text: string; url: string; example?: string }
-  | { type: "QUICK_REPLY"; text: string };
+  | { type: "QUICK_REPLY"; text: string }
+  | { type: "PHONE_NUMBER"; text: string; phone: string };
 
 export type CloudTemplate = {
   key: string;
@@ -36,6 +37,7 @@ export type CloudTemplate = {
 };
 
 const BOOKING_PAGE = `${PUBLIC_BOOKING_URL}/booking/`;
+export const BOOKING_HEADER_IMAGE = `${PUBLIC_BOOKING_URL}/marketing/booking-header.jpg`;
 const EX_TOKEN = "q7Xk2mPz9LwR4tNc8vB1yH6s";
 /** Sahara's Google review link — static URL button of sahara_review_request_v2. */
 export const GOOGLE_REVIEW_URL = "https://g.page/r/CYJ9szEiGaN4EBE/review";
@@ -317,6 +319,54 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     buttons: [
       { type: "URL", text: "View Quotation", url: `${PUBLIC_BOOKING_URL}/booking/quotation/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/quotation/${EX_TOKEN}` },
       { type: "URL", text: "Pay Now / Later", url: `${PUBLIC_BOOKING_URL}/booking/pay/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/pay/${EX_TOKEN}` },
+    ],
+  },
+  // ── Owner-approved 2026-10-22 (master brief, corrected): strictly UTILITY — booking facts + the two existing public pages
+  // + helpline as text. No urgency, slot-release claims, socials or offers (those would make Meta re-classify it as
+  // Marketing); socials/offers belong in a separate opted-in Marketing flow. Built to be PREPARED in WhatsApp Manager:
+  // the owner clicks Submit. Used only after Meta approves it and WHATSAPP_BOOKING_TEMPLATE=v5 is set.
+  {
+    key: "2e",
+    name: "sahara_booking_confirmed_v5",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Booking confirmed — image header, View Quotation + Pay Now / Later buttons, helpline in text",
+    header: { type: "IMAGE", sample: BOOKING_HEADER_IMAGE },
+    body:
+      "Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\n\nView your quotation or pay the advance using the buttons below.\n\nFor any help, call us on 7083347130 / 8956567130.",
+    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00", "Magarpatta, Hadapsar"],
+    buttons: [
+      { type: "URL", text: "View Quotation", url: `${PUBLIC_BOOKING_URL}/booking/quotation/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/quotation/${EX_TOKEN}` },
+      { type: "URL", text: "Pay Now / Later", url: `${PUBLIC_BOOKING_URL}/booking/pay/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/pay/${EX_TOKEN}` },
+    ],
+  },
+  {
+    key: "6b",
+    name: "sahara_payment_received_v1",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Payment confirmation with receipt page + helpline call button (sent only after staff records the payment)",
+    header: { type: "IMAGE", sample: BOOKING_HEADER_IMAGE },
+    body:
+      "Hi {{1}}, we have received your payment of ₹{{2}} for booking {{3}} by {{4}}.\n\nBalance due: ₹{{5}}\n\nThank you for choosing Sahara Cleaning Services.",
+    examples: ["Priya", "1,000", "JOB-2026-0150", "UPI", "2,999"],
+    buttons: [
+      { type: "URL", text: "View Receipt", url: `${PUBLIC_BOOKING_URL}/booking/receipt/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/receipt/${EX_TOKEN}` },
+      { type: "PHONE_NUMBER", text: "Call Helpline", phone: "+917083347130" },
+    ],
+  },
+  {
+    key: "9b",
+    name: "sahara_job_completed_v1",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Job completed — balance due, Pay Balance and Google review buttons",
+    body:
+      "Hi {{1}}, your {{2}} service has been completed. Thank you for choosing Sahara Cleaning Services.\n\nBalance due: ₹{{3}}\n\nWe would love your feedback — please tap a button below.",
+    examples: ["Priya", "Home Deep Cleaning", "2,999"],
+    buttons: [
+      { type: "URL", text: "Pay Balance", url: `${PUBLIC_BOOKING_URL}/booking/pay/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/pay/${EX_TOKEN}` },
+      { type: "URL", text: "Rate Us on Google", url: GOOGLE_REVIEW_URL },
     ],
   },
   {

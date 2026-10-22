@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { WHATSAPP_TRANSACTIONAL_TEMPLATES, sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
 import { compactServiceLines } from "@/lib/service-scope";
-import { GOOGLE_REVIEW_URL, renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
+import { BOOKING_HEADER_IMAGE, GOOGLE_REVIEW_URL, renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 
 // One booking-message pipeline for every confirmed booking — online requests
 // confirmed from a lead (confirmBooking) and jobs entered manually in the CRM
@@ -33,6 +33,8 @@ const bookingTemplateV3 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v3";
 // WHATSAPP_BOOKING_TEMPLATE=v4 → sahara_booking_confirmed_v4: the same two buttons plus the Google review link in the
 // message text, so all three actions arrive in ONE message (owner Phase 2). Set only after Meta approves v4.
 const bookingTemplateV4 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v4";
+// WHATSAPP_BOOKING_TEMPLATE=v5 → sahara_booking_confirmed_v5 (utility): image header, same two buttons, no review link.
+const bookingTemplateV5 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v5";
 
 /** Body parameters for sahara_booking_confirmed_v4 (exported for tests). */
 export function bookingConfirmationV4Params(job: { customerName: string; jobNumber: string; scheduledDate: Date; scheduledTime: string; area: string }, service: string, reviewUrl: string | null | undefined) {
@@ -116,6 +118,27 @@ async function sendBookingConfirmationOnce(jobId: string) {
   // as requested (unless the customer already chose to pay after service).
   if (due > 0 && !job.advanceRequestedAt && job.paymentPreference !== "PAY_AFTER_SERVICE") {
     await db.job.update({ where: { id: job.id }, data: { advanceRequestedAt: new Date() } });
+  }
+
+  if (templatesEnabled() && bookingTemplateV5()) {
+    const t = templateByName("sahara_booking_confirmed_v5")!;
+    const params = bookingConfirmationV4Params(job, service, null).slice(0, 6);
+    return sendWhatsAppTemplate({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      headerImageUrl: BOOKING_HEADER_IMAGE,
+      buttonUrlParams: [
+        { index: 0, value: token },
+        { index: 1, value: token },
+      ],
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
   }
 
   if (templatesEnabled() && bookingTemplateV4()) {
