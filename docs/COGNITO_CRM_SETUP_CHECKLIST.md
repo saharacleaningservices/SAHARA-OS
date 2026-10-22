@@ -1,5 +1,25 @@
 # Cognito enquiry → Sahara OS CRM — installation & verification checklist
 
+## Recommended since 22 Oct 2026: direct webhook (no Apps Script, no e-mail parsing)
+Cognito posts each entry straight to the CRM the moment it is submitted. Same intake as before (one open enquiry per
+mobile / e-mail, call-back follow-up, staff alerts, nothing sent to the customer); Cognito's entry number makes re-sends
+harmless; an entry without a mobile number raises an alert instead of being dropped. Code: ,
+parser , tests .
+
+| # | Step | Who |
+|---|---|---|
+| 1 | Coolify → sahara-os → Environment: add  = a long random value (24+ characters). Redeploy. | Owner (secret) |
+| 2 | Cognito → the form → Settings → Submission Settings → **Post JSON Data to a Website** → ON, on **Submit**. URL:  | Owner |
+| 3 | Submit one test entry with the QA mobile number and check Leads: the lead shows "Via Cognito Form (webhook)". | Owner |
+| 4 | If the old e-mail Apps Script was switched on, switch its trigger OFF, otherwise each entry arrives twice (the second shows as a "Repeat enquiry" alert). | Owner |
+
+Until step 1 is done the endpoint answers 404, so nothing changes. If the secret ever leaks (it is part of the URL),
+change it in Coolify and in the Cognito URL together.
+
+---
+
+## Older path: e-mail bridge (Apps Script)
+
 Status 2026-10-14: code installed in the owner's Apps Script project **"Sahara Cognito to CRM"** (property `LEAD_URL` set). **Not yet running.** Source of truth for the code: `docs/cognito-email-lead.gs` (tested by `npm run test:cognito`: 17 tests — 8 script behaviour with mocked Google services, 9 CRM intake).
 
 ## How it works
