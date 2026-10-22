@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CalendarClock, CalendarRange, ClipboardList, HardHat, History, ShieldCheck, Truck, UserCheck } from "lucide-react";
+import { CalendarCheck, CalendarClock, CalendarRange, ClipboardList, HardHat, History, Route, ShieldCheck, TrendingUp, Truck, UserCheck } from "lucide-react";
+import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
+import { getLeadToBookingConversion } from "@/server/dashboard-extras";
 import { getOperationsHome } from "@/server/owner-command-center";
 import { getDashboardData } from "@/server/dashboard";
 import { ExpandableCard } from "./expandable-card";
@@ -73,11 +75,12 @@ function dayBody(data: OpsDay, when: "yesterday" | "today" | "tomorrow") {
  * profit, margin, salary, loan, staff cost, revenue or payment totals.
  */
 export async function getOperationsDashboardSections({ name, userId, newLeads }: { name: string; userId: string; newLeads?: ReactNode }) {
-  const [{ yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar }, { stats }, board] = await Promise.all([
+  const [{ yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar }, { stats }, board, conversion] = await Promise.all([
     getOperationsHome(),
     // Team / vehicle / AMC counts he already uses today (counts only — no money is rendered from this).
     getDashboardData("OPERATIONS", userId),
     getSlotBoard(1),
+    getLeadToBookingConversion(30), // counts only
   ]);
 
   const tile = (icon: ReactNode, tint: string, label: string, value: number, sub: string) => (
@@ -125,8 +128,38 @@ export async function getOperationsDashboardSections({ name, userId, newLeads }:
     </>
   );
 
+  // Operations tab (owner 2026-10-22): today's / tomorrow's jobs first, then dispatch, slots and quick quote one tap away,
+  // then lead-to-booking conversion. Counts only — no revenue, profit or expense figure is built here.
+  const action = "flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3 text-sm font-medium shadow-sm hover:border-primary/40";
   const operations = (
     <>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <ExpandableCard trigger={tile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}>{dayBody(today, "today")}</ExpandableCard>
+        <ExpandableCard trigger={tile(<CalendarClock className="size-5" />, "bg-indigo-500/15 text-indigo-600", "Tomorrow's Jobs", tomorrow.totalJobs, "Tap for the full list")}>{dayBody(tomorrow, "tomorrow")}</ExpandableCard>
+        <ExpandableCard trigger={tile(<History className="size-5" />, "bg-muted text-muted-foreground", "Yesterday's Jobs", yesterday.totalJobs, "Tap for the full list")}>{dayBody(yesterday, "yesterday")}</ExpandableCard>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <Link href="/jobs/dispatch" className={action}><Route className="size-4 text-primary" /> Team Dispatch</Link>
+        <Link href="/jobs/slots" className={action}><CalendarCheck className="size-4 text-primary" /> Slot Availability</Link>
+        <div className="col-span-2 sm:col-span-1 [&>button]:min-h-11 [&>button]:w-full [&>button]:justify-center">
+          <PackageCalculatorButton variant="button" label="Quick Quote" />
+        </div>
+      </div>
+
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold"><TrendingUp className="size-4 text-primary" /> Lead → Booking (last {conversion.days} days)</h2>
+          <span className="text-lg font-bold text-foreground">{conversion.ratePercent}%</span>
+        </div>
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-success" style={{ width: `${conversion.ratePercent}%` }} />
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {conversion.booked} booked of {conversion.created} new leads · {conversion.open} still open · {conversion.cancelled} cancelled
+        </p>
+      </section>
+
       {/* Control center: quick actions + six groups (role-filtered) | compact calendar */}
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-3">
@@ -148,12 +181,6 @@ export async function getOperationsDashboardSections({ name, userId, newLeads }:
         </section>
       </div>
 
-      {/* Day lists — each card expands in place to its job list. */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <ExpandableCard trigger={tile(<ClipboardList className="size-5" />, "bg-primary/15 text-primary", "Today's Jobs", today.totalJobs, "Tap for the full list")}>{dayBody(today, "today")}</ExpandableCard>
-        <ExpandableCard trigger={tile(<CalendarClock className="size-5" />, "bg-indigo-500/15 text-indigo-600", "Tomorrow's Jobs", tomorrow.totalJobs, "Tap for the full list")}>{dayBody(tomorrow, "tomorrow")}</ExpandableCard>
-        <ExpandableCard trigger={tile(<History className="size-5" />, "bg-muted text-muted-foreground", "Yesterday's Jobs", yesterday.totalJobs, "Tap for the full list")}>{dayBody(yesterday, "yesterday")}</ExpandableCard>
-      </div>
       <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
         {countLink("/staff", "Staff available", stats.staffAvailableCount, <UserCheck className="size-4 text-teal-600" />)}
         {countLink("/staff", "Team on job", stats.staffOnJobCount, <HardHat className="size-4 text-purple-600" />)}

@@ -1,4 +1,3 @@
-import { ResponsiveFold } from "@/components/shared/responsive-fold";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireRole } from "@/lib/current-user";
@@ -13,6 +12,9 @@ import { WhatsAppCampaignPanel } from "@/components/marketing/whatsapp-campaign-
 import { WhatsAppBroadcastPanel } from "@/components/marketing/whatsapp-broadcast-panel";
 import { CtwaLeadsCard } from "@/components/marketing/ctwa-leads-card";
 import { formatINR } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ConversionFunnel } from "@/components/marketing/conversion-funnel";
+import { SlidersHorizontal } from "lucide-react";
 
 // Admin-only (inherits the Profit section's ADMIN restriction). The central
 // marketing dashboard: every source (Google Ads, Meta Ads, Google Business
@@ -68,21 +70,31 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
     { name: "Meta domain verification", ok: !!process.env.META_DOMAIN_VERIFICATION, env: "META_DOMAIN_VERIFICATION" },
     { name: "WhatsApp Cloud API", ok: connected, env: "CRM → Settings → Integrations" },
   ];
-  const funnel = [
-    { label: "Leads", value: total.leads, sub: "" },
-    { label: "Interested", value: total.qualified, sub: pct(total.qualified, total.leads) },
-    { label: "Quotation", value: total.quoted, sub: pct(total.quoted, total.leads) },
-    { label: "Booked", value: total.bookings, sub: pct(total.bookings, total.leads) },
-    { label: "Completed", value: total.completed, sub: pct(total.completed, total.leads) },
+  const stages = [
+    { label: "Leads", value: total.leads, href: "/leads" },
+    { label: "Interested", value: total.qualified, href: "/leads?stage=INTERESTED" },
+    { label: "Quotation", value: total.quoted, href: "/leads?stage=QUOTATION" },
+    { label: "Booked", value: total.bookings, href: "/leads?stage=CONFIRMED" },
+    { label: "Completed", value: total.completed, href: "/leads?stage=COMPLETED" },
+  ];
+  const summary = [
     { label: "Revenue", value: money(total.revenue), sub: total.spend ? `ROAS ${(total.revenue / total.spend).toFixed(1)}×` : "" },
     { label: "Ad spend", value: money(total.spend), sub: total.bookings ? `${per(total.spend, total.bookings)} / booking` : "" },
   ];
+  const activeFilters = [sp.from, sp.to, sp.channel, sp.campaign, sp.service, sp.stage, sp.view === "campaign" ? "1" : "", sp.festival].filter(Boolean).length;
 
   return (
     <div className="space-y-6">
       <PageHeader title="Marketing Dashboard" description="Every source and campaign → lead → interested → quotation → booking → completed → revenue, with ad spend and ROI." />
 
-      <form className="flex flex-wrap items-end gap-2 text-sm">
+      {/* All filters in one "Filter Options" popover (owner 2026-10-22). Same GET form and parameter names as before. */}
+      <details className="relative">
+        <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold shadow-sm hover:border-primary/40">
+          <SlidersHorizontal className="size-4 text-primary" /> Filter Options
+          {activeFilters > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">{activeFilters}</span>}
+        </summary>
+        <div className="absolute left-0 z-30 mt-2 w-[min(92vw,28rem)] rounded-2xl border border-border bg-card p-4 shadow-lg">
+      <form className="grid grid-cols-2 gap-3 text-sm">
         <label className="grid gap-1">From<input type="date" name="from" defaultValue={sp.from} className="rounded border px-2 py-1" /></label>
         <label className="grid gap-1">To<input type="date" name="to" defaultValue={sp.to} className="rounded border px-2 py-1" /></label>
         <label className="grid gap-1">Source
@@ -115,23 +127,26 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
             <option value="campaign">By campaign</option>
           </select>
         </label>
-        <label className="flex items-center gap-1.5 pb-1.5"><input type="checkbox" name="festival" value="1" defaultChecked={sp.festival === "1"} /> Festival only</label>
-        <button className="rounded bg-primary px-3 py-1.5 font-semibold text-primary-foreground">Apply</button>
+        <label className="col-span-2 flex items-center gap-1.5"><input type="checkbox" name="festival" value="1" defaultChecked={sp.festival === "1"} /> Festival only</label>
+        <div className="col-span-2 flex items-center justify-end gap-2">
+          {activeFilters > 0 && <a href="/profit/marketing" className="rounded px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground">Clear</a>}
+          <button className="rounded bg-primary px-4 py-1.5 font-semibold text-primary-foreground">Apply</button>
+        </div>
       </form>
+        </div>
+      </details>
 
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7">
-        {funnel.map((f) => (
-          <Card key={f.label} className="gap-0 py-0">
-            <CardContent className="p-2 sm:p-3">
-              <p className="text-xs text-muted-foreground">{f.label}</p>
-              <p className="text-xl font-bold">{f.value}</p>
-              {f.sub && <p className="text-xs text-muted-foreground">{f.sub}</p>}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <ConversionFunnel stages={stages} summary={summary} />
 
-      <ResponsiveFold title="Sources & campaigns" hint="leads → bookings → revenue · ROI">
+      <Tabs defaultValue="sources">
+        <TabsList className="w-full sm:w-auto">
+          <TabsTrigger value="sources">Sources &amp; campaigns</TabsTrigger>
+          <TabsTrigger value="ctwa">Click-to-WhatsApp</TabsTrigger>
+          <TabsTrigger value="whatsapp">WhatsApp marketing</TabsTrigger>
+          <TabsTrigger value="tracking">Tracking setup</TabsTrigger>
+          <TabsTrigger value="spend">Ad spend</TabsTrigger>
+        </TabsList>
+      <TabsContent value="sources" className="space-y-2">
       <Card>
         <CardContent className="overflow-x-auto p-0">
           <table className="w-full min-w-[980px] text-sm">
@@ -169,13 +184,14 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
         Interested = moved past New. Quotation = quoted or later. Booking = confirmed / job created. Revenue = value of completed jobs. One open enquiry per mobile —
         repeat enquiries update the existing lead. Leads created before 29 Sep 2026 show as &quot;{NOT_TRACKED}&quot;.
       </p>
-      </ResponsiveFold>
+      </TabsContent>
 
-      <ResponsiveFold title="Click-to-WhatsApp ads">
+      <TabsContent value="ctwa">
         <CtwaLeadsCard cloudApiConnected={connected} />
-      </ResponsiveFold>
+      </TabsContent>
 
-      <ResponsiveFold title="WhatsApp marketing (9175220270)">
+      <TabsContent value="whatsapp">
+      <p className="mb-2 text-xs text-muted-foreground">WhatsApp marketing number 9175220270.</p>
       <Card className="gap-0 border-0 py-0 shadow-none">
         <CardContent className="px-0 space-y-4">
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
@@ -212,9 +228,10 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
           </div>
         </CardContent>
       </Card>
-      </ResponsiveFold>
+      </TabsContent>
 
-      <ResponsiveFold title="Tracking setup — Google Ads, Meta Ads, Google Business Profile">
+      <TabsContent value="tracking">
+      <p className="mb-2 text-xs text-muted-foreground">Google Ads, Meta Ads and Google Business Profile.</p>
       <Card className="gap-0 border-0 py-0 shadow-none">
         <CardContent className="px-0 space-y-4 text-sm">
           <div className="flex flex-wrap gap-2">
@@ -244,9 +261,10 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
           </p>
         </CardContent>
       </Card>
-      </ResponsiveFold>
+      </TabsContent>
 
-      <ResponsiveFold title="Add ad spend (from the ad platform invoice)">
+      <TabsContent value="spend">
+      <p className="mb-2 text-xs text-muted-foreground">Add ad spend from the ad platform invoice.</p>
       <Card className="gap-0 border-0 py-0 shadow-none">
         <CardContent className="px-0 space-y-4">
           <form action={addMarketingSpend} className="grid gap-2 text-sm sm:grid-cols-5">
@@ -269,7 +287,8 @@ export default async function MarketingDashboardPage({ searchParams }: { searchP
           </table>
         </CardContent>
       </Card>
-      </ResponsiveFold>
+      </TabsContent>
+      </Tabs>
     </div>
   );
 }
