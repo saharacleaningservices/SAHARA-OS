@@ -3,13 +3,13 @@
 ## Recommended since 22 Oct 2026: direct webhook (no Apps Script, no e-mail parsing)
 Cognito posts each entry straight to the CRM the moment it is submitted. Same intake as before (one open enquiry per
 mobile / e-mail, call-back follow-up, staff alerts, nothing sent to the customer); Cognito's entry number makes re-sends
-harmless; an entry without a mobile number raises an alert instead of being dropped. Code: ,
-parser , tests .
+harmless; an entry without a mobile number raises an alert instead of being dropped. Code: `src/app/api/webhook/cognito/route.ts`,
+parser `src/lib/cognito-entry.ts`, tests `npm run test:cognitowebhook`.
 
 | # | Step | Who |
 |---|---|---|
-| 1 | Coolify → sahara-os → Environment: add  = a long random value (24+ characters). Redeploy. | Owner (secret) |
-| 2 | Cognito → the form → Settings → Submission Settings → **Post JSON Data to a Website** → ON, on **Submit**. URL:  | Owner |
+| 1 | Coolify → sahara-os → Environment: add `COGNITO_WEBHOOK_SECRET` = a long random value (24+ characters). Redeploy. | Owner (secret) |
+| 2 | Cognito → the form → Settings → Submission Settings → **Post JSON Data to a Website** → ON, on **Submit**. URL: `https://crm.saharacleaningservices.com/api/webhook/cognito?key=<the same value>&form=<short form name>` | Owner |
 | 3 | Submit one test entry with the QA mobile number and check Leads: the lead shows "Via Cognito Form (webhook)". | Owner |
 | 4 | If the old e-mail Apps Script was switched on, switch its trigger OFF, otherwise each entry arrives twice (the second shows as a "Repeat enquiry" alert). | Owner |
 
