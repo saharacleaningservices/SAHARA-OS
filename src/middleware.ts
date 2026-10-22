@@ -53,6 +53,7 @@ const PUBLIC_PATHS = [
   "/api/booking-link",
   "/api/meta/capi",
   "/api/webhook",
+  "/api/public", // public REST API for the marketing website: does its own Bearer + HMAC auth, inert (404) until configured
   "/robots.txt",
   "/sitemap.xml",
   "/book",

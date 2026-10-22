@@ -66,6 +66,7 @@ const leadsFor = (m: string) => db.lead.findMany({ where: { mobile: m }, orderBy
 test("rejects bad input with a human message and creates nothing", async () => {
   const before = await db.lead.count();
   assert.equal((await book(base({ name: "A" }))).error, "Name is required");
+  assert.equal((await book(base({ name: "A" }))).code, "VALIDATION", "refusals carry a machine-readable code (additive; the form reads only `error`)");
   assert.equal((await book(base({ mobile: "12345" }))).error, "Enter a valid 10-digit mobile number");
   assert.equal((await book(base({ mobile: "5000000000" }))).error, "Enter a valid 10-digit mobile number");
   assert.equal((await book(base({ serviceCategory: "" }))).error, "Pick a service");
@@ -79,6 +80,7 @@ test("honeypot: a filled hidden field gets a generic error and no lead", async (
   const m = mobile();
   const r = await book(base({ mobile: m, website: "http://spam.example" }));
   assert.equal(r.error, "Something went wrong. Please try again.");
+  assert.equal(r.code, "HONEYPOT");
   assert.equal((await leadsFor(m)).length, 0);
 });
 
@@ -169,6 +171,7 @@ test("catalogue bookings are re-priced on the server from live pricing", async (
 test("an unknown package id is refused", async () => {
   const r = await book(base({ selectedItems: [{ contentId: "NOPE-999", qty: 1 }] }));
   assert.equal(r.error, "A selected package is no longer available — please refresh the page.");
+  assert.equal(r.code, "PACKAGE_UNAVAILABLE");
 });
 
 test("4 BHK and larger / villas: no instant price, inspection note on follow-up and timeline", async () => {
@@ -217,6 +220,7 @@ test("throttle: 10 requests per IP, 5 per mobile, per 10 minutes", async () => {
     for (let i = 0; i < 10; i++) assert.equal((await book(base())).success, true, `request ${i + 1} from one IP is allowed`);
     const r = await book(base());
     assert.equal(r.error, "Too many requests — please wait a few minutes or call us to book.");
+    assert.equal(r.code, "THROTTLED");
     // per mobile: a fresh IP each time, same mobile
     const m = mobile();
     for (let i = 0; i < 5; i++) {
