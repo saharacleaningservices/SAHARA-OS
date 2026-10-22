@@ -133,3 +133,68 @@ test("v4: one template message with quotation + pay buttons and the review link;
     Object.assign(process.env, keep);
   }
 });
+
+// ---- v5 / payment_received_v1 / job_completed_v1 (owner 2026-10-22: strictly UTILITY, real domain) ---------------------------
+test("v5, payment_received_v1 and job_completed_v1: UTILITY, real booking domain, no urgency/socials, Meta-safe", () => {
+  for (const name of ["sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1"]) {
+    const t = templateByName(name);
+    assert.ok(t, name);
+    assert.equal(t!.category, "UTILITY", name);
+    assert.ok(!/\{\{\d+\}\}\s*$/.test(t!.body) && !/^\s*\{\{/.test(t!.body), `${name}: body must not start/end with a variable`);
+    const vars = [...t!.body.matchAll(/\{\{(\d+)\}\}/g)].map((m) => Number(m[1]));
+    assert.equal(t!.examples?.length, vars.length, `${name}: one example per variable`);
+    assert.ok(!/sahara\.co\.in|limited|released|instagram|youtube|g\.page\/saharacleaning/i.test(t!.body), `${name}: no urgency / socials / foreign domain`);
+    const urls = (t!.buttons ?? []).filter((b) => b.type === "URL") as { url: string }[];
+    assert.ok(urls.length <= 2, `${name}: max 2 URL buttons`);
+    for (const u of urls) assert.ok(u.url.startsWith("https://") && !u.url.includes("sahara.co.in"), u.url);
+    assert.ok(WHATSAPP_TRANSACTIONAL_TEMPLATES.includes(name), `${name}: transactional allowlist`);
+  }
+  const v5 = templateByName("sahara_booking_confirmed_v5")!;
+  assert.equal(v5.header?.type, "IMAGE");
+  assert.deepEqual((v5.buttons ?? []).map((b) => b.text), ["View Quotation", "Pay Now / Later"]);
+  assert.match(v5.body, /7083347130 \/ 8956567130/);
+  const pay = templateByName("sahara_payment_received_v1")!;
+  assert.match((pay.buttons![0] as { url: string }).url, /\/booking\/receipt\/\{\{1\}\}$/);
+  assert.deepEqual(pay.buttons![1], { type: "PHONE_NUMBER", text: "Call Helpline", phone: "+917083347130" });
+  const done = templateByName("sahara_job_completed_v1")!;
+  assert.match((done.buttons![0] as { url: string }).url, /\/booking\/pay\/\{\{1\}\}$/);
+});
+
+test("v5 send: image header + 6 body params + both token buttons, one message, no review link", async () => {
+  const keep = { ...process.env };
+  const realFetch = globalThis.fetch;
+  const calls: { url: string; body: Record<string, unknown> }[] = [];
+  Object.assign(process.env, { WHATSAPP_USE_TEMPLATES: "on", WHATSAPP_BOOKING_TEMPLATE: "v5", WHATSAPP_ACCESS_TOKEN: "test-token-not-real", WHATSAPP_PHONE_NUMBER_ID: "000000000000000" });
+  globalThis.fetch = (async (url: string | URL, init?: RequestInit) => {
+    calls.push({ url: String(url), body: JSON.parse(String(init?.body ?? "{}")) });
+    return new Response(JSON.stringify({ messages: [{ id: "wamid.TEST5" }] }), { status: 200, headers: { "content-type": "application/json" } });
+  }) as typeof fetch;
+  try {
+    const job = await makeJob("9800817070");
+    await msgs.sendBookingConfirmation(job.id);
+    const sends = calls.filter((c) => /\/messages$/.test(c.url));
+    assert.equal(sends.length, 1);
+    const tpl = sends[0].body.template as { name: string; components: { type: string; parameters: { text?: string; image?: { link: string } }[] }[] };
+    assert.equal(tpl.name, "sahara_booking_confirmed_v5");
+    assert.match(tpl.components.find((c) => c.type === "header")!.parameters[0].image!.link, /\/marketing\/booking-header\.jpg$/);
+    assert.equal(tpl.components.find((c) => c.type === "body")!.parameters.length, 6);
+    assert.equal(tpl.components.filter((c) => c.type === "button").length, 2);
+  } finally {
+    globalThis.fetch = realFetch;
+    for (const k of Object.keys(process.env)) if (!(k in keep)) delete process.env[k];
+    Object.assign(process.env, keep);
+  }
+});
+
+// ---- crew dispatch card: customer phone and amounts never included ---------------------------------------------------------------
+test("crew job card hides the customer phone and any amount", async () => {
+  const { teamDispatchMessage } = await import("../src/lib/whatsapp-templates");
+  const body = teamDispatchMessage({
+    customerName: "Asha", mobile: "9876543210", area: "Kharadi", address: "Flat 2", mapLink: "https://maps.google.com/?q=1",
+    service: "Home Deep Cleaning", flatType: "2 BHK", date: new Date("2026-11-02T00:00:00Z"), timeSlot: "10:00 AM", team: 2,
+    supervisor: "Ravi", vehicle: "Tempo (MH12)", materials: ["Vacuum x1"], notes: "Use side gate",
+  });
+  assert.ok(!body.includes("9876543210") && !/987654|43210/.test(body), "no phone");
+  assert.ok(!/₹|Rs\.?\s?\d|\bINR\b|Amount|Price|Balance|Advance/i.test(body), "no amounts");
+  assert.ok(body.includes("Maps") || body.includes("Map:"), "map link kept");
+});
