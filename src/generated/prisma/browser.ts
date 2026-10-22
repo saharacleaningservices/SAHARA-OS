@@ -278,6 +278,11 @@ export type BookingSlotControl = Prisma.BookingSlotControlModel
  */
 export type PriceSetting = Prisma.PriceSettingModel
 /**
+ * Model ServiceCatalog
+ * 
+ */
+export type ServiceCatalog = Prisma.ServiceCatalogModel
+/**
  * Model FestivalOffer
  * 
  */
@@ -340,3 +345,8 @@ export type OpsReminderSettings = Prisma.OpsReminderSettingsModel
  * 
  */
 export type WebAuthnCredential = Prisma.WebAuthnCredentialModel
+/**
+ * Model OutboxJob
+ * 
+ */
+export type OutboxJob = Prisma.OutboxJobModel

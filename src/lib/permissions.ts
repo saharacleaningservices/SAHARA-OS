@@ -50,6 +50,15 @@ export function canViewSalary(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
 }
 
+/**
+ * Edit a job's billing: discount (flat / percent) and the 18% GST toggle + customer GSTIN. Owner decision 2026-10-22:
+ * Admin (Altaf), Accounts (Shoyab) and Operations (Francis) share the same billing permission, with no discount cap.
+ * Same set as canViewJobAmount — nobody who cannot see the amount can change it.
+ */
+export function canEditBilling(role: string): boolean {
+  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+}
+
 /** Profit dashboard (revenue − expenses − wages). Super Admin only. */
 export function canViewFinancials(role: string): boolean {
   return role === "ADMIN";

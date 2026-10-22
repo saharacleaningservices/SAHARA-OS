@@ -59,7 +59,7 @@ export const NAV_GROUPS: { key: NavGroupKey; label: string }[] = [
 const GROUP_BY_HREF: Record<string, NavGroupKey> = {
   "/dashboard": "dashboards", "/revenue": "dashboards", "/profit": "dashboards", "/profit/marketing": "dashboards",
   "/reports": "dashboards", "/reports/export-center": "dashboards",
-  "/leads": "sales", "/leads/price-list": "sales", "/quotations": "sales", "/invoices": "sales", "/payments": "sales",
+  "/leads": "sales", "/leads/price-list": "sales", "/service-catalog": "sales", "/quotations": "sales", "/invoices": "sales", "/payments": "sales",
   "/expenses": "sales", "/customers": "sales",
   "/jobs": "operations", "/jobs/quick-quote": "operations", "/jobs/dispatch": "operations", "/jobs/slots": "operations", "/staff": "operations",
   "/vehicles": "operations", "/attendance": "operations", "/amc": "operations",
@@ -76,6 +76,7 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   { label: "Dashboard", href: "/dashboard", section: "dashboard", icon: LayoutDashboard },
   { label: "Leads / CRM", href: "/leads", section: "leads", icon: Users },
   { label: "Price List", href: "/leads/price-list", section: "leads", icon: IndianRupee },
+  { label: "Service Catalog", href: "/service-catalog", section: "service-catalog", icon: FileText },
   // Operations — six entries (owner 2026-10-22): Jobs, Quick Quote, Dispatch & Slots, Team & Attendance, AMC, Specialized Services.
   { label: "Jobs", href: "/jobs", section: "jobs", icon: ClipboardList },
   { label: "Quick Quote Generator", href: "/jobs/quick-quote", section: "jobs", icon: Calculator },

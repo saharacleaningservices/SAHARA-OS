@@ -13,6 +13,7 @@ import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } f
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
+import { enqueueJobCompletedNotice, enqueueTeamDispatch } from "@/server/job-queue-handlers";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
@@ -102,7 +103,7 @@ export async function createJob(values: unknown) {
     await db.jobAssignment.createMany({
       data: data.staffIds.map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
     });
-    void dispatchTeamForJob(job.id).catch(() => {}); // WhatsApp round-trip in the background
+    void enqueueTeamDispatch(job.id); // queued (SQLite), retried with back-off — never blocks the request
     const crew = await db.staff.findMany({ where: { id: { in: data.staffIds } }, select: { name: true } });
     await notify({
       kind: "CREW_UPDATE",
@@ -197,7 +198,7 @@ export async function updateJob(id: string, values: unknown) {
       await db.jobAssignment.createMany({
         data: staffIds.map((staffId, i) => ({ jobId: id, staffId, isLead: i === 0 })),
       });
-      void dispatchTeamForJob(id).catch(() => {}); // background WhatsApp round-trip
+      void enqueueTeamDispatch(id); // queued (SQLite), retried with back-off
       const [job, crew] = await Promise.all([
         db.job.findUnique({ where: { id }, select: { jobNumber: true, customerName: true } }),
         db.staff.findMany({ where: { id: { in: staffIds } }, select: { name: true } }),
@@ -376,7 +377,10 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
   // Multi-service package → one invoice line per service + the discount; else one line.
   const pkg = parsePackage(job.serviceItems, job.discountAmount);
   const pkgTotals = packageTotals(pkg);
-  const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - job.jobValue) < 0.01;
+  // GST (optional, B2B): jobValue already carries it, so the taxable base is jobValue minus the GST.
+  const gstAmt = job.gstEnabled ? job.gstAmount : 0;
+  const baseTotal = job.jobValue - gstAmt;
+  const usePkg = pkg.lines.length > 0 && Math.abs(pkgTotals.final - baseTotal) < 0.01;
   const pkgName = [job.serviceVariant && job.serviceVariant !== job.packageName ? job.serviceVariant : null, job.packageName].filter(Boolean).join(" ");
   const title = [serviceLabel, pkgName].filter(Boolean).join(" — ");
   const areaText = job.area && !/^[\d\s-]+$/.test(job.area) ? job.area : null;
@@ -390,11 +394,11 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
       customerName: job.customerName,
       customerMobile: job.customerMobile,
       customerAddress: job.address,
-      lineItems: JSON.stringify(usePkg ? packageToQuoteItems(pkg) : [{ name: title, description: lineDetail, amount: job.jobValue }]),
-      subTotal: usePkg ? pkgTotals.subtotal : job.jobValue,
+      lineItems: JSON.stringify(usePkg ? packageToQuoteItems(pkg) : [{ name: title, description: lineDetail, amount: baseTotal }]),
+      subTotal: usePkg ? pkgTotals.subtotal : baseTotal,
       discount: usePkg ? pkgTotals.discount : 0,
-      gstPercent: 0,
-      gstAmount: 0,
+      gstPercent: gstAmt > 0 ? 18 : 0,
+      gstAmount: gstAmt,
       totalAmount: job.jobValue,
       notes: job.scopeOfWork || null,
       terms: quotation?.terms ?? null,
@@ -457,6 +461,7 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
     // Final invoice is generated + stored automatically on completion (any completion path).
     await createFinalInvoice(jobId, actorId).catch((e) => console.error("[invoice] auto-generate failed:", e));
     void sendReviewIfDue(job.id).catch(() => {}); // background — sends once, and only when nothing is left to collect
+    void enqueueJobCompletedNotice(job.id); // Pay Balance link — a no-op until sahara_job_completed_v1 is approved and switched on
   }
   if (status === "CANCELLED") {
     void sendBookingChangeNotice(jobId, "CANCELLED").catch(() => {}); // background
@@ -583,6 +588,7 @@ export async function completeJobWithCertificate(jobId: string, location?: unkno
   // Review request — sent once, right after completion (shared helper also
   // covers the plain "Mark Completed" status-button path in updateJobStatus).
   void sendReviewIfDue(job.id).catch(() => {}); // background — sends once, and only when nothing is left to collect
+  void enqueueJobCompletedNotice(job.id);
 
   await db.activityLog.create({
     data: { jobId, actorId: session?.sub, action: `Job marked complete — certificate generated${locationNote(cleanFix(location))}` },

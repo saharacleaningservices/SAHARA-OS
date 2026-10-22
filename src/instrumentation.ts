@@ -10,9 +10,11 @@ export async function register() {
   const { runOpsReminderSweep } = await import("@/server/ops-reminders");
   const { maybeBackupStaleAlert } = await import("@/server/backup-health");
   const { maybeHealthAlert } = await import("@/server/health");
+  const { runQueueSweep } = await import("@/server/job-queue-handlers");
   const tick = () => {
     void runOpsReminderSweep().catch((e) => console.error("[ops-reminders] sweep failed:", e));
     void maybeBackupStaleAlert(); // never throws; one alert/day while the last verified backup is >26 h old
+    void runQueueSweep().catch((e) => console.error("[queue] sweep failed:", e)); // crew dispatch / completion notices (SQLite queue)
     void maybeHealthAlert(); // never throws; one alert per 6 h when memory / DB / event loop turn unhealthy
   };
   setTimeout(tick, 30_000); // let the server finish booting first

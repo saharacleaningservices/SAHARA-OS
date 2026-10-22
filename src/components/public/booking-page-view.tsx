@@ -9,6 +9,9 @@ import { BookingChangeRequest } from "@/components/public/booking-change-request
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { CustomerDocument } from "@/components/public/customer-document";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+import { upiPayUri } from "@/lib/upi";
+import { getCatalogEntryForJob } from "@/server/service-catalog";
+import QRCode from "qrcode";
 
 // Customer-facing booking page body, reached only through the unguessable token in
 // the WhatsApp confirmation (never by the sequential job number). Shows the
@@ -80,6 +83,10 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
       festivalName: true,
       createdAt: true,
       completedAt: true,
+      gstEnabled: true,
+      gstAmount: true,
+      customerGstin: true,
+      lead: { select: { quotations: { orderBy: { createdAt: "desc" }, take: 1, select: { quoteNumber: true } } } },
       invoice: { select: { invoiceNumber: true } },
       payments: { where: { deletedAt: null }, select: { amount: true, paidAmount: true } },
     },
@@ -100,6 +107,18 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   const showPay = pmt.due > 0 && job.status !== "CANCELLED";
   const hasPaymentDetails = !!(settings?.upiId || settings?.upiQrUrl);
   const support = ["8956567130", "7083347130"];
+  // Dynamic UPI QR for the exact balance (PhonePe / GPay / any UPI app scan it) — documents only.
+  let upiQrDataUrl: string | null = null;
+  if ((focus === "invoice" || focus === "quotation") && settings?.upiId && pmt.due > 0) {
+    try {
+      upiQrDataUrl = await QRCode.toDataURL(upiPayUri({ upiId: settings.upiId, payeeName: settings.name || COMPANY.name, amount: pmt.due, note: job.invoice?.invoiceNumber || job.jobNumber }), { margin: 1, width: 240 });
+    } catch {
+      upiQrDataUrl = null;
+    }
+  }
+  // Reference IDs and (quotation only) the Service Catalog wording — read from the database, never retyped.
+  const customer = focus === "invoice" || focus === "quotation" ? await db.customer.findFirst({ where: { mobile: job.customerMobile }, select: { customerNumber: true } }) : null;
+  const catalogEntry = focus === "quotation" ? await getCatalogEntryForJob({ service: job.service, packageName: job.packageName, serviceVariant: job.serviceVariant }) : null;
   let included: string[] = [];
   try {
     const v = job.comboServices ? JSON.parse(job.comboServices) : [];
@@ -159,6 +178,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           <CustomerDocument
             kind={focus === "invoice" ? "INVOICE" : "QUOTATION"}
             shareUrl={`${PUBLIC_BOOKING_URL}/booking/${focus}/${token}`}
+            catalog={catalogEntry ? { name: catalogEntry.name, scope: catalogEntry.scopeOfWork, equipment: catalogEntry.equipmentsUsed, terms: catalogEntry.termsConditions } : null}
             company={{
               name: settings?.name || COMPANY.name,
               phone: settings?.phone || COMPANY.phones[0],
@@ -172,6 +192,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               bankAccountName: null,
               bankAccountNumber: null,
               bankIfsc: null,
+              upiQrDataUrl,
             }}
             job={{
               jobNumber: job.jobNumber,
@@ -194,6 +215,11 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               festivalName: job.festivalName,
               paid: pmt.paid,
               invoiceNumber: job.invoice?.invoiceNumber ?? null,
+              gstEnabled: job.gstEnabled,
+              gstAmount: job.gstAmount,
+              customerGstin: job.customerGstin,
+              customerNumber: customer?.customerNumber ?? null,
+              quotationNumber: job.lead?.quotations[0]?.quoteNumber ?? null,
             }}
           />
         )}

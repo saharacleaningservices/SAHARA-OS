@@ -348,7 +348,7 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     purpose: "Payment confirmation with receipt page + helpline call button (sent only after staff records the payment)",
     header: { type: "IMAGE", sample: BOOKING_HEADER_IMAGE },
     body:
-      "Hi {{1}}, we have received your payment of ₹{{2}} for booking {{3}} by {{4}}.\n\nBalance due: ₹{{5}}\n\nThank you for choosing Sahara Cleaning Services.",
+      "Hi {{1}},\nWe have successfully received your advance payment of ₹{{2}} for Booking ID {{3}}.\n\n🧾 Payment Details:\n• Payment Mode: {{4}}\n• Remaining Balance: ₹{{5}}\n\nOur team will reach your location on schedule.",
     examples: ["Priya", "1,000", "JOB-2026-0150", "UPI", "2,999"],
     buttons: [
       { type: "URL", text: "View Receipt", url: `${PUBLIC_BOOKING_URL}/booking/receipt/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/receipt/${EX_TOKEN}` },

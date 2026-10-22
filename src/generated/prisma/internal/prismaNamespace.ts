@@ -442,6 +442,7 @@ export const ModelName = {
   MarketingSpend: 'MarketingSpend',
   BookingSlotControl: 'BookingSlotControl',
   PriceSetting: 'PriceSetting',
+  ServiceCatalog: 'ServiceCatalog',
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
   StaffLedgerEntry: 'StaffLedgerEntry',
@@ -453,7 +454,8 @@ export const ModelName = {
   OpsReminder: 'OpsReminder',
   OpsReminderEvent: 'OpsReminderEvent',
   OpsReminderSettings: 'OpsReminderSettings',
-  WebAuthnCredential: 'WebAuthnCredential'
+  WebAuthnCredential: 'WebAuthnCredential',
+  OutboxJob: 'OutboxJob'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -469,7 +471,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4321,6 +4323,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ServiceCatalog: {
+      payload: Prisma.$ServiceCatalogPayload<ExtArgs>
+      fields: Prisma.ServiceCatalogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceCatalogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceCatalogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceCatalogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceCatalogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceCatalogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceCatalogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceCatalogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceCatalogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceCatalogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        update: {
+          args: Prisma.ServiceCatalogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceCatalogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceCatalogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceCatalogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceCatalogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceCatalogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceCatalog>
+        }
+        groupBy: {
+          args: Prisma.ServiceCatalogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceCatalogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceCatalogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceCatalogCountAggregateOutputType> | number
+        }
+      }
+    }
     FestivalOffer: {
       payload: Prisma.$FestivalOfferPayload<ExtArgs>
       fields: Prisma.FestivalOfferFieldRefs
@@ -5209,6 +5285,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OutboxJob: {
+      payload: Prisma.$OutboxJobPayload<ExtArgs>
+      fields: Prisma.OutboxJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutboxJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutboxJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>
+        }
+        findFirst: {
+          args: Prisma.OutboxJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutboxJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>
+        }
+        findMany: {
+          args: Prisma.OutboxJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>[]
+        }
+        create: {
+          args: Prisma.OutboxJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>
+        }
+        createMany: {
+          args: Prisma.OutboxJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutboxJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>[]
+        }
+        delete: {
+          args: Prisma.OutboxJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>
+        }
+        update: {
+          args: Prisma.OutboxJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.OutboxJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutboxJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutboxJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.OutboxJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxJobPayload>
+        }
+        aggregate: {
+          args: Prisma.OutboxJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutboxJob>
+        }
+        groupBy: {
+          args: Prisma.OutboxJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutboxJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxJobCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -5606,6 +5756,11 @@ export const JobScalarFieldEnum = {
   teamSnapshot: 'teamSnapshot',
   serviceItems: 'serviceItems',
   discountAmount: 'discountAmount',
+  gstEnabled: 'gstEnabled',
+  gstAmount: 'gstAmount',
+  customerGstin: 'customerGstin',
+  discountMode: 'discountMode',
+  discountValue: 'discountValue',
   priceType: 'priceType',
   festivalName: 'festivalName',
   scopeOfWork: 'scopeOfWork',
@@ -6234,6 +6389,24 @@ export const PriceSettingScalarFieldEnum = {
 export type PriceSettingScalarFieldEnum = (typeof PriceSettingScalarFieldEnum)[keyof typeof PriceSettingScalarFieldEnum]
 
 
+export const ServiceCatalogScalarFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  serviceGroup: 'serviceGroup',
+  scopeOfWork: 'scopeOfWork',
+  termsConditions: 'termsConditions',
+  equipmentsUsed: 'equipmentsUsed',
+  reviewed: 'reviewed',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  updatedByName: 'updatedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceCatalogScalarFieldEnum = (typeof ServiceCatalogScalarFieldEnum)[keyof typeof ServiceCatalogScalarFieldEnum]
+
+
 export const FestivalOfferScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -6461,6 +6634,23 @@ export const WebAuthnCredentialScalarFieldEnum = {
 } as const
 
 export type WebAuthnCredentialScalarFieldEnum = (typeof WebAuthnCredentialScalarFieldEnum)[keyof typeof WebAuthnCredentialScalarFieldEnum]
+
+
+export const OutboxJobScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  payload: 'payload',
+  dedupeKey: 'dedupeKey',
+  status: 'status',
+  attempts: 'attempts',
+  runAt: 'runAt',
+  lockedAt: 'lockedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutboxJobScalarFieldEnum = (typeof OutboxJobScalarFieldEnum)[keyof typeof OutboxJobScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -6826,6 +7016,7 @@ export type GlobalOmitConfig = {
   marketingSpend?: Prisma.MarketingSpendOmit
   bookingSlotControl?: Prisma.BookingSlotControlOmit
   priceSetting?: Prisma.PriceSettingOmit
+  serviceCatalog?: Prisma.ServiceCatalogOmit
   festivalOffer?: Prisma.FestivalOfferOmit
   festivalPrice?: Prisma.FestivalPriceOmit
   staffLedgerEntry?: Prisma.StaffLedgerEntryOmit
@@ -6838,6 +7029,7 @@ export type GlobalOmitConfig = {
   opsReminderEvent?: Prisma.OpsReminderEventOmit
   opsReminderSettings?: Prisma.OpsReminderSettingsOmit
   webAuthnCredential?: Prisma.WebAuthnCredentialOmit
+  outboxJob?: Prisma.OutboxJobOmit
 }
 
 /* Types for Logging */

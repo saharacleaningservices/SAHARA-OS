@@ -32,7 +32,7 @@ import {
 } from "@/lib/constants";
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
-import { dispatchTeamForJob } from "@/server/dispatch";
+import { enqueueQuotationNotice, enqueueTeamDispatch } from "@/server/job-queue-handlers";
 import { sendBookingConfirmation } from "@/server/booking-messages";
 import { canAccessLead } from "@/server/leads";
 import { channelForManualLead } from "@/lib/attribution";
@@ -773,7 +773,7 @@ export async function confirmBooking(leadId: string, values: unknown) {
   // Meta round-trips run in the background (in order) so Confirm Booking returns at once.
   void (async () => {
     await sendBookingConfirmation(job.id).catch(() => {});
-    await dispatchTeamForJob(job.id).catch(() => {});
+    await enqueueTeamDispatch(job.id);
   })();
 
   revalidatePath("/leads");
@@ -1124,6 +1124,7 @@ export async function createQuotation(
     authorId: session?.sub,
   });
 
+  void enqueueQuotationNotice(quotation.id); // View Estimate link to the customer, queued
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/leads");
   return { success: true, quotationId: quotation.id };

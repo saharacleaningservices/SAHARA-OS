@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download, Share2 } from "lucide-react";
 
 /** Print / Save as PDF and Share for the customer quotation or invoice (hidden when printing). */
 export function DocumentActions({ shareUrl, title }: { shareUrl: string; title: string }) {
   const [copied, setCopied] = useState(false);
+  // CRM "A4 PDF" button opens this page with ?print=1 — the browser's Save-as-PDF dialog (A4, print layout) opens by itself.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("print") !== "1") return;
+    const t = setTimeout(() => window.print(), 700);
+    return () => clearTimeout(t);
+  }, []);
   async function share() {
     try {
       if (navigator.share) {

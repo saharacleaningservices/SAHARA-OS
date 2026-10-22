@@ -58,6 +58,7 @@ const PUBLIC_PATHS = [
   "/sitemap.xml",
   "/book",
   "/j/",
+  "/crew-card/", // signed crew job card (no phone, no amounts)
   "/gallery",
   "/offers",
   "/home-deep-cleaning-pune",

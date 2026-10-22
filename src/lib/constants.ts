@@ -638,6 +638,7 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           // Scoped list (new / assigned / created by him / today-tomorrow) —
           // see operationsLeadWhere in server/leads.ts.
           "leads",
+          "service-catalog", // Service Catalog: scope, terms and equipment per service (no prices) — owner 2026-10-22
           "jobs",
           "staff",
           "vehicles",
@@ -664,6 +665,7 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
     ACCOUNTS: [
           "dashboard",
           "leads",
+          "service-catalog", // Service Catalog: scope, terms and equipment per service (no prices) — owner 2026-10-22
           "jobs",
           "staff",
           "vehicles",

@@ -101,6 +101,7 @@ export const ModelName = {
   MarketingSpend: 'MarketingSpend',
   BookingSlotControl: 'BookingSlotControl',
   PriceSetting: 'PriceSetting',
+  ServiceCatalog: 'ServiceCatalog',
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
   StaffLedgerEntry: 'StaffLedgerEntry',
@@ -112,7 +113,8 @@ export const ModelName = {
   OpsReminder: 'OpsReminder',
   OpsReminderEvent: 'OpsReminderEvent',
   OpsReminderSettings: 'OpsReminderSettings',
-  WebAuthnCredential: 'WebAuthnCredential'
+  WebAuthnCredential: 'WebAuthnCredential',
+  OutboxJob: 'OutboxJob'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -489,6 +491,11 @@ export const JobScalarFieldEnum = {
   teamSnapshot: 'teamSnapshot',
   serviceItems: 'serviceItems',
   discountAmount: 'discountAmount',
+  gstEnabled: 'gstEnabled',
+  gstAmount: 'gstAmount',
+  customerGstin: 'customerGstin',
+  discountMode: 'discountMode',
+  discountValue: 'discountValue',
   priceType: 'priceType',
   festivalName: 'festivalName',
   scopeOfWork: 'scopeOfWork',
@@ -1117,6 +1124,24 @@ export const PriceSettingScalarFieldEnum = {
 export type PriceSettingScalarFieldEnum = (typeof PriceSettingScalarFieldEnum)[keyof typeof PriceSettingScalarFieldEnum]
 
 
+export const ServiceCatalogScalarFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  serviceGroup: 'serviceGroup',
+  scopeOfWork: 'scopeOfWork',
+  termsConditions: 'termsConditions',
+  equipmentsUsed: 'equipmentsUsed',
+  reviewed: 'reviewed',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  updatedByName: 'updatedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceCatalogScalarFieldEnum = (typeof ServiceCatalogScalarFieldEnum)[keyof typeof ServiceCatalogScalarFieldEnum]
+
+
 export const FestivalOfferScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1344,6 +1369,23 @@ export const WebAuthnCredentialScalarFieldEnum = {
 } as const
 
 export type WebAuthnCredentialScalarFieldEnum = (typeof WebAuthnCredentialScalarFieldEnum)[keyof typeof WebAuthnCredentialScalarFieldEnum]
+
+
+export const OutboxJobScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  payload: 'payload',
+  dedupeKey: 'dedupeKey',
+  status: 'status',
+  attempts: 'attempts',
+  runAt: 'runAt',
+  lockedAt: 'lockedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutboxJobScalarFieldEnum = (typeof OutboxJobScalarFieldEnum)[keyof typeof OutboxJobScalarFieldEnum]
 
 
 export const SortOrder = {

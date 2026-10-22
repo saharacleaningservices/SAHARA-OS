@@ -14,7 +14,8 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
 import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
-import { canViewRevenue, canViewJobAmount, canSeeCustomerContact as canSeeContact } from "@/lib/permissions";
+import { JobBillingCard } from "@/components/jobs/job-billing-card";
+import { canEditBilling, canViewRevenue, canViewJobAmount, canSeeCustomerContact as canSeeContact } from "@/lib/permissions";
 import { formatINR, formatDate, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
@@ -245,6 +246,20 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             />
           </div>
 
+          {canEditBilling(session.role) && job.status !== "CANCELLED" && !job.isDemo && (
+            <JobBillingCard
+              jobId={job.id}
+              jobValue={job.jobValue}
+              gstAmount={job.gstAmount}
+              discountAmount={job.discountAmount}
+              discountMode={job.discountMode}
+              discountValue={job.discountValue}
+              gstEnabled={job.gstEnabled}
+              customerGstin={job.customerGstin}
+              advance={advance}
+            />
+          )}
+
           {/* Quotation → Invoice: the only place these controls live. */}
           {canSendDocs && (
             <div className="mt-3 space-y-2 rounded-lg bg-muted/40 p-2.5 text-sm">
@@ -259,6 +274,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <span className="flex gap-1.5">
                     <Button size="sm" variant="outline" asChild>
                       <a href={quotationUrl} target="_blank" rel="noreferrer"><FileText className="size-3.5" /> View</a>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`${quotationUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> A4 PDF</a>
                     </Button>
                     <Button size="sm" variant="outline" asChild>
                       <a href={toWhatsAppLink(job.customerMobile, docMessage("quotation", quotationUrl))} target="_blank" rel="noreferrer">
@@ -277,6 +295,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   <span className="flex gap-1.5">
                     <Button size="sm" variant="outline" asChild>
                       <a href={invoiceUrl} target="_blank" rel="noreferrer"><Receipt className="size-3.5" /> View</a>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`${invoiceUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> A4 PDF</a>
                     </Button>
                     <Button size="sm" variant="outline" asChild>
                       <a href={`/api/invoices/${job.invoice.id}/pdf`} target="_blank" rel="noreferrer"><FileText className="size-3.5" /> PDF</a>

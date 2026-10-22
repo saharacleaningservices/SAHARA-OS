@@ -40,6 +40,8 @@ import { getResolvedIntegrations } from "@/server/integrations";
 export type WhatsAppKind =
   | "BOOKING_CONFIRMATION"
   | "TEAM_DISPATCH"
+  | "JOB_COMPLETED"
+  | "QUOTATION_NOTICE"
   | "CUSTOMER_REMINDER"
   | "PAYMENT_REMINDER"
   | "REVIEW_REQUEST"

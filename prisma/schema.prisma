@@ -186,6 +186,8 @@ enum AmcStatus {
 }
 
 enum WhatsAppKind {
+  JOB_COMPLETED
+  QUOTATION_NOTICE
   BOOKING_CONFIRMATION
   TEAM_DISPATCH
   CUSTOMER_REMINDER
@@ -719,6 +721,13 @@ model Job {
   teamSnapshot String?
   serviceItems   String? // package lines carried from the enquiry (Package Calculator)
   discountAmount Float?
+  // Billing (owner 2026-10-22): optional 18% GST (B2B), the discount as entered, and the customer GSTIN.
+  // jobValue is always the FINAL payable total (discount applied, GST included when gstEnabled).
+  gstEnabled     Boolean @default(false)
+  gstAmount      Float   @default(0)
+  customerGstin  String?
+  discountMode   String? // FLAT | PERCENT
+  discountValue  Float?
 
   // Price snapshot frozen at booking (2026-10-05 pricing master): REGULAR |
   // FESTIVAL, the festival name, and the scope text the customer booked.
@@ -1517,6 +1526,23 @@ model PriceSetting {
   updatedAt     DateTime @updatedAt
 }
 
+// Service Catalog (owner 2026-10-22): the written scope of work, terms & conditions and equipment for each service. Prices are
+// NOT here — they stay in the pricing master. Defaults live in src/lib/service-catalog-seed.ts and are copied in on demand.
+model ServiceCatalog {
+  slug            String   @id
+  name            String
+  serviceGroup    String // HOME | COMMERCIAL | PEST_CONTROL | PAINTING
+  scopeOfWork     String // JSON string[]
+  termsConditions String // JSON string[]
+  equipmentsUsed  String // JSON string[]
+  reviewed        Boolean  @default(false) // true once the owner has read and approved this wording
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  updatedByName   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model FestivalOffer {
   id            String          @id @default(cuid())
   name          String
@@ -1774,4 +1800,23 @@ model WebAuthnCredential {
   lastUsedAt   DateTime?
 
   @@index([userId])
+}
+
+// SQLite-backed background job queue (owner 2026-10-22: no Redis/BullMQ). Work that talks to WhatsApp (crew dispatch,
+// completion notice) is queued so a request never waits on Meta, retried with back-off, and never duplicated.
+model OutboxJob {
+  id        String    @id @default(cuid())
+  kind      String // TEAM_DISPATCH | JOB_COMPLETED_NOTICE
+  payload   String // JSON
+  dedupeKey String? // an unfinished job with the same key is not queued twice
+  status    String    @default("PENDING") // PENDING | RUNNING | DONE | FAILED
+  attempts  Int       @default(0)
+  runAt     DateTime  @default(now())
+  lockedAt  DateTime?
+  lastError String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, runAt])
+  @@index([dedupeKey])
 }

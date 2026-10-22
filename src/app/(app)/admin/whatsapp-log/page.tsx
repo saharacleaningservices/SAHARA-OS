@@ -11,6 +11,8 @@ import { WhatsAppConsentCard } from "@/components/settings/whatsapp-consent-card
 import { WhatsAppStaleQueueCard } from "@/components/settings/whatsapp-stale-queue-card";
 import { formatDateTime } from "@/lib/utils";
 import { Info } from "lucide-react";
+import { MetaTemplateSubmitCard } from "@/components/settings/meta-template-submit-card";
+import { SUBMITTABLE_TEMPLATES } from "@/lib/meta-template-payload";
 
 export default async function MessageLogPage() {
   const me = await requireRole(["ADMIN", "ACCOUNTS"]);
@@ -80,6 +82,7 @@ export default async function MessageLogPage() {
       )}
 
       {stalePreview && <WhatsAppStaleQueueCard initial={stalePreview} />}
+      {me.role === "ADMIN" && <MetaTemplateSubmitCard names={SUBMITTABLE_TEMPLATES} />}
 
       <WhatsAppConsentCard optedOut={optedOut} />
 
