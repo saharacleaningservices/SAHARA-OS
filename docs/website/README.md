@@ -26,7 +26,13 @@ Plan: `WEBSITE_REDESIGN_PLAN_2026-10-22.md` (kept outside the repo).
 Characterisation: validation messages and codes, honeypot, lead/follow-up/timeline/customer/acknowledgement/alert, duplicate handling, one acknowledgement per day, "browser estimate / advance paid is never trusted", server re-pricing, inspection-only properties, opt-in, attribution, throttling.
 Contract: inert 404; auth (token, timestamp edge, tampered body, stale/future); 401 body; request-shape 400s; 413; business refusals -> status + code; idempotent replay, mismatch, concurrent duplicates, un-pinned failures; per-visitor throttling; server pricing; catalogue shape/ETag/304/determinism; honest-pricing invariants; price parity with the booking wizard's own pricing code; slot clamping and no internals leaked.
 Mutation-checked: removing the replay window, ignoring auth failures, removing idempotency, faking a strike price, or leaking the honeypot code each made a test fail (files restored afterwards).
-**Not covered yet:** slot-full rejection, the quotation-link booking path, the WhatsApp template branch, upsell events, booking-link close-out, festival-window pricing at booking time (clock dependent), the live HTTP layer (handlers are called directly with real `NextRequest`s; the middleware change is not exercised).
+**Not covered yet:** slot-full rejection, the quotation-link booking path, the WhatsApp template branch, upsell events, booking-link close-out, festival-window pricing at booking time (clock dependent), a committed HTTP-level test (the unit tests call the handlers directly with real `NextRequest`s).
+
+## Verified on a real production build (22 Oct 2026, manual, throwaway DB, nothing deployed)
+Clean `npm ci` + `npm run build` succeeded; the built app was started twice and called over real HTTP.
+- **Unconfigured:** all three routes answered an empty 404 with no login redirect (so the middleware allowance works and the API is inert).
+- **Configured (64-char test secrets):** unsigned catalogue 401; signed catalogue 200 (40 items, Diwali window detected, strike prices only above the price paid); slots 200; signed lead 200 with a lead number; same-key retry replayed; bad mobile 400 VALIDATION; bad date 400; `/api/health`, `/booking`, `/login` unaffected; `/dashboard` still redirects to `/login`; `/api/backup` still 401; zero server errors.
+- Secrets shorter than 24 characters keep the API inert (this caught my own too-short test secrets once).
 
 ## Before any of this goes live
 1. Owner approval to merge to `coolify-deploy` (it changes the production booking path: the Server Action now calls the core).
