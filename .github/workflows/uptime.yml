@@ -17,6 +17,7 @@ concurrency:
 permissions:
   contents: read
   issues: write
+  actions: read # lets the alert look up the last successful run (uptime_last_good.sh)
 
 jobs:
   check:
@@ -48,6 +49,7 @@ jobs:
         run: |
           gh label create uptime --color B60205 --description "Automatic uptime alert" 2>/dev/null || true
           now="$(TZ=Asia/Kolkata date '+%d %b %Y %H:%M IST')"
+          note="$(bash .github/scripts/uptime_last_good.sh)"
           open="$(gh issue list --label uptime --state open --json number --jq '.[0].number')"
           if [ -z "$open" ]; then
             gh issue create --label uptime \
@@ -56,9 +58,13 @@ jobs:
 
           Down: ${DOWN}
 
+          ${note}
+
           First steps: hPanel → VPS → Overview (status, CPU/RAM), Coolify → sahara-os → Logs, reboot from hPanel if the VPS does not answer at all. This issue closes automatically when the sites answer again."
           else
-            gh issue comment "$open" --body "Still down at ${now}: ${DOWN}"
+            gh issue comment "$open" --body "Still down at ${now}: ${DOWN}
+
+          ${note}"
           fi
 
       - name: Close the outage issue when back up
@@ -68,5 +74,8 @@ jobs:
         run: |
           open="$(gh issue list --label uptime --state open --json number --jq '.[0].number')"
           if [ -n "$open" ]; then
-            gh issue close "$open" --comment "Back up at $(TZ=Asia/Kolkata date '+%d %b %Y %H:%M IST'): all checks answered."
+            note="$(bash .github/scripts/uptime_last_good.sh)"
+            gh issue close "$open" --comment "Back up at $(TZ=Asia/Kolkata date '+%d %b %Y %H:%M IST'): all checks answered.
+
+          ${note}"
           fi
