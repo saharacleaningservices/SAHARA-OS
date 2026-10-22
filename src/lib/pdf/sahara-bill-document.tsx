@@ -74,7 +74,8 @@ function makeStyles(k: number) {
   signLbl: { fontFamily: "Helvetica-Bold", fontSize: z(8.5) },
   signName: { fontSize: z(8), color: MUTED },
   payRow: { flexDirection: "row", alignItems: "center", marginTop: z(6) },
-  qr: { width: z(70), height: z(70), borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: z(3), marginRight: z(10) },
+  // Fixed 78 pt (2.75 cm) whatever the page scale: the code itself stays above 2.5 cm and keeps its white quiet zone.
+  qr: { width: 78, height: 78, borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: 1.5, marginRight: z(10), backgroundColor: "#ffffff" },
   bankGrid: { flexDirection: "row", marginBottom: z(1) },
   bankK: { width: 64, fontSize: z(8), fontFamily: "Helvetica-Bold" },
   bankV: { fontSize: z(8), color: MUTED, flexShrink: 1 },
