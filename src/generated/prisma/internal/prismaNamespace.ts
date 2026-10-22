@@ -442,6 +442,7 @@ export const ModelName = {
   MarketingSpend: 'MarketingSpend',
   BookingSlotControl: 'BookingSlotControl',
   PriceSetting: 'PriceSetting',
+  ServiceCatalog: 'ServiceCatalog',
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
   StaffLedgerEntry: 'StaffLedgerEntry',
@@ -470,7 +471,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4322,6 +4323,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ServiceCatalog: {
+      payload: Prisma.$ServiceCatalogPayload<ExtArgs>
+      fields: Prisma.ServiceCatalogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceCatalogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceCatalogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceCatalogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceCatalogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceCatalogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceCatalogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceCatalogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceCatalogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceCatalogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        update: {
+          args: Prisma.ServiceCatalogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceCatalogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceCatalogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceCatalogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceCatalogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceCatalogPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceCatalogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceCatalog>
+        }
+        groupBy: {
+          args: Prisma.ServiceCatalogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceCatalogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceCatalogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceCatalogCountAggregateOutputType> | number
+        }
+      }
+    }
     FestivalOffer: {
       payload: Prisma.$FestivalOfferPayload<ExtArgs>
       fields: Prisma.FestivalOfferFieldRefs
@@ -6314,6 +6389,24 @@ export const PriceSettingScalarFieldEnum = {
 export type PriceSettingScalarFieldEnum = (typeof PriceSettingScalarFieldEnum)[keyof typeof PriceSettingScalarFieldEnum]
 
 
+export const ServiceCatalogScalarFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  serviceGroup: 'serviceGroup',
+  scopeOfWork: 'scopeOfWork',
+  termsConditions: 'termsConditions',
+  equipmentsUsed: 'equipmentsUsed',
+  reviewed: 'reviewed',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  updatedByName: 'updatedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceCatalogScalarFieldEnum = (typeof ServiceCatalogScalarFieldEnum)[keyof typeof ServiceCatalogScalarFieldEnum]
+
+
 export const FestivalOfferScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -6923,6 +7016,7 @@ export type GlobalOmitConfig = {
   marketingSpend?: Prisma.MarketingSpendOmit
   bookingSlotControl?: Prisma.BookingSlotControlOmit
   priceSetting?: Prisma.PriceSettingOmit
+  serviceCatalog?: Prisma.ServiceCatalogOmit
   festivalOffer?: Prisma.FestivalOfferOmit
   festivalPrice?: Prisma.FestivalPriceOmit
   staffLedgerEntry?: Prisma.StaffLedgerEntryOmit

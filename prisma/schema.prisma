@@ -1525,6 +1525,23 @@ model PriceSetting {
   updatedAt     DateTime @updatedAt
 }
 
+// Service Catalog (owner 2026-10-22): the written scope of work, terms & conditions and equipment for each service. Prices are
+// NOT here — they stay in the pricing master. Defaults live in src/lib/service-catalog-seed.ts and are copied in on demand.
+model ServiceCatalog {
+  slug            String   @id
+  name            String
+  serviceGroup    String // HOME | COMMERCIAL | PEST_CONTROL | PAINTING
+  scopeOfWork     String // JSON string[]
+  termsConditions String // JSON string[]
+  equipmentsUsed  String // JSON string[]
+  reviewed        Boolean  @default(false) // true once the owner has read and approved this wording
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  updatedByName   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model FestivalOffer {
   id            String          @id @default(cuid())
   name          String

@@ -101,6 +101,7 @@ export const ModelName = {
   MarketingSpend: 'MarketingSpend',
   BookingSlotControl: 'BookingSlotControl',
   PriceSetting: 'PriceSetting',
+  ServiceCatalog: 'ServiceCatalog',
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
   StaffLedgerEntry: 'StaffLedgerEntry',
@@ -1121,6 +1122,24 @@ export const PriceSettingScalarFieldEnum = {
 } as const
 
 export type PriceSettingScalarFieldEnum = (typeof PriceSettingScalarFieldEnum)[keyof typeof PriceSettingScalarFieldEnum]
+
+
+export const ServiceCatalogScalarFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  serviceGroup: 'serviceGroup',
+  scopeOfWork: 'scopeOfWork',
+  termsConditions: 'termsConditions',
+  equipmentsUsed: 'equipmentsUsed',
+  reviewed: 'reviewed',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  updatedByName: 'updatedByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceCatalogScalarFieldEnum = (typeof ServiceCatalogScalarFieldEnum)[keyof typeof ServiceCatalogScalarFieldEnum]
 
 
 export const FestivalOfferScalarFieldEnum = {

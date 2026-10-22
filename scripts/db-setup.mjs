@@ -1704,6 +1704,20 @@ db.close();
     );
     CREATE INDEX IF NOT EXISTS "OpsReminderEvent_reminderId_idx" ON "OpsReminderEvent"("reminderId");
     CREATE INDEX IF NOT EXISTS "OpsReminderEvent_createdAt_idx" ON "OpsReminderEvent"("createdAt");
+    CREATE TABLE IF NOT EXISTS "ServiceCatalog" (
+      "slug" TEXT NOT NULL PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "serviceGroup" TEXT NOT NULL,
+      "scopeOfWork" TEXT NOT NULL,
+      "termsConditions" TEXT NOT NULL,
+      "equipmentsUsed" TEXT NOT NULL,
+      "reviewed" BOOLEAN NOT NULL DEFAULT 0,
+      "isActive" BOOLEAN NOT NULL DEFAULT 1,
+      "sortOrder" INTEGER NOT NULL DEFAULT 0,
+      "updatedByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
     CREATE TABLE IF NOT EXISTS "OutboxJob" (
       "id" TEXT NOT NULL PRIMARY KEY,
       "kind" TEXT NOT NULL,
