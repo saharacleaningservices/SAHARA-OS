@@ -182,7 +182,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
       {/* Saved / printed PDF: A4 with slim margins so a normal quotation fits on one page. */}
       <style>{"@media print{@page{size:A4;margin:7mm}html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}#document{break-inside:avoid;page-break-inside:avoid}#document section,#document li,#document footer{break-inside:avoid;page-break-inside:avoid}}"}</style>
       {/* Header */}
-      <header className="flex items-start justify-between gap-3 border-b border-[#0a2540]/10 p-4 sm:p-6 print:px-4 print:py-2">
+      <header className="flex flex-col gap-3 border-b border-[#0a2540]/10 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6 print:flex-row print:items-start print:justify-between print:px-4 print:py-2">
         <div className="min-w-0">
           <div className="flex items-center gap-3 sm:gap-4">
             {company.logoUrl && (
@@ -200,8 +200,8 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
           </p>
           <p className="text-[11px] text-[#0a2540]/70">GSTIN {COMPANY.gstin}</p>
         </div>
-        <div className="shrink-0 text-right">
-          <p className="rounded-md bg-primary px-2 py-1 text-[11px] font-extrabold tracking-widest text-white sm:text-xs">{isInvoice ? "INVOICE" : "QUOTATION"}</p>
+        <div className="shrink-0 sm:text-right print:text-right">
+          <p className="inline-block rounded-md bg-primary px-2 py-1 text-[11px] font-extrabold tracking-widest text-white sm:text-xs">{isInvoice ? "INVOICE" : "QUOTATION"}</p>
           <p className="mt-2 text-[10px] uppercase text-[#0a2540]/55">{isInvoice ? "Invoice No." : "Quotation No."}</p>
           <p className="text-xs font-bold">{docNo}</p>
           <p className="mt-1 text-[10px] uppercase text-[#0a2540]/55">Date</p>
