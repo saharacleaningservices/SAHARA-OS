@@ -8,7 +8,8 @@ import { conversionRate } from "../src/server/dashboard-extras";
 import { funnelWidths, stepRates } from "../src/components/marketing/conversion-funnel";
 import { formatCompactINR } from "../src/lib/utils";
 import { NAV_GROUPS, NAV_ITEMS } from "../src/components/layout/nav-config";
-import { canAccess } from "../src/lib/constants";
+import { canAccess, JOB_STATUSES } from "../src/lib/constants";
+import { JOB_DISPLAY_LABELS, JOB_DISPLAY_STATUSES, cleanCustomerName, jobDisplayLabel, jobDisplayStatus, jobMatchesStatusFilter, storedStatusesFor } from "../src/lib/job-display";
 
 // ---- role dashboards -------------------------------------------------------------------------------------------------
 test("'view as' is an ADMIN-only preview; every other role always gets its own dashboard", () => {
@@ -117,4 +118,50 @@ test("Payment Link Sender is a money page: Admin and Accounts only", () => {
   assert.equal(canAccess("ACCOUNTS", item.section), true);
   assert.equal(canAccess("OPERATIONS", item.section), false);
   assert.match(readFileSync("src/app/(app)/payments/send-link/page.tsx", "utf8"), /requireRole\(\["ADMIN", "ACCOUNTS"\]\)/);
+});
+
+// ---- jobs: six display statuses, filters, names --------------------------------------------------------------------------
+test("every stored job status maps to one of exactly six display labels; ASSIGNED reads 'Confirmed'", () => {
+  assert.equal(JOB_DISPLAY_STATUSES.length, 6);
+  assert.deepEqual(Object.values(JOB_DISPLAY_LABELS), ["Confirmed", "Work Started", "Completed", "Postponed / Rescheduled", "Cancelled", "Pending Work"]);
+  for (const s of JOB_STATUSES) assert.ok(jobDisplayStatus(s), `${s} has a display status`);
+  assert.equal(jobDisplayLabel("ASSIGNED"), "Confirmed");
+  assert.equal(jobDisplayLabel("REACTIVATED"), "Confirmed");
+  assert.equal(jobDisplayLabel("ON_THE_WAY"), "Work Started");
+  assert.equal(jobDisplayLabel("STARTED"), "Work Started");
+  assert.equal(jobDisplayLabel("PENDING"), "Pending Work");
+  assert.equal(jobDisplayLabel("POSTPONED"), "Postponed / Rescheduled");
+  assert.equal(jobDisplayLabel("SOMETHING_NEW"), "SOMETHING_NEW", "unknown values are shown as stored, never hidden");
+  const covered = JOB_DISPLAY_STATUSES.flatMap((d) => storedStatusesFor(d)).sort();
+  assert.deepEqual(covered, [...JOB_STATUSES].sort(), "the six groups cover every stored status exactly once");
+});
+
+test("list filter accepts the new display keys and old stored-status links", () => {
+  assert.equal(jobMatchesStatusFilter("ASSIGNED", "CONFIRMED"), true);
+  assert.equal(jobMatchesStatusFilter("ON_THE_WAY", "WORK_STARTED"), true);
+  assert.equal(jobMatchesStatusFilter("COMPLETED", "WORK_STARTED"), false);
+  assert.equal(jobMatchesStatusFilter("PENDING", "PENDING"), true, "old /jobs?status=PENDING links still work");
+  assert.equal(jobMatchesStatusFilter("ASSIGNED", "PENDING"), false);
+  assert.equal(jobMatchesStatusFilter("CANCELLED", "ALL"), true);
+  assert.equal(jobMatchesStatusFilter("CANCELLED", ""), true);
+});
+
+test("a leftover 'Cus ' prefix is stripped for display only; real names are untouched", () => {
+  assert.equal(cleanCustomerName("Cus Prajakta Patil"), "Prajakta Patil");
+  assert.equal(cleanCustomerName("CUS Prajakta Patil"), "Prajakta Patil");
+  assert.equal(cleanCustomerName("Cus. Rahul"), "Rahul");
+  assert.equal(cleanCustomerName("cus-Anil More"), "Anil More");
+  assert.equal(cleanCustomerName("  Cus   Seema "), "Seema");
+  assert.equal(cleanCustomerName("Cushman Wakefield"), "Cushman Wakefield");
+  assert.equal(cleanCustomerName("Customer Care"), "Customer Care");
+  assert.equal(cleanCustomerName("Cus"), "Cus", "never returns an empty name");
+  assert.equal(cleanCustomerName(null), "");
+});
+
+test("jobs list: Load More on phones, page numbers from tablets up; compact money on the mobile card", () => {
+  const src = readFileSync("src/components/jobs/jobs-explorer.tsx", "utf8");
+  assert.match(src, /Load more jobs/);
+  assert.match(src, /<div className="hidden sm:block">\s*<Pagination/);
+  assert.match(src, /formatCompactINR\(total\)/);
+  assert.match(src, /mobileItems\.map/);
 });

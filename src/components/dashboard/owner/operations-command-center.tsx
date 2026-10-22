@@ -11,6 +11,7 @@ import { getSlotBoard } from "@/server/actions/slot-control";
 import { DashboardModules } from "@/components/dashboard/dashboard-modules";
 import { HeroStats } from "@/components/dashboard/hero-stats";
 import { JobStatusBadge } from "@/components/shared/status-badge";
+import { cleanCustomerName } from "@/lib/job-display";
 
 type OpsDay = Awaited<ReturnType<typeof getOperationsHome>>["today"];
 
@@ -32,7 +33,7 @@ function dayBody(data: OpsDay, when: "yesterday" | "today" | "tomorrow") {
           {data.jobs.map((j) => (
             <Link key={j.id} href={`/jobs/${j.id}`} className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:border-primary/40">
               <span className="min-w-0">
-                <span className="block truncate font-medium text-foreground">{j.customerName}</span>
+                <span className="block truncate font-medium text-foreground">{cleanCustomerName(j.customerName)}</span>
                 <span className="block truncate text-xs text-muted-foreground">
                   {j.scheduledTime} · {j.area}
                   {j.teamNumber ? ` · T${j.teamNumber}` : ""}

@@ -5,6 +5,7 @@ import { FileText, Pencil, Phone, MessageCircle, Navigation, Receipt, MapPin, Do
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
 import { getCompanySettings } from "@/server/settings";
 import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
+import { cleanCustomerName } from "@/lib/job-display";
 import { SendBookingFormButton } from "@/components/shared/send-booking-form-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
@@ -108,7 +109,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   return (
     <div className="space-y-3">
       <PageHeader
-        title={job.customerName}
+        title={cleanCustomerName(job.customerName)}
         description={[job.jobNumber, serviceLabel, packageLabel].filter(Boolean).join(" · ")}
         actions={
           <>

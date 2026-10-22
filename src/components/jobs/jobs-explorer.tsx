@@ -18,8 +18,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { deleteJob, bulkDeleteJobs } from "@/server/actions/jobs";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
-import { JOB_STATUSES, JOB_STATUS_LABELS, SERVICE_LABELS } from "@/lib/constants";
-import { formatDateShort, formatINR, dayBucket, cn } from "@/lib/utils";
+import { SERVICE_LABELS } from "@/lib/constants";
+import { formatDateShort, formatINR, formatCompactINR, dayBucket, cn } from "@/lib/utils";
+import { JOB_DISPLAY_LABELS, JOB_DISPLAY_STATUSES, cleanCustomerName, jobMatchesStatusFilter } from "@/lib/job-display";
 import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
 type Job = {
@@ -46,6 +47,8 @@ type Job = {
 };
 
 const PAGE_SIZE = 12;
+/** Phones: a "Load more jobs" button instead of page numbers (owner 2026-10-22). */
+const MOBILE_STEP = 12;
 
 function jobPaymentStatus(job: Job) {
   if (job.payments.length === 0) return null;
@@ -73,6 +76,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(statusParam || "ALL");
   const [page, setPage] = useState(1);
+  const [mobileCount, setMobileCount] = useState(MOBILE_STEP);
   const [selected, setSelected] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -88,8 +92,8 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const matches = jobs.filter((job) => {
-      if (q && !`${job.customerName} ${job.jobNumber} ${job.lead?.leadNumber ?? ""} ${job.customerNumber ?? ""} ${job.area}`.toLowerCase().includes(q)) return false;
-      if (statusFilter !== "ALL" && job.status !== statusFilter) return false;
+      if (q && !`${job.customerName} ${cleanCustomerName(job.customerName)} ${job.jobNumber} ${job.lead?.leadNumber ?? ""} ${job.customerNumber ?? ""} ${job.area}`.toLowerCase().includes(q)) return false;
+      if (!jobMatchesStatusFilter(job.status, statusFilter)) return false;
       if (whenParam === "yesterday" && !isYesterday(job.scheduledDate)) return false;
       if (whenParam === "today" && dayBucket(job.scheduledDate) !== "TODAY") return false;
       if (whenParam === "tomorrow" && dayBucket(job.scheduledDate) !== "TOMORROW") return false;
@@ -102,6 +106,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const mobileItems = filtered.slice(0, mobileCount);
 
   function mapHref(job: Job) {
     if (!job.mapLink) return null;
@@ -113,15 +118,22 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
     <div className="space-y-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <SearchInput value={search} onChange={setSearch} placeholder="Search by customer, job #, area..." className="sm:w-72" />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select
+          value={statusFilter}
+          onValueChange={(v) => {
+            setStatusFilter(v);
+            setPage(1);
+            setMobileCount(MOBILE_STEP);
+          }}
+        >
           <SelectTrigger size="sm" className="sm:w-44">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">All statuses</SelectItem>
-            {JOB_STATUSES.map((s) => (
+            {JOB_DISPLAY_STATUSES.map((s) => (
               <SelectItem key={s} value={s}>
-                {JOB_STATUS_LABELS[s]}
+                {JOB_DISPLAY_LABELS[s]}
               </SelectItem>
             ))}
           </SelectContent>
@@ -200,9 +212,9 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                       <TableCell>
                         <span className="flex items-center gap-1">
                           <Link href={`/jobs/${job.id}`} className="font-medium text-foreground hover:underline">
-                            {job.customerName}
+                            {cleanCustomerName(job.customerName)}
                           </Link>
-                          <CustomerHistoryButton jobId={job.id} name={job.customerName} />
+                          <CustomerHistoryButton jobId={job.id} name={cleanCustomerName(job.customerName)} />
                         </span>
                         <p className="text-xs text-muted-foreground">
                           {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""}{job.customerNumber ? ` · ${job.customerNumber}` : ""} · {job.area}
@@ -276,7 +288,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
           {/* Mobile: card layout, collapsed by default — tap "Details" to
               expand payment/team/service info instead of a wide table. */}
           <div className="space-y-2 sm:hidden">
-            {pageItems.map((job) => {
+            {mobileItems.map((job) => {
               const isToday = dayBucket(job.scheduledDate) === "TODAY" && job.status !== "COMPLETED" && job.status !== "CANCELLED";
               const pay = jobPaymentStatus(job);
               const href = mapHref(job);
@@ -305,9 +317,9 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                       )}
                       <span className="flex items-center gap-1">
                         <Link href={`/jobs/${job.id}`} className="block min-w-0 truncate font-medium text-foreground hover:underline">
-                          {job.customerName}
+                          {cleanCustomerName(job.customerName)}
                         </Link>
-                        <CustomerHistoryButton jobId={job.id} name={job.customerName} />
+                        <CustomerHistoryButton jobId={job.id} name={cleanCustomerName(job.customerName)} />
                       </span>
                       <p className="truncate text-xs text-muted-foreground">
                         {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""}{job.customerNumber ? ` · ${job.customerNumber}` : ""} · {job.area}
@@ -342,7 +354,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                       {job.assignments.length > 0 && <p>Crew: {job.assignments.map((a) => a.staff.name).join(", ")}</p>}
                       {showMoney && (
                         <p>
-                          Amount <span className="font-semibold text-foreground">{formatINR(total)}</span> · Adv {formatINR(adv)} · Bal {formatINR(bal)}
+                          Amount <span className="font-semibold text-foreground">{formatCompactINR(total)}</span> · Adv {formatCompactINR(adv)} · Bal {formatCompactINR(bal)}
                         </p>
                       )}
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
@@ -377,7 +389,18 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
             })}
           </div>
 
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
+          {/* Phones: Load more. Tablets and desktop: page numbers. */}
+          {mobileCount < filtered.length && (
+            <Button type="button" variant="outline" className="h-11 w-full sm:hidden" onClick={() => setMobileCount((n) => n + MOBILE_STEP)}>
+              Load more jobs ({filtered.length - mobileCount} more)
+            </Button>
+          )}
+          <p className="text-center text-xs text-muted-foreground sm:hidden">
+            Showing {Math.min(mobileCount, filtered.length)} of {filtered.length}
+          </p>
+          <div className="hidden sm:block">
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
+          </div>
         </>
       )}
     </div>

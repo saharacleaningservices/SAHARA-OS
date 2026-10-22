@@ -34,6 +34,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatINR, formatCompactINR, formatDate } from "@/lib/utils";
 import { getInvoiceStatusSummary } from "@/server/dashboard-extras";
+import { cleanCustomerName } from "@/lib/job-display";
 
 /** Collapsible dashboard section — secondary content stays one tap away. */
 function Fold({ title, badge, open = false, children }: { title: ReactNode; badge?: ReactNode; open?: boolean; children: ReactNode }) {
@@ -216,21 +217,21 @@ export async function getOwnerDashboardSections({
             icon={<UserX className="size-4 text-destructive" />}
             href="/jobs?when=today"
             empty="Every job today has staff."
-            items={alerts.unassignedJobsToday.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={j.customerName} right={j.scheduledTime} />)}
+            items={alerts.unassignedJobsToday.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={cleanCustomerName(j.customerName)} right={j.scheduledTime} />)}
           />
           <CollapsibleList
             title="Cancelled · 3 days"
             icon={<XCircle className="size-4 text-destructive" />}
             href="/jobs"
             empty="No cancellations."
-            items={alerts.cancelledJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={j.customerName} right={formatDate(j.scheduledDate)} />)}
+            items={alerts.cancelledJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={cleanCustomerName(j.customerName)} right={formatDate(j.scheduledDate)} />)}
           />
           <CollapsibleList
             title="Postponed · 3 days"
             icon={<PauseCircle className="size-4 text-warning" />}
             href="/jobs"
             empty="No postponements."
-            items={alerts.postponedJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={j.customerName} right={formatDate(j.scheduledDate)} />)}
+            items={alerts.postponedJobs.map((j) => <ListRow key={j.id} href={`/jobs/${j.id}`} left={cleanCustomerName(j.customerName)} right={formatDate(j.scheduledDate)} />)}
           />
         </div>
       </div>
