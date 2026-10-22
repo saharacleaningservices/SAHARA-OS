@@ -13,6 +13,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { isMonthClosed } from "@/server/attendance";
 import { getSession } from "@/lib/session";
 import { canManageStaffFinancials } from "@/lib/permissions";
 import { notifyStaff } from "@/server/staff-notify";
@@ -338,7 +339,11 @@ export async function getStaffMoneyAudit(staffId: string) {
   const session = await guard();
   if (!session) return [];
   const rows = await db.auditLog.findMany({
-    where: { entityType: "Staff", entityId: staffId, OR: [{ action: { startsWith: "MONEY_" } }, { action: { startsWith: "OT_" } }, { action: "PAYMENT_DETAILS_UPDATED" }] },
+    where: {
+      entityType: "Staff",
+      entityId: staffId,
+      OR: [{ action: { startsWith: "MONEY_" } }, { action: { startsWith: "OT_" } }, { action: { startsWith: "ATTENDANCE_" } }, { action: "PAYMENT_DETAILS_UPDATED" }],
+    },
     orderBy: { createdAt: "desc" },
     take: 200,
     select: { id: true, action: true, summary: true, actorName: true, createdAt: true, meta: true },
@@ -353,6 +358,23 @@ export async function getStaffMoneyAudit(staffId: string) {
         old = `₹${m.old.amount.toLocaleString("en-IN")} · ${m.old.date}${m.old.text ? ` · ${m.old.text}` : ""}`;
         next = m.next ? `₹${m.next.amount.toLocaleString("en-IN")} · ${m.next.date}${m.next.note ? ` · ${m.next.note}` : ""}` : "Cancelled";
         reason = m.reason;
+      } catch {
+        /* summary only */
+      }
+    }
+    // Overtime edits / deletions and cleared attendance days (2026-10-22): before -> after + reason from the snapshot.
+    if ((r.action === "OT_EDITED" || r.action === "OT_DELETED" || r.action === "ATTENDANCE_CLEARED") && r.meta) {
+      try {
+        const m = JSON.parse(r.meta) as { old?: Record<string, unknown>; next?: Record<string, unknown> | null; reason?: string };
+        const ot = (x: Record<string, unknown>) => `${x.otHours} h × ₹${x.otRate} = ₹${Number(x.otAmount).toLocaleString("en-IN")}${x.date ? ` · ${x.date}` : ""}`;
+        if (r.action === "ATTENDANCE_CLEARED") {
+          old = m.old ? `${m.old.date} · ${m.old.status}` : null;
+          next = "Cleared (day unmarked)";
+        } else {
+          old = m.old ? ot(m.old) : null;
+          next = r.action === "OT_DELETED" ? "Deleted" : m.next ? ot(m.next) : null;
+        }
+        reason = m.reason ?? null;
       } catch {
         /* summary only */
       }
@@ -417,6 +439,83 @@ export async function decideOvertime(id: string, approve: boolean) {
   });
   if (approve)
     await notifyStaff([ot.staffId], { kind: "STAFF_OVERTIME", title: `Overtime approved ₹${ot.otAmount.toLocaleString("en-IN")}`, body: `${ot.otHours} h`, href: "/my/records", recordId: id });
+  refresh(ot.staffId);
+  return { ok: true as const };
+}
+
+// ── Overtime corrections (owner 2026-10-22) ─────────────────────────────────────────────────────────────────────────
+// Super Admin / Accounts (same guard as every Khata correction) may edit or delete an overtime record. Delete is a SOFT
+// delete (deletedAt + who): the row stays in the database and every salary / balance figure — derived on read from
+// non-deleted rows — updates immediately. Both need a reason, write the before/after snapshot to the Audit History tab,
+// and are refused for a closed payroll month (reopen it first, like attendance).
+const istYearMonth = (d: Date) => {
+  const x = new Date(d.getTime() + 5.5 * 3600_000);
+  return { year: x.getUTCFullYear(), month: x.getUTCMonth() + 1 };
+};
+const otSnapshot = (o: { date: Date; otHours: number; otRate: number; otAmount: number; status: string }) => ({
+  date: o.date.toISOString().slice(0, 10),
+  otHours: o.otHours,
+  otRate: o.otRate,
+  otAmount: o.otAmount,
+  status: o.status,
+});
+
+const otEditSchema = z.object({
+  id: z.string().min(1),
+  otHours: z.number().positive().max(16),
+  otRate: z.number().min(0).max(100_000),
+  reason: z.string().trim().min(3, "Give a reason (3+ characters)").max(300),
+});
+
+export async function updateOvertime(values: unknown) {
+  const session = await guard();
+  if (!session) return { error: "Not authorized" };
+  const parsed = otEditSchema.safeParse(values);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid overtime" };
+  const v = parsed.data;
+  const ot = await db.overtimeRecord.findUnique({ where: { id: v.id } });
+  if (!ot || ot.deletedAt) return { error: "Overtime record not found" };
+  const { year, month } = istYearMonth(ot.date);
+  if (await isMonthClosed(year, month)) return { error: `${year}-${String(month).padStart(2, "0")} is closed. Reopen the month first.` };
+  const otAmount = Math.round(v.otHours * v.otRate * 100) / 100;
+  if (ot.otHours === v.otHours && ot.otRate === v.otRate) return { error: "Nothing changed" };
+  const updated = await db.overtimeRecord.update({ where: { id: v.id }, data: { otHours: v.otHours, otRate: v.otRate, otAmount } });
+  await db.auditLog.create({
+    data: {
+      entityType: "Staff",
+      entityId: ot.staffId,
+      action: "OT_EDITED",
+      summary: `Overtime edited: ₹${ot.otAmount} → ₹${otAmount}`,
+      actorName: session.name,
+      actorEmail: session.email,
+      meta: JSON.stringify({ recordId: ot.id, actorId: session.sub, old: otSnapshot(ot), next: otSnapshot(updated), reason: v.reason }),
+    },
+  });
+  refresh(ot.staffId);
+  return { ok: true as const };
+}
+
+export async function deleteOvertime(id: string, reason: string) {
+  const session = await guard();
+  if (!session) return { error: "Not authorized" };
+  const why = (reason ?? "").trim();
+  if (why.length < 3) return { error: "Give a reason (3+ characters)" };
+  const ot = await db.overtimeRecord.findUnique({ where: { id } });
+  if (!ot || ot.deletedAt) return { error: "Overtime record not found" };
+  const { year, month } = istYearMonth(ot.date);
+  if (await isMonthClosed(year, month)) return { error: `${year}-${String(month).padStart(2, "0")} is closed. Reopen the month first.` };
+  await db.overtimeRecord.update({ where: { id }, data: { deletedAt: new Date(), deletedByName: session.name } });
+  await db.auditLog.create({
+    data: {
+      entityType: "Staff",
+      entityId: ot.staffId,
+      action: "OT_DELETED",
+      summary: `Overtime deleted (₹${ot.otAmount}, ${ot.status.toLowerCase()})`,
+      actorName: session.name,
+      actorEmail: session.email,
+      meta: JSON.stringify({ recordId: id, actorId: session.sub, old: otSnapshot(ot), next: null, reason: why.slice(0, 300) }),
+    },
+  });
   refresh(ot.staffId);
   return { ok: true as const };
 }

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { maskTail } from "@/lib/utils";
-import { correctStaffEntry, createOvertime, decideOvertime, recordStaffTransaction, saveStaffPaymentDetails } from "@/server/actions/staff-money";
+import { correctStaffEntry, createOvertime, decideOvertime, deleteOvertime, recordStaffTransaction, saveStaffPaymentDetails, updateOvertime } from "@/server/actions/staff-money";
 
 const inr = (n: number) => `₹${Math.abs(n).toLocaleString("en-IN")}`;
 const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
@@ -156,6 +156,17 @@ export function StaffKhataCard({
     );
 
   const [ot, setOt] = useState({ date: today(), otHours: "", regularHours: "8", otRate: "", reason: "" });
+  // Edit / delete one overtime record (owner 2026-10-22) — reason required, logged in Audit History.
+  const [otFix, setOtFix] = useState<{ id: string; mode: "edit" | "delete"; otHours: string; otRate: string; reason: string } | null>(null);
+  function saveOtFix() {
+    if (!otFix) return;
+    const f = otFix;
+    run(
+      () => (f.mode === "delete" ? deleteOvertime(f.id, f.reason) : updateOvertime({ id: f.id, otHours: Number(f.otHours), otRate: Number(f.otRate), reason: f.reason })),
+      f.mode === "delete" ? "Overtime deleted — salary recalculated" : "Overtime updated — salary recalculated",
+      () => setOtFix(null),
+    );
+  }
   const saveOt = () =>
     run(
       () => createOvertime({ staffId, date: ot.date, otHours: Number(ot.otHours), regularHours: Number(ot.regularHours) || 8, otRate: ot.otRate ? Number(ot.otRate) : undefined, reason: ot.reason || undefined }),
@@ -473,13 +484,50 @@ export function StaffKhataCard({
                     {o.reason ? ` · ${o.reason}` : ""}
                     <span className="block text-muted-foreground">by {o.createdByName}{o.approvedByName ? ` · ${o.status.toLowerCase()} by ${o.approvedByName}` : ""}</span>
                   </div>
-                  {o.status === "PENDING" && canManage ? (
-                    <div className="flex gap-1.5">
-                      <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => decideOvertime(o.id, true), "Approved")}>Approve</Button>
-                      <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => decideOvertime(o.id, false), "Rejected")}>Reject</Button>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {o.status === "PENDING" && canManage ? (
+                      <>
+                        <Button size="sm" variant="outline" disabled={pending} onClick={() => run(() => decideOvertime(o.id, true), "Approved")}>Approve</Button>
+                        <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => decideOvertime(o.id, false), "Rejected")}>Reject</Button>
+                      </>
+                    ) : (
+                      <span className={`rounded-full px-2 py-0.5 font-semibold ${o.status === "APPROVED" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>{o.status}</span>
+                    )}
+                    {canManage && (
+                      <>
+                        <Button size="sm" variant="ghost" disabled={pending} onClick={() => setOtFix({ id: o.id, mode: "edit", otHours: String(o.otHours), otRate: String(o.otRate), reason: "" })}>Edit</Button>
+                        <Button size="sm" variant="ghost" className="text-destructive" disabled={pending} onClick={() => setOtFix({ id: o.id, mode: "delete", otHours: String(o.otHours), otRate: String(o.otRate), reason: "" })}>Delete</Button>
+                      </>
+                    )}
+                  </div>
+                  {otFix?.id === o.id && (
+                    <div className="grid w-full gap-2 rounded-md bg-muted/40 p-2 sm:grid-cols-[5rem_6rem_1fr_auto_auto] sm:items-end">
+                      {otFix.mode === "edit" && (
+                        <>
+                          <label className="text-xs">
+                            OT h
+                            <Input inputMode="decimal" value={otFix.otHours} onChange={(e) => setOtFix({ ...otFix, otHours: e.target.value })} className="mt-0.5 h-9" />
+                          </label>
+                          <label className="text-xs">
+                            Rate ₹/h
+                            <Input inputMode="decimal" value={otFix.otRate} onChange={(e) => setOtFix({ ...otFix, otRate: e.target.value })} className="mt-0.5 h-9" />
+                          </label>
+                        </>
+                      )}
+                      <label className={`text-xs ${otFix.mode === "delete" ? "sm:col-span-3" : ""}`}>
+                        Reason (required)
+                        <Input value={otFix.reason} onChange={(e) => setOtFix({ ...otFix, reason: e.target.value })} className="mt-0.5 h-9" />
+                      </label>
+                      <Button
+                        size="sm"
+                        variant={otFix.mode === "delete" ? "destructive" : "default"}
+                        disabled={pending || otFix.reason.trim().length < 3 || (otFix.mode === "edit" && !(Number(otFix.otHours) > 0))}
+                        onClick={saveOtFix}
+                      >
+                        {otFix.mode === "delete" ? "Delete overtime" : "Save"}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setOtFix(null)}>Cancel</Button>
                     </div>
-                  ) : (
-                    <span className={`rounded-full px-2 py-0.5 font-semibold ${o.status === "APPROVED" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>{o.status}</span>
                   )}
                 </li>
               ))}
