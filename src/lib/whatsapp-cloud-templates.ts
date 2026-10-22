@@ -14,6 +14,7 @@
 // re-categorise on review — its decision wins.
 
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+import { FIXED_PROFILES } from "@/lib/social-links";
 
 export type TemplateButton =
   | { type: "URL"; text: string; url: string; example?: string }
@@ -38,6 +39,7 @@ export type CloudTemplate = {
 
 const BOOKING_PAGE = `${PUBLIC_BOOKING_URL}/booking/`;
 export const BOOKING_HEADER_IMAGE = `${PUBLIC_BOOKING_URL}/marketing/booking-header.jpg`;
+const profileUrl = (key: "facebook" | "instagram" | "youtube") => FIXED_PROFILES.find((p) => p.key === key)!.url;
 const EX_TOKEN = "q7Xk2mPz9LwR4tNc8vB1yH6s";
 /** Sahara's Google review link — static URL button of sahara_review_request_v2. */
 export const GOOGLE_REVIEW_URL = "https://g.page/r/CYJ9szEiGaN4EBE/review";
@@ -330,10 +332,12 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     name: "sahara_booking_confirmed_v5",
     category: "UTILITY",
     language: "en",
-    purpose: "Booking confirmed — image header, View Quotation + Pay Now / Later buttons, helpline in text",
+    purpose: "Booking confirmed — image header, View Quotation + Pay Now / Later buttons, cleaning video + Instagram + Facebook links, helpline in text",
     header: { type: "IMAGE", sample: BOOKING_HEADER_IMAGE },
+    // Owner 2026-10-23: no Google review link and no ladder / water notes; the cleaning video and social profiles are plain text
+    // links (not variables), so the six body parameters are unchanged. Meta may re-classify promotional-looking text as Marketing.
     body:
-      "Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\n\nView your quotation or pay the advance using the buttons below.\n\nFor any help, call us on 7083347130 / 8956567130.",
+      `Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\n\nView your quotation or pay the advance using the buttons below.\n\n▶️ Watch our cleaning process: ${profileUrl("youtube")}\n📸 Instagram: ${profileUrl("instagram")}\n👍 Facebook: ${profileUrl("facebook")}\n\nFor any help, call us on 7083347130 / 8956567130.`,
     examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00", "Magarpatta, Hadapsar"],
     buttons: [
       { type: "URL", text: "View Quotation", url: `${PUBLIC_BOOKING_URL}/booking/quotation/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/quotation/${EX_TOKEN}` },

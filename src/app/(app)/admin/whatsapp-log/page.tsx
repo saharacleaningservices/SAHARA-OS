@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { SectionTabs, WHATSAPP_TABS } from "@/components/shared/section-tabs";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { isWhatsAppReady, listOptedOutNumbers, previewPendingWhatsApp } from "@/lib/whatsapp";
@@ -64,6 +65,7 @@ export default async function MessageLogPage() {
   return (
     <div className="space-y-4">
       <PageHeader title="Message Log" description="Every automated WhatsApp, SMS & email message the CRM has sent or queued" />
+      <SectionTabs tabs={WHATSAPP_TABS} active="/admin/whatsapp-log" />
 
       {(!waReady || !smsReady || !emailReady) && (
         <div className="flex gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">

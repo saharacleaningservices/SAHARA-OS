@@ -25,7 +25,7 @@ export const bookingLink = (source: string, medium: string, campaign: string) =>
 
 // Verified public profiles (checked 30 Sep 2026) — only these are linked. LinkedIn is added from the
 // "LinkedIn page link" in Settings (or the LINKEDIN_URL env var); no page is on record, so none is invented.
-const FIXED_PROFILES = [
+export const FIXED_PROFILES = [
   { key: "facebook", label: "Facebook", url: "https://www.facebook.com/saharacleaningservices" },
   { key: "instagram", label: "Instagram", url: "https://www.instagram.com/saharacleaningservices.pune/" },
   { key: "youtube", label: "YouTube", url: "https://www.youtube.com/channel/UCHfIf88WCd5HE0L1CU5iBXA" },

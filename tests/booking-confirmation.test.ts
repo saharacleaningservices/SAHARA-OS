@@ -143,7 +143,8 @@ test("v5, payment_received_v1 and job_completed_v1: UTILITY, real booking domain
     assert.ok(!/\{\{\d+\}\}\s*$/.test(t!.body) && !/^\s*\{\{/.test(t!.body), `${name}: body must not start/end with a variable`);
     const vars = [...t!.body.matchAll(/\{\{(\d+)\}\}/g)].map((m) => Number(m[1]));
     assert.equal(t!.examples?.length, vars.length, `${name}: one example per variable`);
-    assert.ok(!/sahara\.co\.in|limited|released|instagram|youtube|g\.page\/saharacleaning/i.test(t!.body), `${name}: no urgency / socials / foreign domain`);
+    assert.ok(!/sahara\.co\.in|limited|released/i.test(t!.body), `${name}: no urgency or foreign domain`);
+    if (name !== "sahara_booking_confirmed_v5") assert.ok(!/instagram|youtube/i.test(t!.body), `${name}: no social links`);
     const urls = (t!.buttons ?? []).filter((b) => b.type === "URL") as { url: string }[];
     assert.ok(urls.length <= 2, `${name}: max 2 URL buttons`);
     for (const u of urls) assert.ok(u.url.startsWith("https://") && !u.url.includes("sahara.co.in"), u.url);
@@ -153,6 +154,11 @@ test("v5, payment_received_v1 and job_completed_v1: UTILITY, real booking domain
   assert.equal(v5.header?.type, "IMAGE");
   assert.deepEqual((v5.buttons ?? []).map((b) => b.text), ["View Quotation", "Pay Now / Later"]);
   assert.match(v5.body, /7083347130 \/ 8956567130/);
+  // Owner 2026-10-23: cleaning video + Instagram + Facebook (the verified profiles), no review link, no ladder / water notes.
+  assert.ok(v5.body.includes("https://www.youtube.com/channel/UCHfIf88WCd5HE0L1CU5iBXA"), "cleaning video link");
+  assert.ok(v5.body.includes("https://www.instagram.com/saharacleaningservices.pune/") && v5.body.includes("https://www.facebook.com/saharacleaningservices"));
+  assert.ok(!/g\.page|review|ladder|water|electricity/i.test(v5.body), "no review link, no ladder / water notes");
+  assert.deepEqual([...v5.body.matchAll(/\{\{(\d+)\}\}/g)].map((m) => Number(m[1])), [1, 2, 3, 4, 5, 6], "same six parameters");
   const pay = templateByName("sahara_payment_received_v1")!;
   assert.match((pay.buttons![0] as { url: string }).url, /\/booking\/receipt\/\{\{1\}\}$/);
   assert.deepEqual(pay.buttons![1], { type: "PHONE_NUMBER", text: "Call Helpline", phone: "+917083347130" });

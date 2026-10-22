@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
+import { SectionTabs, WHATSAPP_TABS } from "@/components/shared/section-tabs";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { findLeadForNumber, isWhatsAppReady, normalizeNumber } from "@/lib/whatsapp";
@@ -61,6 +62,7 @@ export default async function WhatsAppInboxPage({ searchParams }: { searchParams
   return (
     <div className="space-y-4">
       <PageHeader title="WhatsApp Inbox" description="Customer conversations on the Sahara WhatsApp Cloud API number" />
+      <SectionTabs tabs={WHATSAPP_TABS} active="/admin/whatsapp-inbox" />
 
       {!ready && (
         <div className="flex gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm">
