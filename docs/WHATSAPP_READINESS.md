@@ -43,3 +43,20 @@ Requires Cloud API (met), completed Meta Business Verification (status not visib
 2. Decide whether to submit the missing v2 templates or keep the v2 flags off (default: off).
 3. Record legitimate opt-ins (booking checkbox, job-card consent tap) — this is the real launch blocker.
 4. Later, only if you want live messaging: add a payment method to the WABA and approve a budget.
+
+## Phase 2 (22 Oct 2026): booking confirmation with all three actions in ONE message
+What the customer gets when a booking is confirmed (one message per booking; repeat or simultaneous confirmations never send twice):
+
+| Mode | Message | Actions |
+|---|---|---|
+| Default (templates off) | Plain text | Booking link, Quotation link, Pay advance link, Google review link (all in the text) |
+| `WHATSAPP_USE_TEMPLATES=on` + `WHATSAPP_BOOKING_TEMPLATE=v4` | Approved template `sahara_booking_confirmed_v4` | Buttons: **View Quotation**, **Pay Now / Later** (Meta allows max 2 link buttons) + the Google review link in the message text (from Settings → Social Proof → Google Review Link) |
+| `...=v3` (today's approved template) | `sahara_booking_confirmed_v3` | Same two buttons + a "Google Review" quick reply, which only answers while auto-replies are ON |
+
+Owner steps to switch to v4 (nothing changes until then):
+1. WhatsApp Manager → Message templates → Create: name `sahara_booking_confirmed_v4`, category **Utility**, language **English**, body and two URL buttons exactly as in `src/lib/whatsapp-cloud-templates.ts` (key 2d). Submit and wait for **Active**.
+2. Coolify → Environment: `WHATSAPP_USE_TEMPLATES=on` and `WHATSAPP_BOOKING_TEMPLATE=v4`. Redeploy.
+3. Leave `WHATSAPP_OUTBOUND_MODE` as it is: in TEST mode only the QA number receives it. Customers receive it only after you choose `transactional` (utility templates only) or `live`.
+4. Confirm one test booking for the QA number and check the message, both buttons and the review link.
+
+Note: Meta may re-classify a template that mentions reviews as Marketing. If that happens, keep v3 (or the plain text) and send the review request after the job is completed (that flow already exists).
