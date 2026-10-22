@@ -10,6 +10,8 @@
     "lint": "eslint",
     "test:ci": "tsx --test tests/savings.test.ts tests/festival-urgency.test.ts tests/service-scope-small.test.ts tests/job-geo.test.ts tests/review-trigger.test.ts tests/rebooking.test.ts tests/team-alerts.test.ts",
     "test:cognito": "tsx --test tests/email-lead.test.ts tests/cognito-script.test.ts",
+    "test:cognitowebhook": "tsx --test tests/cognito-webhook.test.ts",
+    "test:bookingconfirm": "tsx --test tests/booking-confirmation.test.ts",
     "test:whatsapp": "tsx --test tests/whatsapp-optout.test.ts",
     "test:pricing": "tsx --test tests/pricing.test.ts",
     "test:b2b": "tsx --test tests/b2b-proposal.test.ts",

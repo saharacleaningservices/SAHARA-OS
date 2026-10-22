@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { WHATSAPP_TRANSACTIONAL_TEMPLATES, sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
 import { compactServiceLines } from "@/lib/service-scope";
-import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
+import { GOOGLE_REVIEW_URL, renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 
 // One booking-message pipeline for every confirmed booking — online requests
 // confirmed from a lead (confirmBooking) and jobs entered manually in the CRM
@@ -30,6 +30,14 @@ const bookingTemplateV2 = () =>
 // WHATSAPP_BOOKING_TEMPLATE=v3 → sahara_booking_confirmed_v3 (View Quotation · Pay Now / Later ·
 // Google Review). Set it in Coolify only AFTER Meta shows the template as Approved.
 const bookingTemplateV3 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v3";
+// WHATSAPP_BOOKING_TEMPLATE=v4 → sahara_booking_confirmed_v4: the same two buttons plus the Google review link in the
+// message text, so all three actions arrive in ONE message (owner Phase 2). Set only after Meta approves v4.
+const bookingTemplateV4 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v4";
+
+/** Body parameters for sahara_booking_confirmed_v4 (exported for tests). */
+export function bookingConfirmationV4Params(job: { customerName: string; jobNumber: string; scheduledDate: Date; scheduledTime: string; area: string }, service: string, reviewUrl: string | null | undefined) {
+  return [job.customerName, job.jobNumber, service, formatDate(job.scheduledDate), job.scheduledTime, job.area, reviewUrl?.trim() || GOOGLE_REVIEW_URL];
+}
 
 /** Returns the job's unguessable booking-page token, creating it on first use. */
 export async function ensureJobToken(jobId: string) {
@@ -78,7 +86,19 @@ export function customerPaymentStatus(job: {
  * has a BOOKING_CONFIRMATION message (sent, queued, failed or cancelled) is
  * never confirmed again, so re-saving a confirmed booking can't duplicate it.
  */
-export async function sendBookingConfirmation(jobId: string) {
+// Two confirmations of the same job arriving together (double click, confirmBooking + createJob racing) share ONE send:
+// the database check below runs before the message row exists, so on its own it could let both through.
+const inFlight = new Map<string, Promise<unknown>>();
+
+export function sendBookingConfirmation(jobId: string) {
+  const running = inFlight.get(jobId);
+  if (running) return running as ReturnType<typeof sendBookingConfirmationOnce>;
+  const p = sendBookingConfirmationOnce(jobId).finally(() => inFlight.delete(jobId));
+  inFlight.set(jobId, p);
+  return p;
+}
+
+async function sendBookingConfirmationOnce(jobId: string) {
   const already = await db.whatsAppMessage.findFirst({
     where: { kind: "BOOKING_CONFIRMATION", relatedType: "Job", relatedId: jobId },
     select: { id: true },
@@ -96,6 +116,28 @@ export async function sendBookingConfirmation(jobId: string) {
   // as requested (unless the customer already chose to pay after service).
   if (due > 0 && !job.advanceRequestedAt && job.paymentPreference !== "PAY_AFTER_SERVICE") {
     await db.job.update({ where: { id: job.id }, data: { advanceRequestedAt: new Date() } });
+  }
+
+  if (templatesEnabled() && bookingTemplateV4()) {
+    const t = templateByName("sahara_booking_confirmed_v4")!;
+    const settings = await db.companySettings.findUnique({ where: { id: "default" }, select: { googleReviewUrl: true } });
+    const params = bookingConfirmationV4Params(job, service, settings?.googleReviewUrl);
+    return sendWhatsAppTemplate({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      // Plain token only — /booking/quotation/{{1}} and /booking/pay/{{1}}; the review link is body parameter 7.
+      buttonUrlParams: [
+        { index: 0, value: token },
+        { index: 1, value: token },
+      ],
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
   }
 
   if (templatesEnabled() && bookingTemplateV3()) {
