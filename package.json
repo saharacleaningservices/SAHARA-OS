@@ -18,6 +18,7 @@
     "test:roles": "tsx --test tests/role-permissions.test.ts",
     "test:cache": "tsx --test tests/static-cache.test.ts",
     "test:polling": "tsx --test tests/polling-visibility.test.ts",
+    "test:publicbooking": "tsx --test tests/public-booking-characterisation.test.ts",
     "test:capi": "tsx --test tests/meta-capi.test.ts",
     "test:quote": "tsx --test tests/quotation-pdf.test.mts",
     "test:nav": "tsx --test tests/nav-groups.test.ts",
