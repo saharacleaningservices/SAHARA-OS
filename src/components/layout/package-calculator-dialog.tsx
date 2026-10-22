@@ -29,9 +29,9 @@ const NEW_SITE = "__new";
  * then run from the lead page, so the package, discount and complimentary
  * items stay on the lead → job → quotation/invoice.
  */
-export function PackageCalculatorButton({ prefill, variant = "chip", label = "Package Calculator" }: { prefill?: { mobile?: string; name?: string }; variant?: "chip" | "button"; label?: string }) {
+export function PackageCalculatorButton({ prefill, variant = "chip", label = "Package Calculator", defaultOpen = false }: { prefill?: { mobile?: string; name?: string }; variant?: "chip" | "button"; label?: string; /** Open on mount (the Quick Quote page). */ defaultOpen?: boolean }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [access, setAccess] = useState<{ canEditPrice: boolean } | null>(null);
   const [pkg, setPkg] = useState<PackageDraft>(EMPTY_PACKAGE);
   const [mobile, setMobile] = useState(prefill?.mobile ?? "");
