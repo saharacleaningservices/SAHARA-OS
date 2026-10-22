@@ -25,7 +25,7 @@ function makeStyles(k: number) {
   logoCol: { width: z(112), height: z(60), marginRight: z(12), flexShrink: 0, justifyContent: "center", alignItems: "flex-start" },
   logo: { width: z(108), height: z(56), objectFit: "contain" },
   companyCol: { flexGrow: 1, flexShrink: 1, paddingRight: 8 },
-  companyName: { fontFamily: "Times-Bold", fontSize: z(19), letterSpacing: z(0.5), lineHeight: 1.15, color: NAVY },
+  companyName: { fontFamily: "Times-Bold", fontSize: z(17), letterSpacing: z(0.3), lineHeight: 1.15, color: NAVY },
   tagline: { fontSize: z(9), color: MUTED, marginTop: z(2), marginBottom: z(6) },
   contact: { fontSize: z(8.5), color: NAVY, marginBottom: z(2) },
   titleCol: { width: z(110), flexShrink: 0, alignItems: "flex-end" },
