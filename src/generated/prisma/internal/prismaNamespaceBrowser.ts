@@ -112,7 +112,8 @@ export const ModelName = {
   OpsReminder: 'OpsReminder',
   OpsReminderEvent: 'OpsReminderEvent',
   OpsReminderSettings: 'OpsReminderSettings',
-  WebAuthnCredential: 'WebAuthnCredential'
+  WebAuthnCredential: 'WebAuthnCredential',
+  OutboxJob: 'OutboxJob'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1349,6 +1350,23 @@ export const WebAuthnCredentialScalarFieldEnum = {
 } as const
 
 export type WebAuthnCredentialScalarFieldEnum = (typeof WebAuthnCredentialScalarFieldEnum)[keyof typeof WebAuthnCredentialScalarFieldEnum]
+
+
+export const OutboxJobScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  payload: 'payload',
+  dedupeKey: 'dedupeKey',
+  status: 'status',
+  attempts: 'attempts',
+  runAt: 'runAt',
+  lockedAt: 'lockedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutboxJobScalarFieldEnum = (typeof OutboxJobScalarFieldEnum)[keyof typeof OutboxJobScalarFieldEnum]
 
 
 export const SortOrder = {

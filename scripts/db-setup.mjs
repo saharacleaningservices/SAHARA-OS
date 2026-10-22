@@ -1704,6 +1704,21 @@ db.close();
     );
     CREATE INDEX IF NOT EXISTS "OpsReminderEvent_reminderId_idx" ON "OpsReminderEvent"("reminderId");
     CREATE INDEX IF NOT EXISTS "OpsReminderEvent_createdAt_idx" ON "OpsReminderEvent"("createdAt");
+    CREATE TABLE IF NOT EXISTS "OutboxJob" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "kind" TEXT NOT NULL,
+      "payload" TEXT NOT NULL,
+      "dedupeKey" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "attempts" INTEGER NOT NULL DEFAULT 0,
+      "runAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "lockedAt" DATETIME,
+      "lastError" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "OutboxJob_status_runAt_idx" ON "OutboxJob"("status", "runAt");
+    CREATE INDEX IF NOT EXISTS "OutboxJob_dedupeKey_idx" ON "OutboxJob"("dedupeKey");
     CREATE TABLE IF NOT EXISTS "OpsReminderSettings" (
       "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
       "enabled" BOOLEAN NOT NULL DEFAULT true,

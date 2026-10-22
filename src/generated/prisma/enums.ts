@@ -227,6 +227,7 @@ export type AmcStatus = (typeof AmcStatus)[keyof typeof AmcStatus]
 
 
 export const WhatsAppKind = {
+  JOB_COMPLETED: 'JOB_COMPLETED',
   BOOKING_CONFIRMATION: 'BOOKING_CONFIRMATION',
   TEAM_DISPATCH: 'TEAM_DISPATCH',
   CUSTOMER_REMINDER: 'CUSTOMER_REMINDER',

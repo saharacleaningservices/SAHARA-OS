@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { teamDispatchMessage } from "@/lib/whatsapp-templates";
+import { crewCardToken } from "@/lib/crew-card-token";
+import { INTERNAL_CRM_URL } from "@/lib/site-urls";
 
 export async function dispatchTeamForJob(jobId: string) {
   const job = await db.job.findUnique({
@@ -37,6 +39,10 @@ export async function dispatchTeamForJob(jobId: string) {
     notes: job.notes,
   });
 
+  // The digital job card (A4 web view) travels with the message; the card never loads the customer phone or amounts.
+  const cardLink = `${INTERNAL_CRM_URL}/crew-card/${crewCardToken(job.id)}`;
+  const bodyWithCard = `${body}\n\n\u{1F9FE} Job card: ${cardLink}`;
+
   let sent = 0;
   let queued = 0;
   for (const a of job.assignments) {
@@ -45,7 +51,7 @@ export async function dispatchTeamForJob(jobId: string) {
       kind: "TEAM_DISPATCH",
       toNumber: a.staff.mobile,
       toName: a.staff.name,
-      body,
+      body: bodyWithCard,
       relatedType: "Job",
       relatedId: job.id,
     });

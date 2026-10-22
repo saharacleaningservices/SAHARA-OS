@@ -186,6 +186,7 @@ enum AmcStatus {
 }
 
 enum WhatsAppKind {
+  JOB_COMPLETED
   BOOKING_CONFIRMATION
   TEAM_DISPATCH
   CUSTOMER_REMINDER
@@ -1781,4 +1782,23 @@ model WebAuthnCredential {
   lastUsedAt   DateTime?
 
   @@index([userId])
+}
+
+// SQLite-backed background job queue (owner 2026-10-22: no Redis/BullMQ). Work that talks to WhatsApp (crew dispatch,
+// completion notice) is queued so a request never waits on Meta, retried with back-off, and never duplicated.
+model OutboxJob {
+  id        String    @id @default(cuid())
+  kind      String // TEAM_DISPATCH | JOB_COMPLETED_NOTICE
+  payload   String // JSON
+  dedupeKey String? // an unfinished job with the same key is not queued twice
+  status    String    @default("PENDING") // PENDING | RUNNING | DONE | FAILED
+  attempts  Int       @default(0)
+  runAt     DateTime  @default(now())
+  lockedAt  DateTime?
+  lastError String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, runAt])
+  @@index([dedupeKey])
 }
