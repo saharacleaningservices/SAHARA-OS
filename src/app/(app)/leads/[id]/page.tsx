@@ -3,15 +3,13 @@ import { BookedScopeCard } from "@/components/shared/booked-scope-card";
 import { compactServiceLines } from "@/lib/service-scope";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { Pencil, FileText, ClipboardList, Wallet } from "lucide-react";
+import { Pencil, FileText, ClipboardList, Wallet, CalendarCheck } from "lucide-react";
 import { getLeadDetail, canAccessLead } from "@/server/leads";
 import { requireUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { InquiryOutcomeButtons } from "@/components/leads/inquiry-outcome-buttons";
 import { getStaffForAssignment } from "@/server/staff";
 import { getCompanySettings } from "@/server/settings";
-import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
-import { SendBookingFormButton } from "@/components/shared/send-booking-form-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +19,11 @@ import { StageSelect } from "@/components/leads/stage-select";
 import { QuotationDialog } from "@/components/leads/quotation-dialog";
 import { B2bProposalDialog } from "@/components/leads/b2b-proposal-dialog";
 import { SendQuotationButton } from "@/components/leads/send-quotation-button";
-import { ScheduleVisitDialog } from "@/components/leads/schedule-visit-dialog";
+import { RescheduleDialog } from "@/components/leads/reschedule-dialog";
+import { SharePdfButton } from "@/components/leads/share-pdf-button";
+import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
+import { primaryLeadAction } from "@/lib/lead-primary-action";
+import { shortUrlForJob } from "@/server/short-links";
 import { ConfirmBookingDialog } from "@/components/leads/confirm-booking-dialog";
 import { ConversationTimeline } from "@/components/leads/conversation-timeline";
 import { FollowUpsPanel } from "@/components/leads/followups-panel";
@@ -72,6 +74,17 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
     bankIfsc: settings.bankIfsc ?? null,
   };
 
+  // The booking (if any): drives the single primary action and the Overview block.
+  const activeJob = await db.job.findFirst({
+    where: { leadId: lead.id, deletedAt: null },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, status: true, teamNumber: true, scheduledDate: true, scheduledTime: true, invoice: { select: { id: true } }, assignments: { select: { isLead: true, staff: { select: { name: true } } } } },
+  });
+  const primary = primaryLeadAction({ stage: lead.stage, hasJob: !!activeJob, jobStatus: activeJob?.status, hasQuotation: rawLead.quotations.length > 0, hasInvoice: !!activeJob?.invoice, canQuote: showContact && showMoney });
+  const invoiceShareUrl = primary === "SHARE_PDF" && activeJob ? await shortUrlForJob("i", activeJob.id) : null;
+  const crewNames = (activeJob?.assignments ?? []).sort((a, b) => Number(b.isLead) - Number(a.isLead)).map((a) => a.staff.name);
+  const shownDate = activeJob?.scheduledDate ?? lead.serviceDate;
+  const shownSlot = activeJob?.scheduledTime ?? lead.timeSlot;
   const supervisors = staff.filter((s) => s.designation === "Supervisor").map((s) => ({ id: s.id, name: s.name }));
   const canConfirm = !["JOB_SCHEDULED", "COMPLETED"].includes(lead.stage);
   const requestedServiceDate = lead.serviceDate ? lead.serviceDate.toISOString().slice(0, 10) : "";
@@ -93,35 +106,18 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               <>
                 <CallButton mobile={lead.mobile} />
                 <WhatsAppButton mobile={lead.whatsapp || lead.mobile} />
-                <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} />
-                <SendBookingFormButton name={lead.name} mobile={lead.whatsapp || lead.mobile} leadId={lead.id} kind="REVIEW" />
               </>
             )}
-            <ScheduleVisitDialog leadId={lead.id} />
-            {showContact && showMoney && !fullyPaid && (
-            <SendPaymentLinkButton
-              mobile={lead.whatsapp || lead.mobile}
-              details={paymentDetails}
-              context={{
-                customerName: lead.name,
-                bookingId: lead.leadNumber,
-                service: SERVICE_LABELS[lead.service] ?? lead.service,
-                packageName: lead.packageName,
-                quote: estimated || null,
-                advance: advance || null,
-                balance: advance > 0 ? leadBalance : estimated,
-              }}
-              purpose={advance > 0 ? "BALANCE" : "ADVANCE"}
-            />
+            <Button variant="outline" asChild>
+              <Link href={`/leads/${lead.id}/edit`}>
+                <Pencil className="size-3.5" /> Edit
+              </Link>
+            </Button>
+            {/* ONE contextual primary action (owner 2026-10-24): it follows the status. */}
+            {primary === "CREATE_QUOTATION" && (
+              <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} serviceItems={lead.serviceItems} discountAmount={lead.discountAmount} trigger={<Button size="sm"><FileText className="size-3.5" /> Create Quotation</Button>} />
             )}
-            {showContact && showMoney && (
-              <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} serviceItems={lead.serviceItems} discountAmount={lead.discountAmount} />
-            )}
-            {/* Facility-management / housekeeping AMC proposal (B2B): same access rule as quotations. */}
-            {showContact && showMoney && (lead.service === "HOUSEKEEPING" || lead.service === "COMMERCIAL_CLEANING") && (
-              <B2bProposalDialog leadId={lead.id} leadName={lead.name} area={lead.area} />
-            )}
-            {canConfirm && (
+            {primary === "CONFIRM_BOOKING" && canConfirm && (
               <ConfirmBookingDialog
                 leadId={lead.id}
                 supervisors={supervisors}
@@ -129,19 +125,50 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
                 defaultTimeSlot={requestedTimeSlot}
                 defaultTeam={lead.teamNumber}
                 defaultOpen={confirm === "1" && lead.jobs.length === 0}
+                trigger={<Button size="sm"><CalendarCheck className="size-3.5" /> Confirm Booking</Button>}
               />
             )}
-            <Button variant="outline" asChild>
-              <Link href={`/leads/${lead.id}/edit`}>
-                <Pencil className="size-3.5" /> Edit
-              </Link>
-            </Button>
+            {primary === "RESCHEDULE_JOB" && activeJob && (
+              <RescheduleDialog leadId={lead.id} jobId={activeJob.id} defaultDate={requestedServiceDate} defaultSlot={activeJob.scheduledTime} label="Reschedule Job" primary />
+            )}
+            {primary === "SHARE_PDF" && invoiceShareUrl && <SharePdfButton url={invoiceShareUrl} title={`Invoice — ${lead.name}`} />}
+            {primary === "CONVERT_TO_INVOICE" && activeJob && <GenerateInvoiceButton jobId={activeJob.id} />}
           </>
         }
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
+          {/* Overview (owner 2026-10-24): directly under the customer header. */}
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Overview</CardTitle>
+              {!["CANCELLED", "COMPLETED"].includes(lead.stage) && activeJob?.status !== "COMPLETED" && activeJob?.status !== "CANCELLED" && (
+                <RescheduleDialog leadId={lead.id} jobId={activeJob?.id ?? null} defaultDate={requestedServiceDate} defaultSlot={shownSlot ?? ""} />
+              )}
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+              <div>
+                <p className="text-xs text-muted-foreground">Mobile</p>
+                <p className="font-medium text-foreground">{lead.mobile || HIDDEN_CONTACT}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Requested Date / Time</p>
+                <p className="font-medium text-foreground">{shownDate ? `${formatDate(shownDate)}${shownSlot ? ` · ${shownSlot}` : ""}` : "—"}</p>
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <p className="text-xs text-muted-foreground">Assigned Team</p>
+                <p className="font-medium text-foreground">
+                  {activeJob?.teamNumber ?? lead.teamNumber ? `Team ${activeJob?.teamNumber ?? lead.teamNumber}` : "—"}
+                  {crewNames.length > 0 && <span className="block text-xs font-normal text-muted-foreground">{crewNames.join(", ")}</span>}
+                </p>
+              </div>
+              <div className="col-span-2 sm:col-span-4">
+                <p className="text-xs text-muted-foreground">Address</p>
+                <p className="font-medium text-foreground">{lead.address || "—"}</p>
+              </div>
+            </CardContent>
+          </Card>
           <BookedScopeCard priceType={lead.priceType} festivalName={lead.festivalName} scopeOfWork={lead.scopeOfWork} services={compactServiceLines(rawLead)} />
           <PackageScopeCard service={lead.service} packageName={lead.packageName} serviceVariant={lead.serviceVariant} />
           {showOutcomes && (
@@ -166,7 +193,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
 
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle>Overview</CardTitle>
+              <CardTitle>Details</CardTitle>
               <div className="w-44">
                 <StageSelect
                   leadId={lead.id}
@@ -180,10 +207,6 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
               <div>
-                <p className="text-xs text-muted-foreground">Mobile</p>
-                <p className="font-medium text-foreground">{lead.mobile || HIDDEN_CONTACT}</p>
-              </div>
-              <div>
                 <p className="text-xs text-muted-foreground">WhatsApp</p>
                 <p className="font-medium text-foreground">{showContact ? lead.whatsapp || "—" : HIDDEN_CONTACT}</p>
               </div>
@@ -194,18 +217,6 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               <div>
                 <p className="text-xs text-muted-foreground">Source</p>
                 <p className="font-medium text-foreground">{LEAD_SOURCE_LABELS[lead.source]}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Requested Service Date</p>
-                <p className="font-medium text-foreground">
-                  {lead.serviceDate ? formatDate(lead.serviceDate) : "—"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Team</p>
-                <p className="font-medium text-foreground">
-                  {lead.teamNumber ? `Team ${lead.teamNumber}` : "—"}
-                </p>
               </div>
               {showMoney && (
                 <div>
@@ -235,10 +246,6 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
                   consent={/OUT/.test(lead.marketingConsent) ? "OPTED_OUT" : /IN$/.test(lead.marketingConsent) ? "OPTED_IN" : "UNKNOWN"}
                   canEdit={session.role === "ADMIN" || session.role === "ACCOUNTS"}
                 />
-              </div>
-              <div className="col-span-2 sm:col-span-3">
-                <p className="text-xs text-muted-foreground">Address</p>
-                <p className="font-medium text-foreground">{lead.address || "—"}</p>
               </div>
               {lead.notes && (
                 <div className="col-span-2 sm:col-span-3">

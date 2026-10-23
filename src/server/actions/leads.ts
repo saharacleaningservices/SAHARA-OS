@@ -19,7 +19,7 @@ import {
   timelineNoteSchema,
 } from "@/lib/validation";
 import { generateLeadNumber, generateQuoteNumber, generateJobNumber, generateInvoiceNumber } from "@/lib/id-generators";
-import { deriveArea } from "@/lib/utils";
+import { deriveArea, formatDate } from "@/lib/utils";
 import { STANDARD_TERMS_TEXT } from "@/lib/quotation-template";
 import { notify } from "@/server/notify";
 import {
@@ -1218,4 +1218,23 @@ export async function createRepeatBooking(mobile: string) {
   revalidatePath("/leads");
   revalidatePath(`/customers/${digits}`);
   return { success: true as const, leadId: lead.id, leadNumber };
+}
+
+/**
+ * Reschedule Date/Time for an enquiry that has no job yet: updates the requested service date and slot and notes it on the timeline.
+ * (A booked enquiry reschedules its job instead - see rescheduleJob - so the crew and the customer messages follow.)
+ */
+export async function rescheduleLead(leadId: string, date: string, slot: string) {
+  const session = await getSession();
+  if (!session || session.role === "STAFF") return { error: "Not authorized", success: false as const };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !slot?.trim() || slot.length > 40) return { error: "Choose the new date and time", success: false as const };
+  const lead = await db.lead.findUnique({ where: { id: leadId } });
+  if (!lead) return { error: "Lead not found", success: false as const };
+  if ((session.role === "SUPERVISOR" || session.role === "OPERATIONS") && !canAccessLead(session, lead)) return { error: "You can only update today's and tomorrow's leads/bookings", success: false as const };
+  if (await db.job.findFirst({ where: { leadId, deletedAt: null }, select: { id: true } })) return { error: "This enquiry already has a job - reschedule the job instead.", success: false as const };
+  if (["CANCELLED", "COMPLETED"].includes(lead.stage)) return { error: "A completed or cancelled enquiry can't be rescheduled.", success: false as const };
+  await db.lead.update({ where: { id: leadId }, data: { serviceDate: new Date(date), timeSlot: slot.trim() } });
+  await addTimelineEntry({ leadId, type: "SYSTEM", body: `Requested date/time → ${formatDate(new Date(date))} · ${slot.trim()}` });
+  revalidatePath(`/leads/${leadId}`);
+  return { success: true as const };
 }

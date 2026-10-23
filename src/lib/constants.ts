@@ -451,11 +451,14 @@ export const LEAD_STAGES = [
 
 export type LeadStage = (typeof LEAD_STAGES)[number];
 
+/** The stages the office moves an enquiry through (owner 2026-10-24). Interested / Site Visit still exist on old records and keep their labels, but are no longer offered. */
+export const LEAD_STAGE_FLOW = ["NEW", "QUOTATION", "CONFIRMED", "JOB_SCHEDULED", "COMPLETED", "CANCELLED"] as const;
+
 export const LEAD_STAGE_LABELS: Record<string, string> = {
-  NEW: "New",
+  NEW: "New Inquiry",
   INTERESTED: "Interested",
   SITE_VISIT: "Site Visit",
-  QUOTATION: "Quotation",
+  QUOTATION: "Quotation Sent",
   NEGOTIATION: "Negotiation", // legacy — no longer selectable, kept so any historical record still renders a label
   CONFIRMED: "Confirmed",
   JOB_SCHEDULED: "Pending Job",
