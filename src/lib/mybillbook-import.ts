@@ -31,12 +31,32 @@ const num = (s: string | undefined) => {
   return Number.isFinite(n) ? n : NaN;
 };
 
-/** "21/10/2026" → 21 Oct 2026 (stored at noon IST so the calendar day is the same in any timezone). */
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+/**
+ * A date as MyBillBook or Excel may print it, stored at noon IST so the calendar day is the same in any timezone. Accepts 21/10/2026,
+ * 21-10-2026, 21.10.26, 2026-10-21, "21 Oct 2026" / "21-Oct-26", and an Excel serial number (e.g. 46316). Anything else is null — a day
+ * and month are never guessed from an ambiguous layout other than the day-first one MyBillBook uses.
+ */
 export function parseDmy(s: string | undefined): Date | null {
-  const m = String(s ?? "").trim().match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-  if (!m) return null;
-  const [d, mo, y] = [Number(m[1]), Number(m[2]), Number(m[3])];
-  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  const t = String(s ?? "").trim();
+  if (!t) return null;
+  let y: number, mo: number, d: number;
+  let m: RegExpMatchArray | null;
+  if ((m = t.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/))) {
+    [d, mo, y] = [Number(m[1]), Number(m[2]), Number(m[3])];
+    if (m[3].length === 2) y += 2000;
+  } else if ((m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ].*)?$/))) {
+    [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  } else if ((m = t.match(/^(\d{1,2})[\s-]([A-Za-z]{3})[a-z]*[\s,-]+(\d{2}|\d{4})$/))) {
+    d = Number(m[1]);
+    mo = MONTHS.indexOf(m[2].toLowerCase()) + 1;
+    y = Number(m[3]) + (m[3].length === 2 ? 2000 : 0);
+  } else if (/^\d{5}(\.\d+)?$/.test(t) && Number(t) > 30000 && Number(t) < 80000) {
+    const dt = new Date(Date.UTC(1899, 11, 30) + Math.floor(Number(t)) * 86400000); // Excel's day 0 (the 1900 leap-year quirk is already folded in after March 1900)
+    [y, mo, d] = [dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()];
+  } else return null;
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 2000 || y > 2100) return null;
   const dt = new Date(Date.UTC(y, mo - 1, d, 6, 30)); // 12:00 IST
   return dt.getUTCDate() === d ? dt : null;
 }
@@ -94,7 +114,7 @@ export function parseSalesSummaryCsv(text: string): ParseResult {
   parsed.data.slice(1).forEach((r, i) => {
     const line = headerAt + 2 + i;
     const invoiceNo = (r[idx.no] ?? "").trim();
-    if (!invoiceNo) return; // blank / footer line
+    if (!invoiceNo || /^(grand\s+)?total\b/i.test(invoiceNo)) return; // blank / footer / "Total" line
     const date = parseDmy(r[idx.date]);
     const amount = num(r[idx.amount]);
     const link = (r[idx.link] ?? "").trim();
