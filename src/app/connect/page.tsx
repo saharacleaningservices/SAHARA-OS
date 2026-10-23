@@ -9,6 +9,9 @@ import { toWhatsAppLink } from "@/lib/utils";
 
 // "Explore Us": one structured links card for customers — before/after videos and photos, social channels, reviews, call / WhatsApp.
 // Linked from WhatsApp messages (a template cannot carry a third link button), so it stays out of search results.
+// Reads company settings from the database, so it is rendered per request (never prerendered at build time, when no database exists).
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Explore Sahara Cleaning Services",
   description: "Our work, our channels and how to reach us.",
