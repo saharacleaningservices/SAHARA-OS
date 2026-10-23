@@ -104,6 +104,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const docToken = canSendDocs ? (job.publicToken ?? (await ensureJobToken(job.id))) : null;
   const quotationUrl = docToken ? `${PUBLIC_BOOKING_URL}/booking/quotation/${docToken}` : "";
   // The final invoice exists only once the job is completed (the public route 404s before that too).
+  const leadQuote = job.lead?.quotations[0] ?? null;
+  // The ONE document button (owner 2026-10-23): the single-page A4 PDF. Invoice: the server-rendered invoice PDF; quotation: the lead's
+  // quotation PDF when there is one, else the quotation page opened straight into the print / Save-as-PDF view (also A4, one page).
+  const invoicePdfHref = job.invoice && completed ? `/api/invoices/${job.invoice.id}/pdf` : null;
+  const quotationPdfHref = leadQuote ? `/api/quotations/${leadQuote.id}/pdf` : quotationUrl ? `${quotationUrl}?print=1` : null;
   const invoiceUrl = docToken && completed ? `${PUBLIC_BOOKING_URL}/booking/invoice/${docToken}` : "";
   const docMessage = (label: "quotation" | "final invoice", url: string) =>
     documentShareMessage({
@@ -115,7 +120,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       total: job.jobValue,
       paid: advance,
     });
-  const leadQuote = job.lead?.quotations[0] ?? null;
 
   const coords = job.mapLink ? parseMapLink(job.mapLink) : null;
   const directions = coords ? buildDirectionsLink(coords) : job.mapLink;
@@ -149,15 +153,15 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               </Button>
             )}
             {/* One contextual document action: Quotation before completion, Invoice after. */}
-            {invoiceUrl ? (
+            {invoicePdfHref ? (
               <Button size="sm" asChild>
-                <a href={invoiceUrl} target="_blank" rel="noreferrer">
+                <a href={invoicePdfHref} target="_blank" rel="noreferrer">
                   <Receipt className="size-3.5" /> Invoice
                 </a>
               </Button>
-            ) : quotationUrl && !completed ? (
+            ) : quotationPdfHref && !completed ? (
               <Button size="sm" asChild>
-                <a href={quotationUrl} target="_blank" rel="noreferrer">
+                <a href={quotationPdfHref} target="_blank" rel="noreferrer">
                   <FileText className="size-3.5" /> Quotation
                 </a>
               </Button>
@@ -263,7 +267,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               status={job.status}
               scheduledDate={new Date(job.scheduledDate.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)}
               scheduledTime={job.scheduledTime}
-              invoiceUrl={docToken ? `${PUBLIC_BOOKING_URL}/booking/invoice/${docToken}` : undefined}
+              invoiceUrl={invoicePdfHref ?? undefined}
               canResendInvoice={canEditBilling(session.role) && !job.isDemo}
             />
           </div>
@@ -279,6 +283,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               gstEnabled={job.gstEnabled}
               customerGstin={job.customerGstin}
               advance={advance}
+              completed={completed}
             />
           )}
 
@@ -306,12 +311,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   </span>
                   <span className="flex gap-1.5">
                     <Button size="sm" variant="outline" asChild>
-                      <a href={quotationUrl} target="_blank" rel="noreferrer"><FileText className="size-3.5" /> View</a>
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`${quotationUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> A4 PDF</a>
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
                       <a href={toWhatsAppLink(job.customerMobile, docMessage("quotation", quotationUrl))} target="_blank" rel="noreferrer">
                         <MessageCircle className="size-3.5" /> Send
                       </a>
@@ -326,15 +325,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     <span className={`rounded-full px-1.5 text-[10px] font-semibold ${PAY_TONE[paymentStatus]}`}>{paymentStatus}</span>
                   </span>
                   <span className="flex gap-1.5">
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={invoiceUrl} target="_blank" rel="noreferrer"><Receipt className="size-3.5" /> View</a>
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`${invoiceUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> A4 PDF</a>
-                    </Button>
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`/api/invoices/${job.invoice.id}/pdf`} target="_blank" rel="noreferrer"><FileText className="size-3.5" /> PDF</a>
-                    </Button>
                     {canEditBilling(session.role) && <ResendInvoiceLinkButton jobId={job.id} />}
                     <Button size="sm" variant="outline" asChild>
                       <a href={toWhatsAppLink(job.customerMobile, docMessage("final invoice", invoiceUrl))} target="_blank" rel="noreferrer">

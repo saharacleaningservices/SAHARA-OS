@@ -373,6 +373,18 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
       { type: "URL", text: "Rate Us on Google", url: GOOGLE_REVIEW_URL },
     ],
   },
+  // ── Owner 2026-10-23: "Work Started" customer message. UTILITY, no buttons, no offers. Sent when staff mark Work Started, only once
+  // Meta approves it and WHATSAPP_USE_TEMPLATES=on + WHATSAPP_STARTED_TEMPLATE=v1 are set.
+  {
+    key: "8b",
+    name: "sahara_service_started_v1",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Work started — the team has begun the service (sent when staff tap Work Started)",
+    body:
+      "Hi {{1}}, our team has reached your location and started your {{2}} service (booking {{3}}). We will let you know once it is complete.\n\nFor any help, call us on 7083347130 / 8956567130.",
+    examples: ["Priya", "Home Deep Cleaning", "JOB-2026-0150"],
+  },
   {
     key: "10b",
     name: "sahara_review_request_v2",

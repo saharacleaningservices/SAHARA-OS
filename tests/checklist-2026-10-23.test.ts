@@ -73,10 +73,12 @@ test("completion prompt offers Open Invoice, A4 PDF and Resend; the job page kee
   const sa = read("src/components/jobs/status-actions.tsx");
   assert.match(sa, /Final Invoice ready/);
   assert.match(sa, /setInvoicePrompt\(true\)/);
-  assert.match(sa, /\?print=1/);
+  assert.match(sa, /Invoice \(A4 PDF\)/);
   assert.match(sa, /ResendInvoiceLinkButton/);
   const page = read("src/app/(app)/jobs/[id]/page.tsx");
-  assert.match(page, /\$\{invoiceUrl\}\?print=1/);
+  // Owner 2026-10-23: ONE document button (the single-page A4 PDF); the old View / A4 PDF / PDF buttons are gone.
+  assert.match(page, /invoicePdfHref = job\.invoice && completed \? `\/api\/invoices\/\$\{job\.invoice\.id\}\/pdf`/);
+  assert.ok(!/> View<\/a>|> A4 PDF<\/a>|> PDF<\/a>/.test(page), "no redundant View / A4 PDF / PDF buttons");
   assert.match(page, /ResendInvoiceLinkButton jobId=\{job\.id\}/);
 });
 
@@ -128,4 +130,17 @@ test("existing jobs appear in the Staff App live, from the crew assignment — n
   assert.ok(!home.upcomingJobs.some((j) => j.jobNumber === "CK-FUTURE"), "future assignments stay hidden (owner rule 2026-10-05)");
   const json = JSON.stringify(home);
   assert.ok(!json.includes("9876500011") && !json.includes("5000"), "no phone, no amount in the Staff App data");
+});
+
+// Jobs list order (owner 2026-10-23) ---------------------------------------------------------------------------------------
+test("/jobs: upcoming work in calendar order (24, 25, 26 Oct… then November), then past jobs most recent first", async () => {
+  const { orderJobsForList } = await import("../src/server/jobs");
+  const d = (s: string) => new Date(`${s}T10:00:00+05:30`);
+  const now = d("2026-10-23");
+  const rows = [
+    { jobNumber: "J-NOV", scheduledDate: d("2026-11-05") }, { jobNumber: "J-26", scheduledDate: d("2026-10-26") }, { jobNumber: "J-OLD", scheduledDate: d("2026-09-01") },
+    { jobNumber: "J-24B", scheduledDate: d("2026-10-24") }, { jobNumber: "J-TODAY", scheduledDate: d("2026-10-23") }, { jobNumber: "J-24A", scheduledDate: d("2026-10-24") },
+    { jobNumber: "J-YEST", scheduledDate: d("2026-10-22") }, { jobNumber: "J-25", scheduledDate: d("2026-10-25") },
+  ];
+  assert.deepEqual(orderJobsForList(rows, now).map((r) => r.jobNumber), ["J-TODAY", "J-24A", "J-24B", "J-25", "J-26", "J-NOV", "J-YEST", "J-OLD"]);
 });

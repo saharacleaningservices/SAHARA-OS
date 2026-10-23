@@ -13,7 +13,7 @@ import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } f
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
-import { enqueueJobCompletedNotice, enqueueTeamDispatch } from "@/server/job-queue-handlers";
+import { enqueueJobCompletedNotice, enqueueServiceStartedNotice, enqueueTeamDispatch } from "@/server/job-queue-handlers";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
@@ -456,6 +456,7 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
     data: { jobId, actorId: session?.sub, action: `Status changed to ${status.replaceAll("_", " ")}${fix === undefined ? "" : locationNote(fix === "none" ? null : fix)}` },
   });
 
+  if (status === "STARTED") void enqueueServiceStartedNotice(jobId); // "Work started" message — a no-op until its template is approved and switched on
   if (status === "COMPLETED") {
     await freezeJobTeam(jobId).catch(() => {});
     // Final invoice is generated + stored automatically on completion (any completion path).

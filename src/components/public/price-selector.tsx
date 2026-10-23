@@ -25,7 +25,7 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
     if (!bhk) return;
     window.dispatchEvent(new CustomEvent("sahara:select-package", { detail: { bhk: bhk === "4 BHK+" ? "4 BHK" : bhk, tier: tier || "" } }));
   };
-  const chip = (on: boolean) => `min-h-11 flex-1 rounded-xl px-3 text-sm font-bold transition ${on ? "bg-primary text-white shadow" : "bg-white text-[#0a2540] ring-1 ring-[#0a2540]/15"}`;
+  const chip = (on: boolean) => `min-h-11 flex-1 whitespace-nowrap rounded-xl px-2 text-sm font-bold transition sm:px-3 ${on ? "bg-primary text-white shadow" : "bg-white text-[#0a2540] ring-1 ring-[#0a2540]/15"}`;
 
   return (
     <section id="price-selector" className="scroll-mt-20 rounded-2xl bg-white p-3 shadow-sm sm:p-4">

@@ -104,13 +104,10 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime, inv
           <DialogHeader>
             <DialogTitle>Job completed — Final Invoice ready</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">The quotation has been converted into the Final Invoice. Open it, save the A4 PDF, or send the link to the customer.</p>
+          <p className="text-sm text-muted-foreground">The quotation has been converted into the Final Invoice. Open the A4 PDF or send the link to the customer.</p>
           <div className="flex flex-wrap gap-2">
             {invoiceUrl && (
-              <>
-                <Button size="sm" asChild><a href={invoiceUrl} target="_blank" rel="noreferrer"><Receipt className="size-3.5" /> Open Invoice</a></Button>
-                <Button size="sm" variant="outline" asChild><a href={`${invoiceUrl}?print=1`} target="_blank" rel="noreferrer"><Download className="size-3.5" /> Download A4 PDF</a></Button>
-              </>
+              <Button size="sm" asChild><a href={invoiceUrl} target="_blank" rel="noreferrer"><Download className="size-3.5" /> Invoice (A4 PDF)</a></Button>
             )}
             {canResendInvoice && <ResendInvoiceLinkButton jobId={jobId} />}
           </div>

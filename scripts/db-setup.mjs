@@ -1427,6 +1427,33 @@ db.close();
     }
   }
 
+  // Owner-approved festival package prices (2026-10-23, final): Premium 1/2/3 BHK Rs 5,499 / 6,499 / 7,499 and Platinum 1/2/3 BHK
+  // Rs 6,499 / 7,499 / 8,999, applied to every festival window that is running or still to come (a window that already ended keeps
+  // what it charged). Regular and combo / individual prices are NOT touched. Runs exactly once (marker row), so a later Super Admin
+  // edit in Pricing & Packages is never reset on a restart; existing Lead / Job price snapshots, payments and invoices are untouched.
+  {
+    const MARKER_ID = "_migration:owner-festival-prices-2026-10-23";
+    const done = prDb.prepare(`SELECT 1 AS x FROM "PriceSetting" WHERE "contentId" = ?`).get(MARKER_ID);
+    if (!done) {
+      const now = new Date().toISOString().replace("Z", "+00:00");
+      const today = now.slice(0, 10);
+      const festival = { "SCS-01": 5499, "SCS-02": 6499, "SCS-03": 7499, "SCS-05": 6499, "SCS-06": 7499, "SCS-07": 8999 };
+      const offers = prDb.prepare(`SELECT "id" FROM "FestivalOffer" WHERE substr("endDate", 1, 10) >= ?`).all(today);
+      const upd = prDb.prepare(`UPDATE "FestivalPrice" SET "price" = ? WHERE "festivalId" = ? AND "contentId" = ?`);
+      const ins = prDb.prepare(`INSERT OR IGNORE INTO "FestivalPrice" ("id","festivalId","contentId","price") VALUES (?,?,?,?)`);
+      prDb.transaction(() => {
+        for (const { id } of offers) {
+          for (const [cid, price] of Object.entries(festival)) {
+            const r = upd.run(price, id, cid);
+            if (!r.changes) ins.run(`${id}_${cid}`, id, cid, price);
+          }
+        }
+      })();
+      console.log(`Pricing: festival package prices set in ${offers.length} running / upcoming offer(s) (owner list 2026-10-23, one-time).`);
+      prDb.prepare(`INSERT INTO "PriceSetting" ("contentId","price","mrp","isActive","updatedByName","updatedAt") VALUES (?,NULL,NULL,0,'System migration',?)`).run(MARKER_ID, now);
+    }
+  }
+
   console.log("Pricing & Packages migration complete.");
   prDb.close();
 }

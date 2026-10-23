@@ -4,7 +4,7 @@
 // Not a "use server" module: nothing here is callable from the browser.
 import { db } from "@/lib/db";
 
-export type JobKind = "TEAM_DISPATCH" | "JOB_COMPLETED_NOTICE" | "QUOTATION_NOTICE";
+export type JobKind = "TEAM_DISPATCH" | "JOB_COMPLETED_NOTICE" | "QUOTATION_NOTICE" | "SERVICE_STARTED_NOTICE";
 export const MAX_ATTEMPTS = 4;
 const BACKOFF_MIN = [1, 5, 15];
 const STALE_RUNNING_MS = 10 * 60_000; // a job stuck RUNNING (process died mid-send) is picked up again after this
