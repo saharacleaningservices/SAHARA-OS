@@ -1827,6 +1827,8 @@ db.close();
   addCol("MybillbookInvoice", "dataset", `TEXT NOT NULL DEFAULT 'B2C'`);
   addCol("MybillbookInvoice", "gstin", "TEXT");
   addCol("MybillbookInvoice", "dueDate", "DATETIME");
+  addCol("FestivalOffer", "kind", "TEXT NOT NULL DEFAULT 'OFFER'");
+  addCol("FestivalOffer", "adjustPercent", "REAL NOT NULL DEFAULT 0");
   oDb.exec(`
     CREATE TABLE IF NOT EXISTS "Voucher" (
       "id" TEXT NOT NULL PRIMARY KEY,

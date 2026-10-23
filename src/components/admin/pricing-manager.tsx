@@ -13,7 +13,7 @@ import { PRICE_GROUP_LABEL, PRICING_MASTER, type PriceGroup } from "@/lib/pricin
 import { saveFestivalOffer, savePriceSetting } from "@/server/actions/pricing";
 
 type Setting = { contentId: string; price: number | null; mrp: number | null; isActive: boolean; updatedByName: string | null; updatedAt: string };
-type Festival = { id: string; name: string; start: string; end: string; isActive: boolean; prices: Record<string, number> };
+type Festival = { id: string; name: string; start: string; end: string; isActive: boolean; prices: Record<string, number>; kind?: "OFFER" | "SEASONAL"; adjustPercent?: number };
 
 const GROUPS = Object.keys(PRICE_GROUP_LABEL) as PriceGroup[];
 // Festival prices make sense for fixed-price items only (not per-sq-ft / inspection based).
@@ -127,6 +127,8 @@ function FestivalEditor({ festival }: { festival: Festival | null }) {
   const [from, setFrom] = useState(festival?.start ?? "");
   const [to, setTo] = useState(festival?.end ?? "");
   const [active, setActive] = useState(festival?.isActive ?? true);
+  const [kind, setKind] = useState<"OFFER" | "SEASONAL">(festival?.kind ?? "OFFER");
+  const [pct, setPct] = useState(String(festival?.adjustPercent || ""));
   const [prices, setPrices] = useState<Record<string, string>>(
     Object.fromEntries(Object.entries(festival?.prices ?? {}).map(([k, v]) => [k, String(v)])),
   );
@@ -146,6 +148,8 @@ function FestivalEditor({ festival }: { festival: Festival | null }) {
         start: from,
         end: to,
         isActive: active,
+        kind,
+        adjustPercent: kind === "SEASONAL" ? Number(pct) || 0 : 0,
         prices: Object.fromEntries(Object.entries(prices).map(([k, v]) => [k, num(v)])),
       });
       if ("error" in res && res.error) return void toast.error(res.error);
@@ -173,7 +177,22 @@ function FestivalEditor({ festival }: { festival: Festival | null }) {
           <Checkbox checked={active} onCheckedChange={(v) => setActive(v === true)} /> Active
         </label>
       </div>
-      <details open={festival == null}>
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <Label className="text-xs">Rule type</Label>
+          <select value={kind} onChange={(e) => setKind(e.target.value as "OFFER" | "SEASONAL")} className="h-8 rounded-md border bg-background px-2 text-sm">
+            <option value="OFFER">Festival offer (set package prices)</option>
+            <option value="SEASONAL">Seasonal rule (+ / - % on all prices)</option>
+          </select>
+        </div>
+        {kind === "SEASONAL" && (
+          <div>
+            <Label className="text-xs">Percent (10 = +10% surcharge, -5 = 5% discount)</Label>
+            <Input inputMode="decimal" value={pct} onChange={(e) => setPct(e.target.value)} placeholder="e.g. 10" className="h-8 w-28" />
+          </div>
+        )}
+      </div>
+      <details open={festival == null} hidden={kind === "SEASONAL"}>
         <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
           Festival prices ({Object.values(prices).filter((v) => v.trim() !== "").length} set — empty = regular price)
         </summary>

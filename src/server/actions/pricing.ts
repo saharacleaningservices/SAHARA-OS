@@ -39,6 +39,8 @@ export async function getPricingAdminData() {
       end: f.endDate.toISOString().slice(0, 10),
       isActive: f.isActive,
       prices: Object.fromEntries(f.prices.map((p) => [p.contentId, p.price])),
+      kind: (f.kind === "SEASONAL" ? "SEASONAL" : "OFFER") as "OFFER" | "SEASONAL",
+      adjustPercent: f.adjustPercent,
     })),
   };
 }
@@ -84,6 +86,8 @@ const festivalSchema = z.object({
   end: z.string().regex(DATE, "Pick an end date"),
   isActive: z.boolean(),
   prices: z.record(z.string(), z.number().min(0).max(10_000_000).nullable()),
+  kind: z.enum(["OFFER", "SEASONAL"]).default("OFFER"),
+  adjustPercent: z.number().min(-50).max(50).default(0),
 });
 
 /** Create or update a festival offer and its per-item festival prices. */
@@ -92,7 +96,12 @@ export async function saveFestivalOffer(values: unknown) {
   if (!session) return { error: "Only Super Admin can change festival pricing." };
   const parsed = festivalSchema.safeParse(values);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid festival" };
-  const { id, name, start, end, isActive, prices } = parsed.data;
+  const { id, name, start, end, isActive, kind } = parsed.data;
+  const seasonal = kind === "SEASONAL";
+  // A seasonal rule is a percentage only: it carries no per-item prices, and a zero percentage would do nothing.
+  const prices = seasonal ? {} : parsed.data.prices;
+  const adjustPercent = seasonal ? Math.round(parsed.data.adjustPercent * 100) / 100 : 0;
+  if (seasonal && adjustPercent === 0) return { error: "Enter a percentage above or below zero (for example 10 for +10%, -5 for -5%)." };
   if (end < start) return { error: "End date must be on or after the start date." };
   const unknown = Object.keys(prices).find((cid) => !PRICING_MASTER.some((p) => p.contentId === cid));
   if (unknown) return { error: "Unknown item in festival prices." };
@@ -104,8 +113,8 @@ export async function saveFestivalOffer(values: unknown) {
   const entries = Object.entries(prices).filter(([, v]) => v != null) as [string, number][];
   const saved = await db.$transaction(async (tx) => {
     const offer = id
-      ? await tx.festivalOffer.update({ where: { id }, data: { name, startDate: toDay(start), endDate: toDay(end), isActive, updatedByName: session.name } })
-      : await tx.festivalOffer.create({ data: { name, startDate: toDay(start), endDate: toDay(end), isActive, updatedByName: session.name } });
+      ? await tx.festivalOffer.update({ where: { id }, data: { name, startDate: toDay(start), endDate: toDay(end), isActive, kind, adjustPercent, updatedByName: session.name } })
+      : await tx.festivalOffer.create({ data: { name, startDate: toDay(start), endDate: toDay(end), isActive, kind, adjustPercent, updatedByName: session.name } });
     await tx.festivalPrice.deleteMany({ where: { festivalId: offer.id } });
     if (entries.length) await tx.festivalPrice.createMany({ data: entries.map(([contentId, price]) => ({ festivalId: offer.id, contentId, price })) });
     return offer;
@@ -114,9 +123,9 @@ export async function saveFestivalOffer(values: unknown) {
     entityType: "Pricing",
     entityId: saved.id,
     action: id ? "FESTIVAL_UPDATE" : "FESTIVAL_CREATE",
-    summary: `${name} ${start} → ${end}${isActive ? "" : " (inactive)"} · ${entries.length} festival price(s)`,
+    summary: `${name} ${start} → ${end}${isActive ? "" : " (inactive)"} · ${seasonal ? `seasonal ${adjustPercent > 0 ? "+" : ""}${adjustPercent}%` : `${entries.length} festival price(s)`}`,
     session,
-    meta: { prices: Object.fromEntries(entries) },
+    meta: { kind, adjustPercent, prices: Object.fromEntries(entries) },
   });
   refresh();
   return { ok: true, id: saved.id };

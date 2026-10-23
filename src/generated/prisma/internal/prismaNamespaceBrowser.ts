@@ -1186,6 +1186,8 @@ export const FestivalOfferScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   isActive: 'isActive',
+  kind: 'kind',
+  adjustPercent: 'adjustPercent',
   updatedByName: 'updatedByName',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
