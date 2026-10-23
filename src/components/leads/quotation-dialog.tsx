@@ -1,5 +1,6 @@
 "use client";
 
+import { GstToggle } from "@/components/shared/gst-toggle";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, FileText, Loader2 } from "lucide-react";
@@ -240,13 +241,8 @@ export function QuotationDialog({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-24 text-xs text-muted-foreground">GST %</Label>
-            <Input
-              type="number"
-              value={gstPercent}
-              onChange={(e) => setGstPercent(Number(e.target.value))}
-              className="w-24"
-            />
+            <Label className="w-24 text-xs text-muted-foreground">GST</Label>
+            <GstToggle value={gstPercent} onChange={setGstPercent} />
           </div>
 
           <div className="space-y-1 rounded-lg bg-muted/50 p-3 text-sm">

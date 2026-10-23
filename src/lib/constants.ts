@@ -675,6 +675,7 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "expenses",
           "quotations",
           "invoices",
+          "vouchers", // Proforma / Credit Note / Delivery Challan / Purchase vouchers — owner 2026-10-23
           "service-housekeeping",
           "service-pest-control",
           "service-interior-painting",

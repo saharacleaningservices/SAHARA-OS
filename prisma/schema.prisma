@@ -1882,3 +1882,37 @@ model ReminderLog {
   @@index([dedupeKey])
   @@index([kind, createdAt])
 }
+
+// Sales / purchase vouchers beyond the quotation and invoice (owner 2026-10-23): Proforma Invoice, Credit Note, Delivery Challan and
+// Purchase Voucher share one table. number is sequential per type and financial year (PF/26-27/0001). A PURCHASE is what Sahara owes a
+// vendor ("To Pay" on the dashboard: totalAmount - paidAmount); the others are customer-facing documents.
+model Voucher {
+  id            String   @id @default(cuid())
+  type          String // PROFORMA | CREDIT_NOTE | DELIVERY_CHALLAN | PURCHASE
+  number        String   @unique
+  voucherDate   DateTime
+  partyName     String
+  partyMobile   String?
+  partyGstin    String?
+  partyAddress  String?
+  customerId    String?
+  refNumber     String? // credit note: the invoice it corrects; purchase: the vendor's bill number
+  lineItems     String // JSON [{name, description?, qty, rate}]
+  subTotal      Float
+  discount      Float    @default(0)
+  isGst         Boolean  @default(false)
+  gstPercent    Float    @default(0)
+  gstAmount     Float    @default(0)
+  totalAmount   Float
+  paidAmount    Float    @default(0) // purchases only: what has been paid to the vendor so far
+  dueDate       DateTime?
+  status        String   @default("ISSUED") // ISSUED | PAID | CANCELLED
+  notes         String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type, voucherDate])
+  @@index([status])
+  @@index([customerId])
+}

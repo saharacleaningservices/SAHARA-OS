@@ -44,6 +44,7 @@ import { getOwnerDashboardSections } from "@/components/dashboard/owner/owner-co
 import { getOperationsDashboardSections } from "@/components/dashboard/owner/operations-command-center";
 import { TabbedDashboard } from "@/components/dashboard/tabbed-dashboard";
 import { PendingActionsPanel } from "@/components/dashboard/pending-actions-panel";
+import { CollectPayWidget } from "@/components/dashboard/collect-pay-widget";
 import { OwnerQuickInquiry } from "@/components/dashboard/owner-quick-inquiry";
 import { OwnerInquiryTracker } from "@/components/dashboard/owner-inquiry-tracker";
 import { RoleViewToggle, dashboardViewFor } from "@/components/dashboard/role-view-toggle";
@@ -82,7 +83,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       showBusinessTarget: asRole === "ADMIN",
       // Owner-only: paste a number, alert Shoyab / Francis (src/server/owner-inquiry.ts)
       // Job-closure + payment-collection reminders (src/server/ops-reminders.ts), right under Cash Flow.
-      afterCashFlow: <PendingActionsPanel />,
+      afterCashFlow: (
+        <div className="space-y-4">
+          <CollectPayWidget />
+          <PendingActionsPanel />
+        </div>
+      ),
       inquiryTools:
         asRole === "ADMIN" ? (
           <div className="space-y-4">

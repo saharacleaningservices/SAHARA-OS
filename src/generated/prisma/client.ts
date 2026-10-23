@@ -384,3 +384,8 @@ export type OutboxJob = Prisma.OutboxJobModel
  * 
  */
 export type ReminderLog = Prisma.ReminderLogModel
+/**
+ * Model Voucher
+ * 
+ */
+export type Voucher = Prisma.VoucherModel
