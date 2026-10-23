@@ -4,6 +4,7 @@ import { PRICING_MASTER } from "@/lib/pricing-master";
 import { conciseHomeExclusions, conciseHomeScope, isAutoScope, tierFromPackage } from "@/lib/service-scope";
 import { formatDate } from "@/lib/utils";
 import { DocumentActions } from "@/components/public/document-actions";
+import { DocAccordion } from "@/components/public/doc-accordion";
 
 /**
  * Customer quotation / final invoice for one booking — the structure of Sahara's
@@ -160,6 +161,8 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
   const complimentary = pkg.lines.filter((l) => l.complimentary).reduce((s, l) => s + lineAmount(l), 0);
   const total = job.jobValue > 0 ? job.jobValue : Math.max(0, subtotal - itemsDiscount);
   // Discount shown once, in the totals: gross value, the discount and its percentage, and what the customer saves.
+  const hasDisc = rows.some((r) => r.disc > 0);
+  const gridCols = hasDisc ? "sm:grid-cols-[2rem_1fr_3rem_5.5rem_5rem_6rem]" : "sm:grid-cols-[2rem_1fr_3rem_5.5rem_6rem]";
   const gross = pkg.lines.length > 0 ? subtotal : baseValue + discount;
   const discountPct = gross > 0 && discount > 0 ? Math.round((discount / gross) * 1000) / 10 : 0;
   const taxable = Math.max(0, total - gst);
@@ -241,12 +244,12 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
 
       {/* Services table — stacked rows on mobile, columns from sm */}
       <section className="p-4 sm:p-6 print:px-4 print:py-2">
-        <div className="hidden grid-cols-[2rem_1fr_3rem_5.5rem_5rem_6rem] gap-2 border-b border-[#0a2540]/15 pb-2 text-[11px] font-bold uppercase text-[#0a2540]/60 sm:grid">
-          <span>No</span><span>Services</span><span className="text-right">Qty</span><span className="text-right">Rate</span><span className="text-right">Disc.</span><span className="text-right">Total</span>
+        <div className={`hidden gap-2 border-b border-[#0a2540]/15 pb-2 text-[11px] font-bold uppercase text-[#0a2540]/60 sm:grid ${gridCols}`}>
+          <span>#</span><span>Service Description</span><span className="text-right">Qty</span><span className="text-right">Rate</span>{hasDisc && <span className="text-right">Disc.</span>}<span className="text-right">Amount</span>
         </div>
         <ol className="divide-y divide-[#0a2540]/10">
           {rows.map((r, i) => (
-            <li key={i} className="py-2.5 sm:grid sm:grid-cols-[2rem_1fr_3rem_5.5rem_5rem_6rem] sm:gap-2">
+            <li key={i} className={`py-2.5 sm:grid sm:gap-2 ${gridCols}`}>
               <span className="hidden text-xs text-[#0a2540]/60 sm:block">{i + 1}</span>
               <span className="block min-w-0">
                 <span className="block break-words font-semibold">{r.free && <span className="mr-1.5 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-emerald-700">COMPLEMENTARY</span>}{r.name}</span>
@@ -260,7 +263,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
               </span>
               <span className="hidden text-right tabular-nums sm:block">{r.qty}</span>
               <span className="hidden text-right tabular-nums sm:block">{inr(r.rate)}</span>
-              <span className="hidden text-right tabular-nums sm:block">{r.disc > 0 ? inr(r.disc) : "—"}</span>
+              {hasDisc && <span className="hidden text-right tabular-nums sm:block">{r.disc > 0 ? inr(r.disc) : "—"}</span>}
               <span className="hidden text-right font-semibold tabular-nums sm:block">{inr(r.total)}</span>
             </li>
           ))}
@@ -292,30 +295,27 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
         </div>
       </section>
 
-      {/* Quotation only: scope + equipment (left) and terms (right) side by side, so the whole quotation stays on one A4 page. */}
+      {/* Quotation only: Scope of Work, Equipment and Terms & Conditions collapse into accordions (open automatically when printed). */}
       {!isInvoice && (scopeItems.length > 0 || termsItems.length > 0) && (
-        <section className={`grid gap-4 border-t-2 border-primary/30 p-4 sm:p-6 print:gap-3 print:px-4 print:py-2 ${scopeItems.length > 0 ? "md:grid-cols-2 print:grid-cols-2" : ""}`}>
+        <section className="space-y-2 border-t-2 border-primary/30 p-4 sm:p-6 print:space-y-2 print:px-4 print:py-2">
           {scopeItems.length > 0 && (
-          <div className="min-w-0">
-            <p className="border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary">Scope of Work{catalog ? ` — ${catalog.name}` : ""}</p>
-            <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">{scopeItems.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
-            {catalog && catalog.equipment.length > 0 && (
-              <>
-                <p className="mt-3 border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary print:mt-2">Equipment Used</p>
-                <p className="mt-1 text-xs leading-snug text-[#0a2540]/80 print:text-[10px]">{catalog.equipment.join(" · ")}</p>
-              </>
-            )}
-          </div>
+            <DocAccordion title={`Scope of Work${catalog ? ` — ${catalog.name}` : ""}`}>
+              <ul className="list-disc space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">{scopeItems.map((x) => <li key={x} className="break-words">{x}</li>)}</ul>
+            </DocAccordion>
           )}
-          <div className={`min-w-0 ${scopeItems.length > 0 ? "md:border-l md:border-[#0a2540]/15 md:pl-4 print:border-l print:pl-3" : ""}`}>
-            <p className="border-b border-[#0a2540]/15 pb-1 text-[10px] font-bold uppercase tracking-wide text-primary">Terms &amp; Conditions</p>
-            <ol className="mt-1.5 list-decimal space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">
+          {catalog && catalog.equipment.length > 0 && (
+            <DocAccordion title="Equipment Used">
+              <p className="text-xs leading-snug text-[#0a2540]/80 print:text-[10px]">{catalog.equipment.join(" · ")}</p>
+            </DocAccordion>
+          )}
+          <DocAccordion title="Terms & Conditions">
+            <ol className="list-decimal space-y-1 pl-4 text-xs leading-snug text-[#0a2540]/80 print:space-y-0.5 print:text-[10px]">
               {termsItems.map((t) => <li key={t}>{t}</li>)}
             </ol>
             <p className="mt-1.5 text-xs text-[#0a2540]/80 print:text-[10px]">
               <span className="font-semibold">Reschedule, postpone or cancel:</span> use &ldquo;Need a change?&rdquo; on your booking page, or WhatsApp {COMPANY.phones[1] ?? COMPANY.phones[0]}.
             </p>
-          </div>
+          </DocAccordion>
         </section>
       )}
 
@@ -348,7 +348,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
         <p className="text-[#0a2540]/60">Questions? Call / WhatsApp {COMPANY.phones.join(" / ")}</p>
         <p className="text-right font-semibold">For {company.name}</p>
       </footer>
-      <DocumentActions shareUrl={shareUrl} title={`${isInvoice ? "Invoice" : "Quotation"} ${docNo} — ${company.name}`} />
+      <DocumentActions shareUrl={shareUrl} title={`${isInvoice ? "Invoice" : "Quotation"} ${docNo} — ${company.name}`} payHref={balance > 0 ? (company.payUrl ?? null) : null} hideShare />
     </article>
   );
 }

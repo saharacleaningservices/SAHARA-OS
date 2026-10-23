@@ -733,7 +733,7 @@ export function BookingWizard({
                   <>
                     <div className={pkgCollapsed ? "max-sm:hidden" : ""}>
                       <p className="mb-2 text-sm font-semibold">Property type</p>
-                      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} px-1 text-[11px] leading-tight sm:whitespace-nowrap sm:text-[13px] sm:leading-normal`}>{b}</button>)}</div>
+                      <div className="grid grid-cols-[repeat(auto-fill,minmax(5.25rem,1fr))] gap-1.5 sm:gap-2">{BHKS.map((b) => <button key={b} type="button" onClick={() => setBhk(b)} className={`${chip(bhk === b)} whitespace-normal break-words px-2 text-center text-[12px] leading-tight sm:text-[13px]`}>{b}</button>)}</div>
                     </div>
                     {inspection && (
                       <div className={`rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 ${pkgCollapsed ? "max-sm:hidden" : ""}`} role="note">
