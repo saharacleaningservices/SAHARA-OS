@@ -363,10 +363,10 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               </ul>
             </>
           )}
-          <a href="/terms" className="mt-2 inline-block text-xs font-semibold text-primary">Terms &amp; Conditions →</a>
+          <a href="/terms" className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-primary">Terms &amp; Conditions →</a>
           <div className="mt-3 flex flex-wrap gap-2">
             {support.map((n) => (
-              <a key={n} href={`tel:+91${n}`} className="flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-semibold">
+              <a key={n} href={`tel:+91${n}`} className="flex min-h-11 items-center gap-1 rounded-full border px-4 py-1.5 text-xs font-semibold">
                 <Phone className="size-3" /> {n}
               </a>
             ))}

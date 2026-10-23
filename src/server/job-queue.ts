@@ -58,3 +58,15 @@ export async function runDueJobs(handlers: Record<string, Handler>, limit = 10) 
   }
   return { done, failed };
 }
+
+/**
+ * Housekeeping: finished (DONE) queue rows older than `days` are deleted — they are only the record that a message / dispatch went out
+ * (the Message Log and the job's activity log keep the real history). Rows still PENDING / RUNNING and rows parked FAILED (they need a
+ * person) are never touched. Returns how many rows were removed.
+ */
+export async function pruneFinishedJobs(days = 30, now = new Date()) {
+  const cutoff = new Date(now.getTime() - days * 86_400_000);
+  const r = await db.outboxJob.deleteMany({ where: { status: "DONE", updatedAt: { lt: cutoff } } });
+  if (r.count > 0) await db.auditLog.create({ data: { entityType: "System", entityId: "outbox-prune", action: "PRUNE", summary: `Removed ${r.count} finished queue row(s) older than ${days} days`, actorName: "System" } }).catch(() => {});
+  return r.count;
+}

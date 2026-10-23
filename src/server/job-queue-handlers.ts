@@ -2,13 +2,13 @@
 import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
-import { sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { sendWhatsApp, sendWhatsAppTemplate, shouldFallBackToText, WHATSAPP_TIMEOUT_ERROR_PREFIX } from "@/lib/whatsapp";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { randomBytes } from "node:crypto";
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { customerPaymentStatus, ensureJobToken } from "@/server/booking-messages";
-import { enqueueJob, runDueJobs } from "@/server/job-queue";
+import { enqueueJob, pruneFinishedJobs, runDueJobs } from "@/server/job-queue";
 
 /** Crew dispatch for a job, in the background. One unfinished dispatch per job at a time. */
 export const enqueueTeamDispatch = (jobId: string) => enqueueJob("TEAM_DISPATCH", { jobId }, { dedupeKey: `dispatch:${jobId}` });
@@ -29,18 +29,37 @@ export const enqueueServiceStartedNotice = (jobId: string) => enqueueJob("SERVIC
  */
 export async function sendServiceStartedNotice(jobId: string) {
   if (process.env.WHATSAPP_USE_TEMPLATES !== "on" || process.env.WHATSAPP_STARTED_TEMPLATE !== "v1") return;
-  const already = await db.whatsAppMessage.findFirst({ where: { kind: "SERVICE_STARTED", relatedType: "Job", relatedId: jobId }, select: { id: true } });
+  const already = await db.whatsAppMessage.findFirst({ where: { kind: "SERVICE_STARTED", relatedType: "Job", relatedId: jobId, ...notFailed }, select: { id: true } });
   if (already) return;
   const job = await db.job.findFirst({ where: { id: jobId, deletedAt: null, status: "STARTED" }, select: { id: true, jobNumber: true, customerName: true, customerMobile: true, service: true } });
   if (!job) return;
   const t = templateByName("sahara_service_started_v1")!;
   const params = [job.customerName, SERVICE_LABELS[job.service] ?? job.service, job.jobNumber];
   const res = await sendWhatsAppTemplate({ kind: "SERVICE_STARTED", toNumber: job.customerMobile, toName: job.customerName, templateName: t.name, languageCode: t.language, bodyParams: params, preview: renderTemplatePreview(t, params), relatedType: "Job", relatedId: job.id });
-  if (!res.sent && "error" in res && res.error && !/test mode|opt|not connected/i.test(String(res.error))) throw new Error(String(res.error));
+  if (!res.sent && "error" in res && shouldFallBackToText(res.error)) {
+    // The template definitely did not go out: say the same thing as plain text.
+    const text = await sendWhatsApp({ kind: "SERVICE_STARTED", toNumber: job.customerMobile, toName: job.customerName, body: `Hi ${job.customerName}, our team has reached your location and started your ${params[1]} service (booking ${job.jobNumber}). We will let you know once it is complete.\n\nFor any help, call us on 7083347130 / 8956567130.`, relatedType: "Job", relatedId: job.id });
+    return settle(text);
+  }
+  settle(res);
 }
 
 /** Kill-switch for the automatic View Estimate / View Invoice messages (default on; TEST outbound mode still limits who receives them). */
 const docLinksOn = () => process.env.WHATSAPP_DOC_LINKS !== "off";
+
+/**
+ * What the queue should do with a finished send: nothing for success and for deliberate refusals (TEST mode, opt-out, no consent, not
+ * connected); nothing for a TIMEOUT too — the message may have been delivered, and repeating it would send a duplicate; anything else is
+ * thrown so the queue retries with back-off.
+ */
+function settle(res: { sent: boolean; error?: string } | undefined) {
+  if (!res || res.sent || !res.error) return;
+  if (res.error.startsWith(WHATSAPP_TIMEOUT_ERROR_PREFIX) || /test mode|opt|not connected|consent/i.test(res.error)) return;
+  throw new Error(res.error);
+}
+
+/** A message that failed outright must not stop the next attempt (or the text fallback) from sending — only delivered / queued / blocked rows count as "already sent". */
+const notFailed = { status: { not: "FAILED" } } as const;
 
 /** "Here is your estimate" with the secure /booking?quote= link. Once per quotation. */
 export async function sendQuotationNotice(quotationId: string) {
@@ -67,7 +86,7 @@ export async function sendQuotationNotice(quotationId: string) {
 export async function sendJobCompletedNotice(jobId: string) {
   const version = process.env.WHATSAPP_COMPLETED_TEMPLATE;
   if (process.env.WHATSAPP_USE_TEMPLATES !== "on" || (version !== "v1" && version !== "v2")) return sendJobCompletedLinks(jobId);
-  const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId }, select: { id: true } });
+  const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId, ...notFailed }, select: { id: true } });
   if (already) return;
   const job = await db.job.findFirst({
     where: { id: jobId, deletedAt: null, status: "COMPLETED" },
@@ -90,7 +109,10 @@ export async function sendJobCompletedNotice(jobId: string) {
     relatedType: "Job",
     relatedId: job.id,
   });
-  if (!res.sent && "error" in res && res.error && !/test mode|opt|not connected/i.test(String(res.error))) throw new Error(String(res.error));
+  // Template did not go out (rejected / paused / unreachable): send the same invoice + review links as plain text. A timeout never
+  // falls back (it may have been delivered); deliberate refusals (TEST mode, opt-out) never fall back either.
+  if (!res.sent && "error" in res && shouldFallBackToText(res.error)) return sendJobCompletedLinks(jobId);
+  settle(res);
 }
 
 /**
@@ -100,7 +122,7 @@ export async function sendJobCompletedNotice(jobId: string) {
 export async function sendJobCompletedLinks(jobId: string, opts: { force?: boolean } = {}) {
   if (!opts.force && !docLinksOn()) return;
   if (!opts.force) {
-    const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId }, select: { id: true } });
+    const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId, ...notFailed }, select: { id: true } });
     if (already) return;
   }
   const job = await db.job.findFirst({
@@ -121,14 +143,20 @@ export async function sendJobCompletedLinks(jobId: string, opts: { force?: boole
   ];
   const res = await sendWhatsApp({ kind: "JOB_COMPLETED", toNumber: job.customerMobile, toName: job.customerName, body: lines.join("\n"), relatedType: "Job", relatedId: job.id });
   if (opts.force) return res;
-  if (!res.sent && "error" in res && res.error && !/test mode|opt|not connected/i.test(String(res.error))) throw new Error(String(res.error));
+  settle(res);
 }
 
-/** Called every minute by the scheduler (src/instrumentation.ts). */
-export const runQueueSweep = () =>
-  runDueJobs({
+let lastPruneAt = 0;
+/** Called every minute by the scheduler (src/instrumentation.ts). Also tidies finished queue rows about once a day. */
+export const runQueueSweep = async () => {
+  if (Date.now() - lastPruneAt > 24 * 3_600_000) {
+    lastPruneAt = Date.now();
+    await pruneFinishedJobs().catch((e) => console.error("[queue] prune failed:", e));
+  }
+  return runDueJobs({
     TEAM_DISPATCH: async (p) => void (await dispatchTeamForJob(String(p.jobId))),
     JOB_COMPLETED_NOTICE: async (p) => void (await sendJobCompletedNotice(String(p.jobId))),
     QUOTATION_NOTICE: async (p) => sendQuotationNotice(String(p.quotationId)),
     SERVICE_STARTED_NOTICE: async (p) => sendServiceStartedNotice(String(p.jobId)),
   });
+};

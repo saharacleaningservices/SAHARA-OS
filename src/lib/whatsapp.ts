@@ -663,6 +663,20 @@ export async function sendWhatsAppTemplate(input: {
   return result.ok ? { sent: true as const, id: message.id } : { sent: false as const, id: message.id, error: result.error };
 }
 
+/** The message the sender returns when WhatsApp did not answer in time (see deliverPayload) — the message may still have been delivered. */
+export const WHATSAPP_TIMEOUT_ERROR_PREFIX = "Timed out talking to WhatsApp";
+
+/**
+ * May a failed TEMPLATE send be repeated as plain text? Only when WhatsApp definitely did NOT deliver it (template rejected / paused /
+ * unapproved, HTTP error, unreachable). Never on a timeout (it may have been delivered — a second message would be a duplicate) and never
+ * when the refusal was intentional (TEST mode block, opt-out, no marketing consent, WhatsApp not connected).
+ */
+export function shouldFallBackToText(error: string | null | undefined): boolean {
+  if (!error) return false;
+  if (error.startsWith(WHATSAPP_TIMEOUT_ERROR_PREFIX)) return false;
+  return ![WHATSAPP_TEST_MODE_BLOCK, WHATSAPP_NOT_CONNECTED, WHATSAPP_OPT_OUT_ERROR, WHATSAPP_NO_MARKETING_CONSENT_ERROR].includes(error);
+}
+
 /** Last 10 digits of any stored phone format ("+91 75203 63157", "09730048233", …). */
 export const last10Digits = (n: string | null | undefined) => (n ?? "").replace(/\D/g, "").slice(-10);
 

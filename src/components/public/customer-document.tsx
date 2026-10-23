@@ -188,7 +188,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
       {/* Header */}
       <header className="flex flex-col gap-3 border-b border-[#0a2540]/10 p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6 print:flex-row print:items-start print:justify-between print:px-4 print:py-2">
         <div className="min-w-0">
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex flex-col items-start gap-2 min-[420px]:flex-row min-[420px]:items-center sm:gap-4">
             {company.logoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={company.logoUrl} alt={company.name} className="h-14 w-auto max-w-[170px] shrink-0 object-contain sm:h-[4.5rem] sm:max-w-[220px] print:h-14" />
