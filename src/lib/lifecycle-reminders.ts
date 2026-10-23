@@ -9,6 +9,8 @@ export const DEFAULT_CREDIT_DAYS = 15;
 /** Days between payment follow-ups, and the most that are ever sent for one invoice. */
 export const PAYMENT_REPEAT_DAYS = 7;
 export const PAYMENT_MAX_REMINDERS = 3;
+/** An invoice more than this many days past its due date is old debt: it needs a personal call, never an automatic WhatsApp. */
+export const PAYMENT_MAX_OVERDUE_DAYS = 90;
 
 const DAY = 24 * 3600 * 1000;
 export function addMonths(d: Date, months: number): Date {
@@ -46,6 +48,7 @@ export function dueDateOf(row: { dueDate: Date | null; invoiceDate: Date }, cred
  */
 export function nextPaymentReminder(due: Date, sent: { count: number; lastAt: Date | null }, now: Date): 1 | 2 | 3 | null {
   if (sent.count >= PAYMENT_MAX_REMINDERS) return null;
+  if (now.getTime() > due.getTime() + PAYMENT_MAX_OVERDUE_DAYS * DAY) return null;
   if (sent.count === 0) return now.getTime() >= due.getTime() + DAY ? 1 : null;
   if (!sent.lastAt || now.getTime() < sent.lastAt.getTime() + PAYMENT_REPEAT_DAYS * DAY) return null;
   return (sent.count + 1) as 2 | 3;

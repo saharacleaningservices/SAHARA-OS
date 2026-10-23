@@ -28,7 +28,7 @@ export default async function LifecycleRemindersPage() {
           Outbound mode: <b>{mode}</b> · Reminders switch (<code>WHATSAPP_REMINDERS</code>): <b>{remindersEnabled() ? "ON" : "OFF"}</b>
         </p>
         <p className="mt-1 text-muted-foreground">
-          Template-only. Re-booking goes to contacts with a recorded WhatsApp opt-in only; anyone who opted out is skipped; each milestone is sent once; sending happens 10:00–18:00 IST, at most 30 per sweep. In TEST mode only the approved test number can receive anything. Both templates must be submitted to Meta and approved first (WhatsApp Log → Submit to Meta).
+          Template-only. Overdue invoices are followed up automatically only until 90 days past their due date; older debts are left for a personal call. Re-booking goes to contacts with a recorded WhatsApp opt-in only; anyone who opted out is skipped; each milestone is sent once; sending happens 10:00–18:00 IST, at most 30 per sweep. In TEST mode only the approved test number can receive anything. Both templates must be submitted to Meta and approved first (WhatsApp Log → Submit to Meta).
         </p>
         <div className="mt-3">
           <LifecycleRemindersPanel enabled={remindersEnabled()} />
