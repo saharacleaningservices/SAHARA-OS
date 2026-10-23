@@ -136,7 +136,7 @@ test("v4: one template message with quotation + pay buttons and the review link;
 
 // ---- v5 / payment_received_v1 / job_completed_v1 (owner 2026-10-22: strictly UTILITY, real domain) ---------------------------
 test("v5, payment_received_v1 and job_completed_v1: UTILITY, real booking domain, no urgency/socials, Meta-safe", () => {
-  for (const name of ["sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1"]) {
+  for (const name of ["sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1", "sahara_service_started_v1"]) {
     const t = templateByName(name);
     assert.ok(t, name);
     assert.equal(t!.category, "UTILITY", name);

@@ -6,7 +6,7 @@ import type { CloudTemplate } from "@/lib/whatsapp-cloud-templates";
 export const PROTECTED_WABA_ID = "108381505270532";
 
 /** Templates the CRM may submit — the owner-approved Utility set of 2026-10-22. Anything else is refused. */
-export const SUBMITTABLE_TEMPLATES = ["sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1"] as const;
+export const SUBMITTABLE_TEMPLATES = ["sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1", "sahara_service_started_v1"] as const;
 
 /** Customer-facing links must be on this host — never the CRM (app.) domain. */
 export const BOOKING_HOST = "booking.saharacleaningservices.com";

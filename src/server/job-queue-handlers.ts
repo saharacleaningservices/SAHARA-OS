@@ -19,6 +19,26 @@ export const enqueueJobCompletedNotice = (jobId: string) => enqueueJob("JOB_COMP
 /** Estimate link to the customer the moment a quotation is created, in the background. */
 export const enqueueQuotationNotice = (quotationId: string) => enqueueJob("QUOTATION_NOTICE", { quotationId }, { dedupeKey: `quotation:${quotationId}` });
 
+/** "Work started" customer message, in the background. Once per job. */
+export const enqueueServiceStartedNotice = (jobId: string) => enqueueJob("SERVICE_STARTED_NOTICE", { jobId }, { dedupeKey: `started:${jobId}` });
+
+/**
+ * sahara_service_started_v1 — sent when staff mark Work Started. Template only (a plain message would be rejected by WhatsApp for a
+ * customer who has not written to us in the last 24 h), so it stays off until Meta approves the template and the owner sets
+ * WHATSAPP_USE_TEMPLATES=on + WHATSAPP_STARTED_TEMPLATE=v1. Outbound mode still decides who can receive it.
+ */
+export async function sendServiceStartedNotice(jobId: string) {
+  if (process.env.WHATSAPP_USE_TEMPLATES !== "on" || process.env.WHATSAPP_STARTED_TEMPLATE !== "v1") return;
+  const already = await db.whatsAppMessage.findFirst({ where: { kind: "SERVICE_STARTED", relatedType: "Job", relatedId: jobId }, select: { id: true } });
+  if (already) return;
+  const job = await db.job.findFirst({ where: { id: jobId, deletedAt: null, status: "STARTED" }, select: { id: true, jobNumber: true, customerName: true, customerMobile: true, service: true } });
+  if (!job) return;
+  const t = templateByName("sahara_service_started_v1")!;
+  const params = [job.customerName, SERVICE_LABELS[job.service] ?? job.service, job.jobNumber];
+  const res = await sendWhatsAppTemplate({ kind: "SERVICE_STARTED", toNumber: job.customerMobile, toName: job.customerName, templateName: t.name, languageCode: t.language, bodyParams: params, preview: renderTemplatePreview(t, params), relatedType: "Job", relatedId: job.id });
+  if (!res.sent && "error" in res && res.error && !/test mode|opt|not connected/i.test(String(res.error))) throw new Error(String(res.error));
+}
+
 /** Kill-switch for the automatic View Estimate / View Invoice messages (default on; TEST outbound mode still limits who receives them). */
 const docLinksOn = () => process.env.WHATSAPP_DOC_LINKS !== "off";
 
@@ -89,11 +109,13 @@ export async function sendJobCompletedLinks(jobId: string, opts: { force?: boole
   if (!job) return;
   const pmt = customerPaymentStatus(job);
   const token = await ensureJobToken(job.id);
+  const settings = await db.companySettings.findUnique({ where: { id: "default" }, select: { googleReviewUrl: true } }).catch(() => null);
   const lines = [
     `Hi ${job.customerName}, your ${SERVICE_LABELS[job.service] ?? job.service} service is complete. Thank you for choosing Sahara Cleaning Services!`,
     ``,
     `\u{1F9FE} View Invoice${job.invoice ? ` ${job.invoice.invoiceNumber}` : ""}: ${PUBLIC_BOOKING_URL}/booking/invoice/${token}`,
-    pmt.due > 0 ? `\u{1F4B3} Balance due ${formatINR(pmt.due)} — pay here: ${PUBLIC_BOOKING_URL}/booking/pay/${token}` : `Payment received in full — thank you.`,
+    pmt.due > 0 ? `\u{1F4B3} Balance due ${formatINR(pmt.due)} — pay online: ${PUBLIC_BOOKING_URL}/booking/pay/${token}` : `Payment received in full — thank you.`,
+    ...(settings?.googleReviewUrl ? [``, `\u2B50 Happy with our service? Please rate us on Google: ${settings.googleReviewUrl}`] : []),
   ];
   const res = await sendWhatsApp({ kind: "JOB_COMPLETED", toNumber: job.customerMobile, toName: job.customerName, body: lines.join("\n"), relatedType: "Job", relatedId: job.id });
   if (opts.force) return res;
@@ -106,4 +128,5 @@ export const runQueueSweep = () =>
     TEAM_DISPATCH: async (p) => void (await dispatchTeamForJob(String(p.jobId))),
     JOB_COMPLETED_NOTICE: async (p) => void (await sendJobCompletedNotice(String(p.jobId))),
     QUOTATION_NOTICE: async (p) => sendQuotationNotice(String(p.quotationId)),
+    SERVICE_STARTED_NOTICE: async (p) => sendServiceStartedNotice(String(p.jobId)),
   });

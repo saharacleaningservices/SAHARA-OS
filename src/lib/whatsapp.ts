@@ -41,6 +41,7 @@ export type WhatsAppKind =
   | "BOOKING_CONFIRMATION"
   | "TEAM_DISPATCH"
   | "JOB_COMPLETED"
+  | "SERVICE_STARTED"
   | "QUOTATION_NOTICE"
   | "CUSTOMER_REMINDER"
   | "PAYMENT_REMINDER"
@@ -109,6 +110,7 @@ export const WHATSAPP_TRANSACTIONAL_TEMPLATES: readonly string[] = [
   "sahara_booking_confirmed_v5",
   "sahara_payment_received_v1",
   "sahara_job_completed_v1",
+  "sahara_service_started_v1",
   "sahara_booking_rescheduled",
   "sahara_booking_cancelled",
   "sahara_advance_payment_request",

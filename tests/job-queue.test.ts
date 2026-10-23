@@ -159,3 +159,39 @@ test("quotation created: ONE estimate message with the secure link, once per quo
   assert.ok(token && msgs[0].body.includes(`/booking?quote=${token}`) && msgs[0].body.includes(`QT-Q-${n}`));
   assert.notEqual(msgs[0].status, "SENT");
 });
+
+test("work started: no message while the template is off; with it on, ONE template send to the QA number only, once per job", async () => {
+  const keep = { ...process.env };
+  const realFetch = globalThis.fetch;
+  const calls: { url: string; body: Record<string, unknown> }[] = [];
+  try {
+    const job = await makeJob();
+    await db.job.update({ where: { id: job.id }, data: { status: "STARTED", customerMobile: "9800817070" } });
+    await handlers.sendServiceStartedNotice(job.id);
+    assert.equal(await db.whatsAppMessage.count({ where: { kind: "SERVICE_STARTED", relatedId: job.id } }), 0, "off by default");
+    Object.assign(process.env, { WHATSAPP_USE_TEMPLATES: "on", WHATSAPP_STARTED_TEMPLATE: "v1", WHATSAPP_ACCESS_TOKEN: "test-token-not-real", WHATSAPP_PHONE_NUMBER_ID: "000000000000000" });
+    globalThis.fetch = (async (url: string | URL, init?: RequestInit) => { calls.push({ url: String(url), body: JSON.parse(String(init?.body ?? "{}")) }); return new Response(JSON.stringify({ messages: [{ id: "wamid.S1" }] }), { status: 200 }); }) as typeof fetch;
+    await handlers.sendServiceStartedNotice(job.id);
+    await handlers.sendServiceStartedNotice(job.id);
+    const sends = calls.filter((c) => /\/messages$/.test(c.url));
+    assert.equal(sends.length, 1, "exactly one send");
+    const tpl = sends[0].body.template as { name: string; components: { type: string; parameters: { text: string }[] }[] };
+    assert.equal(tpl.name, "sahara_service_started_v1");
+    assert.deepEqual(tpl.components.find((c) => c.type === "body")!.parameters.map((x) => x.text), ["Asha", "Home Deep Cleaning", job.jobNumber]);
+  } finally {
+    globalThis.fetch = realFetch;
+    for (const k of Object.keys(process.env)) if (!(k in keep)) delete process.env[k];
+    Object.assign(process.env, keep);
+  }
+});
+
+test("work started is queued from the status change; work completed text carries thanks + invoice + online payment + Google review link", async () => {
+  const src = (await import("node:fs")).readFileSync("src/server/actions/jobs.ts", "utf8");
+  assert.match(src, /status === "STARTED"\) void enqueueServiceStartedNotice\(jobId\)/);
+  await db.companySettings.upsert({ where: { id: "default" }, update: { googleReviewUrl: "https://g.page/r/TEST/review" }, create: { id: "default", name: "Sahara", phone: "0", email: "t@t", address: "x", googleReviewUrl: "https://g.page/r/TEST/review" } as never });
+  const job = await makeJob();
+  await db.job.update({ where: { id: job.id }, data: { status: "COMPLETED" } });
+  await handlers.sendJobCompletedLinks(job.id, { force: true });
+  const m = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
+  assert.ok(m && /Thank you/.test(m.body) && m.body.includes("/booking/invoice/") && m.body.includes("/booking/pay/") && m.body.includes("https://g.page/r/TEST/review"));
+});

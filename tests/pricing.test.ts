@@ -295,9 +295,14 @@ test("migration on an EMPTY DB: all six exact festival prices in every offer; la
   try {
     runSetup(dbFile);
     const rows = readFestival(dbFile);
+    // Owner list 2026-10-23: windows still running / to come carry the new festival prices; a window that has ended keeps what it charged.
+    const FESTIVAL_2026_10_23: Record<string, number> = { "SCS-01": 5499, "SCS-05": 6499, "SCS-02": 6499, "SCS-06": 7499, "SCS-03": 7499, "SCS-07": 8999 };
+    const END: Record<string, string> = { Navratri: "2026-10-19", Dussehra: "2026-10-25", Diwali: "2026-11-10" };
+    const today = new Date().toISOString().slice(0, 10);
     for (const name of ["Navratri", "Dussehra", "Diwali"]) {
       const m = Object.fromEntries(rows.filter((r) => r.n === name).map((r) => [r.c, r.price]));
-      for (const [id, price] of Object.entries(FESTIVAL_FINAL)) assert.equal(m[id], price, `${name} ${id}`);
+      const expected = END[name] >= today ? FESTIVAL_2026_10_23 : FESTIVAL_FINAL;
+      for (const [id, price] of Object.entries(expected)) assert.equal(m[id], price, `${name} ${id}`);
       assert.equal(m["SCS-04"], undefined);
       assert.equal(m["SCS-08"], undefined);
     }
