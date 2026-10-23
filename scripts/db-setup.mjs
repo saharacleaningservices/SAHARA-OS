@@ -1828,6 +1828,38 @@ db.close();
   addCol("MybillbookInvoice", "gstin", "TEXT");
   addCol("MybillbookInvoice", "dueDate", "DATETIME");
   oDb.exec(`
+    CREATE TABLE IF NOT EXISTS "Voucher" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "type" TEXT NOT NULL,
+      "number" TEXT NOT NULL,
+      "voucherDate" DATETIME NOT NULL,
+      "partyName" TEXT NOT NULL,
+      "partyMobile" TEXT,
+      "partyGstin" TEXT,
+      "partyAddress" TEXT,
+      "customerId" TEXT,
+      "refNumber" TEXT,
+      "lineItems" TEXT NOT NULL,
+      "subTotal" REAL NOT NULL,
+      "discount" REAL NOT NULL DEFAULT 0,
+      "isGst" BOOLEAN NOT NULL DEFAULT 0,
+      "gstPercent" REAL NOT NULL DEFAULT 0,
+      "gstAmount" REAL NOT NULL DEFAULT 0,
+      "totalAmount" REAL NOT NULL,
+      "paidAmount" REAL NOT NULL DEFAULT 0,
+      "dueDate" DATETIME,
+      "status" TEXT NOT NULL DEFAULT 'ISSUED',
+      "notes" TEXT,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "Voucher_number_key" ON "Voucher"("number");
+    CREATE INDEX IF NOT EXISTS "Voucher_type_voucherDate_idx" ON "Voucher"("type", "voucherDate");
+    CREATE INDEX IF NOT EXISTS "Voucher_status_idx" ON "Voucher"("status");
+    CREATE INDEX IF NOT EXISTS "Voucher_customerId_idx" ON "Voucher"("customerId");
+  `);
+  oDb.exec(`
     CREATE TABLE IF NOT EXISTS "ReminderLog" (
       "id" TEXT NOT NULL PRIMARY KEY,
       "kind" TEXT NOT NULL,

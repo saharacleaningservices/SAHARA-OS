@@ -116,7 +116,8 @@ export const ModelName = {
   OpsReminderSettings: 'OpsReminderSettings',
   WebAuthnCredential: 'WebAuthnCredential',
   OutboxJob: 'OutboxJob',
-  ReminderLog: 'ReminderLog'
+  ReminderLog: 'ReminderLog',
+  Voucher: 'Voucher'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1437,6 +1438,36 @@ export const ReminderLogScalarFieldEnum = {
 } as const
 
 export type ReminderLogScalarFieldEnum = (typeof ReminderLogScalarFieldEnum)[keyof typeof ReminderLogScalarFieldEnum]
+
+
+export const VoucherScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  number: 'number',
+  voucherDate: 'voucherDate',
+  partyName: 'partyName',
+  partyMobile: 'partyMobile',
+  partyGstin: 'partyGstin',
+  partyAddress: 'partyAddress',
+  customerId: 'customerId',
+  refNumber: 'refNumber',
+  lineItems: 'lineItems',
+  subTotal: 'subTotal',
+  discount: 'discount',
+  isGst: 'isGst',
+  gstPercent: 'gstPercent',
+  gstAmount: 'gstAmount',
+  totalAmount: 'totalAmount',
+  paidAmount: 'paidAmount',
+  dueDate: 'dueDate',
+  status: 'status',
+  notes: 'notes',
+  createdByName: 'createdByName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VoucherScalarFieldEnum = (typeof VoucherScalarFieldEnum)[keyof typeof VoucherScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -1,5 +1,6 @@
 "use client";
 
+import { GstToggle } from "@/components/shared/gst-toggle";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, FileText, Loader2 } from "lucide-react";
@@ -155,8 +156,8 @@ export function NewInvoiceDialog() {
               <Input type="number" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">GST %</Label>
-              <Input type="number" value={gstPercent} onChange={(e) => setGstPercent(Number(e.target.value))} />
+              <Label className="text-xs text-muted-foreground">GST</Label>
+              <GstToggle value={gstPercent} onChange={setGstPercent} />
             </div>
           </div>
 
