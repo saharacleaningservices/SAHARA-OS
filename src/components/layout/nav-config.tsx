@@ -32,7 +32,7 @@ import {
     type LucideIcon,
 } from "lucide-react";
 
-export type NavGroupKey = "operations" | "sales" | "dashboards" | "tools" | "admin";
+export type NavGroupKey = "operations" | "sales" | "parties" | "purchases" | "dashboards" | "tools" | "admin";
 
 export type NavItem = {
     label: string;
@@ -49,8 +49,11 @@ export type NavItem = {
 export const NAV_GROUPS: { key: NavGroupKey; label: string }[] = [
   // Fixed order (owner 2026-10-18): Dashboards first.
   { key: "dashboards", label: "Dashboards & Reports" },
+  // MyBillBook-style order (owner 2026-10-23): Dashboard, Parties, Sales, Purchases, then the field / tools / settings groups.
+  { key: "parties", label: "Parties" },
+  { key: "sales", label: "Sales" },
+  { key: "purchases", label: "Purchases" },
   { key: "operations", label: "Operations" },
-  { key: "sales", label: "Sales & Finance" },
   { key: "tools", label: "Tools & AI" },
   { key: "admin", label: "Settings & Admin" },
 ];
@@ -60,7 +63,7 @@ const GROUP_BY_HREF: Record<string, NavGroupKey> = {
   "/dashboard": "dashboards", "/revenue": "dashboards", "/profit": "dashboards", "/profit/marketing": "dashboards",
   "/reports": "dashboards", "/reports/export-center": "dashboards",
   "/leads": "sales", "/leads/price-list": "sales", "/service-catalog": "sales", "/quotations": "sales", "/invoices": "sales", "/payments": "sales",
-  "/expenses": "sales", "/customers": "sales",
+  "/expenses": "purchases", "/customers": "parties",
   "/jobs": "operations", "/jobs/quick-quote": "operations", "/jobs/dispatch": "operations", "/jobs/slots": "operations", "/staff": "operations",
   "/vehicles": "operations", "/attendance": "operations", "/amc": "operations",
   "/jobs?service=HOUSEKEEPING": "operations", "/jobs?service=PEST_CONTROL": "operations", "/jobs?service=INTERIOR_PAINTING": "operations",
@@ -90,14 +93,14 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   { label: "Housekeeping", href: "/jobs?service=HOUSEKEEPING", section: "service-housekeeping", icon: Home, cluster: "Specialized Services" },
   { label: "Pest Control", href: "/jobs?service=PEST_CONTROL", section: "service-pest-control", icon: Bug, cluster: "Specialized Services" },
   { label: "Interior Painting", href: "/jobs?service=INTERIOR_PAINTING", section: "service-interior-painting", icon: PaintRoller, cluster: "Specialized Services" },
-  { label: "Payments", href: "/payments", section: "payments", icon: IndianRupee },
-  { label: "Expenses", href: "/expenses", section: "expenses", icon: Receipt },
-  { label: "Quotations", href: "/quotations", section: "quotations", icon: FileSignature },
-  { label: "Invoices", href: "/invoices", section: "invoices", icon: FileStack },
+  { label: "Payment In", href: "/payments", section: "payments", icon: IndianRupee },
+  { label: "Purchases & Expenses", href: "/expenses", section: "expenses", icon: Receipt },
+  { label: "Quotation / Estimate", href: "/quotations", section: "quotations", icon: FileSignature },
+  { label: "Sales Invoices", href: "/invoices", section: "invoices", icon: FileStack },
   { label: "Revenue Dashboard", href: "/revenue", section: "revenue", icon: Wallet },
   { label: "Profit Dashboard", href: "/profit", section: "profit", icon: TrendingUp },
   { label: "Marketing Dashboard", href: "/profit/marketing", section: "profit", icon: TrendingUp },
-  { label: "Customers", href: "/customers", section: "customers", icon: BookUser },
+  { label: "Parties", href: "/customers", section: "customers", icon: BookUser },
   { label: "Reports", href: "/reports", section: "reports", icon: FileText },
   { label: "Export Center", href: "/reports/export-center", section: "reports", icon: FileSpreadsheet },
   { label: "Pricing & Packages", href: "/settings/pricing", section: "pricing", icon: IndianRupee },

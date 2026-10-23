@@ -10,13 +10,14 @@ import { startDetailFetch, stopDetailFetch } from "@/server/mybillbook-detail";
 const MAX_CSV_BYTES = 5 * 1024 * 1024;
 
 /** Super Admin only: import the MyBillBook Sales Summary CSV (re-runnable — an invoice number is never stored twice). */
-export async function importMybillbookReport(csvText: string) {
+export async function importMybillbookReport(csvText: string, dataset: string = "B2C") {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can import MyBillBook history." };
   if (typeof csvText !== "string" || !csvText.trim()) return { success: false as const, error: "The file is empty." };
   if (csvText.length > MAX_CSV_BYTES) return { success: false as const, error: "The file is too large (5 MB maximum)." };
-  const batchId = `mbb_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}`;
-  const summary = await importMybillbookCsv(csvText, batchId);
+  const book = dataset === "GST" ? "gst" : "b2c";
+  const batchId = `mbb_${book}_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}`;
+  const summary = await importMybillbookCsv(csvText, batchId, dataset === "GST" ? "GST" : "B2C");
   if (summary.rowsInFile === 0) return { success: false as const, error: summary.skipped[0]?.reason ?? "No invoices found in the file." };
   await db.auditLog.create({ data: { entityType: "MybillbookImport", entityId: batchId, action: "IMPORT", summary: `MyBillBook history import: ${summary.created} new, ${summary.updated} updated, ${summary.matched} attached, ${summary.needsReview + summary.unmatched} for review`, actorName: session.name, actorEmail: session.email } }).catch(() => {});
   revalidatePath("/customers/mybillbook-import");

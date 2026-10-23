@@ -61,6 +61,8 @@ export type MybillbookInvoiceMinAggregateOutputType = {
   detailError: string | null
   partyMobile: string | null
   partyAddress: string | null
+  dataset: string | null
+  gstin: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -90,6 +92,8 @@ export type MybillbookInvoiceMaxAggregateOutputType = {
   detailError: string | null
   partyMobile: string | null
   partyAddress: string | null
+  dataset: string | null
+  gstin: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -119,6 +123,8 @@ export type MybillbookInvoiceCountAggregateOutputType = {
   detailError: number
   partyMobile: number
   partyAddress: number
+  dataset: number
+  gstin: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -160,6 +166,8 @@ export type MybillbookInvoiceMinAggregateInputType = {
   detailError?: true
   partyMobile?: true
   partyAddress?: true
+  dataset?: true
+  gstin?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -189,6 +197,8 @@ export type MybillbookInvoiceMaxAggregateInputType = {
   detailError?: true
   partyMobile?: true
   partyAddress?: true
+  dataset?: true
+  gstin?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -218,6 +228,8 @@ export type MybillbookInvoiceCountAggregateInputType = {
   detailError?: true
   partyMobile?: true
   partyAddress?: true
+  dataset?: true
+  gstin?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -334,6 +346,8 @@ export type MybillbookInvoiceGroupByOutputType = {
   detailError: string | null
   partyMobile: string | null
   partyAddress: string | null
+  dataset: string
+  gstin: string | null
   createdAt: Date
   updatedAt: Date
   _count: MybillbookInvoiceCountAggregateOutputType | null
@@ -386,6 +400,8 @@ export type MybillbookInvoiceWhereInput = {
   detailError?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   partyMobile?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  dataset?: Prisma.StringFilter<"MybillbookInvoice"> | string
+  gstin?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
@@ -416,6 +432,8 @@ export type MybillbookInvoiceOrderByWithRelationInput = {
   detailError?: Prisma.SortOrderInput | Prisma.SortOrder
   partyMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   partyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  dataset?: Prisma.SortOrder
+  gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
@@ -449,6 +467,8 @@ export type MybillbookInvoiceWhereUniqueInput = Prisma.AtLeast<{
   detailError?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   partyMobile?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  dataset?: Prisma.StringFilter<"MybillbookInvoice"> | string
+  gstin?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
@@ -479,6 +499,8 @@ export type MybillbookInvoiceOrderByWithAggregationInput = {
   detailError?: Prisma.SortOrderInput | Prisma.SortOrder
   partyMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   partyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  dataset?: Prisma.SortOrder
+  gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MybillbookInvoiceCountOrderByAggregateInput
@@ -516,6 +538,8 @@ export type MybillbookInvoiceScalarWhereWithAggregatesInput = {
   detailError?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   partyMobile?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   partyAddress?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
+  dataset?: Prisma.StringWithAggregatesFilter<"MybillbookInvoice"> | string
+  gstin?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MybillbookInvoice"> | Date | string
 }
@@ -544,6 +568,8 @@ export type MybillbookInvoiceCreateInput = {
   detailError?: string | null
   partyMobile?: string | null
   partyAddress?: string | null
+  dataset?: string
+  gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutMybillbookInvoicesInput
@@ -574,6 +600,8 @@ export type MybillbookInvoiceUncheckedCreateInput = {
   detailError?: string | null
   partyMobile?: string | null
   partyAddress?: string | null
+  dataset?: string
+  gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -602,6 +630,8 @@ export type MybillbookInvoiceUpdateInput = {
   detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataset?: Prisma.StringFieldUpdateOperationsInput | string
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutMybillbookInvoicesNestedInput
@@ -632,6 +662,8 @@ export type MybillbookInvoiceUncheckedUpdateInput = {
   detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataset?: Prisma.StringFieldUpdateOperationsInput | string
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -661,6 +693,8 @@ export type MybillbookInvoiceCreateManyInput = {
   detailError?: string | null
   partyMobile?: string | null
   partyAddress?: string | null
+  dataset?: string
+  gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -689,6 +723,8 @@ export type MybillbookInvoiceUpdateManyMutationInput = {
   detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataset?: Prisma.StringFieldUpdateOperationsInput | string
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -718,6 +754,8 @@ export type MybillbookInvoiceUncheckedUpdateManyInput = {
   detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataset?: Prisma.StringFieldUpdateOperationsInput | string
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -757,6 +795,8 @@ export type MybillbookInvoiceCountOrderByAggregateInput = {
   detailError?: Prisma.SortOrder
   partyMobile?: Prisma.SortOrder
   partyAddress?: Prisma.SortOrder
+  dataset?: Prisma.SortOrder
+  gstin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -791,6 +831,8 @@ export type MybillbookInvoiceMaxOrderByAggregateInput = {
   detailError?: Prisma.SortOrder
   partyMobile?: Prisma.SortOrder
   partyAddress?: Prisma.SortOrder
+  dataset?: Prisma.SortOrder
+  gstin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -820,6 +862,8 @@ export type MybillbookInvoiceMinOrderByAggregateInput = {
   detailError?: Prisma.SortOrder
   partyMobile?: Prisma.SortOrder
   partyAddress?: Prisma.SortOrder
+  dataset?: Prisma.SortOrder
+  gstin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -895,6 +939,8 @@ export type MybillbookInvoiceCreateWithoutCustomerInput = {
   detailError?: string | null
   partyMobile?: string | null
   partyAddress?: string | null
+  dataset?: string
+  gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -923,6 +969,8 @@ export type MybillbookInvoiceUncheckedCreateWithoutCustomerInput = {
   detailError?: string | null
   partyMobile?: string | null
   partyAddress?: string | null
+  dataset?: string
+  gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -980,6 +1028,8 @@ export type MybillbookInvoiceScalarWhereInput = {
   detailError?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   partyMobile?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  dataset?: Prisma.StringFilter<"MybillbookInvoice"> | string
+  gstin?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
 }
@@ -1008,6 +1058,8 @@ export type MybillbookInvoiceCreateManyCustomerInput = {
   detailError?: string | null
   partyMobile?: string | null
   partyAddress?: string | null
+  dataset?: string
+  gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1036,6 +1088,8 @@ export type MybillbookInvoiceUpdateWithoutCustomerInput = {
   detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataset?: Prisma.StringFieldUpdateOperationsInput | string
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1064,6 +1118,8 @@ export type MybillbookInvoiceUncheckedUpdateWithoutCustomerInput = {
   detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataset?: Prisma.StringFieldUpdateOperationsInput | string
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1092,6 +1148,8 @@ export type MybillbookInvoiceUncheckedUpdateManyWithoutCustomerInput = {
   detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dataset?: Prisma.StringFieldUpdateOperationsInput | string
+  gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1123,6 +1181,8 @@ export type MybillbookInvoiceSelect<ExtArgs extends runtime.Types.Extensions.Int
   detailError?: boolean
   partyMobile?: boolean
   partyAddress?: boolean
+  dataset?: boolean
+  gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
@@ -1153,6 +1213,8 @@ export type MybillbookInvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.T
   detailError?: boolean
   partyMobile?: boolean
   partyAddress?: boolean
+  dataset?: boolean
+  gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
@@ -1183,6 +1245,8 @@ export type MybillbookInvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   detailError?: boolean
   partyMobile?: boolean
   partyAddress?: boolean
+  dataset?: boolean
+  gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
@@ -1213,11 +1277,13 @@ export type MybillbookInvoiceSelectScalar = {
   detailError?: boolean
   partyMobile?: boolean
   partyAddress?: boolean
+  dataset?: boolean
+  gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MybillbookInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "invoiceKey" | "invoiceDate" | "contactName" | "amount" | "remaining" | "status" | "invoiceLink" | "paymentType" | "createdByName" | "customerId" | "matchStatus" | "matchMethod" | "candidateIds" | "jobId" | "serviceName" | "importBatchId" | "detailStatus" | "detailJson" | "detailFetchedAt" | "detailError" | "partyMobile" | "partyAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["mybillbookInvoice"]>
+export type MybillbookInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "invoiceKey" | "invoiceDate" | "contactName" | "amount" | "remaining" | "status" | "invoiceLink" | "paymentType" | "createdByName" | "customerId" | "matchStatus" | "matchMethod" | "candidateIds" | "jobId" | "serviceName" | "importBatchId" | "detailStatus" | "detailJson" | "detailFetchedAt" | "detailError" | "partyMobile" | "partyAddress" | "dataset" | "gstin" | "createdAt" | "updatedAt", ExtArgs["result"]["mybillbookInvoice"]>
 export type MybillbookInvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
 }
@@ -1258,6 +1324,8 @@ export type $MybillbookInvoicePayload<ExtArgs extends runtime.Types.Extensions.I
     detailError: string | null
     partyMobile: string | null
     partyAddress: string | null
+    dataset: string
+    gstin: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["mybillbookInvoice"]>
@@ -1708,6 +1776,8 @@ export interface MybillbookInvoiceFieldRefs {
   readonly detailError: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly partyMobile: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly partyAddress: Prisma.FieldRef<"MybillbookInvoice", 'String'>
+  readonly dataset: Prisma.FieldRef<"MybillbookInvoice", 'String'>
+  readonly gstin: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly createdAt: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
 }

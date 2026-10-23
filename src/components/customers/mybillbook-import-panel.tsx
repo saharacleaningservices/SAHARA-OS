@@ -16,9 +16,10 @@ export function MybillbookUpload() {
   const input = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [dataset, setDataset] = useState<"B2C" | "GST">("B2C");
   const run = (file: File) =>
     start(async () => {
-      const res = await importMybillbookReport(await file.text());
+      const res = await importMybillbookReport(await file.text(), dataset);
       if (!res.success) return void toast.error(res.error);
       setSummary(res.summary);
       toast.success(`${res.summary.created} new, ${res.summary.updated} updated, ${res.summary.unchanged} unchanged`);
@@ -27,6 +28,13 @@ export function MybillbookUpload() {
   return (
     <div className="space-y-3 rounded-xl border p-4">
       <p className="text-sm text-muted-foreground">Choose the MyBillBook <b>Sales Summary Report</b> (CSV). An invoice already imported is updated in place — never added twice.</p>
+      <label className="flex items-center gap-2 text-sm">
+        <span className="font-medium">This file is the</span>
+        <select value={dataset} onChange={(e) => setDataset(e.target.value as "B2C" | "GST")} className="h-8 rounded-md border bg-background px-2 text-sm">
+          <option value="B2C">B2C book (existing customers)</option>
+          <option value="GST">GST book (Sahara Cleaning Services – GST Data)</option>
+        </select>
+      </label>
       <input
         ref={input}
         type="file"
