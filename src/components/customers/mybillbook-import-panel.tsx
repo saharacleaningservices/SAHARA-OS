@@ -6,49 +6,130 @@ import { toast } from "sonner";
 import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { assignMybillbookInvoice, importMybillbookReport, startMybillbookDetailFetch, stopMybillbookDetailFetch } from "@/server/actions/mybillbook-import";
+import { assignMybillbookInvoice, convertMybillbookWorkbook, importMybillbookReport, previewMybillbookReport, startMybillbookDetailFetch, stopMybillbookDetailFetch } from "@/server/actions/mybillbook-import";
 
 type Summary = { rowsInFile: number; created: number; updated: number; unchanged: number; matched: number; needsReview: number; unmatched: number; skipped: { line: number; reason: string }[] };
 
-/** Upload the MyBillBook Sales Summary CSV (Super Admin). Re-running the same file changes nothing. */
+type Preview = Extract<Awaited<ReturnType<typeof previewMybillbookReport>>, { success: true }>["preview"];
+
+const bytesToBase64 = (buf: ArrayBuffer) => {
+  let bin = "";
+  const u = new Uint8Array(buf);
+  for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode(...u.subarray(i, i + 0x8000));
+  return btoa(bin);
+};
+const inr = (n: number) => `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+
+/**
+ * Two steps, Super Admin only: choose a MyBillBook Sales Summary file (CSV or Excel, B2C or GST book) → see which columns were recognised
+ * and what the import would do → confirm. Re-running the same file changes nothing.
+ */
 export function MybillbookUpload() {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [dataset, setDataset] = useState<"B2C" | "GST">("B2C");
-  const run = (file: File) =>
+  const [file, setFile] = useState<{ name: string; csv: string; preview: Preview } | null>(null);
+
+  const choose = (f: File) =>
     start(async () => {
-      const res = await importMybillbookReport(await file.text(), dataset);
+      setSummary(null);
+      let csv: string;
+      if (/\.(xlsx|xls)$/i.test(f.name)) {
+        const conv = await convertMybillbookWorkbook(bytesToBase64(await f.arrayBuffer()));
+        if (!conv.success) return void toast.error(conv.error);
+        csv = conv.csv;
+      } else csv = await f.text();
+      const res = await previewMybillbookReport(csv);
+      if (!res.success) return void toast.error(res.error);
+      setFile({ name: f.name, csv, preview: res.preview });
+    });
+
+  const confirm = () =>
+    start(async () => {
+      if (!file) return;
+      const res = await importMybillbookReport(file.csv, dataset);
       if (!res.success) return void toast.error(res.error);
       setSummary(res.summary);
+      setFile(null);
       toast.success(`${res.summary.created} new, ${res.summary.updated} updated, ${res.summary.unchanged} unchanged`);
       router.refresh();
     });
+
+  const pv = file?.preview;
+  const blocked = !pv || !pv.headerFound || pv.missingRequired.length > 0 || pv.rows === 0;
   return (
     <div className="space-y-3 rounded-xl border p-4">
-      <p className="text-sm text-muted-foreground">Choose the MyBillBook <b>Sales Summary Report</b> (CSV). An invoice already imported is updated in place — never added twice.</p>
-      <label className="flex items-center gap-2 text-sm">
+      <p className="text-sm text-muted-foreground">Choose the MyBillBook <b>Sales Summary Report</b> (CSV or Excel). You see what it contains before anything is saved. An invoice already imported is updated in place — never added twice.</p>
+      <label className="flex flex-wrap items-center gap-2 text-sm">
         <span className="font-medium">This file is the</span>
-        <select value={dataset} onChange={(e) => setDataset(e.target.value as "B2C" | "GST")} className="h-8 rounded-md border bg-background px-2 text-sm">
+        <select value={dataset} onChange={(e) => setDataset(e.target.value as "B2C" | "GST")} className="h-9 rounded-md border bg-background px-2 text-sm">
           <option value="B2C">B2C book (existing customers)</option>
-          <option value="GST">GST book (Sahara Cleaning Services – GST Data)</option>
+          <option value="GST">GST / B2B book (Sahara Cleaning Services – GST Data)</option>
         </select>
       </label>
       <input
         ref={input}
         type="file"
-        accept=".csv,text/csv,.crdownload"
+        accept=".csv,.xlsx,.xls,text/csv,.crdownload"
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) run(f);
+          if (f) choose(f);
           e.target.value = "";
         }}
       />
-      <Button onClick={() => input.current?.click()} disabled={pending}>
-        {pending ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />} Upload MyBillBook CSV
+      <Button onClick={() => input.current?.click()} disabled={pending} variant={pv ? "outline" : "default"}>
+        {pending && !pv ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />} {pv ? "Choose another file" : "Choose MyBillBook file"}
       </Button>
+
+      {pv && file && (
+        <div className="space-y-3 rounded-lg border bg-muted/30 p-3 text-sm">
+          <p className="font-semibold">{file.name}</p>
+          {!pv.headerFound ? (
+            <p className="text-destructive">This does not look like a MyBillBook Sales Summary report (no “Invoice No” header row).</p>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-left uppercase text-muted-foreground"><tr><th className="py-1 pr-3">We need</th><th className="py-1 pr-3">Column in your file</th></tr></thead>
+                  <tbody>
+                    {pv.columns.map((c) => (
+                      <tr key={c.field} className="border-t">
+                        <td className="py-1 pr-3">{c.label}{c.required ? " *" : ""}</td>
+                        <td className={`py-1 pr-3 ${c.header ? "" : c.required ? "font-semibold text-destructive" : "text-muted-foreground"}`}>{c.header ?? (c.required ? "NOT FOUND" : "— not in this file")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {pv.missingRequired.length > 0 && <p className="text-destructive">Missing required column(s): {pv.missingRequired.join(", ")}. Nothing can be imported from this file.</p>}
+              <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
+                <p><b>{pv.rows}</b> invoices · {pv.from} → {pv.to}</p>
+                <p>Total billed <b>{inr(pv.totalAmount)}</b></p>
+                <p><b>{pv.newRows}</b> new · <b>{pv.existingRows}</b> already stored (updated in place)</p>
+                <p><b>{pv.unpaidCount}</b> unpaid · balance <b>{inr(pv.unpaidAmount)}</b></p>
+                <p>{pv.withDueDate} have a due date{pv.rows - pv.withDueDate > 0 ? ` (the other ${pv.rows - pv.withDueDate} count 15 days from the invoice date)` : ""}</p>
+                <p>Links: {Object.entries(pv.linkKinds).map(([k, n]) => `${n} × /${k}/`).join(" · ")}</p>
+              </div>
+              {pv.skipped.length > 0 && (
+                <details className="text-xs text-amber-700">
+                  <summary className="cursor-pointer">{pv.skipped.length} row(s) will be skipped</summary>
+                  <ul className="mt-1 list-disc pl-4">{pv.skipped.slice(0, 50).map((x) => <li key={x.line}>line {x.line}: {x.reason}</li>)}</ul>
+                </details>
+              )}
+            </>
+          )}
+          <div className="flex gap-2">
+            <Button onClick={confirm} disabled={pending || blocked}>
+              {pending && <Loader2 className="size-4 animate-spin" />} Import {pv.rows} invoices as {dataset === "GST" ? "GST / B2B" : "B2C"}
+            </Button>
+            <Button variant="ghost" onClick={() => setFile(null)} disabled={pending}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
       {summary && (
         <div className="space-y-1 text-sm">
           <p>
@@ -57,16 +138,7 @@ export function MybillbookUpload() {
           <p>
             <b>{summary.matched}</b> attached to a customer · <b>{summary.needsReview}</b> need a choice · <b>{summary.unmatched}</b> no customer found
           </p>
-          {summary.skipped.length > 0 && (
-            <details className="text-xs text-amber-700">
-              <summary className="cursor-pointer">{summary.skipped.length} row(s) skipped</summary>
-              <ul className="mt-1 list-disc pl-4">
-                {summary.skipped.slice(0, 50).map((s) => (
-                  <li key={s.line}>line {s.line}: {s.reason}</li>
-                ))}
-              </ul>
-            </details>
-          )}
+          <p className="text-xs text-muted-foreground">Next: press “Read invoice details” below to fetch each invoice’s services, GST and customer mobile.</p>
         </div>
       )}
     </div>

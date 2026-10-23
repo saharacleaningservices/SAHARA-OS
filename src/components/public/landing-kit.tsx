@@ -77,7 +77,7 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
 /** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). */
 export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
   return (
-    <div className="min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
+    <div className="theme-navy min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
       <MarketingTags withPixel />
       {jsonLd.map((j, i) => (

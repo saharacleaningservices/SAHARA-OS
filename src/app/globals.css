@@ -56,6 +56,17 @@
   --chart-5: #dc2626;
 }
 
+/* Navy Blue brand theme for the customer-facing pages (landing pages, booking form): the same tokens as the CRM, with the
+   primary colour switched from royal blue to the navy of the Sahara uniform. Applied by LandingShell; the CRM is unchanged. */
+.theme-navy {
+  --primary: #1f2f66;
+  --primary-foreground: #ffffff;
+  --ring: #1f2f66;
+  --accent: #e8ecf6;
+  --accent-foreground: #1f2f66;
+  --chart-1: #1f2f66;
+}
+
 .dark {
   --background: #071626;
   --foreground: #e8f0fb;

@@ -44,6 +44,39 @@ export function parseDmy(s: string | undefined): Date | null {
 const LINK = /^https:\/\/(mybillbook\.in|billbk\.in)\/[A-Za-z0-9/_-]+$/;
 export const invoiceKeyOf = (link: string) => link.replace(/^https:\/\/[^/]+\//, "").toLowerCase();
 
+/** Header names accepted for each field (the GST book words some of them differently from the B2C book). First match wins. */
+export const COLUMN_ALIASES = {
+  no: { label: "Invoice number", required: true, names: ["invoice no", "invoice number", "invoice no."] },
+  date: { label: "Invoice date", required: true, names: ["invoice date", "date"] },
+  name: { label: "Customer / party name", required: true, names: ["contact name", "party name", "customer name", "party"] },
+  amount: { label: "Invoice amount", required: true, names: ["amount", "total amount", "invoice amount"] },
+  link: { label: "Invoice link", required: true, names: ["invoice link", "invoice url", "link"] },
+  rem: { label: "Balance due", required: false, names: ["remaining amount", "balance amount", "balance", "pending amount"] },
+  status: { label: "Paid / unpaid status", required: false, names: ["invoice status", "status", "payment status"] },
+  due: { label: "Payment due date", required: false, names: ["due date", "payment due date"] },
+  gstin: { label: "Customer GSTIN", required: false, names: ["gstin", "party gstin", "customer gstin", "gst number", "gstin/uin"] },
+  pay: { label: "Payment type", required: false, names: ["payment type"] },
+  by: { label: "Created by", required: false, names: ["created by"] },
+} as const;
+export type ColumnField = keyof typeof COLUMN_ALIASES;
+
+function headerIndexes(head: string[]): Record<ColumnField, number> {
+  const out = {} as Record<ColumnField, number>;
+  for (const k of Object.keys(COLUMN_ALIASES) as ColumnField[]) out[k] = COLUMN_ALIASES[k].names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1;
+  return out;
+}
+
+/** Which column of the uploaded file feeds which field — shown to the admin before anything is imported. */
+export function describeColumns(text: string): { headerFound: boolean; columns: { field: ColumnField; label: string; required: boolean; header: string | null }[]; missingRequired: string[] } {
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/);
+  const headerAt = lines.findIndex((l) => /^invoice (no|number)\b/i.test(l.trim()));
+  if (headerAt < 0) return { headerFound: false, columns: [], missingRequired: [] };
+  const raw = (Papa.parse<string[]>(lines.slice(headerAt).join("\n"), { skipEmptyLines: true }).data[0] ?? []).map((h) => h.trim());
+  const idx = headerIndexes(raw.map((h) => h.toLowerCase()));
+  const columns = (Object.keys(COLUMN_ALIASES) as ColumnField[]).map((field) => ({ field, label: COLUMN_ALIASES[field].label, required: COLUMN_ALIASES[field].required, header: idx[field] >= 0 ? raw[idx[field]] : null }));
+  return { headerFound: true, columns, missingRequired: columns.filter((c) => c.required && !c.header).map((c) => c.label) };
+}
+
 /** Finds the header row (the report has a company banner above it) and returns the invoice rows. Bad rows are listed, never guessed. */
 export function parseSalesSummaryCsv(text: string): ParseResult {
   const clean = text.replace(/^﻿/, "");
@@ -52,21 +85,7 @@ export function parseSalesSummaryCsv(text: string): ParseResult {
   if (headerAt < 0) return { rows: [], skipped: [{ line: 0, reason: "Not a MyBillBook Sales Summary report (no 'Invoice No' header row)" }] };
   const parsed = Papa.parse<string[]>(lines.slice(headerAt).join("\n"), { skipEmptyLines: true });
   const head = (parsed.data[0] ?? []).map((h) => h.trim().toLowerCase());
-  // The GST book may word its headers differently ("Party Name", "Total Amount", "Balance Amount"…): first matching name wins.
-  const col = (...names: string[]) => names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1;
-  const idx = {
-    no: col("invoice no", "invoice number", "invoice no."),
-    date: col("invoice date", "date"),
-    name: col("contact name", "party name", "customer name", "party"),
-    amount: col("amount", "total amount", "invoice amount"),
-    rem: col("remaining amount", "balance amount", "balance", "pending amount"),
-    status: col("invoice status", "status", "payment status"),
-    link: col("invoice link", "invoice url", "link"),
-    pay: col("payment type"),
-    by: col("created by"),
-    due: col("due date", "payment due date"),
-    gstin: col("gstin", "party gstin", "customer gstin", "gst number", "gstin/uin"),
-  };
+  const idx = headerIndexes(head);
   if (idx.no < 0 || idx.date < 0 || idx.name < 0 || idx.amount < 0 || idx.link < 0) return { rows: [], skipped: [{ line: headerAt + 1, reason: "Missing required columns" }] };
 
   const rows: ParsedInvoice[] = [];
