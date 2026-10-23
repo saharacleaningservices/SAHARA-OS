@@ -321,6 +321,7 @@ export type CustomerWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   sites?: Prisma.CustomerSiteListRelationFilter
+  mybillbookInvoices?: Prisma.MybillbookInvoiceListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
@@ -343,6 +344,7 @@ export type CustomerOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sites?: Prisma.CustomerSiteOrderByRelationAggregateInput
+  mybillbookInvoices?: Prisma.MybillbookInvoiceOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -368,6 +370,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   sites?: Prisma.CustomerSiteListRelationFilter
+  mybillbookInvoices?: Prisma.MybillbookInvoiceListRelationFilter
 }, "id" | "mobile" | "customerNumber">
 
 export type CustomerOrderByWithAggregationInput = {
@@ -440,6 +443,7 @@ export type CustomerCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sites?: Prisma.CustomerSiteCreateNestedManyWithoutCustomerInput
+  mybillbookInvoices?: Prisma.MybillbookInvoiceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateInput = {
@@ -462,6 +466,7 @@ export type CustomerUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sites?: Prisma.CustomerSiteUncheckedCreateNestedManyWithoutCustomerInput
+  mybillbookInvoices?: Prisma.MybillbookInvoiceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUpdateInput = {
@@ -484,6 +489,7 @@ export type CustomerUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sites?: Prisma.CustomerSiteUpdateManyWithoutCustomerNestedInput
+  mybillbookInvoices?: Prisma.MybillbookInvoiceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
@@ -506,6 +512,7 @@ export type CustomerUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sites?: Prisma.CustomerSiteUncheckedUpdateManyWithoutCustomerNestedInput
+  mybillbookInvoices?: Prisma.MybillbookInvoiceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyInput = {
@@ -647,6 +654,11 @@ export type CustomerScalarRelationFilter = {
   isNot?: Prisma.CustomerWhereInput
 }
 
+export type CustomerNullableScalarRelationFilter = {
+  is?: Prisma.CustomerWhereInput | null
+  isNot?: Prisma.CustomerWhereInput | null
+}
+
 export type FloatFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -669,6 +681,22 @@ export type CustomerUpdateOneRequiredWithoutSitesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutSitesInput, Prisma.CustomerUpdateWithoutSitesInput>, Prisma.CustomerUncheckedUpdateWithoutSitesInput>
 }
 
+export type CustomerCreateNestedOneWithoutMybillbookInvoicesInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutMybillbookInvoicesInput, Prisma.CustomerUncheckedCreateWithoutMybillbookInvoicesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutMybillbookInvoicesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneWithoutMybillbookInvoicesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutMybillbookInvoicesInput, Prisma.CustomerUncheckedCreateWithoutMybillbookInvoicesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutMybillbookInvoicesInput
+  upsert?: Prisma.CustomerUpsertWithoutMybillbookInvoicesInput
+  disconnect?: Prisma.CustomerWhereInput | boolean
+  delete?: Prisma.CustomerWhereInput | boolean
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutMybillbookInvoicesInput, Prisma.CustomerUpdateWithoutMybillbookInvoicesInput>, Prisma.CustomerUncheckedUpdateWithoutMybillbookInvoicesInput>
+}
+
 export type CustomerCreateWithoutSitesInput = {
   id?: string
   name: string
@@ -688,6 +716,7 @@ export type CustomerCreateWithoutSitesInput = {
   isRepeat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  mybillbookInvoices?: Prisma.MybillbookInvoiceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutSitesInput = {
@@ -709,6 +738,7 @@ export type CustomerUncheckedCreateWithoutSitesInput = {
   isRepeat?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  mybillbookInvoices?: Prisma.MybillbookInvoiceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutSitesInput = {
@@ -746,6 +776,7 @@ export type CustomerUpdateWithoutSitesInput = {
   isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mybillbookInvoices?: Prisma.MybillbookInvoiceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutSitesInput = {
@@ -767,6 +798,111 @@ export type CustomerUncheckedUpdateWithoutSitesInput = {
   isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mybillbookInvoices?: Prisma.MybillbookInvoiceUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutMybillbookInvoicesInput = {
+  id?: string
+  name: string
+  mobile: string
+  alternateMobile?: string | null
+  address?: string | null
+  area?: string | null
+  serviceHistory?: string | null
+  lastServiceDate?: Date | string | null
+  outstandingBalance?: number
+  source?: string | null
+  notes?: string | null
+  importBatchId?: string | null
+  email?: string | null
+  contactType?: string
+  customerNumber?: string | null
+  isRepeat?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sites?: Prisma.CustomerSiteCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutMybillbookInvoicesInput = {
+  id?: string
+  name: string
+  mobile: string
+  alternateMobile?: string | null
+  address?: string | null
+  area?: string | null
+  serviceHistory?: string | null
+  lastServiceDate?: Date | string | null
+  outstandingBalance?: number
+  source?: string | null
+  notes?: string | null
+  importBatchId?: string | null
+  email?: string | null
+  contactType?: string
+  customerNumber?: string | null
+  isRepeat?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sites?: Prisma.CustomerSiteUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutMybillbookInvoicesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutMybillbookInvoicesInput, Prisma.CustomerUncheckedCreateWithoutMybillbookInvoicesInput>
+}
+
+export type CustomerUpsertWithoutMybillbookInvoicesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutMybillbookInvoicesInput, Prisma.CustomerUncheckedUpdateWithoutMybillbookInvoicesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutMybillbookInvoicesInput, Prisma.CustomerUncheckedCreateWithoutMybillbookInvoicesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutMybillbookInvoicesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutMybillbookInvoicesInput, Prisma.CustomerUncheckedUpdateWithoutMybillbookInvoicesInput>
+}
+
+export type CustomerUpdateWithoutMybillbookInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceHistory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  outstandingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  customerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sites?: Prisma.CustomerSiteUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutMybillbookInvoicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceHistory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastServiceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  outstandingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactType?: Prisma.StringFieldUpdateOperationsInput | string
+  customerNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRepeat?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sites?: Prisma.CustomerSiteUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 
@@ -776,10 +912,12 @@ export type CustomerUncheckedUpdateWithoutSitesInput = {
 
 export type CustomerCountOutputType = {
   sites: number
+  mybillbookInvoices: number
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sites?: boolean | CustomerCountOutputTypeCountSitesArgs
+  mybillbookInvoices?: boolean | CustomerCountOutputTypeCountMybillbookInvoicesArgs
 }
 
 /**
@@ -797,6 +935,13 @@ export type CustomerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
  */
 export type CustomerCountOutputTypeCountSitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CustomerSiteWhereInput
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountMybillbookInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MybillbookInvoiceWhereInput
 }
 
 
@@ -820,6 +965,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   updatedAt?: boolean
   sites?: boolean | Prisma.Customer$sitesArgs<ExtArgs>
+  mybillbookInvoices?: boolean | Prisma.Customer$mybillbookInvoicesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -889,6 +1035,7 @@ export type CustomerSelectScalar = {
 export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "mobile" | "alternateMobile" | "address" | "area" | "serviceHistory" | "lastServiceDate" | "outstandingBalance" | "source" | "notes" | "importBatchId" | "email" | "contactType" | "customerNumber" | "isRepeat" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sites?: boolean | Prisma.Customer$sitesArgs<ExtArgs>
+  mybillbookInvoices?: boolean | Prisma.Customer$mybillbookInvoicesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -898,6 +1045,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "Customer"
   objects: {
     sites: Prisma.$CustomerSitePayload<ExtArgs>[]
+    mybillbookInvoices: Prisma.$MybillbookInvoicePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1313,6 +1461,7 @@ readonly fields: CustomerFieldRefs;
 export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sites<T extends Prisma.Customer$sitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$sitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerSitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mybillbookInvoices<T extends Prisma.Customer$mybillbookInvoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$mybillbookInvoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MybillbookInvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1767,6 +1916,30 @@ export type Customer$sitesArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.CustomerSiteScalarFieldEnum | Prisma.CustomerSiteScalarFieldEnum[]
+}
+
+/**
+ * Customer.mybillbookInvoices
+ */
+export type Customer$mybillbookInvoicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MybillbookInvoice
+   */
+  select?: Prisma.MybillbookInvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MybillbookInvoice
+   */
+  omit?: Prisma.MybillbookInvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MybillbookInvoiceInclude<ExtArgs> | null
+  where?: Prisma.MybillbookInvoiceWhereInput
+  orderBy?: Prisma.MybillbookInvoiceOrderByWithRelationInput | Prisma.MybillbookInvoiceOrderByWithRelationInput[]
+  cursor?: Prisma.MybillbookInvoiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MybillbookInvoiceScalarFieldEnum | Prisma.MybillbookInvoiceScalarFieldEnum[]
 }
 
 /**

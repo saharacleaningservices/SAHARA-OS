@@ -302,6 +302,11 @@ export type BookingSlotControl = Prisma.BookingSlotControlModel
  */
 export type PriceSetting = Prisma.PriceSettingModel
 /**
+ * Model MybillbookInvoice
+ * 
+ */
+export type MybillbookInvoice = Prisma.MybillbookInvoiceModel
+/**
  * Model ServiceCatalog
  * 
  */

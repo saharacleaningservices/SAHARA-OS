@@ -419,6 +419,7 @@ model Customer {
   customerNumber     String?   @unique
   isRepeat           Boolean   @default(false)
   sites              CustomerSite[]
+  mybillbookInvoices MybillbookInvoice[]
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -1525,6 +1526,38 @@ model PriceSetting {
   isActive      Boolean  @default(true)
   updatedByName String?
   updatedAt     DateTime @updatedAt
+}
+
+// MyBillBook sales-report history (owner 2026-10-23): one row per MyBillBook invoice, imported from the Sales Summary CSV. The invoice
+// number is unique, so re-importing never duplicates a row. A row is attached to a customer only on a safe match (CRM invoice number,
+// or exactly one customer with the same full name); everything else waits on a review list. Service details are filled in later.
+model MybillbookInvoice {
+  id             String    @id @default(cuid())
+  invoiceNo      String // shown to people; MyBillBook can reuse a number (two different invoices both numbered 53), so it is NOT unique
+  invoiceKey     String    @unique // the invoice link's path ("i/116dkox", "cpp/7qo8tmlxrw") — unique per invoice, the real identity
+  invoiceDate    DateTime
+  contactName    String
+  amount         Float
+  remaining      Float     @default(0)
+  status         String // Paid | Unpaid (MyBillBook wording)
+  invoiceLink    String
+  paymentType    String?
+  createdByName  String?
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  matchStatus    String    @default("UNMATCHED") // MATCHED | REVIEW | UNMATCHED | MANUAL
+  matchMethod    String? // INVOICE_NO | NAME | MANUAL
+  candidateIds   String? // JSON string[] of customer ids to choose from when REVIEW
+  jobId          String? // the CRM job this invoice belongs to, when known
+  serviceName    String? // filled from the CRM job, or later from the invoice detail
+  importBatchId  String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([invoiceNo])
+  @@index([customerId])
+  @@index([matchStatus])
+  @@index([invoiceDate])
 }
 
 // Service Catalog (owner 2026-10-22): the written scope of work, terms & conditions and equipment for each service. Prices are

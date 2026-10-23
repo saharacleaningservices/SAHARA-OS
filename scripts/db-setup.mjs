@@ -1731,6 +1731,34 @@ db.close();
     );
     CREATE INDEX IF NOT EXISTS "OpsReminderEvent_reminderId_idx" ON "OpsReminderEvent"("reminderId");
     CREATE INDEX IF NOT EXISTS "OpsReminderEvent_createdAt_idx" ON "OpsReminderEvent"("createdAt");
+    CREATE TABLE IF NOT EXISTS "MybillbookInvoice" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "invoiceNo" TEXT NOT NULL,
+      "invoiceKey" TEXT NOT NULL,
+      "invoiceDate" DATETIME NOT NULL,
+      "contactName" TEXT NOT NULL,
+      "amount" REAL NOT NULL,
+      "remaining" REAL NOT NULL DEFAULT 0,
+      "status" TEXT NOT NULL,
+      "invoiceLink" TEXT NOT NULL,
+      "paymentType" TEXT,
+      "createdByName" TEXT,
+      "customerId" TEXT,
+      "matchStatus" TEXT NOT NULL DEFAULT 'UNMATCHED',
+      "matchMethod" TEXT,
+      "candidateIds" TEXT,
+      "jobId" TEXT,
+      "serviceName" TEXT,
+      "importBatchId" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "MybillbookInvoice_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "MybillbookInvoice_invoiceKey_key" ON "MybillbookInvoice"("invoiceKey");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_invoiceNo_idx" ON "MybillbookInvoice"("invoiceNo");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_customerId_idx" ON "MybillbookInvoice"("customerId");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_matchStatus_idx" ON "MybillbookInvoice"("matchStatus");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_invoiceDate_idx" ON "MybillbookInvoice"("invoiceDate");
     CREATE TABLE IF NOT EXISTS "ServiceCatalog" (
       "slug" TEXT NOT NULL PRIMARY KEY,
       "name" TEXT NOT NULL,
