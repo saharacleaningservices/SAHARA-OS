@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { CustomerImportDialog } from "@/components/customers/customer-import-dialog";
 import { CustomersExplorer } from "@/components/customers/customers-explorer";
@@ -33,6 +35,11 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
           <>
             <PackageCalculatorButton variant="button" />
             {canManage && <CustomerImportDialog />}
+            {session.role === "ADMIN" && (
+              <Button asChild size="sm" variant="outline">
+                <Link href="/customers/mybillbook-import">MyBillBook history</Link>
+              </Button>
+            )}
           </>
         }
       />

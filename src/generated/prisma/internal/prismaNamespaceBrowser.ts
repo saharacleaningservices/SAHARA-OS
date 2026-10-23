@@ -101,6 +101,7 @@ export const ModelName = {
   MarketingSpend: 'MarketingSpend',
   BookingSlotControl: 'BookingSlotControl',
   PriceSetting: 'PriceSetting',
+  MybillbookInvoice: 'MybillbookInvoice',
   ServiceCatalog: 'ServiceCatalog',
   FestivalOffer: 'FestivalOffer',
   FestivalPrice: 'FestivalPrice',
@@ -1122,6 +1123,32 @@ export const PriceSettingScalarFieldEnum = {
 } as const
 
 export type PriceSettingScalarFieldEnum = (typeof PriceSettingScalarFieldEnum)[keyof typeof PriceSettingScalarFieldEnum]
+
+
+export const MybillbookInvoiceScalarFieldEnum = {
+  id: 'id',
+  invoiceNo: 'invoiceNo',
+  invoiceKey: 'invoiceKey',
+  invoiceDate: 'invoiceDate',
+  contactName: 'contactName',
+  amount: 'amount',
+  remaining: 'remaining',
+  status: 'status',
+  invoiceLink: 'invoiceLink',
+  paymentType: 'paymentType',
+  createdByName: 'createdByName',
+  customerId: 'customerId',
+  matchStatus: 'matchStatus',
+  matchMethod: 'matchMethod',
+  candidateIds: 'candidateIds',
+  jobId: 'jobId',
+  serviceName: 'serviceName',
+  importBatchId: 'importBatchId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MybillbookInvoiceScalarFieldEnum = (typeof MybillbookInvoiceScalarFieldEnum)[keyof typeof MybillbookInvoiceScalarFieldEnum]
 
 
 export const ServiceCatalogScalarFieldEnum = {

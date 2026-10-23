@@ -10,6 +10,7 @@ import { RepeatBookingButton } from "@/components/customers/repeat-booking-butto
 import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog";
 import { ContactMetaDialog } from "@/components/customers/contact-meta-dialog";
 import { CustomerSitesCard } from "@/components/customers/customer-sites-card";
+import { MybillbookHistoryCard } from "@/components/customers/mybillbook-history-card";
 import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
 import { getCustomerHistory } from "@/server/customers";
@@ -39,6 +40,12 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
     .findMany({ where: { customerMobile: digits }, orderBy: { sentAt: "desc" }, take: 10 })
     .catch(() => []);
   const sites = master?.sites ?? [];
+  // Past MyBillBook invoices attached to this customer (owner 2026-10-23) — one row per invoice number, so never a duplicate.
+  const mbbRows = master
+    ? await db.mybillbookInvoice
+        .findMany({ where: { customerId: master.id }, orderBy: { invoiceDate: "desc" }, take: 100, select: { invoiceKey: true, invoiceNo: true, invoiceDate: true, amount: true, remaining: true, status: true, invoiceLink: true, serviceName: true, jobId: true } })
+        .catch(() => [])
+    : [];
 
   return (
     <div className="space-y-4">
@@ -93,6 +100,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           </div>
         ))}
       </div>
+
+      <MybillbookHistoryCard rows={mbbRows.map((r) => ({ ...r, jobNumber: r.jobId }))} />
 
       <CustomerSitesCard
         mobile={digits}
