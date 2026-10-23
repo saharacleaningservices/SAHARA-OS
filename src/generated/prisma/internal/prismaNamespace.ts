@@ -456,7 +456,8 @@ export const ModelName = {
   OpsReminderEvent: 'OpsReminderEvent',
   OpsReminderSettings: 'OpsReminderSettings',
   WebAuthnCredential: 'WebAuthnCredential',
-  OutboxJob: 'OutboxJob'
+  OutboxJob: 'OutboxJob',
+  ReminderLog: 'ReminderLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -472,7 +473,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob" | "reminderLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5434,6 +5435,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ReminderLog: {
+      payload: Prisma.$ReminderLogPayload<ExtArgs>
+      fields: Prisma.ReminderLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReminderLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReminderLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>
+        }
+        findFirst: {
+          args: Prisma.ReminderLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReminderLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>
+        }
+        findMany: {
+          args: Prisma.ReminderLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>[]
+        }
+        create: {
+          args: Prisma.ReminderLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>
+        }
+        createMany: {
+          args: Prisma.ReminderLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReminderLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>[]
+        }
+        delete: {
+          args: Prisma.ReminderLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>
+        }
+        update: {
+          args: Prisma.ReminderLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReminderLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReminderLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReminderLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.ReminderLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReminderLogPayload>
+        }
+        aggregate: {
+          args: Prisma.ReminderLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReminderLog>
+        }
+        groupBy: {
+          args: Prisma.ReminderLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReminderLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReminderLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReminderLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -6489,6 +6564,7 @@ export const MybillbookInvoiceScalarFieldEnum = {
   detailError: 'detailError',
   partyMobile: 'partyMobile',
   partyAddress: 'partyAddress',
+  dueDate: 'dueDate',
   dataset: 'dataset',
   gstin: 'gstin',
   createdAt: 'createdAt',
@@ -6760,6 +6836,20 @@ export const OutboxJobScalarFieldEnum = {
 } as const
 
 export type OutboxJobScalarFieldEnum = (typeof OutboxJobScalarFieldEnum)[keyof typeof OutboxJobScalarFieldEnum]
+
+
+export const ReminderLogScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  dedupeKey: 'dedupeKey',
+  customerId: 'customerId',
+  toNumber: 'toNumber',
+  status: 'status',
+  detail: 'detail',
+  createdAt: 'createdAt'
+} as const
+
+export type ReminderLogScalarFieldEnum = (typeof ReminderLogScalarFieldEnum)[keyof typeof ReminderLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -7140,6 +7230,7 @@ export type GlobalOmitConfig = {
   opsReminderSettings?: Prisma.OpsReminderSettingsOmit
   webAuthnCredential?: Prisma.WebAuthnCredentialOmit
   outboxJob?: Prisma.OutboxJobOmit
+  reminderLog?: Prisma.ReminderLogOmit
 }
 
 /* Types for Logging */

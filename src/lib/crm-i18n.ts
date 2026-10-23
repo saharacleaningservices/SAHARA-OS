@@ -45,7 +45,7 @@ export const useCrmLang = (): CrmLang => useSyncExternalStore(subscribe, getCrmL
 
 const HI: Record<string, string> = {
   "Dashboards & Reports": "डैशबोर्ड और रिपोर्ट", Operations: "ऑपरेशन्स", "Sales & Finance": "बिक्री और वित्त", "Tools & AI": "टूल्स और AI", "Settings & Admin": "सेटिंग्स और एडमिन",
-  Parties: "पार्टियाँ", Sales: "बिक्री", Purchases: "खरीद", "Purchases & Expenses": "खरीद और खर्च", "Quotation / Estimate": "कोटेशन / अनुमान", "Sales Invoices": "बिक्री इनवॉइस", "Payment In": "प्राप्त भुगतान",
+  "Lifecycle Reminders": "ग्राहक रिमाइंडर", Parties: "पार्टियाँ", Sales: "बिक्री", Purchases: "खरीद", "Purchases & Expenses": "खरीद और खर्च", "Quotation / Estimate": "कोटेशन / अनुमान", "Sales Invoices": "बिक्री इनवॉइस", "Payment In": "प्राप्त भुगतान",
   Dashboard: "डैशबोर्ड", Reports: "रिपोर्ट", "Revenue Dashboard": "आय डैशबोर्ड", "Profit Dashboard": "मुनाफ़ा डैशबोर्ड", "Marketing Dashboard": "मार्केटिंग डैशबोर्ड",
   Jobs: "जॉब्स", "Team Dispatch": "टीम डिस्पैच", "Slot Availability": "स्लॉट उपलब्धता", Staff: "स्टाफ", Vehicles: "वाहन", Attendance: "हाज़िरी", "AMC Contracts": "AMC अनुबंध",
   Housekeeping: "हाउसकीपिंग", "Pest Control": "पेस्ट कंट्रोल", "Interior Painting": "इंटीरियर पेंटिंग", Gallery: "गैलरी", Trash: "ट्रैश",
@@ -56,7 +56,7 @@ const HI: Record<string, string> = {
 };
 const MR: Record<string, string> = {
   "Dashboards & Reports": "डॅशबोर्ड आणि अहवाल", Operations: "ऑपरेशन्स", "Sales & Finance": "विक्री आणि वित्त", "Tools & AI": "टूल्स आणि AI", "Settings & Admin": "सेटिंग्ज आणि अ‍ॅडमिन",
-  Parties: "पार्टीज", Sales: "विक्री", Purchases: "खरेदी", "Purchases & Expenses": "खरेदी आणि खर्च", "Quotation / Estimate": "कोटेशन / अंदाज", "Sales Invoices": "विक्री इनव्हॉइस", "Payment In": "मिळालेले पेमेंट",
+  "Lifecycle Reminders": "ग्राहक रिमाइंडर", Parties: "पार्टीज", Sales: "विक्री", Purchases: "खरेदी", "Purchases & Expenses": "खरेदी आणि खर्च", "Quotation / Estimate": "कोटेशन / अंदाज", "Sales Invoices": "विक्री इनव्हॉइस", "Payment In": "मिळालेले पेमेंट",
   Dashboard: "डॅशबोर्ड", Reports: "अहवाल", "Revenue Dashboard": "उत्पन्न डॅशबोर्ड", "Profit Dashboard": "नफा डॅशबोर्ड", "Marketing Dashboard": "मार्केटिंग डॅशबोर्ड",
   Jobs: "जॉब्स", "Team Dispatch": "टीम डिस्पॅच", "Slot Availability": "स्लॉट उपलब्धता", Staff: "कर्मचारी", Vehicles: "वाहने", Attendance: "हजेरी", "AMC Contracts": "AMC करार",
   Housekeeping: "हाउसकीपिंग", "Pest Control": "पेस्ट कंट्रोल", "Interior Painting": "इंटीरियर पेंटिंग", Gallery: "गॅलरी", Trash: "कचरा",

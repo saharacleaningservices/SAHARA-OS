@@ -18,8 +18,8 @@ export type ImportSummary = {
   skipped: { line: number; reason: string }[];
 };
 
-const same = (dataset: string, a: ParsedInvoice, r: { invoiceDate: Date; contactName: string; amount: number; remaining: number; status: string; invoiceLink: string; paymentType: string | null; createdByName: string | null; gstin: string | null; dataset: string }) =>
-  a.invoiceDate.getTime() === r.invoiceDate.getTime() && a.contactName === r.contactName && a.amount === r.amount && a.remaining === r.remaining && a.status === r.status && a.invoiceLink === r.invoiceLink && a.paymentType === r.paymentType && a.createdByName === r.createdByName && a.gstin === r.gstin && dataset === r.dataset;
+const same = (dataset: string, a: ParsedInvoice, r: { invoiceDate: Date; contactName: string; amount: number; remaining: number; status: string; invoiceLink: string; paymentType: string | null; createdByName: string | null; gstin: string | null; dueDate: Date | null; dataset: string }) =>
+  a.invoiceDate.getTime() === r.invoiceDate.getTime() && a.contactName === r.contactName && a.amount === r.amount && a.remaining === r.remaining && a.status === r.status && a.invoiceLink === r.invoiceLink && a.paymentType === r.paymentType && a.createdByName === r.createdByName && a.gstin === r.gstin && (a.dueDate?.getTime() ?? 0) === (r.dueDate?.getTime() ?? 0) && dataset === r.dataset;
 
 /**
  * Re-runnable: an invoice number already stored is UPDATED in place (amount / balance / status / link follow MyBillBook), never added a
@@ -54,7 +54,7 @@ export async function importMybillbookCsv(text: string, batchId: string, dataset
 
   for (const r of rows) {
     const old = existing.get(r.invoiceKey);
-    const data = { invoiceNo: r.invoiceNo, invoiceDate: r.invoiceDate, contactName: r.contactName, amount: r.amount, remaining: r.remaining, status: r.status, invoiceLink: r.invoiceLink, paymentType: r.paymentType, createdByName: r.createdByName, gstin: r.gstin ?? old?.gstin ?? null, dataset };
+    const data = { invoiceNo: r.invoiceNo, invoiceDate: r.invoiceDate, contactName: r.contactName, amount: r.amount, remaining: r.remaining, status: r.status, invoiceLink: r.invoiceLink, paymentType: r.paymentType, createdByName: r.createdByName, gstin: r.gstin ?? old?.gstin ?? null, dueDate: r.dueDate, dataset };
 
     const alreadyLinked = !!old && !!old.customerId && (old.matchStatus === "MATCHED" || old.matchStatus === "MANUAL");
     let link: { customerId: string | null; matchStatus: string; matchMethod: string | null; candidateIds: string | null; jobId: string | null; serviceName: string | null };

@@ -1558,6 +1558,7 @@ model MybillbookInvoice {
   detailError     String?
   partyMobile     String? // 10-digit mobile printed on the invoice — used to attach it to a customer
   partyAddress    String?
+  dueDate         DateTime? // payment due date from the report; blank → invoice date + credit days
   dataset         String    @default("B2C") // B2C | GST — which MyBillBook book the report came from (owner 2026-10-23)
   gstin           String? // customer GSTIN when the report or invoice carries one
   createdAt      DateTime  @default(now())
@@ -1864,4 +1865,20 @@ model OutboxJob {
 
   @@index([status, runAt])
   @@index([dedupeKey])
+}
+
+// One row per lifecycle reminder actually sent (or attempted), so a customer / invoice is never reminded twice for the same milestone.
+// dedupeKey: REBOOK:<customerId>:<6|12>:<last-service-date>  or  PAY:<invoiceKey>:<1|2|3>.
+model ReminderLog {
+  id         String   @id @default(cuid())
+  kind       String // REBOOK | PAYMENT | SWEEP
+  dedupeKey  String
+  customerId String?
+  toNumber   String?
+  status     String // SENT | FAILED
+  detail     String?
+  createdAt  DateTime @default(now())
+
+  @@index([dedupeKey])
+  @@index([kind, createdAt])
 }

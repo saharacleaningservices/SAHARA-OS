@@ -115,7 +115,8 @@ export const ModelName = {
   OpsReminderEvent: 'OpsReminderEvent',
   OpsReminderSettings: 'OpsReminderSettings',
   WebAuthnCredential: 'WebAuthnCredential',
-  OutboxJob: 'OutboxJob'
+  OutboxJob: 'OutboxJob',
+  ReminderLog: 'ReminderLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1150,6 +1151,7 @@ export const MybillbookInvoiceScalarFieldEnum = {
   detailError: 'detailError',
   partyMobile: 'partyMobile',
   partyAddress: 'partyAddress',
+  dueDate: 'dueDate',
   dataset: 'dataset',
   gstin: 'gstin',
   createdAt: 'createdAt',
@@ -1421,6 +1423,20 @@ export const OutboxJobScalarFieldEnum = {
 } as const
 
 export type OutboxJobScalarFieldEnum = (typeof OutboxJobScalarFieldEnum)[keyof typeof OutboxJobScalarFieldEnum]
+
+
+export const ReminderLogScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  dedupeKey: 'dedupeKey',
+  customerId: 'customerId',
+  toNumber: 'toNumber',
+  status: 'status',
+  detail: 'detail',
+  createdAt: 'createdAt'
+} as const
+
+export type ReminderLogScalarFieldEnum = (typeof ReminderLogScalarFieldEnum)[keyof typeof ReminderLogScalarFieldEnum]
 
 
 export const SortOrder = {

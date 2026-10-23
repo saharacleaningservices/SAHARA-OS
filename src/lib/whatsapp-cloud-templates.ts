@@ -395,6 +395,33 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     examples: ["Priya", "Home Deep Cleaning"],
     buttons: [{ type: "URL", text: "Google Review", url: GOOGLE_REVIEW_URL }],
   },
+  // ── Owner 2026-10-23: lifecycle reminders. Sent only when Meta has approved them, WHATSAPP_REMINDERS=on, and the outbound mode allows it
+  // (re-booking is MARKETING: opt-in numbers only; the payment follow-up is UTILITY).
+  {
+    key: "rem1",
+    name: "sahara_rebook_reminder_v1",
+    category: "MARKETING",
+    language: "en",
+    purpose: "Re-booking reminder 6 / 12 months after a deep-cleaning service (opt-in contacts only)",
+    body:
+      "Hi {{1}}, it has been {{2}} since your {{3}} with Sahara Cleaning Services. A fresh deep clean keeps your home healthy and hygienic. Tap below to book your next service.\n\nReply STOP to opt out.",
+    examples: ["Priya", "6 months", "Home Deep Cleaning"],
+    buttons: [
+      { type: "URL", text: "Book Now", url: `${PUBLIC_BOOKING_URL}/booking` },
+      { type: "PHONE_NUMBER", text: "Call Helpline", phone: "+917083347130" },
+    ],
+  },
+  {
+    key: "rem2",
+    name: "sahara_payment_due_reminder_v1",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Friendly follow-up for an overdue unpaid GST / corporate invoice",
+    body:
+      "Hi {{1}}, a friendly reminder that invoice {{2}} for ₹{{3}} (due {{4}}) is still pending. Please pay by UPI to 7083347130 or call us if it is already paid. Thank you for your business.",
+    examples: ["Acme Traders", "SC/SL/26-27/1501", "11,800", "05 Oct 2026"],
+    buttons: [{ type: "PHONE_NUMBER", text: "Call Helpline", phone: "+917083347130" }],
+  },
 ];
 
 export function templateByName(name: string) {
