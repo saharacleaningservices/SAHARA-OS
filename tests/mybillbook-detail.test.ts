@@ -33,9 +33,9 @@ test.before(async () => {
 test.after(async () => { M._load = realLoad; await db.$disconnect(); try { rmSync(dir, { recursive: true, force: true }); } catch { /* temp */ } });
 
 // What the public invoice page ships: loadInvoice("<base64 of URL-encoded JSON>").
-const page = (v: { no: string; date?: string; total: number; remaining?: number; name: string; mobile?: string; items: { name: string; qty?: number; rate: number }[]; notes?: string }) => {
+const page = (v: { gstin?: string; no: string; date?: string; total: number; remaining?: number; name: string; mobile?: string; items: { name: string; qty?: number; rate: number; gst?: number }[]; notes?: string }) => {
   const payload = {
-    party: { name: v.name, mobile_number: v.mobile ?? "" },
+    party: { name: v.name, mobile_number: v.mobile ?? "", gst_number: v.gstin ?? "" },
     voucher: {
       invoice_number: v.no,
       invoice_date: v.date ?? "2026-10-21",
@@ -45,7 +45,7 @@ const page = (v: { no: string; date?: string; total: number; remaining?: number;
       payment_mode: "in_cash",
       customer_notes: v.notes ?? "",
       billing_address: { customer_name: v.name, street_address: "Salunke Vihar", city: "Pune", pincode: "" },
-      items: v.items.map((i) => ({ name: i.name, quantity: String(i.qty ?? 1), price_per_unit: String(i.rate), item_final_amount: String((i.qty ?? 1) * i.rate), description: "" })),
+      items: v.items.map((i) => ({ name: i.name, quantity: String(i.qty ?? 1), price_per_unit: String(i.rate), item_final_amount: String((i.qty ?? 1) * i.rate), description: "", gst_percentage: String(i.gst ?? 0), is_tax_applicable: !!i.gst })),
     },
   };
   return `<html><body><script>\n loadInvoice(\n "${Buffer.from(encodeURIComponent(JSON.stringify(payload))).toString("base64")}",\n )</script></body></html>`;
@@ -95,13 +95,15 @@ test("run: reads details, attaches by phone, protects manual / name-conflict, fl
   await mk("3", { customerId: c.id, matchStatus: "MATCHED", matchMethod: "NAME" }); // name says Meera, phone says Ravi → review
   await mk("4"); // page shows another invoice → MISMATCH
   await mk("5"); // gone → FAILED
-  await mk("6"); // unknown phone → stays unmatched, mobile kept
+  await mk("6"); // phone the CRM has never seen → a NEW customer is created with this history
+  await mk("7", { amount: 1180 }); // no mobile on the invoice → nothing to create from: stays stored and listed for review
   const pages: Record<string, () => Response> = {
     key1: () => new Response(page({ no: "T/1", total: 1000, name: "Mrs Asha", mobile: a.mobile, items: [{ name: "Sofa Cleaning", qty: 5, rate: 200 }] })),
     key2: () => new Response(page({ no: "T/2", total: 1000, name: "X", mobile: a.mobile, items: [{ name: "Kitchen Cleaning", rate: 1000 }] })),
     key3: () => new Response(page({ no: "T/3", total: 1000, name: "X", mobile: b.mobile, items: [{ name: "Bathroom Cleaning", rate: 1000 }] })),
     key4: () => new Response(page({ no: "T/999", total: 1000, name: "X", mobile: a.mobile, items: [{ name: "Other", rate: 1000 }] })),
     key5: () => new Response("gone", { status: 404 }),
+    key7: () => new Response(page({ no: "T/7", total: 1180, name: "Acme Traders", gstin: "27ABCDE1234F1Z5", mobile: "", items: [{ name: "Office Deep Cleaning", rate: 1180, gst: 18 }] })),
     key6: () => new Response(page({ no: "T/6", total: 1000, name: "Stranger", mobile: "9899999999", items: [{ name: "Pest Control", rate: 1000 }] })),
   };
   const seen: string[] = [];
@@ -132,9 +134,17 @@ test("run: reads details, attaches by phone, protects manual / name-conflict, fl
   const r5 = await row("key5");
   assert.deepEqual([r5.detailStatus, r5.detailError], ["FAILED", "MyBillBook no longer has this invoice link"]);
   const r6 = await row("key6");
-  assert.deepEqual([r6.detailStatus, r6.customerId, r6.matchStatus, r6.partyMobile], ["DONE", null, "UNMATCHED", "9899999999"]);
-  assert.equal(await db.mybillbookInvoice.count(), 6, "no duplicate rows");
-  assert.deepEqual(await det.detailCounts(), { pending: 0, done: 4, failed: 1, mismatch: 1 });
+  assert.deepEqual([r6.detailStatus, r6.matchStatus, r6.matchMethod, r6.partyMobile], ["DONE", "MATCHED", "AUTO_CREATED", "9899999999"]);
+  const made = await db.customer.findUniqueOrThrow({ where: { mobile: "9899999999" } });
+  assert.deepEqual([made.id, made.name, made.source, made.contactType, made.isRepeat, !!made.customerNumber], [r6.customerId, "Stranger", "MYBILLBOOK_IMPORT", "CUSTOMER", true, true]);
+  assert.equal(made.lastServiceDate?.toISOString().slice(0, 10), "2026-10-21");
+  const r7 = await row("key7");
+  assert.deepEqual([r7.detailStatus, r7.customerId, r7.matchStatus], ["DONE", null, "UNMATCHED"]);
+  const gst = JSON.parse(r7.detailJson!);
+  assert.deepEqual([gst.partyGstin, gst.gstAmount, gst.taxableAmount, gst.lines[0].gstPercent], ["27ABCDE1234F1Z5", 180, 1000, 18]);
+  assert.equal(await db.mybillbookInvoice.count(), 7, "no row dropped, none duplicated");
+  assert.equal(await db.customer.count(), 4, "exactly one customer created");
+  assert.deepEqual(await det.detailCounts(), { pending: 0, done: 5, failed: 1, mismatch: 1 });
 
   // Re-running reads nothing again (DONE / FAILED / MISMATCH are final); "retry failed" tries only the failed one.
   seen.length = 0;
@@ -142,13 +152,14 @@ test("run: reads details, attaches by phone, protects manual / name-conflict, fl
   assert.deepEqual(seen, []);
   await det.startDetailFetch({ fetchImpl: fakeFetch, delayMs: 0, retryFailed: true }).finished;
   assert.deepEqual(seen, ["key5"]);
+  assert.equal(await db.customer.count(), 4, "re-running creates nobody twice");
 
   // A CSV re-import keeps the details and the phone-based attachment.
   const csv = `Invoice No,Invoice Date,Contact Name,Amount,Remaining Amount,Invoice Status,Due Date,Invoice Link,Payment Type,Created by\nT/1,21/10/2026,Name 1,1000,0,Paid,,https://mybillbook.in/i/key1,credit,Altaf\n`;
   await imp.importMybillbookCsv(csv, "b2");
   const again = await row("key1");
   assert.deepEqual([again.detailStatus, again.customerId, again.matchMethod, again.serviceName], ["DONE", a.id, "PHONE", "Sofa Cleaning"]);
-  assert.equal(await db.mybillbookInvoice.count(), 6);
+  assert.equal(await db.mybillbookInvoice.count(), 7);
 });
 
 test("run: when MyBillBook keeps failing the run pauses by itself and leaves the rows PENDING (nothing lost, nothing marked failed)", async () => {

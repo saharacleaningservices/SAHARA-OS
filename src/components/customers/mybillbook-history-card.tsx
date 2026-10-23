@@ -68,6 +68,7 @@ export function MybillbookHistoryCard({ rows }: { rows: MybillbookHistoryRow[] }
                     </li>
                   ))}
                 </ul>
+                {(r.detail.gstAmount ?? 0) > 0 && <p className="mt-1">GST {formatINR(r.detail.gstAmount)} (taxable {formatINR(r.detail.taxableAmount)}){r.detail.partyGstin ? ` · GSTIN ${r.detail.partyGstin}` : ""}</p>}
                 {r.detail.notes && <p className="mt-1 whitespace-pre-line text-muted-foreground">{r.detail.notes}</p>}
                 {r.partyAddress && <p className="mt-1 text-muted-foreground">Address: {r.partyAddress}</p>}
               </details>

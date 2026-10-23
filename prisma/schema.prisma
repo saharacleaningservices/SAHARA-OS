@@ -1546,7 +1546,7 @@ model MybillbookInvoice {
   customerId     String?
   customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
   matchStatus    String    @default("UNMATCHED") // MATCHED | REVIEW | UNMATCHED | MANUAL
-  matchMethod    String? // INVOICE_NO | NAME | MANUAL
+  matchMethod    String? // INVOICE_NO | NAME | PHONE | AUTO_CREATED | MANUAL
   candidateIds   String? // JSON string[] of customer ids to choose from when REVIEW
   jobId          String? // the CRM job this invoice belongs to, when known
   serviceName    String? // filled from the CRM job, or from the invoice detail

@@ -14,12 +14,12 @@ import {
   parseInvoiceDetail,
   serviceLabel,
 } from "@/lib/mybillbook-detail";
-import { normalizeMobile } from "@/server/customer-db";
+import { ensureCustomer, normalizeMobile } from "@/server/customer-db";
 
-export type DetailRunState = { running: boolean; startedAt: number | null; total: number; processed: number; done: number; failed: number; mismatch: number; stopReason: string | null; stopRequested: boolean };
+export type DetailRunState = { running: boolean; startedAt: number | null; total: number; processed: number; done: number; created: number; failed: number; mismatch: number; stopReason: string | null; stopRequested: boolean };
 
 const g = globalThis as unknown as { __mbbDetailRun?: DetailRunState };
-const fresh = (): DetailRunState => ({ running: false, startedAt: null, total: 0, processed: 0, done: 0, failed: 0, mismatch: 0, stopReason: null, stopRequested: false });
+const fresh = (): DetailRunState => ({ running: false, startedAt: null, total: 0, processed: 0, done: 0, created: 0, failed: 0, mismatch: 0, stopReason: null, stopRequested: false });
 export const detailRunState = (): DetailRunState => (g.__mbbDetailRun ??= fresh());
 
 export async function detailCounts() {
@@ -94,7 +94,7 @@ async function run(state: DetailRunState, opts: Options) {
   };
   await Promise.all(Array.from({ length: workers }, worker));
   await db.auditLog
-    .create({ data: { entityType: "MybillbookImport", entityId: "detail-fetch", action: "FETCH", summary: `MyBillBook invoice details read: ${state.done} ok, ${state.mismatch} mismatch, ${state.failed} failed of ${state.processed} tried`, actorName: "System" } })
+    .create({ data: { entityType: "MybillbookImport", entityId: "detail-fetch", action: "FETCH", summary: `MyBillBook invoice details read: ${state.done} ok, ${state.created} new customers, ${state.mismatch} mismatch, ${state.failed} failed of ${state.processed} tried`, actorName: "System" } })
     .catch(() => {});
 }
 
@@ -130,11 +130,31 @@ async function readOne(row: Row, doFetch: typeof fetch, customerByMobile: Map<st
     return fail("MISMATCH", `Page shows ${detail.invoiceNumber} for ₹${detail.total}; the report has ${row.invoiceNo} for ₹${row.amount}`, { detailJson: JSON.stringify(detail), partyMobile: detail.partyMobile, partyAddress: detail.partyAddress });
   }
 
-  const phoneCustomer = detail.partyMobile ? (customerByMobile.get(detail.partyMobile) ?? null) : null;
+  let phoneCustomer = detail.partyMobile ? (customerByMobile.get(detail.partyMobile) ?? null) : null;
+  // Owner 2026-10-23: a number the CRM has never seen becomes a new customer with this history — no invoice is left behind. Only for an
+  // invoice that is still unmatched and has no same-name customer to choose from (those stay on the review list), and never for a row
+  // without a valid mobile (it stays stored and listed for review). A new customer is NOT opted in to promotions.
+  let created = false;
+  if (!phoneCustomer && detail.partyMobile && row.matchStatus === "UNMATCHED" && !row.customerId) {
+    const c = await ensureCustomer({
+      mobile: detail.partyMobile,
+      name: detail.partyName || row.contactName,
+      address: detail.partyAddress,
+      contactType: detail.partyGstin ? "CORPORATE" : "CUSTOMER",
+      isRepeat: true,
+      source: "MYBILLBOOK_IMPORT",
+    });
+    if (c) {
+      phoneCustomer = c.id;
+      customerByMobile.set(detail.partyMobile, c.id);
+      created = true;
+      state.created += 1;
+    }
+  }
   const decision = decideLinkByPhone({ matchStatus: row.matchStatus, matchMethod: row.matchMethod, customerId: row.customerId }, phoneCustomer);
   const link =
     decision.action === "attach"
-      ? { customerId: decision.customerId, matchStatus: "MATCHED", matchMethod: "PHONE", candidateIds: null }
+      ? { customerId: decision.customerId, matchStatus: "MATCHED", matchMethod: created ? "AUTO_CREATED" : "PHONE", candidateIds: null }
       : decision.action === "review"
         ? { customerId: null, matchStatus: "REVIEW", matchMethod: null, candidateIds: JSON.stringify(decision.candidateIds) }
         : {};
@@ -151,5 +171,9 @@ async function readOne(row: Row, doFetch: typeof fetch, customerByMobile: Map<st
       ...link,
     },
   });
+  if (decision.action === "attach" && detail.invoiceDate) {
+    const when = new Date(`${detail.invoiceDate}T06:30:00Z`);
+    await db.customer.updateMany({ where: { id: decision.customerId, OR: [{ lastServiceDate: null }, { lastServiceDate: { lt: when } }] }, data: { lastServiceDate: when } });
+  }
   state.done += 1;
 }
