@@ -72,7 +72,7 @@ const GROUP_BY_HREF: Record<string, NavGroupKey> = {
   "/assistant": "tools", "/admin/whatsapp-inbox": "tools", "/payments/send-link": "tools", "/admin/announcements": "tools",
   "/admin/khata-import": "admin",
   "/settings/pricing": "admin", "/admin/trash": "admin", "/admin/audit-log": "admin", "/admin/users": "admin",
-  "/admin/whatsapp-log": "admin", "/admin/device-approvals": "admin", "/admin/security-approvals": "admin",
+  "/admin/whatsapp-log": "admin", "/admin/lifecycle-reminders": "admin", "/admin/device-approvals": "admin", "/admin/security-approvals": "admin",
 };
 
 const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
@@ -113,6 +113,7 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   { label: "Audit Log", href: "/admin/audit-log", section: "audit-log", icon: ScrollText },
   { label: "User Management", href: "/admin/users", section: "users", icon: Users2 },
   { label: "Message Log", href: "/admin/whatsapp-log", section: "whatsapp-log", icon: MessageCircle },
+  { label: "Lifecycle Reminders", href: "/admin/lifecycle-reminders", section: "lifecycle-reminders", icon: Send },
   { label: "Device Approvals", href: "/admin/device-approvals", section: "device-approvals", icon: Smartphone },
   { label: "Security Approvals", href: "/admin/security-approvals", section: "security-approvals", icon: ShieldAlert },
   ];

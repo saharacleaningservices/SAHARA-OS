@@ -355,3 +355,8 @@ export type WebAuthnCredential = Prisma.WebAuthnCredentialModel
  * 
  */
 export type OutboxJob = Prisma.OutboxJobModel
+/**
+ * Model ReminderLog
+ * 
+ */
+export type ReminderLog = Prisma.ReminderLogModel

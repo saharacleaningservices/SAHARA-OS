@@ -20,6 +20,8 @@ export type ParsedInvoice = {
   createdByName: string | null;
   /** Customer GSTIN when the report has such a column (the GST book usually does). */
   gstin: string | null;
+  /** Payment due date when the report has one. */
+  dueDate: Date | null;
 };
 
 export type ParseResult = { rows: ParsedInvoice[]; skipped: { line: number; reason: string }[] };
@@ -62,6 +64,7 @@ export function parseSalesSummaryCsv(text: string): ParseResult {
     link: col("invoice link", "invoice url", "link"),
     pay: col("payment type"),
     by: col("created by"),
+    due: col("due date", "payment due date"),
     gstin: col("gstin", "party gstin", "customer gstin", "gst number", "gstin/uin"),
   };
   if (idx.no < 0 || idx.date < 0 || idx.name < 0 || idx.amount < 0 || idx.link < 0) return { rows: [], skipped: [{ line: headerAt + 1, reason: "Missing required columns" }] };
@@ -95,6 +98,7 @@ export function parseSalesSummaryCsv(text: string): ParseResult {
       invoiceLink: link,
       paymentType: idx.pay >= 0 ? (r[idx.pay] ?? "").trim() || null : null,
       createdByName: idx.by >= 0 ? (r[idx.by] ?? "").trim() || null : null,
+      dueDate: idx.due >= 0 ? parseDmy(r[idx.due]) : null,
       gstin: idx.gstin >= 0 && /^[0-9A-Z]{15}$/i.test((r[idx.gstin] ?? "").trim()) ? (r[idx.gstin] ?? "").trim().toUpperCase() : null,
     });
   });

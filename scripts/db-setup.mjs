@@ -1826,6 +1826,21 @@ db.close();
   addCol("MybillbookInvoice", "partyAddress", "TEXT");
   addCol("MybillbookInvoice", "dataset", `TEXT NOT NULL DEFAULT 'B2C'`);
   addCol("MybillbookInvoice", "gstin", "TEXT");
+  addCol("MybillbookInvoice", "dueDate", "DATETIME");
+  oDb.exec(`
+    CREATE TABLE IF NOT EXISTS "ReminderLog" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "kind" TEXT NOT NULL,
+      "dedupeKey" TEXT NOT NULL,
+      "customerId" TEXT,
+      "toNumber" TEXT,
+      "status" TEXT NOT NULL,
+      "detail" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "ReminderLog_dedupeKey_idx" ON "ReminderLog"("dedupeKey");
+    CREATE INDEX IF NOT EXISTS "ReminderLog_kind_createdAt_idx" ON "ReminderLog"("kind", "createdAt");
+  `);
   oDb.exec(`
     CREATE INDEX IF NOT EXISTS "MybillbookInvoice_detailStatus_idx" ON "MybillbookInvoice"("detailStatus");
     CREATE INDEX IF NOT EXISTS "MybillbookInvoice_partyMobile_idx" ON "MybillbookInvoice"("partyMobile");
