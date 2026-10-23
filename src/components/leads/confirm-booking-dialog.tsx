@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CalendarCheck, Loader2 } from "lucide-react";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { TIME_SLOTS } from "@/lib/constants";
 import { confirmBooking } from "@/server/actions/leads";
-import { TeamSelect } from "@/components/shared/team-select";
+import { getTeamRosters, type TeamRoster } from "@/server/actions/team-roster";
 
 type SupervisorOption = { id: string; name: string };
 
@@ -55,6 +55,15 @@ export function ConfirmBookingDialog({
   );
   const [supervisorId, setSupervisorId] = useState<string>("");
   const [teamNumber, setTeamNumber] = useState<number | "">(defaultTeam ?? "");
+  const [rosters, setRosters] = useState<TeamRoster[]>([]);
+  const [staffIds, setStaffIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (open && rosters.length === 0) getTeamRosters().then(setRosters).catch(() => {});
+  }, [open, rosters.length]);
+  const pickTeam = (n: number | "") => {
+    setTeamNumber(n);
+    setStaffIds(n ? (rosters.find((r) => r.team === n)?.crew.map((c) => c.id) ?? []) : []);
+  };
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -64,7 +73,7 @@ export function ConfirmBookingDialog({
       return;
     }
     startTransition(async () => {
-      const res = await confirmBooking(leadId, { serviceDate, timeSlot, supervisorId, teamNumber });
+      const res = await confirmBooking(leadId, { serviceDate, timeSlot, supervisorId, teamNumber, staffIds });
       if (res.error) {
         toast.error(res.error);
         return;
@@ -90,7 +99,7 @@ export function ConfirmBookingDialog({
         <DialogHeader>
           <DialogTitle>Confirm Booking</DialogTitle>
           <DialogDescription>
-            Set the service date and slot. A job is created automatically and the enquiry moves to Job Scheduled.
+            Set the service date, slot and team. One save confirms the booking, creates the job and assigns the crew.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
@@ -118,7 +127,27 @@ export function ConfirmBookingDialog({
               </SelectContent>
             </Select>
           </div>
-          <TeamSelect value={teamNumber} onChange={setTeamNumber} label="Team (optional)" />
+          <div className="space-y-1.5">
+            <Label>Team (optional) — the crew is assigned with the booking</Label>
+            <div className="grid gap-1.5" role="radiogroup" aria-label="Team">
+              {[{ team: 0, crew: [] as { id: string; name: string }[] }, ...(rosters.length ? rosters : [1, 2, 3, 4].map((team) => ({ team, crew: [] as { id: string; name: string }[] })))].map((r) => {
+                const active = (teamNumber || 0) === r.team;
+                return (
+                  <button
+                    key={r.team}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => pickTeam(r.team === 0 ? "" : r.team)}
+                    className={`min-h-11 rounded-lg border px-3 py-2 text-left text-sm transition ${active ? "border-primary bg-primary/5 font-semibold" : "hover:bg-muted/50"}`}
+                  >
+                    {r.team === 0 ? "Unassigned" : `Team ${r.team}`}
+                    {r.team !== 0 && <span className="font-normal text-muted-foreground">{r.crew.length ? `: ${r.crew.map((c) => c.name).join(", ")}` : " — no crew yet"}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           {supervisors.length > 0 && (
             <div className="space-y-1">
               <Label>Supervisor (optional)</Label>

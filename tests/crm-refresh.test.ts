@@ -84,12 +84,12 @@ const entries = (items: typeof NAV_ITEMS) => {
   return seen;
 };
 
-test("Operations shows exactly 6 entries for every office role, in the agreed order", () => {
-  const want = ["/jobs", "/jobs/quick-quote", "Team Dispatch & Slots", "Team & Attendance", "/amc", "Specialized Services"];
+test("Operations shows exactly 5 entries (owner 2026-10-23: Jobs, Team Dispatch & Slots, AMC Contracts + the team and specialised-service folds), in the agreed order", () => {
+  const want = ["/jobs", "Team Dispatch & Slots", "/amc", "Team & Attendance", "Specialized Services"];
   assert.deepEqual(entries(NAV_ITEMS.filter((i) => i.group === "operations")), want);
   for (const role of ["ADMIN", "ACCOUNTS", "OPERATIONS"]) {
     const ops = entries(NAV_ITEMS.filter((i) => i.group === "operations" && canAccess(role, i.section)));
-    assert.ok(ops.length <= 6, `${role}: ${ops.length} entries`);
+    assert.ok(ops.length <= 5, `${role}: ${ops.length} entries`);
   }
 });
 
@@ -105,11 +105,16 @@ test("clusters are contiguous, and every old Operations page is still in the men
   }
 });
 
-test("Tools & AI keeps only AI Assistant, WhatsApp Inbox, Payment Link Sender, Announcements; Khata moved to Settings & Admin; Gallery out of the menu", () => {
-  assert.deepEqual(NAV_ITEMS.filter((i) => i.group === "tools").map((i) => i.label), ["AI Assistant", "WhatsApp Inbox", "Payment Link Sender", "Announcements"]);
-  assert.equal(NAV_ITEMS.find((i) => i.href === "/admin/khata-import")?.group, "admin");
+test("the four sidebar sections hold exactly what the owner listed (2026-10-23); the old Tools & AI section is gone, its tools live in Settings & Admin / Finance", () => {
+  const labels = (g: string) => NAV_ITEMS.filter((i) => i.group === g && !i.cluster).map((i) => i.label);
+  assert.deepEqual(labels("sales"), ["Leads / CRM", "Parties", "Quick Quote Generator"]);
+  assert.deepEqual(labels("operations"), ["Jobs", "AMC Contracts"]);
+  assert.ok(["Khata Book Import"].every((l) => labels("finance").includes(l)));
+  assert.ok(["User Management", "Message Log", "Lifecycle Reminders", "Settings"].every((l) => labels("admin").includes(l)));
+  assert.equal(NAV_ITEMS.find((i) => i.href === "/admin/khata-import")?.group, "finance");
   assert.equal(NAV_ITEMS.some((i) => i.href === "/admin/gallery"), false);
-  assert.ok(NAV_GROUPS.some((g) => g.key === "tools"));
+  assert.ok(!NAV_GROUPS.some((g) => (g.key as string) === "tools"));
+  for (const href of ["/assistant", "/admin/whatsapp-inbox", "/payments/send-link", "/admin/announcements"]) assert.ok(NAV_ITEMS.some((i) => i.href === href), `${href} is still in the menu`);
 });
 
 test("Payment Link Sender is a money page: Admin and Accounts only", () => {

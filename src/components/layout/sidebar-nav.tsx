@@ -23,7 +23,7 @@ export function SidebarNav({
   const lang = useCrmLang();
   const items = NAV_ITEMS.filter((item) => canAccess(role, item.section));
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
-  // Accordion: five groups instead of one 30+ item list. Empty groups (nothing the role may open) are hidden;
+  // Accordion: the Dashboard link plus four sections instead of one 30+ item list. Empty groups (nothing the role may open) are hidden;
   // the group of the current page is always open, the first group is open by default.
   const groups = NAV_GROUPS.map((g) => ({ ...g, items: items.filter((i) => i.group === g.key) })).filter((g) => g.items.length > 0);
   const activeGroup = groups.find((g) => g.items.some((i) => isActive(i.href)))?.key;
@@ -91,6 +91,7 @@ export function SidebarNav({
 
       <nav className="flex-1 space-y-1.5 overflow-y-auto px-3 py-2" aria-label="Main navigation">
         {groups.map((g) => {
+          if (g.pinned) return <div key={g.key} className="space-y-0.5">{g.items.map((i) => linkFor(i))}</div>;
           const isOpen = open.has(g.key);
           return (
             <div key={g.key} className="rounded-xl">
@@ -138,11 +139,9 @@ export function SidebarNav({
         })}
       </nav>
 
-      <div className="mx-3 mb-4 rounded-lg bg-sidebar-accent/60 p-3 text-[11px] leading-relaxed text-sidebar-foreground/70">
-        <p className="font-semibold text-sidebar-foreground">{crmT(lang, "Need help?")}</p>
-        <p>Call {`→`} 7083347130</p>
-        <p>Opp. South Gate, Magarpatta City</p>
-      </div>
+      <p className="border-t border-sidebar-border px-4 py-2.5 text-[11px] text-sidebar-foreground/60">
+        {crmT(lang, "Need help?")} <a href="tel:+917083347130" className="font-semibold text-sidebar-foreground/90 underline-offset-2 hover:underline">Call 7083347130</a>
+      </p>
     </div>
   );
 }

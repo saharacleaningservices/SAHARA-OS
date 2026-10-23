@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Check, ChevronDown, Loader2, Lock, MapPin, Plus } from "lucide-react";
 import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
+import { CustomerHistoryWidget } from "@/components/leads/customer-history-widget";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -357,6 +358,7 @@ export function LeadForm({
   }
 
   return (
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start lg:gap-5">
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <Card className="gap-3 py-4">
         <CardHeader className="px-4">
@@ -404,7 +406,7 @@ export function LeadForm({
             {errors.mobile && <p className="text-xs text-destructive">{errors.mobile.message}</p>}
             {checkingRepeat && <p className="text-xs text-muted-foreground">Checking customer history…</p>}
             {repeatCustomer && (
-              <div className="space-y-1.5 rounded-md border border-primary/30 bg-primary/5 p-2.5">
+              <div className={`space-y-1.5 rounded-md border border-primary/30 bg-primary/5 p-2.5 ${leadId ? "" : "lg:hidden"}`}>
                 <p className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-primary">
                   Existing customer{repeatCustomer.name ? ` — ${repeatCustomer.name}` : ""}
                   <ContactTypeBadge type={repeatCustomer.contactType} />
@@ -414,7 +416,7 @@ export function LeadForm({
                   {repeatCustomer.jobCount} previous job{repeatCustomer.jobCount === 1 ? "" : "s"}
                   {repeatCustomer.lastServiceDate ? ` · Last service: ${formatDate(repeatCustomer.lastServiceDate)}` : ""}
                   {/* Revenue only for Super Admin / Accounts — see getRepeatCustomerSummary. */}
-                  {repeatCustomer.totalRevenue !== null ? ` · Lifetime value: ${formatINR(repeatCustomer.totalRevenue)}` : ""}
+                  {repeatCustomer.lifetimeValue !== null ? ` · Lifetime value: ${formatINR(repeatCustomer.lifetimeValue)}` : ""}
                 </p>
                 {!leadId && (
                   <Button type="button" size="sm" variant="outline" className="h-8" onClick={applyExistingCustomer}>
@@ -777,6 +779,12 @@ export function LeadForm({
         </Button>
       </div>
     </form>
+    {!leadId && repeatCustomer && (
+      <aside className="mt-3 hidden lg:sticky lg:top-4 lg:mt-0 lg:block">
+        <CustomerHistoryWidget customer={repeatCustomer} canUse onUse={applyExistingCustomer} />
+      </aside>
+    )}
+    </div>
   );
 }
 

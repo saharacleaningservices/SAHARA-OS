@@ -688,11 +688,16 @@ export async function confirmBooking(leadId: string, values: unknown) {
     });
 
   // Carry the lead's assigned crew (multi-staff) onto the job.
-  const leadStaffIds: string[] = lead.assignedStaffIds
-    ? (JSON.parse(lead.assignedStaffIds) as string[])
-    : lead.assignedStaffId
-      ? [lead.assignedStaffId]
-      : [];
+  // The pop-up's team crew (when picked) wins over the enquiry's own crew; only real, active staff are assigned.
+  const pickedIds = data.staffIds?.length ? (await db.staff.findMany({ where: { id: { in: data.staffIds }, isActive: true }, select: { id: true } })).map((x) => x.id) : [];
+  const orderedPicked = (data.staffIds ?? []).filter((id) => pickedIds.includes(id));
+  const leadStaffIds: string[] = orderedPicked.length
+    ? orderedPicked
+    : lead.assignedStaffIds
+      ? (JSON.parse(lead.assignedStaffIds) as string[])
+      : lead.assignedStaffId
+        ? [lead.assignedStaffId]
+        : [];
   if (leadStaffIds.length) {
     await db.jobAssignment.createMany({
       data: [...new Set(leadStaffIds)].map((staffId, i) => ({ jobId: job.id, staffId, isLead: i === 0 })),
