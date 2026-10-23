@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { assignInvoiceToCustomer, detachInvoice, importMybillbookCsv } from "@/server/mybillbook-import";
+import { startDetailFetch, stopDetailFetch } from "@/server/mybillbook-detail";
 
 const MAX_CSV_BYTES = 5 * 1024 * 1024;
 
@@ -43,5 +44,23 @@ export async function detachMybillbookInvoice(invoiceKey: string) {
   const r = await detachInvoice(String(invoiceKey));
   if (!r.ok) return { success: false as const, error: r.error };
   revalidatePath("/customers/mybillbook-import");
+  return { success: true as const };
+}
+
+/** Super Admin only: read the service details of every imported invoice from its shared link (no MyBillBook login needed). Runs in the background. */
+export async function startMybillbookDetailFetch(retryFailed = false) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can do this." };
+  const r = startDetailFetch({ retryFailed: retryFailed === true });
+  if (!r.started) return { success: false as const, error: r.reason ?? "Could not start" };
+  revalidatePath("/customers/mybillbook-import");
+  return { success: true as const };
+}
+
+/** Super Admin only: pause the background read (progress is saved; Start continues where it stopped). */
+export async function stopMybillbookDetailFetch() {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can do this." };
+  stopDetailFetch();
   return { success: true as const };
 }

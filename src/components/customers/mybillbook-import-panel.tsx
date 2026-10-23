@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { assignMybillbookInvoice, importMybillbookReport } from "@/server/actions/mybillbook-import";
+import { assignMybillbookInvoice, importMybillbookReport, startMybillbookDetailFetch, stopMybillbookDetailFetch } from "@/server/actions/mybillbook-import";
 
 type Summary = { rowsInFile: number; created: number; updated: number; unchanged: number; matched: number; needsReview: number; unmatched: number; skipped: { line: number; reason: string }[] };
 
@@ -68,11 +68,11 @@ export function MybillbookUpload() {
 type Candidate = { id: string; name: string; mobile: string };
 
 /** One row of the review list: pick one of the candidate customers, or type the customer's mobile number. */
-export function MybillbookReviewActions({ invoiceKey, candidates }: { invoiceKey: string; candidates: Candidate[] }) {
+export function MybillbookReviewActions({ invoiceKey, candidates, suggestedMobile }: { invoiceKey: string; candidates: Candidate[]; suggestedMobile?: string | null }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [choice, setChoice] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState(suggestedMobile ?? "");
   const attach = () =>
     start(async () => {
       const res = await assignMybillbookInvoice(choice ? { invoiceKey, customerId: choice } : { invoiceKey, mobile });
@@ -94,6 +94,57 @@ export function MybillbookReviewActions({ invoiceKey, candidates }: { invoiceKey
       <Button size="sm" className="h-8" disabled={pending || (!choice && mobile.replace(/\D/g, "").length < 10)} onClick={attach}>
         {pending && <Loader2 className="size-3.5 animate-spin" />} Attach
       </Button>
+    </div>
+  );
+}
+
+type DetailCounts = { pending: number; done: number; failed: number; mismatch: number };
+type RunState = { running: boolean; total: number; processed: number; done: number; failed: number; mismatch: number; stopReason: string | null };
+
+/** Reads the service details of every imported invoice from its shared link (no MyBillBook login). Shows live progress while it runs. */
+export function MybillbookDetailPanel({ counts, run }: { counts: DetailCounts; run: RunState }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  useEffect(() => {
+    if (!run.running) return;
+    const t = setInterval(() => router.refresh(), 4000);
+    return () => clearInterval(t);
+  }, [run.running, router]);
+  const go = (retry: boolean) =>
+    start(async () => {
+      const res = await startMybillbookDetailFetch(retry);
+      if (!res.success) return void toast.error(res.error);
+      toast.success("Reading invoice details in the background");
+      router.refresh();
+    });
+  const stop = () =>
+    start(async () => {
+      await stopMybillbookDetailFetch();
+      router.refresh();
+    });
+  const total = counts.pending + counts.done + counts.failed + counts.mismatch;
+  return (
+    <div className="space-y-2 rounded-xl border p-4">
+      <p className="text-sm text-muted-foreground">
+        Read each invoice&apos;s <b>service lines, date, total, balance and customer mobile</b> from its MyBillBook link, and attach it to the customer with that mobile number. No MyBillBook login is needed; it runs gently in the background and can be paused.
+      </p>
+      <p className="text-sm">
+        <b>{counts.done}</b> of {total} read · <b>{counts.pending}</b> waiting · <b>{counts.failed}</b> could not be read · <b>{counts.mismatch}</b> differ from the report
+      </p>
+      {run.running && <p className="text-xs text-muted-foreground">Running: {run.processed} of {run.total} tried this run…</p>}
+      {!run.running && run.stopReason && <p className="text-xs text-amber-700">{run.stopReason}</p>}
+      <div className="flex flex-wrap gap-2">
+        {run.running ? (
+          <Button size="sm" variant="outline" onClick={stop} disabled={pending}>Pause</Button>
+        ) : (
+          <>
+            <Button size="sm" onClick={() => go(false)} disabled={pending || counts.pending === 0}>
+              {pending && <Loader2 className="size-3.5 animate-spin" />} {counts.done > 0 ? "Continue reading details" : "Read invoice details"}
+            </Button>
+            {counts.failed > 0 && <Button size="sm" variant="outline" onClick={() => go(true)} disabled={pending}>Retry the {counts.failed} that failed</Button>}
+          </>
+        )}
+      </div>
     </div>
   );
 }
