@@ -18,7 +18,7 @@ export function PayAfterServiceButton({ token }: { token: string }) {
             setMsg("error" in res && res.error ? res.error : "Noted — you can pay after the service.");
           })
         }
-        className="w-full rounded-xl border border-[#0a2540]/20 px-4 py-2.5 text-sm font-semibold text-[#0a2540] disabled:opacity-60"
+        className="min-h-11 w-full rounded-xl border border-[#0a2540]/20 px-4 py-2.5 text-sm font-semibold text-[#0a2540] disabled:opacity-60"
       >
         {pending ? "Saving…" : "Pay After Service"}
       </button>
