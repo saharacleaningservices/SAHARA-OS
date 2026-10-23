@@ -131,7 +131,6 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
             </ul>
             <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
             <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Globe className="size-3.5 shrink-0" />www.saharacleaningservices.com</a>
-            <FooterSocial />
           </section>
           {/* Block 3 — Trust, legal */}
           <section aria-labelledby="ft-trust" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
@@ -141,13 +140,16 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
                 <li key={b} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-white"><Check className="size-3 text-emerald-300" aria-hidden />{b}</li>
               ))}
             </ul>
-            <p className="text-[13px]">GSTIN: <span className="font-semibold text-white">{COMPANY.gstin}</span></p>
-            <p className="flex flex-wrap items-center gap-x-2 text-[13px]"><Link href="/privacy-policy" className="inline-flex min-h-11 items-center underline hover:text-white">Privacy Policy</Link><span aria-hidden>·</span><Link href="/terms" className="inline-flex min-h-11 items-center underline hover:text-white">Terms &amp; Conditions</Link></p>
+            <div className="space-y-1 rounded-xl bg-white/5 px-3 py-2 text-[13px]">
+              <p>GSTIN: <span className="font-semibold text-white">{COMPANY.gstin}</span></p>
+              <p className="flex flex-wrap items-center gap-x-2"><Link href="/privacy-policy" className="inline-flex min-h-11 items-center underline hover:text-white">Privacy Policy</Link><span aria-hidden>·</span><Link href="/terms" className="inline-flex min-h-11 items-center underline hover:text-white">Terms &amp; Conditions</Link></p>
+            </div>
+            <FooterSocial />
             <Link href="/gallery" className="block text-[13px] hover:text-white">Our work — gallery</Link>
           </section>
         </div>
         <div className="border-t border-white/10">
-          <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© Sahara Cleaning Services · Serving Pune Since 2012</p>
+          <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© Sahara Cleaning Services</p>
         </div>
       </footer>
       )}

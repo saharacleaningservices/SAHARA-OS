@@ -108,7 +108,9 @@ test("quotation, invoice and crew card print as A4 with page-break avoidance; CR
   const doc = read("src/components/public/customer-document.tsx");
   assert.match(doc, /@page\{size:A4;margin:7mm\}/);
   assert.match(doc, /page-break-inside:avoid/);
-  assert.match(doc, /md:grid-cols-2 print:grid-cols-2/, "scope and terms side by side (when there is scope)");
+  // Owner 2026-10-23 (autonomous brief P2): scope, equipment and terms are accordions on screen and open by themselves when printed.
+  assert.match(doc, /<DocAccordion title=\{`Scope of Work/);
+  assert.match(read("src/components/public/doc-accordion.tsx"), /beforeprint/);
   assert.match(read("src/app/crew-card/[token]/page.tsx"), /@page\{size:A4/);
   assert.match(read("src/components/public/document-actions.tsx"), /get\("print"\) !== "1"/);
 });

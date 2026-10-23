@@ -11,6 +11,7 @@ import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { CustomerDocument } from "@/components/public/customer-document";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { UPI_QR_OPTIONS, upiPayUri } from "@/lib/upi";
+import { paymentSplit } from "@/lib/booking-payment";
 import { getCatalogEntryForJob } from "@/server/service-catalog";
 import QRCode from "qrcode";
 
@@ -110,7 +111,10 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   const support = ["8956567130", "7083347130"];
   // Dynamic UPI QR for the exact balance (PhonePe / GPay / any UPI app scan it) — documents only.
   let upiQrDataUrl: string | null = null;
-  const upiUri = settings?.upiId && pmt.due > 0 ? upiPayUri({ upiId: settings.upiId, payeeName: settings.name || COMPANY.name, amount: pmt.due }) : null;
+  const split = paymentSplit(job.jobValue);
+  const advanceDue = pmt.status === "PAY_AFTER_SERVICE" ? 0 : Math.min(pmt.due, Math.max(0, Math.round((split.advance - pmt.paid) * 100) / 100));
+  const payNowAmount = focus === "pay" && advanceDue > 0 ? advanceDue : pmt.due;
+  const upiUri = settings?.upiId && pmt.due > 0 ? upiPayUri({ upiId: settings.upiId, payeeName: settings.name || COMPANY.name, amount: payNowAmount }) : null;
   if ((focus === "invoice" || focus === "quotation" || focus === "pay") && upiUri) {
     try {
       upiQrDataUrl = await QRCode.toDataURL(upiUri, UPI_QR_OPTIONS);
@@ -130,11 +134,6 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
   }
 
   const docView = focus === "quotation" || focus === "invoice";
-  const payNowBar = (
-    <a href={`/booking/pay/${token}`} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-base font-extrabold text-white shadow-sm print:hidden">
-      <Wallet className="size-5" /> Pay Now — {formatINR(pmt.due)}
-    </a>
-  );
   const paymentBlock = (
         <div id="payment" className="space-y-3 rounded-2xl bg-white p-5 text-sm shadow-sm">
           <p className="flex items-center justify-between font-semibold text-[#0a2540]">
@@ -179,6 +178,47 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
         </div>
   );
 
+  if (focus === "pay") {
+    const nothingDue = pmt.due <= 0 || job.status === "CANCELLED";
+    return (
+      <main className="theme-navy flex min-h-[100dvh] items-center justify-center bg-[#f4f7fb] px-4 py-4">
+        <section className="w-full max-w-sm space-y-3 rounded-3xl bg-white p-5 text-[#0a2540] shadow-lg" aria-label="Pay advance">
+          <header className="space-y-0.5 text-center">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-primary">Pay Advance</p>
+            <p className="text-lg font-extrabold leading-tight">{job.customerName}</p>
+            <p className="text-xs text-[#0a2540]/70">{SERVICE_LABELS[job.service] ?? job.service} · {formatDate(job.scheduledDate)} · Booking {job.jobNumber}</p>
+          </header>
+          <dl className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-xl bg-[#0a2540]/5 p-2"><dt className="text-[10px] font-semibold uppercase text-[#0a2540]/60">Total</dt><dd className="text-sm font-extrabold tabular-nums">{formatINR(job.jobValue)}</dd></div>
+            <div className="rounded-xl bg-primary/10 p-2"><dt className="text-[10px] font-semibold uppercase text-primary">Advance due</dt><dd className="text-sm font-extrabold tabular-nums">{formatINR(advanceDue)}</dd></div>
+            <div className="rounded-xl bg-[#0a2540]/5 p-2"><dt className="text-[10px] font-semibold uppercase text-[#0a2540]/60">Balance</dt><dd className="text-sm font-extrabold tabular-nums">{formatINR(pmt.due)}</dd></div>
+          </dl>
+          {nothingDue ? (
+            <p className="rounded-xl bg-emerald-50 p-4 text-center text-sm font-semibold text-emerald-700">{job.status === "CANCELLED" ? "This booking is cancelled." : "Payment received in full — thank you."}</p>
+          ) : (
+            <div className="space-y-2 text-center">
+              {upiQrDataUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={upiQrDataUrl} alt={`Scan to pay ${formatINR(payNowAmount)}`} className="mx-auto size-48 rounded-xl border bg-white object-contain" />
+              ) : settings?.upiQrUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={settings.upiQrUrl} alt="Scan to pay" className="mx-auto size-48 rounded-xl border bg-white object-contain" />
+              ) : (
+                <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">Our team will share payment details shortly.</p>
+              )}
+              {upiUri && (
+                <a href={upiUri} className="flex min-h-12 items-center justify-center rounded-2xl bg-primary px-3 text-sm font-extrabold text-primary-foreground">
+                  Pay {formatINR(payNowAmount)} with any UPI app
+                </a>
+              )}
+              {settings?.upiId && <p className="text-[11px] text-[#0a2540]/60">UPI ID {settings.upiId} · share the payment screenshot on WhatsApp</p>}
+            </div>
+          )}
+        </section>
+      </main>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f4f7fb] px-4 py-8 print:bg-white print:p-0">
       <div className={`mx-auto space-y-4 ${focus === "quotation" || focus === "invoice" ? "max-w-3xl" : "max-w-md"}`}>
@@ -191,7 +231,6 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
           </span>
         </div>
 
-        {docView && showPay && payNowBar}
         {(focus === "quotation" || focus === "invoice") && (
           <CustomerDocument
             kind={focus === "invoice" ? "INVOICE" : "QUOTATION"}
@@ -242,9 +281,6 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
             }}
           />
         )}
-        {focus === "pay" && paymentBlock}
-        {/* Quotation / invoice: one prominent Pay Now below the document (and above it, see payNowBar) — opens the payment page. */}
-        {docView && showPay && payNowBar}
         <div className="space-y-4 print:hidden">
 
         {/* Quotation / invoice view: the document above already carries the service, schedule,
@@ -299,7 +335,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
 
         {!docView && <PackageScopeCard service={job.service} packageName={job.packageName} serviceVariant={job.serviceVariant} />}
 
-        {focus !== "pay" && paymentBlock}
+        {paymentBlock}
 
         {/* Quotation · Payment · Google Review — all three reachable from the one booking link. */}
         {job.status !== "CANCELLED" && settings?.googleReviewUrl && (
