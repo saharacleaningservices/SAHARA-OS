@@ -3,7 +3,8 @@ import { PageHeader } from "@/components/shared/page-header";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { formatDate, formatINR } from "@/lib/utils";
-import { MybillbookReviewActions, MybillbookUpload } from "@/components/customers/mybillbook-import-panel";
+import { MybillbookDetailPanel, MybillbookReviewActions, MybillbookUpload } from "@/components/customers/mybillbook-import-panel";
+import { detailCounts, detailRunState } from "@/server/mybillbook-detail";
 
 // MyBillBook invoice history import + review list (owner 2026-10-23). Super Admin only. The report carries no phone numbers, so a row is
 // attached to a customer only on a safe match; everything else is listed here for a decision.
@@ -34,8 +35,9 @@ export default async function MybillbookImportPage({ searchParams }: { searchPar
   );
   return (
     <div className="space-y-4">
-      <PageHeader title="MyBillBook history import" description="Attach past MyBillBook invoices to customer profiles. The report has no phone numbers, so only an exact full-name match (or a CRM invoice number) is attached automatically." />
+      <PageHeader title="MyBillBook history import" description="Attach past MyBillBook invoices to customer profiles. The CSV has no phone numbers, so after the details are read from each invoice link the customer mobile on the invoice is used; before that only an exact full-name match (or a CRM invoice number) is attached automatically." />
       <MybillbookUpload />
+      <MybillbookDetailPanel counts={await detailCounts()} run={{ ...detailRunState() }} />
       <p className="text-sm text-muted-foreground">
         {total} invoices stored · {matched} attached to customers · {review} need a choice · {unmatched} have no customer yet
       </p>
@@ -50,6 +52,7 @@ export default async function MybillbookImportPage({ searchParams }: { searchPar
               <th className="p-2">Invoice</th>
               <th className="p-2">Date</th>
               <th className="p-2">Name on invoice</th>
+              <th className="p-2">Service</th>
               <th className="p-2 text-right">Amount</th>
               <th className="p-2 text-right">Balance</th>
               <th className="p-2">Attach to</th>
@@ -58,7 +61,7 @@ export default async function MybillbookImportPage({ searchParams }: { searchPar
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-muted-foreground">Nothing waiting here.</td>
+                <td colSpan={7} className="p-4 text-center text-muted-foreground">Nothing waiting here.</td>
               </tr>
             )}
             {rows.map((r) => {
@@ -69,11 +72,15 @@ export default async function MybillbookImportPage({ searchParams }: { searchPar
                     <a href={r.invoiceLink} target="_blank" rel="noreferrer" className="font-semibold text-primary underline">{r.invoiceNo}</a>
                   </td>
                   <td className="whitespace-nowrap p-2">{formatDate(r.invoiceDate)}</td>
-                  <td className="p-2">{r.contactName}</td>
+                  <td className="p-2">
+                    {r.contactName}
+                    {r.partyMobile && <span className="block text-xs text-muted-foreground">{r.partyMobile}</span>}
+                  </td>
+                  <td className="p-2 text-xs">{r.serviceName ?? "—"}</td>
                   <td className="p-2 text-right tabular-nums">{formatINR(r.amount)}</td>
                   <td className="p-2 text-right tabular-nums">{r.remaining > 0 ? formatINR(r.remaining) : "—"}</td>
                   <td className="p-2">
-                    <MybillbookReviewActions invoiceKey={r.invoiceKey} candidates={cands} />
+                    <MybillbookReviewActions invoiceKey={r.invoiceKey} candidates={cands} suggestedMobile={r.partyMobile} />
                   </td>
                 </tr>
               );

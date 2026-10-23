@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { indexCustomersByName, matchByName, parseSalesSummaryCsv, type ParsedInvoice } from "@/lib/mybillbook-import";
+import { decideLinkByPhone } from "@/lib/mybillbook-detail";
 import { normalizeMobile } from "@/server/customer-db";
 
 export type ImportSummary = {
@@ -74,6 +75,12 @@ export async function importMybillbookCsv(text: string, batchId: string): Promis
               ? { customerId: null, matchStatus: "REVIEW", matchMethod: null, candidateIds: JSON.stringify(m.candidateIds), jobId: null, serviceName: old?.serviceName ?? null }
               : { customerId: null, matchStatus: "UNMATCHED", matchMethod: null, candidateIds: null, jobId: null, serviceName: old?.serviceName ?? null };
       }
+    }
+    // The mobile number read from the invoice page (when its details were fetched) outranks the name.
+    if (!alreadyLinked && old?.partyMobile) {
+      const d = decideLinkByPhone({ matchStatus: link.matchStatus, matchMethod: link.matchMethod, customerId: link.customerId }, customerByMobile.get(old.partyMobile) ?? null);
+      if (d.action === "attach") link = { ...link, customerId: d.customerId, matchStatus: "MATCHED", matchMethod: "PHONE", candidateIds: null };
+      else if (d.action === "review") link = { ...link, customerId: null, matchStatus: "REVIEW", matchMethod: null, candidateIds: JSON.stringify(d.candidateIds) };
     }
     if (link.matchStatus === "MATCHED" || link.matchStatus === "MANUAL") summary.matched += 1;
     else if (link.matchStatus === "REVIEW") summary.needsReview += 1;

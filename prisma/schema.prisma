@@ -1549,8 +1549,15 @@ model MybillbookInvoice {
   matchMethod    String? // INVOICE_NO | NAME | MANUAL
   candidateIds   String? // JSON string[] of customer ids to choose from when REVIEW
   jobId          String? // the CRM job this invoice belongs to, when known
-  serviceName    String? // filled from the CRM job, or later from the invoice detail
+  serviceName    String? // filled from the CRM job, or from the invoice detail
   importBatchId  String?
+  // Invoice detail read from the shared invoice link (owner 2026-10-23): service lines, notes, customer mobile / address.
+  detailStatus    String    @default("PENDING") // PENDING | DONE | FAILED | MISMATCH
+  detailJson      String? // JSON InvoiceDetail (src/lib/mybillbook-detail.ts)
+  detailFetchedAt DateTime?
+  detailError     String?
+  partyMobile     String? // 10-digit mobile printed on the invoice — used to attach it to a customer
+  partyAddress    String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -1558,6 +1565,8 @@ model MybillbookInvoice {
   @@index([customerId])
   @@index([matchStatus])
   @@index([invoiceDate])
+  @@index([detailStatus])
+  @@index([partyMobile])
 }
 
 // Service Catalog (owner 2026-10-22): the written scope of work, terms & conditions and equipment for each service. Prices are

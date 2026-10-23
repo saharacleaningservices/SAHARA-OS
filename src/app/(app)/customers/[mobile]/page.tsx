@@ -11,6 +11,7 @@ import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog"
 import { ContactMetaDialog } from "@/components/customers/contact-meta-dialog";
 import { CustomerSitesCard } from "@/components/customers/customer-sites-card";
 import { MybillbookHistoryCard } from "@/components/customers/mybillbook-history-card";
+import { parseStoredDetail } from "@/lib/mybillbook-detail";
 import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { ContactTypeBadge, RepeatBadge } from "@/components/customers/contact-badges";
 import { getCustomerHistory } from "@/server/customers";
@@ -43,7 +44,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   // Past MyBillBook invoices attached to this customer (owner 2026-10-23) — one row per invoice number, so never a duplicate.
   const mbbRows = master
     ? await db.mybillbookInvoice
-        .findMany({ where: { customerId: master.id }, orderBy: { invoiceDate: "desc" }, take: 100, select: { invoiceKey: true, invoiceNo: true, invoiceDate: true, amount: true, remaining: true, status: true, invoiceLink: true, serviceName: true, jobId: true } })
+        .findMany({ where: { customerId: master.id }, orderBy: { invoiceDate: "desc" }, take: 100, select: { invoiceKey: true, invoiceNo: true, invoiceDate: true, amount: true, remaining: true, status: true, invoiceLink: true, serviceName: true, jobId: true, detailJson: true, partyAddress: true } })
         .catch(() => [])
     : [];
 
@@ -101,7 +102,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         ))}
       </div>
 
-      <MybillbookHistoryCard rows={mbbRows.map((r) => ({ ...r, jobNumber: r.jobId }))} />
+      <MybillbookHistoryCard rows={mbbRows.map(({ detailJson, ...r }) => ({ ...r, jobNumber: r.jobId, detail: parseStoredDetail(detailJson) }))} />
 
       <CustomerSitesCard
         mobile={digits}

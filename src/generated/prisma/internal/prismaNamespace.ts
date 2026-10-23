@@ -6483,6 +6483,12 @@ export const MybillbookInvoiceScalarFieldEnum = {
   jobId: 'jobId',
   serviceName: 'serviceName',
   importBatchId: 'importBatchId',
+  detailStatus: 'detailStatus',
+  detailJson: 'detailJson',
+  detailFetchedAt: 'detailFetchedAt',
+  detailError: 'detailError',
+  partyMobile: 'partyMobile',
+  partyAddress: 'partyAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

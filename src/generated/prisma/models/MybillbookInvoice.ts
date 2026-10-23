@@ -55,6 +55,12 @@ export type MybillbookInvoiceMinAggregateOutputType = {
   jobId: string | null
   serviceName: string | null
   importBatchId: string | null
+  detailStatus: string | null
+  detailJson: string | null
+  detailFetchedAt: Date | null
+  detailError: string | null
+  partyMobile: string | null
+  partyAddress: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +84,12 @@ export type MybillbookInvoiceMaxAggregateOutputType = {
   jobId: string | null
   serviceName: string | null
   importBatchId: string | null
+  detailStatus: string | null
+  detailJson: string | null
+  detailFetchedAt: Date | null
+  detailError: string | null
+  partyMobile: string | null
+  partyAddress: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -101,6 +113,12 @@ export type MybillbookInvoiceCountAggregateOutputType = {
   jobId: number
   serviceName: number
   importBatchId: number
+  detailStatus: number
+  detailJson: number
+  detailFetchedAt: number
+  detailError: number
+  partyMobile: number
+  partyAddress: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -136,6 +154,12 @@ export type MybillbookInvoiceMinAggregateInputType = {
   jobId?: true
   serviceName?: true
   importBatchId?: true
+  detailStatus?: true
+  detailJson?: true
+  detailFetchedAt?: true
+  detailError?: true
+  partyMobile?: true
+  partyAddress?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -159,6 +183,12 @@ export type MybillbookInvoiceMaxAggregateInputType = {
   jobId?: true
   serviceName?: true
   importBatchId?: true
+  detailStatus?: true
+  detailJson?: true
+  detailFetchedAt?: true
+  detailError?: true
+  partyMobile?: true
+  partyAddress?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -182,6 +212,12 @@ export type MybillbookInvoiceCountAggregateInputType = {
   jobId?: true
   serviceName?: true
   importBatchId?: true
+  detailStatus?: true
+  detailJson?: true
+  detailFetchedAt?: true
+  detailError?: true
+  partyMobile?: true
+  partyAddress?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -292,6 +328,12 @@ export type MybillbookInvoiceGroupByOutputType = {
   jobId: string | null
   serviceName: string | null
   importBatchId: string | null
+  detailStatus: string
+  detailJson: string | null
+  detailFetchedAt: Date | null
+  detailError: string | null
+  partyMobile: string | null
+  partyAddress: string | null
   createdAt: Date
   updatedAt: Date
   _count: MybillbookInvoiceCountAggregateOutputType | null
@@ -338,6 +380,12 @@ export type MybillbookInvoiceWhereInput = {
   jobId?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   serviceName?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   importBatchId?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  detailStatus?: Prisma.StringFilter<"MybillbookInvoice"> | string
+  detailJson?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  detailFetchedAt?: Prisma.DateTimeNullableFilter<"MybillbookInvoice"> | Date | string | null
+  detailError?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  partyMobile?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
@@ -362,6 +410,12 @@ export type MybillbookInvoiceOrderByWithRelationInput = {
   jobId?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceName?: Prisma.SortOrderInput | Prisma.SortOrder
   importBatchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailStatus?: Prisma.SortOrder
+  detailJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailFetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailError?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyMobile?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
@@ -389,6 +443,12 @@ export type MybillbookInvoiceWhereUniqueInput = Prisma.AtLeast<{
   jobId?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   serviceName?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   importBatchId?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  detailStatus?: Prisma.StringFilter<"MybillbookInvoice"> | string
+  detailJson?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  detailFetchedAt?: Prisma.DateTimeNullableFilter<"MybillbookInvoice"> | Date | string | null
+  detailError?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  partyMobile?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
@@ -413,6 +473,12 @@ export type MybillbookInvoiceOrderByWithAggregationInput = {
   jobId?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceName?: Prisma.SortOrderInput | Prisma.SortOrder
   importBatchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailStatus?: Prisma.SortOrder
+  detailJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailFetchedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  detailError?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyMobile?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MybillbookInvoiceCountOrderByAggregateInput
@@ -444,6 +510,12 @@ export type MybillbookInvoiceScalarWhereWithAggregatesInput = {
   jobId?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   serviceName?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   importBatchId?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
+  detailStatus?: Prisma.StringWithAggregatesFilter<"MybillbookInvoice"> | string
+  detailJson?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
+  detailFetchedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MybillbookInvoice"> | Date | string | null
+  detailError?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
+  partyMobile?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
+  partyAddress?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MybillbookInvoice"> | Date | string
 }
@@ -466,6 +538,12 @@ export type MybillbookInvoiceCreateInput = {
   jobId?: string | null
   serviceName?: string | null
   importBatchId?: string | null
+  detailStatus?: string
+  detailJson?: string | null
+  detailFetchedAt?: Date | string | null
+  detailError?: string | null
+  partyMobile?: string | null
+  partyAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutMybillbookInvoicesInput
@@ -490,6 +568,12 @@ export type MybillbookInvoiceUncheckedCreateInput = {
   jobId?: string | null
   serviceName?: string | null
   importBatchId?: string | null
+  detailStatus?: string
+  detailJson?: string | null
+  detailFetchedAt?: Date | string | null
+  detailError?: string | null
+  partyMobile?: string | null
+  partyAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -512,6 +596,12 @@ export type MybillbookInvoiceUpdateInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  detailJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutMybillbookInvoicesNestedInput
@@ -536,6 +626,12 @@ export type MybillbookInvoiceUncheckedUpdateInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  detailJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -559,6 +655,12 @@ export type MybillbookInvoiceCreateManyInput = {
   jobId?: string | null
   serviceName?: string | null
   importBatchId?: string | null
+  detailStatus?: string
+  detailJson?: string | null
+  detailFetchedAt?: Date | string | null
+  detailError?: string | null
+  partyMobile?: string | null
+  partyAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -581,6 +683,12 @@ export type MybillbookInvoiceUpdateManyMutationInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  detailJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -604,6 +712,12 @@ export type MybillbookInvoiceUncheckedUpdateManyInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  detailJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -637,6 +751,12 @@ export type MybillbookInvoiceCountOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   serviceName?: Prisma.SortOrder
   importBatchId?: Prisma.SortOrder
+  detailStatus?: Prisma.SortOrder
+  detailJson?: Prisma.SortOrder
+  detailFetchedAt?: Prisma.SortOrder
+  detailError?: Prisma.SortOrder
+  partyMobile?: Prisma.SortOrder
+  partyAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -665,6 +785,12 @@ export type MybillbookInvoiceMaxOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   serviceName?: Prisma.SortOrder
   importBatchId?: Prisma.SortOrder
+  detailStatus?: Prisma.SortOrder
+  detailJson?: Prisma.SortOrder
+  detailFetchedAt?: Prisma.SortOrder
+  detailError?: Prisma.SortOrder
+  partyMobile?: Prisma.SortOrder
+  partyAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -688,6 +814,12 @@ export type MybillbookInvoiceMinOrderByAggregateInput = {
   jobId?: Prisma.SortOrder
   serviceName?: Prisma.SortOrder
   importBatchId?: Prisma.SortOrder
+  detailStatus?: Prisma.SortOrder
+  detailJson?: Prisma.SortOrder
+  detailFetchedAt?: Prisma.SortOrder
+  detailError?: Prisma.SortOrder
+  partyMobile?: Prisma.SortOrder
+  partyAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -757,6 +889,12 @@ export type MybillbookInvoiceCreateWithoutCustomerInput = {
   jobId?: string | null
   serviceName?: string | null
   importBatchId?: string | null
+  detailStatus?: string
+  detailJson?: string | null
+  detailFetchedAt?: Date | string | null
+  detailError?: string | null
+  partyMobile?: string | null
+  partyAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -779,6 +917,12 @@ export type MybillbookInvoiceUncheckedCreateWithoutCustomerInput = {
   jobId?: string | null
   serviceName?: string | null
   importBatchId?: string | null
+  detailStatus?: string
+  detailJson?: string | null
+  detailFetchedAt?: Date | string | null
+  detailError?: string | null
+  partyMobile?: string | null
+  partyAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -830,6 +974,12 @@ export type MybillbookInvoiceScalarWhereInput = {
   jobId?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   serviceName?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   importBatchId?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  detailStatus?: Prisma.StringFilter<"MybillbookInvoice"> | string
+  detailJson?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  detailFetchedAt?: Prisma.DateTimeNullableFilter<"MybillbookInvoice"> | Date | string | null
+  detailError?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  partyMobile?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
+  partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
 }
@@ -852,6 +1002,12 @@ export type MybillbookInvoiceCreateManyCustomerInput = {
   jobId?: string | null
   serviceName?: string | null
   importBatchId?: string | null
+  detailStatus?: string
+  detailJson?: string | null
+  detailFetchedAt?: Date | string | null
+  detailError?: string | null
+  partyMobile?: string | null
+  partyAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -874,6 +1030,12 @@ export type MybillbookInvoiceUpdateWithoutCustomerInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  detailJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -896,6 +1058,12 @@ export type MybillbookInvoiceUncheckedUpdateWithoutCustomerInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  detailJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -918,6 +1086,12 @@ export type MybillbookInvoiceUncheckedUpdateManyWithoutCustomerInput = {
   jobId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  detailJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  detailFetchedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  detailError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -943,6 +1117,12 @@ export type MybillbookInvoiceSelect<ExtArgs extends runtime.Types.Extensions.Int
   jobId?: boolean
   serviceName?: boolean
   importBatchId?: boolean
+  detailStatus?: boolean
+  detailJson?: boolean
+  detailFetchedAt?: boolean
+  detailError?: boolean
+  partyMobile?: boolean
+  partyAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
@@ -967,6 +1147,12 @@ export type MybillbookInvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.T
   jobId?: boolean
   serviceName?: boolean
   importBatchId?: boolean
+  detailStatus?: boolean
+  detailJson?: boolean
+  detailFetchedAt?: boolean
+  detailError?: boolean
+  partyMobile?: boolean
+  partyAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
@@ -991,6 +1177,12 @@ export type MybillbookInvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   jobId?: boolean
   serviceName?: boolean
   importBatchId?: boolean
+  detailStatus?: boolean
+  detailJson?: boolean
+  detailFetchedAt?: boolean
+  detailError?: boolean
+  partyMobile?: boolean
+  partyAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
@@ -1015,11 +1207,17 @@ export type MybillbookInvoiceSelectScalar = {
   jobId?: boolean
   serviceName?: boolean
   importBatchId?: boolean
+  detailStatus?: boolean
+  detailJson?: boolean
+  detailFetchedAt?: boolean
+  detailError?: boolean
+  partyMobile?: boolean
+  partyAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MybillbookInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "invoiceKey" | "invoiceDate" | "contactName" | "amount" | "remaining" | "status" | "invoiceLink" | "paymentType" | "createdByName" | "customerId" | "matchStatus" | "matchMethod" | "candidateIds" | "jobId" | "serviceName" | "importBatchId" | "createdAt" | "updatedAt", ExtArgs["result"]["mybillbookInvoice"]>
+export type MybillbookInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "invoiceKey" | "invoiceDate" | "contactName" | "amount" | "remaining" | "status" | "invoiceLink" | "paymentType" | "createdByName" | "customerId" | "matchStatus" | "matchMethod" | "candidateIds" | "jobId" | "serviceName" | "importBatchId" | "detailStatus" | "detailJson" | "detailFetchedAt" | "detailError" | "partyMobile" | "partyAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["mybillbookInvoice"]>
 export type MybillbookInvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
 }
@@ -1054,6 +1252,12 @@ export type $MybillbookInvoicePayload<ExtArgs extends runtime.Types.Extensions.I
     jobId: string | null
     serviceName: string | null
     importBatchId: string | null
+    detailStatus: string
+    detailJson: string | null
+    detailFetchedAt: Date | null
+    detailError: string | null
+    partyMobile: string | null
+    partyAddress: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["mybillbookInvoice"]>
@@ -1498,6 +1702,12 @@ export interface MybillbookInvoiceFieldRefs {
   readonly jobId: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly serviceName: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly importBatchId: Prisma.FieldRef<"MybillbookInvoice", 'String'>
+  readonly detailStatus: Prisma.FieldRef<"MybillbookInvoice", 'String'>
+  readonly detailJson: Prisma.FieldRef<"MybillbookInvoice", 'String'>
+  readonly detailFetchedAt: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
+  readonly detailError: Prisma.FieldRef<"MybillbookInvoice", 'String'>
+  readonly partyMobile: Prisma.FieldRef<"MybillbookInvoice", 'String'>
+  readonly partyAddress: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly createdAt: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
 }
