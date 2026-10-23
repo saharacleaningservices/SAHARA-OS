@@ -1,4 +1,4 @@
-// Sidebar accordion: every destination sits in exactly one of the 7 groups, and each role only gets what ROLE_NAV_ACCESS allows.
+// Sidebar accordion: every destination sits in exactly one of the sections, and each role only gets what ROLE_NAV_ACCESS allows.
 // Run: npm run test:nav
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -9,8 +9,8 @@ const itemsFor = (role: string) => NAV_ITEMS.filter((i) => canAccess(role, i.sec
 const groupsFor = (role: string) =>
   NAV_GROUPS.map((g) => ({ key: g.key, label: g.label, items: itemsFor(role).filter((i) => i.group === g.key) })).filter((g) => g.items.length > 0);
 
-test("seven groups in MyBillBook order (owner 2026-10-23)", () => {
-  assert.deepEqual(NAV_GROUPS.map((g) => g.label), ["Dashboards & Reports", "Parties", "Sales", "Purchases", "Operations", "Tools & AI", "Settings & Admin"]);
+test("Dashboard on top, then four sections in the owner's order (2026-10-23)", () => {
+  assert.deepEqual(NAV_GROUPS.map((g) => g.label), ["Dashboard", "Sales & CRM", "Operations", "Finance & Billing", "Settings & Admin"]);
 });
 
 test("every nav item belongs to exactly one known group (nothing lost, nothing duplicated)", () => {
@@ -21,9 +21,9 @@ test("every nav item belongs to exactly one known group (nothing lost, nothing d
   assert.equal(new Set(NAV_ITEMS.map((i) => i.href)).size, NAV_ITEMS.length, "hrefs are unique");
 });
 
-test("ADMIN sees everything, spread over all seven groups", () => {
+test("ADMIN sees everything, spread over the Dashboard link and all four sections", () => {
   assert.equal(itemsFor("ADMIN").length, NAV_ITEMS.length);
-  assert.equal(groupsFor("ADMIN").length, 7);
+  assert.equal(groupsFor("ADMIN").length, 5);
 });
 
 test("OPERATIONS (Francis): field-only — no money, profit, user or audit pages in any group", () => {

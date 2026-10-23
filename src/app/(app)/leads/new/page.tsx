@@ -20,7 +20,7 @@ export default async function NewLeadPage({ searchParams }: { searchParams: Prom
   ]);
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-5xl space-y-6">
       <PageHeader title={book ? "New Job" : "New Lead"} description={book ? "Customer, package and amount first — then confirm the date, slot and team." : "Capture a new enquiry into the pipeline."} />
       <NewLeadForm staffOptions={staffOptions} userOptions={userOptions} mapsApiKey={googleMaps.apiKey} canEditPricing={canEditPackagePricing(session?.role)} prefill={prefill.mobile.length === 10 ? prefill : undefined} book={book} />
     </div>

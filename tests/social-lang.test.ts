@@ -6,8 +6,8 @@ import { NAV_GROUPS, NAV_ITEMS } from "../src/components/layout/nav-config";
 import { crmTranslations } from "../src/lib/crm-i18n";
 import { bookingLink, emailSignature, socialLinks, withUtm } from "../src/lib/social-links";
 
-test("sidebar group order is fixed (MyBillBook style): Dashboards, Parties, Sales, Purchases, Operations, Tools & AI, Settings & Admin", () => {
-  assert.deepEqual(NAV_GROUPS.map((g) => g.label), ["Dashboards & Reports", "Parties", "Sales", "Purchases", "Operations", "Tools & AI", "Settings & Admin"]);
+test("sidebar order is fixed: Dashboard, Sales & CRM, Operations, Finance & Billing, Settings & Admin", () => {
+  assert.deepEqual(NAV_GROUPS.map((g) => g.label), ["Dashboard", "Sales & CRM", "Operations", "Finance & Billing", "Settings & Admin"]);
 });
 
 test("Hindi and Marathi cover every sidebar group + item label and the header strings", () => {

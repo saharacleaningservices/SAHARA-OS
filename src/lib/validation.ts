@@ -304,6 +304,8 @@ export const confirmBookingSchema = z.object({
   timeSlot: z.string().min(1, "Pick a slot").max(40),
   teamNumber: teamNumberSchema,
   supervisorId: z.string().optional().or(z.literal("")),
+  /** The crew chosen with the team in the Confirm Booking pop-up (first = lead). Empty = keep the enquiry's own crew. */
+  staffIds: z.array(z.string().max(40)).max(12).optional(),
 });
 
 export type ConfirmBookingFormValues = z.infer<typeof confirmBookingSchema>;

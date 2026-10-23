@@ -258,6 +258,10 @@ export async function getRepeatCustomerSummary(mobile: string) {
         contactType: master?.contactType ?? "CUSTOMER",
         isRepeat: !!master?.isRepeat || jobs.length >= 2,
         sites,
+        // Lifetime value = CRM payments received + MyBillBook invoices paid (Super Admin / Accounts only, like totalRevenue).
+        lifetimeValue: session.role === "ADMIN" || session.role === "ACCOUNTS" ? Math.round((totalRevenue + (await mybillbookPaidFor(master?.id ?? null))) * 100) / 100 : null,
+        // Free-text notes on the contact (office contact roles only — the same people who see the phone number).
+        notes: canSeeCustomerContact(session.role) ? (master?.notes ?? null) : null,
         recentServices: await recentServicesFor(master?.id ?? null, jobs, payments, session.role === "ADMIN" || session.role === "ACCOUNTS"),
   };
 }
@@ -284,4 +288,11 @@ async function recentServicesFor(
     for (const r of past) rows.push({ date: r.invoiceDate, service: r.serviceName ?? "Service (MyBillBook invoice)", paid: showMoney ? Math.max(0, r.amount - r.remaining) : null, source: "MYBILLBOOK" });
   }
   return rows.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
+}
+
+/** What the customer has paid on past MyBillBook invoices (billed less balance). */
+async function mybillbookPaidFor(customerId: string | null): Promise<number> {
+  if (!customerId) return 0;
+  const a = await db.mybillbookInvoice.aggregate({ where: { customerId }, _sum: { amount: true, remaining: true } });
+  return Math.max(0, (a._sum.amount ?? 0) - (a._sum.remaining ?? 0));
 }
