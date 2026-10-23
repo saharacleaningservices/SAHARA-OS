@@ -6,9 +6,10 @@ const GOLD = "#c9a961";
 const MUTED = "#5b6478";
 
 const s = StyleSheet.create({
-  page: { padding: 28, paddingBottom: 40, fontSize: 8.5, color: NAVY, fontFamily: "Helvetica" },
-  head: { alignItems: "center", borderBottomWidth: 1.5, borderBottomColor: GOLD, paddingBottom: 8, marginBottom: 8 },
+  page: { padding: 28, paddingBottom: 62, fontSize: 8.5, color: NAVY, fontFamily: "Helvetica" },
+  head: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", borderBottomWidth: 1.5, borderBottomColor: GOLD, paddingBottom: 8, marginBottom: 8 },
   logo: { width: 120, height: 40, objectFit: "contain" },
+  headRight: { alignItems: "flex-end" },
   company: { fontFamily: "Times-Bold", fontSize: 14, marginTop: 2 },
   slogan: { fontFamily: "Times-Italic", fontSize: 9, marginTop: 1 },
   title: { fontFamily: "Helvetica-Bold", fontSize: 12, textAlign: "center", marginVertical: 6 },
@@ -26,11 +27,13 @@ const s = StyleSheet.create({
   totals: { flexDirection: "row", justifyContent: "flex-end", marginTop: 8 },
   totalBox: { width: 210, borderTopWidth: 1, borderBottomWidth: 1, borderColor: GOLD, paddingVertical: 4 },
   line: { flexDirection: "row", justifyContent: "space-between", marginBottom: 2 },
-  footer: { position: "absolute", bottom: 16, left: 28, right: 28, flexDirection: "row", justifyContent: "space-between", fontSize: 7.5, color: MUTED },
+  footer: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#1E40AF", color: "#ffffff", paddingVertical: 6, paddingHorizontal: 28, fontSize: 7.5, alignItems: "center" },
+  footSlogan: { fontFamily: "Times-Italic", fontSize: 10, marginBottom: 2 },
+  footRow: { flexDirection: "row", justifyContent: "space-between", alignSelf: "stretch", marginTop: 2 },
 });
 
 export type PartyLedgerDocProps = {
-  company: { name: string; slogan: string; phones: string[] };
+  company: { name: string; slogan: string; phones: string[]; email?: string; address?: string };
   logoDataUrl?: string | null;
   party: { name: string; mobile: string };
   asOf: string;
@@ -43,12 +46,13 @@ export function PartyLedgerDocument(p: PartyLedgerDocProps) {
     <Document title={`Ledger statement — ${p.party.name}`}>
       <Page size="A4" style={s.page}>
         <View style={s.head} fixed>
-          {p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logo} /> : null}
-          <Text style={s.company}>{p.company.name.toUpperCase()}</Text>
-          <Text style={s.slogan}>{p.company.slogan}</Text>
-          <Text>{p.company.phones.join("  |  ")}</Text>
+          <View>{p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logo} /> : null}</View>
+          <View style={s.headRight}>
+            <Text style={s.company}>{p.company.name.toUpperCase()}</Text>
+            <Text>{p.company.phones.join("  |  ")}</Text>
+            <Text style={[s.bold, { marginTop: 3, fontSize: 12 }]}>LEDGER STATEMENT</Text>
+          </View>
         </View>
-        <Text style={s.title}>LEDGER STATEMENT</Text>
         <View style={s.party}>
           <View><Text style={s.bold}>{p.party.name}</Text><Text style={s.muted}>Mobile {p.party.mobile}</Text></View>
           <Text style={s.muted}>As on {p.asOf}</Text>
@@ -70,8 +74,12 @@ export function PartyLedgerDocument(p: PartyLedgerDocProps) {
           </View>
         </View>
         <View style={s.footer} fixed>
-          <Text>Debit = billed to the party · Credit = received / credited. A positive balance is what the party owes.</Text>
-          <Text render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+          <Text style={s.footSlogan}>{p.company.slogan}</Text>
+          <Text>{[p.company.phones.join("  |  "), p.company.email, p.company.address].filter(Boolean).join("  ·  ")}</Text>
+          <View style={s.footRow}>
+            <Text>Debit = billed · Credit = received / credited. Positive balance = party owes.</Text>
+            <Text render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+          </View>
         </View>
       </Page>
     </Document>

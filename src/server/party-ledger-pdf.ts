@@ -17,7 +17,7 @@ export async function ledgerPdf(l: PartyLedger): Promise<{ buffer: Buffer; filen
   const bal = l.ledger.balance;
   const buffer = await renderToBuffer(
     PartyLedgerDocument({
-      company: { name: settings.name || COMPANY.name, slogan: SLOGAN, phones: [...COMPANY.phones] },
+      company: { name: settings.name || COMPANY.name, slogan: SLOGAN, phones: [...COMPANY.phones], email: COMPANY.email, address: COMPANY.address },
       logoDataUrl,
       party: { name: l.name, mobile: l.mobile },
       asOf: formatDate(new Date()),
