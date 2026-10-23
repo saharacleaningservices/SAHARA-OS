@@ -43,6 +43,8 @@ test("pure rules: month arithmetic, 6/12-month windows, payment cadence, deep-cl
   assert.equal(nextPaymentReminder(due, { count: 0, lastAt: null }, new Date("2026-10-11T01:00:00Z")), 1);
   assert.equal(nextPaymentReminder(due, { count: 1, lastAt: new Date("2026-10-11T05:00:00Z") }, new Date("2026-10-17T05:00:00Z")), null);
   assert.equal(nextPaymentReminder(due, { count: 1, lastAt: new Date("2026-10-11T05:00:00Z") }, new Date("2026-10-18T05:00:00Z")), 2);
+  assert.equal(nextPaymentReminder(due, { count: 0, lastAt: null }, new Date("2027-01-15T00:00:00Z")), null); // 97 days overdue: old debt, no automatic message
+  assert.equal(nextPaymentReminder(due, { count: 0, lastAt: null }, new Date("2027-01-05T00:00:00Z")), 1); // 87 days: still followed up
   assert.equal(nextPaymentReminder(due, { count: 3, lastAt: new Date("2026-10-01T00:00:00Z") }, new Date("2027-01-01T00:00:00Z")), null);
   assert.deepEqual(["Full House Deep Cleaning", "Home Deep Cleaning", "Sofa Cleaning", null].map(isDeepCleaningName), [true, true, false, false]);
   assert.deepEqual([istHour(new Date("2026-10-23T04:30:00Z")), istHour(new Date("2026-10-23T14:00:00Z"))], [10, 19]);
