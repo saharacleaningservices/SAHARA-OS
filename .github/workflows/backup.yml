@@ -7,6 +7,11 @@ on:
     - cron: "30 20 * * *"
   workflow_dispatch: {}
 
+# GITHUB_TOKEN only needs to read the repo and open/close the "backup failed" issue.
+permissions:
+  contents: read
+  issues: write
+
 concurrency:
   group: sahara-os-backup
   cancel-in-progress: false
@@ -41,19 +46,85 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Delivery to Google Drive is mandatory: fail early with a clear message (no secret values printed) if the
+      # credentials/folder id are missing or malformed.
+      - name: Require Google Drive delivery configuration
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: python .github/scripts/gdrive_backup.py --check-config
+
       - name: Verify backup integrity (stdlib sqlite3 — must pass before upload)
         run: python .github/scripts/verify_backup.py "$ARCHIVE"
 
       - name: Install Google API client
         run: pip install --quiet google-api-python-client google-auth
 
-      - name: Upload to Google Drive and apply daily/monthly retention
+      # gdrive_backup.py re-reads the uploaded file from Drive and fails unless its size equals the local archive.
+      - name: Upload to Google Drive, verify size, apply daily/monthly retention
+        id: drive_upload
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
           KEEP_DAILY: "30"
           KEEP_MONTHLY: "12"
         run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
+
+      # Tell the CRM the archive was delivered AND size-verified in Drive; the CRM's stale-backup alert (26 h)
+      # measures these confirmations. Non-fatal on purpose (rollout order must never turn a good backup into a failed
+      # run); if it ever fails the CRM raises the stale alert after 26 h.
+      - name: Confirm delivery to the CRM
+        if: ${{ steps.drive_upload.conclusion == 'success' }}
+        continue-on-error: true
+        env:
+          BACKUP_URL: ${{ secrets.BACKUP_URL }}
+          BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
+        run: |
+          set -euo pipefail
+          size="$(stat -c %s "$ARCHIVE")"
+          curl -fsS --retry 3 --retry-delay 10 --retry-all-errors --max-time 60 -X POST \
+            -H "Authorization: Bearer ${BACKUP_TOKEN}" -H "Content-Type: application/json" \
+            -d "{\"fileName\":\"${ARCHIVE}\",\"sizeBytes\":${size},\"destination\":\"google-drive\"}" \
+            "${BACKUP_URL%/}/confirm"
+
+      # ── Encrypted copy + second independent off-site copy ────────────────────────────────────────────
+      # Needs the owner-created secret BACKUP_ENCRYPTION_KEY. Without it this step only warns (the plaintext Drive
+      # copy above is unaffected). With it: AES-256 (PBKDF2) encrypt, PROVE it decrypts to the identical archive,
+      # upload the .enc to the same Drive folder (retention is scoped per file kind), and keep the .enc as a GitHub
+      # Actions artifact for 30 days — a second, separately-operated location (GitHub, not Google, not the VPS).
+      # Only the ENCRYPTED file ever leaves Drive; plaintext customer data is never stored in GitHub.
+      - name: Encrypted copy (needs BACKUP_ENCRYPTION_KEY)
+        id: enc
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          KEEP_DAILY: "30"
+          KEEP_MONTHLY: "12"
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKUP_ENCRYPTION_KEY:-}" ]; then
+            echo "::warning::BACKUP_ENCRYPTION_KEY is not set - only the plaintext Drive copy exists (no encrypted or second off-site copy)."
+            echo "encrypted=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          encrypted="${ARCHIVE}.enc"
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in "$ARCHIVE" -out "$encrypted" -pass env:BACKUP_ENCRYPTION_KEY
+          openssl enc -d -aes-256-cbc -pbkdf2 -in "$encrypted" -out "$encrypted.check" -pass env:BACKUP_ENCRYPTION_KEY
+          cmp "$ARCHIVE" "$encrypted.check"
+          rm -f "$encrypted.check"
+          ls -lh "$encrypted"
+          python .github/scripts/gdrive_backup.py "$encrypted"
+          echo "encrypted=true" >> "$GITHUB_OUTPUT"
+
+      - name: Second off-site copy - GitHub artifact (encrypted file only)
+        if: ${{ steps.enc.outputs.encrypted == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahara-os-backup-encrypted
+          path: ${{ env.ARCHIVE }}.enc
+          retention-days: 30
+          if-no-files-found: error
 
       # Runs whether the job succeeded or a step above failed — the app's own
       # BackupEvent logging (src/app/api/backup/route.ts) only knows about
@@ -69,3 +140,17 @@ jobs:
           else
             echo "❌ Backup **failed** — see the job log above for which step failed (archive: \`${ARCHIVE:-not downloaded}\`)." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      # Any failed step above opens ONE GitHub Issue labelled backup-failure (repeat failures comment on it; GitHub
+      # e-mails the repo watchers). The next good run closes it. Built-in GITHUB_TOKEN only.
+      - name: Alert - backup failed
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/backup_alert.sh failure
+
+      - name: Clear alert - backup delivered
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/backup_alert.sh success
