@@ -107,3 +107,24 @@ test("the payment record and the invoice follow the new total; a payment status 
   assert.deepEqual([p2.amount, p2.paidAmount], [10620, 2000]);
   assert.ok((await db.activityLog.findFirst({ where: { jobId: job.id, action: { startsWith: "Billing updated" } } })), "audited");
 });
+
+test("post-service adjustment on a COMPLETED job: bill 7,000, customer pays 5,000 -> a 2,000 adjustment leaves Balance Due 0 and the invoice shows 5,000", async () => {
+  session = who("OPERATIONS");
+  const job = await db.job.create({ data: { jobNumber: `B-JOB-${++n}`, customerName: "Asha", customerMobile: "9000000555", address: "Flat 2", area: "Kharadi", service: "COMMERCIAL_CLEANING", scheduledDate: new Date(), scheduledTime: "10:00 AM", jobValue: 7000, status: "COMPLETED", completedAt: new Date() } as never });
+  const supervisor = job; // OPERATIONS may only touch jobs in their own scope; completed jobs are open to the billing roles below
+  void supervisor;
+  session = who("ACCOUNTS");
+  await db.payment.create({ data: { invoiceNumber: `INV-ADJ-${job.id.slice(-5)}`, jobId: job.id, clientName: "Asha", amount: 7000, paidAmount: 5000, dueDate: new Date(), status: "PENDING" } as never });
+  await db.invoice.create({ data: { invoiceNumber: `SC/INV/ADJ/${job.id.slice(-4)}`, jobId: job.id, customerName: "Asha", lineItems: JSON.stringify([{ name: "Commercial Cleaning", description: "", amount: 7000 }]), subTotal: 7000, totalAmount: 7000 } as never });
+  const r = await billing.updateJobBilling(job.id, { discountMode: "FLAT", discountValue: 2000, gstEnabled: false });
+  assert.equal(r.success, true);
+  const j = (await db.job.findUnique({ where: { id: job.id } }))!;
+  assert.deepEqual([j.jobValue, j.discountAmount], [5000, 2000]);
+  const pay = (await db.payment.findFirst({ where: { jobId: job.id } }))!;
+  assert.deepEqual([pay.amount, pay.paidAmount, pay.status], [5000, 5000, "PAID"], "payment record follows the new total and is settled");
+  const inv = (await db.invoice.findUnique({ where: { jobId: job.id } }))!;
+  assert.deepEqual([inv.totalAmount, inv.discount, inv.subTotal], [5000, 2000, 7000], "regenerated invoice: 7,000 less 2,000 = 5,000");
+  const { customerPaymentStatus } = await import("../src/server/booking-messages");
+  const st = customerPaymentStatus({ jobValue: j.jobValue, paymentPreference: null, advanceRequestedAt: null, payments: [{ amount: pay.amount, paidAmount: pay.paidAmount }] });
+  assert.deepEqual([st.status, st.paid, st.due], ["FULLY_PAID", 5000, 0], "Balance Due shows 0");
+});

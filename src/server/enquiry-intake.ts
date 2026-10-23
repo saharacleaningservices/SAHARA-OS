@@ -1,3 +1,4 @@
+import { sendEnquiryAck } from "@/server/enquiry-ack-email";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
@@ -131,6 +132,9 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
       relatedId: lead.id,
     }).catch(() => {});
   }
+
+  // First email to the customer: a plain acknowledgement only (no quote, no invoice). Background — never delays the lead.
+  void sendEnquiryAck(lead.id);
 
   return { ok: true, created: leadNumber };
 }

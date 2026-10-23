@@ -73,10 +73,12 @@ test("completion prompt offers Open Invoice, A4 PDF and Resend; the job page kee
   const sa = read("src/components/jobs/status-actions.tsx");
   assert.match(sa, /Final Invoice ready/);
   assert.match(sa, /setInvoicePrompt\(true\)/);
-  assert.match(sa, /\?print=1/);
+  assert.match(sa, /Invoice \(A4 PDF\)/);
   assert.match(sa, /ResendInvoiceLinkButton/);
   const page = read("src/app/(app)/jobs/[id]/page.tsx");
-  assert.match(page, /\$\{invoiceUrl\}\?print=1/);
+  // Owner 2026-10-23: ONE document button (the single-page A4 PDF); the old View / A4 PDF / PDF buttons are gone.
+  assert.match(page, /invoicePdfHref = job\.invoice && completed \? `\/api\/invoices\/\$\{job\.invoice\.id\}\/pdf`/);
+  assert.ok(!/> View<\/a>|> A4 PDF<\/a>|> PDF<\/a>/.test(page), "no redundant View / A4 PDF / PDF buttons");
   assert.match(page, /ResendInvoiceLinkButton jobId=\{job\.id\}/);
 });
 

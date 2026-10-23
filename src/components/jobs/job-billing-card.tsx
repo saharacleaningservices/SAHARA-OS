@@ -21,6 +21,8 @@ type Props = {
   gstEnabled: boolean;
   customerGstin: string | null;
   advance: number;
+  /** A completed job: the discount is a post-service adjustment (customer paid less than billed). */
+  completed?: boolean;
 };
 
 /** Discount (flat ₹ / %) + optional 18% GST (CGST 9% + SGST 9%) for one booking — Admin, Accounts and Operations. */
@@ -47,7 +49,8 @@ export function JobBillingCard(p: Props) {
 
   return (
     <div className="mt-3 space-y-2 rounded-lg border p-2.5 text-sm">
-      <p className="flex items-center gap-1.5 font-semibold"><Percent className="size-3.5" /> Billing: discount &amp; GST</p>
+      <p className="flex items-center gap-1.5 font-semibold"><Percent className="size-3.5" /> {p.completed ? "Billing: post-service adjustment & GST" : "Billing: discount & GST"}</p>
+      {p.completed && <p className="text-xs text-muted-foreground">Billed too much (reduced scope, goodwill)? Enter the adjustment as a flat ₹ discount — the total, the balance and the invoice update, and the invoice link can be resent.</p>}
       <div className="grid grid-cols-[auto_1fr] items-end gap-2">
         <div>
           <Label className="text-xs">Discount</Label>

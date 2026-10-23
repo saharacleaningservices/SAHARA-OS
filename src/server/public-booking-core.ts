@@ -3,6 +3,7 @@
 // wrapper that supplies the caller IP from the HTTP request. Behaviour is pinned by
 // tests/public-booking-characterisation.test.ts.
 
+import { sendEnquiryAck } from "@/server/enquiry-ack-email";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
@@ -368,6 +369,9 @@ export async function publicBookLeadCore(values: unknown, ctx: { ip: string | nu
   if (link?.siteId && !lead.siteId) {
     await db.lead.update({ where: { id: lead.id }, data: { siteId: link.siteId } }).catch(() => {});
   }
+
+  // First email to the customer: a plain acknowledgement only (no quote, no invoice) — for a NEW enquiry, not a repeat submission.
+  if (!existingOpen) void sendEnquiryAck(lead.id);
 
   // No Payment row is created here: a public request cannot prove a payment, so
   // nothing from this form is counted as collected revenue. Staff record any
