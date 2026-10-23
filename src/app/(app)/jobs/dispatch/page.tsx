@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MapPin, Navigation, Route, Users } from "lucide-react";
+import { MapPin, Navigation, Printer, Route, Users } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { requireUser } from "@/lib/current-user";
 import { getTodayDispatch } from "@/server/jobs";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
+import { istDayKey } from "@/lib/ist-days";
 import { startOfDay } from "date-fns";
 import { buildRouteLink, buildDirectionsLink, parseMapLink } from "@/lib/maps";
 
@@ -47,13 +48,20 @@ export default async function DispatchPage({
         title="Team Dispatch"
         description={`${total} job${total === 1 ? "" : "s"} on ${formatDate(day)} · grouped by area`}
         actions={
-          allRoute ? (
-            <Button asChild>
-              <a href={allRoute} target="_blank" rel="noreferrer">
-                <Route className="size-4" /> Open Full Route
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <a href={`/api/jobs/day-sheet/pdf?date=${istDayKey(day)}`} target="_blank" rel="noreferrer">
+                <Printer className="size-4" /> Print Day Sheet
               </a>
             </Button>
-          ) : undefined
+            {allRoute ? (
+              <Button asChild>
+                <a href={allRoute} target="_blank" rel="noreferrer">
+                  <Route className="size-4" /> Open Full Route
+                </a>
+              </Button>
+            ) : null}
+          </div>
         }
       />
 

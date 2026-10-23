@@ -6,6 +6,8 @@ import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { assignInvoiceToCustomer, detachInvoice, importMybillbookCsv } from "@/server/mybillbook-import";
 import { startDetailFetch, stopDetailFetch } from "@/server/mybillbook-detail";
+import { previewMybillbookCsv } from "@/server/mybillbook-import";
+import * as XLSX from "xlsx";
 
 const MAX_CSV_BYTES = 5 * 1024 * 1024;
 
@@ -64,4 +66,28 @@ export async function stopMybillbookDetailFetch() {
   if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can do this." };
   stopDetailFetch();
   return { success: true as const };
+}
+
+/** Super Admin only: turn an uploaded Excel workbook (.xlsx / .xls, first sheet) into the same CSV text the importer reads. */
+export async function convertMybillbookWorkbook(base64: string) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can import MyBillBook history." };
+  if (typeof base64 !== "string" || base64.length > MAX_CSV_BYTES * 2) return { success: false as const, error: "The file is too large (5 MB maximum)." };
+  try {
+    const wb = XLSX.read(Buffer.from(base64, "base64"), { type: "buffer", cellDates: false });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    if (!sheet) return { success: false as const, error: "The workbook has no sheet." };
+    return { success: true as const, csv: XLSX.utils.sheet_to_csv(sheet, { dateNF: "dd/mm/yyyy" }) };
+  } catch {
+    return { success: false as const, error: "That file could not be read as an Excel workbook." };
+  }
+}
+
+/** Super Admin only: what an upload contains and what importing it would do — writes nothing. */
+export async function previewMybillbookReport(csvText: string) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can import MyBillBook history." };
+  if (typeof csvText !== "string" || !csvText.trim()) return { success: false as const, error: "The file is empty." };
+  if (csvText.length > MAX_CSV_BYTES) return { success: false as const, error: "The file is too large (5 MB maximum)." };
+  return { success: true as const, preview: await previewMybillbookCsv(csvText) };
 }

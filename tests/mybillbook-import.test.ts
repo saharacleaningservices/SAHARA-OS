@@ -174,3 +174,33 @@ test("GST book: differently-worded headers + GSTIN column parse, rows are tagged
   const again = await svc.importMybillbookCsv(gstCsv, "gst2", "GST");
   assert.deepEqual([again.created, again.updated, again.unchanged], [0, 0, 2]);
 });
+
+test("importer UI backend: preview shows recognised columns + what would happen (writes nothing); Excel workbooks convert to the same rows; Admin only", async () => {
+  const XLSX = await import("xlsx");
+  const gst = `Company Name: GST CO.\n\nInvoice No,Invoice Date,Contact Name,Amount,Remaining Amount,Invoice Status,Due Date,Invoice Link,Payment Type,Party Category,Created by,Shipping Address,po_number\n81,12/09/2021,Acme Pvt Ltd,12390.0,0.0,Paid,12/09/2021,https://billbk.in/w/pvw0001,cash,,Altaf,"",""\n82,14/09/2021,Beta Corp,7080.0,7080.0,Unpaid,"",https://billbk.in/w/pvw0002,credit,,Altaf,"",""\n`;
+  session = { sub: "x", name: "Staff", email: "s@x", role: "ACCOUNTS" };
+  assert.equal((await act.previewMybillbookReport(gst)).success, false, "Accounts cannot preview/import");
+  assert.equal((await act.convertMybillbookWorkbook("AAAA")).success, false);
+  session = { sub: "a", name: "Altaf", email: "a@x", role: "ADMIN" };
+  const before = await db.mybillbookInvoice.count();
+  const r = await act.previewMybillbookReport(gst);
+  assert.equal(r.success, true);
+  const pv = (r as { success: true; preview: Awaited<ReturnType<typeof svc.previewMybillbookCsv>> }).preview;
+  assert.deepEqual([pv.headerFound, pv.missingRequired, pv.rows, pv.newRows, pv.existingRows, pv.from, pv.to, pv.unpaidCount, pv.unpaidAmount, pv.withDueDate, pv.totalAmount], [true, [], 2, 2, 0, "2021-09-12", "2021-09-14", 1, 7080, 1, 19470]);
+  assert.deepEqual(pv.linkKinds, { w: 2 });
+  assert.equal(pv.columns.find((c) => c.field === "link")!.header, "Invoice Link");
+  assert.equal(pv.columns.find((c) => c.field === "gstin")!.header, null);
+  assert.equal(await db.mybillbookInvoice.count(), before, "a preview writes nothing");
+  const noLink = await act.previewMybillbookReport("Invoice No,Invoice Date,Contact Name,Amount\n1,01/01/2024,X,5\n");
+  assert.deepEqual((noLink as { success: true; preview: typeof pv }).preview.missingRequired, ["Invoice link"]);
+  assert.equal(((await act.previewMybillbookReport("not a report")) as { success: true; preview: typeof pv }).preview.headerFound, false);
+
+  // Excel: a workbook whose first sheet is the same report becomes the same rows (dates as text dd/mm/yyyy).
+  const ws = XLSX.utils.aoa_to_sheet([["Company Name: GST CO."], [], ["Invoice No", "Invoice Date", "Contact Name", "Amount", "Remaining Amount", "Invoice Status", "Due Date", "Invoice Link"], ["81", "12/09/2021", "Acme Pvt Ltd", 12390, 0, "Paid", "12/09/2021", "https://billbk.in/w/pvw0001"]]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Sales");
+  const conv = await act.convertMybillbookWorkbook((XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer).toString("base64"));
+  assert.equal(conv.success, true);
+  const rows = parseSalesSummaryCsv((conv as { success: true; csv: string }).csv).rows;
+  assert.deepEqual(rows.map((x) => [x.invoiceNo, x.contactName, x.amount, x.invoiceKey, x.invoiceDate.toISOString().slice(0, 10)]), [["81", "Acme Pvt Ltd", 12390, "w/pvw0001", "2021-09-12"]]);
+});

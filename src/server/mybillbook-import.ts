@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 import { SERVICE_LABELS } from "@/lib/constants";
-import { indexCustomersByName, matchByName, parseSalesSummaryCsv, type ParsedInvoice } from "@/lib/mybillbook-import";
+import { describeColumns, indexCustomersByName, matchByName, parseSalesSummaryCsv, type ParsedInvoice } from "@/lib/mybillbook-import";
 import { decideLinkByPhone } from "@/lib/mybillbook-detail";
 import { normalizeMobile } from "@/server/customer-db";
 
@@ -128,4 +128,52 @@ export async function detachInvoice(invoiceKey: string) {
   if (!row) return { ok: false as const, error: "Invoice not found" };
   await db.mybillbookInvoice.update({ where: { invoiceKey }, data: { customerId: null, matchStatus: "UNMATCHED", matchMethod: null, candidateIds: null, jobId: null } });
   return { ok: true as const };
+}
+
+export type ImportPreview = {
+  headerFound: boolean;
+  columns: ReturnType<typeof describeColumns>["columns"];
+  missingRequired: string[];
+  rows: number;
+  newRows: number;
+  existingRows: number;
+  skipped: { line: number; reason: string }[];
+  from: string | null;
+  to: string | null;
+  totalAmount: number;
+  unpaidCount: number;
+  unpaidAmount: number;
+  withDueDate: number;
+  withGstin: number;
+  linkKinds: Record<string, number>;
+};
+
+/** Read-only look at an uploaded report: which columns were recognised and what an import would do. Writes nothing. */
+export async function previewMybillbookCsv(text: string): Promise<ImportPreview> {
+  const d = describeColumns(text);
+  const { rows, skipped } = parseSalesSummaryCsv(text);
+  const existing = rows.length ? await db.mybillbookInvoice.findMany({ where: { invoiceKey: { in: rows.map((r) => r.invoiceKey) } }, select: { invoiceKey: true } }) : [];
+  const known = new Set(existing.map((e) => e.invoiceKey));
+  const dates = rows.map((r) => r.invoiceDate.getTime());
+  const unpaid = rows.filter((r) => r.remaining > 0);
+  const linkKinds: Record<string, number> = {};
+  for (const r of rows) linkKinds[r.invoiceKey.split("/")[0]] = (linkKinds[r.invoiceKey.split("/")[0]] ?? 0) + 1;
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  return {
+    headerFound: d.headerFound,
+    columns: d.columns,
+    missingRequired: d.missingRequired,
+    rows: rows.length,
+    newRows: rows.filter((r) => !known.has(r.invoiceKey)).length,
+    existingRows: rows.filter((r) => known.has(r.invoiceKey)).length,
+    skipped,
+    from: dates.length ? new Date(Math.min(...dates)).toISOString().slice(0, 10) : null,
+    to: dates.length ? new Date(Math.max(...dates)).toISOString().slice(0, 10) : null,
+    totalAmount: r2(rows.reduce((s, r) => s + r.amount, 0)),
+    unpaidCount: unpaid.length,
+    unpaidAmount: r2(unpaid.reduce((s, r) => s + r.remaining, 0)),
+    withDueDate: rows.filter((r) => r.dueDate).length,
+    withGstin: rows.filter((r) => r.gstin).length,
+    linkKinds,
+  };
 }
