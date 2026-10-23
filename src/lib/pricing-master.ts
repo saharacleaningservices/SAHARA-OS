@@ -182,6 +182,9 @@ export type FestivalWindow = {
   end: string;
   /** contentId → festival price. Items without an entry keep the regular price. */
   prices: Record<string, number>;
+  /** OFFER (default) uses `prices`; SEASONAL adds `adjustPercent` % to every regular price in the window. */
+  kind?: "OFFER" | "SEASONAL";
+  adjustPercent?: number;
 };
 
 export type LivePricing = { items: PriceItem[]; festivals: FestivalWindow[] };
@@ -195,7 +198,7 @@ export function festivalForDate(festivals: FestivalWindow[], ymd: string): Festi
 
 /** Festivals still bookable on/after the given date (today), soonest first. */
 export function upcomingFestivals(festivals: FestivalWindow[], todayYmd: string): FestivalWindow[] {
-  return festivals.filter((f) => f.end >= todayYmd).sort((a, b) => a.start.localeCompare(b.start));
+  return festivals.filter((f) => f.kind !== "SEASONAL" && f.end >= todayYmd).sort((a, b) => a.start.localeCompare(b.start));
 }
 
 /** Today's calendar date in India ("YYYY-MM-DD") — festival windows are IST calendar dates. */
@@ -213,6 +216,7 @@ export type Campaign = { current: FestivalWindow; windows: FestivalWindow[]; sta
  * uses the existing FestivalOffer windows — no separate switch to maintain.
  */
 export function activeCampaign(festivals: FestivalWindow[], todayYmd: string): Campaign | null {
+  festivals = festivals.filter((f) => f.kind !== "SEASONAL"); // a seasonal surcharge is not a festival campaign
   if (!festivals.length) return null;
   const windows = [...festivals].sort((a, b) => a.start.localeCompare(b.start));
   const start = windows[0].start;
@@ -240,10 +244,14 @@ export function homeFromPrice(items: PriceItem[], festival: FestivalWindow | nul
   return v.length ? Math.min(...v) : HOME_FROM_PRICE;
 }
 
+/** A regular price with a seasonal +/- percentage applied, rounded to the nearest rupee (never below Rs 1). */
+export const seasonalPrice = (price: number, adjustPercent: number) => Math.max(1, Math.round(price * (1 + adjustPercent / 100)));
+
 /** Unit price for an item under a festival (or regular when null / no festival price). */
 export function unitPriceFor(item: PriceItem, festival: FestivalWindow | null): number | null {
   if (INSPECTION_ONLY_IDS.has(item.contentId)) return null; // inspection-only: never priced, even if a DB row exists
   if (festival && festival.prices[item.contentId] != null) return festival.prices[item.contentId];
+  if (festival?.kind === "SEASONAL" && festival.adjustPercent && item.price != null) return seasonalPrice(item.price, festival.adjustPercent);
   return item.price;
 }
 

@@ -1595,6 +1595,10 @@ model FestivalOffer {
   startDate     DateTime
   endDate       DateTime
   isActive      Boolean         @default(true)
+  // OFFER = the festival package prices below; SEASONAL = a percentage added to (+) or taken off (-) every regular price in the window
+  // (peak-season surcharge or a flat seasonal discount). Seasonal windows never switch the public pages into festival-campaign mode.
+  kind          String          @default("OFFER")
+  adjustPercent Float           @default(0)
   updatedByName String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt

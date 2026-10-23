@@ -20,8 +20,18 @@ export type FestivalOfferModel = runtime.Types.Result.DefaultSelection<Prisma.$F
 
 export type AggregateFestivalOffer = {
   _count: FestivalOfferCountAggregateOutputType | null
+  _avg: FestivalOfferAvgAggregateOutputType | null
+  _sum: FestivalOfferSumAggregateOutputType | null
   _min: FestivalOfferMinAggregateOutputType | null
   _max: FestivalOfferMaxAggregateOutputType | null
+}
+
+export type FestivalOfferAvgAggregateOutputType = {
+  adjustPercent: number | null
+}
+
+export type FestivalOfferSumAggregateOutputType = {
+  adjustPercent: number | null
 }
 
 export type FestivalOfferMinAggregateOutputType = {
@@ -30,6 +40,8 @@ export type FestivalOfferMinAggregateOutputType = {
   startDate: Date | null
   endDate: Date | null
   isActive: boolean | null
+  kind: string | null
+  adjustPercent: number | null
   updatedByName: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -41,6 +53,8 @@ export type FestivalOfferMaxAggregateOutputType = {
   startDate: Date | null
   endDate: Date | null
   isActive: boolean | null
+  kind: string | null
+  adjustPercent: number | null
   updatedByName: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,6 +66,8 @@ export type FestivalOfferCountAggregateOutputType = {
   startDate: number
   endDate: number
   isActive: number
+  kind: number
+  adjustPercent: number
   updatedByName: number
   createdAt: number
   updatedAt: number
@@ -59,12 +75,22 @@ export type FestivalOfferCountAggregateOutputType = {
 }
 
 
+export type FestivalOfferAvgAggregateInputType = {
+  adjustPercent?: true
+}
+
+export type FestivalOfferSumAggregateInputType = {
+  adjustPercent?: true
+}
+
 export type FestivalOfferMinAggregateInputType = {
   id?: true
   name?: true
   startDate?: true
   endDate?: true
   isActive?: true
+  kind?: true
+  adjustPercent?: true
   updatedByName?: true
   createdAt?: true
   updatedAt?: true
@@ -76,6 +102,8 @@ export type FestivalOfferMaxAggregateInputType = {
   startDate?: true
   endDate?: true
   isActive?: true
+  kind?: true
+  adjustPercent?: true
   updatedByName?: true
   createdAt?: true
   updatedAt?: true
@@ -87,6 +115,8 @@ export type FestivalOfferCountAggregateInputType = {
   startDate?: true
   endDate?: true
   isActive?: true
+  kind?: true
+  adjustPercent?: true
   updatedByName?: true
   createdAt?: true
   updatedAt?: true
@@ -131,6 +161,18 @@ export type FestivalOfferAggregateArgs<ExtArgs extends runtime.Types.Extensions.
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: FestivalOfferAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: FestivalOfferSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: FestivalOfferMinAggregateInputType
@@ -161,6 +203,8 @@ export type FestivalOfferGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   _count?: FestivalOfferCountAggregateInputType | true
+  _avg?: FestivalOfferAvgAggregateInputType
+  _sum?: FestivalOfferSumAggregateInputType
   _min?: FestivalOfferMinAggregateInputType
   _max?: FestivalOfferMaxAggregateInputType
 }
@@ -171,10 +215,14 @@ export type FestivalOfferGroupByOutputType = {
   startDate: Date
   endDate: Date
   isActive: boolean
+  kind: string
+  adjustPercent: number
   updatedByName: string | null
   createdAt: Date
   updatedAt: Date
   _count: FestivalOfferCountAggregateOutputType | null
+  _avg: FestivalOfferAvgAggregateOutputType | null
+  _sum: FestivalOfferSumAggregateOutputType | null
   _min: FestivalOfferMinAggregateOutputType | null
   _max: FestivalOfferMaxAggregateOutputType | null
 }
@@ -203,6 +251,8 @@ export type FestivalOfferWhereInput = {
   startDate?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
   endDate?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
   isActive?: Prisma.BoolFilter<"FestivalOffer"> | boolean
+  kind?: Prisma.StringFilter<"FestivalOffer"> | string
+  adjustPercent?: Prisma.FloatFilter<"FestivalOffer"> | number
   updatedByName?: Prisma.StringNullableFilter<"FestivalOffer"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
@@ -215,6 +265,8 @@ export type FestivalOfferOrderByWithRelationInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  adjustPercent?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -230,6 +282,8 @@ export type FestivalOfferWhereUniqueInput = Prisma.AtLeast<{
   startDate?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
   endDate?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
   isActive?: Prisma.BoolFilter<"FestivalOffer"> | boolean
+  kind?: Prisma.StringFilter<"FestivalOffer"> | string
+  adjustPercent?: Prisma.FloatFilter<"FestivalOffer"> | number
   updatedByName?: Prisma.StringNullableFilter<"FestivalOffer"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FestivalOffer"> | Date | string
@@ -242,12 +296,16 @@ export type FestivalOfferOrderByWithAggregationInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  adjustPercent?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FestivalOfferCountOrderByAggregateInput
+  _avg?: Prisma.FestivalOfferAvgOrderByAggregateInput
   _max?: Prisma.FestivalOfferMaxOrderByAggregateInput
   _min?: Prisma.FestivalOfferMinOrderByAggregateInput
+  _sum?: Prisma.FestivalOfferSumOrderByAggregateInput
 }
 
 export type FestivalOfferScalarWhereWithAggregatesInput = {
@@ -259,6 +317,8 @@ export type FestivalOfferScalarWhereWithAggregatesInput = {
   startDate?: Prisma.DateTimeWithAggregatesFilter<"FestivalOffer"> | Date | string
   endDate?: Prisma.DateTimeWithAggregatesFilter<"FestivalOffer"> | Date | string
   isActive?: Prisma.BoolWithAggregatesFilter<"FestivalOffer"> | boolean
+  kind?: Prisma.StringWithAggregatesFilter<"FestivalOffer"> | string
+  adjustPercent?: Prisma.FloatWithAggregatesFilter<"FestivalOffer"> | number
   updatedByName?: Prisma.StringNullableWithAggregatesFilter<"FestivalOffer"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FestivalOffer"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FestivalOffer"> | Date | string
@@ -270,6 +330,8 @@ export type FestivalOfferCreateInput = {
   startDate: Date | string
   endDate: Date | string
   isActive?: boolean
+  kind?: string
+  adjustPercent?: number
   updatedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -282,6 +344,8 @@ export type FestivalOfferUncheckedCreateInput = {
   startDate: Date | string
   endDate: Date | string
   isActive?: boolean
+  kind?: string
+  adjustPercent?: number
   updatedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -294,6 +358,8 @@ export type FestivalOfferUpdateInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  adjustPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -306,6 +372,8 @@ export type FestivalOfferUncheckedUpdateInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  adjustPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -318,6 +386,8 @@ export type FestivalOfferCreateManyInput = {
   startDate: Date | string
   endDate: Date | string
   isActive?: boolean
+  kind?: string
+  adjustPercent?: number
   updatedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -329,6 +399,8 @@ export type FestivalOfferUpdateManyMutationInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  adjustPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -340,6 +412,8 @@ export type FestivalOfferUncheckedUpdateManyInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  adjustPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -351,9 +425,15 @@ export type FestivalOfferCountOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  adjustPercent?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type FestivalOfferAvgOrderByAggregateInput = {
+  adjustPercent?: Prisma.SortOrder
 }
 
 export type FestivalOfferMaxOrderByAggregateInput = {
@@ -362,6 +442,8 @@ export type FestivalOfferMaxOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  adjustPercent?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -373,9 +455,15 @@ export type FestivalOfferMinOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
+  adjustPercent?: Prisma.SortOrder
   updatedByName?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type FestivalOfferSumOrderByAggregateInput = {
+  adjustPercent?: Prisma.SortOrder
 }
 
 export type FestivalOfferScalarRelationFilter = {
@@ -403,6 +491,8 @@ export type FestivalOfferCreateWithoutPricesInput = {
   startDate: Date | string
   endDate: Date | string
   isActive?: boolean
+  kind?: string
+  adjustPercent?: number
   updatedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -414,6 +504,8 @@ export type FestivalOfferUncheckedCreateWithoutPricesInput = {
   startDate: Date | string
   endDate: Date | string
   isActive?: boolean
+  kind?: string
+  adjustPercent?: number
   updatedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -441,6 +533,8 @@ export type FestivalOfferUpdateWithoutPricesInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  adjustPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -452,6 +546,8 @@ export type FestivalOfferUncheckedUpdateWithoutPricesInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  adjustPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   updatedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -494,6 +590,8 @@ export type FestivalOfferSelect<ExtArgs extends runtime.Types.Extensions.Interna
   startDate?: boolean
   endDate?: boolean
   isActive?: boolean
+  kind?: boolean
+  adjustPercent?: boolean
   updatedByName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -507,6 +605,8 @@ export type FestivalOfferSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   startDate?: boolean
   endDate?: boolean
   isActive?: boolean
+  kind?: boolean
+  adjustPercent?: boolean
   updatedByName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -518,6 +618,8 @@ export type FestivalOfferSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   startDate?: boolean
   endDate?: boolean
   isActive?: boolean
+  kind?: boolean
+  adjustPercent?: boolean
   updatedByName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -529,12 +631,14 @@ export type FestivalOfferSelectScalar = {
   startDate?: boolean
   endDate?: boolean
   isActive?: boolean
+  kind?: boolean
+  adjustPercent?: boolean
   updatedByName?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FestivalOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "startDate" | "endDate" | "isActive" | "updatedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["festivalOffer"]>
+export type FestivalOfferOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "startDate" | "endDate" | "isActive" | "kind" | "adjustPercent" | "updatedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["festivalOffer"]>
 export type FestivalOfferInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   prices?: boolean | Prisma.FestivalOffer$pricesArgs<ExtArgs>
   _count?: boolean | Prisma.FestivalOfferCountOutputTypeDefaultArgs<ExtArgs>
@@ -553,6 +657,8 @@ export type $FestivalOfferPayload<ExtArgs extends runtime.Types.Extensions.Inter
     startDate: Date
     endDate: Date
     isActive: boolean
+    kind: string
+    adjustPercent: number
     updatedByName: string | null
     createdAt: Date
     updatedAt: Date
@@ -985,6 +1091,8 @@ export interface FestivalOfferFieldRefs {
   readonly startDate: Prisma.FieldRef<"FestivalOffer", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"FestivalOffer", 'DateTime'>
   readonly isActive: Prisma.FieldRef<"FestivalOffer", 'Boolean'>
+  readonly kind: Prisma.FieldRef<"FestivalOffer", 'String'>
+  readonly adjustPercent: Prisma.FieldRef<"FestivalOffer", 'Float'>
   readonly updatedByName: Prisma.FieldRef<"FestivalOffer", 'String'>
   readonly createdAt: Prisma.FieldRef<"FestivalOffer", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FestivalOffer", 'DateTime'>

@@ -32,6 +32,8 @@ export const getLivePricing = cache(async (): Promise<LivePricing> => {
       start: ymd(o.startDate),
       end: ymd(o.endDate),
       prices: Object.fromEntries(o.prices.map((x) => [x.contentId, x.price])),
+      kind: o.kind === "SEASONAL" ? ("SEASONAL" as const) : ("OFFER" as const),
+      adjustPercent: o.adjustPercent,
     }));
     return { items, festivals };
   } catch (e) {
