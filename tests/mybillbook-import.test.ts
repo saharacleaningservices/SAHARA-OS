@@ -204,3 +204,32 @@ test("importer UI backend: preview shows recognised columns + what would happen 
   const rows = parseSalesSummaryCsv((conv as { success: true; csv: string }).csv).rows;
   assert.deepEqual(rows.map((x) => [x.invoiceNo, x.contactName, x.amount, x.invoiceKey, x.invoiceDate.toISOString().slice(0, 10)]), [["81", "Acme Pvt Ltd", 12390, "w/pvw0001", "2021-09-12"]]);
 });
+
+test("edge cases: date layouts incl. Excel serials, BOM + CRLF, Indian-format amounts, Total footer rows, multi-sheet Excel with real date cells", async () => {
+  const iso = (s: string) => parseDmy(s)?.toISOString().slice(0, 10) ?? null;
+  assert.deepEqual(["21/10/2026", "21-10-2026", "21.10.26", "2026-10-21", "21 Oct 2026", "21-Oct-26", "2026-10-21T00:00:00.000Z", "46316"].map(iso), Array(8).fill("2026-10-21"));
+  assert.deepEqual(["", "31/04/2026", "10/21/2026", "99999", "yesterday", "21/10/1999"].map(iso), [null, null, null, null, null, null]);
+
+  const text = `\uFEFFCompany Name: X\r\n\r\nInvoice Number,Date,Party Name,Total Amount,Balance Amount,Status,Invoice Link\r\n1,05/08/2024,"Acme, Pvt Ltd","1,23,456.50","₹ 1,000",Unpaid,https://billbk.in/w/edge001\r\n2,2024-08-06,Beta,5900,0,Paid,https://mybillbook.in/cpp/edge002\r\nTotal,,,129356.50,,,\r\n,,,,,,\r\n`;
+  const p = parseSalesSummaryCsv(text);
+  assert.equal(p.skipped.length, 0, JSON.stringify(p.skipped));
+  assert.deepEqual(p.rows.map((r) => [r.invoiceNo, r.contactName, r.amount, r.remaining, r.status, r.invoiceKey]), [["1", "Acme, Pvt Ltd", 123456.5, 1000, "Unpaid", "w/edge001"], ["2", "Beta", 5900, 0, "Paid", "cpp/edge002"]]);
+
+  // Excel: a cover sheet first, the report on the second sheet, real date cells shown in the US layout.
+  const XLSX = await import("xlsx");
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([["Summary only"], ["nothing here"]]), "Cover");
+  const ws = XLSX.utils.aoa_to_sheet([["Sales Summary Report"], [], ["Invoice No", "Invoice Date", "Contact Name", "Amount", "Remaining Amount", "Invoice Status", "Invoice Link"], ["7", new Date(Date.UTC(2026, 9, 21, 6, 30)), "Gamma", 2500, 0, "Paid", "https://billbk.in/w/edge007"], ["Total", null, null, 2500, null, null, null]], { cellDates: true });
+  ws["B4"].z = "m/d/yy"; // shown as 10/21/26 in Excel
+  XLSX.utils.book_append_sheet(wb, ws, "Sales");
+  session = { sub: "a", name: "Altaf", email: "a@x", role: "ADMIN" };
+  const conv = await act.convertMybillbookWorkbook((XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer).toString("base64"));
+  assert.equal(conv.success, true, JSON.stringify(conv));
+  const rows = parseSalesSummaryCsv((conv as { success: true; csv: string }).csv).rows;
+  assert.deepEqual(rows.map((r) => [r.invoiceNo, r.invoiceDate.toISOString().slice(0, 10), r.amount]), [["7", "2026-10-21", 2500]]);
+  const none = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(none, XLSX.utils.aoa_to_sheet([["x"]]), "S");
+  const bad = await act.convertMybillbookWorkbook((XLSX.write(none, { type: "buffer", bookType: "xlsx" }) as Buffer).toString("base64"));
+  assert.equal(bad.success, false);
+  assert.equal((await act.convertMybillbookWorkbook(Buffer.from("not a workbook at all").toString("base64"))).success === true, false);
+});

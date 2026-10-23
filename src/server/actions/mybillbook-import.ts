@@ -8,6 +8,7 @@ import { assignInvoiceToCustomer, detachInvoice, importMybillbookCsv } from "@/s
 import { startDetailFetch, stopDetailFetch } from "@/server/mybillbook-detail";
 import { previewMybillbookCsv } from "@/server/mybillbook-import";
 import * as XLSX from "xlsx";
+import Papa from "papaparse";
 
 const MAX_CSV_BYTES = 5 * 1024 * 1024;
 
@@ -74,10 +75,16 @@ export async function convertMybillbookWorkbook(base64: string) {
   if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can import MyBillBook history." };
   if (typeof base64 !== "string" || base64.length > MAX_CSV_BYTES * 2) return { success: false as const, error: "The file is too large (5 MB maximum)." };
   try {
-    const wb = XLSX.read(Buffer.from(base64, "base64"), { type: "buffer", cellDates: false });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    if (!sheet) return { success: false as const, error: "The workbook has no sheet." };
-    return { success: true as const, csv: XLSX.utils.sheet_to_csv(sheet, { dateNF: "dd/mm/yyyy" }) };
+    // Cells are read raw: an Excel date arrives as its serial number (the importer converts it), never as the "10/21/26" text a US-style
+    // cell format would print — that text could silently swap day and month. The first sheet that has the report header is used.
+    const wb = XLSX.read(Buffer.from(base64, "base64"), { type: "buffer" });
+    if (!wb.SheetNames.length) return { success: false as const, error: "The workbook has no sheet." };
+    for (const name of wb.SheetNames) {
+      const grid = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[name], { header: 1, raw: true, blankrows: false, defval: "" });
+      const csv = Papa.unparse(grid.map((r) => r.map((v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v))) as unknown[][]);
+      if (/^invoice (no|number)\b/im.test(csv)) return { success: true as const, csv };
+    }
+    return { success: false as const, error: "No sheet in this workbook has an “Invoice No” header row." };
   } catch {
     return { success: false as const, error: "That file could not be read as an Excel workbook." };
   }

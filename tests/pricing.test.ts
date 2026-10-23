@@ -739,7 +739,7 @@ test("/booking UI: new headline + stacked numbers, price line without service na
   assert.match(kit, /\+91 \{n\.slice\(0, 5\)\} \{n\.slice\(5\)\}/, "numbers formatted +91 89565 67130");
   assert.match(kit, /w-\[88px\][\s\S]*w-\[88px\]/, "Call + WhatsApp buttons share one width");
   for (const id of ["ft-location", "ft-services", "ft-trust"]) assert.ok(kit.includes(id), `footer block ${id}`);
-  for (const frag of ["Open in Google Maps", "mailto:${CONTACT.email}", "Serving Pune Since 2012", "COMPANY.gstin", "/privacy-policy", "/terms"]) assert.ok(kit.includes(frag), frag);
+  for (const frag of ["mailto:${CONTACT.email}", "Serving Pune Since 2012", "COMPANY.gstin", "/privacy-policy", "/terms"]) assert.ok(kit.includes(frag), frag);
   for (const href of ["/home-deep-cleaning-pune#price-selector", "/commercial-cleaning-pune", "/interior-painting-pune", "/pest-control-pune", "/housekeeping-services"]) assert.ok(kit.includes(href), `footer link ${href}`);
 });
 
@@ -1094,7 +1094,8 @@ test("Footers: direct Google Maps listing, clickable email and website", async (
     assert.match(src, /href=\{WEBSITE_URL\}[^>]*target="_blank"/, `${f}: clickable website`);
     assert.match(src, /www\.saharacleaningservices\.com/, `${f}: website shown`);
   }
-  assert.match(read("src/components/public/landing-kit.tsx"), /href=\{GOOGLE_MAPS_URL\}[\s\S]{0,500}📍 Open in Google Maps/);
+  // The landing footer's separate "Open in Google Maps" button was removed on purpose (commit 9e8d2ab): the page keeps the embedded map card.
+  assert.doesNotMatch(read("src/components/public/landing-kit.tsx"), /Open in Google Maps/);
   assert.match(read("src/components/public/ppc-landing.tsx"), /href=\{GOOGLE_MAPS_URL\}/);
   for (const f of ["src/components/public/landing-kit.tsx", "src/components/public/ppc-landing.tsx"]) assert.doesNotMatch(read(f), /maps\/search\/\?api=1/, `${f}: no search-query map link left`);
 });
