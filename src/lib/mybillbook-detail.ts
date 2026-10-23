@@ -2,7 +2,7 @@
 // balance, customer name / mobile / address. Pure functions: no database, no network. No login is involved: the link id is the whole key
 // (the public page sends it as a `token` header), so nothing secret is read, stored or needed.
 
-export type InvoiceLine = { name: string; qty: number; rate: number; amount: number; description: string | null };
+export type InvoiceLine = { name: string; qty: number; rate: number; amount: number; description: string | null; gstPercent: number };
 
 export type InvoiceDetail = {
   invoiceNumber: string;
@@ -11,8 +11,13 @@ export type InvoiceDetail = {
   /** 10 digits, or null when the invoice carries no valid mobile number. */
   partyMobile: string | null;
   partyAddress: string | null;
+  /** The customer's GSTIN when the invoice carries one (B2B). */
+  partyGstin: string | null;
   lines: InvoiceLine[];
   total: number;
+  /** GST contained in the total (0 for an invoice without tax) and the amount before it. */
+  gstAmount: number;
+  taxableAmount: number;
   remaining: number;
   discount: number;
   paymentMode: string | null;
@@ -76,8 +81,12 @@ export function parseInvoiceDetail(payload: Record<string, unknown>): InvoiceDet
       rate: num(i.price_per_unit),
       amount: num(i.item_final_amount),
       description: str(i.description, 500) || null,
+      gstPercent: i.is_tax_applicable === false ? 0 : num(i.gst_percentage),
     }))
     .filter((l) => l.name);
+  // item_final_amount is what the customer pays for the line; when the line is taxed, the GST inside it is amount × r / (100 + r).
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const gstAmount = round2(lines.reduce((t, l) => t + (l.gstPercent > 0 ? (l.amount * l.gstPercent) / (100 + l.gstPercent) : 0), 0));
   const address = [str(bill.street_address, 200), str(bill.city, 80), str(bill.pincode, 12)].filter(Boolean).join(", ");
   const invoiceNumber = str(v.invoice_number, 80);
   const invoiceDate = str(v.invoice_date, 10);
@@ -88,8 +97,11 @@ export function parseInvoiceDetail(payload: Record<string, unknown>): InvoiceDet
     partyName: str(party.name, 160) || str(bill.customer_name, 160),
     partyMobile: toMobile10(party.mobile_number),
     partyAddress: address || null,
+    partyGstin: /^[0-9A-Z]{15}$/i.test(str(party.gst_number, 20)) ? str(party.gst_number, 20).toUpperCase() : null,
     lines,
     total: num(v.total_amount),
+    gstAmount,
+    taxableAmount: round2(num(v.total_amount) - gstAmount),
     remaining: num(v.remaining_amount),
     discount: num(v.discount),
     paymentMode: str(v.payment_mode, 40) || null,
@@ -132,7 +144,7 @@ export type DetailLinkDecision =
  */
 export function decideLinkByPhone(row: DetailLinkInput, phoneCustomerId: string | null): DetailLinkDecision {
   if (!phoneCustomerId) return { action: "none" };
-  if (row.matchStatus === "MANUAL" || row.matchMethod === "INVOICE_NO" || row.matchMethod === "PHONE") return { action: "none" };
+  if (row.matchStatus === "MANUAL" || row.matchMethod === "INVOICE_NO" || row.matchMethod === "PHONE" || row.matchMethod === "AUTO_CREATED") return { action: "none" };
   if (row.matchStatus === "MATCHED" && row.customerId) {
     if (row.customerId === phoneCustomerId) return { action: "none" };
     return { action: "review", candidateIds: [row.customerId, phoneCustomerId] };

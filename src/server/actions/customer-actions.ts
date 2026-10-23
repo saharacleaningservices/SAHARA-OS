@@ -258,5 +258,30 @@ export async function getRepeatCustomerSummary(mobile: string) {
         contactType: master?.contactType ?? "CUSTOMER",
         isRepeat: !!master?.isRepeat || jobs.length >= 2,
         sites,
+        recentServices: await recentServicesFor(master?.id ?? null, jobs, payments, session.role === "ADMIN" || session.role === "ACCOUNTS"),
   };
+}
+
+export type RecentService = { date: Date; service: string; paid: number | null; source: "CRM" | "MYBILLBOOK" };
+
+/**
+ * The customer's last three services for quick rate reference on the quotation screen: CRM jobs (amount actually paid) plus the past
+ * MyBillBook invoices attached to them (amount billed less balance). A MyBillBook invoice that already belongs to a CRM job is not
+ * listed twice. Money is shown to Super Admin / Accounts only.
+ */
+async function recentServicesFor(
+  customerId: string | null,
+  jobs: { id: string; service: string; scheduledDate: Date }[],
+  payments: { jobId: string | null; status: string; paidAmount: number }[],
+  showMoney: boolean,
+): Promise<RecentService[]> {
+  const { SERVICE_LABELS } = await import("@/lib/constants");
+  const paidByJob = new Map<string, number>();
+  for (const p of payments) if (p.jobId && p.status === "PAID") paidByJob.set(p.jobId, (paidByJob.get(p.jobId) ?? 0) + p.paidAmount);
+  const rows: RecentService[] = jobs.map((j) => ({ date: j.scheduledDate, service: SERVICE_LABELS[j.service as keyof typeof SERVICE_LABELS] ?? j.service, paid: showMoney ? (paidByJob.get(j.id) ?? 0) : null, source: "CRM" as const }));
+  if (customerId) {
+    const past = await db.mybillbookInvoice.findMany({ where: { customerId, jobId: null }, orderBy: { invoiceDate: "desc" }, take: 3, select: { invoiceDate: true, serviceName: true, amount: true, remaining: true } });
+    for (const r of past) rows.push({ date: r.invoiceDate, service: r.serviceName ?? "Service (MyBillBook invoice)", paid: showMoney ? Math.max(0, r.amount - r.remaining) : null, source: "MYBILLBOOK" });
+  }
+  return rows.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
 }

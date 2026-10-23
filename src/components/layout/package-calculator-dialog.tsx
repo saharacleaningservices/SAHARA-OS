@@ -14,7 +14,7 @@ import { attachPackageToLead, getPackageCalculatorAccess, searchCustomersForCalc
 import { getRepeatCustomerSummary } from "@/server/actions/customer-actions";
 import { createLead } from "@/server/actions/leads";
 import { LEAD_SOURCES } from "@/lib/validation";
-import { cn } from "@/lib/utils";
+import { cn, formatDate, formatINR } from "@/lib/utils";
 
 type Summary = NonNullable<Awaited<ReturnType<typeof getRepeatCustomerSummary>>>;
 const inr = (n: number) => `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — paise only when present
@@ -236,10 +236,25 @@ export function PackageCalculatorButton({ prefill, variant = "chip", label = "Pa
                   )}
                   {customer && (
                     <div className="flex flex-wrap items-center gap-1.5 rounded-md bg-primary/5 px-2.5 py-1.5 text-xs">
-                      <span className="font-semibold">Existing customer</span>
+                      <span className="rounded-full bg-primary px-2 py-0.5 font-semibold text-primary-foreground">Existing Customer</span>
                       <ContactTypeBadge type={customer.contactType} />
                       {customer.isRepeat && <RepeatBadge partner={customer.contactType !== "CUSTOMER"} />}
                       <span className="text-muted-foreground">{customer.jobCount} job{customer.jobCount === 1 ? "" : "s"} · {customer.leadCount} enquir{customer.leadCount === 1 ? "y" : "ies"}</span>
+                    </div>
+                  )}
+                  {customer && customer.recentServices.length > 0 && (
+                    <div className="rounded-md border px-2.5 py-1.5 text-xs" aria-label="Past services">
+                      <p className="mb-1 font-semibold">Last {customer.recentServices.length} service{customer.recentServices.length === 1 ? "" : "s"}</p>
+                      <ul className="space-y-0.5">
+                        {customer.recentServices.map((r, i) => (
+                          <li key={i} className="flex items-center justify-between gap-2">
+                            <span className="min-w-0 truncate">
+                              <span className="text-muted-foreground">{formatDate(r.date)}</span> · {r.service}
+                            </span>
+                            {r.paid !== null && <span className="shrink-0 tabular-nums font-medium">{formatINR(r.paid)}</span>}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                   {digits.length === 10 && (
