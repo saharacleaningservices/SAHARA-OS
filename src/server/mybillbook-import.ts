@@ -18,15 +18,15 @@ export type ImportSummary = {
   skipped: { line: number; reason: string }[];
 };
 
-const same = (a: ParsedInvoice, r: { invoiceDate: Date; contactName: string; amount: number; remaining: number; status: string; invoiceLink: string; paymentType: string | null; createdByName: string | null }) =>
-  a.invoiceDate.getTime() === r.invoiceDate.getTime() && a.contactName === r.contactName && a.amount === r.amount && a.remaining === r.remaining && a.status === r.status && a.invoiceLink === r.invoiceLink && a.paymentType === r.paymentType && a.createdByName === r.createdByName;
+const same = (dataset: string, a: ParsedInvoice, r: { invoiceDate: Date; contactName: string; amount: number; remaining: number; status: string; invoiceLink: string; paymentType: string | null; createdByName: string | null; gstin: string | null; dataset: string }) =>
+  a.invoiceDate.getTime() === r.invoiceDate.getTime() && a.contactName === r.contactName && a.amount === r.amount && a.remaining === r.remaining && a.status === r.status && a.invoiceLink === r.invoiceLink && a.paymentType === r.paymentType && a.createdByName === r.createdByName && a.gstin === r.gstin && dataset === r.dataset;
 
 /**
  * Re-runnable: an invoice number already stored is UPDATED in place (amount / balance / status / link follow MyBillBook), never added a
  * second time. A customer link that was already made (automatically or by an admin) is never moved by a re-import; rows still waiting
  * for a match are matched again, because new customers may have been added since.
  */
-export async function importMybillbookCsv(text: string, batchId: string): Promise<ImportSummary> {
+export async function importMybillbookCsv(text: string, batchId: string, dataset: "B2C" | "GST" = "B2C"): Promise<ImportSummary> {
   const { rows, skipped } = parseSalesSummaryCsv(text);
   const summary: ImportSummary = { rowsInFile: rows.length, created: 0, updated: 0, unchanged: 0, matched: 0, needsReview: 0, unmatched: 0, skipped };
   if (!rows.length) return summary;
@@ -54,7 +54,7 @@ export async function importMybillbookCsv(text: string, batchId: string): Promis
 
   for (const r of rows) {
     const old = existing.get(r.invoiceKey);
-    const data = { invoiceNo: r.invoiceNo, invoiceDate: r.invoiceDate, contactName: r.contactName, amount: r.amount, remaining: r.remaining, status: r.status, invoiceLink: r.invoiceLink, paymentType: r.paymentType, createdByName: r.createdByName };
+    const data = { invoiceNo: r.invoiceNo, invoiceDate: r.invoiceDate, contactName: r.contactName, amount: r.amount, remaining: r.remaining, status: r.status, invoiceLink: r.invoiceLink, paymentType: r.paymentType, createdByName: r.createdByName, gstin: r.gstin ?? old?.gstin ?? null, dataset };
 
     const alreadyLinked = !!old && !!old.customerId && (old.matchStatus === "MATCHED" || old.matchStatus === "MANUAL");
     let link: { customerId: string | null; matchStatus: string; matchMethod: string | null; candidateIds: string | null; jobId: string | null; serviceName: string | null };
@@ -91,7 +91,7 @@ export async function importMybillbookCsv(text: string, batchId: string): Promis
       summary.created += 1;
     } else {
       const linkChanged = old.customerId !== link.customerId || old.matchStatus !== link.matchStatus || (old.candidateIds ?? null) !== link.candidateIds || old.jobId !== link.jobId;
-      if (same(r, old) && !linkChanged) {
+      if (same(dataset, r, old) && !linkChanged) {
         summary.unchanged += 1;
       } else {
         await db.mybillbookInvoice.update({ where: { invoiceKey: r.invoiceKey }, data: { ...data, ...link, importBatchId: batchId } });

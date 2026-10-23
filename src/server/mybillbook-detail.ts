@@ -140,7 +140,7 @@ async function readOne(row: Row, doFetch: typeof fetch, customerByMobile: Map<st
       mobile: detail.partyMobile,
       name: detail.partyName || row.contactName,
       address: detail.partyAddress,
-      contactType: detail.partyGstin ? "CORPORATE" : "CUSTOMER",
+      contactType: detail.partyGstin || row.gstin ? "CORPORATE" : "CUSTOMER",
       isRepeat: true,
       source: "MYBILLBOOK_IMPORT",
     });
@@ -167,6 +167,7 @@ async function readOne(row: Row, doFetch: typeof fetch, customerByMobile: Map<st
       detailJson: JSON.stringify(detail),
       partyMobile: detail.partyMobile,
       partyAddress: detail.partyAddress,
+      gstin: detail.partyGstin ?? row.gstin,
       serviceName: serviceLabel(detail.lines) ?? row.serviceName,
       ...link,
     },

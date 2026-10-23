@@ -6489,6 +6489,8 @@ export const MybillbookInvoiceScalarFieldEnum = {
   detailError: 'detailError',
   partyMobile: 'partyMobile',
   partyAddress: 'partyAddress',
+  dataset: 'dataset',
+  gstin: 'gstin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

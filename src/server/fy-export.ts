@@ -51,7 +51,7 @@ async function salesLines(fy: string): Promise<Line[]> {
       no: m.invoiceNo,
       party: m.customer?.name ?? d?.partyName ?? m.contactName,
       mobile: m.customer?.mobile ?? m.partyMobile ?? "",
-      gstin: d?.partyGstin ?? "",
+      gstin: d?.partyGstin ?? m.gstin ?? "",
       service: m.serviceName ?? "",
       taxable: r2(m.amount - (d?.gstAmount ?? 0)),
       gst: r2(d?.gstAmount ?? 0),
@@ -59,7 +59,7 @@ async function salesLines(fy: string): Promise<Line[]> {
       total: r2(m.amount),
       paid: r2(Math.max(0, m.amount - m.remaining)),
       status: m.status,
-      source: "MyBillBook",
+      source: m.dataset === "GST" ? "MyBillBook GST" : "MyBillBook",
       crmJob: m.jobId ? "Yes" : "",
     });
   }

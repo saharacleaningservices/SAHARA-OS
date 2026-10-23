@@ -161,3 +161,16 @@ test("a reused invoice number keeps BOTH invoices (real file: number 53 on two d
   assert.ok(both.every((x) => x.customerId !== cust.id && x.jobId === null), "the shared number is not matched through the CRM payment");
   void job;
 });
+
+test("GST book: differently-worded headers + GSTIN column parse, rows are tagged GST, re-import with the B2C book never duplicates or retags a link", async () => {
+  const gstCsv = `Company Name: GST CO.\n\nInvoice Number,Date,Party Name,GSTIN,Total Amount,Balance Amount,Status,Invoice Link\nG/1,05/08/2024,Acme Traders Pvt Ltd,27ABCDE1234F1Z5,11800,0,Paid,https://mybillbook.in/i/gst0001\nG/2,06/08/2024,Beta Corp,,5900,5900,Unpaid,https://mybillbook.in/i/gst0002\n`;
+  const p = parseSalesSummaryCsv(gstCsv);
+  assert.equal(p.skipped.length, 0);
+  assert.deepEqual(p.rows.map((r) => [r.invoiceNo, r.contactName, r.amount, r.remaining, r.status, r.gstin]), [["G/1", "Acme Traders Pvt Ltd", 11800, 0, "Paid", "27ABCDE1234F1Z5"], ["G/2", "Beta Corp", 5900, 5900, "Unpaid", null]]);
+  const s = await svc.importMybillbookCsv(gstCsv, "gst1", "GST");
+  assert.equal(s.created, 2);
+  const row = await db.mybillbookInvoice.findUniqueOrThrow({ where: { invoiceKey: "i/gst0001" } });
+  assert.deepEqual([row.dataset, row.gstin], ["GST", "27ABCDE1234F1Z5"]);
+  const again = await svc.importMybillbookCsv(gstCsv, "gst2", "GST");
+  assert.deepEqual([again.created, again.updated, again.unchanged], [0, 0, 2]);
+});

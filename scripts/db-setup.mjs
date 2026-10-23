@@ -1824,6 +1824,8 @@ db.close();
   addCol("MybillbookInvoice", "detailError", "TEXT");
   addCol("MybillbookInvoice", "partyMobile", "TEXT");
   addCol("MybillbookInvoice", "partyAddress", "TEXT");
+  addCol("MybillbookInvoice", "dataset", `TEXT NOT NULL DEFAULT 'B2C'`);
+  addCol("MybillbookInvoice", "gstin", "TEXT");
   oDb.exec(`
     CREATE INDEX IF NOT EXISTS "MybillbookInvoice_detailStatus_idx" ON "MybillbookInvoice"("detailStatus");
     CREATE INDEX IF NOT EXISTS "MybillbookInvoice_partyMobile_idx" ON "MybillbookInvoice"("partyMobile");

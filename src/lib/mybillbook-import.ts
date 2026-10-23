@@ -18,6 +18,8 @@ export type ParsedInvoice = {
   invoiceLink: string;
   paymentType: string | null;
   createdByName: string | null;
+  /** Customer GSTIN when the report has such a column (the GST book usually does). */
+  gstin: string | null;
 };
 
 export type ParseResult = { rows: ParsedInvoice[]; skipped: { line: number; reason: string }[] };
@@ -44,12 +46,24 @@ export const invoiceKeyOf = (link: string) => link.replace(/^https:\/\/[^/]+\//,
 export function parseSalesSummaryCsv(text: string): ParseResult {
   const clean = text.replace(/^﻿/, "");
   const lines = clean.split(/\r?\n/);
-  const headerAt = lines.findIndex((l) => /^invoice no\b/i.test(l.trim()));
+  const headerAt = lines.findIndex((l) => /^invoice (no|number)\b/i.test(l.trim()));
   if (headerAt < 0) return { rows: [], skipped: [{ line: 0, reason: "Not a MyBillBook Sales Summary report (no 'Invoice No' header row)" }] };
   const parsed = Papa.parse<string[]>(lines.slice(headerAt).join("\n"), { skipEmptyLines: true });
   const head = (parsed.data[0] ?? []).map((h) => h.trim().toLowerCase());
-  const col = (name: string) => head.indexOf(name);
-  const idx = { no: col("invoice no"), date: col("invoice date"), name: col("contact name"), amount: col("amount"), rem: col("remaining amount"), status: col("invoice status"), link: col("invoice link"), pay: col("payment type"), by: col("created by") };
+  // The GST book may word its headers differently ("Party Name", "Total Amount", "Balance Amount"…): first matching name wins.
+  const col = (...names: string[]) => names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1;
+  const idx = {
+    no: col("invoice no", "invoice number", "invoice no."),
+    date: col("invoice date", "date"),
+    name: col("contact name", "party name", "customer name", "party"),
+    amount: col("amount", "total amount", "invoice amount"),
+    rem: col("remaining amount", "balance amount", "balance", "pending amount"),
+    status: col("invoice status", "status", "payment status"),
+    link: col("invoice link", "invoice url", "link"),
+    pay: col("payment type"),
+    by: col("created by"),
+    gstin: col("gstin", "party gstin", "customer gstin", "gst number", "gstin/uin"),
+  };
   if (idx.no < 0 || idx.date < 0 || idx.name < 0 || idx.amount < 0 || idx.link < 0) return { rows: [], skipped: [{ line: headerAt + 1, reason: "Missing required columns" }] };
 
   const rows: ParsedInvoice[] = [];
@@ -81,6 +95,7 @@ export function parseSalesSummaryCsv(text: string): ParseResult {
       invoiceLink: link,
       paymentType: idx.pay >= 0 ? (r[idx.pay] ?? "").trim() || null : null,
       createdByName: idx.by >= 0 ? (r[idx.by] ?? "").trim() || null : null,
+      gstin: idx.gstin >= 0 && /^[0-9A-Z]{15}$/i.test((r[idx.gstin] ?? "").trim()) ? (r[idx.gstin] ?? "").trim().toUpperCase() : null,
     });
   });
   return { rows, skipped };
