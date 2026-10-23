@@ -20,6 +20,8 @@ import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booki
 import { sendReviewIfDue } from "@/server/job-review";
 import { cleanFix, locationNote, type GeoFix } from "@/lib/geo";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
+import { headers } from "next/headers";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit ... only for TODAY
@@ -480,6 +482,29 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/dashboard");
   return { success: true as const };
+}
+
+/**
+ * Customer booking page → "Mark Work Completed" (third completion touchpoint besides the Staff App and the CRM). The unguessable booking
+ * token is the only credential, so it is allowed only for a job whose service has STARTED, and it runs the same completion path as the
+ * other two (status, timestamps, final invoice, Invoice + Google review WhatsApp message). Rate-limited per address and per booking.
+ */
+export async function customerConfirmWorkCompleted(token: string): Promise<{ success: true } | { success: false; error: string }> {
+  if (typeof token !== "string" || !/^[A-Za-z0-9_-]{20,40}$/.test(token)) return { success: false, error: "Invalid booking link" };
+  try {
+    const ip = clientIp(await headers());
+    if (!rateLimit(`complete:ip:${ip}`, 20, 600).allowed || !rateLimit(`complete:tok:${token}`, 5, 600).allowed) return { success: false, error: "Too many requests — please try again in a few minutes." };
+  } catch {
+    /* outside an HTTP request (tests): no throttling */
+  }
+  const job = await db.job.findFirst({ where: { publicToken: token, deletedAt: null, isDemo: false }, select: { id: true, status: true } });
+  if (!job) return { success: false, error: "Booking not found" };
+  if (job.status === "COMPLETED") return { success: true };
+  if (job.status !== "STARTED") return { success: false, error: "Our team has not started the service yet — you can confirm completion once it has." };
+  await db.activityLog.create({ data: { jobId: job.id, action: "Customer confirmed work completed (booking page)" } }).catch(() => {});
+  const r = await updateJobStatusInternal(job.id, "COMPLETED", undefined);
+  revalidatePath(`/booking/${token}`);
+  return "error" in r && r.error ? { success: false, error: r.error } : { success: true };
 }
 
 /**

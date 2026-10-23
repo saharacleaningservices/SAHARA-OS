@@ -6,6 +6,7 @@ import { formatDate, formatINR } from "@/lib/utils";
 import { customerPaymentStatus, PAYMENT_STATUS_LABEL } from "@/server/booking-messages";
 import { PayAfterServiceButton } from "@/components/public/pay-after-service-button";
 import { BookingChangeRequest } from "@/components/public/booking-change-request";
+import { ConfirmCompletedButton } from "@/components/public/confirm-completed-button";
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { CustomerDocument } from "@/components/public/customer-document";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
@@ -248,6 +249,8 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
 
         {/* Quotation / invoice view: the document above already carries the service, schedule,
             scope, terms and payment details — keep the page short (change request right under it). */}
+        {job.status === "STARTED" && <ConfirmCompletedButton token={token} />}
+
         {docView && open && (
           <div className="space-y-2 rounded-2xl bg-white p-5 text-sm shadow-sm">
             <p className="font-semibold text-[#0a2540]">Need a change?</p>

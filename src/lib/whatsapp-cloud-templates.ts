@@ -373,6 +373,23 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
       { type: "URL", text: "Rate Us on Google", url: GOOGLE_REVIEW_URL },
     ],
   },
+  // ── Owner 2026-10-23 (autonomous brief P1.2): the completion message carries exactly ONE invoice link and ONE Google review link —
+  // no /booking/pay/ link (the invoice page itself shows the balance and the payment QR). Used only after Meta approves it and
+  // WHATSAPP_USE_TEMPLATES=on + WHATSAPP_COMPLETED_TEMPLATE=v2 are set.
+  {
+    key: "9c",
+    name: "sahara_job_completed_v2",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Job completed — one View Invoice button and one Rate Us on Google button",
+    body:
+      "Hi {{1}}, your {{2}} service has been completed. Thank you for choosing Sahara Cleaning Services.\n\nBalance due: ₹{{3}}\n\nTap below to see your invoice and share your feedback.",
+    examples: ["Priya", "Home Deep Cleaning", "2,999"],
+    buttons: [
+      { type: "URL", text: "View Invoice", url: `${PUBLIC_BOOKING_URL}/booking/invoice/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/invoice/${EX_TOKEN}` },
+      { type: "URL", text: "Rate Us on Google", url: GOOGLE_REVIEW_URL },
+    ],
+  },
   // ── Owner 2026-10-23: "Work Started" customer message. UTILITY, no buttons, no offers. Sent when staff mark Work Started, only once
   // Meta approves it and WHATSAPP_USE_TEMPLATES=on + WHATSAPP_STARTED_TEMPLATE=v1 are set.
   {
