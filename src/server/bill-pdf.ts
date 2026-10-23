@@ -24,6 +24,7 @@ export async function billChrome(
     address: settings.address || COMPANY.address,
     website: settings.website || COMPANY.website,
     gstin: COMPANY.gstin,
+    phones: [...COMPANY.phones],
   };
   const upiId = settings.upiId?.trim() || null;
   const bookUrl = `${PUBLIC_BOOKING_URL}/booking`;
@@ -34,8 +35,7 @@ export async function billChrome(
       : settings.upiQrUrl
         ? publicFileToDataUrl(settings.upiQrUrl)
         : Promise.resolve(null),
-    // Footer "Scan to Book Service Online" QR — the public booking form.
-    QRCode.toDataURL(bookUrl, { margin: 1, width: 200 }).catch(() => null),
+    Promise.resolve(null), // (the "Scan to Book" footer QR was removed - owner 2026-10-24)
   ]);
   return {
     company,

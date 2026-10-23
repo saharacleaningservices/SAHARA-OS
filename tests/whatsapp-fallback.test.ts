@@ -78,7 +78,7 @@ test("Work Completed: template rejected -> the same invoice + review links go ou
   await handlers.sendJobCompletedNotice(job.id);
   assert.deepEqual(calls.map((c) => c.type), ["template", "text"]);
   assert.equal(calls[0].template, "sahara_job_completed_v2");
-  assert.match(calls[1].body ?? "", /\/booking\/invoice\//);
+  assert.match(calls[1].body ?? "", /\/i\/[A-Za-z0-9]{10}/);
   assert.ok(!(calls[1].body ?? "").includes("/booking/pay/"));
   assert.deepEqual((await rows("JOB_COMPLETED", job.id)).map((r) => r.status), ["FAILED", "SENT"]);
   reset();

@@ -9,6 +9,9 @@ Font.registerHyphenationCallback((word) => [word]);
 // left, totals + amount in words + signatory on the right, payment QR).
 // Rendered on demand — nothing is stored on the server.
 
+export const SLOGAN = "Your Trusted Home Service Partner";
+export const CORE_SERVICES = ["Home Deep Cleaning", "Commercial Cleaning", "Interior Painting", "Pest Control", "Housekeeping & AMC"];
+
 const GOLD = "#c9a961";
 const NAVY = "#24325a";
 const MUTED = "#5b6478";
@@ -20,12 +23,17 @@ function makeStyles(k: number) {
   return StyleSheet.create({
   page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: "Helvetica" },
   frame: { borderWidth: 1.5, borderColor: GOLD, flexGrow: 1 },
-  header: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(16), paddingBottom: z(12), borderBottomWidth: 1, borderBottomColor: GOLD },
+  header: { flexDirection: "column", alignItems: "center", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
+  slogan: { fontFamily: "Times-Italic", fontSize: z(10.5), color: NAVY, marginTop: z(2), marginBottom: z(3), textAlign: "center" },
+  phones: { fontFamily: "Helvetica-Bold", fontSize: z(9.5), color: NAVY, marginBottom: z(2), textAlign: "center" },
+  contactC: { fontSize: z(8), color: MUTED, marginBottom: z(1), textAlign: "center" },
+  titleBar: { flexDirection: "row", justifyContent: "center", alignItems: "center", paddingVertical: z(5), borderBottomWidth: 1, borderBottomColor: GOLD, backgroundColor: BEIGE },
+  titleC: { fontSize: z(12), fontFamily: "Helvetica-Bold", color: NAVY, letterSpacing: 1 },
   // Logo in its own fixed box (scaled to fit, never overflowing), company text in the remaining width — they can't overlap.
-  logoCol: { width: z(112), height: z(60), marginRight: z(12), flexShrink: 0, justifyContent: "center", alignItems: "flex-start" },
-  logo: { width: z(108), height: z(56), objectFit: "contain" },
+  logoCol: { width: z(150), height: z(52), marginBottom: z(2), justifyContent: "center", alignItems: "center" },
+  logo: { width: z(146), height: z(50), objectFit: "contain" },
   companyCol: { flexGrow: 1, flexShrink: 1, paddingRight: 8 },
-  companyName: { fontFamily: "Times-Bold", fontSize: z(17), letterSpacing: z(0.3), lineHeight: 1.15, color: NAVY },
+  companyName: { fontFamily: "Times-Bold", fontSize: z(16), letterSpacing: z(0.3), lineHeight: 1.15, color: NAVY, textAlign: "center" },
   tagline: { fontSize: z(9), color: MUTED, marginTop: z(2), marginBottom: z(6) },
   contact: { fontSize: z(8.5), color: NAVY, marginBottom: z(2) },
   titleCol: { width: z(110), flexShrink: 0, alignItems: "flex-end" },
@@ -66,11 +74,11 @@ function makeStyles(k: number) {
   kvBold: { fontSize: z(8.5), fontFamily: "Helvetica-Bold" },
   words: { fontSize: z(8.5), color: MUTED, marginBottom: z(8) },
   splitBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 4, padding: z(4), marginTop: z(4), marginBottom: z(6) },
-  footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", borderTopWidth: 1, borderColor: GOLD, paddingVertical: z(4), marginTop: "auto" },
-  bookQr: { width: z(46), height: z(46), marginRight: z(8) },
-  footerTitle: { fontSize: z(9), fontFamily: "Helvetica-Bold", color: NAVY },
-  footerUrl: { fontSize: z(7.5), color: MUTED },
-  signBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(48), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(6), marginTop: z(2) },
+  footer: { marginTop: "auto" },
+  signRow: { flexDirection: "row", justifyContent: "flex-end", paddingHorizontal: z(18), paddingBottom: z(6) },
+  servicesBar: { backgroundColor: NAVY, paddingVertical: z(5), paddingHorizontal: z(10) },
+  servicesTxt: { color: "#ffffff", fontSize: z(8), textAlign: "center", letterSpacing: 0.3 },
+  signBox: { width: z(170), borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(46), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(5) },
   signLbl: { fontFamily: "Helvetica-Bold", fontSize: z(8.5) },
   signName: { fontSize: z(8), color: MUTED },
   payRow: { flexDirection: "row", alignItems: "center", marginTop: z(6) },
@@ -94,14 +102,16 @@ export type BillDocumentProps = {
   number: string;
   date: string;
   extraMeta?: { label: string; value: string }[];
-  company: { name: string; tagline?: string; phone: string; email: string; address: string; website: string; gstin?: string | null };
+  company: { name: string; tagline?: string; slogan?: string; phone: string; phones?: string[]; email: string; address: string; website: string; gstin?: string | null };
   logoDataUrl?: string | null;
   billTo: { name: string; address?: string | null; mobile?: string | null; email?: string | null; details?: { label: string; value: string }[] };
   /** 20% advance / 80% balance (owner rule 2026-10-18), from paymentSplit() in lib/booking-payment. */
   paymentSplit?: { advance: number; balance: number; percent: number; balancePercent: number } | null;
-  /** Footer QR to the public booking form ("Scan to Book Service Online"). */
+  /** No longer printed (the footer carries the signature and the services bar instead); kept so older callers still type-check. */
   bookQrDataUrl?: string | null;
   bookUrl?: string | null;
+  /** Core services shown in the bottom bar. */
+  services?: string[];
   rows: BillRow[];
   subtotalRow: { qty: number; disc: number; total: number };
   totals: { subtotal: number; discount: number; complimentary?: number; gstPercent?: number; gstAmount?: number; total: number; received?: number; balance?: number };
@@ -125,7 +135,7 @@ export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyN
   const table = p.rows.reduce((n, r) => n + (r.detail ? 2.6 : 1.7), 0);
   // Payment-terms box, booking QR footer and the extra Bill To lines (email, property / service) take fixed space.
   const extra =
-    (p.paymentSplit ? 4 : 0) + (p.bookQrDataUrl ? 5 : 0) + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0) +
+    (p.paymentSplit ? 4 : 0) + 4 + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0) +
     // Right column on invoices: bank details, payment QR, received / balance and GST lines.
     (p.bank?.account || p.bank?.ifsc ? 5 : 0) + (p.qrDataUrl || p.upiId ? 6 : 0) + (p.totals?.received !== undefined ? 2 : 0) + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0);
   const load = left + table * 1.4 + extra;
@@ -146,20 +156,16 @@ export function SaharaBillDocument(p: BillDocumentProps) {
         <View style={s.frame}>
           <View style={s.header}>
             <View style={s.logoCol}>{p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logo} /> : null}</View>
-            <View style={s.companyCol}>
-              <Text style={s.companyName}>{p.company.name.toUpperCase()}</Text>
-              {p.company.tagline ? <Text style={s.tagline}>{p.company.tagline}</Text> : null}
-              <Text style={s.contact}>
-                {p.company.phone} · {p.company.email}
-              </Text>
-              <Text style={s.contact}>{p.company.address}</Text>
-              <Text style={s.contact}>{p.company.website}</Text>
-              {p.company.gstin ? <Text style={s.contact}>GSTIN: {p.company.gstin}</Text> : null}
-            </View>
-            <View style={s.titleCol}>
-              <Text style={s.title}>{p.title}</Text>
-              {p.copyLabel ? <Text style={s.copyBox}>{p.copyLabel}</Text> : null}
-            </View>
+            <Text style={s.companyName}>{p.company.name.toUpperCase()}</Text>
+            <Text style={s.slogan}>{p.company.slogan ?? SLOGAN}</Text>
+            <Text style={s.phones}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}</Text>
+            <Text style={s.contactC}>{p.company.email} · {p.company.website}</Text>
+            <Text style={s.contactC}>{p.company.address}</Text>
+            {p.company.gstin ? <Text style={s.contactC}>GSTIN: {p.company.gstin}</Text> : null}
+          </View>
+          <View style={s.titleBar}>
+            <Text style={s.titleC}>{p.title}</Text>
+            {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 0, marginLeft: 10 }]}>{p.copyLabel}</Text> : null}
           </View>
 
           <View style={s.metaStrip}>
@@ -302,10 +308,6 @@ export function SaharaBillDocument(p: BillDocumentProps) {
               ) : null}
               <Text style={s.secTitle}>Total Amount (in words)</Text>
               <Text style={s.words}>{p.amountInWords}</Text>
-              <View style={s.signBox}>
-                <Text style={s.signLbl}>Authorised Signatory</Text>
-                <Text style={s.signName}>{p.company.name.toUpperCase()}</Text>
-              </View>
               {hasBank && (
                 <>
                   <Text style={s.secTitle}>Bank Details</Text>
@@ -332,15 +334,17 @@ export function SaharaBillDocument(p: BillDocumentProps) {
             </View>
           </View>
 
-          {p.bookQrDataUrl ? (
-            <View style={s.footer} wrap={false}>
-              <Image src={p.bookQrDataUrl} style={s.bookQr} />
-              <View>
-                <Text style={s.footerTitle}>Scan to Book Service Online</Text>
-                {p.bookUrl ? <Text style={s.footerUrl}>{p.bookUrl.replace(/^https?:\/\//, "")}</Text> : null}
+          <View style={s.footer} wrap={false}>
+            <View style={s.signRow}>
+              <View style={s.signBox}>
+                <Text style={s.signLbl}>Authorised Signatory</Text>
+                <Text style={s.signName}>{p.company.name.toUpperCase()}</Text>
               </View>
             </View>
-          ) : null}
+            <View style={s.servicesBar}>
+              <Text style={s.servicesTxt}>{(p.services ?? CORE_SERVICES).join("  •  ")}</Text>
+            </View>
+          </View>
         </View>
       </Page>
     </Document>

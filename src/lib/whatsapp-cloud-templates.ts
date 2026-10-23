@@ -344,6 +344,24 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
       { type: "URL", text: "Pay Now / Later", url: `${PUBLIC_BOOKING_URL}/booking/pay/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/pay/${EX_TOKEN}` },
     ],
   },
+  // ── Owner 2026-10-24: exactly TWO URL buttons (more makes WhatsApp fold them into a "See all options" menu): View Quotation → the
+  // single-page A4 PDF via the short link /q/{code}; Pay Advance → the one-screen payment page via /p/{code}. Both numbers and the
+  // /connect card (YouTube, Instagram, Facebook, reviews) are plain text. Used only after Meta approves it and WHATSAPP_BOOKING_TEMPLATE=v6.
+  {
+    key: "5c",
+    name: "sahara_booking_confirmed_v6",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Booking confirmed — View Quotation (A4 PDF) + Pay Advance buttons on short links, both phone numbers and the /connect card in the text",
+    header: { type: "IMAGE", sample: BOOKING_HEADER_IMAGE },
+    body:
+      `Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\n\nTap View Quotation for your A4 quotation, or Pay Advance to confirm your slot.\n\n▶️ Videos, photos, reviews & social: ${PUBLIC_BOOKING_URL}/connect\n\nFor any help, call us on 7083347130 | 8956567130.`,
+    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00", "Magarpatta, Hadapsar"],
+    buttons: [
+      { type: "URL", text: "View Quotation", url: `${PUBLIC_BOOKING_URL}/q/{{1}}`, example: `${PUBLIC_BOOKING_URL}/q/AbCdEfGh12` },
+      { type: "URL", text: "Pay Advance", url: `${PUBLIC_BOOKING_URL}/p/{{1}}`, example: `${PUBLIC_BOOKING_URL}/p/AbCdEfGh12` },
+    ],
+  },
   {
     key: "6b",
     name: "sahara_payment_received_v1",

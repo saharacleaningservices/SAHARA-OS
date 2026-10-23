@@ -1137,6 +1137,8 @@ addColumnIfMissing("Job", "publicToken", `"publicToken" TEXT`);
 addColumnIfMissing("Job", "paymentPreference", `"paymentPreference" TEXT`);
 addColumnIfMissing("Job", "advanceRequestedAt", `"advanceRequestedAt" DATETIME`);
 db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Job_publicToken_key" ON "Job"("publicToken");`);
+addColumnIfMissing("Job", "shortCode", `"shortCode" TEXT`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Job_shortCode_key" ON "Job"("shortCode");`);
 console.log("Booking page token migration complete.");
 
 // ── Booking page v2: payment preference on leads + quotation booking links ──

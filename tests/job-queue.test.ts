@@ -142,8 +142,9 @@ test("job completion: ONE message with ONE View Invoice link and no separate pay
   const msgs = await db.whatsAppMessage.findMany({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
   assert.equal(msgs.length, 1);
   const token = (await db.job.findUnique({ where: { id: job.id } }))!.publicToken!;
-  assert.ok(msgs[0].body.includes(`/booking/invoice/${token}`) && !msgs[0].body.includes("/booking/pay/") && msgs[0].body.includes("INV-Q-"));
-  assert.equal((msgs[0].body.match(/\/booking\//g) ?? []).length, 1, "exactly one booking link in the message");
+  const code = (await db.job.findUniqueOrThrow({ where: { id: job.id }, select: { shortCode: true } })).shortCode!;
+  assert.ok(msgs[0].body.includes(`/i/${code}`) && !msgs[0].body.includes(token) && !msgs[0].body.includes("/booking/pay/") && msgs[0].body.includes("INV-Q-"));
+  assert.equal((msgs[0].body.match(/https?:\/\//g) ?? []).length, 1, "exactly one link in the message");
   assert.notEqual(msgs[0].status, "SENT", "TEST mode: a real customer number is never messaged");
 });
 
@@ -194,7 +195,7 @@ test("work started is queued from the status change; work completed text carries
   await db.job.update({ where: { id: job.id }, data: { status: "COMPLETED" } });
   await handlers.sendJobCompletedLinks(job.id, { force: true });
   const m = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
-  assert.ok(m && /Thank you/.test(m.body) && m.body.includes("/booking/invoice/") && !m.body.includes("/booking/pay/") && m.body.includes("https://g.page/r/TEST/review"));
+  assert.ok(m && /Thank you/.test(m.body) && /\/i\/[A-Za-z0-9]{10}/.test(m.body) && !m.body.includes("/booking/") && m.body.includes("https://g.page/r/TEST/review"));
   assert.equal((m.body.match(/https?:\/\//g) ?? []).length, 2, "exactly two links: invoice + Google review");
 });
 

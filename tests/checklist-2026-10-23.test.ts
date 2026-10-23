@@ -120,7 +120,7 @@ test("existing jobs appear in the Staff App live, from the crew assignment — n
   const portal = await import("../src/server/staff-portal");
   const staff = await db.staff.create({ data: { employeeCode: "T-CK1", name: "Ravi", mobile: "9000000444", designation: "Cleaner", dailyWage: 700, salaryType: "DAILY" } as never });
   const me = { id: staff.id, name: "Ravi", employeeCode: "T-CK1", designation: "Cleaner", mobile: "9000000444", photoUrl: null } as never;
-  const mk = (n: string, days: number) => db.job.create({ data: { jobNumber: n, customerName: "Asha", customerMobile: "9876500011", address: "Flat 2", area: "Kharadi", service: "HOME_DEEP_CLEANING", scheduledDate: new Date(Date.now() + days * 86_400_000), scheduledTime: "10:00 AM", jobValue: 5000, status: "ASSIGNED" } as never });
+  const mk = (n: string, days: number) => db.job.create({ data: { jobNumber: n, customerName: "Asha", customerMobile: "9876500011", address: "Flat 2", area: "Kharadi", service: "HOME_DEEP_CLEANING", scheduledDate: new Date(Date.now() + days * 86_400_000), scheduledTime: "10:00 AM", jobValue: 5137, status: "ASSIGNED" } as never });
   const todayJob = await mk("CK-TODAY", 0);
   const futureJob = await mk("CK-FUTURE", 3);
   assert.equal((await portal.getPortalHome(me)).todaysJobs.length, 0, "not assigned yet -> not shown");
@@ -131,7 +131,7 @@ test("existing jobs appear in the Staff App live, from the crew assignment — n
   assert.deepEqual(home.todaysJobs.map((j) => j.jobNumber), ["CK-TODAY"]);
   assert.ok(!home.upcomingJobs.some((j) => j.jobNumber === "CK-FUTURE"), "future assignments stay hidden (owner rule 2026-10-05)");
   const json = JSON.stringify(home);
-  assert.ok(!json.includes("9876500011") && !json.includes("5000"), "no phone, no amount in the Staff App data");
+  assert.ok(!json.includes("9876500011") && !json.includes("5137"), "no phone, no amount in the Staff App data"); // 5137 is a distinctive amount: "5000" could match a random id
 });
 
 // Jobs list order (owner 2026-10-23) ---------------------------------------------------------------------------------------

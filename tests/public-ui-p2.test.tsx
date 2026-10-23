@@ -39,8 +39,11 @@ test("quotation: Scope, Equipment and Terms are collapsed accordions; only Downl
   assert.ok(!html.includes("Share"));
 });
 
-test("invoice: no accordions (single compact card); fully paid invoice shows Download PDF only", () => {
+test("invoice: no accordions (single compact card); fully paid invoice shows Download PDF only; ONE reference id per document", () => {
   const html = render("INVOICE");
+  assert.ok(html.includes(">Job ID<") && !html.includes("Customer ID") && !html.includes("Quotation ID") && !html.includes("Invoice ID") && !html.includes("Booking ID"));
+  const q = render("QUOTATION");
+  assert.ok(q.includes(">Booking ID<") && !q.includes("Customer ID") && !q.includes("Job ID") && !q.includes("Invoice ID"));
   assert.equal((html.match(/<details/g) ?? []).length, 0);
   assert.ok(html.includes("Pay Now"));
   const paid = render("INVOICE", job({ paid: 7499 }));
@@ -49,7 +52,10 @@ test("invoice: no accordions (single compact card); fully paid invoice shows Dow
 
 test("one-screen pay checkout, reschedule calendar + cancel box, property pills and footer are wired as briefed", () => {
   const view = readFileSync("src/components/public/booking-page-view.tsx", "utf8");
-  assert.match(view, /if \(focus === "pay"\) \{[\s\S]*aria-label="Pay advance"[\s\S]*Advance due[\s\S]*Balance[\s\S]*Scan to pay/);
+  const pay = view.slice(view.indexOf('if (focus === "pay") {'), view.indexOf('min-h-screen bg-[#f4f7fb]'));
+  // Owner 2026-10-24: ONLY the payable amount, the QR code and the UPI pay button.
+  assert.match(pay, /aria-label="Payable amount"[\s\S]*Scan to pay[\s\S]*with any UPI app/);
+  for (const gone of ["Advance due", "Balance", "customerName", "jobNumber", "Total"]) assert.ok(!pay.includes(gone), `${gone} is not on the pay screen`);
   assert.match(view, /min-h-\[100dvh\]/, "fits one screen");
   const change = readFileSync("src/components/public/booking-change-request.tsx", "utf8");
   assert.match(change, /getDateAvailability[\s\S]*getSlotAvailability/);

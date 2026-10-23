@@ -480,6 +480,7 @@ export const JobScalarFieldEnum = {
   scheduledTime: 'scheduledTime',
   teamNumber: 'teamNumber',
   publicToken: 'publicToken',
+  shortCode: 'shortCode',
   paymentPreference: 'paymentPreference',
   advanceRequestedAt: 'advanceRequestedAt',
   supervisorId: 'supervisorId',

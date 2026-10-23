@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { formatDate } from "@/lib/utils";
+import { ensureShortCode, shortUrl } from "@/server/short-links";
 import { WHATSAPP_TRANSACTIONAL_TEMPLATES, sendWhatsApp, sendWhatsAppTemplate, shouldFallBackToText } from "@/lib/whatsapp";
 import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
 import { compactServiceLines } from "@/lib/service-scope";
@@ -35,6 +36,8 @@ const bookingTemplateV3 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v3";
 const bookingTemplateV4 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v4";
 // WHATSAPP_BOOKING_TEMPLATE=v5 → sahara_booking_confirmed_v5 (utility): image header, same two buttons, no review link.
 const bookingTemplateV5 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v5";
+// WHATSAPP_BOOKING_TEMPLATE=v6 → sahara_booking_confirmed_v6: View Quotation (A4 PDF) + Pay Advance on short links, nothing else.
+const bookingTemplateV6 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v6";
 
 /** Body parameters for sahara_booking_confirmed_v4 (exported for tests). */
 export function bookingConfirmationV4Params(job: { customerName: string; jobNumber: string; scheduledDate: Date; scheduledTime: string; area: string }, service: string, reviewUrl: string | null | undefined) {
@@ -111,7 +114,9 @@ async function sendBookingConfirmationOnce(jobId: string) {
   if (!job || job.deletedAt || job.isDemo || job.status === "CANCELLED") return { skipped: "not-confirmable" as const };
 
   const token = await ensureJobToken(job.id);
+  const code = await ensureShortCode(job.id);
   const url = bookingPageUrl(token);
+  const links = { booking: shortUrl("b", code), quotation: shortUrl("q", code), pay: shortUrl("p", code) }; // short links in the text message (owner 2026-10-24)
   const service = SERVICE_LABELS[job.service] ?? job.service;
   const { due } = customerPaymentStatus(job);
   // The confirmation carries the Pay Advance action, so an advance now counts
@@ -139,6 +144,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
         balanceDue: due,
         googleReviewUrl: settings?.googleReviewUrl ?? null,
         bookingUrl: url,
+        links,
         serviceSummary: compactServiceLines(job).join(", ") || null,
         total: job.jobValue,
         paid: job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0),
@@ -152,6 +158,28 @@ async function sendBookingConfirmationOnce(jobId: string) {
     if (!r.sent && "error" in r && shouldFallBackToText(r.error)) return sendText();
     return r;
   };
+
+  if (templatesEnabled() && bookingTemplateV6()) {
+    const t = templateByName("sahara_booking_confirmed_v6")!;
+    const params = bookingConfirmationV4Params(job, service, null).slice(0, 6);
+    return viaTemplate({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      headerImageUrl: BOOKING_HEADER_IMAGE,
+      // The short code, not the long booking token: /q/{{1}} and /p/{{1}}.
+      buttonUrlParams: [
+        { index: 0, value: code },
+        { index: 1, value: code },
+      ],
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
+  }
 
   if (templatesEnabled() && bookingTemplateV5()) {
     const t = templateByName("sahara_booking_confirmed_v5")!;

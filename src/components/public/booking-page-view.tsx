@@ -183,16 +183,11 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
     return (
       <main className="theme-navy flex min-h-[100dvh] items-center justify-center bg-[#f4f7fb] px-4 py-4">
         <section className="w-full max-w-sm space-y-3 rounded-3xl bg-white p-5 text-[#0a2540] shadow-lg" aria-label="Pay advance">
-          <header className="space-y-0.5 text-center">
+          <header className="space-y-1 text-center">
             <p className="text-[11px] font-bold uppercase tracking-wide text-primary">Pay Advance</p>
-            <p className="text-lg font-extrabold leading-tight">{job.customerName}</p>
-            <p className="text-xs text-[#0a2540]/70">{SERVICE_LABELS[job.service] ?? job.service} · {formatDate(job.scheduledDate)} · Booking {job.jobNumber}</p>
+            <p className="text-xs font-semibold text-[#0a2540]/60">Payable amount</p>
+            <p className="text-4xl font-black tabular-nums" aria-label="Payable amount">{formatINR(payNowAmount)}</p>
           </header>
-          <dl className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-xl bg-[#0a2540]/5 p-2"><dt className="text-[10px] font-semibold uppercase text-[#0a2540]/60">Total</dt><dd className="text-sm font-extrabold tabular-nums">{formatINR(job.jobValue)}</dd></div>
-            <div className="rounded-xl bg-primary/10 p-2"><dt className="text-[10px] font-semibold uppercase text-primary">Advance due</dt><dd className="text-sm font-extrabold tabular-nums">{formatINR(advanceDue)}</dd></div>
-            <div className="rounded-xl bg-[#0a2540]/5 p-2"><dt className="text-[10px] font-semibold uppercase text-[#0a2540]/60">Balance</dt><dd className="text-sm font-extrabold tabular-nums">{formatINR(pmt.due)}</dd></div>
-          </dl>
           {nothingDue ? (
             <p className="rounded-xl bg-emerald-50 p-4 text-center text-sm font-semibold text-emerald-700">{job.status === "CANCELLED" ? "This booking is cancelled." : "Payment received in full — thank you."}</p>
           ) : (
@@ -211,7 +206,6 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
                   Pay {formatINR(payNowAmount)} with any UPI app
                 </a>
               )}
-              {settings?.upiId && <p className="text-[11px] text-[#0a2540]/60">UPI ID {settings.upiId} · share the payment screenshot on WhatsApp</p>}
             </div>
           )}
         </section>

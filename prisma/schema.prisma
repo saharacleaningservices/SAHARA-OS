@@ -699,6 +699,7 @@ model Job {
   // advanceRequestedAt: when an advance was requested. Paid amounts always come
   // from Payment rows recorded by staff — never marked paid automatically.
   publicToken        String?   @unique
+  shortCode          String?   @unique // 10-char code for the short customer links /q /i /p /b (src/server/short-links.ts)
   paymentPreference  String?
   advanceRequestedAt DateTime?
 
