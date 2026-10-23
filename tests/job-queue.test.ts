@@ -197,3 +197,23 @@ test("work started is queued from the status change; work completed text carries
   assert.ok(m && /Thank you/.test(m.body) && m.body.includes("/booking/invoice/") && !m.body.includes("/booking/pay/") && m.body.includes("https://g.page/r/TEST/review"));
   assert.equal((m.body.match(/https?:\/\//g) ?? []).length, 2, "exactly two links: invoice + Google review");
 });
+
+test("housekeeping: only finished queue rows older than 30 days are removed; pending, running and parked-failed rows stay; the removal is audit-logged", async () => {
+  const q2 = await import("../src/server/job-queue");
+  const old = new Date(Date.now() - 45 * 86_400_000);
+  const mk = async (status: string, updatedAt: Date) => {
+    const r = await db.outboxJob.create({ data: { kind: "TEAM_DISPATCH", payload: "{}", status } });
+    await db.$executeRaw`UPDATE "OutboxJob" SET "updatedAt" = ${updatedAt.toISOString()} WHERE "id" = ${r.id}`;
+    return r.id;
+  };
+  const oldDone = await mk("DONE", old);
+  const freshDone = await mk("DONE", new Date());
+  const oldFailed = await mk("FAILED", old);
+  const oldPending = await mk("PENDING", old);
+  const removed = await q2.pruneFinishedJobs(30);
+  assert.equal(removed, 1);
+  const left = (await db.outboxJob.findMany({ where: { id: { in: [oldDone, freshDone, oldFailed, oldPending] } }, select: { id: true } })).map((r) => r.id).sort();
+  assert.deepEqual(left, [freshDone, oldFailed, oldPending].sort());
+  assert.equal(await db.auditLog.count({ where: { entityId: "outbox-prune", action: "PRUNE" } }), 1);
+  assert.equal(await q2.pruneFinishedJobs(30), 0, "nothing left to remove");
+});

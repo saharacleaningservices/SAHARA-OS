@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { formatDate } from "@/lib/utils";
-import { WHATSAPP_TRANSACTIONAL_TEMPLATES, sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { WHATSAPP_TRANSACTIONAL_TEMPLATES, sendWhatsApp, sendWhatsAppTemplate, shouldFallBackToText } from "@/lib/whatsapp";
 import { premiumBookingConfirmationMessage } from "@/lib/whatsapp-templates";
 import { compactServiceLines } from "@/lib/service-scope";
 import { BOOKING_HEADER_IMAGE, GOOGLE_REVIEW_URL, renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
@@ -120,10 +120,43 @@ async function sendBookingConfirmationOnce(jobId: string) {
     await db.job.update({ where: { id: job.id }, data: { advanceRequestedAt: new Date() } });
   }
 
+  // Plain-text confirmation: the last branch, and the fallback when a template send definitely did not go out (rejected / paused /
+  // unapproved template, HTTP error, unreachable). A timeout is NOT a fallback case — the template may still have been delivered.
+  const sendText = async () => {
+    const settings = await db.companySettings.findUnique({ where: { id: "default" } });
+    return sendWhatsApp({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      body: premiumBookingConfirmationMessage({
+        customerName: job.customerName,
+        jobNumber: job.jobNumber,
+        service,
+        date: job.scheduledDate,
+        timeSlot: job.scheduledTime,
+        address: job.address,
+        area: job.area,
+        balanceDue: due,
+        googleReviewUrl: settings?.googleReviewUrl ?? null,
+        bookingUrl: url,
+        serviceSummary: compactServiceLines(job).join(", ") || null,
+        total: job.jobValue,
+        paid: job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0),
+      }),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
+  };
+  const viaTemplate = async (input: Parameters<typeof sendWhatsAppTemplate>[0]) => {
+    const r = await sendWhatsAppTemplate(input);
+    if (!r.sent && "error" in r && shouldFallBackToText(r.error)) return sendText();
+    return r;
+  };
+
   if (templatesEnabled() && bookingTemplateV5()) {
     const t = templateByName("sahara_booking_confirmed_v5")!;
     const params = bookingConfirmationV4Params(job, service, null).slice(0, 6);
-    return sendWhatsAppTemplate({
+    return viaTemplate({
       kind: "BOOKING_CONFIRMATION",
       toNumber: job.customerMobile,
       toName: job.customerName,
@@ -145,7 +178,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
     const t = templateByName("sahara_booking_confirmed_v4")!;
     const settings = await db.companySettings.findUnique({ where: { id: "default" }, select: { googleReviewUrl: true } });
     const params = bookingConfirmationV4Params(job, service, settings?.googleReviewUrl);
-    return sendWhatsAppTemplate({
+    return viaTemplate({
       kind: "BOOKING_CONFIRMATION",
       toNumber: job.customerMobile,
       toName: job.customerName,
@@ -166,7 +199,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
   if (templatesEnabled() && bookingTemplateV3()) {
     const t = templateByName("sahara_booking_confirmed_v3")!;
     const params = [job.customerName, job.jobNumber, service, formatDate(job.scheduledDate), job.scheduledTime, job.area];
-    return sendWhatsAppTemplate({
+    return viaTemplate({
       kind: "BOOKING_CONFIRMATION",
       toNumber: job.customerMobile,
       toName: job.customerName,
@@ -187,7 +220,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
   if (templatesEnabled() && bookingTemplateV2()) {
     const t = templateByName("sahara_booking_confirmed_v2")!;
     const params = [job.customerName, job.jobNumber, service, formatDate(job.scheduledDate), job.scheduledTime, job.area];
-    return sendWhatsAppTemplate({
+    return viaTemplate({
       kind: "BOOKING_CONFIRMATION",
       toNumber: job.customerMobile,
       toName: job.customerName,
@@ -208,7 +241,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
   if (templatesEnabled()) {
     const t = templateByName("sahara_booking_confirmed")!;
     const params = [job.customerName, job.jobNumber, service, formatDate(job.scheduledDate), job.scheduledTime, job.area];
-    return sendWhatsAppTemplate({
+    return viaTemplate({
       kind: "BOOKING_CONFIRMATION",
       toNumber: job.customerMobile,
       toName: job.customerName,
@@ -225,29 +258,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
     });
   }
 
-  const settings = await db.companySettings.findUnique({ where: { id: "default" } });
-  return sendWhatsApp({
-    kind: "BOOKING_CONFIRMATION",
-    toNumber: job.customerMobile,
-    toName: job.customerName,
-    body: premiumBookingConfirmationMessage({
-      customerName: job.customerName,
-      jobNumber: job.jobNumber,
-      service,
-      date: job.scheduledDate,
-      timeSlot: job.scheduledTime,
-      address: job.address,
-      area: job.area,
-      balanceDue: due,
-      googleReviewUrl: settings?.googleReviewUrl ?? null,
-      bookingUrl: url,
-      serviceSummary: compactServiceLines(job).join(", ") || null,
-      total: job.jobValue,
-      paid: job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0),
-    }),
-    relatedType: "Job",
-    relatedId: job.id,
-  });
+  return sendText();
 }
 
 /**
