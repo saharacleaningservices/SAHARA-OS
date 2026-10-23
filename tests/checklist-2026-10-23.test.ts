@@ -100,7 +100,7 @@ test("Resend Invoice Link: billing roles only, completed jobs only, sends again 
   assert.match((a as { message: string }).message, /TEST mode/, "honest about TEST mode");
   const msgs = await db.whatsAppMessage.findMany({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
   assert.equal(msgs.length, 2, "resend is not blocked by the once-per-job guard");
-  assert.ok(msgs.every((m) => m.body.includes("/booking/invoice/") && m.status !== "SENT"));
+  assert.ok(msgs.every((m) => /\/i\/[A-Za-z0-9]{10}/.test(m.body) && m.status !== "SENT"));
 });
 
 // 5. Single-page A4 PDF ----------------------------------------------------------------------------------------------------
