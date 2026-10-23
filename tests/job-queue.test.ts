@@ -129,7 +129,7 @@ test("crew dispatch message (the one sent to each crew member) links the card an
   assert.ok(!msg!.body.includes(PHONE) && !msg!.body.includes("7777") && !/₹/.test(msg!.body), "phone and amount hidden");
 });
 
-test("job completion: ONE message with View Invoice and Pay Balance links; TEST mode keeps it from a real customer; kill-switch works", async () => {
+test("job completion: ONE message with ONE View Invoice link and no separate pay link; TEST mode keeps it from a real customer; kill-switch works", async () => {
   const job = await makeJob();
   await db.job.update({ where: { id: job.id }, data: { status: "COMPLETED" } });
   await db.invoice.create({ data: { invoiceNumber: `INV-Q-${job.id.slice(-5)}`, jobId: job.id, customerName: "Asha", lineItems: "[]", subTotal: 7777, totalAmount: 7777 } as never });
@@ -142,7 +142,8 @@ test("job completion: ONE message with View Invoice and Pay Balance links; TEST 
   const msgs = await db.whatsAppMessage.findMany({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
   assert.equal(msgs.length, 1);
   const token = (await db.job.findUnique({ where: { id: job.id } }))!.publicToken!;
-  assert.ok(msgs[0].body.includes(`/booking/invoice/${token}`) && msgs[0].body.includes(`/booking/pay/${token}`) && msgs[0].body.includes("INV-Q-"));
+  assert.ok(msgs[0].body.includes(`/booking/invoice/${token}`) && !msgs[0].body.includes("/booking/pay/") && msgs[0].body.includes("INV-Q-"));
+  assert.equal((msgs[0].body.match(/\/booking\//g) ?? []).length, 1, "exactly one booking link in the message");
   assert.notEqual(msgs[0].status, "SENT", "TEST mode: a real customer number is never messaged");
 });
 
@@ -185,7 +186,7 @@ test("work started: no message while the template is off; with it on, ONE templa
   }
 });
 
-test("work started is queued from the status change; work completed text carries thanks + invoice + online payment + Google review link", async () => {
+test("work started is queued from the status change; work completed text carries thanks + ONE invoice link + ONE Google review link (no pay link)", async () => {
   const src = (await import("node:fs")).readFileSync("src/server/actions/jobs.ts", "utf8");
   assert.match(src, /status === "STARTED"\) void enqueueServiceStartedNotice\(jobId\)/);
   await db.companySettings.upsert({ where: { id: "default" }, update: { googleReviewUrl: "https://g.page/r/TEST/review" }, create: { id: "default", name: "Sahara", phone: "0", email: "t@t", address: "x", googleReviewUrl: "https://g.page/r/TEST/review" } as never });
@@ -193,5 +194,6 @@ test("work started is queued from the status change; work completed text carries
   await db.job.update({ where: { id: job.id }, data: { status: "COMPLETED" } });
   await handlers.sendJobCompletedLinks(job.id, { force: true });
   const m = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
-  assert.ok(m && /Thank you/.test(m.body) && m.body.includes("/booking/invoice/") && m.body.includes("/booking/pay/") && m.body.includes("https://g.page/r/TEST/review"));
+  assert.ok(m && /Thank you/.test(m.body) && m.body.includes("/booking/invoice/") && !m.body.includes("/booking/pay/") && m.body.includes("https://g.page/r/TEST/review"));
+  assert.equal((m.body.match(/https?:\/\//g) ?? []).length, 2, "exactly two links: invoice + Google review");
 });

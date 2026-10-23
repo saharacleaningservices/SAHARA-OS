@@ -65,7 +65,8 @@ export async function sendQuotationNotice(quotationId: string) {
  * can receive it. Returns quietly when off so the existing completion messages keep working untouched.
  */
 export async function sendJobCompletedNotice(jobId: string) {
-  if (process.env.WHATSAPP_USE_TEMPLATES !== "on" || process.env.WHATSAPP_COMPLETED_TEMPLATE !== "v1") return sendJobCompletedLinks(jobId);
+  const version = process.env.WHATSAPP_COMPLETED_TEMPLATE;
+  if (process.env.WHATSAPP_USE_TEMPLATES !== "on" || (version !== "v1" && version !== "v2")) return sendJobCompletedLinks(jobId);
   const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId }, select: { id: true } });
   if (already) return;
   const job = await db.job.findFirst({
@@ -74,7 +75,7 @@ export async function sendJobCompletedNotice(jobId: string) {
   });
   if (!job) return;
   const pmt = customerPaymentStatus(job);
-  const t = templateByName("sahara_job_completed_v1")!;
+  const t = templateByName(version === "v2" ? "sahara_job_completed_v2" : "sahara_job_completed_v1")!;
   const token = await ensureJobToken(job.id);
   const params = [job.customerName, SERVICE_LABELS[job.service] ?? job.service, formatINR(pmt.due).replace(/^₹\s?/, "")];
   const res = await sendWhatsAppTemplate({
@@ -84,7 +85,7 @@ export async function sendJobCompletedNotice(jobId: string) {
     templateName: t.name,
     languageCode: t.language,
     bodyParams: params,
-    buttonUrlParams: [{ index: 0, value: token }], // Pay Balance → /booking/pay/{token}; the Google review button is a fixed link
+    buttonUrlParams: [{ index: 0, value: token }], // v1: Pay Balance → /booking/pay/{token}; v2: View Invoice → /booking/invoice/{token}; the Google review button is a fixed link
     preview: renderTemplatePreview(t, params),
     relatedType: "Job",
     relatedId: job.id,
@@ -114,7 +115,8 @@ export async function sendJobCompletedLinks(jobId: string, opts: { force?: boole
     `Hi ${job.customerName}, your ${SERVICE_LABELS[job.service] ?? job.service} service is complete. Thank you for choosing Sahara Cleaning Services!`,
     ``,
     `\u{1F9FE} View Invoice${job.invoice ? ` ${job.invoice.invoiceNumber}` : ""}: ${PUBLIC_BOOKING_URL}/booking/invoice/${token}`,
-    pmt.due > 0 ? `\u{1F4B3} Balance due ${formatINR(pmt.due)} — pay online: ${PUBLIC_BOOKING_URL}/booking/pay/${token}` : `Payment received in full — thank you.`,
+    // One invoice link only (owner 2026-10-23): the invoice page shows the balance and the payment QR, so no separate pay link here.
+    pmt.due > 0 ? `Balance due: ${formatINR(pmt.due)} \u2014 payment details are on the invoice.` : `Payment received in full \u2014 thank you.`,
     ...(settings?.googleReviewUrl ? [``, `\u2B50 Happy with our service? Please rate us on Google: ${settings.googleReviewUrl}`] : []),
   ];
   const res = await sendWhatsApp({ kind: "JOB_COMPLETED", toNumber: job.customerMobile, toName: job.customerName, body: lines.join("\n"), relatedType: "Job", relatedId: job.id });
