@@ -31,6 +31,7 @@
     "test:upiwa": "tsx --test tests/upi-whatsapp-2026-10-23.test.ts",
     "test:festival": "tsx --test tests/festival-prices-2026-10-23.test.ts",
     "test:ackemail": "tsx --test tests/enquiry-ack-email.test.ts",
+    "test:backupasync": "tsx --test tests/backup-nonblocking.test.ts",
     "test:crmrefresh": "tsx --test tests/crm-refresh.test.ts",
     "test:custhistory": "tsx --test tests/customer-history.test.ts",
     "test:staffaudit": "tsx --test tests/staff-audit-delete.test.ts",

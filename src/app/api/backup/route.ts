@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { spawnSync } from "node:child_process";
 import { Readable } from "node:stream";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { uploadsRoot } from "@/lib/uploads";
-import Database from "better-sqlite3";
+import { runTar, snapshotDatabase } from "@/lib/backup-async";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getResolvedIntegrations, markBackupVerified } from "@/server/integrations";
@@ -61,17 +60,12 @@ export async function GET(request: NextRequest) {
   try {
     // VACUUM INTO writes a clean, transactionally-consistent copy without
     // touching the live database file.
+    // Done in a worker thread (src/lib/backup-async.ts): these SQLite calls are synchronous and used to freeze the whole server
+    // (the "event loop blocked 17991 ms" alert) for as long as the backup took.
     const snapshot = path.join(workdir, "dev.db");
-    const liveDb = new Database(dbPath);
-    liveDb.exec(`VACUUM INTO '${snapshot.replace(/'/g, "''")}'`);
-    liveDb.close();
-
     // Verify the snapshot before anything else touches it — never ship a
     // backup that wouldn't actually restore.
-    const check = new Database(snapshot, { readonly: true });
-    const integrity = check.pragma("integrity_check", { simple: true }) as string;
-    const { c: userCount } = check.prepare(`SELECT COUNT(*) AS c FROM "User"`).get() as { c: number };
-    check.close();
+    const { integrity, userCount } = await snapshotDatabase(dbPath, snapshot);
     if (integrity !== "ok" || userCount < 1) {
       fs.rmSync(workdir, { recursive: true, force: true });
       db.backupEvent
@@ -95,10 +89,10 @@ export async function GET(request: NextRequest) {
     if (fs.existsSync(uploadsDir)) {
       tarArgs.push("-C", path.dirname(uploadsDir), path.basename(uploadsDir));
     }
-    const tar = spawnSync("tar", tarArgs, { encoding: "utf8" });
+    const tar = await runTar(tarArgs); // async child process — the server keeps answering requests while the archive is built
     if (tar.status !== 0) {
       fs.rmSync(workdir, { recursive: true, force: true });
-      return new NextResponse(`tar failed: ${tar.stderr || tar.error}`, { status: 500 });
+      return new NextResponse(`tar failed: ${tar.stderr}`, { status: 500 });
     }
 
     const stamp = new Date().toISOString().replace(/[:.]/g, "-");

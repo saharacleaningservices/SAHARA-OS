@@ -131,3 +131,16 @@ test("existing jobs appear in the Staff App live, from the crew assignment — n
   const json = JSON.stringify(home);
   assert.ok(!json.includes("9876500011") && !json.includes("5000"), "no phone, no amount in the Staff App data");
 });
+
+// Jobs list order (owner 2026-10-23) ---------------------------------------------------------------------------------------
+test("/jobs: upcoming work in calendar order (24, 25, 26 Oct… then November), then past jobs most recent first", async () => {
+  const { orderJobsForList } = await import("../src/server/jobs");
+  const d = (s: string) => new Date(`${s}T10:00:00+05:30`);
+  const now = d("2026-10-23");
+  const rows = [
+    { jobNumber: "J-NOV", scheduledDate: d("2026-11-05") }, { jobNumber: "J-26", scheduledDate: d("2026-10-26") }, { jobNumber: "J-OLD", scheduledDate: d("2026-09-01") },
+    { jobNumber: "J-24B", scheduledDate: d("2026-10-24") }, { jobNumber: "J-TODAY", scheduledDate: d("2026-10-23") }, { jobNumber: "J-24A", scheduledDate: d("2026-10-24") },
+    { jobNumber: "J-YEST", scheduledDate: d("2026-10-22") }, { jobNumber: "J-25", scheduledDate: d("2026-10-25") },
+  ];
+  assert.deepEqual(orderJobsForList(rows, now).map((r) => r.jobNumber), ["J-TODAY", "J-24A", "J-24B", "J-25", "J-26", "J-NOV", "J-YEST", "J-OLD"]);
+});

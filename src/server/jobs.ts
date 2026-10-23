@@ -52,9 +52,8 @@ export async function getAllJobsForList(session?: SessionPayload) {
         : { gte: startOfDay(now), lte: endOfDay(addDays(now, 1)) };
   }
 
-  return db.job.findMany({
+  const rows = await db.job.findMany({
     where,
-    // Strict date-wise, newest service date first (owner 2026-10-18); same date → newest Job ID first.
     orderBy: [{ scheduledDate: "desc" }, { jobNumber: "desc" }],
     include: {
       lead: { select: { leadNumber: true } },
@@ -65,6 +64,19 @@ export async function getAllJobsForList(session?: SessionPayload) {
       vehicle: { select: { name: true, plateNumber: true } },
     },
   });
+  return orderJobsForList(rows, now);
+}
+
+/**
+ * List order (owner 2026-10-23): what is coming up first, in calendar order — today, 24 Oct, 25 Oct, 26 Oct … — then everything
+ * that already happened, most recent first. (The earlier "newest date first" put November at the top of the list.) Within one
+ * day the oldest Job ID comes first for upcoming work and the newest first for past work.
+ */
+export function orderJobsForList<T extends { scheduledDate: Date; jobNumber: string }>(rows: T[], now = new Date()): T[] {
+  const start = startOfDay(now).getTime();
+  const upcoming = rows.filter((r) => r.scheduledDate.getTime() >= start).sort((a, b) => a.scheduledDate.getTime() - b.scheduledDate.getTime() || a.jobNumber.localeCompare(b.jobNumber));
+  const past = rows.filter((r) => r.scheduledDate.getTime() < start).sort((a, b) => b.scheduledDate.getTime() - a.scheduledDate.getTime() || b.jobNumber.localeCompare(a.jobNumber));
+  return [...upcoming, ...past];
 }
 
 /** Summary cards shown above the Jobs list. */

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { spawnSync } from "node:child_process";
+import { runTar } from "@/lib/backup-async";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -84,11 +84,11 @@ export async function POST(request: NextRequest) {
 
     const extractDir = path.join(workdir, "extracted");
     fs.mkdirSync(extractDir);
-    const tar = spawnSync("tar", ["--force-local", "-xzf", uploadPath, "-C", extractDir], { encoding: "utf8" });
+    const tar = await runTar(["--force-local", "-xzf", uploadPath, "-C", extractDir]);
     if (tar.status !== 0) {
-      logFailure(`Could not read the archive: ${tar.stderr || tar.error}`, file.name);
+      logFailure(`Could not read the archive: ${tar.stderr}`, file.name);
       fs.rmSync(workdir, { recursive: true, force: true });
-      return NextResponse.json({ error: `Could not read the archive: ${tar.stderr || tar.error}` }, { status: 400 });
+      return NextResponse.json({ error: `Could not read the archive: ${tar.stderr}` }, { status: 400 });
     }
 
     const restoredDbPath = path.join(extractDir, "dev.db");
