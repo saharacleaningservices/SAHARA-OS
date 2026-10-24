@@ -59,3 +59,14 @@ test("another crew member's job is not reachable by id; a cancelled job disappea
   await db.job.update({ where: { id: job.id }, data: { status: "CANCELLED" } });
   assert.equal(await portal.getMyJob(mine.id, job.id), null);
 });
+
+test("owner rule (same day only): a job assigned for tomorrow is invisible to the crew - home, history and by id", async () => {
+  const me = await db.staff.findFirstOrThrow({ where: { employeeCode: "SP-1" } });
+  const tomorrow = new Date(Date.now() + 36 * 3600 * 1000);
+  const future = await db.job.create({ data: { jobNumber: "SP-JOB-FUT", customerName: "Later", customerMobile: "9000000777", address: "x", area: "Baner", service: "HOME_DEEP_CLEANING", scheduledDate: tomorrow, scheduledTime: "10 AM", jobValue: 1000, status: "ASSIGNED" } as never });
+  await db.jobAssignment.create({ data: { jobId: future.id, staffId: me.id, isLead: true } as never });
+  const sme = { id: me.id, name: "Ravi", employeeCode: "SP-1", designation: "Cleaner", mobile: "9000000555", photoUrl: null } as never;
+  const home = await portal.getPortalHome(sme);
+  assert.ok(![...home.todaysJobs, ...home.upcomingJobs].some((j) => j.jobNumber === "SP-JOB-FUT"));
+  assert.equal(await portal.getMyJob(me.id, future.id), null, "not reachable by id either");
+});
