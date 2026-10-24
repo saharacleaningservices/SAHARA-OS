@@ -37,7 +37,7 @@ export default async function PaintingServicesPage() {
       mobileBar={<CategoryBar waText={WA} cta="Free Inspection" />}
     >
       <CategoryHero
-        image="/marketing/hero-painting.webp"
+        image="/marketing/service-painting.webp"
         alt="Sahara painting team painting an interior wall in Pune"
         title="Painting Services in Pune"
         subtitle="Interior and exterior painting, waterproofing and epoxy flooring for homes and commercial spaces."

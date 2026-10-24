@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Interior Painting in Pune – Asian Paints Range, Free Site Inspection & Quote | Sahara",
   description: "Interior painting across Pune & PCMC with Asian Paints options — Oil Bound Distemper, Tractor Emulsion, Premium Emulsion, Royale, Royale Lustre and texture painting. Free site inspection and measurement-based quote.",
   alternates: { canonical: `${BASE_URL}/interior-painting-pune` },
-  openGraph: { title: "Interior Painting in Pune — Sahara Cleaning Services", description: "Free site inspection and measurement-based painting quote.", url: `${BASE_URL}/interior-painting-pune`, images: [`${BASE_URL}/marketing/hero-painting.webp`], type: "website" },
+  openGraph: { title: "Interior Painting in Pune — Sahara Cleaning Services", description: "Free site inspection and measurement-based painting quote.", url: `${BASE_URL}/interior-painting-pune`, images: [`${BASE_URL}/marketing/service-painting.webp`], type: "website" },
 };
 
 const WA = "Hi Sahara, I'd like a quote for interior painting.";
@@ -36,7 +36,7 @@ export default async function InteriorPaintingPage() {
     >
       <CampaignStyles />
       <CampaignHero
-        image="/marketing/hero-painting.webp"
+        image="/marketing/service-painting.webp"
         alt="Sahara painter rolling fresh paint on a living-room wall in Pune"
         title="Interior Painting in Pune"
         subtitle="Neat preparation, the right paint for every room and a clean professional finish."

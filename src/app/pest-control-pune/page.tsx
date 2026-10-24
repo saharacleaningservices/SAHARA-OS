@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Pest Control in Pune – Cockroach, Termite, Bed Bug, Ant | Sahara Cleaning Services",
   description: "Professional pest control across Pune & PCMC for cockroaches, termites, bed bugs and ants. Inspection-based treatment plan and quote from Sahara Cleaning Services.",
   alternates: { canonical: `${BASE_URL}/pest-control-pune` },
-  openGraph: { title: "Pest Control in Pune — Sahara Cleaning Services", description: "Cockroach, termite, bed bug and ant control. Book an inspection.", url: `${BASE_URL}/pest-control-pune`, images: [`${BASE_URL}/marketing/hero-pest.webp`], type: "website" },
+  openGraph: { title: "Pest Control in Pune — Sahara Cleaning Services", description: "Cockroach, termite, bed bug and ant control. Book an inspection.", url: `${BASE_URL}/pest-control-pune`, images: [`${BASE_URL}/marketing/service-pest-control.webp`], type: "website" },
 };
 
 const WA = "Hi Sahara, I'd like to book a pest control inspection.";
@@ -35,7 +35,7 @@ export default async function PestControlPage() {
     >
       <CampaignStyles />
       <CampaignHero
-        image="/marketing/hero-pest.webp"
+        image="/marketing/service-pest-control.webp"
         alt="Sahara pest control technician treating kitchen skirting in a Pune apartment"
         title="Pest Control in Pune"
         subtitle="Inspection first, then a targeted treatment plan by a trained team."
