@@ -48,8 +48,9 @@ test("new customers get a number on create (retry on a clash); IDs shown on list
   assert.ok(cdb.includes("createWithCustomerNumber") && cdb.includes(`e.code === "P2002"`));
   assert.ok(cdb.includes("if (!existing.customerNumber) patch.customerNumber"));
   assert.ok(read("src/server/actions/import.ts").includes("createWithCustomerNumber"));
-  assert.ok(read("src/app/api/quotations/[id]/pdf/route.ts").includes(`label: "Customer ID"`));
-  assert.ok(read("src/app/api/invoices/[id]/pdf/route.ts").includes(`label: "Customer ID"`));
+  // Owner ID rule 2026-10-24: quotations carry the Lead ID only and invoices the Job ID only - the Customer ID is no longer printed on either.
+  const pdf = read("src/server/document-pdf.ts");
+  assert.ok(pdf.includes(`label: "Lead ID"`) && pdf.includes(`label: "Job ID"`) && !pdf.includes(`label: "Customer ID"`));
   assert.ok(read("src/components/jobs/jobs-explorer.tsx").includes("job.customerNumber"));
   assert.ok(read("src/components/leads/leads-explorer.tsx").includes("lead.customerNumber"));
   assert.ok(read("src/components/customers/customers-explorer.tsx").includes("c.customerNumber"));

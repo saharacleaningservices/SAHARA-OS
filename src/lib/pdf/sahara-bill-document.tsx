@@ -16,6 +16,7 @@ const GOLD = "#c9a961";
 const NAVY = "#24325a";
 const MUTED = "#5b6478";
 const BEIGE = "#faf3e6";
+const ROYAL = "#1E40AF"; // footer strip (owner 2026-10-24)
 
 // k < 1 only for single-page quotations (see fitFactor); invoices render at k = 1, exactly as before.
 function makeStyles(k: number) {
@@ -23,17 +24,19 @@ function makeStyles(k: number) {
   return StyleSheet.create({
   page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: "Helvetica" },
   frame: { borderWidth: 1.5, borderColor: GOLD, flexGrow: 1 },
-  header: { flexDirection: "column", alignItems: "center", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
+  headRight: { flexGrow: 1, flexShrink: 1, alignItems: "flex-end", paddingLeft: z(10) },
+  docTitle: { fontFamily: "Helvetica-Bold", fontSize: z(14), color: NAVY, letterSpacing: 1, marginTop: z(4) },
   slogan: { fontFamily: "Times-Italic", fontSize: z(10.5), color: NAVY, marginTop: z(2), marginBottom: z(3), textAlign: "center" },
-  phones: { fontFamily: "Helvetica-Bold", fontSize: z(9.5), color: NAVY, marginBottom: z(2), textAlign: "center" },
+  phones: { fontFamily: "Helvetica-Bold", fontSize: z(9.5), color: NAVY, marginTop: z(2), textAlign: "right" },
   contactC: { fontSize: z(8), color: MUTED, marginBottom: z(1), textAlign: "center" },
   titleBar: { flexDirection: "row", justifyContent: "center", alignItems: "center", paddingVertical: z(5), borderBottomWidth: 1, borderBottomColor: GOLD, backgroundColor: BEIGE },
   titleC: { fontSize: z(12), fontFamily: "Helvetica-Bold", color: NAVY, letterSpacing: 1 },
   // Logo in its own fixed box (scaled to fit, never overflowing), company text in the remaining width — they can't overlap.
-  logoCol: { width: z(150), height: z(52), marginBottom: z(2), justifyContent: "center", alignItems: "center" },
+  logoCol: { width: z(150), height: z(52), marginBottom: z(2), justifyContent: "center", alignItems: "flex-start" },
   logo: { width: z(146), height: z(50), objectFit: "contain" },
   companyCol: { flexGrow: 1, flexShrink: 1, paddingRight: 8 },
-  companyName: { fontFamily: "Times-Bold", fontSize: z(16), letterSpacing: z(0.3), lineHeight: 1.15, color: NAVY, textAlign: "center" },
+  companyName: { fontFamily: "Times-Bold", fontSize: z(16), letterSpacing: z(0.3), lineHeight: 1.15, color: NAVY, textAlign: "right" },
   tagline: { fontSize: z(9), color: MUTED, marginTop: z(2), marginBottom: z(6) },
   contact: { fontSize: z(8.5), color: NAVY, marginBottom: z(2) },
   titleCol: { width: z(110), flexShrink: 0, alignItems: "flex-end" },
@@ -76,7 +79,9 @@ function makeStyles(k: number) {
   splitBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 4, padding: z(4), marginTop: z(4), marginBottom: z(6) },
   footer: { marginTop: "auto" },
   signRow: { flexDirection: "row", justifyContent: "flex-end", paddingHorizontal: z(18), paddingBottom: z(6) },
-  servicesBar: { backgroundColor: NAVY, paddingVertical: z(5), paddingHorizontal: z(10) },
+  servicesBar: { backgroundColor: ROYAL, paddingVertical: z(6), paddingHorizontal: z(10) },
+  footSlogan: { color: "#ffffff", fontFamily: "Times-Italic", fontSize: z(10.5), textAlign: "center", marginBottom: z(2) },
+  footContact: { color: "#ffffff", fontSize: z(7.5), textAlign: "center", marginTop: z(1) },
   servicesTxt: { color: "#ffffff", fontSize: z(8), textAlign: "center", letterSpacing: 0.3 },
   signBox: { width: z(170), borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(46), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(5) },
   signLbl: { fontFamily: "Helvetica-Bold", fontSize: z(8.5) },
@@ -156,16 +161,13 @@ export function SaharaBillDocument(p: BillDocumentProps) {
         <View style={s.frame}>
           <View style={s.header}>
             <View style={s.logoCol}>{p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logo} /> : null}</View>
-            <Text style={s.companyName}>{p.company.name.toUpperCase()}</Text>
-            <Text style={s.slogan}>{p.company.slogan ?? SLOGAN}</Text>
-            <Text style={s.phones}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}</Text>
-            <Text style={s.contactC}>{p.company.email} · {p.company.website}</Text>
-            <Text style={s.contactC}>{p.company.address}</Text>
-            {p.company.gstin ? <Text style={s.contactC}>GSTIN: {p.company.gstin}</Text> : null}
-          </View>
-          <View style={s.titleBar}>
-            <Text style={s.titleC}>{p.title}</Text>
-            {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 0, marginLeft: 10 }]}>{p.copyLabel}</Text> : null}
+            <View style={s.headRight}>
+              <Text style={s.companyName}>{p.company.name.toUpperCase()}</Text>
+              <Text style={s.phones}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}</Text>
+              {p.company.gstin ? <Text style={[s.contactC, { textAlign: "right" }]}>GSTIN: {p.company.gstin}</Text> : null}
+              <Text style={s.docTitle}>{p.title}</Text>
+              {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 2 }]}>{p.copyLabel}</Text> : null}
+            </View>
           </View>
 
           <View style={s.metaStrip}>
@@ -342,7 +344,10 @@ export function SaharaBillDocument(p: BillDocumentProps) {
               </View>
             </View>
             <View style={s.servicesBar}>
+              <Text style={s.footSlogan}>{p.company.slogan ?? SLOGAN}</Text>
               <Text style={s.servicesTxt}>{(p.services ?? CORE_SERVICES).join("  •  ")}</Text>
+              <Text style={s.footContact}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}  ·  {p.company.email}  ·  {p.company.website}</Text>
+              <Text style={s.footContact}>{p.company.address}</Text>
             </View>
           </View>
         </View>

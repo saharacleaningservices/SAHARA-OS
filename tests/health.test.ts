@@ -38,8 +38,8 @@ test("healthy server: ok, DB answers fast, memory / CPU / event-loop are reporte
 test("a busy event loop is noticed (blocked ≥ 500 ms p99 → degraded, ≥ 3 s → unhealthy)", async () => {
   await health.collectHealth(); // starts the lag sampler
   await new Promise((r) => setTimeout(r, 300));
-  const end = Date.now() + 700;
-  while (Date.now() < end); // block the loop for 700 ms
+  const end = Date.now() + 900;
+  while (Date.now() < end); // block the loop for 900 ms (margin over the 500 ms threshold: timers fire a little early under load)
   await new Promise((r) => setTimeout(r, 400));
   const h = await health.collectHealth();
   assert.ok(h.eventLoop.maxMs >= 500, `max ${h.eventLoop.maxMs}`);

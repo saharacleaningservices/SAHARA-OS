@@ -22,6 +22,7 @@ import { VoiceRecorder } from "./voice-recorder";
 import { CallLogDialog } from "./call-log-dialog";
 import { addNote } from "@/server/actions/leads";
 import { formatDateTime } from "@/lib/utils";
+import { tidyTimeline } from "@/lib/timeline-tidy";
 
 type Entry = {
   id: string;
@@ -51,6 +52,7 @@ export function ConversationTimeline({ leadId, entries }: { leadId: string; entr
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const feedRef = useRef<HTMLDivElement>(null);
+  const tidy = tidyTimeline(entries); // no placeholder notes, no repeated system lines
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight });
@@ -73,12 +75,12 @@ export function ConversationTimeline({ leadId, entries }: { leadId: string; entr
   return (
     <div className="flex h-[32rem] flex-col">
       <div ref={feedRef} className="flex-1 space-y-3 overflow-y-auto pr-1">
-        {entries.length === 0 ? (
+        {tidy.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">
             No conversation yet. Add a note or record a voice memo below.
           </p>
         ) : (
-          entries.map((e) => {
+          tidy.map((e) => {
             const Icon = TYPE_ICON[e.type] ?? Info;
             if (!BUBBLE_TYPES.has(e.type)) {
               return (
