@@ -7,10 +7,10 @@ export function UniformStrip() {
       <div className="grid items-center gap-4 rounded-3xl bg-white p-4 shadow-sm sm:grid-cols-2 sm:p-6">
         <div className="space-y-2 text-center sm:text-left">
           <h2 id="uniform-title" className="text-lg font-extrabold text-[#0a2540] sm:text-xl">Your Trusted Home Service Partner</h2>
-          <p className="text-sm text-[#0a2540]/75">Our trained, verified team arrives in the official Sahara Royal Blue uniform — logo on the chest and the back — so you always know who is at your door.</p>
+          <p className="text-sm text-[#0a2540]/75">Our trained, verified team arrives in the official Sahara Royal Blue uniform — logo on the chest and back — so you always know who is at your door.</p>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/marketing/uniform-royal-blue.webp" alt="Official Sahara Cleaning Services Royal Blue polo uniform, front and back, with the logo on the chest and the back" width={1200} height={744} loading="lazy" decoding="async" className="h-auto w-full rounded-2xl" />
+        <img src="/marketing/uniform-royal-blue.webp" alt="Official Sahara Cleaning Services Royal Blue polo uniform, front and back, with the logo on the chest and back" width={1200} height={744} loading="lazy" decoding="async" className="h-auto w-full rounded-2xl" />
       </div>
     </section>
   );
