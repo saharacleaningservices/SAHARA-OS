@@ -36,7 +36,7 @@ export default async function PestControlLanding() {
       mobileBar={<CategoryBar waText={WA} cta="Book Inspection" />}
     >
       <CategoryHero
-        image="/marketing/hero-pest.webp"
+        image="/marketing/service-pest-control.webp"
         alt="Sahara pest control technician treating a kitchen in a Pune apartment"
         title="Pest Control in Pune"
         subtitle="Cockroach, termite, bed bug and society pest control — inspection first, then a targeted treatment plan."
