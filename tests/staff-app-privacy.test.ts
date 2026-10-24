@@ -44,7 +44,9 @@ test("an assigned job appears in the Staff App with name, address, map link, slo
   assert.match(String(detail!.scopeOfWork), /Kitchen deep clean/);
   assert.deepEqual([...detail!.packageServices].sort(), ["Kitchen Deep Clean", "Sofa Cleaning × 5"]); // names and quantities only
 
-  const everything = JSON.stringify({ home, detail });
+  // Random ids and the job's timestamp (random milliseconds) can contain a short amount like "311" by chance: blank them before the scan.
+  const scrub = (t: string) => t.replace(/"(id|staffId)":"[^"]*"/g, '"$1":""').replace(/\d{4}-\d{2}-\d{2}T[\d:.]+Z/g, "");
+  const everything = scrub(JSON.stringify({ home, detail }));
   for (const secret of [MOBILE, "9876500099", String(AMOUNT), "7,321", "913", "2756", "1464", "311"]) assert.ok(!everything.includes(secret), `${secret} must not reach the Staff App`);
   for (const key of ["customerMobile", "alternateMobile", "jobValue", "discountAmount", "unitPrice", "clientMobile", "paidAmount", "notes"]) assert.ok(!everything.includes(`"${key}"`), `field ${key} must not be sent to staff`);
 });
