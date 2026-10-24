@@ -61,12 +61,12 @@ export const NAV_GROUPS: { key: NavGroupKey; label: string; pinned?: boolean }[]
 // Which section each destination lives in (by href). Anything not listed falls under Settings & Admin.
 const GROUP_BY_HREF: Record<string, NavGroupKey> = {
   "/dashboard": "dashboards",
-  "/leads": "sales", "/customers": "sales", "/jobs/quick-quote": "sales", "/leads/price-list": "sales", "/service-catalog": "sales",
+  "/leads": "sales", "/customers": "sales", "/leads/price-list": "sales", "/service-catalog": "sales",
   "/jobs": "operations", "/jobs/dispatch": "operations", "/jobs/slots": "operations", "/staff": "operations", "/attendance": "operations", "/vehicles": "operations",
   "/amc": "operations", "/jobs?service=HOUSEKEEPING": "operations", "/jobs?service=PEST_CONTROL": "operations", "/jobs?service=INTERIOR_PAINTING": "operations",
-  "/quotations": "finance", "/invoices": "finance", "/payments": "finance", "/payments/send-link": "finance",
+  "/quotations": "finance", "/invoices": "finance", "/payments": "finance",
   "/vouchers/proforma-invoice": "finance", "/vouchers/credit-note": "finance", "/vouchers/delivery-challan": "finance",
-  "/expenses": "finance", "/vouchers/purchase-voucher": "finance", "/admin/khata-import": "finance",
+  "/expenses": "finance", "/vouchers/purchase-voucher": "finance",
   "/revenue": "finance", "/profit": "finance", "/profit/marketing": "finance", "/reports": "finance", "/reports/export-center": "finance",
 };
 
@@ -75,7 +75,6 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   // ── Sales & CRM: Leads / CRM, Parties, Quick Quote Generator (+ price list and service catalog folded into one entry)
   { label: "Leads / CRM", href: "/leads", section: "leads", icon: Users },
   { label: "Parties", href: "/customers", section: "customers", icon: BookUser },
-  { label: "Quick Quote Generator", href: "/jobs/quick-quote", section: "jobs", icon: Calculator },
   { label: "Price List", href: "/leads/price-list", section: "leads", icon: IndianRupee, cluster: "Prices & Service Catalog" },
   { label: "Service Catalog", href: "/service-catalog", section: "service-catalog", icon: FileText, cluster: "Prices & Service Catalog" },
   // ── Operations: Jobs, Team Dispatch & Slots, AMC Contracts (+ team, attendance, vehicles and the specialised services folded)
@@ -93,13 +92,11 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   { label: "Quotation / Estimate", href: "/quotations", section: "quotations", icon: FileSignature, cluster: "Sales Vouchers" },
   { label: "Sales Invoices", href: "/invoices", section: "invoices", icon: FileStack, cluster: "Sales Vouchers" },
   { label: "Payment In", href: "/payments", section: "payments", icon: IndianRupee, cluster: "Sales Vouchers" },
-  { label: "Payment Link Sender", href: "/payments/send-link", section: "payments", icon: Send, cluster: "Sales Vouchers" },
   { label: "Proforma Invoice", href: "/vouchers/proforma-invoice", section: "vouchers", icon: FileText, cluster: "Sales Vouchers" },
   { label: "Credit Note", href: "/vouchers/credit-note", section: "vouchers", icon: FileText, cluster: "Sales Vouchers" },
   { label: "Delivery Challan", href: "/vouchers/delivery-challan", section: "vouchers", icon: Truck, cluster: "Sales Vouchers" },
   { label: "Purchases & Expenses", href: "/expenses", section: "expenses", icon: Receipt, cluster: "Purchases" },
   { label: "Purchase Vouchers", href: "/vouchers/purchase-voucher", section: "vouchers", icon: FileStack, cluster: "Purchases" },
-  { label: "Khata Book Import", href: "/admin/khata-import", section: "khata-import", icon: FileSpreadsheet },
   { label: "Revenue Dashboard", href: "/revenue", section: "revenue", icon: Wallet, cluster: "Reports & Profit" },
   { label: "Profit Dashboard", href: "/profit", section: "profit", icon: TrendingUp, cluster: "Reports & Profit" },
   { label: "Marketing Dashboard", href: "/profit/marketing", section: "profit", icon: TrendingUp, cluster: "Reports & Profit" },

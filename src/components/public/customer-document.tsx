@@ -214,12 +214,10 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
       </header>
 
       {/* Reference IDs — all read from the database, so a quotation, booking and invoice always agree. */}
-      <section className="grid grid-cols-2 gap-x-4 gap-y-1 border-b border-[#0a2540]/10 bg-[#0a2540]/[0.03] px-4 py-2 text-[11px] sm:grid-cols-4 sm:px-6 print:px-4">
+      <section className="grid grid-cols-1 gap-x-4 gap-y-1 border-b border-[#0a2540]/10 bg-[#0a2540]/[0.03] px-4 py-2 text-[11px] sm:px-6 print:px-4">
         {[
-          ["Customer ID", job.customerNumber],
-          ["Booking / Job ID", job.jobNumber],
-          ["Quotation ID", job.quotationNumber ?? `QO-${job.jobNumber}`],
-          ["Invoice ID", isInvoice ? docNo : job.invoiceNumber],
+          // One reference only (owner 2026-10-24): the Booking ID on a quotation, the Job ID on an invoice.
+          [isInvoice ? "Job ID" : "Booking ID", job.jobNumber],
         ].map(([label, value]) => (
           <p key={label as string}><span className="block text-[9px] font-semibold uppercase tracking-wide text-[#0a2540]/55">{label}</span><span className="font-bold">{value || "—"}</span></p>
         ))}

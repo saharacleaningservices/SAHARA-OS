@@ -108,6 +108,7 @@ export const WHATSAPP_TRANSACTIONAL_TEMPLATES: readonly string[] = [
   "sahara_booking_confirmed_v4",
   // v5 / payment_received_v1 / job_completed_v1 — utility-only (owner 2026-10-22); in use only once Meta approves them.
   "sahara_booking_confirmed_v5",
+  "sahara_booking_confirmed_v6",
   "sahara_payment_received_v1",
   "sahara_job_completed_v1",
   "sahara_job_completed_v2",

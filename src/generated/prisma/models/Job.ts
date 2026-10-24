@@ -61,6 +61,7 @@ export type JobMinAggregateOutputType = {
   scheduledTime: string | null
   teamNumber: number | null
   publicToken: string | null
+  shortCode: string | null
   paymentPreference: string | null
   advanceRequestedAt: Date | null
   supervisorId: string | null
@@ -112,6 +113,7 @@ export type JobMaxAggregateOutputType = {
   scheduledTime: string | null
   teamNumber: number | null
   publicToken: string | null
+  shortCode: string | null
   paymentPreference: string | null
   advanceRequestedAt: Date | null
   supervisorId: string | null
@@ -163,6 +165,7 @@ export type JobCountAggregateOutputType = {
   scheduledTime: number
   teamNumber: number
   publicToken: number
+  shortCode: number
   paymentPreference: number
   advanceRequestedAt: number
   supervisorId: number
@@ -232,6 +235,7 @@ export type JobMinAggregateInputType = {
   scheduledTime?: true
   teamNumber?: true
   publicToken?: true
+  shortCode?: true
   paymentPreference?: true
   advanceRequestedAt?: true
   supervisorId?: true
@@ -283,6 +287,7 @@ export type JobMaxAggregateInputType = {
   scheduledTime?: true
   teamNumber?: true
   publicToken?: true
+  shortCode?: true
   paymentPreference?: true
   advanceRequestedAt?: true
   supervisorId?: true
@@ -334,6 +339,7 @@ export type JobCountAggregateInputType = {
   scheduledTime?: true
   teamNumber?: true
   publicToken?: true
+  shortCode?: true
   paymentPreference?: true
   advanceRequestedAt?: true
   supervisorId?: true
@@ -472,6 +478,7 @@ export type JobGroupByOutputType = {
   scheduledTime: string
   teamNumber: number | null
   publicToken: string | null
+  shortCode: string | null
   paymentPreference: string | null
   advanceRequestedAt: Date | null
   supervisorId: string | null
@@ -546,6 +553,7 @@ export type JobWhereInput = {
   scheduledTime?: Prisma.StringFilter<"Job"> | string
   teamNumber?: Prisma.IntNullableFilter<"Job"> | number | null
   publicToken?: Prisma.StringNullableFilter<"Job"> | string | null
+  shortCode?: Prisma.StringNullableFilter<"Job"> | string | null
   paymentPreference?: Prisma.StringNullableFilter<"Job"> | string | null
   advanceRequestedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   supervisorId?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -609,6 +617,7 @@ export type JobOrderByWithRelationInput = {
   scheduledTime?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  shortCode?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
   advanceRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   supervisorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -657,6 +666,7 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   jobNumber?: string
   publicToken?: string
+  shortCode?: string
   AND?: Prisma.JobWhereInput | Prisma.JobWhereInput[]
   OR?: Prisma.JobWhereInput[]
   NOT?: Prisma.JobWhereInput | Prisma.JobWhereInput[]
@@ -717,7 +727,7 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   materialIssues?: Prisma.MaterialIssueListRelationFilter
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
   videos?: Prisma.JobVideoListRelationFilter
-}, "id" | "jobNumber" | "publicToken">
+}, "id" | "jobNumber" | "publicToken" | "shortCode">
 
 export type JobOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -738,6 +748,7 @@ export type JobOrderByWithAggregationInput = {
   scheduledTime?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  shortCode?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
   advanceRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   supervisorId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -797,6 +808,7 @@ export type JobScalarWhereWithAggregatesInput = {
   scheduledTime?: Prisma.StringWithAggregatesFilter<"Job"> | string
   teamNumber?: Prisma.IntNullableWithAggregatesFilter<"Job"> | number | null
   publicToken?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  shortCode?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   paymentPreference?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   advanceRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
   supervisorId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
@@ -847,6 +859,7 @@ export type JobCreateInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -908,6 +921,7 @@ export type JobUncheckedCreateInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -967,6 +981,7 @@ export type JobUpdateInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -1028,6 +1043,7 @@ export type JobUncheckedUpdateInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1088,6 +1104,7 @@ export type JobCreateManyInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -1138,6 +1155,7 @@ export type JobUpdateManyMutationInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -1187,6 +1205,7 @@ export type JobUncheckedUpdateManyInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1248,6 +1267,7 @@ export type JobCountOrderByAggregateInput = {
   scheduledTime?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   publicToken?: Prisma.SortOrder
+  shortCode?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrder
   advanceRequestedAt?: Prisma.SortOrder
   supervisorId?: Prisma.SortOrder
@@ -1307,6 +1327,7 @@ export type JobMaxOrderByAggregateInput = {
   scheduledTime?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   publicToken?: Prisma.SortOrder
+  shortCode?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrder
   advanceRequestedAt?: Prisma.SortOrder
   supervisorId?: Prisma.SortOrder
@@ -1358,6 +1379,7 @@ export type JobMinOrderByAggregateInput = {
   scheduledTime?: Prisma.SortOrder
   teamNumber?: Prisma.SortOrder
   publicToken?: Prisma.SortOrder
+  shortCode?: Prisma.SortOrder
   paymentPreference?: Prisma.SortOrder
   advanceRequestedAt?: Prisma.SortOrder
   supervisorId?: Prisma.SortOrder
@@ -1690,6 +1712,7 @@ export type JobCreateWithoutSupervisorInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -1750,6 +1773,7 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -1837,6 +1861,7 @@ export type JobScalarWhereInput = {
   scheduledTime?: Prisma.StringFilter<"Job"> | string
   teamNumber?: Prisma.IntNullableFilter<"Job"> | number | null
   publicToken?: Prisma.StringNullableFilter<"Job"> | string | null
+  shortCode?: Prisma.StringNullableFilter<"Job"> | string | null
   paymentPreference?: Prisma.StringNullableFilter<"Job"> | string | null
   advanceRequestedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   supervisorId?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -1887,6 +1912,7 @@ export type JobCreateWithoutLeadInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -1946,6 +1972,7 @@ export type JobUncheckedCreateWithoutLeadInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -2030,6 +2057,7 @@ export type JobCreateWithoutAssignmentsInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -2090,6 +2118,7 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -2164,6 +2193,7 @@ export type JobUpdateWithoutAssignmentsInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -2224,6 +2254,7 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2282,6 +2313,7 @@ export type JobCreateWithoutPhotosInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -2342,6 +2374,7 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -2416,6 +2449,7 @@ export type JobUpdateWithoutPhotosInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -2476,6 +2510,7 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2534,6 +2569,7 @@ export type JobCreateWithoutCertificateInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -2594,6 +2630,7 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -2668,6 +2705,7 @@ export type JobUpdateWithoutCertificateInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -2728,6 +2766,7 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2786,6 +2825,7 @@ export type JobCreateWithoutPaymentsInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -2846,6 +2886,7 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -2920,6 +2961,7 @@ export type JobUpdateWithoutPaymentsInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -2980,6 +3022,7 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3038,6 +3081,7 @@ export type JobCreateWithoutExpensesInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -3098,6 +3142,7 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -3172,6 +3217,7 @@ export type JobUpdateWithoutExpensesInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -3232,6 +3278,7 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3290,6 +3337,7 @@ export type JobCreateWithoutActivityLogsInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -3350,6 +3398,7 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -3424,6 +3473,7 @@ export type JobUpdateWithoutActivityLogsInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -3484,6 +3534,7 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3542,6 +3593,7 @@ export type JobCreateWithoutVehicleInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -3602,6 +3654,7 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -3685,6 +3738,7 @@ export type JobCreateWithoutMaterialIssuesInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -3745,6 +3799,7 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -3819,6 +3874,7 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -3879,6 +3935,7 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3937,6 +3994,7 @@ export type JobCreateWithoutInvoiceInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -3997,6 +4055,7 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -4071,6 +4130,7 @@ export type JobUpdateWithoutInvoiceInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -4131,6 +4191,7 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4189,6 +4250,7 @@ export type JobCreateWithoutVideosInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -4249,6 +4311,7 @@ export type JobUncheckedCreateWithoutVideosInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -4323,6 +4386,7 @@ export type JobUpdateWithoutVideosInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -4383,6 +4447,7 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4442,6 +4507,7 @@ export type JobCreateManySupervisorInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
@@ -4491,6 +4557,7 @@ export type JobUpdateWithoutSupervisorInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -4551,6 +4618,7 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -4610,6 +4678,7 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -4659,6 +4728,7 @@ export type JobCreateManyLeadInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -4709,6 +4779,7 @@ export type JobUpdateWithoutLeadInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -4768,6 +4839,7 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4827,6 +4899,7 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4878,6 +4951,7 @@ export type JobCreateManyVehicleInput = {
   scheduledTime: string
   teamNumber?: number | null
   publicToken?: string | null
+  shortCode?: string | null
   paymentPreference?: string | null
   advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
@@ -4927,6 +5001,7 @@ export type JobUpdateWithoutVehicleInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
@@ -4987,6 +5062,7 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5046,6 +5122,7 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
   teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5181,6 +5258,7 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   scheduledTime?: boolean
   teamNumber?: boolean
   publicToken?: boolean
+  shortCode?: boolean
   paymentPreference?: boolean
   advanceRequestedAt?: boolean
   supervisorId?: boolean
@@ -5245,6 +5323,7 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   scheduledTime?: boolean
   teamNumber?: boolean
   publicToken?: boolean
+  shortCode?: boolean
   paymentPreference?: boolean
   advanceRequestedAt?: boolean
   supervisorId?: boolean
@@ -5299,6 +5378,7 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   scheduledTime?: boolean
   teamNumber?: boolean
   publicToken?: boolean
+  shortCode?: boolean
   paymentPreference?: boolean
   advanceRequestedAt?: boolean
   supervisorId?: boolean
@@ -5353,6 +5433,7 @@ export type JobSelectScalar = {
   scheduledTime?: boolean
   teamNumber?: boolean
   publicToken?: boolean
+  shortCode?: boolean
   paymentPreference?: boolean
   advanceRequestedAt?: boolean
   supervisorId?: boolean
@@ -5385,7 +5466,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "gstEnabled" | "gstAmount" | "customerGstin" | "discountMode" | "discountValue" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "shortCode" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "gstEnabled" | "gstAmount" | "customerGstin" | "discountMode" | "discountValue" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -5447,6 +5528,7 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     scheduledTime: string
     teamNumber: number | null
     publicToken: string | null
+    shortCode: string | null
     paymentPreference: string | null
     advanceRequestedAt: Date | null
     supervisorId: string | null
@@ -5930,6 +6012,7 @@ export interface JobFieldRefs {
   readonly scheduledTime: Prisma.FieldRef<"Job", 'String'>
   readonly teamNumber: Prisma.FieldRef<"Job", 'Int'>
   readonly publicToken: Prisma.FieldRef<"Job", 'String'>
+  readonly shortCode: Prisma.FieldRef<"Job", 'String'>
   readonly paymentPreference: Prisma.FieldRef<"Job", 'String'>
   readonly advanceRequestedAt: Prisma.FieldRef<"Job", 'DateTime'>
   readonly supervisorId: Prisma.FieldRef<"Job", 'String'>

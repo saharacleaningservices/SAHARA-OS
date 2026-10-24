@@ -83,9 +83,13 @@ test("default message carries booking, quotation, payment and review links — a
   assert.equal(rest.length, 0, "exactly one confirmation");
   const token = (await db.job.findUnique({ where: { id: job.id } }))!.publicToken!;
   assert.ok(token && token.length >= 20, "an unguessable booking token was created");
-  assert.ok(m.body.includes(`/booking/${token}`), "booking link");
-  assert.ok(m.body.includes(`/booking/quotation/${token}`), "quotation link");
-  assert.ok(m.body.includes(`/booking/${token}?pay=advance`), "payment link");
+  // Short links (owner 2026-10-24): /b/<code> booking, /q/<code> quotation PDF, /p/<code> pay advance — never the long token.
+  const code = (await db.job.findUniqueOrThrow({ where: { id: job.id }, select: { shortCode: true } })).shortCode!;
+  assert.match(code, /^[A-Za-z0-9]{10}$/);
+  assert.ok(m.body.includes(`/b/${code}`), "booking link");
+  assert.ok(m.body.includes(`/q/${code}`), "quotation link");
+  assert.ok(m.body.includes(`/p/${code}`), "payment link");
+  assert.ok(!m.body.includes(token), "the long booking token is not in the message");
   assert.ok(m.body.includes(REVIEW), "Google review link");
   assert.notEqual(m.status, "SENT", "TEST mode: a real customer number is never messaged");
 });

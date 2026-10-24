@@ -98,14 +98,16 @@ export function premiumBookingConfirmationMessage(input: {
   googleReviewUrl?: string | null;
   /** Secure /booking/<token> page; falls back to the legacy /j/<jobNumber> page. */
   bookingUrl?: string | null;
+  /** Short customer links (owner 2026-10-24) — when given they replace the long booking / quotation / pay URLs in the text. */
+  links?: { booking: string; quotation: string; pay: string } | null;
   /** Concise booked summary ("Full Home Cleaning — Premium" / "Sofa Cleaning × 5 seats"). */
   serviceSummary?: string | null;
   /** Booking total and recorded payments (shown only when a total exists). */
   total?: number | null;
   paid?: number | null;
 }) {
-  const trackingUrl = input.bookingUrl || `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
-  const payUrl = input.bookingUrl ? `${input.bookingUrl}?pay=advance` : `${trackingUrl}#payment`;
+  const trackingUrl = input.links?.booking || input.bookingUrl || `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
+  const payUrl = input.links?.pay || (input.bookingUrl ? `${input.bookingUrl}?pay=advance` : `${trackingUrl}#payment`);
   const location = input.address?.trim() || input.area;
   const due = Math.max(0, input.balanceDue ?? 0);
   const total = input.total && input.total > 0 ? input.total : null;
@@ -127,7 +129,7 @@ export function premiumBookingConfirmationMessage(input: {
     money,
     ``,
     `📄 Booking: ${trackingUrl}`,
-    input.bookingUrl ? `🧾 Quotation: ${input.bookingUrl.replace("/booking/", "/booking/quotation/")}` : null,
+    input.links?.quotation ? `🧾 Quotation: ${input.links.quotation}` : input.bookingUrl ? `🧾 Quotation: ${input.bookingUrl.replace("/booking/", "/booking/quotation/")}` : null,
     due > 0 ? `💳 Pay advance: ${payUrl}` : `💳 Payment: fully settled — thank you!`,
     `🔁 Reschedule / postpone / cancel: reply *MORE* or use “Need a change?” on your booking page.`,
     input.googleReviewUrl ? `⭐ ${input.googleReviewUrl}` : null,

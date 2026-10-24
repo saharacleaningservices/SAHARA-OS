@@ -107,21 +107,19 @@ test("clusters are contiguous, and every old Operations page is still in the men
 
 test("the four sidebar sections hold exactly what the owner listed (2026-10-23); the old Tools & AI section is gone, its tools live in Settings & Admin / Finance", () => {
   const labels = (g: string) => NAV_ITEMS.filter((i) => i.group === g && !i.cluster).map((i) => i.label);
-  assert.deepEqual(labels("sales"), ["Leads / CRM", "Parties", "Quick Quote Generator"]);
+  assert.deepEqual(labels("sales"), ["Leads / CRM", "Parties"]); // owner 2026-10-24: Quick Quote Generator left the menu (the page still works)
   assert.deepEqual(labels("operations"), ["Jobs", "AMC Contracts"]);
-  assert.ok(["Khata Book Import"].every((l) => labels("finance").includes(l)));
+  for (const gone of ["Quick Quote Generator", "Payment Link Sender", "Khata Book Import"]) assert.ok(!NAV_ITEMS.some((i) => i.label === gone), `${gone} left the menu (owner 2026-10-24)`);
   assert.ok(["User Management", "Message Log", "Lifecycle Reminders", "Settings"].every((l) => labels("admin").includes(l)));
-  assert.equal(NAV_ITEMS.find((i) => i.href === "/admin/khata-import")?.group, "finance");
-  assert.equal(NAV_ITEMS.some((i) => i.href === "/admin/gallery"), false);
+    assert.equal(NAV_ITEMS.some((i) => i.href === "/admin/gallery"), false);
   assert.ok(!NAV_GROUPS.some((g) => (g.key as string) === "tools"));
-  for (const href of ["/assistant", "/admin/whatsapp-inbox", "/payments/send-link", "/admin/announcements"]) assert.ok(NAV_ITEMS.some((i) => i.href === href), `${href} is still in the menu`);
+  for (const href of ["/assistant", "/admin/whatsapp-inbox", "/admin/announcements"]) assert.ok(NAV_ITEMS.some((i) => i.href === href), `${href} is still in the menu`);
 });
 
-test("Payment Link Sender is a money page: Admin and Accounts only", () => {
-  const item = NAV_ITEMS.find((i) => i.href === "/payments/send-link")!;
-  assert.equal(canAccess("ADMIN", item.section), true);
-  assert.equal(canAccess("ACCOUNTS", item.section), true);
-  assert.equal(canAccess("OPERATIONS", item.section), false);
+test("Payment Link Sender (no longer in the menu) is still a money page: Admin and Accounts only", () => {
+  assert.equal(canAccess("ADMIN", "payments"), true);
+  assert.equal(canAccess("ACCOUNTS", "payments"), true);
+  assert.equal(canAccess("OPERATIONS", "payments"), false);
   assert.match(readFileSync("src/app/(app)/payments/send-link/page.tsx", "utf8"), /requireRole\(\["ADMIN", "ACCOUNTS"\]\)/);
 });
 

@@ -8,6 +8,7 @@ import { randomBytes } from "node:crypto";
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { customerPaymentStatus, ensureJobToken } from "@/server/booking-messages";
+import { ensureShortCode, shortUrl } from "@/server/short-links";
 import { enqueueJob, pruneFinishedJobs, runDueJobs } from "@/server/job-queue";
 
 /** Crew dispatch for a job, in the background. One unfinished dispatch per job at a time. */
@@ -136,7 +137,7 @@ export async function sendJobCompletedLinks(jobId: string, opts: { force?: boole
   const lines = [
     `Hi ${job.customerName}, your ${SERVICE_LABELS[job.service] ?? job.service} service is complete. Thank you for choosing Sahara Cleaning Services!`,
     ``,
-    `\u{1F9FE} View Invoice${job.invoice ? ` ${job.invoice.invoiceNumber}` : ""}: ${PUBLIC_BOOKING_URL}/booking/invoice/${token}`,
+    `\u{1F9FE} View Invoice${job.invoice ? ` ${job.invoice.invoiceNumber}` : ""}: ${shortUrl("i", await ensureShortCode(job.id))}`,
     // One invoice link only (owner 2026-10-23): the invoice page shows the balance and the payment QR, so no separate pay link here.
     pmt.due > 0 ? `Balance due: ${formatINR(pmt.due)} \u2014 payment details are on the invoice.` : `Payment received in full \u2014 thank you.`,
     ...(settings?.googleReviewUrl ? [``, `\u2B50 Happy with our service? Please rate us on Google: ${settings.googleReviewUrl}`] : []),
