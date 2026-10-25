@@ -52,7 +52,7 @@ export default async function AreaPage({ params }: Props) {
       mobileBar={<CategoryBar waText={WA} cta="Get Proposal" />}
     >
       <CategoryHero
-        image="/marketing/hero-commercial.webp"
+        image="/marketing/hero-commercial-v2.webp"
         alt={`Sahara cleaning crew in Royal Blue uniform serving ${area.name}, Pune`}
         title={`Cleaning, Housekeeping & Pest Control in ${area.name}, Pune`}
         subtitle={`Home deep cleaning, office cleaning, pest control, painting and housekeeping AMC for ${area.premises} in ${area.name}.`}
