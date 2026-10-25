@@ -54,8 +54,8 @@ test("primary action follows the status: quote -> confirm -> reschedule -> conve
   assert.deepEqual(Object.values(PRIMARY_ACTION_LABEL).filter(Boolean), ["Create Quotation", "Confirm Booking", "Reschedule Job", "Share PDF", "Convert to Invoice"]);
 });
 
-test("status flow wording: New Inquiry -> Quotation Sent -> Confirmed -> Pending Job -> Completed / Cancelled; old stages still render", () => {
-  assert.deepEqual(LEAD_STAGE_FLOW.map((s) => LEAD_STAGE_LABELS[s]), ["New Inquiry", "Quotation Sent", "Confirmed", "Pending Job", "Completed", "Cancelled"]);
+test("status flow wording: New Inquiry -> Quotation Sent -> Follow-up -> Confirmed -> Pending Job -> Completed / Cancelled; old stages still render", () => {
+  assert.deepEqual(LEAD_STAGE_FLOW.map((s) => LEAD_STAGE_LABELS[s]), ["New Inquiry", "Quotation Sent", "Follow-up", "Confirmed", "Pending Job", "Completed", "Cancelled"]);
   assert.equal(LEAD_STAGE_LABELS.INTERESTED, "Interested");
   assert.equal(LEAD_STAGE_LABELS.SITE_VISIT, "Site Visit");
 });
@@ -97,12 +97,13 @@ test("Reschedule Date/Time on an enquiry without a job: updates date + slot, wri
   assert.equal((await act.rescheduleLead(lead.id, "2026-11-06", "2:00 PM")).success, false, "not for a cancelled enquiry");
 });
 
-test("page: the four old header buttons are gone, Overview sits first under the header, the old card is now Details", () => {
+test("page: old header buttons gone; ONE Overview block carries status (with Follow-up), reschedule and details; long scope collapsed (owner 2026-10-25)", () => {
   const page = readFileSync("src/app/(app)/leads/[id]/page.tsx", "utf8");
-  for (const gone of ["SendBookingFormButton", "SendPaymentLinkButton", "ScheduleVisitDialog", 'kind="REVIEW"']) assert.ok(!page.includes(gone), `${gone} left the page`);
+  for (const gone of ["SendBookingFormButton", "SendPaymentLinkButton", "ScheduleVisitDialog", 'kind="REVIEW"', "<CardTitle>Details</CardTitle>"]) assert.ok(!page.includes(gone), `${gone} left the page`);
   assert.ok(page.indexOf("<CardTitle>Overview</CardTitle>") < page.indexOf("<BookedScopeCard"), "Overview first");
-  assert.ok(page.includes("<CardTitle>Details</CardTitle>"));
-  for (const need of ["Requested Date / Time", "Assigned Team", "Address", "Mobile", "RescheduleDialog"]) assert.ok(page.includes(need), need);
+  const overview = page.slice(page.indexOf("<CardTitle>Overview</CardTitle>"), page.indexOf("<BookedScopeCard"));
+  for (const need of ["<StageSelect", "<RescheduleDialog", "Requested Date / Time", "Assigned Team", "Address", "Mobile", "WhatsApp marketing consent"]) assert.ok(overview.includes(need), `Overview holds ${need}`);
+  assert.match(page, /<details[^>]*>[\s\S]*?Package scope[\s\S]*?<PackageScopeCard[^>]*embedded/, "package scope is collapsed by default");
   const header = page.slice(page.indexOf("actions={"), page.indexOf("<div className=\"grid grid-cols-1 gap-4 lg:grid-cols-3\">"));
   assert.equal((header.match(/trigger=\{<Button size="sm">|primary\b|<SharePdfButton|<GenerateInvoiceButton/g) ?? []).length >= 4, true, "the primary action variants live in the header");
 });
