@@ -6,6 +6,8 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, FestivalUrgencyBar, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
+import { getFeaturedGallery } from "@/server/actions/gallery";
+import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { campaignFestivalNames, todayIST } from "@/lib/pricing-master";
 
 // Customer booking page in the approved transparent-pricing landing design.
@@ -68,7 +70,7 @@ export default async function BookingPage({
   searchParams: Promise<{ quote?: string; service?: string; ref?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
 }) {
   const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
-  const [settings, quote, pricing] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing()]);
+  const [settings, quote, pricing, galleryItems] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing(), getFeaturedGallery(12).catch(() => [])]);
   const festivalEyebrow = campaignFestivalNames(pricing.festivals, todayIST());
 
   return (
@@ -98,6 +100,8 @@ export default async function BookingPage({
             <CompactPriceSelector />
           </>
         )}
+        {/* Drag / touch Before–After transformation slider inside the booking flow (owner 2026-10-25). */}
+        {!quote && galleryItems.length > 0 && <BeforeAfterGallery items={galleryItems} />}
         <section id="book" className="scroll-mt-20">
           <BookingWizard
             quote={quote}
