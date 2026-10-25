@@ -5,12 +5,14 @@
 // per staff member rather than a single post into a native WhatsApp group.
 import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
-import { sendWhatsApp } from "@/lib/whatsapp";
+import { isMutedStaffAlert, sendWhatsApp } from "@/lib/whatsapp";
 import { teamDispatchMessage } from "@/lib/whatsapp-templates";
 import { crewCardToken } from "@/lib/crew-card-token";
 import { INTERNAL_CRM_URL } from "@/lib/site-urls";
 
 export async function dispatchTeamForJob(jobId: string) {
+  // Staff WhatsApp alerts are off (owner 2026-10-25): the crew sees the job in the Staff App. Nothing is sent or logged.
+  if (isMutedStaffAlert("TEAM_DISPATCH")) return { sent: 0, queued: 0, muted: true as const };
   const job = await db.job.findUnique({
     where: { id: jobId },
     include: {

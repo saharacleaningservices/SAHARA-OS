@@ -40,6 +40,7 @@
     "test:quote": "tsx --test tests/quotation-pdf.test.mts",
     "test:nav": "tsx --test tests/nav-groups.test.ts",
     "test:salessearch": "tsx --test tests/sales-search-2026-10-25.test.ts",
+    "test:staffalerts": "tsx --test tests/staff-alerts-off.test.ts",
     "test:category": "tsx --test tests/contact-category.test.ts",
     "test:custid": "tsx --test tests/customer-id.test.ts",
     "test:webauthn": "tsx --test tests/webauthn.test.ts",

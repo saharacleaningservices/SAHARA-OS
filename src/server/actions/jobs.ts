@@ -702,7 +702,7 @@ export async function sendTeamDispatch(jobId: string) {
       data: {
         jobId,
         actorId: session.sub,
-        action: `Team dispatch sent (${result.sent} sent, ${result.queued} queued — no WhatsApp credentials yet)`,
+        action: "muted" in result ? "Team dispatch: staff WhatsApp alerts are off — the crew sees this job in the Staff App" : `Team dispatch sent (${result.sent} sent, ${result.queued} queued)`,
       },
     })
     .catch(() => {});
