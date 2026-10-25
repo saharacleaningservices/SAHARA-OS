@@ -11,12 +11,14 @@ import { ReviewFunnel } from "@/components/public/review-funnel";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Rate Sahara Cleaning Services on Google", robots: { index: false, follow: false } };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ t?: string }> }) {
-  const { t } = await searchParams;
+export default async function Page({ searchParams }: { searchParams: Promise<{ t?: string; c?: string }> }) {
+  const { t, c } = await searchParams;
   let name: string | null = null;
   let service: string | null = null;
-  if (t && /^[A-Za-z0-9_-]{20,40}$/.test(t)) {
-    const job = await db.job.findFirst({ where: { publicToken: t, deletedAt: null }, select: { customerName: true, service: true } }).catch(() => null);
+  // ?t = booking token (WhatsApp template button), ?c = 10-char short code (plain-text completion message).
+  const where = t && /^[A-Za-z0-9_-]{20,40}$/.test(t) ? { publicToken: t } : c && /^[A-Za-z0-9]{10}$/.test(c) ? { shortCode: c } : null;
+  if (where) {
+    const job = await db.job.findFirst({ where: { ...where, deletedAt: null }, select: { customerName: true, service: true } }).catch(() => null);
     if (job) {
       name = job.customerName.split(/\s+/)[0] || null;
       service = job.service;
