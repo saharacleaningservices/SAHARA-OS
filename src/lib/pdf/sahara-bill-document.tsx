@@ -1,4 +1,4 @@
-import { Document, Font, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 // Whole words only (no "SER-VICES" hyphenation), as on Sahara’s existing documents.
 Font.registerHyphenationCallback((word) => [word]);
@@ -92,6 +92,10 @@ function makeStyles(k: number) {
   bankGrid: { flexDirection: "row", marginBottom: z(1) },
   bankK: { width: 64, fontSize: z(8), fontFamily: "Helvetica-Bold" },
   bankV: { fontSize: z(8), color: MUTED, flexShrink: 1 },
+  legal: { fontSize: z(7.5), color: MUTED, fontFamily: "Helvetica-Oblique", marginTop: z(4), lineHeight: 1.35 },
+  waBtn: { marginTop: z(6), borderWidth: 1, borderColor: GOLD, borderRadius: 6, backgroundColor: BEIGE, paddingVertical: z(5), paddingHorizontal: z(8), textDecoration: "none" },
+  waTitle: { fontFamily: "Helvetica-Bold", fontSize: z(9), color: NAVY, textAlign: "center" },
+  waSub: { fontSize: z(7.5), color: MUTED, textAlign: "center", marginTop: z(1) },
 });
 }
 
@@ -131,10 +135,14 @@ export type BillDocumentProps = {
   singlePage?: boolean;
   /** When set, the kindly-note lines print under this heading (before Terms) as bullets, e.g. "Not Included (Exclusions)". */
   exclusionsTitle?: string;
+  /** Statutory line printed under the Terms (quotations: the MSMED Act 2006 delayed-payment clause). */
+  legalNote?: string;
+  /** Clickable "Confirm on WhatsApp" box in the right column (quotations): a wa.me link with the quote number prefilled. */
+  whatsappConfirm?: { url: string; display: string } | null;
 };
 
 /** Rough line count of the longest column + table rows → scale factor for a single A4 page. Verified by tests/quotation-pdf.test.mts. */
-export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms"> & Partial<Pick<BillDocumentProps, "paymentSplit" | "bookQrDataUrl" | "billTo" | "bank" | "qrDataUrl" | "upiId" | "totals">>): number {
+export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms"> & Partial<Pick<BillDocumentProps, "paymentSplit" | "bookQrDataUrl" | "billTo" | "bank" | "qrDataUrl" | "upiId" | "totals" | "legalNote" | "whatsappConfirm">>): number {
   const wrap = (t: string, per: number) => Math.max(1, Math.ceil(t.length / per)) * 1;
   const left = p.notes.reduce((n, t) => n + wrap(t, 66), 0) + p.kindlyNote.reduce((n, t) => n + wrap(t, 66), 0) + p.terms.split("\n").reduce((n, t) => n + wrap(t, 66), 0);
   const table = p.rows.reduce((n, r) => n + (r.detail ? 2.6 : 1.7), 0);
@@ -142,7 +150,9 @@ export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyN
   const extra =
     (p.paymentSplit ? 4 : 0) + 4 + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0) +
     // Right column on invoices: bank details, payment QR, received / balance and GST lines.
-    (p.bank?.account || p.bank?.ifsc ? 5 : 0) + (p.qrDataUrl || p.upiId ? 6 : 0) + (p.totals?.received !== undefined ? 2 : 0) + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0);
+    (p.bank?.account || p.bank?.ifsc ? 5 : 0) + (p.qrDataUrl || p.upiId ? 6 : 0) + (p.totals?.received !== undefined ? 2 : 0) + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0) +
+    // Quotation extras: MSMED line under the terms, WhatsApp confirm box in the right column.
+    (p.legalNote ? wrap(p.legalNote, 66) : 0) + (p.whatsappConfirm ? 3 : 0);
   const load = left + table * 1.4 + extra;
   if (load <= 40) return 1;
   if (load <= 50) return 0.92;
@@ -277,6 +287,7 @@ export function SaharaBillDocument(p: BillDocumentProps) {
                 </>
               )}
               <Text style={s.para}>{p.terms}</Text>
+              {p.legalNote ? <Text style={s.legal}>{p.legalNote}</Text> : null}
             </View>
             <View style={s.right}>
               <View style={s.totalBox}>
@@ -307,6 +318,12 @@ export function SaharaBillDocument(p: BillDocumentProps) {
                   <View style={s.kv}><Text style={s.kvBold}>Advance ({p.paymentSplit.percent}%) — to confirm booking</Text><Text style={s.kvBold}>{rs(p.paymentSplit.advance)}</Text></View>
                   <View style={s.kv}><Text style={s.kvL}>Balance ({p.paymentSplit.balancePercent}%) — after work completion</Text><Text style={s.kvR}>{rs(p.paymentSplit.balance)}</Text></View>
                 </View>
+              ) : null}
+              {p.whatsappConfirm ? (
+                <Link src={p.whatsappConfirm.url} style={s.waBtn}>
+                  <Text style={s.waTitle}>Confirm this quotation on WhatsApp</Text>
+                  <Text style={s.waSub}>{p.whatsappConfirm.display}</Text>
+                </Link>
               ) : null}
               <Text style={s.secTitle}>Total Amount (in words)</Text>
               <Text style={s.words}>{p.amountInWords}</Text>

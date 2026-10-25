@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { SaharaBillDocument } from "@/lib/pdf/sahara-bill-document";
 import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, rupeesInWords } from "@/lib/document-scope";
-import { resolveQuotationTerms, modernizePaymentTerms } from "@/lib/quotation-template";
+import { MSMED_NOTE, modernizePaymentTerms, quotationWhatsAppLink, resolveQuotationTerms } from "@/lib/quotation-template";
 import { paymentSplit } from "@/lib/booking-payment";
 import { QUOTATION_TERMS, SERVICE_CATEGORY_LABELS, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
@@ -59,6 +59,8 @@ export async function renderQuotationPdf(quotationId: string): Promise<PdfFile |
       terms: resolveQuotationTerms(quotation.terms).text,
       singlePage: true,
       exclusionsTitle: "Not Included (Exclusions)",
+      legalNote: MSMED_NOTE,
+      whatsappConfirm: quotationWhatsAppLink(quotation.quoteNumber),
     }),
   );
   return { buffer, filename: `${quotation.quoteNumber}.pdf` };
