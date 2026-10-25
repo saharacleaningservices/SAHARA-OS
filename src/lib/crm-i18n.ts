@@ -29,7 +29,8 @@ export function setCrmLang(l: CrmLang) {
     window.localStorage.setItem(KEY, l);
   } catch {}
   window.dispatchEvent(new Event(EVENT));
-  document.documentElement.lang = l;
+  // Page bodies stay English: keep <html lang="en"> so the browser never auto-translates documents / swaps digits to Devanagari.
+  document.documentElement.dataset.crmLang = l;
 }
 
 const subscribe = (cb: () => void) => {
