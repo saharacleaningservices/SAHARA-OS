@@ -18,7 +18,7 @@ import {
 } from "../src/lib/quotation-template";
 import type { BillDocumentProps } from "../src/lib/pdf/sahara-bill-document";
 import { paymentSplit } from "../src/lib/booking-payment";
-import { modernizePaymentTerms } from "../src/lib/quotation-template";
+import { modernizePaymentTerms, MSMED_NOTE, quotationWhatsAppLink } from "../src/lib/quotation-template";
 
 // @react-pdf ships ESM-only subpaths that plain CJS require() cannot resolve, so the PDF component is bundled
 // (own source only, packages external) into a native ESM file inside the project and imported from there.
@@ -66,6 +66,8 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
     qrDataUrl,
     singlePage: opts.singlePage ?? true,
     exclusionsTitle: "Not Included (Exclusions)",
+    // As printed in production (document-pdf.ts): every quotation carries the MSMED line and the WhatsApp confirm link.
+    ...(opts.invoice ? {} : { legalNote: MSMED_NOTE, whatsappConfirm: quotationWhatsAppLink("SC/QO/26-27/0001") }),
   };
   const buf = await renderToBuffer(docMod.SaharaBillDocument(props));
   // QUOTE_PDF_DUMP=<dir> keeps the rendered PDFs for a visual check.
@@ -177,4 +179,16 @@ test("20% advance / 80% balance: split adds up; old 50% and 100%-immediately wor
   const old17 = STANDARD_TERMS_LINES.map((l, i) => `${i + 1}. ${i === 3 ? "Final inspection is required before the team leaves. 100% payment immediately via UPI or Cash." : l}`).join("\n");
   assert.equal(resolveQuotationTerms(old17).text, STANDARD_TERMS_TEXT);
   assert.ok(modernizePaymentTerms("3. 50% advance payment confirms the booking; balance is due on job completion.").includes("20% advance"));
+});
+
+test("quotation carries the MSMED Act clause and a clickable wa.me confirm link, still on ONE A4 page (owner 2026-10-25)", async () => {
+  assert.ok(MSMED_NOTE.includes("MSMED") && MSMED_NOTE.includes("2006"));
+  const wa = quotationWhatsAppLink("SC/QO/26-27/0094");
+  assert.ok(wa.url.startsWith("https://wa.me/917083347130?text="));
+  assert.ok(decodeURIComponent(wa.url).includes("SC/QO/26-27/0094"));
+  const many = Array.from({ length: 6 }, (_, i) => ({ name: `Service line ${i + 1} with a longer descriptive name`, description: "Deep cleaning", amount: 1500 + i * 100 }));
+  const buf = await render({ lines: many, discount: 500, gstPercent: 18, dumpName: "quote-msmed-wa" });
+  assert.equal(pages(buf), 1, "fits one page with the new lines");
+  const raw = buf.toString("latin1");
+  assert.ok(raw.includes("/URI") && raw.includes("wa.me/917083347130"), "the PDF holds a real link annotation to wa.me");
 });
