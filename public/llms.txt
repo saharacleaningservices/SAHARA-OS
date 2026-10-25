@@ -21,6 +21,22 @@
 - [Interior and texture painting (quote after a free site inspection)](https://booking.saharacleaningservices.com/interior-painting-pune)
 - [Current offers](https://booking.saharacleaningservices.com/offers)
 
+## Five service categories
+1. Home deep cleaning
+2. Commercial and office cleaning
+3. Pest control services
+4. Interior and exterior painting
+5. Facility management and housekeeping services (AMC)
+
+## Areas served (one page per area; each links to all five services)
+- [All Pune areas](https://booking.saharacleaningservices.com/pune)
+- East Pune: Magarpatta City, Hadapsar, Kharadi, Viman Nagar, Wagholi, Undri, NIBM Road, Kondhwa, Koregaon Park, Kalyani Nagar
+- West Pune: Baner, Wakad, Hinjewadi, Aundh
+- Central Pune: Kothrud
+- Pimpri-Chinchwad (PCMC)
+- Area page address pattern: https://booking.saharacleaningservices.com/pune/<area> (for example /pune/kharadi, /pune/hinjewadi, /pune/pcmc)
+- Office cleaning and housekeeping AMC are quoted in writing after a site visit; use the proposal form on the area page or call the numbers above.
+
 ## How booking works
 - Choose a service and package, pick a date and an available time slot, and choose to pay an advance or pay after the service.
 - The office confirms every booking request; the customer receives the booking confirmation and quotation link.

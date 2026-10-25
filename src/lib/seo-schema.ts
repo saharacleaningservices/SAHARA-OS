@@ -1,4 +1,5 @@
 import { CONTACT, GOOGLE_MAPS_URL } from "@/lib/marketing-content";
+import { PUNE_AREAS } from "@/lib/pune-areas";
 
 // Structured data (schema.org JSON-LD) for the public booking site. One builder, used by businessJsonLd()
 // in components/public/landing-kit.tsx, so name / address / phone stay identical everywhere (search engines
@@ -57,6 +58,7 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
     areaServed: [
       { "@type": "City", name: "Pune" },
       { "@type": "City", name: "Pimpri-Chinchwad" },
+      ...PUNE_AREAS.map((x) => ({ "@type": "Place", name: `${x.name}, Pune` })),
     ],
     knowsAbout: SCHEMA_SERVICES.map((s) => s.name),
     hasOfferCatalog: {
@@ -69,5 +71,26 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
     },
     sameAs,
     ...extra,
+  };
+}
+
+/** Service JSON-LD for one service in one Pune area (provider points at the business @id so NAP stays in one place). */
+export function areaServiceJsonLd(service: string, path: string, area: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: `${service} in ${area}, Pune`,
+    serviceType: service,
+    url: `${SCHEMA_SITE}${path}`,
+    provider: { "@type": "HomeAndConstructionBusiness", "@id": `${SCHEMA_SITE}/#business`, name: "Sahara Cleaning Services", telephone: CONTACT.call.map((n) => `+91${n}`) },
+    areaServed: { "@type": "Place", name: `${area}, Pune` },
+  };
+}
+
+export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, item: `${SCHEMA_SITE}${it.path}` })),
   };
 }
