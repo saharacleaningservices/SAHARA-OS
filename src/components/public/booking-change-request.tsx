@@ -17,18 +17,19 @@ const dayLabel = (ymd: string) => new Date(`${ymd}T12:00:00+05:30`).toLocaleDate
  * really open right now; Request Cancellation is a reason box and one tap. Both only send a REQUEST — the booking itself changes once
  * the office confirms.
  */
-export function BookingChangeRequest({ token }: { token: string }) {
+export function BookingChangeRequest({ token, bar = false }: { token: string; bar?: boolean }) {
   const [mode, setMode] = useState<"RESCHEDULE" | "CANCEL" | null>(null);
   const [msg, setMsg] = useState("");
-  if (msg) return <p className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{msg}</p>;
+  if (msg) return <p className="w-full rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{msg}</p>;
   return (
-    <div className="space-y-2">
-      <div className="grid gap-2 sm:grid-cols-2">
-        <button type="button" onClick={() => setMode("RESCHEDULE")} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#0a2540]/15 px-3 text-sm font-semibold">
-          <CalendarDays className="size-4" /> Request Reschedule
+    <div className={bar ? "contents" : "space-y-2"}>
+      {/* bar = the sticky action bar of the quotation view: Reschedule outline blue, Cancel danger outline (owner 2026-10-25). */}
+      <div className={bar ? "contents" : "grid gap-2 sm:grid-cols-2"}>
+        <button type="button" onClick={() => setMode("RESCHEDULE")} className={bar ? "flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-[#1E40AF] bg-white px-2 text-sm font-bold text-[#1E40AF]" : "flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#0a2540]/15 px-3 text-sm font-semibold"}>
+          <CalendarDays className="size-4" /> {bar ? "Reschedule" : "Request Reschedule"}
         </button>
-        <button type="button" onClick={() => setMode("CANCEL")} className="min-h-11 rounded-xl border border-[#0a2540]/15 px-3 text-sm font-semibold">
-          Request Cancellation
+        <button type="button" onClick={() => setMode("CANCEL")} className={bar ? "min-h-11 flex-1 rounded-xl border-2 border-red-600 bg-white px-2 text-sm font-bold text-red-600" : "min-h-11 rounded-xl border border-[#0a2540]/15 px-3 text-sm font-semibold"}>
+          {bar ? "Cancel" : "Request Cancellation"}
         </button>
       </div>
       {mode === "RESCHEDULE" && <ReschedulePanel token={token} onClose={() => setMode(null)} onDone={() => setMsg(DONE)} />}

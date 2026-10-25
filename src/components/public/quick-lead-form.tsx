@@ -80,7 +80,7 @@ export function QuickLeadForm({ service, serviceLabel, campaignName, packageLabe
   const field = "h-11 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-sm text-[#0a2540] outline-none focus:border-primary";
   return (
     <form onSubmit={submit} className="rounded-2xl bg-white p-3 shadow-lg sm:p-4" aria-label="Quick quote">
-      <p className="mb-2 text-sm font-bold text-[#0a2540]">Get a call back in minutes</p>
+      <p className="mb-2 text-sm font-bold text-[#0a2540]">Get a Quick Quote</p>
       <div className="grid gap-2 sm:grid-cols-3">
         <input className={field} placeholder="Your name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
         <input className={field} placeholder="10-digit mobile" inputMode="numeric" autoComplete="tel-national" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} />
