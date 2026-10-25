@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-export type CarouselImage = { src: string; alt: string };
+/** position: optional CSS object-position (focal point) so wide photos keep their people in the 4:3 / square hero frame. */
+export type CarouselImage = { src: string; alt: string; position?: string };
 
 /**
  * Background image carousel for the landing / booking heroes. CSS scroll-snap
@@ -59,8 +60,11 @@ export function LandingHeroCarousel({ images }: { images: CarouselImage[] }) {
               fill
               priority={i === 0}
               loading={i === 0 ? undefined : "lazy"}
-              sizes="(min-width: 768px) 50vw, 100vw"
+              // object-cover in a 4:3 / square frame needs the image WIDER than the frame (a 16:9 photo ≈ 1.35–1.8× the
+              // frame width), otherwise the optimizer serves a too-narrow file that is stretched up and looks blurry.
+              sizes="(min-width: 1024px) 1100px, (min-width: 768px) 90vw, 140vw"
               className="object-cover object-[50%_30%]"
+              style={img.position ? { objectPosition: img.position } : undefined}
             />
           </div>
         ))}
