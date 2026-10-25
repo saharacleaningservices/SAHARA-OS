@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
+import { AreasMapBlock } from "@/components/public/areas-map-block";
+import { QuickLeadForm } from "@/components/public/quick-lead-form";
 import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
 import { BookingWizard } from "@/components/public/booking-wizard";
@@ -149,6 +151,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
             <Link href="/gallery" className="block text-[13px] hover:text-white">Our work — gallery</Link>
           </section>
         </div>
+        <div className="border-t border-white/10"><AreasMapBlock dark /></div>
         <div className="border-t border-white/10">
           <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© Sahara Cleaning Services</p>
         </div>
@@ -185,10 +188,12 @@ export const FESTIVAL_BADGE = "🪔 Diwali Special Discounts Live!";
 // fully visible. Mobile — full-width photo, then badge + headline + actions
 // below it. Desktop — text column left, photo column right. `eyebrow`,
 // `note` and `primaryLabel` stay accepted for call-site compatibility.
-export async function Hero({ image, alt, title, subtitle, badge, waText, primaryHref = "/booking", images, bookHrefOverride }: {
+export async function Hero({ image, alt, title, subtitle, badge, waText, primaryHref = "/booking", images, bookHrefOverride, quote }: {
   image: string; alt: string; eyebrow?: string; title: string; subtitle: string; badge?: string; note?: string; primaryLabel: string; waText: string; primaryHref?: string; images?: CarouselImage[];
   /** Same-page anchor for Book Now (package pages scroll to their own booking form). */
   bookHrefOverride?: string;
+  /** Service the floating "Get a Quick Quote" card enquires about (default: Home Deep Cleaning). */
+  quote?: { service: string; serviceLabel: string };
 }) {
   // Book Now goes straight to the service selection with Home Cleaning open.
   const bookHref = bookHrefOverride ?? (primaryHref === "/booking" || primaryHref.startsWith("#") ? "/booking?service=home#book" : primaryHref);
@@ -206,10 +211,11 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
   return (
     <section className="bg-[#0a2540] text-white">
       <div className="mx-auto grid max-w-6xl md:grid-cols-[1fr_1.1fr] md:items-center md:gap-8 md:px-4 md:py-10">
-        <div className="relative aspect-[4/3] overflow-hidden md:order-2 md:aspect-square md:rounded-3xl lg:aspect-[5/4]">
+        <div className="relative aspect-[4/3] overflow-hidden md:order-1 md:aspect-square md:rounded-3xl lg:aspect-[5/4]">
           <LandingHeroCarousel images={images ?? heroImages(image, alt)} />
         </div>
-        <div className="px-4 py-6 md:order-1 md:px-0 md:py-0">
+        {/* Split-screen hero (owner 2026-10-25). Layout model: BOX MODEL — photo left (never covered), floating quote card right. */}
+        <div className="px-4 py-6 md:order-2 md:rounded-3xl md:bg-white/[0.07] md:p-6 md:shadow-2xl md:ring-1 md:ring-white/15 md:backdrop-blur">
           {(badge?.startsWith("Quotation") || festivalOn) && (
             <p className={`inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold tracking-wide text-[#0a2540] sm:text-xs ${badge?.startsWith("Quotation") ? "" : "motion-safe:animate-[sahara-badge-pulse_2.2s_ease-in-out_infinite]"}`}>
               {badge?.startsWith("Quotation") ? badge : FESTIVAL_BADGE}
@@ -234,7 +240,10 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
               <span className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">Residential &amp; Commercial Services</span>
               {fromPrice != null && <span className="rounded-full bg-amber-400/90 px-2.5 py-1 text-[#0a2540]">Full home deep cleaning from {inr(fromPrice)}</span>}
           </div>
-          <div className="mt-5 flex flex-wrap items-center gap-2">
+          <div className="mt-4" id="hero-quote">
+            <QuickLeadForm service={quote?.service ?? "HOME_DEEP_CLEANING"} serviceLabel={quote?.serviceLabel ?? "Home Deep Cleaning"} campaignName="Landing hero" waNumber={CONTACT.whatsapp} />
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <Link href={bookHref} className="relative rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-lg">
               <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-white/50 [animation-duration:2.2s]" aria-hidden />
               Book Now

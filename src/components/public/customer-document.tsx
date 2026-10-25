@@ -3,7 +3,6 @@ import { COMPANY } from "@/lib/constants";
 import { PRICING_MASTER } from "@/lib/pricing-master";
 import { conciseHomeExclusions, conciseHomeScope, isAutoScope, tierFromPackage } from "@/lib/service-scope";
 import { formatDate } from "@/lib/utils";
-import { DocumentActions } from "@/components/public/document-actions";
 import { DocAccordion } from "@/components/public/doc-accordion";
 
 /**
@@ -342,11 +341,6 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
         </section>
       )}
 
-      <footer className="flex flex-wrap items-end justify-between gap-3 border-t border-[#0a2540]/10 p-4 text-xs sm:p-6 print:px-4 print:py-2">
-        <p className="text-[#0a2540]/60">Questions? Call / WhatsApp {COMPANY.phones.join(" / ")}</p>
-        <p className="text-right font-semibold">For {company.name}</p>
-      </footer>
-      <DocumentActions shareUrl={shareUrl} title={`${isInvoice ? "Invoice" : "Quotation"} ${docNo} — ${company.name}`} payHref={balance > 0 ? (company.payUrl ?? null) : null} hideShare />
     </article>
   );
 }
