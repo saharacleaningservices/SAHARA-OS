@@ -9,7 +9,6 @@ import { requireUser } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { InquiryOutcomeButtons } from "@/components/leads/inquiry-outcome-buttons";
 import { getStaffForAssignment } from "@/server/staff";
-import { getCompanySettings } from "@/server/settings";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-b
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StageSelect } from "@/components/leads/stage-select";
 import { QuotationDialog } from "@/components/leads/quotation-dialog";
-import { B2bProposalDialog } from "@/components/leads/b2b-proposal-dialog";
 import { SendQuotationButton } from "@/components/leads/send-quotation-button";
 import { RescheduleDialog } from "@/components/leads/reschedule-dialog";
 import { SharePdfButton } from "@/components/leads/share-pdf-button";
@@ -39,7 +37,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
   const { confirm } = await searchParams;
   const { id } = await params;
   const session = await requireUser();
-  const [rawLead, staff, settings] = await Promise.all([getLeadDetail(id), getStaffForAssignment(), getCompanySettings()]);
+  const [rawLead, staff] = await Promise.all([getLeadDetail(id), getStaffForAssignment()]);
   if (!rawLead) notFound();
   // Francis (SUPERVISOR) final policy, 2026-09-21: direct-URL access to a
   // lead outside his today/tomorrow/active-enquiry window must be blocked
@@ -56,22 +54,6 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
     // Quotation / payment records + PDFs carry the customer number — Super Admin / Accounts only.
     quotations: showContact && showMoney ? rawLead.quotations : [],
     payments: showContact && showMoney ? rawLead.payments.filter((p) => !p.deletedAt) : [],
-  };
-
-  const estimated = lead.quoteAmount ?? 0;
-  // Paid so far = recorded (non-deleted) Payment rows — the money record — falling
-  // back to the lead's advance field only when no Payment row exists yet.
-  const livePayments = rawLead.payments.filter((p) => !p.deletedAt);
-  const advance = livePayments.length ? livePayments.reduce((s, p) => s + (p.paidAmount ?? 0), 0) : lead.advanceAmount ?? 0;
-  const leadBalance = Math.max(estimated - advance, 0);
-  const fullyPaid = estimated > 0 && advance > 0 && leadBalance === 0;
-  const paymentDetails = {
-    upiId: settings.upiId ?? null,
-    upiQrUrl: settings.upiQrUrl ?? null,
-    bankName: settings.bankName ?? null,
-    bankAccountName: settings.bankAccountName ?? null,
-    bankAccountNumber: settings.bankAccountNumber ?? null,
-    bankIfsc: settings.bankIfsc ?? null,
   };
 
   // The booking (if any): drives the single primary action and the Overview block.
