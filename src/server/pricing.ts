@@ -49,5 +49,10 @@ export const getLivePricing = cache(async (): Promise<LivePricing> => {
  */
 export const getPublicPricing = cache(async (): Promise<LivePricing> => {
   const live = await getLivePricing();
-  return { ...live, items: maskPaintingPrices(live.items) };
+  // Owner 2026-10-25: the public booking form is back to the clean regular-price layout — no Diwali / festival offers,
+  // banners or date-restricted festival packages. Festivals stay in Settings → Pricing for the CRM; set
+  // PUBLIC_FESTIVAL_OFFERS=on to show them on the public site again (UI and server pricing switch together).
+  return { ...live, items: maskPaintingPrices(live.items), festivals: publicFestivalOffersOn() ? live.festivals : [] };
 });
+
+export const publicFestivalOffersOn = () => /^(1|on|true|yes)$/i.test(process.env.PUBLIC_FESTIVAL_OFFERS ?? "");

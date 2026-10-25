@@ -71,7 +71,7 @@ export default async function HomePackagePage({ params }: { params: Promise<{ pk
     >
       <Hero
         image="/marketing/hero-home.webp"
-        alt={CAROUSEL.team.alt}
+        alt={CAROUSEL.home.alt}
         title={`${p.bhk} ${p.tier} Home Deep Cleaning`}
         subtitle={`${inr(p.price)} · ${HOME_DURATION}. Room-wise scope, clear terms and live available slots.`}
         primaryLabel="Book Now"

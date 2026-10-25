@@ -238,12 +238,12 @@ test("CRM-only areas are not served on the public booking host", async () => {
   }
 });
 
-test("campaign pages do not embed Google Maps on load: static card + 'View on Google Maps' link, iframe only after a tap", async () => {
+test("campaign pages embed a live Google Map that loads lazily (owner 2026-10-25), with a link to the Business Profile", async () => {
   for (const p of ["/home-deep-cleaning-pune", "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune"]) {
     const b = (await get(p)).body;
-    assert.doesNotMatch(b, /<iframe[^>]+google\.com\/maps/i, `${p} embeds the Google Map on load (~450 KiB of Google JS)`);
-    assert.match(b, /View on Google Maps/, `${p} lost the map link`);
-    assert.match(b, /Show map here/, `${p} lost the tap-to-load button`);
+    const iframe = /<iframe[^>]+google\.com\/maps[^>]*>/i.exec(b)?.[0] ?? "";
+    assert.ok(iframe, `${p} lost the embedded Google Map`);
+    assert.match(iframe, /loading="lazy"/, `${p}: the map must load lazily (keeps ~450 KiB of Google JS off first paint)`);
     assert.match(b, /href="https:\/\/www\.google\.com\/maps\/place\/Sahara\+Cleaning\+Services[^"]*"/, `${p}: map link should open the Business Profile listing`);
   }
 });
