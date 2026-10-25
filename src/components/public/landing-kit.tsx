@@ -61,7 +61,8 @@ export const CAROUSEL = {
 /** All four services — for the festival / booking hero. Commercial leads (owner 2026-10-25); the residential slide stays second. */
 export const ALL_SERVICES_SLIDES: CarouselImage[] = [CAROUSEL.commercial, CAROUSEL.team, CAROUSEL.painting, CAROUSEL.pest];
 function heroImages(image: string, alt: string): CarouselImage[] {
-  if (image === "/marketing/hero-home.webp") return [CAROUSEL.team, CAROUSEL.equipment];
+  // Owner 2026-10-25: Home hero leads with the Home Deep Cleaning category-card photo.
+  if (image === "/marketing/hero-home.webp") return [{ src: image, alt }, CAROUSEL.team, CAROUSEL.equipment];
   if (image === CAROUSEL.commercial.src) return [CAROUSEL.commercial, CAROUSEL.equipment];
   if (image === CAROUSEL.painting.src) return [{ src: image, alt }, CAROUSEL.painting2, CAROUSEL.painting3];
   if (image === CAROUSEL.pest.src) return [{ src: image, alt }, CAROUSEL.pest2, CAROUSEL.pest3];

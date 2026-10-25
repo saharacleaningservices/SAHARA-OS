@@ -50,30 +50,37 @@ export async function CampaignHero({ title, subtitle, service, serviceLabel, cam
   const reviews = settings?.googleReviewCount ? settings.googleReviewCount.replace(/\d+/, (d) => Number(d).toLocaleString("en-IN")) : null;
   const trust = [settings?.googleRating ? `★ ${settings.googleRating} Rated` : null, reviews ? `${reviews} Reviews` : null, "Pune & PCMC"].filter(Boolean);
   const call = CONTACT.call[0];
+  // Owner 2026-10-25: the category card photo IS the hero (Home card → Home hero, Commercial card → Commercial hero).
+  const position = image.includes("hero-commercial") ? "36% 30%" : "50% 50%";
   return (
-    <section className="relative isolate overflow-hidden bg-[#0a2540] text-white">
-      {/* next/image: phones get a resized AVIF/WebP instead of the full 1170px original; priority = preloaded
-          as the likely LCP element. Quality 50 is plenty for a 30%-opacity background. */}
-      <Image src={image} alt={alt} fill priority sizes="100vw" quality={50} className="-z-10 object-cover opacity-30" />
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
-        <p className="text-[11px] font-bold tracking-wide text-amber-300 sm:text-xs">{trust.join("  |  ")}</p>
-        <h1 className="mt-1.5 text-2xl font-extrabold leading-tight sm:text-4xl">{title}</h1>
-        <p className="mt-1.5 max-w-2xl text-sm text-white/85 sm:text-base">{subtitle}</p>
-        <p className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold sm:text-xs">
-          <ShieldCheck className="size-4 shrink-0 text-emerald-300" /> 100% In-House Staff in Branded Sahara Uniforms &amp; Verified ID Badges
-        </p>
-        <div className="mt-4 max-w-3xl">
-          <QuickLeadForm service={service} serviceLabel={serviceLabel} campaignName={campaignName} packageLabel={packageLabel} waNumber={CONTACT.whatsapp} />
+    // Split-screen hero (owner 2026-10-25). Layout model: BOX MODEL — photo left, never covered by the form; floating quote card
+    // right. Phones: full-width photo first, then the card.
+    <section className="bg-[#0a2540] text-white">
+      <div className="mx-auto grid max-w-6xl md:grid-cols-2 md:items-center md:gap-8 md:px-4 md:py-10">
+        <div className="relative aspect-[4/3] overflow-hidden md:rounded-3xl md:shadow-2xl lg:aspect-[5/4]">
+          {/* next/image: phones get a resized AVIF/WebP; priority = preloaded as the LCP element. */}
+          <Image src={image} alt={alt} fill priority sizes="(min-width: 768px) 50vw, 100vw" quality={70} className="object-cover" style={{ objectPosition: position }} />
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <a href="#quote" className="sahara-shimmer rounded-full bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-[#0a2540]">Book Online</a>
-          <a href={`tel:+91${call}`} className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-primary">
-            <Phone className="sahara-nudge size-4" /> Call Now: {call}
-          </a>
-          <a href={waLink(waText)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-success px-4 py-2.5 text-sm font-bold">
-            <span className="sahara-ripple relative isolate flex size-5 items-center justify-center rounded-full"><MessageCircle className="size-4" /></span>
-            Get WhatsApp Quote
-          </a>
+        <div className="px-4 py-6 md:rounded-3xl md:bg-white/[0.07] md:p-6 md:shadow-2xl md:ring-1 md:ring-white/15 md:backdrop-blur" id="hero-quote">
+          <p className="text-[11px] font-bold tracking-wide text-amber-300 sm:text-xs">{trust.join("  |  ")}</p>
+          <h1 className="mt-1.5 text-2xl font-extrabold leading-tight sm:text-3xl">{title}</h1>
+          <p className="mt-1.5 text-sm text-white/85 sm:text-base">{subtitle}</p>
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold sm:text-xs">
+            <ShieldCheck className="size-4 shrink-0 text-emerald-300" /> 100% In-House Staff in Branded Sahara Uniforms &amp; Verified ID Badges
+          </p>
+          <div className="mt-4">
+            <QuickLeadForm service={service} serviceLabel={serviceLabel} campaignName={campaignName} packageLabel={packageLabel} waNumber={CONTACT.whatsapp} />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <a href="#quote" className="sahara-shimmer rounded-full bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-[#0a2540]">Book Online</a>
+            <a href={`tel:+91${call}`} className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-primary">
+              <Phone className="sahara-nudge size-4" /> Call Now: {call}
+            </a>
+            <a href={waLink(waText)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-success px-4 py-2.5 text-sm font-bold">
+              <span className="sahara-ripple relative isolate flex size-5 items-center justify-center rounded-full"><MessageCircle className="size-4" /></span>
+              Get WhatsApp Quote
+            </a>
+          </div>
         </div>
       </div>
     </section>
