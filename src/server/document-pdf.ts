@@ -3,11 +3,12 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { db } from "@/lib/db";
 import { SaharaBillDocument } from "@/lib/pdf/sahara-bill-document";
+import { SaharaInvoiceDocument } from "@/lib/pdf/sahara-invoice-document";
 import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, rupeesInWords } from "@/lib/document-scope";
-import { MSMED_NOTE, modernizePaymentTerms, quotationWhatsAppLink, resolveQuotationTerms } from "@/lib/quotation-template";
+import { MSMED_NOTE, quotationWhatsAppLink, resolveQuotationTerms } from "@/lib/quotation-template";
 import { paymentSplit } from "@/lib/booking-payment";
-import { QUOTATION_TERMS, SERVICE_CATEGORY_LABELS, SERVICE_LABELS } from "@/lib/constants";
+import { COMPANY, SERVICE_CATEGORY_LABELS, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
 export type PdfFile = { buffer: Buffer; filename: string };
@@ -97,38 +98,29 @@ export async function renderInvoicePdf(invoiceId: string): Promise<PdfFile | nul
       })
     : { notes: invoice.notes ? [invoice.notes] : [], kindlyNote: [] };
   const chrome = await billChrome(balance, invoice.invoiceNumber);
+  // Commercial work is priced per sq. ft: show the area column only when a line really carries an area.
+  const discountOnRow = (r: { disc: number }) => r.disc;
+  const areaOf = (r: { name: string; detail?: string; qty: number }) => (/sq\.?\s*ft|sqft|square f/i.test(`${r.name} ${r.detail ?? ""}`) ? `${r.qty.toLocaleString("en-IN")} sq ft` : undefined);
+  const rows = table.rows.map((r) => ({ name: r.name, detail: r.detail && !/sq\.?\s*ft|sqft|square f/i.test(r.detail) ? r.detail : undefined, qty: r.qty, rate: r.rate, total: r.total > 0 ? r.total + (discountOnRow(r) ) : 0, area: areaOf(r) }));
+  // Discount appears once, in the summary (under Subtotal) — table rows are shown at their gross value.
+  const discount = invoice.discount > 0 ? invoice.discount : 0;
+  const scopeLines = scope.notes
+    .map((n) => n.replace(/^[•\-\s]+/, "").trim())
+    .filter((n) => n && !/^schedule date:/i.test(n) && !/package\s*[—-]\s*scope of work:?$/i.test(n))
+    .slice(0, 10);
   const buffer = await renderToBuffer(
-    SaharaBillDocument({
-      ...chrome,
-      kind: "INVOICE",
-      singlePage: true, // owner 2026-10-23: the invoice (with payment QR) must fit ONE A4 page too
-      // No tax charged → Bill of Supply (as on Sahara's existing invoices); with GST → Tax Invoice.
-      title: invoice.gstAmount > 0 ? "TAX INVOICE" : "BILL OF SUPPLY",
-      copyLabel: "ORIGINAL FOR RECIPIENT",
+    SaharaInvoiceDocument({
       number: invoice.invoiceNumber,
       date: formatDate(invoice.createdAt),
-      extraMeta: invoice.job ? [{ label: "Job ID", value: invoice.job.jobNumber }] : [],
-      billTo: {
-        name: invoice.customerName,
-        address: invoice.customerAddress,
-        mobile: invoice.customerMobile,
-        email: invoice.job?.lead?.email ?? null,
-        details: invoice.job
-          ? [...(invoice.job.propertyType ? [{ label: "Property", value: invoice.job.propertyType }] : []), { label: "Service", value: SERVICE_LABELS[invoice.job.service as keyof typeof SERVICE_LABELS] ?? invoice.job.service }]
-          : [],
-      },
-      paymentSplit: paymentSplit(invoice.totalAmount),
-      rows: table.rows,
-      subtotalRow: table.subtotal,
-      totals: { subtotal: invoice.subTotal, discount: invoice.discount, gstPercent: invoice.gstPercent, gstAmount: invoice.gstAmount, total: invoice.totalAmount, received, balance },
+      jobId: invoice.job?.jobNumber ?? null,
+      company: { name: chrome.company.name, phones: chrome.company.phones ?? [chrome.company.phone], email: chrome.company.email, website: chrome.company.website, address: chrome.company.address, gstin: chrome.company.gstin ?? COMPANY.gstin },
+      logoDataUrl: chrome.logoDataUrl,
+      billTo: { name: invoice.customerName, address: invoice.customerAddress, mobile: invoice.customerMobile, email: invoice.job?.lead?.email ?? null },
+      rows,
+      showArea: rows.some((r) => !!r.area),
+      totals: { subtotal: invoice.subTotal, discount, gstPercent: invoice.gstPercent, gstAmount: invoice.gstAmount, total: invoice.totalAmount, received, balance },
       amountInWords: rupeesInWords(invoice.totalAmount),
-      notes: scope.notes,
-      kindlyNote: scope.kindlyNote,
-      // Approved terms, minus the quotation-validity line (not meaningful on an invoice).
-      terms: modernizePaymentTerms(invoice.terms || QUOTATION_TERMS)
-        .split("\n")
-        .filter((l) => !/quotation is valid/i.test(l))
-        .join("\n"),
+      scope: scopeLines,
     }),
   );
   return { buffer, filename: `${invoice.invoiceNumber}.pdf` };

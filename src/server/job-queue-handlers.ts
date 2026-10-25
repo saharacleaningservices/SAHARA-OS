@@ -86,7 +86,7 @@ export async function sendQuotationNotice(quotationId: string) {
  */
 export async function sendJobCompletedNotice(jobId: string) {
   const version = process.env.WHATSAPP_COMPLETED_TEMPLATE;
-  if (process.env.WHATSAPP_USE_TEMPLATES !== "on" || (version !== "v1" && version !== "v2")) return sendJobCompletedLinks(jobId);
+  if (process.env.WHATSAPP_USE_TEMPLATES !== "on" || (version !== "v1" && version !== "v2" && version !== "v3")) return sendJobCompletedLinks(jobId);
   const already = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedType: "Job", relatedId: jobId, ...notFailed }, select: { id: true } });
   if (already) return;
   const job = await db.job.findFirst({
@@ -95,7 +95,7 @@ export async function sendJobCompletedNotice(jobId: string) {
   });
   if (!job) return;
   const pmt = customerPaymentStatus(job);
-  const t = templateByName(version === "v2" ? "sahara_job_completed_v2" : "sahara_job_completed_v1")!;
+  const t = templateByName(version === "v3" ? "sahara_job_completed_v3" : version === "v2" ? "sahara_job_completed_v2" : "sahara_job_completed_v1")!;
   const token = await ensureJobToken(job.id);
   const params = [job.customerName, SERVICE_LABELS[job.service] ?? job.service, formatINR(pmt.due).replace(/^₹\s?/, "")];
   const res = await sendWhatsAppTemplate({
@@ -105,7 +105,7 @@ export async function sendJobCompletedNotice(jobId: string) {
     templateName: t.name,
     languageCode: t.language,
     bodyParams: params,
-    buttonUrlParams: [{ index: 0, value: token }], // v1: Pay Balance → /booking/pay/{token}; v2: View Invoice → /booking/invoice/{token}; the Google review button is a fixed link
+    buttonUrlParams: version === "v3" ? [{ index: 0, value: token }, { index: 1, value: token }] : [{ index: 0, value: token }], // v1: Pay Balance → /booking/pay/{token}; v2: View Invoice → /booking/invoice/{token}; the Google review button is a fixed link
     preview: renderTemplatePreview(t, params),
     relatedType: "Job",
     relatedId: job.id,
