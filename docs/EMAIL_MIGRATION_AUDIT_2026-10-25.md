@@ -58,3 +58,37 @@ How the app sends mail: `src/lib/email.ts` is an HTTPS API abstraction (`EMAIL_A
 - Cancelling Workspace before the backup account, Search Console / GA4 / Ads / GBP owners, and Cognito notifications are moved.
 - Two SPF records (invalid) or leaving Google's SPF/DKIM while sending from Hostinger.
 - Changing the name servers (that would move the whole zone, including the website and the VPS records); only edit records inside the existing Namecheap zone.
+
+---
+
+## 7. DNS records to enter at Namecheap (prepared 2026-10-25 — nothing has been changed)
+
+> **Confirm every value in Hostinger hPanel → Emails → DNS records / "Connect domain" before entering it.** The values below are Hostinger's documented defaults; hPanel shows the exact ones for your mailbox plan and may differ. Also confirm that your Hostinger plan actually includes mailboxes (a VPS plan on its own may not).
+
+Enter these at **Namecheap → Domain List → Manage → Advanced DNS** (host `@` = the root domain). Do not change the name servers.
+
+| Type | Host | Value | Priority / TTL |
+|---|---|---|---|
+| MX | @ | `mx1.hostinger.com` | 5 |
+| MX | @ | `mx2.hostinger.com` | 10 |
+| TXT (SPF) | @ | `v=spf1 include:_spf.mail.hostinger.com ~all` | one SPF record only |
+| CNAME (DKIM) | `hostingermail-a._domainkey` | `hostingermail-a.dkim.mail.hostinger.com` | |
+| CNAME (DKIM) | `hostingermail-b._domainkey` | `hostingermail-b.dkim.mail.hostinger.com` | |
+| CNAME (DKIM) | `hostingermail-c._domainkey` | `hostingermail-c.dkim.mail.hostinger.com` | |
+| TXT (DMARC) | `_dmarc` | `v=DMARC1; p=none; rua=mailto:contact@saharacleaningservices.com; fo=1` | |
+
+Order of operations on cut-over day:
+1. Mailboxes created and tested inside Hostinger; old mail copied across (§5 steps 3–5).
+2. **Remove** the five Google MX records and the old Google SPF TXT; **add** the MX and SPF above (a domain must have exactly one SPF TXT).
+3. Add the three DKIM CNAMEs and the DMARC TXT. The existing `default._domainkey` record belongs to the old setup — leave it until the migration is verified, then delete it.
+4. After one clean week, change DMARC to `p=quarantine`.
+5. Rollback: put the five Google MX records back (aspmx.l.google.com 1, alt1/alt2.aspmx.l.google.com 5, aspmx2/3.googlemail.com 10) and the old SPF; keep a screenshot of the current Namecheap records before touching anything.
+
+## 8. Google Drive / Workspace asset plan before 2 Nov 2026
+1. **Do not let the subscription lapse before this list is done.** Fix the payment first (admin.google.com → Billing).
+2. **Backup account:** the daily database backup uploads to Drive as the owner's Google account. If that is the Workspace login, create or use a personal Gmail, share a new Drive folder with it, re-run the one-time OAuth for the GitHub backup (secret `GDRIVE_CREDENTIALS`, folder `GDRIVE_FOLDER_ID`), run the workflow manually once and confirm the file appears. Then copy the existing backup files across.
+3. **Export everything:** admin.google.com → Data export (or Google Takeout per user) for Mail, Drive, Calendar, Contacts. Also keep the reports and workbooks stored in Drive (price lists, GBP audit, master workbook).
+4. **Transfer ownership** of important Drive folders to the personal account (Drive → Share → make owner).
+5. **Re-point** Search Console, GA4, Google Ads, Google Business Profile, Cognito and Apps Script to the personal account (§3).
+6. **Mail:** forward `contact@` to the personal Gmail until the Hostinger mailbox is live.
+7. Only then lower the plan or cancel — and keep a final export on the D: drive and a second copy off-site.

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { assignMybillbookInvoice, convertMybillbookWorkbook, importMybillbookReport, previewMybillbookReport, startMybillbookDetailFetch, stopMybillbookDetailFetch } from "@/server/actions/mybillbook-import";
+import { assignMybillbookInvoice, convertMybillbookWorkbook, createMybillbookCustomers, importMybillbookReport, previewMybillbookReport, startMybillbookDetailFetch, stopMybillbookDetailFetch } from "@/server/actions/mybillbook-import";
 
 type Summary = { rowsInFile: number; created: number; updated: number; unchanged: number; matched: number; needsReview: number; unmatched: number; skipped: { line: number; reason: string }[] };
 
@@ -224,6 +224,38 @@ export function MybillbookDetailPanel({ counts, run }: { counts: DetailCounts; r
             {counts.failed > 0 && <Button size="sm" variant="outline" onClick={() => go(true)} disabled={pending}>Retry the {counts.failed} that failed</Button>}
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Preview, then confirm: create customer profiles for unattached invoices whose mobile was read from the invoice link. */
+export function MybillbookCreateCustomers() {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [preview, setPreview] = useState<{ unattached: number; noMobile: number; attachedToExisting: number; created: number; invoicesAttached: number } | null>(null);
+  const run = (apply: boolean) =>
+    start(async () => {
+      const res = await createMybillbookCustomers(apply);
+      if (!res.success) return void toast.error(res.error);
+      if (!apply) return void setPreview(res.result);
+      toast.success(`${res.result.created} customer profile(s) created, ${res.result.invoicesAttached} invoice(s) attached`);
+      setPreview(null);
+      router.refresh();
+    });
+  return (
+    <div className="space-y-2 rounded-xl border p-4">
+      <p className="text-sm text-muted-foreground">
+        Invoices still without a customer, whose <b>mobile number was read from the invoice link</b>, can get a customer profile automatically (or join the existing one with that mobile). Invoices without a mobile are never guessed.
+      </p>
+      {preview && (
+        <p className="text-sm">
+          <b>{preview.created}</b> new profiles · <b>{preview.attachedToExisting}</b> existing customers matched · <b>{preview.invoicesAttached}</b> invoices to attach · <b>{preview.noMobile}</b> stay without a mobile (of {preview.unattached})
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" onClick={() => run(false)} disabled={pending}>{pending && <Loader2 className="size-3.5 animate-spin" />} Preview</Button>
+        {preview && preview.invoicesAttached > 0 && <Button size="sm" onClick={() => run(true)} disabled={pending}>Create {preview.created} profile(s) and attach</Button>}
       </div>
     </div>
   );

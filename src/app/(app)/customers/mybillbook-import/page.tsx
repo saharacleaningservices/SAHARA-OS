@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { requireRole } from "@/lib/current-user";
 import { db } from "@/lib/db";
 import { formatDate, formatINR } from "@/lib/utils";
-import { MybillbookDetailPanel, MybillbookReviewActions, MybillbookUpload } from "@/components/customers/mybillbook-import-panel";
+import { MybillbookCreateCustomers, MybillbookDetailPanel, MybillbookReviewActions, MybillbookUpload } from "@/components/customers/mybillbook-import-panel";
 import { detailCounts, detailRunState } from "@/server/mybillbook-detail";
 
 // MyBillBook invoice history import + review list (owner 2026-10-23). Super Admin only. The report carries no phone numbers, so a row is
@@ -38,6 +38,7 @@ export default async function MybillbookImportPage({ searchParams }: { searchPar
       <PageHeader title="MyBillBook history import" description="Attach past MyBillBook invoices to customer profiles. The CSV has no phone numbers, so after the details are read from each invoice link the customer mobile on the invoice is used; before that only an exact full-name match (or a CRM invoice number) is attached automatically." />
       <MybillbookUpload />
       <MybillbookDetailPanel counts={await detailCounts()} run={{ ...detailRunState() }} />
+      <MybillbookCreateCustomers />
       <p className="text-sm text-muted-foreground">
         {total} invoices stored · {matched} attached to customers · {review} need a choice · {unmatched} have no customer yet
       </p>

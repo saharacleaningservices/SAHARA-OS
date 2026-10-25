@@ -127,10 +127,19 @@ export async function POST(request: NextRequest) {
     } catch {
       // Retention is best-effort — never block a restore over cleanup failing.
     }
+    // The live database runs in WAL mode: fold the write-ahead log into dev.db first so the safety copy is complete.
+    try {
+      const live = new Database(dbPath);
+      live.pragma("wal_checkpoint(TRUNCATE)");
+      live.close();
+    } catch {
+      /* best effort — the copy below still happens */
+    }
     fs.copyFileSync(dbPath, safetyPath);
 
-    // Swap the database file.
+    // Swap the database file. Stale -wal / -shm files belong to the OLD database and would corrupt the restored one: remove them.
     fs.copyFileSync(restoredDbPath, dbPath);
+    for (const suffix of ["-wal", "-shm"]) fs.rmSync(`${dbPath}${suffix}`, { force: true });
 
     // Swap uploads, if the archive has them.
     const restoredUploads = path.join(extractDir, "uploads");

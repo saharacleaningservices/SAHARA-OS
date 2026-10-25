@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
-import { assignInvoiceToCustomer, detachInvoice, importMybillbookCsv } from "@/server/mybillbook-import";
+import { assignInvoiceToCustomer, createCustomersFromUnattached, detachInvoice, importMybillbookCsv } from "@/server/mybillbook-import";
 import { startDetailFetch, stopDetailFetch } from "@/server/mybillbook-detail";
 import { previewMybillbookCsv } from "@/server/mybillbook-import";
 import * as XLSX from "xlsx";
@@ -97,4 +97,17 @@ export async function previewMybillbookReport(csvText: string) {
   if (typeof csvText !== "string" || !csvText.trim()) return { success: false as const, error: "The file is empty." };
   if (csvText.length > MAX_CSV_BYTES) return { success: false as const, error: "The file is too large (5 MB maximum)." };
   return { success: true as const, preview: await previewMybillbookCsv(csvText) };
+}
+
+/** Super Admin only: create CRM profiles for MyBillBook customers that only exist in the invoice history (needs the mobile read from the invoice). */
+export async function createMybillbookCustomers(apply: boolean) {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { success: false as const, error: "Only the Super Admin can do this." };
+  const r = await createCustomersFromUnattached({ dryRun: apply !== true });
+  if (apply === true) {
+    await db.auditLog.create({ data: { entityType: "MybillbookImport", entityId: "create-customers", action: "CREATE_CUSTOMERS", summary: `MyBillBook: ${r.created} customer profile(s) created, ${r.attachedToExisting} existing matched, ${r.invoicesAttached} invoice(s) attached, ${r.noMobile} left without a mobile`, actorName: session.name, actorEmail: session.email } }).catch(() => {});
+    revalidatePath("/customers/mybillbook-import");
+    revalidatePath("/customers");
+  }
+  return { success: true as const, result: r };
 }
