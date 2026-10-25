@@ -30,6 +30,7 @@ import {
     Calculator,
     Send,
     Settings,
+    BarChart3,
     type LucideIcon,
 } from "lucide-react";
 
@@ -64,7 +65,7 @@ const GROUP_BY_HREF: Record<string, NavGroupKey> = {
   "/leads": "sales", "/customers": "sales", "/leads/price-list": "sales", "/service-catalog": "sales",
   "/jobs": "operations", "/jobs/dispatch": "operations", "/jobs/slots": "operations", "/staff": "operations", "/attendance": "operations", "/vehicles": "operations",
   "/amc": "operations", "/jobs?service=HOUSEKEEPING": "operations", "/jobs?service=PEST_CONTROL": "operations", "/jobs?service=INTERIOR_PAINTING": "operations",
-  "/quotations": "finance", "/invoices": "finance", "/payments": "finance",
+  "/sales": "finance", "/quotations": "finance", "/invoices": "finance", "/payments": "finance",
   "/vouchers/proforma-invoice": "finance", "/vouchers/credit-note": "finance", "/vouchers/delivery-challan": "finance",
   "/expenses": "finance", "/vouchers/purchase-voucher": "finance",
   "/revenue": "finance", "/profit": "finance", "/profit/marketing": "finance", "/reports": "finance", "/reports/export-center": "finance",
@@ -89,6 +90,8 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   { label: "Pest Control", href: "/jobs?service=PEST_CONTROL", section: "service-pest-control", icon: Bug, cluster: "Specialized Services" },
   { label: "Interior Painting", href: "/jobs?service=INTERIOR_PAINTING", section: "service-interior-painting", icon: PaintRoller, cluster: "Specialized Services" },
   // ── Finance & Billing: Sales Vouchers, Purchases, Khata Book Import (+ reports and profit folded into one entry)
+  // Sales Dashboard (owner 2026-10-25): first in Finance & Billing, not folded — total business, pending, paid, de-duplication.
+  { label: "Sales Dashboard", href: "/sales", section: "revenue", icon: BarChart3 },
   { label: "Quotation / Estimate", href: "/quotations", section: "quotations", icon: FileSignature, cluster: "Sales Vouchers" },
   { label: "Sales Invoices", href: "/invoices", section: "invoices", icon: FileStack, cluster: "Sales Vouchers" },
   { label: "Payment In", href: "/payments", section: "payments", icon: IndianRupee, cluster: "Sales Vouchers" },
