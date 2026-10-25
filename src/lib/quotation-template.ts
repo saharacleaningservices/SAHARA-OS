@@ -79,3 +79,16 @@ export function resolveQuotationTerms(stored: string | null | undefined): { text
   if (!t || /^1\.\s*Prices are inclusive of standard materials/i.test(t) || t === STANDARD_TERMS_TEXT || t === legacyStd || t === previousStd) return { text: STANDARD_TERMS_TEXT, custom: false };
   return { text: modernizePaymentTerms(t), custom: true };
 }
+
+/** Printed under the Terms on every quotation (owner 2026-10-25). Not part of the stored terms, so standard / custom detection is unchanged. */
+export const MSMED_NOTE =
+  "Note: Sahara Cleaning Services is an MSME. Payment delayed beyond the agreed terms attracts interest under Sections 15–16 of the Micro, Small and Medium Enterprises Development (MSMED) Act, 2006.";
+
+/** Sahara's WhatsApp Business number (owner 2026-10-25) — the quotation's "Confirm on WhatsApp" link. */
+export const QUOTATION_WHATSAPP_NUMBER = "917083347130";
+
+/** wa.me link that opens a chat with Sahara, the quote number prefilled. */
+export function quotationWhatsAppLink(quoteNumber: string): { url: string; display: string } {
+  const text = `Hi Sahara, I accept quotation ${quoteNumber}. Please confirm my booking slot.`;
+  return { url: `https://wa.me/${QUOTATION_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, display: `wa.me/${QUOTATION_WHATSAPP_NUMBER} · Ref ${quoteNumber}` };
+}
