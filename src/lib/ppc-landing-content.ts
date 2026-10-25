@@ -71,7 +71,7 @@ export const PPC_PAGES: Record<PpcConfig["slug"], PpcConfig> = {
     subtitle: "Professional office deep cleaning and floor scrubbing by trained, uniformed staff. Free site visit and a clear written quote before work starts.",
     metaTitle: "Office & Commercial Cleaning in Pune – Free Site Visit | Sahara Cleaning Services",
     metaDescription: "Office and commercial cleaning across Pune & PCMC: workstations, glass, floors, pantry and washrooms. Free site visit and written quote.",
-    image: "/marketing/hero-commercial.webp",
+    image: "/marketing/hero-commercial-v2.webp",
     alt: "Sahara cleaning team scrubbing floors and cleaning glass in a Pune office",
     formTitle: "Get Instant Quote / Call Back",
     formNote: "Every site is different — we visit, confirm the scope and send a clear written quote before work starts.",
