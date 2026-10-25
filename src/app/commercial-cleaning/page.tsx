@@ -37,7 +37,7 @@ export default async function CommercialCleaningLanding() {
       mobileBar={<CategoryBar waText={WA} cta="Get Estimate" />}
     >
       <CategoryHero
-        image="/marketing/hero-commercial.webp"
+        image="/marketing/hero-commercial-v2.webp"
         alt="Sahara cleaning team scrubbing floors and cleaning glass in a Pune office"
         title="Commercial & Office Cleaning in Pune"
         subtitle="Façade glass, post-construction, turnkey deep cleaning and office scrubbing — scoped and quoted after a site visit."

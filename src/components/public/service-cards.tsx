@@ -10,7 +10,7 @@ import { ChevronRight } from "lucide-react";
  */
 const SERVICES = [
   { key: "HOME", title: "Home Deep Cleaning", benefit: "Full Home Deep Cleaning, Sofa, Mattress & More", img: "/marketing/hero-home.webp" },
-  { key: "COMMERCIAL", title: "Commercial & Office Cleaning", benefit: "Offices, shops, clinics & contracts — written quote", img: "/marketing/hero-commercial.webp" },
+  { key: "COMMERCIAL", title: "Commercial & Office Cleaning", benefit: "Offices, shops, clinics & contracts — written quote", img: "/marketing/hero-commercial-v2.webp" },
   { key: "PEST", title: "Pest Control Services", benefit: "Home, office & commercial — price after inspection", img: "/marketing/service-pest-control.webp" },
   { key: "PAINTING", title: "Interior Painting", benefit: "Residential & full home painting, Asian Paints", img: "/marketing/service-painting.webp" },
 ] as const;
@@ -35,7 +35,7 @@ export function ServiceCards({ starts = {}, badge }: { starts?: Partial<Record<"
             aria-pressed={active === s.key}
             className={`group flex flex-col overflow-hidden rounded-2xl bg-white text-left shadow-sm transition active:scale-[0.98] ${active === s.key ? "ring-2 ring-primary" : ""}`}
           >
-            <img src={s.img} alt={s.title} loading="lazy" className="aspect-[4/3] w-full object-cover" />
+            <img src={s.img} alt={s.title} loading="lazy" className="aspect-[4/3] w-full object-cover" style={s.key === "COMMERCIAL" ? { objectPosition: "36% 30%" } : undefined} />
             <span className="flex flex-1 flex-col gap-1 p-2.5 sm:p-3">
               <span className="text-sm font-bold leading-tight sm:text-base">{s.title}</span>
               <span className="text-[11px] leading-snug text-[#0a2540]/65 sm:text-xs">{s.benefit}</span>

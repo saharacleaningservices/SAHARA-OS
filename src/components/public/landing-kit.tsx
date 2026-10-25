@@ -47,7 +47,8 @@ export const CAROUSEL = {
   team: { src: "/marketing/carousel-team.webp", alt: "Sahara cleaning team deep cleaning a living room in Pune" },
   equipment: { src: "/marketing/carousel-equipment.webp", alt: "Sahara technician using an upholstery extraction machine on a sofa" },
   result: { src: "/marketing/carousel-result.webp", alt: "Freshly deep-cleaned living room by Sahara Cleaning Services" },
-  commercial: { src: "/marketing/hero-commercial.webp", alt: "Sahara team scrubbing floors and cleaning glass partitions in a Pune office" },
+  // Owner 2026-10-25: sharp 1672×941 office-cleaning photo (Royal Blue uniforms) — booking hero first slide + Commercial card.
+  commercial: { src: "/marketing/hero-commercial-v2.webp", alt: "Sahara team in Royal Blue uniforms vacuuming carpet and wiping desks in a Pune office", position: "36% 30%" },
   painting: { src: "/marketing/service-painting.webp", alt: "Sahara painters rolling and taping a living-room wall in Pune" },
   pest: { src: "/marketing/service-pest-control.webp", alt: "Sahara pest control technician spraying along kitchen cabinet edges in Pune" },
   painting2: { src: "/marketing/hero-painting-2.webp", alt: "Two Sahara painters rolling and cutting in a bedroom wall with furniture covered" },
@@ -55,8 +56,8 @@ export const CAROUSEL = {
   pest2: { src: "/marketing/hero-pest-2.webp", alt: "Sahara technician inspecting a wardrobe base and door frame for termites" },
   pest3: { src: "/marketing/hero-pest-3.webp", alt: "Sahara technician applying targeted treatment along a bathroom drain and skirting" },
 };
-/** All four services — for the festival / booking hero. */
-export const ALL_SERVICES_SLIDES: CarouselImage[] = [CAROUSEL.team, CAROUSEL.commercial, CAROUSEL.painting, CAROUSEL.pest];
+/** All four services — for the festival / booking hero. Commercial leads (owner 2026-10-25); the residential slide stays second. */
+export const ALL_SERVICES_SLIDES: CarouselImage[] = [CAROUSEL.commercial, CAROUSEL.team, CAROUSEL.painting, CAROUSEL.pest];
 function heroImages(image: string, alt: string): CarouselImage[] {
   if (image === "/marketing/hero-home.webp") return [CAROUSEL.team, CAROUSEL.equipment];
   if (image === CAROUSEL.commercial.src) return [CAROUSEL.commercial, CAROUSEL.equipment];
