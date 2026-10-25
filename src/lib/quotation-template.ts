@@ -90,5 +90,5 @@ export const QUOTATION_WHATSAPP_NUMBER = "917083347130";
 /** wa.me link that opens a chat with Sahara, the quote number prefilled. */
 export function quotationWhatsAppLink(quoteNumber: string): { url: string; display: string } {
   const text = `Hi Sahara, I accept quotation ${quoteNumber}. Please confirm my booking slot.`;
-  return { url: `https://wa.me/${QUOTATION_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, display: `wa.me/${QUOTATION_WHATSAPP_NUMBER} · Ref ${quoteNumber}` };
+  return { url: `https://wa.me/${QUOTATION_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, display: `+91 ${QUOTATION_WHATSAPP_NUMBER.slice(2, 7)} ${QUOTATION_WHATSAPP_NUMBER.slice(7)} · Ref ${quoteNumber}` }; // no raw URL on the page (owner 2026-10-25)
 }

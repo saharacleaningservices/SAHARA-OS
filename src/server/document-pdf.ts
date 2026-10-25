@@ -5,13 +5,14 @@ import { db } from "@/lib/db";
 import { SaharaBillDocument } from "@/lib/pdf/sahara-bill-document";
 import { SaharaInvoiceDocument } from "@/lib/pdf/sahara-invoice-document";
 import { billChrome } from "@/server/bill-pdf";
-import { billTable, documentScope, rupeesInWords } from "@/lib/document-scope";
+import { billTable, documentScope, documentTotal, rupeesInWords } from "@/lib/document-scope";
 import { MSMED_NOTE, quotationWhatsAppLink, resolveQuotationTerms } from "@/lib/quotation-template";
 import { paymentSplit } from "@/lib/booking-payment";
 import { COMPANY, SERVICE_CATEGORY_LABELS, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
 export type PdfFile = { buffer: Buffer; filename: string };
+
 
 /** Quotation PDF. ID rule (owner 2026-10-24): the Lead / Booking ID only — no customer ID. */
 export async function renderQuotationPdf(quotationId: string): Promise<PdfFile | null> {
@@ -31,7 +32,9 @@ export async function renderQuotationPdf(quotationId: string): Promise<PdfFile |
     },
     { standard: true }, // single-page standard quotation template (owner wording)
   );
-  const chrome = await billChrome(quotation.totalAmount, quotation.quoteNumber);
+  // "Zero Rupees" guard: the words always follow the total printed on the page; a stored 0 total with priced lines falls back to the lines.
+  const quoteTotal = documentTotal(quotation.totalAmount, quotation.subTotal - quotation.discount + quotation.gstAmount, table.subtotal.total);
+  const chrome = await billChrome(quoteTotal, quotation.quoteNumber);
   const buffer = await renderToBuffer(
     SaharaBillDocument({
       ...chrome,
@@ -50,11 +53,11 @@ export async function renderQuotationPdf(quotationId: string): Promise<PdfFile |
           { label: "Service", value: (lead.serviceCategory && SERVICE_CATEGORY_LABELS[lead.serviceCategory]) || SERVICE_LABELS[lead.service as keyof typeof SERVICE_LABELS] || lead.service },
         ],
       },
-      paymentSplit: paymentSplit(quotation.totalAmount),
+      paymentSplit: paymentSplit(quoteTotal),
       rows: table.rows,
       subtotalRow: table.subtotal,
-      totals: { subtotal: quotation.subTotal, discount: quotation.discount, gstPercent: quotation.gstPercent, gstAmount: quotation.gstAmount, total: quotation.totalAmount },
-      amountInWords: rupeesInWords(quotation.totalAmount),
+      totals: { subtotal: quotation.subTotal, discount: quotation.discount, gstPercent: quotation.gstPercent, gstAmount: quotation.gstAmount, total: quoteTotal },
+      amountInWords: rupeesInWords(quoteTotal),
       notes: scope.notes,
       kindlyNote: scope.kindlyNote,
       terms: resolveQuotationTerms(quotation.terms).text,
@@ -85,8 +88,9 @@ export async function renderInvoicePdf(invoiceId: string): Promise<PdfFile | nul
   const services = JSON.parse(invoice.lineItems) as { name: string; description: string; amount: number }[];
   const table = billTable(services, invoice.discount);
   // Received = every payment recorded against the job (advance + later collections).
+  const invoiceTotal = documentTotal(invoice.totalAmount, invoice.subTotal - invoice.discount + invoice.gstAmount, table.subtotal.total);
   const received = invoice.job ? invoice.job.payments.reduce((t, p) => t + (p.paidAmount ?? 0), 0) : (invoice.payment?.paidAmount ?? 0);
-  const balance = Math.max(invoice.totalAmount - received, 0);
+  const balance = Math.max(invoiceTotal - received, 0);
   const scope = invoice.job
     ? documentScope({
         service: invoice.job.service,
@@ -118,8 +122,10 @@ export async function renderInvoicePdf(invoiceId: string): Promise<PdfFile | nul
       billTo: { name: invoice.customerName, address: invoice.customerAddress, mobile: invoice.customerMobile, email: invoice.job?.lead?.email ?? null },
       rows,
       showArea: rows.some((r) => !!r.area),
-      totals: { subtotal: invoice.subTotal, discount, gstPercent: invoice.gstPercent, gstAmount: invoice.gstAmount, total: invoice.totalAmount, received, balance },
-      amountInWords: rupeesInWords(invoice.totalAmount),
+      totals: { subtotal: invoice.subTotal, discount, gstPercent: invoice.gstPercent, gstAmount: invoice.gstAmount, total: invoiceTotal, received, balance },
+      amountInWords: rupeesInWords(invoiceTotal),
+      // Payment block only while money is still due (bank left, UPI QR for the exact balance right).
+      payment: balance > 0 ? { bank: chrome.bank, upiId: chrome.upiId, qrDataUrl: chrome.qrDataUrl, amount: chrome.qrAmount } : null,
       scope: scopeLines,
     }),
   );

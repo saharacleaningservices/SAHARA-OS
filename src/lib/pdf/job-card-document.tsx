@@ -1,12 +1,29 @@
 import { Document, Page, View, Text, StyleSheet, Image } from "@react-pdf/renderer";
 import { COMPANY } from "@/lib/constants";
+import { FONT, inr as rupee, latinDigits } from "./brand-kit";
+
+/**
+ * Mandatory staff rules printed on every team copy (owner 2026-10-25) — Hindi, so every helper on site can read them.
+ * Rendered with the embedded Poppins font (Devanagari); the built-in PDF fonts cannot draw Hindi.
+ */
+export const STAFF_RULES_HI = [
+  "समय पर साइट पहुँचें, Staff App में चेक-इन करें; यूनिफ़ॉर्म और ID कार्ड पहनना अनिवार्य है।",
+  "काम शुरू करने से पहले ग्राहक के साथ निरीक्षण करें; पहले से मौजूद नुकसान या दाग की फ़ोटो लें।",
+  "केवल इस जॉब कार्ड में लिखा काम करें; अतिरिक्त काम के लिए पहले सुपरवाइज़र / ऑफ़िस से मंज़ूरी लें।",
+  "ग्राहक से कोई नकद, टिप या भुगतान न लें — भुगतान केवल कंपनी के UPI / बैंक खाते में होगा।",
+  "कीमती सामान, नकद और गहनों को हाथ न लगाएँ; बंद अलमारी या लॉकर न खोलें।",
+  "केमिकल सही मात्रा में, दस्ताने और मास्क पहनकर इस्तेमाल करें; बिजली के पॉइंट पर पानी न डालें।",
+  "ग्राहक से विनम्र व्यवहार करें; साइट पर धूम्रपान, गुटखा, शराब और ऊँची आवाज़ में बात सख़्त मना है।",
+  "काम पूरा होने पर ग्राहक के साथ फ़ाइनल चेक करें, Before / After फ़ोटो App में अपलोड करें और सारे उपकरण वापस लें।",
+  "ग्राहक का पता या कोई भी जानकारी किसी से शेयर न करें; कोई भी समस्या हो तो तुरंत सुपरवाइज़र को कॉल करें।",
+];
 
 const styles = StyleSheet.create({
-  page: { padding: 32, fontSize: 10, color: "#0A2540", fontFamily: "Helvetica" },
-  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 },
+  page: { padding: 26, fontSize: 9.5, color: "#0A2540", fontFamily: FONT.regular },
+  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 },
   logoBox: { backgroundColor: "#0B5ED7", borderRadius: 8, paddingVertical: 10, paddingHorizontal: 14 },
   logoImg: { height: 34, width: "auto" },
-  logoText: { color: "#ffffff", fontSize: 16, fontWeight: 700 },
+  logoText: { color: "#ffffff", fontSize: 16, fontFamily: FONT.bold },
   logoSub: { color: "#dbe9fd", fontSize: 8, marginTop: 2 },
   companyMeta: { textAlign: "right", fontSize: 8, color: "#5b7186", lineHeight: 1.5 },
   titleBar: {
@@ -15,31 +32,34 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 6,
-    marginBottom: 16,
+    marginBottom: 10,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  titleText: { fontSize: 13, fontWeight: 700, letterSpacing: 1 },
+  titleText: { fontSize: 13, fontFamily: FONT.bold, letterSpacing: 1 },
   titleMeta: { fontSize: 10, color: "#dbe9fd" },
-  section: { borderWidth: 1, borderColor: "#dfe7f0", borderRadius: 6, padding: 12, marginBottom: 12 },
-  sectionTitle: { fontSize: 9, fontWeight: 700, color: "#5b7186", textTransform: "uppercase", marginBottom: 8 },
+  section: { borderWidth: 1, borderColor: "#dfe7f0", borderRadius: 6, padding: 10, marginBottom: 9 },
+  sectionTitle: { fontSize: 8.5, fontFamily: FONT.bold, color: "#5b7186", textTransform: "uppercase", marginBottom: 6 },
   row: { flexDirection: "row", flexWrap: "wrap" },
-  cell: { width: "50%", marginBottom: 8, paddingRight: 8 },
-  cellFull: { width: "100%", marginBottom: 8 },
+  cell: { width: "50%", marginBottom: 6, paddingRight: 8 },
+  cellFull: { width: "100%", marginBottom: 6 },
   label: { fontSize: 8, color: "#5b7186", marginBottom: 2, textTransform: "uppercase" },
-  value: { fontSize: 11, fontWeight: 700 },
+  value: { fontSize: 10.5, fontFamily: FONT.bold },
   linkValue: { fontSize: 9, color: "#0B5ED7" },
   payGrid: { flexDirection: "row", justifyContent: "space-between" },
   payCell: { width: "32%", borderWidth: 1, borderColor: "#dfe7f0", borderRadius: 4, padding: 8 },
   payLabel: { fontSize: 8, color: "#5b7186", textTransform: "uppercase" },
-  payValue: { fontSize: 13, fontWeight: 700, marginTop: 2 },
+  payValue: { fontSize: 13, fontFamily: FONT.bold, marginTop: 2 },
   notesText: { fontSize: 10, lineHeight: 1.5 },
-  footer: { marginTop: 20, paddingTop: 10, borderTopWidth: 1, borderTopColor: "#dfe7f0", fontSize: 8, color: "#5b7186", textAlign: "center" },
+  rules: { borderWidth: 1.2, borderColor: "#B91C1C", borderRadius: 6, padding: 10, backgroundColor: "#FEF2F2" },
+  rulesTitle: { fontFamily: FONT.bold, fontSize: 11, color: "#B91C1C", marginBottom: 5 },
+  ruleRow: { flexDirection: "row", marginBottom: 3.5 },
+  ruleNo: { width: 16, fontFamily: FONT.bold, fontSize: 9.5, color: "#B91C1C" },
+  ruleText: { flex: 1, fontSize: 9.5, lineHeight: 1.45, color: "#0A2540" },
+  footer: { marginTop: "auto", paddingTop: 10, borderTopWidth: 1, borderTopColor: "#dfe7f0", fontSize: 8, color: "#5b7186", textAlign: "center" },
 });
 
-function inr(n: number) {
-  return `Rs. ${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — never rounded
-}
+const inr = rupee; // "₹7,000" — office copy only; the team copy never shows money
 
 export type JobCardPdfProps = {
   jobNumber: string;
@@ -86,7 +106,7 @@ export function JobCardDocument(props: JobCardPdfProps) {
   const team = props.audience === "team";
   return (
     <Document title={`Job Card ${props.jobNumber}`}>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={styles.page} wrap={false}>
         <View style={styles.headerRow}>
           {props.logoDataUrl ? (
             <Image src={props.logoDataUrl} style={styles.logoImg} />
@@ -148,9 +168,8 @@ export function JobCardDocument(props: JobCardPdfProps) {
             {props.services?.length ? (
               <View style={styles.cellFull}>
                 <Text style={styles.label}>Services</Text>
-                {props.services.map((s, i) => (
-                  // The built-in PDF font has no "•" / "×" glyphs (same reason amounts use "Rs.").
-                  <Text key={`${s}-${i}`} style={styles.value}>{`- ${s.replace(/×/g, "x")}`}</Text>
+                {props.services.slice(0, 10).map((s, i) => (
+                  <Text key={`${s}-${i}`} style={styles.value}>{`• ${s}`}</Text>
                 ))}
               </View>
             ) : null}
@@ -192,8 +211,21 @@ export function JobCardDocument(props: JobCardPdfProps) {
           </View>
         ) : null}
 
+        {/* Team copy: the space below the job fills with the mandatory staff rules (owner 2026-10-25). One A4 page. */}
+        {team ? (
+          <View style={styles.rules} wrap={false}>
+            <Text style={styles.rulesTitle}>स्टाफ के लिए अनिवार्य नियम (Staff Rules)</Text>
+            {STAFF_RULES_HI.map((r, i) => (
+              <View key={i} style={styles.ruleRow}>
+                <Text style={styles.ruleNo}>{i + 1}.</Text>
+                <Text style={styles.ruleText}>{r}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+
         <Text style={styles.footer}>
-          {COMPANY.name} - Generated {new Date().toLocaleString("en-IN")}
+          {COMPANY.name} · Generated {latinDigits(new Date().toLocaleString("en-IN-u-nu-latn", { timeZone: "Asia/Kolkata" }))}
         </Text>
       </Page>
     </Document>
