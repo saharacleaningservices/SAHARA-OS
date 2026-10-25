@@ -40,6 +40,15 @@ if (!existsSync(migrationPath)) {
 const sql = readFileSync(migrationPath, "utf-8");
 const db = new Database(dbPath);
 db.pragma("foreign_keys = ON");
+// WAL: readers no longer block the writer (and vice versa) during peak traffic. The mode is stored in the database file, so setting it
+// on every boot is cheap and idempotent. busy_timeout makes a contended write wait (up to 10 s) instead of failing with SQLITE_BUSY.
+// Backups use VACUUM INTO (consistent under WAL) and the restore route removes stale -wal/-shm files.
+try {
+  db.pragma("journal_mode = WAL");
+  db.pragma("busy_timeout = 10000");
+} catch (e) {
+  console.warn(`Could not enable WAL mode (${e instanceof Error ? e.message : e}) — continuing in the default journal mode.`);
+}
 
 const alreadyInitialized = db
   .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='User'")

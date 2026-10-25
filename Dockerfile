@@ -57,4 +57,9 @@ RUN apt-get update \
 COPY --from=builder /app ./
 
 EXPOSE 3000
+
+# Container health: /api/health answers 200 (ok / degraded) or 503 (unhealthy: database unreachable, event loop blocked for seconds, memory
+# at the limit). Coolify restarts an unhealthy container (restart policy "unless-stopped"). The first 90 s are a grace period for
+# db-setup and startup; three failed probes in a row are needed before the container counts as unhealthy.
+HEALTHCHECK --interval=60s --timeout=10s --start-period=90s --retries=3   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "scripts/render-start.mjs"]

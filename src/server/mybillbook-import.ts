@@ -5,7 +5,8 @@ import type { Prisma } from "@/generated/prisma/client";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { describeColumns, indexCustomersByName, matchByName, parseSalesSummaryCsv, type ParsedInvoice } from "@/lib/mybillbook-import";
 import { decideLinkByPhone } from "@/lib/mybillbook-detail";
-import { normalizeMobile } from "@/server/customer-db";
+import { isProtectedNumber } from "@/lib/protected-numbers";
+import { createWithCustomerNumber, normalizeMobile } from "@/server/customer-db";
 
 export type ImportSummary = {
   rowsInFile: number;
@@ -176,4 +177,36 @@ export async function previewMybillbookCsv(text: string): Promise<ImportPreview>
     withGstin: rows.filter((r) => r.gstin).length,
     linkKinds,
   };
+}
+
+/**
+ * Owner brief 2026-10-23/25: customers that exist only in MyBillBook get a CRM profile. For every invoice that is still unattached
+ * (UNMATCHED / REVIEW) and whose MOBILE was read from the invoice link, the customer with that mobile is attached - or created first
+ * (name from the invoice, source "MyBillBook"). Invoices without a mobile are never guessed: they stay on the list ("Read invoice
+ * details" first). dryRun only counts. Re-runnable: a second run finds nothing left to do.
+ */
+export async function createCustomersFromUnattached(opts: { dryRun: boolean }) {
+  const rows = await db.mybillbookInvoice.findMany({ where: { customerId: null, matchStatus: { in: ["UNMATCHED", "REVIEW"] } }, select: { id: true, contactName: true, partyMobile: true } });
+  const withMobile = new Map<string, typeof rows>();
+  let noMobile = 0;
+  for (const r of rows) {
+    const m = normalizeMobile(r.partyMobile);
+    if (!m || isProtectedNumber(m)) { noMobile += 1; continue; }
+    withMobile.set(m, [...(withMobile.get(m) ?? []), r]);
+  }
+  const existing = new Map((await db.customer.findMany({ where: { mobile: { in: [...withMobile.keys()] } }, select: { id: true, mobile: true } })).map((c) => [c.mobile, c.id]));
+  const result = { unattached: rows.length, noMobile, attachedToExisting: 0, created: 0, invoicesAttached: 0, dryRun: opts.dryRun };
+  for (const [mobile, list] of withMobile) {
+    let customerId = existing.get(mobile) ?? null;
+    if (customerId) result.attachedToExisting += 1; else result.created += 1;
+    result.invoicesAttached += list.length;
+    if (opts.dryRun) continue;
+    if (!customerId) {
+      const name = (list.find((r) => r.contactName.trim())?.contactName ?? "MyBillBook customer").trim().slice(0, 120);
+      const c = await createWithCustomerNumber((customerNumber) => ({ name, mobile, customerNumber, source: "MyBillBook", notes: "Created from MyBillBook invoice history" }));
+      customerId = c.id;
+    }
+    await db.mybillbookInvoice.updateMany({ where: { id: { in: list.map((r) => r.id) } }, data: { customerId, matchStatus: "MATCHED", matchMethod: "PHONE", candidateIds: null } });
+  }
+  return result;
 }
