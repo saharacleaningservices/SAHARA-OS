@@ -1,7 +1,5 @@
-import { Document, Font, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-
-// Whole words only (no "SER-VICES" hyphenation), as on Sahara’s existing documents.
-Font.registerHyphenationCallback((word) => [word]);
+import { Document, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { BrandFooter, FONT, PaymentBlock, SignatoryBox, hasPaymentBlock, inr, num as fmtNum } from "./brand-kit";
 
 // One professional layout for Sahara quotations and invoices (MyBillBook-style
 // structure: framed page, brand header, number/date strip, Bill To, service
@@ -12,96 +10,101 @@ Font.registerHyphenationCallback((word) => [word]);
 export const SLOGAN = "Your Trusted Home Service Partner";
 export const CORE_SERVICES = ["Home Deep Cleaning", "Commercial Cleaning", "Interior Painting", "Pest Control", "Housekeeping & AMC"];
 
-const GOLD = "#c9a961";
+const GOLD = "#9db0dc"; // frame / rule lines — soft royal blue (was gold), matching the blue invoice
 const NAVY = "#24325a";
 const MUTED = "#5b6478";
-const BEIGE = "#faf3e6";
+const BEIGE = "#eff4ff";
 const ROYAL = "#1E40AF"; // footer strip (owner 2026-10-24)
 
 // k < 1 only for single-page quotations (see fitFactor); invoices render at k = 1, exactly as before.
 function makeStyles(k: number) {
   const z = (n: number) => Math.round(n * k * 10) / 10;
   return StyleSheet.create({
-  page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: "Helvetica" },
+  page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: FONT.regular },
   frame: { borderWidth: 1.5, borderColor: GOLD, flexGrow: 1 },
+  headerC: { alignItems: "center", paddingHorizontal: z(18), paddingTop: z(10), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
+  logoSm: { width: z(104), height: z(34), objectFit: "contain", marginBottom: z(3) },
+  companyNameC: { fontFamily: FONT.bold, fontSize: z(17), letterSpacing: z(0.8), color: ROYAL, textAlign: "center" },
+  phonesC: { fontFamily: FONT.bold, fontSize: z(9.5), color: NAVY, marginTop: z(1), textAlign: "center" },
+  titleBadge: { marginTop: z(5), backgroundColor: ROYAL, color: "#ffffff", fontFamily: FONT.bold, fontSize: z(10.5), letterSpacing: z(1.5), paddingVertical: z(2.5), paddingHorizontal: z(16), borderRadius: 3 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
   headRight: { flexGrow: 1, flexShrink: 1, alignItems: "flex-end", paddingLeft: z(10) },
-  docTitle: { fontFamily: "Helvetica-Bold", fontSize: z(14), color: NAVY, letterSpacing: 1, marginTop: z(4) },
-  slogan: { fontFamily: "Times-Italic", fontSize: z(10.5), color: NAVY, marginTop: z(2), marginBottom: z(3), textAlign: "center" },
-  phones: { fontFamily: "Helvetica-Bold", fontSize: z(9.5), color: NAVY, marginTop: z(2), textAlign: "right" },
+  docTitle: { fontFamily: FONT.bold, fontSize: z(14), color: NAVY, letterSpacing: 1, marginTop: z(4) },
+  slogan: { fontFamily: FONT.italic, fontSize: z(10.5), color: NAVY, marginTop: z(2), marginBottom: z(3), textAlign: "center" },
+  phones: { fontFamily: FONT.bold, fontSize: z(9.5), color: NAVY, marginTop: z(2), textAlign: "right" },
   contactC: { fontSize: z(8), color: MUTED, marginBottom: z(1), textAlign: "center" },
   titleBar: { flexDirection: "row", justifyContent: "center", alignItems: "center", paddingVertical: z(5), borderBottomWidth: 1, borderBottomColor: GOLD, backgroundColor: BEIGE },
-  titleC: { fontSize: z(12), fontFamily: "Helvetica-Bold", color: NAVY, letterSpacing: 1 },
+  titleC: { fontSize: z(12), fontFamily: FONT.bold, color: NAVY, letterSpacing: 1 },
   // Logo in its own fixed box (scaled to fit, never overflowing), company text in the remaining width — they can't overlap.
   logoCol: { width: z(150), height: z(52), marginBottom: z(2), justifyContent: "center", alignItems: "flex-start" },
   logo: { width: z(146), height: z(50), objectFit: "contain" },
   companyCol: { flexGrow: 1, flexShrink: 1, paddingRight: 8 },
-  companyName: { fontFamily: "Times-Bold", fontSize: z(16), letterSpacing: z(0.3), lineHeight: 1.15, color: NAVY, textAlign: "right" },
+  companyName: { fontFamily: FONT.bold, fontSize: z(16), letterSpacing: z(0.3), lineHeight: 1.15, color: NAVY, textAlign: "right" },
   tagline: { fontSize: z(9), color: MUTED, marginTop: z(2), marginBottom: z(6) },
   contact: { fontSize: z(8.5), color: NAVY, marginBottom: z(2) },
   titleCol: { width: z(110), flexShrink: 0, alignItems: "flex-end" },
-  title: { fontSize: z(13), fontFamily: "Helvetica-Bold", color: NAVY },
+  title: { fontSize: z(13), fontFamily: FONT.bold, color: NAVY },
   copyBox: { marginTop: z(4), borderWidth: 0.8, borderColor: MUTED, paddingHorizontal: z(5), paddingVertical: z(2), fontSize: z(6.5), color: MUTED },
   metaStrip: { flexDirection: "row", paddingHorizontal: z(18), paddingVertical: z(9), borderBottomWidth: 1, borderBottomColor: GOLD },
   metaCell: { marginRight: z(32) },
-  metaLabel: { fontFamily: "Helvetica-Bold", fontSize: z(8.5), marginBottom: z(2) },
+  metaLabel: { fontFamily: FONT.bold, fontSize: z(8.5), marginBottom: z(2) },
   metaValue: { fontSize: z(8.5), color: MUTED },
   billTo: { paddingHorizontal: z(18), paddingVertical: z(10) },
-  billToLabel: { fontFamily: "Helvetica-Bold", fontSize: z(9.5), marginBottom: z(2) },
+  billToLabel: { fontFamily: FONT.bold, fontSize: z(9.5), marginBottom: z(2) },
   billName: { fontSize: z(10.5), marginBottom: z(2) },
   billLine: { fontSize: z(8.5), color: MUTED, marginBottom: z(2) },
   tHead: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), paddingHorizontal: z(18) },
   tRow: { flexDirection: "row", paddingVertical: z(6), paddingHorizontal: z(18) },
-  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), paddingHorizontal: z(18), fontFamily: "Helvetica-Bold" },
-  cNo: { width: "7%" },
-  cName: { width: "41%", paddingRight: 6 },
+  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), paddingHorizontal: z(18), fontFamily: FONT.bold },
+  cNo: { width: "9%" },
+  cName: { width: "39%", paddingRight: 6 },
   cQty: { width: "10%", textAlign: "right" },
   cRate: { width: "14%", textAlign: "right" },
   cDisc: { width: "13%", textAlign: "right" },
   cTotal: { width: "15%", textAlign: "right" },
-  headTxt: { fontSize: z(8.5), fontFamily: "Helvetica-Bold" },
+  headTxt: { fontSize: z(8.5), fontFamily: FONT.bold },
   rowName: { fontSize: z(9) },
   rowDetail: { fontSize: z(7.5), color: MUTED, marginTop: z(1) },
   pct: { fontSize: z(7), color: MUTED },
   bottom: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(10) },
   left: { width: "52%", paddingRight: 14 },
   right: { width: "48%" },
-  secTitle: { fontFamily: "Helvetica-Bold", fontSize: z(9), marginBottom: z(3), marginTop: z(6) },
+  secTitle: { fontFamily: FONT.bold, fontSize: z(9), marginBottom: z(3), marginTop: z(6) },
   para: { fontSize: z(7.5), color: MUTED, lineHeight: 1.4, marginBottom: z(1.5) },
   totalBox: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: GOLD, paddingVertical: z(6), flexDirection: "row", justifyContent: "space-between", marginBottom: z(6) },
-  totalLbl: { fontFamily: "Helvetica-Bold", fontSize: z(11) },
-  totalVal: { fontFamily: "Helvetica-Bold", fontSize: z(11) },
+  totalLbl: { fontFamily: FONT.bold, fontSize: z(11) },
+  totalVal: { fontFamily: FONT.bold, fontSize: z(11) },
   kv: { flexDirection: "row", justifyContent: "space-between", marginBottom: z(2) },
   kvL: { fontSize: z(8.5), color: MUTED },
   kvR: { fontSize: z(8.5) },
-  kvBold: { fontSize: z(8.5), fontFamily: "Helvetica-Bold" },
+  kvBold: { fontSize: z(8.5), fontFamily: FONT.bold },
   words: { fontSize: z(8.5), color: MUTED, marginBottom: z(8) },
   splitBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 4, padding: z(4), marginTop: z(4), marginBottom: z(6) },
   footer: { marginTop: "auto" },
   signRow: { flexDirection: "row", justifyContent: "flex-end", paddingHorizontal: z(18), paddingBottom: z(6) },
   servicesBar: { backgroundColor: ROYAL, paddingVertical: z(6), paddingHorizontal: z(10) },
-  footSlogan: { color: "#ffffff", fontFamily: "Times-Italic", fontSize: z(10.5), textAlign: "center", marginBottom: z(2) },
+  footSlogan: { color: "#ffffff", fontFamily: FONT.italic, fontSize: z(10.5), textAlign: "center", marginBottom: z(2) },
   footContact: { color: "#ffffff", fontSize: z(7.5), textAlign: "center", marginTop: z(1) },
   servicesTxt: { color: "#ffffff", fontSize: z(8), textAlign: "center", letterSpacing: 0.3 },
   signBox: { width: z(170), borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(46), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(5) },
-  signLbl: { fontFamily: "Helvetica-Bold", fontSize: z(8.5) },
+  signLbl: { fontFamily: FONT.bold, fontSize: z(8.5) },
   signName: { fontSize: z(8), color: MUTED },
   payRow: { flexDirection: "row", alignItems: "center", marginTop: z(6) },
   // Fixed 78 pt (2.75 cm) whatever the page scale: the code itself stays above 2.5 cm and keeps its white quiet zone.
   qr: { width: 78, height: 78, borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: 1.5, marginRight: z(10), backgroundColor: "#ffffff" },
   bankGrid: { flexDirection: "row", marginBottom: z(1) },
-  bankK: { width: 64, fontSize: z(8), fontFamily: "Helvetica-Bold" },
+  bankK: { width: 64, fontSize: z(8), fontFamily: FONT.bold },
   bankV: { fontSize: z(8), color: MUTED, flexShrink: 1 },
-  legal: { fontSize: z(7.5), color: MUTED, fontFamily: "Helvetica-Oblique", marginTop: z(4), lineHeight: 1.35 },
-  waBtn: { marginTop: z(6), borderWidth: 1, borderColor: GOLD, borderRadius: 6, backgroundColor: BEIGE, paddingVertical: z(5), paddingHorizontal: z(8), textDecoration: "none" },
-  waTitle: { fontFamily: "Helvetica-Bold", fontSize: z(9), color: NAVY, textAlign: "center" },
+  legal: { fontSize: z(7.5), color: MUTED, fontFamily: FONT.italic, marginTop: z(4), lineHeight: 1.35 },
+  waBtn: { marginTop: z(6), borderWidth: 1, borderColor: "#25D366", borderRadius: 6, backgroundColor: "#e9fbf0", paddingVertical: z(5), paddingHorizontal: z(8), textDecoration: "none" },
+  waTitle: { fontFamily: FONT.bold, fontSize: z(9), color: "#128C4A", textAlign: "center" },
   waSub: { fontSize: z(7.5), color: MUTED, textAlign: "center", marginTop: z(1) },
 });
 }
 
 type Styles = ReturnType<typeof makeStyles>;
-const rs = (n: number) => `Rs. ${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — never rounded
-const num = (n: number) => n.toLocaleString("en-IN", { maximumFractionDigits: 2 });
+const rs = inr; // "₹7,000" — exact, Latin digits always (brand-kit)
+const num = fmtNum;
 
 export type BillRow = { name: string; detail?: string; qty: number; rate: number; disc: number; total: number };
 export type BillDocumentProps = {
@@ -131,6 +134,8 @@ export type BillDocumentProps = {
   bank?: { name?: string | null; ifsc?: string | null; account?: string | null; bankName?: string | null } | null;
   upiId?: string | null;
   qrDataUrl?: string | null;
+  /** Amount the UPI QR carries (printed under the code). */
+  qrAmount?: number | null;
   /** Quotations: fit everything on ONE A4 page (fonts / spacing scale down with the amount of text). */
   singlePage?: boolean;
   /** When set, the kindly-note lines print under this heading (before Terms) as bullets, e.g. "Not Included (Exclusions)". */
@@ -150,34 +155,36 @@ export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyN
   const extra =
     (p.paymentSplit ? 4 : 0) + 4 + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0) +
     // Right column on invoices: bank details, payment QR, received / balance and GST lines.
-    (p.bank?.account || p.bank?.ifsc ? 5 : 0) + (p.qrDataUrl || p.upiId ? 6 : 0) + (p.totals?.received !== undefined ? 2 : 0) + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0) +
+    // Full-width payment block (bank left, QR right) + signatory stamp box + icon footer (owner 2026-10-25).
+    (p.bank?.account || p.bank?.ifsc || p.qrDataUrl || p.upiId ? 6 : 0) + 8 + (p.totals?.received !== undefined ? 6 : 0) + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0) +
     // Quotation extras: MSMED line under the terms, WhatsApp confirm box in the right column.
     (p.legalNote ? wrap(p.legalNote, 66) : 0) + (p.whatsappConfirm ? 3 : 0);
-  const load = left + table * 1.4 + extra;
+  const load = (left + table * 1.4 + extra) * 1.2; // Poppins sets taller than Helvetica
   if (load <= 40) return 1;
   if (load <= 50) return 0.92;
   if (load <= 62) return 0.84;
   if (load <= 74) return 0.76;
   if (load <= 88) return 0.7;
-  return 0.64;
+  if (load <= 104) return 0.64;
+  if (load <= 120) return 0.59;
+  return 0.55;
 }
 
 export function SaharaBillDocument(p: BillDocumentProps) {
-  const s: Styles = makeStyles(p.singlePage ? fitFactor(p) : 1);
-  const hasBank = !!(p.bank?.account || p.bank?.ifsc);
+  const k = p.singlePage ? fitFactor(p) : 1;
+  const s: Styles = makeStyles(k);
   return (
     <Document title={`${p.title} ${p.number}`}>
       <Page size="A4" style={s.page}>
         <View style={s.frame}>
-          <View style={s.header}>
-            <View style={s.logoCol}>{p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logo} /> : null}</View>
-            <View style={s.headRight}>
-              <Text style={s.companyName}>{p.company.name.toUpperCase()}</Text>
-              <Text style={s.phones}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}</Text>
-              {p.company.gstin ? <Text style={[s.contactC, { textAlign: "right" }]}>GSTIN: {p.company.gstin}</Text> : null}
-              <Text style={s.docTitle}>{p.title}</Text>
-              {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 2 }]}>{p.copyLabel}</Text> : null}
-            </View>
+          {/* Centered header (owner 2026-10-25): small logo, name, the two numbers and GSTIN only — no address up here (it is in the footer). */}
+          <View style={s.headerC}>
+            {p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logoSm} /> : null}
+            <Text style={s.companyNameC}>{p.company.name.toUpperCase()}</Text>
+            <Text style={s.phonesC}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}</Text>
+            {p.company.gstin ? <Text style={s.contactC}>GSTIN: {p.company.gstin}</Text> : null}
+            <Text style={s.titleBadge}>{p.title}</Text>
+            {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 2 }]}>{p.copyLabel}</Text> : null}
           </View>
 
           <View style={s.metaStrip}>
@@ -203,13 +210,13 @@ export function SaharaBillDocument(p: BillDocumentProps) {
             {p.billTo.address && p.billTo.address.trim() !== "—" ? <Text style={s.billLine}>{p.billTo.address}</Text> : null}
             {p.billTo.mobile ? (
               <Text style={s.billLine}>
-                <Text style={{ fontFamily: "Helvetica-Bold", color: NAVY }}>Mobile </Text>
+                <Text style={{ fontFamily: FONT.bold, color: NAVY }}>Mobile </Text>
                 {p.billTo.mobile}
               </Text>
             ) : null}
             {p.billTo.email ? (
               <Text style={s.billLine}>
-                <Text style={{ fontFamily: "Helvetica-Bold", color: NAVY }}>Email </Text>
+                <Text style={{ fontFamily: FONT.bold, color: NAVY }}>Email </Text>
                 {p.billTo.email}
               </Text>
             ) : null}
@@ -218,7 +225,7 @@ export function SaharaBillDocument(p: BillDocumentProps) {
                 {(p.billTo.details ?? []).map((d, i) => (
                   <Text key={d.label}>
                     {i > 0 ? "   ·   " : ""}
-                    <Text style={{ fontFamily: "Helvetica-Bold", color: NAVY }}>{d.label} </Text>
+                    <Text style={{ fontFamily: FONT.bold, color: NAVY }}>{d.label} </Text>
                     {d.value}
                   </Text>
                 ))}
@@ -227,7 +234,7 @@ export function SaharaBillDocument(p: BillDocumentProps) {
           </View>
 
           <View style={s.tHead}>
-            <Text style={[s.headTxt, s.cNo]}>No</Text>
+            <Text style={[s.headTxt, s.cNo]}>Sr. No.</Text>
             <Text style={[s.headTxt, s.cName]}>SERVICES</Text>
             <Text style={[s.headTxt, s.cQty]}>Qty.</Text>
             <Text style={[s.headTxt, s.cRate]}>Rate</Text>
@@ -322,50 +329,21 @@ export function SaharaBillDocument(p: BillDocumentProps) {
               {p.whatsappConfirm ? (
                 <Link src={p.whatsappConfirm.url} style={s.waBtn}>
                   <Text style={s.waTitle}>Confirm this quotation on WhatsApp</Text>
-                  <Text style={s.waSub}>{p.whatsappConfirm.display}</Text>
+                  <Text style={s.waSub}>Tap here · {p.whatsappConfirm.display}</Text>
                 </Link>
               ) : null}
               <Text style={s.secTitle}>Total Amount (in words)</Text>
               <Text style={s.words}>{p.amountInWords}</Text>
-              {hasBank && (
-                <>
-                  <Text style={s.secTitle}>Bank Details</Text>
-                  {p.bank?.name ? <View style={s.bankGrid}><Text style={s.bankK}>Name</Text><Text style={s.bankV}>{p.bank.name}</Text></View> : null}
-                  {p.bank?.ifsc ? <View style={s.bankGrid}><Text style={s.bankK}>IFSC</Text><Text style={s.bankV}>{p.bank.ifsc}</Text></View> : null}
-                  {p.bank?.account ? <View style={s.bankGrid}><Text style={s.bankK}>Account No</Text><Text style={s.bankV}>{p.bank.account}</Text></View> : null}
-                  {p.bank?.bankName ? <View style={s.bankGrid}><Text style={s.bankK}>Bank Name</Text><Text style={s.bankV}>{p.bank.bankName}</Text></View> : null}
-                </>
-              )}
-              {(p.qrDataUrl || p.upiId) && (
-                <View style={s.payRow} wrap={false}>
-                  {p.qrDataUrl ? <Image src={p.qrDataUrl} style={s.qr} /> : null}
-                  <View>
-                    <Text style={[s.secTitle, { marginTop: 0 }]}>Payment QR Code</Text>
-                    {p.upiId ? (
-                      <Text style={s.kvR}>
-                        <Text style={{ fontFamily: "Helvetica-Bold" }}>UPI ID: </Text>
-                        {p.upiId}
-                      </Text>
-                    ) : null}
-                  </View>
-                </View>
-              )}
+              {/* Payment block (owner 2026-10-25): bank details left, large scannable UPI QR right — no raw URLs. */}
+              {hasPaymentBlock(p) ? <PaymentBlock bank={p.bank} upiId={p.upiId} qrDataUrl={p.qrDataUrl} amount={p.qrAmount} k={k} /> : null}
             </View>
           </View>
 
           <View style={s.footer} wrap={false}>
             <View style={s.signRow}>
-              <View style={s.signBox}>
-                <Text style={s.signLbl}>Authorised Signatory</Text>
-                <Text style={s.signName}>{p.company.name.toUpperCase()}</Text>
-              </View>
+              <SignatoryBox company={p.company.name} k={k} />
             </View>
-            <View style={s.servicesBar}>
-              <Text style={s.footSlogan}>{p.company.slogan ?? SLOGAN}</Text>
-              <Text style={s.servicesTxt}>{(p.services ?? CORE_SERVICES).join("  •  ")}</Text>
-              <Text style={s.footContact}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}  ·  {p.company.email}  ·  {p.company.website}</Text>
-              <Text style={s.footContact}>{p.company.address}</Text>
-            </View>
+            <BrandFooter phones={p.company.phones ?? [p.company.phone]} email={p.company.email} website={p.company.website} address={p.company.address} k={k} />
           </View>
         </View>
       </Page>

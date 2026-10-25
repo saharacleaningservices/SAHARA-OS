@@ -15,6 +15,8 @@ import { MIN_SECRET_LENGTH, SIGNATURE_MAX_AGE_SECONDS, publicApiConfigured, sign
 const dir = mkdtempSync(path.join(tmpdir(), "sahara-pubapi-"));
 const dbFile = path.join(dir, "test.db");
 process.env.DATABASE_URL = `file:${dbFile}`;
+// These catalogue tests exercise the festival-pricing mode, which is off on the public site by default since 2026-10-25.
+process.env.PUBLIC_FESTIVAL_OFFERS = "on";
 for (const k of ["WHATSAPP_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_USE_TEMPLATES", "WHATSAPP_OUTBOUND_MODE", "LEADS_SHEET_WEBHOOK_URL", "LEADS_SHEET_WEBHOOK_SECRET"]) delete process.env[k];
 const TOKEN = randomBytes(24).toString("hex");
 const SECRET = randomBytes(24).toString("hex");

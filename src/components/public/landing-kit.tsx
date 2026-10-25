@@ -19,7 +19,7 @@ import { PriceSelector } from "@/components/public/price-selector";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
 import { SERVICE_AREA_NOTICE, activeCampaign, todayIST } from "@/lib/pricing-master";
 import { festivalUrgency } from "@/lib/festival-urgency";
-import { getLivePricing, getPublicPricing } from "@/server/pricing";
+import { getPublicPricing, publicFestivalOffersOn } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
 import { toWhatsAppLink } from "@/lib/utils";
@@ -46,6 +46,8 @@ export const SERVICE_LINKS = [
 
 // Hero slides — real Sahara service visuals, one per service.
 export const CAROUSEL = {
+  // Owner 2026-10-25: Home Deep Cleaning hero = single-disc scrubber technician in the Royal Blue uniform.
+  home: { src: "/marketing/hero-home.webp", alt: "Sahara technician in Royal Blue uniform running a single-disc floor scrubber in a Pune apartment" },
   team: { src: "/marketing/carousel-team.webp", alt: "Sahara cleaning team deep cleaning a living room in Pune" },
   equipment: { src: "/marketing/carousel-equipment.webp", alt: "Sahara technician using an upholstery extraction machine on a sofa" },
   result: { src: "/marketing/carousel-result.webp", alt: "Freshly deep-cleaned living room by Sahara Cleaning Services" },
@@ -58,11 +60,12 @@ export const CAROUSEL = {
   pest2: { src: "/marketing/hero-pest-2.webp", alt: "Sahara technician inspecting a wardrobe base and door frame for termites" },
   pest3: { src: "/marketing/hero-pest-3.webp", alt: "Sahara technician applying targeted treatment along a bathroom drain and skirting" },
 };
-/** All four services — for the festival / booking hero. Commercial leads (owner 2026-10-25); the residential slide stays second. */
-export const ALL_SERVICES_SLIDES: CarouselImage[] = [CAROUSEL.commercial, CAROUSEL.team, CAROUSEL.painting, CAROUSEL.pest];
+/** All four services — for the booking hero. Home Deep Cleaning (disc scrubber) leads, Commercial second (owner 2026-10-25). */
+// Royal Blue uniform photos only (the navy-uniform team photo is no longer a hero slide).
+export const ALL_SERVICES_SLIDES: CarouselImage[] = [CAROUSEL.home, CAROUSEL.commercial, CAROUSEL.painting, CAROUSEL.pest];
 function heroImages(image: string, alt: string): CarouselImage[] {
   // Owner 2026-10-25: Home hero leads with the Home Deep Cleaning category-card photo.
-  if (image === "/marketing/hero-home.webp") return [{ src: image, alt }, CAROUSEL.team, CAROUSEL.equipment];
+  if (image === CAROUSEL.home.src) return [CAROUSEL.home, CAROUSEL.equipment];
   if (image === CAROUSEL.commercial.src) return [CAROUSEL.commercial, CAROUSEL.equipment];
   if (image === CAROUSEL.painting.src) return [{ src: image, alt }, CAROUSEL.painting2, CAROUSEL.painting3];
   if (image === CAROUSEL.pest.src) return [{ src: image, alt }, CAROUSEL.pest2, CAROUSEL.pest3];
@@ -199,7 +202,8 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
   // Book Now goes straight to the service selection with Home Cleaning open.
   const bookHref = bookHrefOverride ?? (primaryHref === "/booking" || primaryHref.startsWith("#") ? "/booking?service=home#book" : primaryHref);
   // Trust + price proof from CRM Settings and the live price list — never hard-coded claims.
-  const [settings, pricing] = await Promise.all([getCompanySettings().catch(() => null), getLivePricing()]);
+  // Public pricing: festivals are empty unless PUBLIC_FESTIVAL_OFFERS is on, so no Diwali badge on the clean layout.
+  const [settings, pricing] = await Promise.all([getCompanySettings().catch(() => null), getPublicPricing()]);
   // Regular "from" price only outside festival periods — during a festival, prices
   // are shown after the customer opens the packages.
   const todayYmd = new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
@@ -468,7 +472,7 @@ export function FinalCta({ title, waText }: { title: string; waText: string }) {
 // upcoming. Urgency is factual only: festival weeks are the busiest and the
 // booking calendar shows live team availability — no countdowns or fake stock.
 export async function FestivalSection({ bookHref = "?price=festival#quote" }: { bookHref?: string }) {
-  const { items, festivals } = await getLivePricing();
+  const { items, festivals } = await getPublicPricing(); // empty unless PUBLIC_FESTIVAL_OFFERS is on
   const today = new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
   const upcoming = festivals.filter((f) => f.end >= today).sort((a, b) => a.start.localeCompare(b.start));
   if (!upcoming.length) return null;
@@ -582,7 +586,7 @@ export function festivalPriceNote(campaign: ReturnType<typeof activeCampaign>): 
  * Live prices (festival-aware); choosing Book hands the BHK + package to the booking form below.
  */
 export async function CompactPriceSelector() {
-  const pricing = await getLivePricing();
+  const pricing = await getPublicPricing(); // same prices the booking server charges
   const campaign = activeCampaign(pricing.festivals, todayIST());
   const rows = buildHomeRows(livePkgs(pricing.items, "PREMIUM", campaign?.current), livePkgs(pricing.items, "PLATINUM", campaign?.current));
   return <PriceSelector rows={rows} note={festivalPriceNote(campaign)} bookHref="#book" hideDetails heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />;
@@ -594,7 +598,8 @@ export async function CompactPriceSelector() {
  * window ends and never states a slot count or a price rise.
  */
 export function FestivalUrgencyBar() {
-  const u = festivalUrgency(todayIST());
+  // Owner 2026-10-25: no "high demand" / Diwali urgency banners unless the festival offers are switched back on.
+  const u = publicFestivalOffersOn() ? festivalUrgency(todayIST()) : null;
   if (!u) return null;
   return (
     <div role="note" className="bg-[#b45309] px-4 py-2 text-center text-xs font-semibold leading-snug text-white sm:text-sm">
@@ -606,7 +611,7 @@ export function FestivalUrgencyBar() {
 export async function FunnelCards() {
   const pricing = await getPublicPricing();
   const bathroom = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
-  const urgency = festivalUrgency(todayIST());
+  const urgency = publicFestivalOffersOn() ? festivalUrgency(todayIST()) : null;
   return (
     <ServiceCards
       badge={urgency ? `🔥 High demand ${urgency.label} — book early` : undefined}

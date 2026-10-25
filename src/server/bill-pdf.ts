@@ -14,7 +14,7 @@ import { UPI_QR_OPTIONS, upiPayUri } from "@/lib/upi";
 export async function billChrome(
   amountDue: number,
   _ref: string, // document number — kept for callers; the owner's UPI format carries no note
-): Promise<Pick<BillDocumentProps, "company" | "logoDataUrl" | "bank" | "upiId" | "qrDataUrl" | "bookQrDataUrl" | "bookUrl">> {
+): Promise<Pick<BillDocumentProps, "company" | "logoDataUrl" | "bank" | "upiId" | "qrDataUrl" | "qrAmount" | "bookQrDataUrl" | "bookUrl">> {
   const settings = await getCompanySettings();
   const company = {
     name: settings.name || COMPANY.name,
@@ -42,6 +42,7 @@ export async function billChrome(
     logoDataUrl,
     upiId,
     qrDataUrl,
+    qrAmount: upiId && amountDue > 0 ? amountDue : null,
     bookQrDataUrl,
     bookUrl,
     bank:

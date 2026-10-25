@@ -452,14 +452,16 @@ export const LEAD_STAGES = [
 export type LeadStage = (typeof LEAD_STAGES)[number];
 
 /** The stages the office moves an enquiry through (owner 2026-10-24). Interested / Site Visit still exist on old records and keep their labels, but are no longer offered. */
-export const LEAD_STAGE_FLOW = ["NEW", "QUOTATION", "CONFIRMED", "JOB_SCHEDULED", "COMPLETED", "CANCELLED"] as const;
+// "Follow-up" (owner 2026-10-25) reuses the NEGOTIATION value — already an open stage everywhere (reminders, AI follow-ups,
+// slot capacity, reports) — so no database migration is needed.
+export const LEAD_STAGE_FLOW = ["NEW", "QUOTATION", "NEGOTIATION", "CONFIRMED", "JOB_SCHEDULED", "COMPLETED", "CANCELLED"] as const;
 
 export const LEAD_STAGE_LABELS: Record<string, string> = {
   NEW: "New Inquiry",
   INTERESTED: "Interested",
   SITE_VISIT: "Site Visit",
   QUOTATION: "Quotation Sent",
-  NEGOTIATION: "Negotiation", // legacy — no longer selectable, kept so any historical record still renders a label
+  NEGOTIATION: "Follow-up", // selectable again as "Follow-up" (owner 2026-10-25)
   CONFIRMED: "Confirmed",
   JOB_SCHEDULED: "Pending Job",
   CANCELLED: "Cancelled",

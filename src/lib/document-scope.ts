@@ -67,6 +67,13 @@ const two = (n: number) => (n < 20 ? ONES[n] : `${TENS[Math.floor(n / 10)]}${n %
 const three = (n: number) => `${n >= 100 ? `${ONES[Math.floor(n / 100)]} Hundred${n % 100 ? " " : ""}` : ""}${n % 100 ? two(n % 100) : ""}`;
 
 /** Indian-system amount in words: 7000 → "Seven Thousand Rupees". */
+/** The amount a document prints (and spells out): the stored total; if that is 0 but the stored parts or priced lines are not, use those. */
+export function documentTotal(stored: number, fromParts: number, fromLines: number): number {
+  if (stored > 0) return stored;
+  if (fromParts > 0) return Math.round(fromParts * 100) / 100;
+  return Math.max(0, fromLines);
+}
+
 export function rupeesInWords(amount: number): string {
   const total = Math.round(Math.max(0, amount) * 100); // paise — exact, no whole-rupee rounding
   let n = Math.floor(total / 100);

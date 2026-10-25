@@ -23,9 +23,9 @@ const job = (over: Partial<CustomerDocJob> = {}): CustomerDocJob => ({
 const render = (kind: "QUOTATION" | "INVOICE", j = job()) =>
   renderToStaticMarkup(createElement(CustomerDocument, { kind, job: j, company, shareUrl: "https://booking.example/x", catalog: { name: "Home Deep Cleaning", scope: ["Kitchen degreasing", "Bathroom descaling"], equipment: ["Steam machine"], terms: ["Advance 20%"] } }));
 
-test("table headings read # | Service Description | Qty | Rate | Amount; the Disc. column only appears when a row has a discount", () => {
+test("table headings read Sr. No. | Service Description | Qty | Rate | Amount; the Disc. column only appears when a row has a discount", () => {
   const html = render("INVOICE");
-  for (const h of [">#<", ">Service Description<", ">Qty<", ">Rate<", ">Amount<"]) assert.ok(html.includes(h), h);
+  for (const h of [">Sr. No.<", ">Service Description<", ">Qty<", ">Rate<", ">Amount<"]) assert.ok(html.includes(h), h);
   assert.ok(!html.includes(">Disc.<") && !html.includes(">Services<") && !html.includes(">No<"));
 });
 

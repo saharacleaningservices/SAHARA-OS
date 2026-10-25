@@ -13,7 +13,8 @@ import { DocAccordion } from "@/components/public/doc-accordion";
  * never cost, margin, staff, wages or internal notes.
  */
 
-const inr = (n: number) => `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`; // exact — never rounded
+// Latin digits always ("-u-nu-latn"): never Devanagari "१०" on any device locale. Exact — never rounded.
+const inr = (n: number) => `₹${n.toLocaleString("en-IN-u-nu-latn", { maximumFractionDigits: 2 })}`;
 
 const ONES = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
 const TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
@@ -161,7 +162,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
   const total = job.jobValue > 0 ? job.jobValue : Math.max(0, subtotal - itemsDiscount);
   // Discount shown once, in the totals: gross value, the discount and its percentage, and what the customer saves.
   const hasDisc = rows.some((r) => r.disc > 0);
-  const gridCols = hasDisc ? "sm:grid-cols-[2rem_1fr_3rem_5.5rem_5rem_6rem]" : "sm:grid-cols-[2rem_1fr_3rem_5.5rem_6rem]";
+  const gridCols = hasDisc ? "sm:grid-cols-[3rem_1fr_3rem_5.5rem_5rem_6rem]" : "sm:grid-cols-[3rem_1fr_3rem_5.5rem_6rem]";
   const gross = pkg.lines.length > 0 ? subtotal : baseValue + discount;
   const discountPct = gross > 0 && discount > 0 ? Math.round((discount / gross) * 1000) / 10 : 0;
   const taxable = Math.max(0, total - gst);
@@ -181,7 +182,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
   const termsItems = catalog && catalog.terms.length > 0 ? catalog.terms : COMPACT_TERMS;
 
   return (
-    <article id="document" className="overflow-hidden rounded-2xl border border-[#0a2540]/15 bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:border-0 print:text-[10.5px] print:leading-snug print:shadow-none">
+    <article id="document" lang="en" translate="no" className="notranslate overflow-hidden rounded-2xl border border-[#0a2540]/15 bg-white text-sm text-[#0a2540] shadow-sm print:rounded-none print:border-0 print:text-[10.5px] print:leading-snug print:shadow-none">
       {/* Saved / printed PDF: A4 with slim margins so a normal quotation fits on one page. */}
       <style>{"@media print{@page{size:A4;margin:7mm}html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}#document{break-inside:avoid;page-break-inside:avoid}#document section,#document li,#document footer{break-inside:avoid;page-break-inside:avoid}}"}</style>
       {/* Header */}
@@ -242,7 +243,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
       {/* Services table — stacked rows on mobile, columns from sm */}
       <section className="p-4 sm:p-6 print:px-4 print:py-2">
         <div className={`hidden gap-2 border-b border-[#0a2540]/15 pb-2 text-[11px] font-bold uppercase text-[#0a2540]/60 sm:grid ${gridCols}`}>
-          <span>#</span><span>Service Description</span><span className="text-right">Qty</span><span className="text-right">Rate</span>{hasDisc && <span className="text-right">Disc.</span>}<span className="text-right">Amount</span>
+          <span>Sr. No.</span><span>Service Description</span><span className="text-right">Qty</span><span className="text-right">Rate</span>{hasDisc && <span className="text-right">Disc.</span>}<span className="text-right">Amount</span>
         </div>
         <ol className="divide-y divide-[#0a2540]/10">
           {rows.map((r, i) => (
@@ -302,7 +303,7 @@ export function CustomerDocument({ kind, job, company, shareUrl, catalog }: { ki
           )}
           {catalog && catalog.equipment.length > 0 && (
             <DocAccordion title="Equipment Used">
-              <p className="text-xs leading-snug text-[#0a2540]/80 print:text-[10px]">{catalog.equipment.join(" · ")}</p>
+              <p className="text-xs leading-snug text-[#0a2540]/80 print:text-[10px]">{catalog.equipment.filter((e) => !/step[\s-]?ladder/i.test(e)).join(" · ")}</p>
             </DocAccordion>
           )}
           <DocAccordion title="Terms & Conditions">

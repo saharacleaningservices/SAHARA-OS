@@ -28,7 +28,7 @@ const CUSTOMER_CLAUSE = "Customer to arrange: water and electricity, a step-ladd
 /** Exactly five core clauses; the second is tailored to the service. */
 const terms = (customer: string = CUSTOMER_CLAUSE): string[] => [SCOPE_CLAUSE, customer, VALUABLES_CLAUSE, HIGH_RISE_CLAUSE, POST_INTERIOR_DISCLAIMER];
 
-const HOME_EQUIPMENT = ["Industrial wet-and-dry vacuum", "Floor scrubbing & mopping kit", "Microfibre cloths, brushes & scrapers", "Surface-appropriate cleaning chemicals", "Glass-cleaning squeegee set", "Step ladders for reachable heights"];
+const HOME_EQUIPMENT = ["Industrial wet-and-dry vacuum", "Floor scrubbing & mopping kit", "Microfibre cloths, brushes & scrapers", "Surface-appropriate cleaning chemicals", "Glass-cleaning squeegee set"];
 
 const group = (label: string, items: string[]) => `${label}: ${items.join("; ")}.`;
 const lower = (s: string) => (/^[A-Z]{2}/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1)); // keeps acronyms such as WC
@@ -87,7 +87,7 @@ export const SERVICE_CATALOG_SEED: CatalogSeed[] = [
       `Not included: ${excl("SCS-12")}.`,
     ],
     termsConditions: terms(`Customer to arrange: ${prep("SCS-12")}.`),
-    equipmentsUsed: ["Food-safe degreasing solutions", "Scrubbing pads & brushes", "Wet-and-dry vacuum", "Microfibre cloths", "Step ladder"],
+    equipmentsUsed: ["Food-safe degreasing solutions", "Scrubbing pads & brushes", "Wet-and-dry vacuum", "Microfibre cloths"],
   },
   {
     slug: "sofa-carpet-shampooing",
