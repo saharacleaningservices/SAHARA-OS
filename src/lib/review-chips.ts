@@ -6,6 +6,8 @@ export type ReviewService = "HOME_DEEP_CLEANING" | "COMMERCIAL_CLEANING" | "HOUS
 
 const POOL: Record<ReviewService, string[]> = {
   HOME_DEEP_CLEANING: [
+    "Best home deep cleaning in Pune — punctual, verified staff and great value for money.",
+    "Punctual & verified staff, spotless kitchen and bathrooms. Value for money!",
     "Sahara did a spotless home deep cleaning in Pune — the kitchen and bathrooms look brand new.",
     "Best deep cleaning service in Pune. The team was on time, polite and very thorough.",
     "Booked Sahara Cleaning Services for flat deep cleaning in Magarpatta — great value and a really fresh home.",
@@ -15,6 +17,7 @@ const POOL: Record<ReviewService, string[]> = {
     "The crew was careful with our furniture and left the house spotless. Five stars for Sahara.",
   ],
   COMMERCIAL_CLEANING: [
+    "Best commercial cleaning in Pune — punctual, verified staff and value for money.",
     "Sahara cleaned our Pune office floors with machines overnight — ready for work next morning.",
     "Reliable commercial cleaning in Pune. Disciplined staff, good equipment and fair pricing.",
     "Great post-construction and office deep cleaning. Glass, floors and washrooms all spotless.",
@@ -30,6 +33,7 @@ const POOL: Record<ReviewService, string[]> = {
     "Very responsive team for housekeeping and AMC. Fair rates and reliable service.",
   ],
   PEST_CONTROL: [
+    "Best pest control in Pune — punctual technician, safe treatment, value for money.",
     "Sahara's pest control in Pune worked — cockroaches and ants gone within days.",
     "Safe, odourless pest control treatment. The technician explained everything clearly.",
     "Effective termite and cockroach treatment for our flat in Magarpatta. Reasonable price and good follow-up.",
@@ -38,6 +42,7 @@ const POOL: Record<ReviewService, string[]> = {
     "Great pest control service in Hadapsar with a service warranty. Very satisfied.",
   ],
   INTERIOR_PAINTING: [
+    "Best interior painting in Pune — neat finish, punctual team, value for money.",
     "Sahara painted our 2 BHK in Pune beautifully — neat finish, no stains on the floor.",
     "Professional interior painting service with a smooth wall finish and on-time completion.",
     "Good quality paint work and clean-up afterwards. Best painting service we found in Hadapsar.",
