@@ -6,6 +6,8 @@ export type SearchResult = {
   title: string;
   subtitle: string;
   href: string;
+  /** Customer mobile (Lead / Job / Customer rows) — opens the "Past History" popup in Quick Search. */
+  mobile?: string;
 };
 
 /** Cross-module search: customer name, mobile, area, service, job/invoice #, staff, vehicle. */
@@ -38,7 +40,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
         ],
       },
       take: 6,
-      select: { id: true, customerName: true, jobNumber: true, area: true },
+      select: { id: true, customerName: true, customerMobile: true, jobNumber: true, area: true },
     }),
     db.staff.findMany({
       where: { deletedAt: null, OR: [{ name: { contains: q } }, { mobile: { contains: q } }, { employeeCode: { contains: q } }] },
@@ -73,6 +75,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       title: l.name,
       subtitle: `${l.leadNumber} · ${l.mobile} · ${l.area}`,
       href: `/leads/${l.id}`,
+      mobile: l.mobile,
     })),
     ...jobs.map((j) => ({
       type: "Job" as const,
@@ -80,6 +83,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       title: j.customerName,
       subtitle: `${j.jobNumber} · ${j.area}`,
       href: `/jobs/${j.id}`,
+      mobile: j.customerMobile,
     })),
     ...staff.map((s) => ({
       type: "Staff" as const,
@@ -108,6 +112,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       title: c.name,
       subtitle: [c.mobile, c.area].filter(Boolean).join(" · "),
       href: `/customers/${c.mobile}`,
+      mobile: c.mobile,
     })),
   ];
 }
