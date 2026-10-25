@@ -92,6 +92,20 @@ export function normalizeNumber(mobile: string): string {
 // The allowlist is deliberately code, not env, so it cannot widen silently.
 // ─────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────
+// Staff WhatsApp alerts OFF (owner 2026-10-25): staff see their jobs, attendance and money in the Staff App, so job
+// dispatch and attendance summaries to staff are recorded CANCELLED and never sent (Meta also refuses free text to staff
+// outside the 24-hour window). Customer messages and the office/owner alerts (kind OTHER) are unchanged.
+// WHATSAPP_STAFF_ALERTS=on switches the staff alerts back on.
+// ─────────────────────────────────────────────────────────────────────────
+export const STAFF_ALERT_KINDS: readonly string[] = ["TEAM_DISPATCH", "ATTENDANCE_SUMMARY"];
+export const WHATSAPP_STAFF_ALERTS_OFF = "Not sent — staff WhatsApp alerts are off; the job is in the Staff App";
+export const staffAlertsOn = () => process.env.WHATSAPP_STAFF_ALERTS === "on";
+export const isMutedStaffAlert = (kind: string) => !staffAlertsOn() && STAFF_ALERT_KINDS.includes(kind);
+/** Plain-text messages older than this are never (re)sent by the queue — Meta drops free text after 24 h anyway. */
+export const WHATSAPP_QUEUE_MAX_AGE_MS = 24 * 3600 * 1000;
+export const WHATSAPP_STALE_QUEUE = "Not sent — older than 24 hours when the queue reached it";
+
 export const WHATSAPP_TEST_MODE_NUMBERS: readonly string[] = ["919800817070"];
 export const WHATSAPP_NOT_CONNECTED = "Not sent — WhatsApp Cloud API is not connected (access token / phone number ID missing in Settings → Integrations)";
 export const WHATSAPP_TEST_MODE_BLOCK = "Blocked — WhatsApp TEST MODE (only the approved test number may receive messages)";
@@ -291,6 +305,13 @@ export async function sendWhatsApp(input: {
   skipConsentCheck?: boolean;
 }) {
   const toNumber = normalizeNumber(input.toNumber);
+  if (isMutedStaffAlert(input.kind)) {
+    // Recorded for the Message Log, never sent and never retried (CANCELLED is skipped by the queue).
+    const muted = await db.whatsAppMessage.create({
+      data: { kind: input.kind, toNumber, toName: input.toName ?? null, body: input.body, relatedType: input.relatedType ?? null, relatedId: input.relatedId ?? null, status: "CANCELLED", errorMessage: WHATSAPP_STAFF_ALERTS_OFF },
+    });
+    return { queued: false as const, sent: false as const, id: muted.id, error: WHATSAPP_STAFF_ALERTS_OFF, blocked: true as const };
+  }
   const optedOut = input.skipConsentCheck ? false : await isOptedOut(toNumber);
   const blocked = !optedOut && !isOutboundAllowed(toNumber);
 
@@ -467,7 +488,15 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
   let failed = 0;
   let skippedOptedOut = 0;
   let held = 0;
+  let cancelled = 0;
   for (const m of pending) {
+    // Staff alerts are off, or the row is too old to be useful (an old OTP, yesterday's dispatch): cancel, never send.
+    const muted = isMutedStaffAlert(m.kind);
+    if (muted || Date.now() - m.createdAt.getTime() > WHATSAPP_QUEUE_MAX_AGE_MS) {
+      await db.whatsAppMessage.update({ where: { id: m.id }, data: { status: "CANCELLED", errorMessage: muted ? WHATSAPP_STAFF_ALERTS_OFF : WHATSAPP_STALE_QUEUE } });
+      cancelled += 1;
+      continue;
+    }
     if (!isOutboundAllowed(m.toNumber)) {
       held += 1;
       continue;
@@ -504,7 +533,7 @@ export async function flushWhatsAppQueue(opts: { includeFailed?: boolean; limit?
     }
   }
 
-  return { ok: true as const, sent, failed, skippedOptedOut, held, processed: pending.length };
+  return { ok: true as const, sent, failed, skippedOptedOut, held, cancelled, processed: pending.length };
 }
 
 // ─────────────────────────────────────────────────────────────────────────
