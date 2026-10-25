@@ -2,7 +2,7 @@
 // property pills, tidy footer. Server-rendered to static HTML and checked. Run: npx tsx --test tests/public-ui-p2.test.tsx
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import * as React from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -70,11 +70,8 @@ test("one-screen pay checkout, reschedule calendar + cancel box, property pills 
   assert.ok(!kit.slice(kit.indexOf('id="ft-services"'), kit.indexOf('id="ft-trust"')).includes("<FooterSocial />"));
 });
 
-test("uniform: the Royal Blue mock-up is on every landing page and the booking page; no grey variant ships", () => {
-  assert.ok(readFileSync("src/components/public/landing-kit.tsx", "utf8").includes("<UniformStrip />"));
-  const strip = readFileSync("src/components/public/uniform-strip.tsx", "utf8");
-  assert.ok(strip.includes("uniform-royal-blue.webp") && strip.includes("Royal Blue") && strip.includes("Your Trusted Home Service Partner"));
-  const files = readdirSync("public/marketing");
-  assert.ok(files.includes("uniform-royal-blue.webp"));
-  assert.deepEqual(files.filter((f) => /gr[ae]y/i.test(f)), []);
+test("owner 2026-10-25: the standalone uniform / T-shirt block is gone from the landing pages; no grey-named image ships", () => {
+  assert.ok(!readFileSync("src/components/public/landing-kit.tsx", "utf8").includes("UniformStrip"));
+  assert.ok(!existsSync("src/components/public/uniform-strip.tsx"));
+  assert.deepEqual(readdirSync("public/marketing").filter((f) => /gr[ae]y/i.test(f)), []);
 });

@@ -16,6 +16,7 @@ import { execFileSync, spawn, type ChildProcess } from "node:child_process";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { PUNE_AREAS } from "../src/lib/pune-areas";
 
 const BOOKING = "https://booking.saharacleaningservices.com";
 const CRM = "https://crm.saharacleaningservices.com";
@@ -24,7 +25,7 @@ const CRM_HOST = new URL(CRM).host;
 
 // Mirrors src/app/sitemap.ts on purpose: a route disappearing from the sitemap (or the page) must fail a test.
 const PACKAGE_PATHS = ["1-bhk", "2-bhk", "3-bhk"].flatMap((b) => ["premium", "platinum"].map((t) => `/home-deep-cleaning-pune/${b}-${t}`));
-const INDEXABLE = ["/booking", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery"];
+const INDEXABLE = ["/booking", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
 const LANDING = ["/landing/home-deep-cleaning-pune", "/landing/interior-painting-pune", "/landing/office-commercial-cleaning-pune", "/landing/pest-control-services-pune"];
 // Public pages that must keep answering 200 but are not meant for the sitemap.
 const OTHER_PUBLIC = ["/privacy-policy", "/terms"];
