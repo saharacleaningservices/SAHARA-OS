@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const area = areaBySlug((await params).area);
   if (!area) return {};
   return {
-    title: `Cleaning, Pest Control, Painting & Housekeeping in ${area.name}, Pune | Sahara Cleaning Services`,
+    title: `Cleaning, Pest Control & Housekeeping in ${area.name}, Pune | Sahara`,
     description: `Home deep cleaning, office cleaning, pest control, painting and housekeeping AMC in ${area.name}, Pune — for ${area.premises}. Call 7083347130 or 8956567130.`,
     alternates: { canonical: `${BASE_URL}/pune/${area.slug}` },
   };

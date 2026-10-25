@@ -10,7 +10,7 @@ import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/c
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Cleaning, Pest Control, Painting & Housekeeping AMC Across Pune | Sahara Cleaning Services",
+  title: "Cleaning, Pest Control & Housekeeping AMC Across Pune | Sahara",
   description: "Sahara Cleaning Services serves Magarpatta, Hadapsar, Kharadi, Baner, Wakad, Hinjewadi, Kothrud, PCMC and more — home and office cleaning, pest control, painting, facility management AMC.",
   alternates: { canonical: `${BASE_URL}/pune` },
 };
