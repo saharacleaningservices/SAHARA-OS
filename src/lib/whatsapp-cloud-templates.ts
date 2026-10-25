@@ -408,6 +408,22 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
       { type: "URL", text: "Rate Us on Google", url: GOOGLE_REVIEW_URL },
     ],
   },
+  // ── Owner 2026-10-25: same message as v2, but "Rate Us on Google" opens the Smart Review Funnel (/review?t=token — keyword chips,
+  // copy, then Paste & Post on Google) instead of the bare Google link. Needs Meta approval; in use only with WHATSAPP_COMPLETED_TEMPLATE=v3.
+  {
+    key: "9d",
+    name: "sahara_job_completed_v3",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Job completed — View Invoice and Rate Us on Google (smart review funnel)",
+    body:
+      "Hi {{1}}, your {{2}} service has been completed. Thank you for choosing Sahara Cleaning Services.\n\nBalance due: ₹{{3}}\n\nTap below to see your invoice and share your feedback.",
+    examples: ["Priya", "Home Deep Cleaning", "2,999"],
+    buttons: [
+      { type: "URL", text: "View Invoice", url: `${PUBLIC_BOOKING_URL}/booking/invoice/{{1}}`, example: `${PUBLIC_BOOKING_URL}/booking/invoice/${EX_TOKEN}` },
+      { type: "URL", text: "Rate Us on Google", url: `${PUBLIC_BOOKING_URL}/review?t={{1}}`, example: `${PUBLIC_BOOKING_URL}/review?t=${EX_TOKEN}` },
+    ],
+  },
   // ── Owner 2026-10-23: "Work Started" customer message. UTILITY, no buttons, no offers. Sent when staff mark Work Started, only once
   // Meta approves it and WHATSAPP_USE_TEMPLATES=on + WHATSAPP_STARTED_TEMPLATE=v1 are set.
   {
