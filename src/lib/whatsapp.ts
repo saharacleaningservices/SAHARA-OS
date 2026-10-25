@@ -126,6 +126,7 @@ export const WHATSAPP_TRANSACTIONAL_TEMPLATES: readonly string[] = [
   "sahara_payment_received_v1",
   "sahara_job_completed_v1",
   "sahara_job_completed_v2",
+  "sahara_job_completed_v3",
   "sahara_service_started_v1",
   "sahara_booking_rescheduled",
   "sahara_booking_cancelled",

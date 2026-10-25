@@ -195,8 +195,8 @@ test("work started is queued from the status change; work completed text carries
   await db.job.update({ where: { id: job.id }, data: { status: "COMPLETED" } });
   await handlers.sendJobCompletedLinks(job.id, { force: true });
   const m = await db.whatsAppMessage.findFirst({ where: { kind: "JOB_COMPLETED", relatedId: job.id } });
-  assert.ok(m && /Thank you/.test(m.body) && /\/i\/[A-Za-z0-9]{10}/.test(m.body) && !m.body.includes("/booking/") && m.body.includes("https://g.page/r/TEST/review"));
-  assert.equal((m.body.match(/https?:\/\//g) ?? []).length, 2, "exactly two links: invoice + Google review");
+  assert.ok(m && /Thank you/.test(m.body) && /\/i\/[A-Za-z0-9]{10}/.test(m.body) && !m.body.includes("/booking/") && m.body.includes(`/review?c=`));
+  assert.equal((m.body.match(/https?:\/\//g) ?? []).length, 2, "exactly two links: invoice + review funnel");
 });
 
 test("housekeeping: only finished queue rows older than 30 days are removed; pending, running and parked-failed rows stay; the removal is audit-logged", async () => {

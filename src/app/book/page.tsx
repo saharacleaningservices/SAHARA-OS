@@ -24,6 +24,7 @@ import { AttributionCapture } from "@/components/public/attribution-capture";
 import { MarketingTags } from "@/components/public/marketing-tags";
 import { HeroCarousel } from "@/components/public/hero-carousel";
 import { CompanyLogo } from "@/components/shared/company-logo";
+import { AreasMapBlock } from "@/components/public/areas-map-block";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { ReviewsCarousel } from "@/components/public/reviews-carousel";
 import { COMPANY, CATEGORIES } from "@/lib/constants";
@@ -438,6 +439,7 @@ export default async function PublicBookingPage({
           </div>
         </div>
 
+        <div className="border-t border-white/15"><AreasMapBlock dark /></div>
         <div className="border-t border-white/15 py-3 text-center text-[11px] text-white/70">
           <p>{COMPANY.name}<sup className="ml-0.5 text-[0.7em]">™</sup></p>
           <p className="mt-1">GST No: {COMPANY.gstin}</p>

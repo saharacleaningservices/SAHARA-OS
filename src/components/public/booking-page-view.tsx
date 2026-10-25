@@ -9,6 +9,8 @@ import { BookingChangeRequest } from "@/components/public/booking-change-request
 import { ConfirmCompletedButton } from "@/components/public/confirm-completed-button";
 import { PackageScopeCard } from "@/components/shared/package-scope-card";
 import { CustomerDocument } from "@/components/public/customer-document";
+import { DocActionBar } from "@/components/public/doc-action-bar";
+import { socialLinks } from "@/lib/social-links";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { UPI_QR_OPTIONS, upiPayUri } from "@/lib/upi";
 import { paymentSplit } from "@/lib/booking-payment";
@@ -213,24 +215,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
     );
   }
 
-  return (
-    <div className="min-h-screen bg-[#f4f7fb] px-4 py-8 print:bg-white print:p-0">
-      <div className={`mx-auto space-y-4 ${focus === "quotation" || focus === "invoice" ? "max-w-3xl" : "max-w-md"}`}>
-        <div className="rounded-2xl bg-white p-5 text-center shadow-sm print:hidden">
-          <CheckCircle2 className="mx-auto size-8 text-emerald-600" />
-          <h1 className="mt-2 text-lg font-bold text-[#0a2540]">Hi {job.customerName}</h1>
-          <p className="text-sm text-[#0a2540]/70">Booking {job.jobNumber}</p>
-          <span className="mt-2 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-            {STATUS_LABEL[job.status] ?? job.status}
-          </span>
-        </div>
-
-        {(focus === "quotation" || focus === "invoice") && (
-          <CustomerDocument
-            kind={focus === "invoice" ? "INVOICE" : "QUOTATION"}
-            shareUrl={`${PUBLIC_BOOKING_URL}/booking/${focus}/${token}`}
-            catalog={catalogEntry ? { name: catalogEntry.name, scope: catalogEntry.scopeOfWork, equipment: catalogEntry.equipmentsUsed, terms: catalogEntry.termsConditions } : null}
-            company={{
+  const docCompany = {
               name: settings?.name || COMPANY.name,
               phone: settings?.phone || COMPANY.phones[0],
               email: settings?.email || COMPANY.email,
@@ -245,8 +230,8 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               bankIfsc: null,
               upiQrDataUrl,
               payUrl: `${PUBLIC_BOOKING_URL}/booking/pay/${token}`,
-            }}
-            job={{
+            };
+  const docJob = {
               jobNumber: job.jobNumber,
               customerName: job.customerName,
               customerMobile: job.customerMobile,
@@ -272,9 +257,51 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
               customerGstin: job.customerGstin,
               customerNumber: customer?.customerNumber ?? null,
               quotationNumber: job.lead?.quotations[0]?.quoteNumber ?? null,
-            }}
+            };
+  if (docView) {
+    // Quotation / invoice view (owner 2026-10-25). Layout model: BOX MODEL — one fixed A4-width sheet (794 px) in the
+    // brand blue, no extra footers or inline download buttons; everything the customer can do sits in the sticky bar.
+    const kind = focus === "invoice" ? "INVOICE" : "QUOTATION";
+    const social = socialLinks("footer");
+    const href = (k: string) => social.find((x) => x.key === k)?.href ?? "#";
+    const payAdvance = advanceDue > 0;
+    const payBtn = pmt.due > 0 && job.status !== "CANCELLED" && kind === "QUOTATION" ? { label: payAdvance ? `Pay Advance ${formatINR(advanceDue)}` : `Pay Now ${formatINR(pmt.due)}`, href: `/booking/pay/${token}` } : null;
+    return (
+      <div className="theme-sahara-blue min-h-screen bg-[#eef2fb] px-2 pb-36 pt-4 print:bg-white print:p-0">
+        <div className="mx-auto w-full max-w-[794px]">
+          <CustomerDocument
+            kind={kind}
+            shareUrl={`${PUBLIC_BOOKING_URL}/booking/${focus}/${token}`}
+            catalog={catalogEntry ? { name: catalogEntry.name, scope: catalogEntry.scopeOfWork, equipment: catalogEntry.equipmentsUsed, terms: catalogEntry.termsConditions } : null}
+            company={docCompany}
+            job={docJob}
           />
-        )}
+        </div>
+        <DocActionBar
+          kind={kind}
+          token={token}
+          pay={payBtn}
+          canChange={kind === "QUOTATION" && open}
+          pdfHref={`/booking/invoice/${token}/pdf?download=1`}
+          shareText={`Sahara Cleaning Services — your invoice ${job.invoice?.invoiceNumber ?? job.jobNumber}: ${PUBLIC_BOOKING_URL}/booking/invoice/${token}`}
+          socials={{ instagram: href("instagram"), facebook: href("facebook"), youtube: href("youtube"), review: `${PUBLIC_BOOKING_URL}/review` }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f4f7fb] px-4 py-8 print:bg-white print:p-0">
+      <div className={`mx-auto space-y-4 ${focus === "quotation" || focus === "invoice" ? "max-w-3xl" : "max-w-md"}`}>
+        <div className="rounded-2xl bg-white p-5 text-center shadow-sm print:hidden">
+          <CheckCircle2 className="mx-auto size-8 text-emerald-600" />
+          <h1 className="mt-2 text-lg font-bold text-[#0a2540]">Hi {job.customerName}</h1>
+          <p className="text-sm text-[#0a2540]/70">Booking {job.jobNumber}</p>
+          <span className="mt-2 inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+            {STATUS_LABEL[job.status] ?? job.status}
+          </span>
+        </div>
+
         <div className="space-y-4 print:hidden">
 
         {/* Quotation / invoice view: the document above already carries the service, schedule,

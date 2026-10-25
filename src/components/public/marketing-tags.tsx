@@ -52,6 +52,11 @@ function sendServerEvent(eventName: "Lead" | "Schedule", eventId: string, d: { c
 export function trackLead(details: { category?: string; variant?: string; mobile?: string; /** Booking total in INR when the customer picked a priced package. */ value?: number }) {
   // Owner-protected / internal numbers never reach any ad or analytics platform.
   if (isProtectedNumber(details.mobile)) return;
+  // GTM-style event for every lead form (owner 2026-10-25): GA4 / Meta tags configured on `lead_form_submit` see all of them.
+  if (typeof window !== "undefined") {
+    const w = window as unknown as { dataLayer?: unknown[] };
+    (w.dataLayer = w.dataLayer || []).push({ event: "lead_form_submit", service_category: details.category, service_variant: details.variant, page_path: window.location.pathname });
+  }
   // One shared id: the browser Pixel and the server (Conversions API) both send it, so Meta counts the lead once.
   const eventId = newEventId();
   const money = details.value && details.value > 0 ? { value: details.value, currency: "INR" } : {};

@@ -67,6 +67,15 @@
   --chart-1: #1f2f66;
 }
 
+/* Customer quotation / invoice view (owner 2026-10-25): strict A4 blue theme. */
+.theme-sahara-blue {
+  --primary: #1E40AF;
+  --primary-foreground: #ffffff;
+  --ring: #1E40AF;
+  --accent: #eaf0ff;
+  --accent-foreground: #1E40AF;
+}
+
 .dark {
   --background: #071626;
   --foreground: #e8f0fb;
