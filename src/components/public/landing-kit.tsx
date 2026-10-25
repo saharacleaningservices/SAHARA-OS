@@ -1,4 +1,3 @@
-import { UniformStrip } from "@/components/public/uniform-strip";
 import Link from "next/link";
 import { socialProfileUrls } from "@/lib/social-links";
 import { FooterSocial } from "@/components/public/footer-social";
@@ -100,7 +99,6 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
         </div>
       </header>
       {children}
-      <UniformStrip />
       <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
       {footer ?? (
       <footer className="mt-6 bg-[#0a2540] text-white/80">
