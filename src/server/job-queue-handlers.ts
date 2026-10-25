@@ -95,21 +95,29 @@ export async function sendJobCompletedNotice(jobId: string) {
   });
   if (!job) return;
   const pmt = customerPaymentStatus(job);
-  const t = templateByName(version === "v3" ? "sahara_job_completed_v3" : version === "v2" ? "sahara_job_completed_v2" : "sahara_job_completed_v1")!;
   const token = await ensureJobToken(job.id);
   const params = [job.customerName, SERVICE_LABELS[job.service] ?? job.service, formatINR(pmt.due).replace(/^₹\s?/, "")];
-  const res = await sendWhatsAppTemplate({
-    kind: "JOB_COMPLETED",
-    toNumber: job.customerMobile,
-    toName: job.customerName,
-    templateName: t.name,
-    languageCode: t.language,
-    bodyParams: params,
-    buttonUrlParams: version === "v3" ? [{ index: 0, value: token }, { index: 1, value: token }] : [{ index: 0, value: token }], // v1: Pay Balance → /booking/pay/{token}; v2: View Invoice → /booking/invoice/{token}; the Google review button is a fixed link
-    preview: renderTemplatePreview(t, params),
-    relatedType: "Job",
-    relatedId: job.id,
-  });
+  const send = (name: string) => {
+    const t = templateByName(name)!;
+    return sendWhatsAppTemplate({
+      kind: "JOB_COMPLETED",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      // v1: Pay Balance → /booking/pay/{token}; v2: View Invoice → /booking/invoice/{token} (+ fixed Google link);
+      // v3: View Invoice + Rate Us → /review?t={token} (smart review funnel) — both buttons take the token.
+      buttonUrlParams: name === "sahara_job_completed_v3" ? [{ index: 0, value: token }, { index: 1, value: token }] : [{ index: 0, value: token }],
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
+  };
+  let res = await send(version === "v3" ? "sahara_job_completed_v3" : version === "v2" ? "sahara_job_completed_v2" : "sahara_job_completed_v1");
+  // v3 still in Meta review (or rejected): the approved v2 template goes out instead, so customers never miss the invoice
+  // while WHATSAPP_COMPLETED_TEMPLATE=v3 is already set (owner 2026-10-25).
+  if (version === "v3" && !res.sent && "error" in res && shouldFallBackToText(res.error)) res = await send("sahara_job_completed_v2");
   // Template did not go out (rejected / paused / unreachable): send the same invoice + review links as plain text. A timeout never
   // falls back (it may have been delivered); deliberate refusals (TEST mode, opt-out) never fall back either.
   if (!res.sent && "error" in res && shouldFallBackToText(res.error)) return sendJobCompletedLinks(jobId);
@@ -133,14 +141,16 @@ export async function sendJobCompletedLinks(jobId: string, opts: { force?: boole
   if (!job) return;
   const pmt = customerPaymentStatus(job);
   const token = await ensureJobToken(job.id);
+  const code = await ensureShortCode(job.id);
   const settings = await db.companySettings.findUnique({ where: { id: "default" }, select: { googleReviewUrl: true } }).catch(() => null);
   const lines = [
     `Hi ${job.customerName}, your ${SERVICE_LABELS[job.service] ?? job.service} service is complete. Thank you for choosing Sahara Cleaning Services!`,
     ``,
-    `\u{1F9FE} View Invoice${job.invoice ? ` ${job.invoice.invoiceNumber}` : ""}: ${shortUrl("i", await ensureShortCode(job.id))}`,
+    `\u{1F9FE} View Invoice${job.invoice ? ` ${job.invoice.invoiceNumber}` : ""}: ${shortUrl("i", code)}`,
     // One invoice link only (owner 2026-10-23): the invoice page shows the balance and the payment QR, so no separate pay link here.
     pmt.due > 0 ? `Balance due: ${formatINR(pmt.due)} \u2014 payment details are on the invoice.` : `Payment received in full \u2014 thank you.`,
-    ...(settings?.googleReviewUrl ? [``, `\u2B50 Happy with our service? Please rate us on Google: ${settings.googleReviewUrl}`] : []),
+    // Smart review funnel (owner 2026-10-25): keyword chips → copy → Paste & Post on Google. Short code, never the long booking token.
+    ...(settings?.googleReviewUrl ? [``, `\u2B50 Happy with our service? Please rate us on Google: ${PUBLIC_BOOKING_URL}/review?c=${code}`] : []),
   ];
   const res = await sendWhatsApp({ kind: "JOB_COMPLETED", toNumber: job.customerMobile, toName: job.customerName, body: lines.join("\n"), relatedType: "Job", relatedId: job.id });
   if (opts.force) return res;
