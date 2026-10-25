@@ -77,8 +77,8 @@ export default async function BookingPage({
       <FestivalUrgencyBar />
       <Hero
         {...(quote ? { bookHrefOverride: "#book" } : {})}
-        image={CAROUSEL.team.src}
-        alt={CAROUSEL.team.alt}
+        image={CAROUSEL.commercial.src}
+        alt={CAROUSEL.commercial.alt}
         images={ALL_SERVICES_SLIDES}
         eyebrow={quote ? `Quotation ${quote.quoteNumber}` : festivalEyebrow ? `${festivalEyebrow} · Festival cleaning` : "Serving Pune Since 2012"}
         badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
