@@ -28,3 +28,15 @@ test("development is never blocked and values are never echoed", () => {
   const r = checkEnv({ ...good, AUTH_SECRET: "abc" });
   assert.ok(!JSON.stringify(r).includes("abc\""));
 });
+
+test("WhatsApp readiness: plain warnings for what still blocks customers or the chatbot; nothing when fully configured; never an error", () => {
+  const wa = { ...good, WHATSAPP_ACCESS_TOKEN: "t".repeat(20), WHATSAPP_PHONE_NUMBER_ID: "123456789" };
+  const bare = checkEnv(wa);
+  assert.deepEqual(bare.errors, []);
+  for (const re of [/WHATSAPP_OUTBOUND_MODE/, /WEBHOOK_VERIFY_TOKEN/, /WHATSAPP_APP_SECRET/, /WHATSAPP_USE_TEMPLATES/, /WHATSAPP_AUTO_REPLIES/]) assert.ok(bare.warnings.some((w: string) => re.test(w)), String(re));
+  assert.ok(checkEnv({ ...wa, WHATSAPP_OUTBOUND_MODE: "test" }).warnings.some((w: string) => /real customers receive nothing/.test(w)));
+  const ready = checkEnv({ ...wa, WHATSAPP_OUTBOUND_MODE: "transactional", WHATSAPP_WEBHOOK_VERIFY_TOKEN: "v".repeat(20), WHATSAPP_APP_SECRET: "s".repeat(20), WHATSAPP_USE_TEMPLATES: "on", WHATSAPP_COMPLETED_TEMPLATE: "v3", WHATSAPP_AUTO_REPLIES: "on", WHATSAPP_BUSINESS_ACCOUNT_ID: "1" });
+  assert.deepEqual(ready.warnings.filter((w: string) => /^WhatsApp:/.test(w)), []);
+  assert.ok(!JSON.stringify(bare).includes("t".repeat(20)), "values are never echoed");
+  assert.ok(checkEnv({ ...good, CALL_AUTOREPLY: "on" }).warnings.some((w: string) => /CALL_TRIGGER_TOKEN/.test(w)));
+});

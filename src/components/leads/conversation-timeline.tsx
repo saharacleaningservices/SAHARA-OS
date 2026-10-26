@@ -104,6 +104,8 @@ export function ConversationTimeline({ leadId, entries }: { leadId: string; entr
                   ) : (
                     <p className="whitespace-pre-wrap break-words text-sm text-foreground">{e.body}</p>
                   )}
+                  {/* Call recordings from the telephony provider (call-trigger webhook) play right under the call entry. */}
+                  {e.type === "CALL" && e.audioUrl ? <audio controls preload="none" src={e.audioUrl} className="mt-1.5 h-9 w-full max-w-xs" /> : null}
                   <p className="mt-1 text-[11px] text-muted-foreground">
                     {e.author?.name ? `${e.author.name} · ` : ""}
                     {formatDateTime(e.createdAt)}

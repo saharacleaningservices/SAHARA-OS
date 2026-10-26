@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { notify } from "@/server/notify";
+import { formatTalkTime } from "@/lib/call-autoresponder";
 
 /**
  * Phone call → CRM lead (shared by /api/webhook/missed-call and /api/v1/webhooks/call-trigger).
@@ -9,7 +10,11 @@ import { notify } from "@/server/notify";
  * 15-minute HIGH call-back follow-up and a team alert. Answered call: only notes an existing lead (never creates one —
  * the team already has the caller on the line and logs the enquiry themselves).
  */
-export async function recordCallLead(mobile: string, event: "MISSED" | "ANSWERED"): Promise<{ leadId: string | null; leadNumber: string | null; name: string | null; created: boolean }> {
+export async function recordCallLead(
+  mobile: string,
+  event: "MISSED" | "ANSWERED",
+  details: { durationSec?: number | null; recordingUrl?: string | null } = {},
+): Promise<{ leadId: string | null; leadNumber: string | null; name: string | null; created: boolean }> {
   const recent = await db.lead.findFirst({
     where: {
       mobile,
@@ -20,7 +25,15 @@ export async function recordCallLead(mobile: string, event: "MISSED" | "ANSWERED
   });
   const existingCustomer = await db.customer.findUnique({ where: { mobile } }).catch(() => null);
   if (recent) {
-    await addTimelineEntry({ leadId: recent.id, type: "CALL", body: event === "MISSED" ? "Missed call received (auto-detected)" : "Inbound call answered (auto-logged)" }).catch(() => {});
+    // Talk time and the provider's recording link ride on the same CALL entry (owner 2026-10-26); the timeline shows an audio player for it.
+    const talk = details.durationSec ? ` · ${formatTalkTime(details.durationSec)}` : "";
+    await addTimelineEntry({
+      leadId: recent.id,
+      type: "CALL",
+      body: (event === "MISSED" ? "Missed call received (auto-detected)" : "Inbound call answered (auto-logged)") + talk,
+      audioUrl: details.recordingUrl ?? null,
+      meta: details.durationSec || details.recordingUrl ? { durationSec: details.durationSec ?? null, source: "call-trigger" } : null,
+    }).catch(() => {});
     const name = /^Missed call \d+$/.test(recent.name) ? existingCustomer?.name ?? null : recent.name;
     return { leadId: recent.id, leadNumber: recent.leadNumber, name, created: false };
   }

@@ -101,7 +101,7 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
 }
 
 /** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). */
-export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book", singleMap = false }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string; /** One interactive map only (the Areas We Serve block below the columns): drops the small map in "Visit us". */ singleMap?: boolean }) {
+export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
   return (
     <div className="theme-navy min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
@@ -133,7 +133,6 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
           <section aria-labelledby="ft-location" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
             <h2 id="ft-location" className="text-base font-extrabold text-white">Visit us</h2>
             <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
-            {!singleMap && (
             <iframe
               title="Sahara Cleaning Services on Google Maps"
               src="https://www.google.com/maps?q=Opposite+South+Gate,+Magarpatta+City,+Hadapsar,+Pune+411028&output=embed"
@@ -141,7 +140,6 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               referrerPolicy="no-referrer-when-downgrade"
               className="h-44 w-full rounded-xl border-0 bg-white/10"
             />
-            )}
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-semibold text-white">
               {CONTACT.call.map((n) => <a key={n} href={`tel:+91${n}`} className="hover:text-amber-300">+91 {n.slice(0, 5)} {n.slice(5)}</a>)}
             </p>

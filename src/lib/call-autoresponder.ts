@@ -58,6 +58,24 @@ export function classifyCall(payload: Record<string, unknown>): CallEvent {
   return "MISSED";
 }
 
+/**
+ * Call details the CRM keeps on the lead timeline (owner 2026-10-26): talk time in seconds and the recording link, from the
+ * field names the common Indian IVR / call-centre providers use. Only an http(s) recording URL is accepted (never javascript:
+ * or data:), capped at 500 characters. Missing fields are null — a payload without them behaves exactly as before.
+ */
+export function callDetailsFrom(payload: Record<string, unknown>): { durationSec: number | null; recordingUrl: string | null } {
+  const rawDur = pick(payload, ["duration", "Duration", "talk_time", "talkTime", "billsec", "DialCallDuration", "CallDuration", "call_duration", "conversation_duration"]);
+  const dur = rawDur === null ? NaN : Number(rawDur);
+  const rec = pick(payload, ["recording_url", "recordingUrl", "RecordingUrl", "RecordingURL", "recording", "call_recording", "CallRecording", "record_url", "audio_url", "audioUrl"]);
+  const okUrl = rec !== null && rec.length <= 500 && /^https?:\/\/[^\s"'<>]+$/i.test(rec);
+  return { durationSec: Number.isFinite(dur) && dur > 0 ? Math.round(dur) : null, recordingUrl: okUrl ? rec : null };
+}
+
+/** "134" → "2m 14s", "45" → "45s". */
+export function formatTalkTime(sec: number): string {
+  return sec >= 60 ? `${Math.floor(sec / 60)}m ${sec % 60}s` : `${sec}s`;
+}
+
 /** YYYY-MM-DD in IST. */
 export function istYmd(now: Date): string {
   return new Date(now.getTime() + 5.5 * 3600_000).toISOString().slice(0, 10);
