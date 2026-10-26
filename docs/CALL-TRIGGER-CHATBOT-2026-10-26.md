@@ -36,3 +36,20 @@ Menu items: Home Deep Cleaning · Sofa/Carpet · Commercial · Slot Availability
 ## 5. Review redirector (`/review`)
 The customer taps a star rating first. 4–5★ goes to the Google keyword-chip flow. 1–3★ goes to a private feedback box: the feedback is saved as a Review row and
 the team gets an alert. A "Post a public Google review instead" link stays visible, because Google forbids review gating.
+
+## 6. Sahara OS Helper app (Android) — call log + recordings (2026-10-26)
+The Android app in `android/` sends each phone's finished calls to `/api/v1/webhooks/call-trigger` and, if switched on, call audio to
+`/api/v1/webhooks/call-recording` (same `CALL_TRIGGER_TOKEN`). Install steps: `android/README.md`.
+
+| Env (Coolify) | Meaning |
+|---|---|
+| `CALL_TRIGGER_TOKEN` | the token each phone's app uses (one shared secret) |
+| `CALL_RECORDING_UPLOADS_UNTIL` | optional `YYYY-MM-DD` (IST): the server refuses audio after this date, whatever the apps say. The app also switches itself off 30 days after the toggle is turned on |
+| `FESTIVAL_FULL_UNTIL=2026-11-03` | festive notice "slots full until 3 Nov, bookings from 4 Nov" for every caller (answered **and** missed) until that date |
+| `CALL_AUTOREPLY=on` | actually send (anything else = dry run) |
+
+Rules: history (calls older than ~30 min on arrival) and outgoing calls are noted on an existing lead only — no new lead, no WhatsApp message.
+A recording is stored only if the caller already has a lead, never for owner/internal numbers, and plays for office roles only.
+The festive template `festival_booking_full_notice` now carries the direct booking link `https://booking.saharacleaningservices.com/booking`,
+Google 4.9★, the website and Instagram — **if it was already submitted to Meta, delete it there and submit it again with this text**.
+The WhatsApp sender is the Cloud API number registered in WhatsApp Manager (`+91 91752 20270` in this project), not the voice number 7083347130.

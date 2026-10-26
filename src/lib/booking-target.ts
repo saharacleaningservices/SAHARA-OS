@@ -10,6 +10,9 @@ export const DEFAULT_CUSTOMER_BOOKING_URL = "https://saharacleaningservices.com/
 
 export const CUSTOMER_BOOKING_URL = ((typeof process !== "undefined" && process.env?.CUSTOMER_BOOKING_URL) || DEFAULT_CUSTOMER_BOOKING_URL).replace(/\/$/, "");
 
+/** Booking link printed in the post-call WhatsApp / SMS messages (owner 2026-10-26): the booking host directly, so it works today. */
+export const CALL_BOOKING_URL = "https://booking.saharacleaningservices.com/booking";
+
 export type BookingService = "home" | "commercial" | "pest" | "painting";
 
 /** Booking link with an optional service pre-selected and UTM tags so the Marketing dashboard credits the channel. */

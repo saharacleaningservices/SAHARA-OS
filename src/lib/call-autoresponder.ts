@@ -8,7 +8,7 @@
 //     for missed AND answered calls (every caller hears "slots full until X, book from X+1").
 //   • otherwise, missed call → missed_call_auto_responder; answered call → nothing (the team already spoke to them).
 
-import { CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
+import { CALL_BOOKING_URL, TRUST } from "@/lib/booking-target";
 import { last10, isProtectedNumber } from "@/lib/protected-numbers";
 import { templateByName, renderTemplatePreview } from "@/lib/whatsapp-cloud-templates";
 
@@ -71,6 +71,35 @@ export function callDetailsFrom(payload: Record<string, unknown>): { durationSec
   return { durationSec: Number.isFinite(dur) && dur > 0 ? Math.round(dur) : null, recordingUrl: okUrl ? rec : null };
 }
 
+/** A call older than this when it reaches us is history (phone was offline, or the Helper app is back-filling): logged, never replied to. */
+export const BACKFILL_AFTER_MIN = 30;
+
+/**
+ * Per-call bookkeeping sent by the Sahara OS Helper app (or any provider that has an id / end time): a de-duplication id, when the call
+ * ended, its direction and which phone reported it. `backfill` = history (explicit flag, or ended more than BACKFILL_AFTER_MIN ago).
+ */
+export function callMetaFrom(payload: Record<string, unknown>, now: Date = new Date()): { externalId: string | null; endedAt: Date | null; backfill: boolean; direction: "INCOMING" | "OUTGOING"; deviceLabel: string | null } {
+  const rawId = pick(payload, ["externalId", "external_id", "call_id", "callId", "CallSid", "uuid"]);
+  const externalId = rawId && /^[A-Za-z0-9:_.+@-]{1,80}$/.test(rawId) ? rawId : null;
+  const rawEnd = pick(payload, ["endedAt", "ended_at", "end_time", "endTime"]);
+  let endedAt: Date | null = null;
+  if (rawEnd) {
+    const d = /^\d{10,13}$/.test(rawEnd) ? new Date(rawEnd.length <= 10 ? Number(rawEnd) * 1000 : Number(rawEnd)) : new Date(rawEnd);
+    endedAt = Number.isNaN(d.getTime()) ? null : d;
+  }
+  const flag = (pick(payload, ["historical", "backfill"]) ?? "").toLowerCase();
+  const backfill = ["1", "true", "yes"].includes(flag) || (endedAt !== null && now.getTime() - endedAt.getTime() > BACKFILL_AFTER_MIN * 60_000);
+  const direction = /out/i.test(pick(payload, ["direction", "Direction", "call_direction"]) ?? "") ? "OUTGOING" : "INCOMING";
+  const label = (pick(payload, ["deviceLabel", "device_label", "agent", "device"]) ?? "").replace(/[^A-Za-z0-9 ._-]/g, "").slice(0, 40).trim();
+  return { externalId, endedAt, backfill, direction, deviceLabel: label || null };
+}
+
+/** Recording uploads stop for good after CALL_RECORDING_UPLOADS_UNTIL (YYYY-MM-DD, IST, inclusive). Unset = open. */
+export function recordingUploadsOpen(until: string | null | undefined, now: Date = new Date()): boolean {
+  if (!until || !/^\d{4}-\d{2}-\d{2}$/.test(until.trim())) return true;
+  return istYmd(now) <= until.trim();
+}
+
 /** "134" → "2m 14s", "45" → "45s". */
 export function formatTalkTime(sec: number): string {
   return sec >= 60 ? `${Math.floor(sec / 60)}m ${sec % 60}s` : `${sec}s`;
@@ -112,7 +141,7 @@ export type AutoReplyPlan = {
   smsTemplateEnv: "DLT_TEMPLATE_FESTIVAL_FULL" | "DLT_TEMPLATE_MISSED_CALL";
 };
 
-const BOOK = CUSTOMER_BOOKING_URL;
+const BOOK = CALL_BOOKING_URL;
 
 /** The logged preview = the approved template body with its {{n}} values filled (single source: whatsapp-cloud-templates.ts). */
 export function previewFor(template: AutoReplyTemplate, params: string[]): string {

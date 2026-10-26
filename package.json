@@ -43,6 +43,8 @@
     "test:invoice": "tsx --test tests/invoice-pdf.test.mts",
     "test:pdfbrand": "tsx --test tests/pdf-brand-2026-10-25.test.mts",
     "test:review": "tsx --test tests/review-funnel.test.ts",
+    "test:cloudflare": "tsx --test tests/cloudflare-dns-script.test.ts",
+    "test:callhelper": "tsx --test tests/call-helper-2026-10-26.test.ts",
     "test:overhaul": "tsx --test tests/final-overhaul-2026-10-26.test.ts",
     "test:nav": "tsx --test tests/nav-groups.test.ts",
     "test:salessearch": "tsx --test tests/sales-search-2026-10-25.test.ts",
