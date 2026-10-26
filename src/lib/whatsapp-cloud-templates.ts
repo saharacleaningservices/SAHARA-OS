@@ -486,7 +486,7 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     body:
       `Hello, thank you for calling Sahara Cleaning Services.\n\n🎉 Festival rush: all our slots are fully booked until {{1}}. We are accepting new bookings from {{2}} onwards.\n\n📅 Book your slot: ${CALL_BOOKING_URL}\n\n⭐ Rated ${TRUST.rating}★ by ${TRUST.reviewLabel} customers on Google\n🌐 www.saharacleaningservices.com\n📸 instagram.com/saharacleaningservices.pune\n\nGSTIN ${COMPANY.gstin}`,
     footer: "Instagram & Facebook: @saharacleaningservices",
-    examples: ["5 Nov 2026", "6 Nov 2026"],
+    examples: ["3 Nov 2026", "4 Nov 2026"],
     buttons: [
       { type: "URL", text: "Book Now", url: CALL_BOOKING_URL },
       { type: "URL", text: "Google Reviews", url: GOOGLE_REVIEW_URL },

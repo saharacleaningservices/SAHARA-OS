@@ -6,7 +6,7 @@ import type { CloudTemplate } from "@/lib/whatsapp-cloud-templates";
 export const PROTECTED_WABA_ID = "108381505270532";
 
 /** Templates the CRM may submit — the owner-approved Utility set of 2026-10-22. Anything else is refused. */
-export const SUBMITTABLE_TEMPLATES = ["sahara_booking_confirmed_v6", "sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1", "sahara_service_started_v1", "sahara_job_completed_v2", "sahara_job_completed_v3", "sahara_rebook_reminder_v1", "sahara_payment_due_reminder_v1"] as const;
+export const SUBMITTABLE_TEMPLATES = ["sahara_booking_confirmed_v6", "sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1", "sahara_service_started_v1", "sahara_job_completed_v2", "sahara_job_completed_v3", "sahara_rebook_reminder_v1", "sahara_payment_due_reminder_v1", "festival_booking_full_notice", "missed_call_auto_responder"] as const;
 
 /** Customer-facing links must be on this host — never the CRM (app.) domain. */
 export const BOOKING_HOST = "booking.saharacleaningservices.com";
@@ -32,6 +32,8 @@ export function buildMetaTemplatePayload(t: CloudTemplate, opts: { headerHandle?
   }
   const hasVars = /\{\{\d+\}\}/.test(t.body);
   components.push({ type: "BODY", text: t.body, ...(hasVars ? { example: { body_text: [t.examples ?? []] } } : {}) });
+  // Footer (≤ 60 characters, no variables — enforced by the template tests) sits between the body and the buttons.
+  if (t.footer) components.push({ type: "FOOTER", text: t.footer });
   if (t.buttons?.length) {
     components.push({
       type: "BUTTONS",
