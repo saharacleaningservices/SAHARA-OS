@@ -182,12 +182,13 @@ export function BrandFooter(p: BrandFooterProps) {
 }
 
 /** "Authorised Signatory" stamp box (company seal / signature space). */
-export function SignatoryBox({ company, k = 1 }: { company: string; k?: number }) {
+export function SignatoryBox({ company, stampDataUrl, k = 1 }: { company: string; stampDataUrl?: string | null; k?: number }) {
   const z = (n: number) => Math.round(n * k * 10) / 10;
   return (
-    <View wrap={false} style={{ width: z(170), height: z(62), borderWidth: 1, borderColor: BRAND_BLUE, borderStyle: "dashed", borderRadius: 6, justifyContent: "space-between", alignItems: "center", paddingTop: z(4), paddingBottom: z(4) }}>
+    <View wrap={false} style={{ width: z(170), height: z(stampDataUrl ? 86 : 62), borderWidth: 1, borderColor: BRAND_BLUE, borderRadius: 6, justifyContent: "space-between", alignItems: "center", paddingTop: z(4), paddingBottom: z(4) }}>
       <Text style={{ fontSize: z(6.8), color: MUTED }}>For {company.toUpperCase()}</Text>
-      <Text style={{ fontSize: z(6), color: "#94a3b8" }}>(Company Stamp & Signature)</Text>
+      {/* Company seal (public/stamp.png, transparent PNG); falls back to the plain text hint when the file is missing. */}
+      {stampDataUrl ? <Image src={stampDataUrl} style={{ width: z(52), height: z(52), objectFit: "contain" }} /> : <Text style={{ fontSize: z(6), color: "#94a3b8" }}>(Company Stamp & Signature)</Text>}
       <Text style={{ fontFamily: FONT.bold, fontSize: z(8), color: INK }}>Authorised Signatory</Text>
     </View>
   );

@@ -33,7 +33,7 @@ function makeStyles(k: number) {
   docTitle: { fontFamily: FONT.bold, fontSize: z(14), color: NAVY, letterSpacing: 1, marginTop: z(4) },
   slogan: { fontFamily: FONT.italic, fontSize: z(10.5), color: NAVY, marginTop: z(2), marginBottom: z(3), textAlign: "center" },
   phones: { fontFamily: FONT.bold, fontSize: z(9.5), color: NAVY, marginTop: z(2), textAlign: "right" },
-  contactC: { fontSize: z(8), color: MUTED, marginBottom: z(1), textAlign: "center" },
+  contactC: { fontFamily: FONT.bold, fontSize: z(8.5), color: NAVY, marginBottom: z(1), textAlign: "center" },
   titleBar: { flexDirection: "row", justifyContent: "center", alignItems: "center", paddingVertical: z(5), borderBottomWidth: 1, borderBottomColor: GOLD, backgroundColor: BEIGE },
   titleC: { fontSize: z(12), fontFamily: FONT.bold, color: NAVY, letterSpacing: 1 },
   // Logo in its own fixed box (scaled to fit, never overflowing), company text in the remaining width — they can't overlap.
@@ -54,15 +54,18 @@ function makeStyles(k: number) {
   billToLabel: { fontFamily: FONT.bold, fontSize: z(9.5), marginBottom: z(2) },
   billName: { fontSize: z(10.5), marginBottom: z(2) },
   billLine: { fontSize: z(8.5), color: MUTED, marginBottom: z(2) },
-  tHead: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), paddingHorizontal: z(18) },
-  tRow: { flexDirection: "row", paddingVertical: z(6), paddingHorizontal: z(18) },
-  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), paddingHorizontal: z(18), fontFamily: FONT.bold },
-  cNo: { width: "9%" },
-  cName: { width: "39%", paddingRight: 6 },
-  cQty: { width: "10%", textAlign: "right" },
-  cRate: { width: "14%", textAlign: "right" },
-  cDisc: { width: "13%", textAlign: "right" },
-  cTotal: { width: "15%", textAlign: "right" },
+  // Boxed grid (owner 2026-10-26): header, rows and SUBTOTAL sit in one bordered box with thin column rules.
+  tbl: { marginHorizontal: z(18), borderWidth: 0.8, borderColor: GOLD },
+  tHead: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6) },
+  tRow: { flexDirection: "row", paddingVertical: z(6), borderTopWidth: 0.6, borderTopColor: GOLD },
+  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), borderTopWidth: 0.6, borderTopColor: GOLD, fontFamily: FONT.bold },
+  notesBox: { borderWidth: 0.8, borderColor: GOLD, borderRadius: 4, padding: z(6), marginBottom: z(4) },
+  cNo: { width: "9%", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
+  cName: { width: "39%", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
+  cQty: { width: "10%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
+  cRate: { width: "14%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
+  cDisc: { width: "13%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
+  cTotal: { width: "15%", textAlign: "right", paddingHorizontal: z(4) },
   headTxt: { fontSize: z(8.5), fontFamily: FONT.bold },
   rowName: { fontSize: z(9) },
   rowDetail: { fontSize: z(7.5), color: MUTED, marginTop: z(1) },
@@ -123,6 +126,8 @@ export type BillDocumentProps = {
   /** No longer printed (the footer carries the signature and the services bar instead); kept so older callers still type-check. */
   bookQrDataUrl?: string | null;
   bookUrl?: string | null;
+  /** Company seal (data URL of public/stamp.png) printed inside the signatory box. */
+  stampDataUrl?: string | null;
   /** Core services shown in the bottom bar. */
   services?: string[];
   rows: BillRow[];
@@ -157,7 +162,7 @@ export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyN
     (p.paymentSplit ? 4 : 0) + 4 + (p.billTo?.email ? 1 : 0) + ((p.billTo?.details ?? []).length ? 1 : 0) +
     // Right column on invoices: bank details, payment QR, received / balance and GST lines.
     // Full-width payment block (bank left, QR right) + signatory stamp box + icon footer (owner 2026-10-25).
-    (p.bank?.account || p.bank?.ifsc || p.qrDataUrl || p.upiId ? 6 : 0) + 8 + (p.totals?.received !== undefined ? 6 : 0) + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0) +
+    (p.bank?.account || p.bank?.ifsc || p.qrDataUrl || p.upiId ? 6 : 0) + 8 + (p.totals?.received !== undefined ? 6 : 0) + 3 + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0) +
     // Quotation extras: MSMED line under the terms, WhatsApp confirm box in the right column.
     (p.legalNote ? wrap(p.legalNote, 66) : 0) + (p.whatsappConfirm ? 3 : 0);
   const load = (left + table * 1.4 + extra) * 1.2; // Poppins sets taller than Helvetica
@@ -234,6 +239,7 @@ export function SaharaBillDocument(p: BillDocumentProps) {
             ) : null}
           </View>
 
+          <View style={s.tbl}>
           <View style={s.tHead}>
             <Text style={[s.headTxt, s.cNo]}>Sr. No.</Text>
             <Text style={[s.headTxt, s.cName]}>SERVICES</Text>
@@ -266,16 +272,17 @@ export function SaharaBillDocument(p: BillDocumentProps) {
             <Text style={s.cDisc}>{rs(p.subtotalRow.disc)}</Text>
             <Text style={s.cTotal}>{rs(p.subtotalRow.total)}</Text>
           </View>
+          </View>
 
           <View style={s.bottom}>
             <View style={s.left}>
               {p.notes.length > 0 && (
-                <>
-                  <Text style={[s.secTitle, { marginTop: 0 }]}>Notes</Text>
+                <View style={s.notesBox}>
+                  <Text style={[s.secTitle, { marginTop: 0 }]}>Service Scope Notes</Text>
                   {p.notes.map((n, i) => (
                     <Text key={i} style={s.para}>{n}</Text>
                   ))}
-                </>
+                </View>
               )}
               {p.exclusionsTitle && p.kindlyNote.length > 0 && (
                 <>
@@ -342,7 +349,7 @@ export function SaharaBillDocument(p: BillDocumentProps) {
 
           <View style={s.footer} wrap={false}>
             <View style={s.signRow}>
-              <SignatoryBox company={p.company.name} k={k} />
+              <SignatoryBox company={p.company.name} stampDataUrl={p.stampDataUrl} k={k} />
             </View>
             <BrandFooter phones={p.company.phones ?? [p.company.phone]} email={p.company.email} website={p.company.website} address={p.company.address} k={k} />
           </View>

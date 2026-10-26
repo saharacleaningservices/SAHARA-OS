@@ -63,6 +63,7 @@ async function render(opts: { lines: Line[]; discount?: number; gstPercent?: num
     terms: resolveQuotationTerms(opts.terms ?? STANDARD_TERMS_TEXT).text,
     logoDataUrl: `data:image/png;base64,${readFileSync("public/brand/sahara-logo@2x.png").toString("base64")}`,
     upiId: "test@upi",
+    stampDataUrl: `data:image/png;base64,${readFileSync("public/stamp.png").toString("base64")}`,
     qrDataUrl,
     singlePage: opts.singlePage ?? true,
     exclusionsTitle: "Not Included (Exclusions)",
