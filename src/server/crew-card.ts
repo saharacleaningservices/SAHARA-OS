@@ -47,15 +47,19 @@ export async function getCrewCard(jobId: string): Promise<CrewCard | null> {
   };
 }
 
-/** Plain text for a team WhatsApp group (shared by the office from its own phone): no phone, no amounts. */
+/**
+ * Plain text for a team WhatsApp group (shared by the office from its own phone): no phone, no amounts.
+ * Compact on purpose (owner 2026-10-26): the location is plain text and the job-card link is the ONLY URL, so WhatsApp never
+ * builds a bulky Google Maps preview box. The Maps button lives on the job card the link opens.
+ */
 export function crewGroupMessage(c: CrewCard, cardLink: string): string {
   return [
-    `📋 Job ${c.jobNumber}`,
-    `Service: ${c.service}${c.packageLabel ? ` — ${c.packageLabel}` : ""}`,
-    `Date: ${formatDate(c.date)} · ${c.timeSlot}`,
-    `Location: ${c.area}${c.mapLink ? ` — ${c.mapLink}` : ""}`,
-    c.team || c.crew.length ? `Team: ${[c.team, c.crew.join(", ")].filter(Boolean).join(" · ")}` : null,
-    c.supervisor ? `Supervisor: ${c.supervisor}` : null,
-    `🧾 Job card: ${cardLink}`,
+    `📋 *Job ${c.jobNumber}*`,
+    `${c.service}${c.packageLabel ? ` — ${c.packageLabel}` : ""}`,
+    `🗓 ${formatDate(c.date)} · ${c.timeSlot}`,
+    `📍 ${c.area}`,
+    c.team || c.crew.length ? `👥 ${[c.team, c.crew.join(", ")].filter(Boolean).join(" · ")}` : null,
+    c.supervisor ? `🧑‍💼 ${c.supervisor}` : null,
+    `🧾 Job card & map: ${cardLink}`,
   ].filter(Boolean).join("\n");
 }

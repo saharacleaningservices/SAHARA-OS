@@ -113,6 +113,7 @@ test("crew card carries ONLY job ID, service, package, date/slot, site address a
   const text = card.crewGroupMessage(c, "https://crm.example/crew-card/x.y");
   assert.ok(text.includes(job.jobNumber) && text.includes("3 BHK — Platinum") && text.includes("Kharadi") && text.includes("10:00 AM"));
   assert.ok(!text.includes(PHONE) && !/₹|7777/.test(text), "group text: no phone, no amount");
+  assert.deepEqual(text.match(/https?:\/\/\S+/g), ["https://crm.example/crew-card/x.y"], "one link only (no Google Maps preview box)");
 });
 
 test("crew dispatch message (the one sent to each crew member) links the card and hides phone and amount", async () => {

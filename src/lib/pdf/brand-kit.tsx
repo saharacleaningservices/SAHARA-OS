@@ -95,6 +95,9 @@ export type PaymentBlockProps = {
   qrDataUrl?: string | null;
   /** Amount encoded in the QR (shown under it). */
   amount?: number | null;
+  /** Theme colours: royal blue for quotations (default), maroon for invoices. */
+  accent?: string;
+  soft?: string;
   k?: number;
 };
 export function hasPaymentBlock(p: PaymentBlockProps) {
@@ -102,6 +105,8 @@ export function hasPaymentBlock(p: PaymentBlockProps) {
 }
 export function PaymentBlock(p: PaymentBlockProps) {
   const k = p.k ?? 1;
+  const accent = p.accent ?? BRAND_BLUE;
+  const soft = p.soft ?? SOFT;
   const z = (n: number) => Math.round(n * k * 10) / 10;
   const rows: [string, string | null | undefined][] = [
     ["Account Name", p.bank?.name],
@@ -111,28 +116,28 @@ export function PaymentBlock(p: PaymentBlockProps) {
     ["UPI ID", p.upiId],
   ];
   return (
-    <View wrap={false} style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: BRAND_BLUE, borderRadius: 6, backgroundColor: SOFT, padding: z(7) }}>
+    <View wrap={false} style={{ flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: accent, borderRadius: 0, backgroundColor: soft, padding: z(7) }}>
       <View style={{ flexGrow: 1, flexShrink: 1, paddingRight: z(8) }}>
-        <Text style={{ fontFamily: FONT.bold, fontSize: z(9), color: BRAND_BLUE, marginBottom: z(3) }}>Payment Details</Text>
+        <Text style={{ fontFamily: FONT.bold, fontSize: z(10), color: accent, marginBottom: z(3) }}>Payment Details</Text>
         {rows
           .filter(([, v]) => !!v)
           .map(([label, v]) => (
             <View key={label} style={{ flexDirection: "row", marginBottom: z(1.5) }}>
-              <Text style={{ width: z(62), fontFamily: FONT.medium, fontSize: z(7.8), color: INK }}>{label}</Text>
-              <Text style={{ flexShrink: 1, flexGrow: 1, fontSize: z(7.8), color: MUTED }}>{v}</Text>
+              <Text style={{ width: z(66), fontFamily: FONT.medium, fontSize: z(9), color: INK }}>{label}</Text>
+              <Text style={{ flexShrink: 1, flexGrow: 1, fontSize: z(9), color: MUTED }}>{v}</Text>
             </View>
           ))}
-        <Text style={{ fontSize: z(6.8), color: MUTED, marginTop: z(2), lineHeight: 1.3 }}>Please share the payment screenshot on WhatsApp after paying.</Text>
+        <Text style={{ fontSize: z(8), color: MUTED, marginTop: z(2), lineHeight: 1.3 }}>Please share the payment screenshot on WhatsApp after paying.</Text>
       </View>
       {p.qrDataUrl ? (
         // Fixed-width QR column (2026-10-26): the instruction lines word-wrap under the code and can never push it out of the box.
         <View style={{ width: 104, flexShrink: 0, alignItems: "center" }}>
           {/* Fixed 84 pt (≈3 cm) whatever the page scale, on a white quiet zone — scannable from print and screen. */}
-          <Image src={p.qrDataUrl} style={{ width: 84, height: 84, backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 4, padding: 3 }} />
-          <Text style={{ width: 104, fontFamily: FONT.bold, fontSize: z(7.5), color: BRAND_BLUE, marginTop: z(2), textAlign: "center" }}>
+          <Image src={p.qrDataUrl} style={{ width: 84, height: 84, backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 0, padding: 3 }} />
+          <Text style={{ width: 104, fontFamily: FONT.bold, fontSize: z(8.5), color: accent, marginTop: z(2), textAlign: "center" }}>
             Scan & Pay{p.amount ? ` ${inr(p.amount)}` : ""}
           </Text>
-          <Text style={{ width: 104, fontSize: z(6.2), color: MUTED, textAlign: "center", lineHeight: 1.25 }}>GPay · PhonePe · Paytm · BHIM or any UPI app — amount fills in automatically</Text>
+          <Text style={{ width: 104, fontSize: z(7), color: MUTED, textAlign: "center", lineHeight: 1.25 }}>GPay · PhonePe · Paytm · BHIM or any UPI app — amount fills in automatically</Text>
         </View>
       ) : null}
     </View>
@@ -145,36 +150,40 @@ export type BrandFooterProps = {
   email: string;
   website: string;
   address: string;
+  accent?: string;
+  soft?: string;
   k?: number;
 };
 const withScheme = (u: string) => (/^https?:\/\//i.test(u) ? u : `https://${u}`);
 export function BrandFooter(p: BrandFooterProps) {
   const k = p.k ?? 1;
+  const accent = p.accent ?? BRAND_BLUE;
+  const soft = p.soft ?? SOFT;
   const z = (n: number) => Math.round(n * k * 10) / 10;
   const item = { flexDirection: "row" as const, alignItems: "center" as const, marginHorizontal: z(6), marginVertical: z(1.2), textDecoration: "none" as const };
-  const txt = { fontSize: z(7.6), color: INK, marginLeft: z(3) };
+  const txt = { fontSize: z(8.4), color: INK, marginLeft: z(3) };
   const social = { ...item, marginHorizontal: z(8) };
-  const socTxt = { fontFamily: FONT.medium, fontSize: z(7.6), color: BRAND_BLUE, marginLeft: z(3) };
+  const socTxt = { fontFamily: FONT.medium, fontSize: z(8.4), color: accent, marginLeft: z(3) };
   const tel = p.phones[0]?.replace(/\D/g, "");
   return (
     <View wrap={false}>
-      <View style={{ backgroundColor: BRAND_BLUE, paddingVertical: z(6), paddingHorizontal: z(8) }}>
+      <View style={{ backgroundColor: accent, paddingVertical: z(6), paddingHorizontal: z(8) }}>
         <Text style={{ color: "#ffffff", fontFamily: FONT.bold, fontSize: z(7.6), textAlign: "center", letterSpacing: 0.3 }}>{FOOTER_CATEGORIES.join("   •   ")}</Text>
       </View>
-      <View style={{ backgroundColor: SOFT, paddingVertical: z(5), paddingHorizontal: z(8) }}>
+      <View style={{ backgroundColor: soft, paddingVertical: z(5), paddingHorizontal: z(8) }}>
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
-          <Link src={tel ? `tel:+91${tel.slice(-10)}` : "#"} style={item}><BrandIcon name="phone" size={z(9)} /><Text style={txt}>{p.phones.join("  |  ")}</Text></Link>
-          <Link src={`mailto:${p.email}`} style={item}><BrandIcon name="mail" size={z(9)} /><Text style={txt}>{p.email}</Text></Link>
-          <Link src={withScheme(p.website)} style={item}><BrandIcon name="globe" size={z(9)} /><Text style={txt}>{p.website.replace(/^https?:\/\//i, "")}</Text></Link>
+          <Link src={tel ? `tel:+91${tel.slice(-10)}` : "#"} style={item}><BrandIcon name="phone" size={z(9)} color={accent} /><Text style={txt}>{p.phones.join("  |  ")}</Text></Link>
+          <Link src={`mailto:${p.email}`} style={item}><BrandIcon name="mail" size={z(9)} color={accent} /><Text style={txt}>{p.email}</Text></Link>
+          <Link src={withScheme(p.website)} style={item}><BrandIcon name="globe" size={z(9)} color={accent} /><Text style={txt}>{p.website.replace(/^https?:\/\//i, "")}</Text></Link>
         </View>
         <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: z(1.5) }}>
-          <Link src={`https://maps.google.com/?q=${encodeURIComponent(p.address)}`} style={item}><BrandIcon name="pin" size={z(9)} /><Text style={txt}>{p.address}</Text></Link>
+          <Link src={`https://maps.google.com/?q=${encodeURIComponent(p.address)}`} style={item}><BrandIcon name="pin" size={z(9)} color={accent} /><Text style={txt}>{p.address}</Text></Link>
         </View>
         <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: z(3) }}>
-          <Link src={SOCIAL_LINKS.instagram} style={social}><BrandIcon name="instagram" size={z(10)} /><Text style={socTxt}>Instagram</Text></Link>
-          <Link src={SOCIAL_LINKS.facebook} style={social}><BrandIcon name="facebook" size={z(10)} /><Text style={socTxt}>Facebook</Text></Link>
-          <Link src={SOCIAL_LINKS.youtube} style={social}><BrandIcon name="youtube" size={z(10)} /><Text style={socTxt}>YouTube</Text></Link>
-          <Link src={SOCIAL_LINKS.google} style={social}><BrandIcon name="google" size={z(10)} /><Text style={socTxt}>Google Review</Text></Link>
+          <Link src={SOCIAL_LINKS.instagram} style={social}><BrandIcon name="instagram" size={z(10)} color={accent} /><Text style={socTxt}>Instagram</Text></Link>
+          <Link src={SOCIAL_LINKS.facebook} style={social}><BrandIcon name="facebook" size={z(10)} color={accent} /><Text style={socTxt}>Facebook</Text></Link>
+          <Link src={SOCIAL_LINKS.youtube} style={social}><BrandIcon name="youtube" size={z(10)} color={accent} /><Text style={socTxt}>YouTube</Text></Link>
+          <Link src={SOCIAL_LINKS.google} style={social}><BrandIcon name="google" size={z(10)} color={accent} /><Text style={socTxt}>Google Review</Text></Link>
         </View>
       </View>
     </View>
@@ -182,10 +191,10 @@ export function BrandFooter(p: BrandFooterProps) {
 }
 
 /** "Authorised Signatory" stamp box (company seal / signature space). */
-export function SignatoryBox({ company, stampDataUrl, k = 1 }: { company: string; stampDataUrl?: string | null; k?: number }) {
+export function SignatoryBox({ company, stampDataUrl, accent = BRAND_BLUE, k = 1 }: { company: string; stampDataUrl?: string | null; accent?: string; k?: number }) {
   const z = (n: number) => Math.round(n * k * 10) / 10;
   return (
-    <View wrap={false} style={{ width: z(170), height: z(stampDataUrl ? 86 : 62), borderWidth: 1, borderColor: BRAND_BLUE, borderRadius: 6, justifyContent: "space-between", alignItems: "center", paddingTop: z(4), paddingBottom: z(4) }}>
+    <View wrap={false} style={{ width: z(170), height: z(stampDataUrl ? 86 : 62), borderWidth: 1, borderColor: accent, borderRadius: 0, justifyContent: "space-between", alignItems: "center", paddingTop: z(4), paddingBottom: z(4) }}>
       <Text style={{ fontSize: z(6.8), color: MUTED }}>For {company.toUpperCase()}</Text>
       {/* Company seal (public/stamp.png, transparent PNG); falls back to the plain text hint when the file is missing. */}
       {stampDataUrl ? <Image src={stampDataUrl} style={{ width: z(52), height: z(52), objectFit: "contain" }} /> : <Text style={{ fontSize: z(6), color: "#94a3b8" }}>(Company Stamp & Signature)</Text>}

@@ -10,11 +10,11 @@ import { BrandFooter, FONT, FOOTER_CATEGORIES, PaymentBlock, SignatoryBox, SOCIA
 // brand footer with service categories, contact icons and clickable social links. No payment QR, no static "20% advance" box.
 // Layout model: BOX MODEL — fixed A4 frame, fixed column widths, so every invoice prints identically.
 
-const BLUE = "#1E40AF";
+const BLUE = "#800000"; // invoice theme: deep maroon / crimson, matching the MyBillBook invoice (quotations stay royal blue)
 const INK = "#0f172a";
 const MUTED = "#475569";
-const LINE = "#cbd5e1";
-const SOFT = "#eff4ff";
+const LINE = "#d8b4b4";
+const SOFT = "#fbf1f1";
 
 export const INVOICE_FOOTER_SERVICES = FOOTER_CATEGORIES;
 
@@ -56,7 +56,9 @@ const num = fmtNum;
 /** Scale factor so the whole invoice stays on ONE A4 page. */
 export function invoiceFit(p: Pick<InvoiceDocumentProps, "rows" | "scope" | "terms"> & { payment?: boolean }): number {
   const wrap = (t: string, per: number) => Math.max(1, Math.ceil(t.length / per));
-  const load = p.rows.reduce((n, r) => n + (r.detail ? 2.4 : 1.6), 0) + p.scope.reduce((n, t) => n + wrap(t, 95), 0) * 0.9 + (p.terms ?? INVOICE_LEGAL_TERMS).reduce((n, t) => n + wrap(t, 105), 0) * 0.85 + (p.payment ? 12 : 0) + 15; // + stamp box & icon footer
+  const raw = p.rows.reduce((n, r) => n + (r.detail ? 2.4 : 1.6), 0) + p.scope.reduce((n, t) => n + wrap(t, 95), 0) * 0.9 + (p.terms ?? INVOICE_LEGAL_TERMS).reduce((n, t) => n + wrap(t, 105), 0) * 0.85 + (p.payment ? 12 : 0) + 15; // + stamp box & icon footer
+  const load = raw * 1.15; // type sizes raised 2026-10-26 (table 10 pt, scope 9.5 pt, terms 9 pt)
+  if (load <= 17) return 1.1; // sparse invoices grow slightly so the page is not left half empty
   if (load <= 24) return 1;
   if (load <= 30) return 0.92;
   if (load <= 38) return 0.82;
@@ -69,7 +71,7 @@ function styles(k: number) {
   const z = (n: number) => Math.round(n * k * 10) / 10;
   return StyleSheet.create({
     page: { padding: z(20), fontSize: z(9), color: INK, fontFamily: FONT.regular },
-    frame: { borderWidth: 1.2, borderColor: BLUE, flexGrow: 1 },
+    frame: { borderWidth: 1, borderColor: BLUE, flexGrow: 1 },
     head: { flexDirection: "row", alignItems: "center", paddingHorizontal: z(14), paddingTop: z(10), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: LINE },
     headLogo: { width: z(120), justifyContent: "center", alignItems: "flex-start" },
     logo: { width: z(116), height: z(46), objectFit: "contain" },
@@ -79,35 +81,36 @@ function styles(k: number) {
     tag: { fontFamily: FONT.italic, fontSize: z(8.5), color: MUTED, textAlign: "center", marginTop: z(0.5) },
     gst: { fontFamily: FONT.bold, fontSize: z(8.5), marginTop: z(2), textAlign: "center" },
     mob: { fontSize: z(8.5), color: MUTED, marginTop: z(1), textAlign: "center" },
-    badge: { backgroundColor: BLUE, color: "#ffffff", fontFamily: FONT.bold, fontSize: z(10), letterSpacing: z(1.2), paddingVertical: z(3), paddingHorizontal: z(10), borderRadius: 3 },
+    badge: { backgroundColor: BLUE, color: "#ffffff", fontFamily: FONT.bold, fontSize: z(10), letterSpacing: z(1.2), paddingVertical: z(3), paddingHorizontal: z(10), borderRadius: 0 },
     copy: { marginTop: z(3), fontSize: z(6), color: MUTED, letterSpacing: 0.5 },
     meta: { flexDirection: "row", paddingHorizontal: z(16), paddingVertical: z(7), borderBottomWidth: 1, borderBottomColor: LINE, backgroundColor: SOFT },
     metaCell: { marginRight: z(28) },
-    mL: { fontFamily: FONT.bold, fontSize: z(8), color: BLUE, marginBottom: z(1.5) },
-    mV: { fontSize: z(9) },
+    mL: { fontFamily: FONT.bold, fontSize: z(9), color: BLUE, marginBottom: z(1.5) },
+    mV: { fontSize: z(10) },
     bill: { paddingHorizontal: z(16), paddingVertical: z(8) },
-    billL: { fontFamily: FONT.bold, fontSize: z(8), color: BLUE, marginBottom: z(2) },
-    billN: { fontFamily: FONT.bold, fontSize: z(10.5), marginBottom: z(1.5) },
-    billT: { fontSize: z(8.5), color: MUTED, marginBottom: z(1.5) },
+    billL: { fontFamily: FONT.bold, fontSize: z(9), color: BLUE, marginBottom: z(2) },
+    billN: { fontFamily: FONT.bold, fontSize: z(11.5), marginBottom: z(1.5) },
+    billT: { fontSize: z(9.5), color: MUTED, marginBottom: z(1.5) },
     // Boxed grid (owner 2026-10-26): the table sits in one bordered box with a thin vertical rule between columns.
-    tbl: { marginHorizontal: z(16), borderWidth: 0.8, borderColor: BLUE },
-    vl: { borderRightWidth: 0.6, borderRightColor: LINE, paddingHorizontal: z(4) },
+    tbl: { marginHorizontal: z(16), borderWidth: 1, borderColor: BLUE },
+    vl: { borderRightWidth: 1, borderRightColor: LINE, paddingHorizontal: z(4) },
     th: { flexDirection: "row", backgroundColor: BLUE, paddingVertical: z(5) },
-    thT: { color: "#ffffff", fontFamily: FONT.bold, fontSize: z(8.5), paddingHorizontal: z(4) },
-    tr: { flexDirection: "row", paddingVertical: z(5), borderTopWidth: 0.6, borderTopColor: LINE },
-    cell: { fontSize: z(9), paddingHorizontal: z(4) },
-    scopeBox: { marginHorizontal: z(16), marginTop: z(8), borderWidth: 0.8, borderColor: BLUE, borderRadius: 4, paddingHorizontal: z(8), paddingBottom: z(4) },
-    detail: { fontSize: z(7.5), color: MUTED, marginTop: z(1) },
+    thT: { color: "#ffffff", fontFamily: FONT.bold, fontSize: z(9.5), paddingHorizontal: z(4) },
+    tr: { flexDirection: "row", paddingVertical: z(5), borderTopWidth: 1, borderTopColor: LINE },
+    cell: { fontSize: z(10), paddingHorizontal: z(4) },
+    scopeBox: { marginHorizontal: z(16), marginTop: z(8), borderWidth: 1, borderColor: BLUE, borderRadius: 0, paddingHorizontal: z(8), paddingBottom: z(4) },
+    scopeP: { fontSize: z(9.5), color: INK, lineHeight: 1.35 },
+    detail: { fontSize: z(8.5), color: MUTED, marginTop: z(1) },
     sumWrap: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: z(16), paddingTop: z(10) },
     words: { width: "52%", paddingRight: z(10) },
-    secT: { fontFamily: FONT.bold, fontSize: z(9), color: BLUE, marginBottom: z(3), marginTop: z(8) },
-    para: { fontSize: z(8), color: MUTED, lineHeight: 1.35 },
+    secT: { fontFamily: FONT.bold, fontSize: z(10), color: BLUE, marginBottom: z(3), marginTop: z(8) },
+    para: { fontSize: z(9), color: MUTED, lineHeight: 1.35 },
     sum: { width: "44%" },
     kv: { flexDirection: "row", justifyContent: "space-between", marginBottom: z(2.5) },
-    kL: { fontSize: z(9), color: MUTED },
-    kR: { fontSize: z(9) },
+    kL: { fontSize: z(10), color: MUTED },
+    kR: { fontSize: z(10) },
     totalBox: { flexDirection: "row", justifyContent: "space-between", backgroundColor: SOFT, borderTopWidth: 1, borderBottomWidth: 1, borderColor: BLUE, paddingVertical: z(5), paddingHorizontal: z(4), marginVertical: z(3) },
-    totalT: { fontFamily: FONT.bold, fontSize: z(11), color: BLUE },
+    totalT: { fontFamily: FONT.bold, fontSize: z(12), color: BLUE },
     bullets: { paddingHorizontal: z(16) },
     bullet: { flexDirection: "row", marginBottom: z(2) },
     dot: { width: z(9), fontSize: z(8.5), color: BLUE },
@@ -202,7 +205,7 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
             <View style={s.scopeBox}>
               <Text style={s.secT}>Service Scope Notes</Text>
               {p.scope.map((t, i) => (
-                <View key={i} style={s.bullet} wrap={false}><Text style={s.dot}>•</Text><Text style={[s.para, { flex: 1 }]}>{t}</Text></View>
+                <View key={i} style={s.bullet} wrap={false}><Text style={s.dot}>•</Text><Text style={[s.scopeP, { flex: 1 }]}>{t}</Text></View>
               ))}
             </View>
           ) : null}
@@ -216,16 +219,16 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
 
           {p.payment && hasPaymentBlock(p.payment) ? (
             <View style={{ paddingHorizontal: 16 * k, marginTop: 8 * k }}>
-              <PaymentBlock {...p.payment} k={k} />
+              <PaymentBlock {...p.payment} accent={BLUE} soft={SOFT} k={k} />
             </View>
           ) : null}
 
           <View style={s.signRow}>
-            <SignatoryBox company={p.company.name} stampDataUrl={p.stampDataUrl} k={k} />
+            <SignatoryBox company={p.company.name} stampDataUrl={p.stampDataUrl} accent={BLUE} k={k} />
           </View>
 
           <View style={s.footer}>
-            <BrandFooter phones={p.company.phones} email={p.company.email} website={p.company.website} address={p.company.address} k={k} />
+            <BrandFooter phones={p.company.phones} email={p.company.email} website={p.company.website} address={p.company.address} accent={BLUE} soft={SOFT} k={k} />
           </View>
         </View>
       </Page>

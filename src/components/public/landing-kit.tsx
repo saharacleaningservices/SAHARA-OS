@@ -2,7 +2,7 @@ import Link from "next/link";
 import { socialProfileUrls } from "@/lib/social-links";
 import { FooterSocial } from "@/components/public/footer-social";
 import type { ReactNode } from "react";
-import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe, ShieldCheck, Star, CalendarCheck } from "lucide-react";
+import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe, Star, CalendarCheck } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AreasMapBlock } from "@/components/public/areas-map-block";
@@ -101,7 +101,7 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
 }
 
 /** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). */
-export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
+export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book", singleMap = false }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string; /** One interactive map only (the Areas We Serve block below the columns): drops the small map in "Visit us". */ singleMap?: boolean }) {
   return (
     <div className="theme-navy min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
@@ -133,6 +133,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
           <section aria-labelledby="ft-location" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
             <h2 id="ft-location" className="text-base font-extrabold text-white">Visit us</h2>
             <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
+            {!singleMap && (
             <iframe
               title="Sahara Cleaning Services on Google Maps"
               src="https://www.google.com/maps?q=Opposite+South+Gate,+Magarpatta+City,+Hadapsar,+Pune+411028&output=embed"
@@ -140,6 +141,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               referrerPolicy="no-referrer-when-downgrade"
               className="h-44 w-full rounded-xl border-0 bg-white/10"
             />
+            )}
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-semibold text-white">
               {CONTACT.call.map((n) => <a key={n} href={`tel:+91${n}`} className="hover:text-amber-300">+91 {n.slice(0, 5)} {n.slice(5)}</a>)}
             </p>
@@ -672,7 +674,7 @@ export function BookingContactNumbers({ waText }: { waText: string }) {
   );
 }
 
-/** /booking trust grid (owner 2026-10-26): Since 2012 · Verified GSTIN · Google rating · social profiles — 2×2 rounded cards. */
+/** /booking trust grid: Since 2012 · Google rating. GSTIN and social links live ONLY in the footer (owner 2026-10-26: no duplicates). */
 export function BookingTrustGrid({ rating, reviews, reviewUrl }: { rating: string; reviews: string; reviewUrl: string }) {
   const card = "flex min-h-[64px] items-center gap-2.5 rounded-2xl bg-white/10 p-3 ring-1 ring-white/15";
   return (
@@ -685,14 +687,6 @@ export function BookingTrustGrid({ rating, reviews, reviewUrl }: { rating: strin
         <Star className="size-5 shrink-0 fill-amber-300 text-amber-300" aria-hidden />
         <div><p className="text-sm font-extrabold">{rating}★ Google</p><p className="text-[10px] font-semibold text-white/70">{reviews} reviews</p></div>
       </a>
-      <div className={card}>
-        <ShieldCheck className="size-5 shrink-0 text-emerald-300" aria-hidden />
-        <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-wide text-white/60">Verified GSTIN</p><p className="truncate text-[12px] font-bold tabular-nums">{COMPANY.gstin}</p></div>
-      </div>
-      <div className={`${card} flex-col items-start justify-center gap-1.5`}>
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-white/60">Follow us</p>
-        <FooterSocial className="flex items-center gap-1.5" iconClass="flex size-7 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white hover:text-[#0a2540]" />
-      </div>
     </div>
   );
 }
