@@ -9,7 +9,7 @@ test("trackLead fires Meta Lead once and GA4 generate_lead once per call", async
   const g = globalThis as unknown as { window: unknown; fbq?: unknown; gtag?: unknown };
   const fbq = (...a: unknown[]) => calls.push(["fbq", ...a]);
   const gtag = (...a: unknown[]) => calls.push(["gtag", ...a]);
-  g.window = { fbq, gtag };
+  g.window = { fbq, gtag, location: { pathname: "/booking" } };
   try {
     const { trackLead } = await import("../src/components/public/marketing-tags");
     trackLead({ category: "HOME_DEEP_CLEANING", variant: "2 BHK Premium" });

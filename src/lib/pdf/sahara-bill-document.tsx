@@ -1,4 +1,5 @@
 import { Document, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { COMPANY } from "../constants";
 import { BrandFooter, FONT, PaymentBlock, SignatoryBox, hasPaymentBlock, inr, num as fmtNum } from "./brand-kit";
 
 // One professional layout for Sahara quotations and invoices (MyBillBook-style
@@ -182,7 +183,7 @@ export function SaharaBillDocument(p: BillDocumentProps) {
             {p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logoSm} /> : null}
             <Text style={s.companyNameC}>{p.company.name.toUpperCase()}</Text>
             <Text style={s.phonesC}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}</Text>
-            {p.company.gstin ? <Text style={s.contactC}>GSTIN: {p.company.gstin}</Text> : null}
+            {p.company.gstin ? <Text style={s.contactC}>GSTIN: {p.company.gstin}  |  SAC: {COMPANY.sac}</Text> : null}
             <Text style={s.titleBadge}>{p.title}</Text>
             {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 2 }]}>{p.copyLabel}</Text> : null}
           </View>

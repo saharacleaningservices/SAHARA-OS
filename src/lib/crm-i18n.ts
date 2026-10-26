@@ -47,7 +47,7 @@ export const useCrmLang = (): CrmLang => useSyncExternalStore(subscribe, getCrmL
 const HI: Record<string, string> = {
   "Dashboards & Reports": "डैशबोर्ड और रिपोर्ट", Operations: "ऑपरेशन्स", "Sales & Finance": "बिक्री और वित्त", "Tools & AI": "टूल्स और AI", "Settings & Admin": "सेटिंग्स और एडमिन",
   "Sales & CRM": "बिक्री और CRM", "Finance & Billing": "वित्त और बिलिंग", "Reports & Profit": "रिपोर्ट और मुनाफ़ा",
-  "Sales Vouchers": "बिक्री वाउचर", "Proforma Invoice": "प्रोफ़ॉर्मा इनवॉइस", "Credit Note": "क्रेडिट नोट", "Delivery Challan": "डिलीवरी चालान", "Purchase Vouchers": "खरीद वाउचर",
+  "Sales Dashboard": "बिक्री डैशबोर्ड", "Sales Vouchers": "बिक्री वाउचर", "Proforma Invoice": "प्रोफ़ॉर्मा इनवॉइस", "Credit Note": "क्रेडिट नोट", "Delivery Challan": "डिलीवरी चालान", "Purchase Vouchers": "खरीद वाउचर",
   "Lifecycle Reminders": "ग्राहक रिमाइंडर", Parties: "पार्टियाँ", Sales: "बिक्री", Purchases: "खरीद", "Purchases & Expenses": "खरीद और खर्च", "Quotation / Estimate": "कोटेशन / अनुमान", "Sales Invoices": "बिक्री इनवॉइस", "Payment In": "प्राप्त भुगतान",
   Dashboard: "डैशबोर्ड", Reports: "रिपोर्ट", "Revenue Dashboard": "आय डैशबोर्ड", "Profit Dashboard": "मुनाफ़ा डैशबोर्ड", "Marketing Dashboard": "मार्केटिंग डैशबोर्ड",
   Jobs: "जॉब्स", "Team Dispatch": "टीम डिस्पैच", "Slot Availability": "स्लॉट उपलब्धता", Staff: "स्टाफ", Vehicles: "वाहन", Attendance: "हाज़िरी", "AMC Contracts": "AMC अनुबंध",
@@ -60,7 +60,7 @@ const HI: Record<string, string> = {
 const MR: Record<string, string> = {
   "Dashboards & Reports": "डॅशबोर्ड आणि अहवाल", Operations: "ऑपरेशन्स", "Sales & Finance": "विक्री आणि वित्त", "Tools & AI": "टूल्स आणि AI", "Settings & Admin": "सेटिंग्ज आणि अ‍ॅडमिन",
   "Sales & CRM": "विक्री आणि CRM", "Finance & Billing": "वित्त आणि बिलिंग", "Reports & Profit": "अहवाल आणि नफा",
-  "Sales Vouchers": "विक्री व्हाउचर", "Proforma Invoice": "प्रोफॉर्मा इनव्हॉइस", "Credit Note": "क्रेडिट नोट", "Delivery Challan": "डिलिव्हरी चलन", "Purchase Vouchers": "खरेदी व्हाउचर",
+  "Sales Dashboard": "विक्री डॅशबोर्ड", "Sales Vouchers": "विक्री व्हाउचर", "Proforma Invoice": "प्रोफॉर्मा इनव्हॉइस", "Credit Note": "क्रेडिट नोट", "Delivery Challan": "डिलिव्हरी चलन", "Purchase Vouchers": "खरेदी व्हाउचर",
   "Lifecycle Reminders": "ग्राहक रिमाइंडर", Parties: "पार्टीज", Sales: "विक्री", Purchases: "खरेदी", "Purchases & Expenses": "खरेदी आणि खर्च", "Quotation / Estimate": "कोटेशन / अंदाज", "Sales Invoices": "विक्री इनव्हॉइस", "Payment In": "मिळालेले पेमेंट",
   Dashboard: "डॅशबोर्ड", Reports: "अहवाल", "Revenue Dashboard": "उत्पन्न डॅशबोर्ड", "Profit Dashboard": "नफा डॅशबोर्ड", "Marketing Dashboard": "मार्केटिंग डॅशबोर्ड",
   Jobs: "जॉब्स", "Team Dispatch": "टीम डिस्पॅच", "Slot Availability": "स्लॉट उपलब्धता", Staff: "कर्मचारी", Vehicles: "वाहने", Attendance: "हजेरी", "AMC Contracts": "AMC करार",

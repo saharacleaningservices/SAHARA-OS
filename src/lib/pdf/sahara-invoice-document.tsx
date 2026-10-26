@@ -1,4 +1,5 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { COMPANY } from "../constants";
 
 import { INVOICE_LEGAL_TERMS } from "../invoice-terms";
 import { BrandFooter, FONT, FOOTER_CATEGORIES, PaymentBlock, SignatoryBox, SOCIAL_LINKS as BRAND_SOCIAL, hasPaymentBlock, inr, num as fmtNum, type PaymentBlockProps } from "./brand-kit";
@@ -127,7 +128,7 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
             <View style={s.headMid}>
               <Text style={s.name}>{p.company.name.toUpperCase()}</Text>
               <Text style={s.tag}>{p.company.tagline ?? INVOICE_TAGLINE}</Text>
-              <Text style={s.gst}>GSTIN: {p.company.gstin}</Text>
+              <Text style={s.gst}>GSTIN: {p.company.gstin}  |  SAC: {COMPANY.sac}</Text>
               <Text style={s.mob}>{phones}</Text>
             </View>
             <View style={s.headRight}>

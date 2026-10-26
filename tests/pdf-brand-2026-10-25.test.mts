@@ -88,3 +88,13 @@ test("job card team copy: no customer mobile, no amounts, Hindi staff rules, ONE
   assert.ok(!raw.includes("9800000000"), "customer mobile never in the team copy");
   if (process.env.PDF_BRAND_DUMP) (await import("node:fs")).writeFileSync(path.join(process.env.PDF_BRAND_DUMP, "job-card.pdf"), buf);
 });
+
+// Owner 2026-10-26: SAC 998533 is printed beside the GSTIN on both the quotation and the tax invoice.
+test("SAC 998533 sits beside the GSTIN on the quotation and the invoice header", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { COMPANY } = (await import("../src/lib/constants")) as { COMPANY: { sac: string } };
+  assert.equal(COMPANY.sac, "998533");
+  for (const f of ["src/lib/pdf/sahara-bill-document.tsx", "src/lib/pdf/sahara-invoice-document.tsx"]) {
+    assert.ok(/GSTIN: \{p\.company\.gstin\}\s*\|\s*SAC: \{COMPANY\.sac\}/.test(readFileSync(f, "utf8")), `${f} prints the SAC beside the GSTIN`);
+  }
+});

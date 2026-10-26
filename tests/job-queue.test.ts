@@ -13,6 +13,8 @@ const dbFile = path.join(dir, "test.db");
 process.env.DATABASE_URL = `file:${dbFile}`;
 process.env.AUTH_SECRET = "test-secret-for-crew-card-tokens-0123456789";
 for (const k of ["WHATSAPP_ACCESS_TOKEN", "WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_USE_TEMPLATES", "WHATSAPP_COMPLETED_TEMPLATE", "WHATSAPP_OUTBOUND_MODE"]) delete process.env[k];
+// Staff WhatsApp is off by default since 2026-10-25 (crew use the Staff App); this test exercises the crew-message path itself.
+process.env.WHATSAPP_STAFF_ALERTS = "on";
 execFileSync("node", ["scripts/db-setup.mjs"], { env: { ...process.env, DATABASE_URL: `file:${dbFile}` }, stdio: "ignore" });
 
 type Loader = (this: unknown, request: string, parent: unknown, isMain: boolean) => unknown;
