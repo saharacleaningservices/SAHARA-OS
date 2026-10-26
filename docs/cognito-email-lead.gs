@@ -99,24 +99,32 @@ function alertOwner(count) {
     "Check that the CRM is up and that LEAD_TOKEN matches EMAIL_LEAD_TOKEN in Coolify.");
 }
 
-/** "Entry Details Name X Phone Y Subject Z Email E Message ..." -> payload for the CRM endpoint. */
+/**
+ * Cognito's plain-text mail runs labels and values together with NO separator:
+ *   "Entry Details NameAnil ShahPhone9000000000SubjectHome cleaningEmailanil@example.comMessage usNeed a 2 bhk"
+ * (an earlier version only handled "Name Anil Shah Phone 9000000000 ..." with spaces, so every real mail was skipped).
+ * Both layouts are parsed. Only the text after "Entry Details" is read, so the header e-mail is never mistaken for the customer's.
+ */
 function parseCognito(body) {
   var t = String(body).replace(/\s+/g, " ");
-  var pick = function (label, next) {
-    var m = t.match(new RegExp(label + "\\s+(.*?)\\s+(?:" + next + ")\\b"));
+  var at = t.indexOf("Entry Details");
+  if (at >= 0) t = t.slice(at + "Entry Details".length);
+  t = t.trim();
+  var grab = function (re) {
+    var m = t.match(re);
     return m ? m[1].trim() : "";
   };
-  var name = pick("Name", "Phone");
-  var phone = pick("Phone", "Subject|Email|Message");
-  var subject = pick("Subject", "Email|Message");
-  var email = pick("Email", "Message|Location");
-  var mm = t.match(/Message(?: us)?\s+(.*?)(?:\s+View full entry|\s+Entry Details|$)/);
+  var name = grab(/Name\s*(.*?)\s*Phone/);
+  var phone = grab(/Phone\s*(\+?\d[\d\s()-]*\d)/);
+  var subject = grab(/Subject\s*(.*?)\s*Email/);
+  var email = grab(/Email\s*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}?)(?=Message|Location|\s|$)/);
+  var message = grab(/Message(?: us)?\s*(.*?)\s*(?:Powered by|View full entry|Entry Details|$)/);
   return {
     name: name,
     mobile: phone.replace(/[^\d+]/g, ""),
     service: subject,
     email: email,
-    message: mm ? mm[1].trim() : "",
+    message: message,
     source: "Cognito Form",
   };
 }

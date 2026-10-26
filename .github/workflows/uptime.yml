@@ -1,0 +1,81 @@
+name: Sahara OS Uptime Monitor
+
+# Free uptime check on GitHub Actions (no extra account or secret). Every ~5 minutes it requests the CRM login page,
+# the Staff App and the public booking page. If one is down after a retry, it opens ONE GitHub issue labelled
+# "uptime" (GitHub e-mails the repository owner/watchers); further failures only add a comment, and the issue is
+# closed automatically when everything is back. GitHub may delay scheduled runs by a few minutes under load.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: sahara-os-uptime
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  actions: read # lets the alert look up the last successful run (uptime_last_good.sh)
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check sites
+        id: check
+        run: |
+          set +e
+          out="$(bash .github/scripts/uptime_check.sh)"
+          code=$?
+          echo "$out"
+          echo "$out" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "status=$([ $code -eq 0 ] && echo up || echo down)"
+            echo "down=$(echo "$out" | sed -n 's/^DOWN_LIST=//p')"
+          } >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Open or update the outage issue
+        if: steps.check.outputs.status == 'down'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOWN: ${{ steps.check.outputs.down }}
+        run: |
+          gh label create uptime --color B60205 --description "Automatic uptime alert" 2>/dev/null || true
+          now="$(TZ=Asia/Kolkata date '+%d %b %Y %H:%M IST')"
+          note="$(bash .github/scripts/uptime_last_good.sh)"
+          open="$(gh issue list --label uptime --state open --json number --jq '.[0].number')"
+          if [ -z "$open" ]; then
+            gh issue create --label uptime \
+              --title "Sahara OS DOWN: ${DOWN}" \
+              --body "Detected ${now} by the uptime monitor (after one retry).
+
+          Down: ${DOWN}
+
+          ${note}
+
+          First steps: hPanel → VPS → Overview (status, CPU/RAM), Coolify → sahara-os → Logs, reboot from hPanel if the VPS does not answer at all. This issue closes automatically when the sites answer again."
+          else
+            gh issue comment "$open" --body "Still down at ${now}: ${DOWN}
+
+          ${note}"
+          fi
+
+      - name: Close the outage issue when back up
+        if: steps.check.outputs.status == 'up'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          open="$(gh issue list --label uptime --state open --json number --jq '.[0].number')"
+          if [ -n "$open" ]; then
+            note="$(bash .github/scripts/uptime_last_good.sh)"
+            gh issue close "$open" --comment "Back up at $(TZ=Asia/Kolkata date '+%d %b %Y %H:%M IST'): all checks answered.
+
+          ${note}"
+          fi

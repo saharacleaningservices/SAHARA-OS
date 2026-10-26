@@ -131,3 +131,14 @@ jobs:
         run: |
           pip install --quiet boto3
           python .github/scripts/s3_backup.py "$ARCHIVE"
+
+      # Runs whether the job succeeded or a step above failed — surfaces the
+      # outcome in the run's summary tab instead of only in the raw job log.
+      - name: Report outcome
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Backup **succeeded** — \`${ARCHIVE:-unknown}\` verified and uploaded." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "❌ Backup **failed** — see the job log above for which step failed (archive: \`${ARCHIVE:-not downloaded}\`)." >> "$GITHUB_STEP_SUMMARY"
+          fi
