@@ -158,3 +158,16 @@ test.after(async () => {
   await db.$disconnect();
   try { rmSync(dir, { recursive: true, force: true }); } catch { /* temp */ }
 });
+
+test("the two post-call templates can be submitted to Meta from the CRM (Admin → WhatsApp log) with the festive wording", async () => {
+  const { SUBMITTABLE_TEMPLATES, buildMetaTemplatePayload } = await import("../src/lib/meta-template-payload");
+  for (const n of ["festival_booking_full_notice", "missed_call_auto_responder"]) assert.ok((SUBMITTABLE_TEMPLATES as readonly string[]).includes(n), n);
+  const t = templateByName("festival_booking_full_notice")!;
+  assert.deepEqual(t.examples, ["3 Nov 2026", "4 Nov 2026"]);
+  const p = buildMetaTemplatePayload(t) as { name: string; category: string; components: { type: string; example?: unknown; buttons?: { type: string }[] }[] };
+  assert.equal(p.name, "festival_booking_full_notice");
+  assert.equal(p.category, "UTILITY");
+  const types = p.components.map((c) => c.type);
+  assert.deepEqual(types.filter((x) => ["BODY", "FOOTER", "BUTTONS"].includes(x)), ["BODY", "FOOTER", "BUTTONS"]);
+  assert.deepEqual(p.components.find((c) => c.type === "BUTTONS")!.buttons!.map((b) => b.type), ["URL", "URL", "PHONE_NUMBER"]);
+});
