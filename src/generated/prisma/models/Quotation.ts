@@ -28,6 +28,7 @@ export type AggregateQuotation = {
 
 export type QuotationAvgAggregateOutputType = {
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
@@ -35,6 +36,7 @@ export type QuotationAvgAggregateOutputType = {
 
 export type QuotationSumAggregateOutputType = {
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
@@ -43,52 +45,65 @@ export type QuotationSumAggregateOutputType = {
 export type QuotationMinAggregateOutputType = {
   id: string | null
   quoteNumber: string | null
+  publicToken: string | null
   leadId: string | null
   services: string | null
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
   terms: string | null
   validTill: Date | null
   pdfUrl: string | null
+  status: $Enums.QuotationStatus | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type QuotationMaxAggregateOutputType = {
   id: string | null
   quoteNumber: string | null
+  publicToken: string | null
   leadId: string | null
   services: string | null
   subTotal: number | null
+  discount: number | null
   gstPercent: number | null
   gstAmount: number | null
   totalAmount: number | null
   terms: string | null
   validTill: Date | null
   pdfUrl: string | null
+  status: $Enums.QuotationStatus | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type QuotationCountAggregateOutputType = {
   id: number
   quoteNumber: number
+  publicToken: number
   leadId: number
   services: number
   subTotal: number
+  discount: number
   gstPercent: number
   gstAmount: number
   totalAmount: number
   terms: number
   validTill: number
   pdfUrl: number
+  status: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type QuotationAvgAggregateInputType = {
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
@@ -96,6 +111,7 @@ export type QuotationAvgAggregateInputType = {
 
 export type QuotationSumAggregateInputType = {
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
@@ -104,46 +120,58 @@ export type QuotationSumAggregateInputType = {
 export type QuotationMinAggregateInputType = {
   id?: true
   quoteNumber?: true
+  publicToken?: true
   leadId?: true
   services?: true
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
   terms?: true
   validTill?: true
   pdfUrl?: true
+  status?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type QuotationMaxAggregateInputType = {
   id?: true
   quoteNumber?: true
+  publicToken?: true
   leadId?: true
   services?: true
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
   terms?: true
   validTill?: true
   pdfUrl?: true
+  status?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type QuotationCountAggregateInputType = {
   id?: true
   quoteNumber?: true
+  publicToken?: true
   leadId?: true
   services?: true
   subTotal?: true
+  discount?: true
   gstPercent?: true
   gstAmount?: true
   totalAmount?: true
   terms?: true
   validTill?: true
   pdfUrl?: true
+  status?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -236,16 +264,20 @@ export type QuotationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type QuotationGroupByOutputType = {
   id: string
   quoteNumber: string
+  publicToken: string | null
   leadId: string
   services: string
   subTotal: number
+  discount: number
   gstPercent: number
   gstAmount: number
   totalAmount: number
   terms: string
   validTill: Date | null
   pdfUrl: string | null
+  status: $Enums.QuotationStatus
   createdAt: Date
+  updatedAt: Date
   _count: QuotationCountAggregateOutputType | null
   _avg: QuotationAvgAggregateOutputType | null
   _sum: QuotationSumAggregateOutputType | null
@@ -274,67 +306,89 @@ export type QuotationWhereInput = {
   NOT?: Prisma.QuotationWhereInput | Prisma.QuotationWhereInput[]
   id?: Prisma.StringFilter<"Quotation"> | string
   quoteNumber?: Prisma.StringFilter<"Quotation"> | string
+  publicToken?: Prisma.StringNullableFilter<"Quotation"> | string | null
   leadId?: Prisma.StringFilter<"Quotation"> | string
   services?: Prisma.StringFilter<"Quotation"> | string
   subTotal?: Prisma.FloatFilter<"Quotation"> | number
+  discount?: Prisma.FloatFilter<"Quotation"> | number
   gstPercent?: Prisma.FloatFilter<"Quotation"> | number
   gstAmount?: Prisma.FloatFilter<"Quotation"> | number
   totalAmount?: Prisma.FloatFilter<"Quotation"> | number
   terms?: Prisma.StringFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  status?: Prisma.EnumQuotationStatusFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  opsReminders?: Prisma.OpsReminderListRelationFilter
 }
 
 export type QuotationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   lead?: Prisma.LeadOrderByWithRelationInput
+  invoice?: Prisma.InvoiceOrderByWithRelationInput
+  opsReminders?: Prisma.OpsReminderOrderByRelationAggregateInput
 }
 
 export type QuotationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   quoteNumber?: string
+  publicToken?: string
   AND?: Prisma.QuotationWhereInput | Prisma.QuotationWhereInput[]
   OR?: Prisma.QuotationWhereInput[]
   NOT?: Prisma.QuotationWhereInput | Prisma.QuotationWhereInput[]
   leadId?: Prisma.StringFilter<"Quotation"> | string
   services?: Prisma.StringFilter<"Quotation"> | string
   subTotal?: Prisma.FloatFilter<"Quotation"> | number
+  discount?: Prisma.FloatFilter<"Quotation"> | number
   gstPercent?: Prisma.FloatFilter<"Quotation"> | number
   gstAmount?: Prisma.FloatFilter<"Quotation"> | number
   totalAmount?: Prisma.FloatFilter<"Quotation"> | number
   terms?: Prisma.StringFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  status?: Prisma.EnumQuotationStatusFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
-}, "id" | "quoteNumber">
+  invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
+  opsReminders?: Prisma.OpsReminderListRelationFilter
+}, "id" | "quoteNumber" | "publicToken">
 
 export type QuotationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.QuotationCountOrderByAggregateInput
   _avg?: Prisma.QuotationAvgOrderByAggregateInput
   _max?: Prisma.QuotationMaxOrderByAggregateInput
@@ -348,120 +402,160 @@ export type QuotationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.QuotationScalarWhereWithAggregatesInput | Prisma.QuotationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   quoteNumber?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
+  publicToken?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
   leadId?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   services?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   subTotal?: Prisma.FloatWithAggregatesFilter<"Quotation"> | number
+  discount?: Prisma.FloatWithAggregatesFilter<"Quotation"> | number
   gstPercent?: Prisma.FloatWithAggregatesFilter<"Quotation"> | number
   gstAmount?: Prisma.FloatWithAggregatesFilter<"Quotation"> | number
   totalAmount?: Prisma.FloatWithAggregatesFilter<"Quotation"> | number
   terms?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
+  status?: Prisma.EnumQuotationStatusWithAggregatesFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Quotation"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Quotation"> | Date | string
 }
 
 export type QuotationCreateInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutQuotationsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationUncheckedCreateInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   leadId: string
   services: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutQuotationsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationCreateManyInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   leadId: string
   services: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type QuotationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type QuotationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type QuotationListRelationFilter = {
@@ -477,20 +571,25 @@ export type QuotationOrderByRelationAggregateInput = {
 export type QuotationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type QuotationAvgOrderByAggregateInput = {
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
@@ -499,38 +598,52 @@ export type QuotationAvgOrderByAggregateInput = {
 export type QuotationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type QuotationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   quoteNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
   services?: Prisma.SortOrder
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type QuotationSumOrderByAggregateInput = {
   subTotal?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
   gstPercent?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+}
+
+export type QuotationNullableScalarRelationFilter = {
+  is?: Prisma.QuotationWhereInput | null
+  isNot?: Prisma.QuotationWhereInput | null
 }
 
 export type QuotationCreateNestedManyWithoutLeadInput = {
@@ -575,40 +688,80 @@ export type QuotationUncheckedUpdateManyWithoutLeadNestedInput = {
   deleteMany?: Prisma.QuotationScalarWhereInput | Prisma.QuotationScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type EnumQuotationStatusFieldUpdateOperationsInput = {
+  set?: $Enums.QuotationStatus
+}
+
+export type QuotationCreateNestedOneWithoutInvoiceInput = {
+  create?: Prisma.XOR<Prisma.QuotationCreateWithoutInvoiceInput, Prisma.QuotationUncheckedCreateWithoutInvoiceInput>
+  connectOrCreate?: Prisma.QuotationCreateOrConnectWithoutInvoiceInput
+  connect?: Prisma.QuotationWhereUniqueInput
+}
+
+export type QuotationUpdateOneWithoutInvoiceNestedInput = {
+  create?: Prisma.XOR<Prisma.QuotationCreateWithoutInvoiceInput, Prisma.QuotationUncheckedCreateWithoutInvoiceInput>
+  connectOrCreate?: Prisma.QuotationCreateOrConnectWithoutInvoiceInput
+  upsert?: Prisma.QuotationUpsertWithoutInvoiceInput
+  disconnect?: Prisma.QuotationWhereInput | boolean
+  delete?: Prisma.QuotationWhereInput | boolean
+  connect?: Prisma.QuotationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.QuotationUpdateToOneWithWhereWithoutInvoiceInput, Prisma.QuotationUpdateWithoutInvoiceInput>, Prisma.QuotationUncheckedUpdateWithoutInvoiceInput>
+}
+
+export type QuotationCreateNestedOneWithoutOpsRemindersInput = {
+  create?: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+  connectOrCreate?: Prisma.QuotationCreateOrConnectWithoutOpsRemindersInput
+  connect?: Prisma.QuotationWhereUniqueInput
+}
+
+export type QuotationUpdateOneWithoutOpsRemindersNestedInput = {
+  create?: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+  connectOrCreate?: Prisma.QuotationCreateOrConnectWithoutOpsRemindersInput
+  upsert?: Prisma.QuotationUpsertWithoutOpsRemindersInput
+  disconnect?: Prisma.QuotationWhereInput | boolean
+  delete?: Prisma.QuotationWhereInput | boolean
+  connect?: Prisma.QuotationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.QuotationUpdateToOneWithWhereWithoutOpsRemindersInput, Prisma.QuotationUpdateWithoutOpsRemindersInput>, Prisma.QuotationUncheckedUpdateWithoutOpsRemindersInput>
 }
 
 export type QuotationCreateWithoutLeadInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationUncheckedCreateWithoutLeadInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutQuotationInput
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutQuotationInput
 }
 
 export type QuotationCreateOrConnectWithoutLeadInput = {
@@ -642,142 +795,409 @@ export type QuotationScalarWhereInput = {
   NOT?: Prisma.QuotationScalarWhereInput | Prisma.QuotationScalarWhereInput[]
   id?: Prisma.StringFilter<"Quotation"> | string
   quoteNumber?: Prisma.StringFilter<"Quotation"> | string
+  publicToken?: Prisma.StringNullableFilter<"Quotation"> | string | null
   leadId?: Prisma.StringFilter<"Quotation"> | string
   services?: Prisma.StringFilter<"Quotation"> | string
   subTotal?: Prisma.FloatFilter<"Quotation"> | number
+  discount?: Prisma.FloatFilter<"Quotation"> | number
   gstPercent?: Prisma.FloatFilter<"Quotation"> | number
   gstAmount?: Prisma.FloatFilter<"Quotation"> | number
   totalAmount?: Prisma.FloatFilter<"Quotation"> | number
   terms?: Prisma.StringFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  status?: Prisma.EnumQuotationStatusFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
 }
 
-export type QuotationCreateManyLeadInput = {
+export type QuotationCreateWithoutInvoiceInput = {
   id?: string
   quoteNumber: string
+  publicToken?: string | null
   services: string
   subTotal: number
+  discount?: number
   gstPercent?: number
   gstAmount?: number
   totalAmount: number
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
   createdAt?: Date | string
+  updatedAt?: Date | string
+  lead: Prisma.LeadCreateNestedOneWithoutQuotationsInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutQuotationInput
+}
+
+export type QuotationUncheckedCreateWithoutInvoiceInput = {
+  id?: string
+  quoteNumber: string
+  publicToken?: string | null
+  leadId: string
+  services: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  terms: string
+  validTill?: Date | string | null
+  pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutQuotationInput
+}
+
+export type QuotationCreateOrConnectWithoutInvoiceInput = {
+  where: Prisma.QuotationWhereUniqueInput
+  create: Prisma.XOR<Prisma.QuotationCreateWithoutInvoiceInput, Prisma.QuotationUncheckedCreateWithoutInvoiceInput>
+}
+
+export type QuotationUpsertWithoutInvoiceInput = {
+  update: Prisma.XOR<Prisma.QuotationUpdateWithoutInvoiceInput, Prisma.QuotationUncheckedUpdateWithoutInvoiceInput>
+  create: Prisma.XOR<Prisma.QuotationCreateWithoutInvoiceInput, Prisma.QuotationUncheckedCreateWithoutInvoiceInput>
+  where?: Prisma.QuotationWhereInput
+}
+
+export type QuotationUpdateToOneWithWhereWithoutInvoiceInput = {
+  where?: Prisma.QuotationWhereInput
+  data: Prisma.XOR<Prisma.QuotationUpdateWithoutInvoiceInput, Prisma.QuotationUncheckedUpdateWithoutInvoiceInput>
+}
+
+export type QuotationUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  services?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  terms?: Prisma.StringFieldUpdateOperationsInput | string
+  validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.LeadUpdateOneRequiredWithoutQuotationsNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutQuotationNestedInput
+}
+
+export type QuotationUncheckedUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  services?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  terms?: Prisma.StringFieldUpdateOperationsInput | string
+  validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutQuotationNestedInput
+}
+
+export type QuotationCreateWithoutOpsRemindersInput = {
+  id?: string
+  quoteNumber: string
+  publicToken?: string | null
+  services: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  terms: string
+  validTill?: Date | string | null
+  pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  lead: Prisma.LeadCreateNestedOneWithoutQuotationsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutQuotationInput
+}
+
+export type QuotationUncheckedCreateWithoutOpsRemindersInput = {
+  id?: string
+  quoteNumber: string
+  publicToken?: string | null
+  leadId: string
+  services: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  terms: string
+  validTill?: Date | string | null
+  pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutQuotationInput
+}
+
+export type QuotationCreateOrConnectWithoutOpsRemindersInput = {
+  where: Prisma.QuotationWhereUniqueInput
+  create: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+}
+
+export type QuotationUpsertWithoutOpsRemindersInput = {
+  update: Prisma.XOR<Prisma.QuotationUpdateWithoutOpsRemindersInput, Prisma.QuotationUncheckedUpdateWithoutOpsRemindersInput>
+  create: Prisma.XOR<Prisma.QuotationCreateWithoutOpsRemindersInput, Prisma.QuotationUncheckedCreateWithoutOpsRemindersInput>
+  where?: Prisma.QuotationWhereInput
+}
+
+export type QuotationUpdateToOneWithWhereWithoutOpsRemindersInput = {
+  where?: Prisma.QuotationWhereInput
+  data: Prisma.XOR<Prisma.QuotationUpdateWithoutOpsRemindersInput, Prisma.QuotationUncheckedUpdateWithoutOpsRemindersInput>
+}
+
+export type QuotationUpdateWithoutOpsRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  services?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  terms?: Prisma.StringFieldUpdateOperationsInput | string
+  validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.LeadUpdateOneRequiredWithoutQuotationsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutQuotationNestedInput
+}
+
+export type QuotationUncheckedUpdateWithoutOpsRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  services?: Prisma.StringFieldUpdateOperationsInput | string
+  subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  terms?: Prisma.StringFieldUpdateOperationsInput | string
+  validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutQuotationNestedInput
+}
+
+export type QuotationCreateManyLeadInput = {
+  id?: string
+  quoteNumber: string
+  publicToken?: string | null
+  services: string
+  subTotal: number
+  discount?: number
+  gstPercent?: number
+  gstAmount?: number
+  totalAmount: number
+  terms: string
+  validTill?: Date | string | null
+  pdfUrl?: string | null
+  status?: $Enums.QuotationStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type QuotationUpdateWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationUncheckedUpdateWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutQuotationNestedInput
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutQuotationNestedInput
 }
 
 export type QuotationUncheckedUpdateManyWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quoteNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   services?: Prisma.StringFieldUpdateOperationsInput | string
   subTotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
   gstPercent?: Prisma.FloatFieldUpdateOperationsInput | number
   gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   totalAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type QuotationCountOutputType
+ */
+
+export type QuotationCountOutputType = {
+  opsReminders: number
+}
+
+export type QuotationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  opsReminders?: boolean | QuotationCountOutputTypeCountOpsRemindersArgs
+}
+
+/**
+ * QuotationCountOutputType without action
+ */
+export type QuotationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the QuotationCountOutputType
+   */
+  select?: Prisma.QuotationCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * QuotationCountOutputType without action
+ */
+export type QuotationCountOutputTypeCountOpsRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OpsReminderWhereInput
+}
 
 
 export type QuotationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  invoice?: boolean | Prisma.Quotation$invoiceArgs<ExtArgs>
+  opsReminders?: boolean | Prisma.Quotation$opsRemindersArgs<ExtArgs>
+  _count?: boolean | Prisma.QuotationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["quotation"]>
 
 export type QuotationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["quotation"]>
 
 export type QuotationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["quotation"]>
 
 export type QuotationSelectScalar = {
   id?: boolean
   quoteNumber?: boolean
+  publicToken?: boolean
   leadId?: boolean
   services?: boolean
   subTotal?: boolean
+  discount?: boolean
   gstPercent?: boolean
   gstAmount?: boolean
   totalAmount?: boolean
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  status?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteNumber" | "leadId" | "services" | "subTotal" | "gstPercent" | "gstAmount" | "totalAmount" | "terms" | "validTill" | "pdfUrl" | "createdAt", ExtArgs["result"]["quotation"]>
+export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteNumber" | "publicToken" | "leadId" | "services" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "terms" | "validTill" | "pdfUrl" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["quotation"]>
 export type QuotationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  invoice?: boolean | Prisma.Quotation$invoiceArgs<ExtArgs>
+  opsReminders?: boolean | Prisma.Quotation$opsRemindersArgs<ExtArgs>
+  _count?: boolean | Prisma.QuotationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type QuotationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
@@ -790,20 +1210,26 @@ export type $QuotationPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "Quotation"
   objects: {
     lead: Prisma.$LeadPayload<ExtArgs>
+    invoice: Prisma.$InvoicePayload<ExtArgs> | null
+    opsReminders: Prisma.$OpsReminderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     quoteNumber: string
+    publicToken: string | null
     leadId: string
     services: string
     subTotal: number
+    discount: number
     gstPercent: number
     gstAmount: number
     totalAmount: number
     terms: string
     validTill: Date | null
     pdfUrl: string | null
+    status: $Enums.QuotationStatus
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["quotation"]>
   composites: {}
 }
@@ -1199,6 +1625,8 @@ readonly fields: QuotationFieldRefs;
 export interface Prisma__QuotationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   lead<T extends Prisma.LeadDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LeadDefaultArgs<ExtArgs>>): Prisma.Prisma__LeadClient<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  invoice<T extends Prisma.Quotation$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Quotation$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  opsReminders<T extends Prisma.Quotation$opsRemindersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Quotation$opsRemindersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OpsReminderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1230,16 +1658,20 @@ export interface Prisma__QuotationClient<T, Null = never, ExtArgs extends runtim
 export interface QuotationFieldRefs {
   readonly id: Prisma.FieldRef<"Quotation", 'String'>
   readonly quoteNumber: Prisma.FieldRef<"Quotation", 'String'>
+  readonly publicToken: Prisma.FieldRef<"Quotation", 'String'>
   readonly leadId: Prisma.FieldRef<"Quotation", 'String'>
   readonly services: Prisma.FieldRef<"Quotation", 'String'>
   readonly subTotal: Prisma.FieldRef<"Quotation", 'Float'>
+  readonly discount: Prisma.FieldRef<"Quotation", 'Float'>
   readonly gstPercent: Prisma.FieldRef<"Quotation", 'Float'>
   readonly gstAmount: Prisma.FieldRef<"Quotation", 'Float'>
   readonly totalAmount: Prisma.FieldRef<"Quotation", 'Float'>
   readonly terms: Prisma.FieldRef<"Quotation", 'String'>
   readonly validTill: Prisma.FieldRef<"Quotation", 'DateTime'>
   readonly pdfUrl: Prisma.FieldRef<"Quotation", 'String'>
+  readonly status: Prisma.FieldRef<"Quotation", 'QuotationStatus'>
   readonly createdAt: Prisma.FieldRef<"Quotation", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Quotation", 'DateTime'>
 }
     
 
@@ -1631,6 +2063,49 @@ export type QuotationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many Quotations to delete.
    */
   limit?: number
+}
+
+/**
+ * Quotation.invoice
+ */
+export type Quotation$invoiceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Invoice
+   */
+  select?: Prisma.InvoiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Invoice
+   */
+  omit?: Prisma.InvoiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InvoiceInclude<ExtArgs> | null
+  where?: Prisma.InvoiceWhereInput
+}
+
+/**
+ * Quotation.opsReminders
+ */
+export type Quotation$opsRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OpsReminder
+   */
+  select?: Prisma.OpsReminderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OpsReminder
+   */
+  omit?: Prisma.OpsReminderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OpsReminderInclude<ExtArgs> | null
+  where?: Prisma.OpsReminderWhereInput
+  orderBy?: Prisma.OpsReminderOrderByWithRelationInput | Prisma.OpsReminderOrderByWithRelationInput[]
+  cursor?: Prisma.OpsReminderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OpsReminderScalarFieldEnum | Prisma.OpsReminderScalarFieldEnum[]
 }
 
 /**

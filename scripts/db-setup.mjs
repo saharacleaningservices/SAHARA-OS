@@ -9,7 +9,9 @@
 // standard `npx prisma migrate dev` / `npx prisma migrate deploy` instead —
 // both approaches produce an identical schema. See README.md.
 
+import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
+import bcrypt from "bcryptjs";
 import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -38,6 +40,15 @@ if (!existsSync(migrationPath)) {
 const sql = readFileSync(migrationPath, "utf-8");
 const db = new Database(dbPath);
 db.pragma("foreign_keys = ON");
+// WAL: readers no longer block the writer (and vice versa) during peak traffic. The mode is stored in the database file, so setting it
+// on every boot is cheap and idempotent. busy_timeout makes a contended write wait (up to 10 s) instead of failing with SQLITE_BUSY.
+// Backups use VACUUM INTO (consistent under WAL) and the restore route removes stale -wal/-shm files.
+try {
+  db.pragma("journal_mode = WAL");
+  db.pragma("busy_timeout = 10000");
+} catch (e) {
+  console.warn(`Could not enable WAL mode (${e instanceof Error ? e.message : e}) — continuing in the default journal mode.`);
+}
 
 const alreadyInitialized = db
   .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='User'")
@@ -87,6 +98,16 @@ db.exec(`
 `);
 db.exec(`CREATE INDEX IF NOT EXISTS "TimelineEntry_leadId_idx" ON "TimelineEntry"("leadId");`);
 db.exec(`CREATE INDEX IF NOT EXISTS "TimelineEntry_createdAt_idx" ON "TimelineEntry"("createdAt");`);
+
+// Performance audit (Phase 9, 2026-09-21): Lead.mobile and Job.customerMobile
+// are queried by findFirst/findMany (never findUnique, so no automatic
+// unique-constraint index) in many hot paths — missed-call and WhatsApp-
+// inquiry auto-lead lookups, searchCustomersQuick, getRepeatCustomerSummary,
+// getCustomersList, login-ID recovery — and neither had an index at all,
+// meaning every one of those was a full table scan on SQLite. Both leads
+// and jobs are in the thousands already and only grow.
+db.exec(`CREATE INDEX IF NOT EXISTS "Lead_mobile_idx" ON "Lead"("mobile");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Job_customerMobile_idx" ON "Job"("customerMobile");`);
 
 // FollowUp.priority column.
 const followUpCols = db.prepare(`PRAGMA table_info("FollowUp")`).all().map((c) => c.name);
@@ -188,6 +209,12 @@ addColumnIfMissing("Lead", "serviceVariant", `"serviceVariant" TEXT`);
 addColumnIfMissing("Lead", "mapLink", `"mapLink" TEXT`);
 addColumnIfMissing("Job", "mapLink", `"mapLink" TEXT`);
 addColumnIfMissing("Job", "vehicleId", `"vehicleId" TEXT`);
+// Billing: optional 18% GST, customer GSTIN, discount as entered (owner 2026-10-22).
+addColumnIfMissing("Job", "gstEnabled", `"gstEnabled" BOOLEAN NOT NULL DEFAULT 0`);
+addColumnIfMissing("Job", "gstAmount", `"gstAmount" REAL NOT NULL DEFAULT 0`);
+addColumnIfMissing("Job", "customerGstin", `"customerGstin" TEXT`);
+addColumnIfMissing("Job", "discountMode", `"discountMode" TEXT`);
+addColumnIfMissing("Job", "discountValue", `"discountValue" REAL`);
 
 // Soft-delete columns on every deletable entity. isDemo is tracked per table so
 // pre-existing rows can be marked as demo data exactly once, the moment the
@@ -508,4 +535,1446 @@ db.exec(`CREATE INDEX IF NOT EXISTS "Device_status_idx" ON "Device"("status");`)
 
 console.log("Production hardening migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Coolify go-live — optional Lead email, customer-facing service date, and
+// Team 1–4 assignment that carries into Jobs (idempotent, additive only).
+// ─────────────────────────────────────────────────────────────────────────
+
+addColumnIfMissing("Lead", "email", `"email" TEXT`);
+addColumnIfMissing("Lead", "serviceDate", `"serviceDate" DATETIME`);
+addColumnIfMissing("Lead", "teamNumber", `"teamNumber" INTEGER`);
+addColumnIfMissing("Job", "teamNumber", `"teamNumber" INTEGER`);
+
+console.log("Coolify go-live migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Connector layer — one "default" row holding WhatsApp Cloud API, Google
+// Maps and Google Drive backup settings, editable from /settings without a
+// redeploy. New table only; nothing on existing tables is touched.
+// (idempotent, additive only.)
+// ─────────────────────────────────────────────────────────────────────────
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "IntegrationSettings" (
+    "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
+    "whatsappAccessToken" TEXT,
+    "whatsappPhoneNumberId" TEXT,
+    "whatsappBusinessId" TEXT,
+    "whatsappApiVersion" TEXT NOT NULL DEFAULT 'v21.0',
+    "whatsappVerifiedAt" DATETIME,
+    "whatsappLastError" TEXT,
+    "googleMapsApiKey" TEXT,
+    "googleMapsVerifiedAt" DATETIME,
+    "backupToken" TEXT,
+    "gdriveFolderId" TEXT,
+    "backupVerifiedAt" DATETIME,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedBy" TEXT
+  );
+`);
+db.prepare(`INSERT OR IGNORE INTO "IntegrationSettings" ("id") VALUES ('default')`).run();
+console.log("Ensured IntegrationSettings table exists.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Final production go-live batch (2026-09-08) — additive columns for the
+// public booking form + job card, and a one-time role re-assignment.
+// ─────────────────────────────────────────────────────────────────────────
+
+addColumnIfMissing("Lead", "alternateMobile", `"alternateMobile" TEXT`);
+addColumnIfMissing("Lead", "timeSlot", `"timeSlot" TEXT`);
+addColumnIfMissing("Job", "alternateMobile", `"alternateMobile" TEXT`);
+addColumnIfMissing("Job", "serviceVariant", `"serviceVariant" TEXT`);
+
+console.log("Final go-live batch migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Final production access mapping. Deterministic by email → idempotent and
+// safe to re-run. Login emails & passwords unchanged.
+// admin@       Altaf Shaikh      → ADMIN (Super Admin, full access)
+// operations@  Francis Monteiro  → OPERATIONS (Operations Manager — owner
+//                                   correction 2026-09-25, reverting the
+//                                   2026-09-09 move to SUPERVISOR/field-only)
+// accounts@    Shoyab Kazi       → ACCOUNTS (Accounts & Enquiry — owner
+//                                   correction 2026-09-25, reverting the
+//                                   2026-09-09 promotion to OPERATIONS; this
+//                                   line was silently re-applying OPERATIONS
+//                                   on every boot even after manual role
+//                                   changes via Settings → Manage Users)
+// supervisor@  Suresh Pawar      → SUPERVISOR (Field Coordinator)
+// staff@       Vikas Shinde      → STAFF (Field Staff)
+// ─────────────────────────────────────────────────────────────────────────
+const finalRoleMap = db.transaction(() => {
+  const rows = [
+    ["operations@saharacleaningservices.com", "OPERATIONS", "Francis Monteiro"],
+    ["accounts@saharacleaningservices.com", "ACCOUNTS", "Shoyab Kazi"],
+    ["admin@saharacleaningservices.com", "ADMIN", "Altaf Shaikh"],
+    ["supervisor@saharacleaningservices.com", "SUPERVISOR", null],
+    ["staff@saharacleaningservices.com", "STAFF", null],
+  ];
+  let changed = 0;
+  for (const [email, role, name] of rows) {
+    const r = db
+      .prepare(`UPDATE "User" SET "role" = ? WHERE "email" = ? AND "role" != ?`)
+      .run(role, email, role);
+    changed += r.changes;
+    if (name) {
+      db.prepare(`UPDATE "User" SET "name" = ? WHERE "email" = ? AND "name" != ?`).run(
+        name,
+        email,
+        name
+      );
+    }
+  }
+  if (changed) console.log(`Final access mapping applied (${changed} role change(s)).`);
+});
+finalRoleMap();
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt V1.0 batch (2026-09-09) — additive columns + new tables for
+// the booking-form redesign, staff profiles, vehicles, AMC, payments,
+// company documents, security OTP and real-time notifications. Plus a
+// one-time, row-preserving rebuild of Lead / Expense to drop the stale enum
+// CHECK constraints that block the new LeadSource / ExpenseCategory values.
+// Everything below is idempotent and safe to re-run.
+// ─────────────────────────────────────────────────────────────────────────
+
+// --- row-preserving CHECK-constraint removal -----------------------------
+function dropEnumChecks(table) {
+  const row = db
+    .prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name=?`)
+    .get(table);
+  if (!row || !/\sCHECK\s*\("/i.test(row.sql)) return; // already clean → no-op
+  const indexes = db
+    .prepare(
+      `SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name=? AND sql IS NOT NULL`
+    )
+    .all(table);
+  const cols = db
+    .prepare(`PRAGMA table_info("${table}")`)
+    .all()
+    .map((c) => `"${c.name}"`)
+    .join(", ");
+  const newSql = row.sql
+    .replace(/\s+CHECK\s*\("[A-Za-z_]+"\s+IN\s*\([^)]*\)\)/gi, "")
+    .replace(new RegExp(`CREATE TABLE "${table}"`), `CREATE TABLE "${table}__new"`);
+  db.pragma("foreign_keys = OFF");
+  const rebuild = db.transaction(() => {
+    db.exec(newSql);
+    db.exec(`INSERT INTO "${table}__new" (${cols}) SELECT ${cols} FROM "${table}"`);
+    db.exec(`DROP TABLE "${table}"`);
+    db.exec(`ALTER TABLE "${table}__new" RENAME TO "${table}"`);
+    for (const i of indexes) db.exec(i.sql);
+  });
+  rebuild();
+  db.pragma("foreign_keys = ON");
+  const check = db.prepare(`PRAGMA integrity_check`).get();
+  console.log(
+    `Rebuilt "${table}" without enum CHECK constraints (integrity_check: ${
+      check.integrity_check ?? JSON.stringify(check)
+    }).`
+  );
+}
+dropEnumChecks("Lead");
+dropEnumChecks("Expense");
+
+// --- additive columns --------------------------------------------------
+addColumnIfMissing("Lead", "pinCode", `"pinCode" TEXT`);
+addColumnIfMissing("Lead", "addOnServices", `"addOnServices" TEXT`);
+addColumnIfMissing("Job", "pinCode", `"pinCode" TEXT`);
+
+addColumnIfMissing("Staff", "alternateMobile", `"alternateMobile" TEXT`);
+addColumnIfMissing("Staff", "joiningDate", `"joiningDate" DATETIME`);
+addColumnIfMissing("Staff", "reference", `"reference" TEXT`);
+addColumnIfMissing("Staff", "bankAccount", `"bankAccount" TEXT`);
+addColumnIfMissing("Staff", "bankIfsc", `"bankIfsc" TEXT`);
+addColumnIfMissing("Staff", "gpayNumber", `"gpayNumber" TEXT`);
+addColumnIfMissing("Staff", "documents", `"documents" TEXT`);
+
+addColumnIfMissing("Vehicle", "currentKm", `"currentKm" INTEGER`);
+addColumnIfMissing("Vehicle", "lastServiceDate", `"lastServiceDate" DATETIME`);
+addColumnIfMissing("Vehicle", "nextServiceDate", `"nextServiceDate" DATETIME`);
+
+addColumnIfMissing("AmcContract", "serviceReminderDate", `"serviceReminderDate" DATETIME`);
+addColumnIfMissing("AmcContract", "contractExpiryDate", `"contractExpiryDate" DATETIME`);
+
+addColumnIfMissing("Payment", "invoiceAttachmentUrl", `"invoiceAttachmentUrl" TEXT`);
+
+addColumnIfMissing("CompanySettings", "website", `"website" TEXT`);
+
+// The moment this flag is introduced, every non-admin account is asked to
+// replace the shared onboarding password with a personal one on next login.
+// Runs exactly once (only when the column is first added) → idempotent.
+if (addColumnIfMissing("User", "mustChangePassword", `"mustChangePassword" BOOLEAN NOT NULL DEFAULT false`)) {
+  const r = db
+    .prepare(
+      `UPDATE "User" SET "mustChangePassword" = 1 WHERE "email" != 'admin@saharacleaningservices.com'`
+    )
+    .run();
+  console.log(`Flagged ${r.changes} non-admin account(s) to set a personal password on next login.`);
+}
+
+addColumnIfMissing("IntegrationSettings", "mybillbookApiKey", `"mybillbookApiKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "mybillbookVerifiedAt", `"mybillbookVerifiedAt" DATETIME`);
+addColumnIfMissing("IntegrationSettings", "webPushPublicKey", `"webPushPublicKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "webPushPrivateKey", `"webPushPrivateKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "webPushSubject", `"webPushSubject" TEXT`);
+
+// --- new tables -------------------------------------------------------
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "CompanyDocument" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "category" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "sizeBytes" INTEGER,
+    "uploadedByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "CompanyDocument_category_idx" ON "CompanyDocument"("category");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "SecurityOtp" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "purpose" TEXT NOT NULL,
+    "targetUserId" TEXT NOT NULL,
+    "targetUserName" TEXT NOT NULL,
+    "targetUserEmail" TEXT NOT NULL,
+    "codeHash" TEXT NOT NULL,
+    "codePlain" TEXT,
+    "payload" TEXT,
+    "expiresAt" DATETIME NOT NULL,
+    "consumedAt" DATETIME,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "requestedByName" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+addColumnIfMissing("SecurityOtp", "codePlain", `"codePlain" TEXT`);
+addColumnIfMissing("SecurityOtp", "payload", `"payload" TEXT`);
+addColumnIfMissing("SecurityOtp", "requestedByName", `"requestedByName" TEXT`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SecurityOtp_targetUserId_idx" ON "SecurityOtp"("targetUserId");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SecurityOtp_expiresAt_idx" ON "SecurityOtp"("expiresAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Notification" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "body" TEXT,
+    "href" TEXT,
+    "critical" BOOLEAN NOT NULL DEFAULT false,
+    "meta" TEXT,
+    "readAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Notification_userId_readAt_idx" ON "Notification"("userId", "readAt");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Notification_createdAt_idx" ON "Notification"("createdAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "PushSubscription" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "endpoint" TEXT NOT NULL,
+    "p256dh" TEXT NOT NULL,
+    "auth" TEXT NOT NULL,
+    "userAgent" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastOkAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PushSubscription_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "PushSubscription_endpoint_key" ON "PushSubscription"("endpoint");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "PushSubscription_userId_idx" ON "PushSubscription"("userId");`);
+
+console.log("Master Prompt V1.0 batch migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// v1.1 Production Polish (2026-09-09) — job status flow (PENDING/POSTPONED/
+// CANCELLED), booking packages & combos, multi-staff on leads. Additive +
+// idempotent. Job.status keeps a stale enum CHECK from the initial migration,
+// so rebuild the table (row-preserving) to drop it, same as Lead/Expense.
+// ─────────────────────────────────────────────────────────────────────────
+
+dropEnumChecks("Job");
+
+addColumnIfMissing("Lead", "packageName", `"packageName" TEXT`);
+addColumnIfMissing("Lead", "comboServices", `"comboServices" TEXT`);
+addColumnIfMissing("Lead", "assignedStaffIds", `"assignedStaffIds" TEXT`);
+addColumnIfMissing("Job", "packageName", `"packageName" TEXT`);
+addColumnIfMissing("Job", "comboServices", `"comboServices" TEXT`);
+
+console.log("v1.1 Production Polish migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// v1.2 — Advance payments through the flow. Additive columns only; no table
+// rebuild (Payment.status keeps its CHECK — "Partial" is derived, not stored;
+// JobStatus.REACTIVATED needs no CHECK change since the Job table CHECK was
+// already dropped in the v1.1 rebuild).
+// ─────────────────────────────────────────────────────────────────────────
+
+addColumnIfMissing("Lead", "advanceAmount", `"advanceAmount" REAL`);
+addColumnIfMissing("Lead", "paymentMode", `"paymentMode" TEXT`);
+addColumnIfMissing("Lead", "paymentStatus", `"paymentStatus" TEXT`);
+addColumnIfMissing("Payment", "mode", `"mode" TEXT`);
+addColumnIfMissing("CompanySettings", "upiId", `"upiId" TEXT`);
+addColumnIfMissing("CompanySettings", "upiQrUrl", `"upiQrUrl" TEXT`);
+addColumnIfMissing("CompanySettings", "bankName", `"bankName" TEXT`);
+addColumnIfMissing("CompanySettings", "bankAccountName", `"bankAccountName" TEXT`);
+addColumnIfMissing("CompanySettings", "bankAccountNumber", `"bankAccountNumber" TEXT`);
+addColumnIfMissing("CompanySettings", "bankIfsc", `"bankIfsc" TEXT`);
+
+console.log("v1.2 advance-payments migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// v1.1 — Mobile-number login for the three office users. One-time, guarded by
+// a 'V11_MOBILE_AUTH' AuditLog sentinel so passwords are NOT reset on every
+// deploy. Sets the login mobile number + a temporary password; each user is
+// then forced through /set-password on first login. Preserves all data.
+// admin@       Altaf Shaikh      → 7083347130 / Sahara1 (Super Admin)
+// operations@  Francis Monteiro  → 8530207130 / Sahara2 (Field Coordinator)
+// accounts@    Shoyab Kazi       → 8956567130 / Sahara3 (Operations Manager)
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const alreadyDone = db
+    .prepare(`SELECT COUNT(*) AS c FROM "AuditLog" WHERE "action" = 'V11_MOBILE_AUTH'`)
+    .get().c;
+  if (!alreadyDone) {
+    const rows = [
+      ["admin@saharacleaningservices.com", "7083347130", "Sahara1", "ADMIN", "Altaf Shaikh"],
+      ["operations@saharacleaningservices.com", "8530207130", "Sahara2", "SUPERVISOR", "Francis Monteiro"],
+      ["accounts@saharacleaningservices.com", "8956567130", "Sahara3", "OPERATIONS", "Shoyab Kazi"],
+    ];
+    const apply = db.transaction(() => {
+      // Free up any phone numbers about to be reassigned first.
+      db.prepare(`UPDATE "User" SET "phone" = NULL WHERE "phone" IN ('7083347130','8530207130','8956567130')`).run();
+      for (const [email, phone, pw, role, name] of rows) {
+        db.prepare(
+          `UPDATE "User" SET "phone" = ?, "passwordHash" = ?, "role" = ?, "name" = ?, "mustChangePassword" = 1 WHERE "email" = ?`
+        ).run(phone, bcrypt.hashSync(pw, 10), role, name, email);
+      }
+      db.prepare(
+        `INSERT INTO "AuditLog" ("id","entityType","entityId","action","summary","createdAt")
+         VALUES (?, 'Security', 'auth', 'V11_MOBILE_AUTH', 'Mobile-number login enabled for the 3 office users; temporary passwords set', CURRENT_TIMESTAMP)`
+      ).run("migv11-mobile-auth");
+    });
+    apply();
+    console.log("v1.1 mobile-number auth applied (3 users → mobile login + temp password + must-change).");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v2.0 — Batch 1: Monthly attendance, salary ledger, audit
+// trail and month closing. Additive + row-preserving; safe to re-run.
+// ─────────────────────────────────────────────────────────────────────────
+
+// Attendance.status gained WEEKLY_OFF — drop the stale CHECK IN (...) so the
+// new value is accepted (row-preserving rebuild, keeps unique+indexes).
+dropEnumChecks("Attendance");
+
+addColumnIfMissing("Attendance", "markedByName", `"markedByName" TEXT`);
+addColumnIfMissing("Attendance", "updatedByName", `"updatedByName" TEXT`);
+addColumnIfMissing("Attendance", "updatedAt", `"updatedAt" DATETIME`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "AttendanceAudit" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "staffId" TEXT NOT NULL,
+    "staffName" TEXT NOT NULL,
+    "date" DATETIME NOT NULL,
+    "oldStatus" TEXT,
+    "newStatus" TEXT NOT NULL,
+    "editedByName" TEXT NOT NULL,
+    "editedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AttendanceAudit_staffId_date_idx" ON "AttendanceAudit"("staffId", "date");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "AttendanceAudit_editedAt_idx" ON "AttendanceAudit"("editedAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "MonthClose" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "year" INTEGER NOT NULL,
+    "month" INTEGER NOT NULL,
+    "closedByName" TEXT NOT NULL,
+    "closedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "reopenedByName" TEXT,
+    "reopenedAt" DATETIME
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "MonthClose_year_month_key" ON "MonthClose"("year", "month");`);
+
+console.log("v2.0 batch-1 (attendance/salary) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v2.0 — Batch 2: Premium booking page. Additive columns only.
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("Lead", "propertyType", `"propertyType" TEXT`);
+addColumnIfMissing("Job", "propertyType", `"propertyType" TEXT`);
+addColumnIfMissing("CompanySettings", "googleRating", `"googleRating" TEXT`);
+addColumnIfMissing("CompanySettings", "linkedinUrl", `"linkedinUrl" TEXT`);
+addColumnIfMissing("CompanySettings", "signatureLogoWidth", `"signatureLogoWidth" INTEGER`);
+addColumnIfMissing("CompanySettings", "signatureLogoHeight", `"signatureLogoHeight" INTEGER`);
+addColumnIfMissing("CompanySettings", "googleReviewCount", `"googleReviewCount" TEXT`);
+addColumnIfMissing("CompanySettings", "happyCustomers", `"happyCustomers" TEXT`);
+addColumnIfMissing("CompanySettings", "featuredReviews", `"featuredReviews" TEXT`);
+db.prepare(
+  `UPDATE "CompanySettings" SET
+    "googleRating" = COALESCE("googleRating", '4.9'),
+    "googleReviewCount" = COALESCE("googleReviewCount", '1800+'),
+    "happyCustomers" = COALESCE("happyCustomers", '8000+')
+   WHERE "id" = 'default'`
+).run();
+console.log("v2.0 batch-2 (premium booking) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 7: personalized customer booking links.
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "BookingLink" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "token" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'BOOKING_FORM',
+    "customerName" TEXT NOT NULL,
+    "customerMobile" TEXT NOT NULL,
+    "leadId" TEXT,
+    "jobId" TEXT,
+    "createdByName" TEXT NOT NULL,
+    "sentAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "openedAt" DATETIME,
+    "submittedAt" DATETIME,
+    "followUpMade" BOOLEAN NOT NULL DEFAULT 0
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "BookingLink_token_key" ON "BookingLink"("token");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "BookingLink_customerMobile_idx" ON "BookingLink"("customerMobile");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "BookingLink_sentAt_idx" ON "BookingLink"("sentAt");`);
+console.log("v3.1 batch-7 (booking links) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 8: master Customer table (bulk import).
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "Customer" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "mobile" TEXT NOT NULL,
+    "alternateMobile" TEXT,
+    "address" TEXT,
+    "area" TEXT,
+    "serviceHistory" TEXT,
+    "lastServiceDate" DATETIME,
+    "outstandingBalance" REAL NOT NULL DEFAULT 0,
+    "source" TEXT,
+    "notes" TEXT,
+    "importBatchId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Customer_mobile_key" ON "Customer"("mobile");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Customer_area_idx" ON "Customer"("area");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Customer_lastServiceDate_idx" ON "Customer"("lastServiceDate");`);
+console.log("v3.1 batch-8 (customer master) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 9: Owner Dashboard (bank balance).
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("CompanySettings", "bankBalance", `"bankBalance" REAL`);
+console.log("v3.1 batch-9 (owner dashboard) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.1 — Batch 10: SMS gateway + delivery log + missed-call lead.
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("IntegrationSettings", "smsProvider", `"smsProvider" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsApiKey", `"smsApiKey" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsSenderId", `"smsSenderId" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsEndpoint", `"smsEndpoint" TEXT`);
+addColumnIfMissing("IntegrationSettings", "smsVerifiedAt", `"smsVerifiedAt" DATETIME`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "SmsMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "toNumber" TEXT NOT NULL,
+    "toName" TEXT,
+    "body" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'OTHER',
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "error" TEXT,
+    "relatedType" TEXT,
+    "relatedId" TEXT,
+    "sentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_status_idx" ON "SmsMessage"("status");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "SmsMessage_createdAt_idx" ON "SmsMessage"("createdAt");`);
+console.log("v3.1 batch-10 (sms gateway) migration complete.");
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "EmailMessage" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "toEmail" TEXT NOT NULL,
+    "toName" TEXT,
+    "subject" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'OTHER',
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "error" TEXT,
+    "relatedType" TEXT,
+    "relatedId" TEXT,
+    "sentAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "EmailMessage_status_idx" ON "EmailMessage"("status");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "EmailMessage_createdAt_idx" ON "EmailMessage"("createdAt");`);
+addColumnIfMissing("EmailMessage", "bodyHtml", `"bodyHtml" TEXT`); // branded HTML part (2026-10-18)
+console.log("Auth recovery (email queue) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Master Prompt v3.3 — Batch 14: marketing gallery (before/after photos and
+// result videos), reused on the booking page, WhatsApp links and review
+// campaigns. New table only; additive + idempotent.
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "GalleryItem" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "type" TEXT NOT NULL DEFAULT 'PHOTO',
+    "kind" TEXT NOT NULL DEFAULT 'GENERAL',
+    "category" TEXT,
+    "url" TEXT NOT NULL,
+    "thumbnailUrl" TEXT,
+    "caption" TEXT,
+    "jobId" TEXT,
+    "pairKey" TEXT,
+    "featured" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdByName" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_type_idx" ON "GalleryItem"("type");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_featured_idx" ON "GalleryItem"("featured");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "GalleryItem_category_idx" ON "GalleryItem"("category");`);
+console.log("v3.3 batch-14 (marketing gallery) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Phase D — WhatsApp consent/opt-out tracking (idempotent, additive only).
+// New table only; sendWhatsApp() / flushWhatsAppQueue() check it before
+// every send, and the inbound webhook flips it on a STOP/START reply. See
+// src/lib/whatsapp.ts and src/app/api/webhooks/whatsapp/route.ts.
+// ─────────────────────────────────────────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "WhatsAppConsent" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "phoneNumber" TEXT NOT NULL,
+    "optedOut" BOOLEAN NOT NULL DEFAULT false,
+    "optedOutAt" DATETIME,
+    "optedOutVia" TEXT,
+    "reinstatedAt" DATETIME,
+    "notes" TEXT,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "WhatsAppConsent_phoneNumber_key" ON "WhatsAppConsent"("phoneNumber");`);
+db.exec(`CREATE INDEX IF NOT EXISTS "WhatsAppConsent_optedOut_idx" ON "WhatsAppConsent"("optedOut");`);
+console.log("Phase D (WhatsApp consent tracking) migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Google Reviews response workflow (idempotent, additive only). No ingestion
+// API is connected, so staff log a review when they see it and mark it once
+// replied — see src/server/actions/reviews.ts.
+// ─────────────────────────────────────────────────────────────────────────
+addColumnIfMissing("Review", "replied", `"replied" BOOLEAN NOT NULL DEFAULT false`);
+addColumnIfMissing("Review", "repliedAt", `"repliedAt" DATETIME`);
+addColumnIfMissing("Review", "replyNote", `"replyNote" TEXT`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Review_replied_idx" ON "Review"("replied");`);
+console.log("Review response workflow migration complete.");
+
+// ─────────────────────────────────────────────────────────────────────────
+// Independent marketing system (2026-09-29) — lead attribution + spend.
+// Additive only: new nullable Lead columns and a new MarketingSpend table.
+// ─────────────────────────────────────────────────────────────────────────
+for (const col of [
+  "acquisitionChannel", "acquisitionCampaign", "utmSource", "utmMedium", "utmCampaign", "utmTerm", "utmContent",
+  "gclid", "fbclid", "landingPage", "landingPageUrl", "firstTouchSource", "firstTouchMedium", "firstTouchCampaign",
+  "latestTouchSource", "latestTouchMedium", "latestTouchCampaign",
+]) {
+  addColumnIfMissing("Lead", col, `"${col}" TEXT`);
+}
+for (const col of ["firstTouchAt", "latestTouchAt", "formSubmittedAt", "marketingConsentAt"]) {
+  addColumnIfMissing("Lead", col, `"${col}" DATETIME`);
+}
+addColumnIfMissing("Lead", "marketingConsent", `"marketingConsent" TEXT NOT NULL DEFAULT 'UNKNOWN'`);
+db.exec(`CREATE INDEX IF NOT EXISTS "Lead_acquisitionChannel_idx" ON "Lead"("acquisitionChannel");`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "MarketingSpend" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "month" TEXT NOT NULL,
+    "channel" TEXT NOT NULL,
+    "campaign" TEXT NOT NULL DEFAULT '',
+    "amount" REAL NOT NULL,
+    "notes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS "MarketingSpend_month_idx" ON "MarketingSpend"("month");
+  CREATE INDEX IF NOT EXISTS "MarketingSpend_channel_idx" ON "MarketingSpend"("channel");
+`);
+console.log("Marketing attribution + spend migration complete.");
+
+// ── WhatsApp Cloud API go-live: inbound rows + delivery/read receipts ─────
+// Additive only. Existing rows default to OUTBOUND. The new CANCELLED /
+// RECEIVED statuses are plain TEXT values, so the enum needs no DDL.
+addColumnIfMissing("WhatsAppMessage", "direction", `"direction" TEXT NOT NULL DEFAULT 'OUTBOUND'`);
+addColumnIfMissing("WhatsAppMessage", "deliveredAt", `"deliveredAt" DATETIME`);
+addColumnIfMissing("WhatsAppMessage", "readAt", `"readAt" DATETIME`);
+addColumnIfMissing("WhatsAppMessage", "templateName", `"templateName" TEXT`);
+db.exec(`
+  CREATE INDEX IF NOT EXISTS "WhatsAppMessage_toNumber_idx" ON "WhatsAppMessage"("toNumber");
+  CREATE INDEX IF NOT EXISTS "WhatsAppMessage_providerMessageId_idx" ON "WhatsAppMessage"("providerMessageId");
+`);
+console.log("WhatsApp inbox/receipts migration complete.");
+
+// ── Customer booking page + payment preference (additive) ────────────────
+addColumnIfMissing("Job", "publicToken", `"publicToken" TEXT`);
+addColumnIfMissing("Job", "paymentPreference", `"paymentPreference" TEXT`);
+addColumnIfMissing("Job", "advanceRequestedAt", `"advanceRequestedAt" DATETIME`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Job_publicToken_key" ON "Job"("publicToken");`);
+addColumnIfMissing("Job", "shortCode", `"shortCode" TEXT`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Job_shortCode_key" ON "Job"("shortCode");`);
+console.log("Booking page token migration complete.");
+
+// ── Booking page v2: payment preference on leads + quotation booking links ──
+addColumnIfMissing("Lead", "paymentPreference", `"paymentPreference" TEXT`);
+addColumnIfMissing("Quotation", "publicToken", `"publicToken" TEXT`);
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Quotation_publicToken_key" ON "Quotation"("publicToken");`);
+console.log("Booking page v2 migration complete.");
+
+// ── WhatsApp Inbox v2: sender attribution + human takeover ──
+addColumnIfMissing("WhatsAppMessage", "sentByUserId", `"sentByUserId" TEXT`);
+addColumnIfMissing("WhatsAppMessage", "sentByName", `"sentByName" TEXT`);
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "WhatsAppConversation" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "number" TEXT NOT NULL,
+    "mode" TEXT NOT NULL DEFAULT 'HUMAN',
+    "handoffReason" TEXT,
+    "changedByName" TEXT,
+    "changedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE UNIQUE INDEX IF NOT EXISTS "WhatsAppConversation_number_key" ON "WhatsAppConversation"("number");
+`);
+console.log("WhatsApp inbox v2 migration complete.");
+
 db.close();
+// ─────────────────────────────────────────────────────────────────────────
+// Owner Command Center — monthly business revenue target (ADMIN-editable).
+// New table only; additive + idempotent. Opens its own short-lived
+// connection since the module-level `db` above is already closed by this
+// point in the script.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const ownerDb = new Database(dbPath);
+  ownerDb.pragma("foreign_keys = ON");
+  ownerDb.exec(`
+    CREATE TABLE IF NOT EXISTS "BusinessTarget" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "year" INTEGER NOT NULL,
+      "month" INTEGER NOT NULL,
+      "targetAmount" REAL NOT NULL,
+      "setByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  ownerDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "BusinessTarget_year_month_key" ON "BusinessTarget"("year", "month");`);
+  console.log("Owner Command Center (business target) migration complete.");
+  ownerDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Quotation/Invoice status workflow + MyBillBook API removal (2026-09-22,
+// idempotent, additive-and-one-safe-drop). Own connection since `db` above
+// is already closed by this point in the script.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const qiDb = new Database(dbPath);
+  qiDb.pragma("foreign_keys = ON");
+
+  function addCol(table, column, ddl) {
+    const cols = qiDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) qiDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  }
+  function dropCol(table, column) {
+    const cols = qiDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (cols.includes(column)) qiDb.exec(`ALTER TABLE "${table}" DROP COLUMN "${column}"`);
+  }
+
+  // SQLite's ALTER TABLE ADD COLUMN requires the default to be a real constant —
+  // CURRENT_TIMESTAMP is rejected ("Cannot add a column with non-constant
+  // default") even though it's allowed in CREATE TABLE. Use a literal
+  // timestamp string instead; existing rows get backfilled with "now" once,
+  // at the moment this column is introduced, same as any other new
+  // NOT NULL column would need a backfill value.
+  const nowLiteral = new Date().toISOString().replace("T", " ").replace(/\.\d+Z$/, "");
+
+  addCol("Quotation", "discount", `"discount" REAL NOT NULL DEFAULT 0`);
+  addCol("Quotation", "status", `"status" TEXT NOT NULL DEFAULT 'SENT'`);
+  addCol("Quotation", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT '${nowLiteral}'`);
+  qiDb.exec(`CREATE INDEX IF NOT EXISTS "Quotation_status_idx" ON "Quotation"("status");`);
+
+  addCol("Invoice", "quotationId", `"quotationId" TEXT`);
+  addCol("Invoice", "discount", `"discount" REAL NOT NULL DEFAULT 0`);
+  addCol("Invoice", "notes", `"notes" TEXT`);
+  addCol("Invoice", "terms", `"terms" TEXT`);
+  addCol("Invoice", "status", `"status" TEXT NOT NULL DEFAULT 'ISSUED'`);
+  addCol("Invoice", "updatedAt", `"updatedAt" DATETIME NOT NULL DEFAULT '${nowLiteral}'`);
+  qiDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_quotationId_key" ON "Invoice"("quotationId");`);
+  qiDb.exec(`CREATE INDEX IF NOT EXISTS "Invoice_status_idx" ON "Invoice"("status");`);
+
+  // MyBillBook API integration removed (2026-09-22) — API was never
+  // configured in production (no key ever issued); these columns only ever
+  // held NULL/"NOT_CONFIGURED". Safe to drop outright.
+  dropCol("Invoice", "mybillbookInvoiceId");
+  dropCol("Invoice", "mybillbookSyncStatus");
+  dropCol("IntegrationSettings", "mybillbookApiKey");
+  dropCol("IntegrationSettings", "mybillbookVerifiedAt");
+
+  console.log("Quotation/Invoice status workflow + MyBillBook removal migration complete.");
+  qiDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff App / Staff Portal (2026-10-04, idempotent, additive only):
+// team snapshot on Job, job link on Review, TeamIncentive, Announcement,
+// and per-staff date indexes so the portal
+// calendar/records and the month/year Export Center stay fast at 100+ staff.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const spDb = new Database(dbPath);
+  spDb.pragma("foreign_keys = ON");
+
+  function addCol(table, column, ddl) {
+    const cols = spDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) spDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  }
+
+  addCol("Job", "teamSnapshot", `"teamSnapshot" TEXT`);
+  addCol("Review", "jobId", `"jobId" TEXT`);
+
+  spDb.exec(`
+    CREATE TABLE IF NOT EXISTS "TeamIncentive" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "jobId" TEXT NOT NULL,
+      "amount" REAL NOT NULL DEFAULT 50,
+      "teamSnapshot" TEXT NOT NULL,
+      "notes" TEXT,
+      "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "recordedByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "TeamIncentive_jobId_key" ON "TeamIncentive"("jobId");
+    CREATE INDEX IF NOT EXISTS "TeamIncentive_date_idx" ON "TeamIncentive"("date");
+
+    CREATE TABLE IF NOT EXISTS "Announcement" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "title" TEXT NOT NULL,
+      "body" TEXT NOT NULL,
+      "important" BOOLEAN NOT NULL DEFAULT false,
+      "isActive" BOOLEAN NOT NULL DEFAULT true,
+      "publishedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "expiresAt" DATETIME,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "Announcement_isActive_publishedAt_idx" ON "Announcement"("isActive", "publishedAt");
+
+    CREATE INDEX IF NOT EXISTS "Advance_staffId_givenAt_idx" ON "Advance"("staffId", "givenAt");
+    CREATE INDEX IF NOT EXISTS "FineRecord_staffId_date_idx" ON "FineRecord"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "RewardRecord_staffId_date_idx" ON "RewardRecord"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "Review_jobId_idx" ON "Review"("jobId");
+    CREATE INDEX IF NOT EXISTS "Invoice_createdAt_idx" ON "Invoice"("createdAt");
+    CREATE INDEX IF NOT EXISTS "Payment_paidDate_idx" ON "Payment"("paidDate");
+    CREATE INDEX IF NOT EXISTS "Expense_staffId_category_idx" ON "Expense"("staffId", "category");
+  `);
+
+  console.log("Staff App (portal, team incentives, announcements) migration complete.");
+  spDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Pricing & Packages (2026-10-05, idempotent, additive only): editable price
+// overrides, festival offers with their own prices, and the price snapshot on
+// Lead/Job. Festival offers are seeded once (only when the table is empty);
+// after that Super Admin owns them in CRM → Pricing & Packages.
+// Festival dates are date-only (stored as UTC midnight of the calendar date).
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const prDb = new Database(dbPath);
+  prDb.pragma("foreign_keys = ON");
+
+  function addCol(table, column, ddl) {
+    const cols = prDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) prDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  }
+  for (const t of ["Lead", "Job"]) {
+    addCol(t, "priceType", `"priceType" TEXT`);
+    addCol(t, "festivalName", `"festivalName" TEXT`);
+    addCol(t, "scopeOfWork", `"scopeOfWork" TEXT`);
+  }
+
+  prDb.exec(`
+    CREATE TABLE IF NOT EXISTS "PriceSetting" (
+      "contentId" TEXT NOT NULL PRIMARY KEY,
+      "price" REAL,
+      "mrp" REAL,
+      "isActive" BOOLEAN NOT NULL DEFAULT true,
+      "updatedByName" TEXT,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS "FestivalOffer" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "startDate" DATETIME NOT NULL,
+      "endDate" DATETIME NOT NULL,
+      "isActive" BOOLEAN NOT NULL DEFAULT true,
+      "updatedByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS "FestivalOffer_isActive_startDate_idx" ON "FestivalOffer"("isActive", "startDate");
+    CREATE TABLE IF NOT EXISTS "FestivalPrice" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "festivalId" TEXT NOT NULL,
+      "contentId" TEXT NOT NULL,
+      "price" REAL NOT NULL,
+      CONSTRAINT "FestivalPrice_festivalId_fkey" FOREIGN KEY ("festivalId") REFERENCES "FestivalOffer" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "FestivalPrice_festivalId_contentId_key" ON "FestivalPrice"("festivalId", "contentId");
+  `);
+
+  const { c: festivalCount } = prDb.prepare(`SELECT COUNT(*) AS c FROM "FestivalOffer"`).get();
+  if (festivalCount === 0) {
+    const now = new Date().toISOString().replace("Z", "+00:00");
+    const day = (d) => `${d}T00:00:00.000+00:00`;
+    // Owner-approved festival prices (final, 2026-10-09): Premium / Platinum, 1–3 BHK.
+    const prices = { "SCS-01": 4999, "SCS-05": 6499, "SCS-02": 5499, "SCS-06": 6999, "SCS-03": 6999, "SCS-07": 8499 };
+    const offers = [
+      ["fest_navratri_2026", "Navratri", "2026-10-01", "2026-10-19"],
+      ["fest_dussehra_2026", "Dussehra", "2026-10-20", "2026-10-25"],
+      ["fest_diwali_2026", "Diwali", "2026-10-26", "2026-11-10"],
+    ];
+    const insOffer = prDb.prepare(`INSERT INTO "FestivalOffer" ("id","name","startDate","endDate","isActive","updatedByName","createdAt","updatedAt") VALUES (?,?,?,?,1,'System seed',?,?)`);
+    const insPrice = prDb.prepare(`INSERT INTO "FestivalPrice" ("id","festivalId","contentId","price") VALUES (?,?,?,?)`);
+    prDb.transaction(() => {
+      for (const [id, name, start, end] of offers) {
+        insOffer.run(id, name, day(start), day(end), now, now);
+        for (const [contentId, price] of Object.entries(prices)) insPrice.run(`${id}_${contentId}`, id, contentId, price);
+      }
+    })();
+    console.log("Pricing: seeded Navratri / Dussehra / Diwali festival offers.");
+  }
+
+  // Owner-approved Excel small-job prices (2026-10-07). The catalogue in pricing-master.ts
+  // carries the new base prices; this one-time sync only replaces an older Super Admin
+  // override for the same item so production shows the Excel price. It runs exactly once:
+  // a marker row in PriceSetting records that it ran, so a later Super Admin edit (which
+  // stamps the editor's own name) is never reset on a restart or redeploy.
+  {
+    const MARKER_ID = "_migration:excel-small-job-sync-2026-10-07";
+    const target = { "SCS-09": 249, "SCS-10": 599, "SCS-12": 1999, "SCS-30": 299 };
+    const done = prDb.prepare(`SELECT 1 AS x FROM "PriceSetting" WHERE "contentId" = ?`).get(MARKER_ID);
+    if (!done) {
+      const sel = prDb.prepare(`SELECT "price" FROM "PriceSetting" WHERE "contentId" = ?`);
+      const upd = prDb.prepare(`UPDATE "PriceSetting" SET "price" = ?, "mrp" = NULL, "updatedByName" = 'Excel sync 2026-10-07', "updatedAt" = ? WHERE "contentId" = ?`);
+      const now = new Date().toISOString().replace("Z", "+00:00");
+      for (const [cid, price] of Object.entries(target)) {
+        const row = sel.get(cid);
+        if (row && row.price !== price) {
+          upd.run(price, now, cid);
+          console.log(`Pricing: ${cid} override ${row.price} -> ${price} (Excel sync, one-time).`);
+        }
+      }
+      prDb.prepare(`INSERT INTO "PriceSetting" ("contentId","price","mrp","isActive","updatedByName","updatedAt") VALUES (?,NULL,NULL,0,'System migration',?)`).run(MARKER_ID, now);
+    }
+  }
+
+  // Owner-approved prices (2026-10-09). Regular Premium: 1BHK ₹4,499 · 2BHK ₹5,499 · 3BHK ₹6,999 (the
+  // catalogue carries them; this replaces an older Super Admin override of the retired selling prices
+  // only). Festival (exact, no rounding): 1BHK Premium ₹4,999 · 1BHK Platinum ₹6,499 · 2BHK Premium ₹5,499 ·
+  // 2BHK Platinum ₹6,999 · 3BHK Premium ₹6,999 · 3BHK Platinum ₹8,499 in every existing festival offer.
+  // Runs exactly once (marker row), so later Super Admin edits are never reset; existing Lead/Job price
+  // snapshots, payments and invoices are not touched.
+  {
+    const MARKER_ID = "_migration:owner-price-sync-2026-10-09";
+    const done = prDb.prepare(`SELECT 1 AS x FROM "PriceSetting" WHERE "contentId" = ?`).get(MARKER_ID);
+    if (!done) {
+      const now = new Date().toISOString().replace("Z", "+00:00");
+      const regular = { "SCS-01": [4000, 4499], "SCS-02": [4999, 5499], "SCS-03": [6499, 6999] };
+      const selP = prDb.prepare(`SELECT "price" FROM "PriceSetting" WHERE "contentId" = ?`);
+      const updP = prDb.prepare(`UPDATE "PriceSetting" SET "price" = ?, "mrp" = NULL, "updatedByName" = 'Owner price sync 2026-10-09', "updatedAt" = ? WHERE "contentId" = ?`);
+      for (const [cid, [oldPrice, price]] of Object.entries(regular)) {
+        const row = selP.get(cid);
+        if (row && row.price === oldPrice) {
+          updP.run(price, now, cid);
+          console.log(`Pricing: ${cid} regular override ${oldPrice} -> ${price} (owner sync, one-time).`);
+        }
+      }
+      const festival = { "SCS-01": 4999, "SCS-05": 6499, "SCS-02": 5499, "SCS-06": 6999, "SCS-03": 6999, "SCS-07": 8499 };
+      const updF = prDb.prepare(`UPDATE "FestivalPrice" SET "price" = ? WHERE "contentId" = ? AND "price" != ?`);
+      for (const [cid, price] of Object.entries(festival)) {
+        const r = updF.run(price, cid, price);
+        if (r.changes) console.log(`Pricing: festival ${cid} -> ${price} in ${r.changes} offer(s) (owner sync, one-time).`);
+      }
+      prDb.prepare(`INSERT INTO "PriceSetting" ("contentId","price","mrp","isActive","updatedByName","updatedAt") VALUES (?,NULL,NULL,0,'System migration',?)`).run(MARKER_ID, now);
+    }
+  }
+
+  // Owner-approved festival package prices (2026-10-23, final): Premium 1/2/3 BHK Rs 5,499 / 6,499 / 7,499 and Platinum 1/2/3 BHK
+  // Rs 6,499 / 7,499 / 8,999, applied to every festival window that is running or still to come (a window that already ended keeps
+  // what it charged). Regular and combo / individual prices are NOT touched. Runs exactly once (marker row), so a later Super Admin
+  // edit in Pricing & Packages is never reset on a restart; existing Lead / Job price snapshots, payments and invoices are untouched.
+  {
+    const MARKER_ID = "_migration:owner-festival-prices-2026-10-23";
+    const done = prDb.prepare(`SELECT 1 AS x FROM "PriceSetting" WHERE "contentId" = ?`).get(MARKER_ID);
+    if (!done) {
+      const now = new Date().toISOString().replace("Z", "+00:00");
+      const today = now.slice(0, 10);
+      const festival = { "SCS-01": 5499, "SCS-02": 6499, "SCS-03": 7499, "SCS-05": 6499, "SCS-06": 7499, "SCS-07": 8999 };
+      const offers = prDb.prepare(`SELECT "id" FROM "FestivalOffer" WHERE substr("endDate", 1, 10) >= ?`).all(today);
+      const upd = prDb.prepare(`UPDATE "FestivalPrice" SET "price" = ? WHERE "festivalId" = ? AND "contentId" = ?`);
+      const ins = prDb.prepare(`INSERT OR IGNORE INTO "FestivalPrice" ("id","festivalId","contentId","price") VALUES (?,?,?,?)`);
+      prDb.transaction(() => {
+        for (const { id } of offers) {
+          for (const [cid, price] of Object.entries(festival)) {
+            const r = upd.run(price, id, cid);
+            if (!r.changes) ins.run(`${id}_${cid}`, id, cid, price);
+          }
+        }
+      })();
+      console.log(`Pricing: festival package prices set in ${offers.length} running / upcoming offer(s) (owner list 2026-10-23, one-time).`);
+      prDb.prepare(`INSERT INTO "PriceSetting" ("contentId","price","mrp","isActive","updatedByName","updatedAt") VALUES (?,NULL,NULL,0,'System migration',?)`).run(MARKER_ID, now);
+    }
+  }
+
+  console.log("Pricing & Packages migration complete.");
+  prDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff money ledgers + Khata Book import log (2026-10-05, additive only).
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const lgDb = new Database(dbPath);
+  lgDb.pragma("foreign_keys = ON");
+  const cols = lgDb.prepare(`PRAGMA table_info("Staff")`).all().map((c) => c.name);
+  if (!cols.includes("ledgerCutoverAt")) lgDb.exec(`ALTER TABLE "Staff" ADD COLUMN "ledgerCutoverAt" DATETIME`);
+  const ledgerCols = `
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "staffId" TEXT NOT NULL,
+      "date" DATETIME NOT NULL,
+      "kind" TEXT NOT NULL,
+      "amount" REAL NOT NULL,
+      "signedAmount" REAL NOT NULL,
+      "description" TEXT,
+      "source" TEXT NOT NULL DEFAULT 'MANUAL',
+      "sourceParty" TEXT,
+      "sourceRow" INTEGER,
+      "sourceHash" TEXT,
+      "batchId" TEXT,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "deletedAt" DATETIME,
+      "deletedByName" TEXT,
+      CONSTRAINT "FK_staff" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE RESTRICT ON UPDATE CASCADE`;
+  lgDb.exec(`
+    CREATE TABLE IF NOT EXISTS "StaffLedgerEntry" (${ledgerCols});
+    CREATE UNIQUE INDEX IF NOT EXISTS "StaffLedgerEntry_sourceHash_key" ON "StaffLedgerEntry"("sourceHash");
+    CREATE INDEX IF NOT EXISTS "StaffLedgerEntry_staffId_date_idx" ON "StaffLedgerEntry"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "StaffLedgerEntry_batchId_idx" ON "StaffLedgerEntry"("batchId");
+    CREATE TABLE IF NOT EXISTS "StaffLoanEntry" (${ledgerCols.replace(`"description" TEXT,`, `"fromSalary" BOOLEAN NOT NULL DEFAULT false,\n      "description" TEXT,`)});
+    CREATE UNIQUE INDEX IF NOT EXISTS "StaffLoanEntry_sourceHash_key" ON "StaffLoanEntry"("sourceHash");
+    CREATE INDEX IF NOT EXISTS "StaffLoanEntry_staffId_date_idx" ON "StaffLoanEntry"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "StaffLoanEntry_batchId_idx" ON "StaffLoanEntry"("batchId");
+    CREATE TABLE IF NOT EXISTS "KhataImportBatch" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "status" TEXT NOT NULL,
+      "cutoffDate" DATETIME NOT NULL,
+      "sourceName" TEXT,
+      "sourceRows" INTEGER,
+      "datasetJson" TEXT NOT NULL,
+      "previewJson" TEXT,
+      "resultJson" TEXT,
+      "snapshotFile" TEXT,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "appliedAt" DATETIME,
+      "rolledBackAt" DATETIME
+    );
+    CREATE TABLE IF NOT EXISTS "KhataImportLog" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "batchId" TEXT NOT NULL,
+      "party" TEXT NOT NULL,
+      "staffId" TEXT,
+      "staffName" TEXT,
+      "sourceRow" INTEGER,
+      "date" DATETIME,
+      "amount" REAL,
+      "type" TEXT,
+      "description" TEXT,
+      "destination" TEXT,
+      "status" TEXT NOT NULL,
+      "message" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "KhataImportLog_batchId_idx" ON "KhataImportLog"("batchId");
+    CREATE INDEX IF NOT EXISTS "KhataImportLog_party_idx" ON "KhataImportLog"("party");
+  `);
+  console.log("Staff ledgers + Khata import log migration complete.");
+  lgDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff App finalisation (2026-10-05, additive only): staff language + payment
+// details, payment mode/reference/reversal on the staff ledger, overtime,
+// announcement recipients + read receipts.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const fDb = new Database(dbPath);
+  fDb.pragma("foreign_keys = ON");
+  const addCol = (table, column, ddl) => {
+    const cols = fDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
+    if (!cols.includes(column)) fDb.exec(`ALTER TABLE "${table}" ADD COLUMN ${ddl}`);
+  };
+  addCol("Staff", "language", `"language" TEXT`);
+  addCol("Staff", "bankName", `"bankName" TEXT`);
+  addCol("Staff", "bankAccountName", `"bankAccountName" TEXT`);
+  addCol("Staff", "upiId", `"upiId" TEXT`);
+  for (const c of ["paymentMode", "reference", "upiId", "reversalOfId", "reason"]) addCol("StaffLedgerEntry", c, `"${c}" TEXT`);
+  addCol("Announcement", "audience", `"audience" TEXT NOT NULL DEFAULT 'ALL'`);
+  addCol("Announcement", "staffIds", `"staffIds" TEXT`);
+  addCol("Announcement", "teamNumbers", `"teamNumbers" TEXT`);
+  fDb.exec(`
+    CREATE TABLE IF NOT EXISTS "OvertimeRecord" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "staffId" TEXT NOT NULL,
+      "date" DATETIME NOT NULL,
+      "jobId" TEXT,
+      "regularHours" REAL NOT NULL DEFAULT 8,
+      "otHours" REAL NOT NULL,
+      "otRate" REAL NOT NULL,
+      "otAmount" REAL NOT NULL,
+      "reason" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "createdByName" TEXT,
+      "approvedByName" TEXT,
+      "approvedAt" DATETIME,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "deletedAt" DATETIME,
+      "deletedByName" TEXT,
+      CONSTRAINT "OT_staff" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS "OvertimeRecord_staffId_date_idx" ON "OvertimeRecord"("staffId", "date");
+    CREATE INDEX IF NOT EXISTS "OvertimeRecord_status_idx" ON "OvertimeRecord"("status");
+    CREATE TABLE IF NOT EXISTS "AnnouncementRead" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "announcementId" TEXT NOT NULL,
+      "userId" TEXT NOT NULL,
+      "readAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "AnnouncementRead_announcementId_userId_key" ON "AnnouncementRead"("announcementId", "userId");
+  `);
+  // Owner rule: real employees start at SCS-001 (Mahesh first). The only SCS
+  // codes issued so far belong to SOFT-DELETED DEMO staff (isDemo = 1), never
+  // real people — re-label those DEMO-### so the real sequence starts at 001.
+  // Real (non-demo) or active staff codes are never touched. Idempotent.
+  const demoRelabel = fDb
+    .prepare(`UPDATE "Staff" SET "employeeCode" = 'DEMO-' || substr("employeeCode", 5) WHERE "isDemo" = 1 AND "deletedAt" IS NOT NULL AND "employeeCode" LIKE 'SCS-%'`)
+    .run();
+  if (demoRelabel.changes) console.log(`Re-labelled ${demoRelabel.changes} deleted demo staff codes to DEMO-###.`);
+  console.log("Staff App finalisation migration complete.");
+  fDb.close();
+}
+
+// Multi-service package (Package Calculator) — additive columns on Lead + Job.
+{
+  const pDb = new Database(dbPath);
+  const cols = (t) => pDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
+  for (const t of ["Lead", "Job"]) {
+    const have = cols(t);
+    if (!have.includes("serviceItems")) pDb.exec(`ALTER TABLE "${t}" ADD COLUMN "serviceItems" TEXT`);
+    if (!have.includes("discountAmount")) pDb.exec(`ALTER TABLE "${t}" ADD COLUMN "discountAmount" REAL`);
+  }
+  console.log("Package calculator migration complete.");
+  pDb.close();
+}
+
+// Money Khata corrections — additive columns on the loan ledger (Old → New → Reason audit).
+{
+  const kDb = new Database(dbPath);
+  const have = kDb.prepare(`PRAGMA table_info("StaffLoanEntry")`).all().map((c) => c.name);
+  if (have.length) {
+    if (!have.includes("reversalOfId")) kDb.exec(`ALTER TABLE "StaffLoanEntry" ADD COLUMN "reversalOfId" TEXT`);
+    if (!have.includes("reason")) kDb.exec(`ALTER TABLE "StaffLoanEntry" ADD COLUMN "reason" TEXT`);
+  }
+  console.log("Money Khata corrections migration complete.");
+  kDb.close();
+}
+
+// WhatsApp intake idempotency — additive nullable unique column on Lead.
+// Existing leads keep NULL (SQLite allows many NULLs under a unique index).
+{
+  const wDb = new Database(dbPath);
+  const have = wDb.prepare(`PRAGMA table_info("Lead")`).all().map((c) => c.name);
+  if (!have.includes("intakeKey")) wDb.exec(`ALTER TABLE "Lead" ADD COLUMN "intakeKey" TEXT`);
+  wDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Lead_intakeKey_key" ON "Lead"("intakeKey")`);
+  console.log("WhatsApp intake idempotency migration complete.");
+  wDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Manual slot-availability control (2026-10-07, additive only). See
+// BookingSlotControl in prisma/schema.prisma.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const sDb = new Database(dbPath);
+  sDb.exec(`
+    CREATE TABLE IF NOT EXISTS "BookingSlotControl" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "date" TEXT NOT NULL,
+      "slot" TEXT NOT NULL,
+      "status" TEXT,
+      "teamCapacity" INTEGER,
+      "updatedByName" TEXT,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "BookingSlotControl_date_slot_key" ON "BookingSlotControl"("date", "slot");
+  `);
+  console.log("Slot availability control migration complete.");
+  sDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Customer CRM (2026-10-08, additive only): contact type / repeat flag / email
+// on Customer, a CustomerSite table (many service addresses per contact), and
+// an optional siteId on Lead and Job. Existing rows are never modified.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const cDb = new Database(dbPath);
+  const cols = (t) => cDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
+  const add = (t, col, ddl) => { if (!cols(t).includes(col)) cDb.exec(`ALTER TABLE "${t}" ADD COLUMN ${ddl}`); };
+  add("Customer", "email", `"email" TEXT`);
+  add("Customer", "contactType", `"contactType" TEXT NOT NULL DEFAULT 'CUSTOMER'`);
+  add("Customer", "isRepeat", `"isRepeat" BOOLEAN NOT NULL DEFAULT false`);
+  add("Lead", "siteId", `"siteId" TEXT`);
+  add("Job", "siteId", `"siteId" TEXT`);
+  cDb.exec(`
+    CREATE INDEX IF NOT EXISTS "Customer_contactType_idx" ON "Customer"("contactType");
+    CREATE TABLE IF NOT EXISTS "CustomerSite" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "customerId" TEXT NOT NULL,
+      "label" TEXT,
+      "address" TEXT NOT NULL,
+      "pinCode" TEXT,
+      "area" TEXT,
+      "mapLink" TEXT,
+      "notes" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL,
+      CONSTRAINT "CustomerSite_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS "CustomerSite_customerId_idx" ON "CustomerSite"("customerId");
+  `);
+  console.log("Customer CRM (contact type, repeat, sites) migration complete.");
+  cDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff self-registration + ops reminders (2026-10-13, additive only).
+// User.sessionVersion (session revocation), OpsReminder / OpsReminderEvent /
+// OpsReminderSettings. Rollback: the app ignores these if the code is reverted;
+// no existing row is modified.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const oDb = new Database(dbPath);
+  const cols = (t) => oDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
+  if (!cols("User").includes("sessionVersion")) oDb.exec(`ALTER TABLE "User" ADD COLUMN "sessionVersion" INTEGER NOT NULL DEFAULT 0`);
+  oDb.exec(`
+    CREATE TABLE IF NOT EXISTS "OpsReminder" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "kind" TEXT NOT NULL,
+      "jobId" TEXT NOT NULL,
+      "status" TEXT NOT NULL DEFAULT 'OPEN',
+      "dueAt" DATETIME NOT NULL,
+      "nextAlertAt" DATETIME NOT NULL,
+      "lastAlertAt" DATETIME,
+      "alertCount" INTEGER NOT NULL DEFAULT 0,
+      "escalatedAt" DATETIME,
+      "snoozedUntil" DATETIME,
+      "acknowledgedAt" DATETIME,
+      "acknowledgedBy" TEXT,
+      "delayReason" TEXT,
+      "followUpNote" TEXT,
+      "followUpUntil" DATETIME,
+      "resolvedAt" DATETIME,
+      "resolvedReason" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "OpsReminder_kind_jobId_key" ON "OpsReminder"("kind", "jobId");
+    CREATE INDEX IF NOT EXISTS "OpsReminder_status_nextAlertAt_idx" ON "OpsReminder"("status", "nextAlertAt");
+    CREATE TABLE IF NOT EXISTS "OpsReminderEvent" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "reminderId" TEXT,
+      "type" TEXT NOT NULL,
+      "note" TEXT,
+      "actorName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "OpsReminderEvent_reminderId_fkey" FOREIGN KEY ("reminderId") REFERENCES "OpsReminder" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS "OpsReminderEvent_reminderId_idx" ON "OpsReminderEvent"("reminderId");
+    CREATE INDEX IF NOT EXISTS "OpsReminderEvent_createdAt_idx" ON "OpsReminderEvent"("createdAt");
+    CREATE TABLE IF NOT EXISTS "MybillbookInvoice" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "invoiceNo" TEXT NOT NULL,
+      "invoiceKey" TEXT NOT NULL,
+      "invoiceDate" DATETIME NOT NULL,
+      "contactName" TEXT NOT NULL,
+      "amount" REAL NOT NULL,
+      "remaining" REAL NOT NULL DEFAULT 0,
+      "status" TEXT NOT NULL,
+      "invoiceLink" TEXT NOT NULL,
+      "paymentType" TEXT,
+      "createdByName" TEXT,
+      "customerId" TEXT,
+      "matchStatus" TEXT NOT NULL DEFAULT 'UNMATCHED',
+      "matchMethod" TEXT,
+      "candidateIds" TEXT,
+      "jobId" TEXT,
+      "serviceName" TEXT,
+      "importBatchId" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "MybillbookInvoice_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "MybillbookInvoice_invoiceKey_key" ON "MybillbookInvoice"("invoiceKey");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_invoiceNo_idx" ON "MybillbookInvoice"("invoiceNo");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_customerId_idx" ON "MybillbookInvoice"("customerId");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_matchStatus_idx" ON "MybillbookInvoice"("matchStatus");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_invoiceDate_idx" ON "MybillbookInvoice"("invoiceDate");
+    CREATE TABLE IF NOT EXISTS "ServiceCatalog" (
+      "slug" TEXT NOT NULL PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "serviceGroup" TEXT NOT NULL,
+      "scopeOfWork" TEXT NOT NULL,
+      "termsConditions" TEXT NOT NULL,
+      "equipmentsUsed" TEXT NOT NULL,
+      "reviewed" BOOLEAN NOT NULL DEFAULT 0,
+      "isActive" BOOLEAN NOT NULL DEFAULT 1,
+      "sortOrder" INTEGER NOT NULL DEFAULT 0,
+      "updatedByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS "OutboxJob" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "kind" TEXT NOT NULL,
+      "payload" TEXT NOT NULL,
+      "dedupeKey" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'PENDING',
+      "attempts" INTEGER NOT NULL DEFAULT 0,
+      "runAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "lockedAt" DATETIME,
+      "lastError" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "OutboxJob_status_runAt_idx" ON "OutboxJob"("status", "runAt");
+    CREATE INDEX IF NOT EXISTS "OutboxJob_dedupeKey_idx" ON "OutboxJob"("dedupeKey");
+    CREATE TABLE IF NOT EXISTS "OpsReminderSettings" (
+      "id" TEXT NOT NULL PRIMARY KEY DEFAULT 'default',
+      "enabled" BOOLEAN NOT NULL DEFAULT true,
+      "jobIntervalMin" INTEGER NOT NULL DEFAULT 15,
+      "paymentIntervalMin" INTEGER NOT NULL DEFAULT 30,
+      "escalateAfterMin" INTEGER NOT NULL DEFAULT 120,
+      "defaultJobHours" INTEGER NOT NULL DEFAULT 4,
+      "paymentLookbackDays" INTEGER NOT NULL DEFAULT 30,
+      "quietStart" TEXT NOT NULL DEFAULT '21:00',
+      "quietEnd" TEXT NOT NULL DEFAULT '08:00',
+      "soundEnabled" BOOLEAN NOT NULL DEFAULT true,
+      "maxSnoozeMin" INTEGER NOT NULL DEFAULT 120,
+      "dailySummaryHour" INTEGER NOT NULL DEFAULT 9,
+      "lastDailySummaryDay" TEXT,
+      "staffSignupNeedsApproval" BOOLEAN NOT NULL DEFAULT true,
+      "updatedByName" TEXT,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  oDb.prepare(`INSERT OR IGNORE INTO "OpsReminderSettings" ("id") VALUES ('default')`).run();
+
+  // EOD summary + quotation / customer follow-up reminders + per-user alert prefs
+  // (2026-10-14, additive; SQLite has no ADD COLUMN IF NOT EXISTS, so each column is
+  // guarded by PRAGMA table_info). Existing job / payment reminder rows are untouched.
+  const addCol = (table, name, ddl) => {
+    if (!cols(table).includes(name)) oDb.exec(`ALTER TABLE "${table}" ADD COLUMN "${name}" ${ddl}`);
+  };
+  addCol("User", "soundEnabled", "BOOLEAN NOT NULL DEFAULT true");
+  addCol("User", "notificationsEnabled", "BOOLEAN NOT NULL DEFAULT true");
+  // MyBillBook invoice detail read from the shared link (2026-10-23, additive).
+  addCol("MybillbookInvoice", "detailStatus", `TEXT NOT NULL DEFAULT 'PENDING'`);
+  addCol("MybillbookInvoice", "detailJson", "TEXT");
+  addCol("MybillbookInvoice", "detailFetchedAt", "DATETIME");
+  addCol("MybillbookInvoice", "detailError", "TEXT");
+  addCol("MybillbookInvoice", "partyMobile", "TEXT");
+  addCol("MybillbookInvoice", "partyAddress", "TEXT");
+  addCol("MybillbookInvoice", "dataset", `TEXT NOT NULL DEFAULT 'B2C'`);
+  addCol("MybillbookInvoice", "gstin", "TEXT");
+  addCol("MybillbookInvoice", "dueDate", "DATETIME");
+  addCol("FestivalOffer", "kind", "TEXT NOT NULL DEFAULT 'OFFER'");
+  addCol("FestivalOffer", "adjustPercent", "REAL NOT NULL DEFAULT 0");
+  oDb.exec(`
+    CREATE TABLE IF NOT EXISTS "Voucher" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "type" TEXT NOT NULL,
+      "number" TEXT NOT NULL,
+      "voucherDate" DATETIME NOT NULL,
+      "partyName" TEXT NOT NULL,
+      "partyMobile" TEXT,
+      "partyGstin" TEXT,
+      "partyAddress" TEXT,
+      "customerId" TEXT,
+      "refNumber" TEXT,
+      "lineItems" TEXT NOT NULL,
+      "subTotal" REAL NOT NULL,
+      "discount" REAL NOT NULL DEFAULT 0,
+      "isGst" BOOLEAN NOT NULL DEFAULT 0,
+      "gstPercent" REAL NOT NULL DEFAULT 0,
+      "gstAmount" REAL NOT NULL DEFAULT 0,
+      "totalAmount" REAL NOT NULL,
+      "paidAmount" REAL NOT NULL DEFAULT 0,
+      "dueDate" DATETIME,
+      "status" TEXT NOT NULL DEFAULT 'ISSUED',
+      "notes" TEXT,
+      "createdByName" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "Voucher_number_key" ON "Voucher"("number");
+    CREATE INDEX IF NOT EXISTS "Voucher_type_voucherDate_idx" ON "Voucher"("type", "voucherDate");
+    CREATE INDEX IF NOT EXISTS "Voucher_status_idx" ON "Voucher"("status");
+    CREATE INDEX IF NOT EXISTS "Voucher_customerId_idx" ON "Voucher"("customerId");
+  `);
+  oDb.exec(`
+    CREATE TABLE IF NOT EXISTS "ReminderLog" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "kind" TEXT NOT NULL,
+      "dedupeKey" TEXT NOT NULL,
+      "customerId" TEXT,
+      "toNumber" TEXT,
+      "status" TEXT NOT NULL,
+      "detail" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "ReminderLog_dedupeKey_idx" ON "ReminderLog"("dedupeKey");
+    CREATE INDEX IF NOT EXISTS "ReminderLog_kind_createdAt_idx" ON "ReminderLog"("kind", "createdAt");
+  `);
+  oDb.exec(`
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_detailStatus_idx" ON "MybillbookInvoice"("detailStatus");
+    CREATE INDEX IF NOT EXISTS "MybillbookInvoice_partyMobile_idx" ON "MybillbookInvoice"("partyMobile");
+  `);
+  addCol("OpsReminder", "quotationId", `TEXT REFERENCES "Quotation" ("id") ON DELETE SET NULL ON UPDATE CASCADE`);
+  addCol("OpsReminder", "isBacklog", "BOOLEAN NOT NULL DEFAULT false");
+  addCol("OpsReminder", "followUpId", `TEXT REFERENCES "FollowUp" ("id") ON DELETE SET NULL ON UPDATE CASCADE`);
+  oDb.exec(`
+    CREATE INDEX IF NOT EXISTS "OpsReminder_quotationId_idx" ON "OpsReminder"("quotationId");
+    CREATE INDEX IF NOT EXISTS "OpsReminder_followUpId_idx" ON "OpsReminder"("followUpId");
+  `);
+  addCol("OpsReminderEvent", "userId", "TEXT");
+  addCol("OpsReminderSettings", "eodSummaryTime", `TEXT NOT NULL DEFAULT '18:30'`);
+  addCol("OpsReminderSettings", "lastEodSummaryDay", "TEXT");
+  addCol("OpsReminderSettings", "quotationFollowUpDays", "INTEGER NOT NULL DEFAULT 2");
+  addCol("OpsReminderSettings", "followUpIntervalMin", "INTEGER NOT NULL DEFAULT 120");
+  console.log("Staff registration + ops reminders migration complete.");
+  oDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Customer ID (2026-10-18, additive): Customer.customerNumber "CUST-0001"…
+// Backfills only rows that have none, in creation order, continuing after the
+// highest number already issued — re-running never renumbers anyone.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const kDb = new Database(dbPath);
+  const kCols = kDb.prepare(`PRAGMA table_info("Customer")`).all().map((c) => c.name);
+  if (!kCols.includes("customerNumber")) kDb.exec(`ALTER TABLE "Customer" ADD COLUMN "customerNumber" TEXT`);
+  kDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Customer_customerNumber_key" ON "Customer"("customerNumber")`);
+  // Every contact on a live Lead / Job gets a Customer master row (keyed by the last 10 digits of the mobile,
+  // same rule as src/server/customer-db.ts) so it can carry a Customer ID. Only missing rows are inserted;
+  // existing Customer rows, leads and jobs are never changed.
+  {
+    const norm = (m) => { const d = String(m ?? "").replace(/\D/g, "").slice(-10); return d.length === 10 ? d : null; };
+    const have = new Set(kDb.prepare(`SELECT "mobile" FROM "Customer"`).all().map((r) => r.mobile));
+    const contacts = new Map();
+    const seen = (mobile, name, area, createdAt) => {
+      const key = norm(mobile);
+      if (!key || have.has(key)) return;
+      const c = contacts.get(key);
+      if (!c) contacts.set(key, { name, area, first: createdAt, last: createdAt });
+      else {
+        if (String(createdAt) < String(c.first)) c.first = createdAt;
+        if (String(createdAt) > String(c.last)) { c.last = createdAt; c.name = name || c.name; c.area = area || c.area; }
+      }
+    };
+    for (const r of kDb.prepare(`SELECT "mobile", "name", "area", "createdAt" FROM "Lead" WHERE "deletedAt" IS NULL AND COALESCE("isDemo", 0) = 0`).all()) seen(r.mobile, r.name, r.area, r.createdAt);
+    for (const r of kDb.prepare(`SELECT "customerMobile" AS mobile, "customerName" AS name, "area", "createdAt" FROM "Job" WHERE "deletedAt" IS NULL AND COALESCE("isDemo", 0) = 0`).all()) seen(r.mobile, r.name, r.area, r.createdAt);
+    if (contacts.size) {
+      const ins = kDb.prepare(`INSERT OR IGNORE INTO "Customer" ("id", "name", "mobile", "area", "source", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, 'CRM_HISTORY', ?, ?)`);
+      kDb.transaction(() => {
+        for (const [mobile, c] of contacts) ins.run(`c${randomUUID().replace(/-/g, "").slice(0, 24)}`, String(c.name || "Customer").trim() || "Customer", mobile, c.area || null, c.first, c.first);
+      })();
+      console.log(`Customer master rows added for existing leads/jobs: ${contacts.size}.`);
+    }
+  }
+  const issued = kDb.prepare(`SELECT "customerNumber" AS n FROM "Customer" WHERE "customerNumber" LIKE 'CUST-%'`).all();
+  let next = issued.reduce((m, r) => { const v = Number(String(r.n).slice(5)); return Number.isInteger(v) && v > m ? v : m; }, 0);
+  const missing = kDb.prepare(`SELECT "id" FROM "Customer" WHERE "customerNumber" IS NULL ORDER BY "createdAt" ASC, "id" ASC`).all();
+  if (missing.length) {
+    const upd = kDb.prepare(`UPDATE "Customer" SET "customerNumber" = ? WHERE "id" = ? AND "customerNumber" IS NULL`);
+    kDb.transaction(() => { for (const r of missing) upd.run(`CUST-${String(++next).padStart(4, "0")}`, r.id); })();
+    console.log(`Customer IDs assigned: ${missing.length} (up to CUST-${String(next).padStart(4, "0")}).`);
+  }
+  kDb.close();
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Biometric / passkey sign-in (2026-10-18, additive): WebAuthnCredential.
+// Public keys only; cascades with the user.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const wDb = new Database(dbPath);
+  wDb.exec(`
+    CREATE TABLE IF NOT EXISTS "WebAuthnCredential" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "userId" TEXT NOT NULL,
+      "credentialId" TEXT NOT NULL,
+      "publicKey" TEXT NOT NULL,
+      "counter" INTEGER NOT NULL DEFAULT 0,
+      "transports" TEXT,
+      "label" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "lastUsedAt" DATETIME,
+      CONSTRAINT "WebAuthnCredential_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "WebAuthnCredential_credentialId_key" ON "WebAuthnCredential"("credentialId");
+    CREATE INDEX IF NOT EXISTS "WebAuthnCredential_userId_idx" ON "WebAuthnCredential"("userId");
+  `);
+  wDb.close();
+}

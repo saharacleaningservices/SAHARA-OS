@@ -75,7 +75,7 @@ export function NewStaffDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{staffId ? "Edit Staff Member" : "Add Staff Member"}</DialogTitle>
           <DialogDescription>
@@ -88,10 +88,16 @@ export function NewStaffDialog({
             <Input {...register("name")} />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
-          <div className="space-y-1">
-            <Label>Mobile</Label>
-            <Input {...register("mobile")} />
-            {errors.mobile && <p className="text-xs text-destructive">{errors.mobile.message}</p>}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Mobile</Label>
+              <Input {...register("mobile")} inputMode="tel" />
+              {errors.mobile && <p className="text-xs text-destructive">{errors.mobile.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Label>Alternate Mobile</Label>
+              <Input {...register("alternateMobile")} inputMode="tel" />
+            </div>
           </div>
           <div className="space-y-1">
             <Label>Designation</Label>
@@ -125,6 +131,30 @@ export function NewStaffDialog({
               <Label>{salaryType === "MONTHLY" ? "Monthly Salary (₹)" : "Daily Wage (₹)"}</Label>
               <Input type="number" {...register(salaryType === "MONTHLY" ? "monthlySalary" : "dailyWage")} />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Joining Date</Label>
+              <Input type="date" {...register("joiningDate")} />
+            </div>
+            <div className="space-y-1">
+              <Label>Reference (who hired)</Label>
+              <Input {...register("reference")} placeholder="Referred by…" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Bank Account No.</Label>
+              <Input {...register("bankAccount")} />
+            </div>
+            <div className="space-y-1">
+              <Label>IFSC</Label>
+              <Input {...register("bankIfsc")} />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label>Google Pay Number</Label>
+            <Input {...register("gpayNumber")} inputMode="tel" />
           </div>
           <div className="space-y-1">
             <Label>Notes</Label>

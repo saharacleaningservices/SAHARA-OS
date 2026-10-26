@@ -1,0 +1,362 @@
+openapi: 3.0.3
+info:
+  title: Sahara OS Public API v1
+  version: 1.0.0
+  description: |
+    Thin REST layer that lets the separate marketing website (www) create leads in, and read public data from, the Sahara OS CRM.
+
+    **Status: implemented locally on branch `prep/website-api-v1`; NOT deployed.** Deploying needs owner approval. It is
+    **inert**: unless the owner sets BOTH `PUBLIC_API_TOKEN` and `PUBLIC_API_HMAC_SECRET` (each at least 24 characters) in
+    Coolify, every route answers an empty `404`, exactly as if it did not exist.
+
+    Design rules
+    * Server-to-server only: the website's server calls the CRM; the browser never does (no CORS, no key in the browser).
+    * Lead creation runs the SAME logic as the booking form's Server Action (`publicBookLeadCore`; behaviour pinned by
+      `tests/public-booking-characterisation.test.ts`): validation, honeypot, per-visitor-IP and per-mobile throttling, slot
+      re-check, duplicate matching by mobile, **server-side re-pricing**, request-acknowledgement WhatsApp (TEST mode until
+      the owner approves live), staff alert.
+    * The website holds **no pricing logic**: prices, strike-through and badges come ready-made from the CRM, so the
+      "never show a misleading price" rule lives in one place.
+    * Secrets are entered by the owner in Coolify and never appear in code, docs or chat.
+    * Contract tests: `tests/public-api-v1.test.ts` (`npm run test:publicapi`).
+servers:
+  - url: https://crm.saharacleaningservices.com/api/public/v1
+    description: Production (after owner approval)
+security:
+  - bearerAuth: []
+    hmacSignature: []
+paths:
+  /leads:
+    post:
+      operationId: createLead
+      summary: Submit a booking / enquiry from the website
+      description: |
+        A repeat submission for the same mobile + service updates the open enquiry instead of creating a duplicate (same
+        `leadNumber`). Send an `Idempotency-Key` so a network retry can never double-submit: a successful response is
+        remembered for 24 h per key (in memory, single instance); an identical retry returns it with
+        `Idempotent-Replayed: true`; the same key with a different body is `422`. Failures are never remembered, so a
+        corrected request can reuse the key. After a CRM restart a retry just runs again, which is safe because the booking
+        logic itself de-duplicates by mobile + service.
+      parameters:
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Signature'
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: 'Unique per submission (UUID). 8-80 characters: letters, digits and . _ : -'
+          schema: { type: string, pattern: '^[A-Za-z0-9._:-]{8,80}$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LeadRequest' }
+      responses:
+        '200':
+          description: Lead created or updated.
+          headers:
+            Idempotent-Replayed:
+              description: '"true" when this is the remembered answer to an earlier identical request.'
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LeadResponse' }
+        '400':
+          description: Validation failed (bad request shape, missing Idempotency-Key or client.ip, or a form error). `error` is the same customer-facing message the booking form shows today. A tripped honeypot also answers 400 VALIDATION with a generic message.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotConfigured' }
+        '409':
+          description: The requested slot has just filled up, a selected package is no longer available, or a festival package was chosen for a non-festival date. Ask the customer to choose again.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '413':
+          description: Body larger than 100 KB.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '422':
+          description: The Idempotency-Key was already used with a different request body.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '429': { $ref: '#/components/responses/TooMany' }
+        '503':
+          description: CRM temporarily unavailable. The website must show call / WhatsApp click-to-chat as the fallback.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /catalogue:
+    get:
+      operationId: getCatalogue
+      summary: Services, packages and display-ready prices
+      description: |
+        Final display model computed by the CRM's pricing master and honest-pricing helpers. `price` is what the customer
+        pays for `serviceDate` (the festival price only when that date is inside a festival window). `strikePrice` is
+        non-null **only** when a genuinely higher regular price (or owner-set MRP) exists, and is then always above `price`;
+        `savings` = `strikePrice - price`. Painting is never priced publicly; inspection-only packages carry no price.
+        While `campaign` is non-null, items with `festivalPackage: true` can be booked only for festival service dates.
+        Cacheable: send `If-None-Match` with the last `ETag` to get `304`.
+      parameters:
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Signature'
+        - name: serviceDate
+          in: query
+          required: false
+          description: YYYY-MM-DD (IST). Defaults to today.
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+      responses:
+        '200':
+          description: Catalogue.
+          headers:
+            ETag: { schema: { type: string } }
+            Cache-Control: { schema: { type: string, example: 'private, max-age=30' } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Catalogue' }
+        '304': { description: Not modified (empty body). }
+        '400':
+          description: serviceDate is not a real date.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotConfigured' }
+  /slots:
+    get:
+      operationId: getSlots
+      summary: Slot availability (customer-visible only)
+      description: |
+        Same numbers the public booking form shows today (`slotsLeft` and a "N Slots Left" label are already public there):
+        available / full per slot and AVAILABLE / FILLING / FULL per day. Never team counts, capacity or booking counts.
+      parameters:
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Signature'
+        - name: date
+          in: query
+          description: A single day (YYYY-MM-DD). Omit it to get the next `days` days.
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+        - name: days
+          in: query
+          description: Number of days from today (default 21; the CRM clamps it to 1-45).
+          schema: { type: integer, minimum: 1, maximum: 45, default: 21 }
+      responses:
+        '200':
+          description: Availability.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Slots' }
+        '400':
+          description: Invalid date.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotConfigured' }
+  # /reviews — DEFERRED, deliberately not part of v1.
+  #   The CRM `Review` table stores `customerMobile` and has no "OK to publish" flag. Exposing it needs a schema change
+  #   (prisma/schema.prisma AND scripts/db-setup.mjs), a consent policy, and returning only first name + rating + comment.
+  #   Owner decision first. Until then the website shows only the Google reviews link / verified ratings the owner supplies.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: '`Authorization: Bearer <PUBLIC_API_TOKEN>`. Constant-time comparison; every auth failure answers the same 401.'
+    hmacSignature:
+      type: apiKey
+      in: header
+      name: X-Sahara-Signature
+      description: |
+        `sha256=<hex>` = HMAC-SHA256 of `"<X-Sahara-Timestamp>.<raw request body>"` (empty body for GET) with
+        `PUBLIC_API_HMAC_SECRET`. The timestamp must be within +/-300 s (replay window). Same scheme as the existing
+        `/api/webhook/email-lead` route; the reference implementation is `signPublicApiRequest` in `src/lib/public-api-auth.ts`.
+  parameters:
+    Timestamp:
+      name: X-Sahara-Timestamp
+      in: header
+      required: true
+      description: Unix seconds.
+      schema: { type: string, pattern: '^\d{9,11}$' }
+    Signature:
+      name: X-Sahara-Signature
+      in: header
+      required: true
+      schema: { type: string, pattern: '^sha256=[0-9a-f]{64}$' }
+  responses:
+    NotConfigured:
+      description: The API is not enabled (PUBLIC_API_TOKEN / PUBLIC_API_HMAC_SECRET not set). Empty body.
+    Unauthorized:
+      description: Missing/invalid token or signature, or timestamp outside the +/-300 s window. Body is always `{"error":"Unauthorized.","code":"UNAUTHORIZED"}`.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    TooMany:
+      description: Throttled. Per visitor IP (`client.ip`) 10 requests and per mobile number 5 requests per 10 minutes (the booking logic's own limits), plus a flood limit of 600 requests per minute for the whole API.
+      headers:
+        Retry-After: { schema: { type: integer } }
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  schemas:
+    Error:
+      type: object
+      required: [error, code]
+      properties:
+        error: { type: string, description: Customer-safe message. }
+        code:
+          type: string
+          enum: [VALIDATION, THROTTLED, SLOT_FULL, PACKAGE_UNAVAILABLE, FESTIVAL_DATE_REQUIRED, UNAUTHORIZED, IDEMPOTENCY_MISMATCH, PAYLOAD_TOO_LARGE, UNAVAILABLE]
+    LeadResponse:
+      type: object
+      required: [success, leadNumber]
+      properties:
+        success: { type: boolean, enum: [true] }
+        leadNumber: { type: string, description: Customer-visible request ID (also in the acknowledgement message). }
+    LeadRequest:
+      description: Mirrors `publicBookingSchema` in `src/server/public-booking-core.ts` (35 fields, checked field-for-field) plus `client`; limits are the current server limits.
+      type: object
+      required: [name, mobile, serviceCategory, client]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        mobile: { type: string, maxLength: 20, description: 'Indian mobile; the last 10 digits must match ^[6-9][0-9]{9}$.' }
+        alternateMobile: { type: string, maxLength: 15 }
+        email: { type: string, format: email, maxLength: 120 }
+        area: { type: string, maxLength: 100 }
+        address: { type: string, maxLength: 400 }
+        pinCode: { type: string, maxLength: 10 }
+        serviceCategory:
+          type: string
+          maxLength: 60
+          description: One of HOME_DEEP_CLEANING, INDIVIDUAL_CLEANING, PAINTING, PEST_CONTROL, HOUSEKEEPING, COMMERCIAL_CLEANING, AMC, CUSTOMIZER_PACKAGE, COMBO_PACKAGE.
+        serviceVariant: { type: string, maxLength: 120 }
+        propertyType: { type: string, maxLength: 60, description: "4 BHK and larger, Villa, Bungalow, Other => inspection quote, no instant price." }
+        packageName: { type: string, maxLength: 120 }
+        comboServices: { type: array, maxItems: 30, items: { type: string, maxLength: 120 } }
+        addOnServices: { type: array, maxItems: 30, items: { type: string, maxLength: 120 } }
+        selectedItems:
+          type: array
+          maxItems: 30
+          description: Catalogue items picked. The CRM re-prices these; any total sent by the browser is ignored.
+          items:
+            type: object
+            required: [contentId, qty]
+            properties:
+              contentId: { type: string, maxLength: 40 }
+              qty: { type: integer, minimum: 1, maximum: 100 }
+        priceType: { type: string, enum: [REGULAR, FESTIVAL], description: Informational; the CRM decides from the service date. }
+        estimatedAmount: { type: number, minimum: 0, maximum: 10000000, description: IGNORED for pricing; kept only as an "unverified" staff note. }
+        advancePaid: { type: boolean, description: A claim only; never marks anything paid. }
+        advanceAmount: { type: number, minimum: 0, maximum: 10000000, description: A claim only. }
+        paymentMode: { type: string, enum: [UPI, QR, BANK, CASH] }
+        paymentPreference: { type: string, enum: [PAY_ADVANCE, PAY_AFTER_SERVICE] }
+        serviceDate: { type: string, maxLength: 40, description: 'Real calendar date (IST), today or later.' }
+        timeSlot: { type: string, maxLength: 40, description: Re-checked against live availability on submit. }
+        notes: { type: string, maxLength: 2000 }
+        mapLink: { type: string, maxLength: 600 }
+        source: { type: string, maxLength: 40, description: Customer's own "how did you hear" answer; wins over the detected channel. }
+        referralCode: { type: string, maxLength: 40 }
+        bookingLinkToken: { type: string, maxLength: 64 }
+        quotationToken: { type: string, maxLength: 64, description: Booking from a quotation link (separate path in the CRM). }
+        upsellRuleId: { type: string, maxLength: 40, description: 'Combo/upsell rule offered on the booking page; the CRM records the rule''s OWN label and price.' }
+        upsellLabel: { type: string, maxLength: 120, description: Ignored; the rule's own label is recorded. }
+        upsellValue: { type: number, minimum: 0, maximum: 10000000, description: Ignored server-side. }
+        upsellAccepted: { type: boolean }
+        marketingOptIn: { type: boolean, description: Explicit WhatsApp marketing opt-in ticked by the customer; never pre-ticked. }
+        website: { type: string, maxLength: 200, description: HONEYPOT. Hidden field; must stay empty. }
+        attribution:
+          type: object
+          description: First/latest-touch marketing attribution captured in the visitor's browser (sanitised by the CRM).
+          properties:
+            first: { $ref: '#/components/schemas/Touch' }
+            latest: { $ref: '#/components/schemas/Touch' }
+        client:
+          type: object
+          description: Added by the website server (not the browser) so per-visitor throttling works. Covered by the HMAC signature.
+          required: [ip]
+          properties:
+            ip: { type: string, maxLength: 64, description: The visitor's IPv4 or IPv6 address (validated). }
+            userAgent: { type: string, maxLength: 300, description: Reserved; not stored yet. }
+    Touch:
+      type: object
+      properties:
+        source: { type: string, maxLength: 200 }
+        medium: { type: string, maxLength: 200 }
+        campaign: { type: string, maxLength: 200 }
+        term: { type: string, maxLength: 200 }
+        content: { type: string, maxLength: 200 }
+        gclid: { type: string, maxLength: 300 }
+        fbclid: { type: string, maxLength: 300 }
+        referrer: { type: string, maxLength: 500 }
+        landingPage: { type: string, maxLength: 200 }
+        landingPageUrl: { type: string, maxLength: 1000 }
+        at: { type: string, maxLength: 40 }
+    Catalogue:
+      type: object
+      required: [version, serviceDate, items]
+      properties:
+        version: { type: string, description: 16-hex hash of the body; changes when any price, festival window or text changes. Also the ETag. }
+        serviceDate: { type: string, description: The date these prices apply to (YYYY-MM-DD). }
+        festival:
+          nullable: true
+          description: Festival window covering `serviceDate`, if any.
+          type: object
+          properties:
+            name: { type: string }
+            start: { type: string }
+            end: { type: string }
+        campaign:
+          nullable: true
+          description: The festival campaign running TODAY (earliest festival start to latest end), if any. While set, festival packages are bookable only for festival service dates.
+          type: object
+          properties:
+            start: { type: string }
+            end: { type: string }
+        demandWindow:
+          nullable: true
+          description: 'Owner-stated busy period (dates only; no slot counts, no price-rise claim). Null once it has ended.'
+          type: object
+          properties:
+            start: { type: string }
+            end: { type: string }
+            label: { type: string, example: 21 Oct - 8 Nov }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CatalogueItem' }
+    CatalogueItem:
+      type: object
+      required: [contentId, name, category, group, price, strikePrice, savings, badge, inspectionOnly, festivalPackage]
+      description: Derived from the CRM `PriceItem` plus the honest-pricing display fields.
+      properties:
+        contentId: { type: string, example: SCS-01 }
+        name: { type: string }
+        category: { type: string, enum: [HOME_DEEP_CLEANING, INDIVIDUAL_CLEANING, COMBO_PACKAGE, COMMERCIAL_CLEANING, PEST_CONTROL, PAINTING] }
+        group: { type: string, enum: [PREMIUM, PLATINUM, CUSTOMISED, COMBO, PAINTING, PEST, COMMERCIAL] }
+        variant: { type: string }
+        bhk: { type: string, nullable: true }
+        unit: { type: string, nullable: true, description: 'e.g. "per seat"; non-null means quantity-based.' }
+        minQty: { type: integer, nullable: true }
+        addOnOnly: { type: boolean }
+        price: { type: number, nullable: true, description: Amount payable for `serviceDate`; null means no public price (see `priceNote`). }
+        strikePrice: { type: number, nullable: true, description: Non-null ONLY when a genuinely higher price exists; then always greater than `price`. }
+        savings: { type: number, nullable: true, description: strikePrice - price, or null. }
+        badge: { type: string, nullable: true, description: '"You Save ..." when struck through, "<Festival> special" for a festival price with no real anchor, otherwise null.' }
+        priceNote: { type: string, nullable: true, description: 'Shown instead of a price, e.g. "Quoted after a free site inspection".' }
+        inspectionOnly: { type: boolean }
+        festivalPackage: { type: boolean, description: One of the six full-home festival packages. }
+        scope:
+          nullable: true
+          description: Written scope of work for small services; null when none is defined.
+          type: object
+          properties:
+            includes: { type: array, items: { type: string } }
+            excludes: { type: array, items: { type: string } }
+            prep: { type: array, items: { type: string } }
+            confirm: { type: string }
+    Slots:
+      type: object
+      description: Either `days` (no `date` requested) or the single-day fields (`date` requested).
+      properties:
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              date: { type: string }
+              available: { type: boolean }
+              status: { type: string, enum: [AVAILABLE, FILLING, FULL] }
+        date: { type: string }
+        isFull: { type: boolean }
+        slotsLeft: { type: integer }
+        label: { type: string, example: 3 Slots Left }
+        slots:
+          type: array
+          items:
+            type: object
+            properties:
+              slot: { type: string, example: 10:00 AM - 12:00 PM }
+              available: { type: boolean }

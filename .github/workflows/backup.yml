@@ -15,6 +15,18 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # GitHub Actions does not expose the `secrets` context inside step-level
+    # `if:` conditions (only in `env:` blocks) — every `if: ${{ secrets.X !=
+    # '' }}` step below previously failed the workflow's own YAML validation
+    # ("Unrecognized named-value: 'secrets'"), which fails validation for the
+    # ENTIRE file, meaning this workflow has never actually run a single job
+    # (found 2026-09-22: all 40 prior runs show "Failure" with zero jobs).
+    # Fix: capture each secret's presence in a job-level env var (env: DOES
+    # have secrets access) and branch on that instead.
+    env:
+      HAS_S3: ${{ secrets.S3_BUCKET != '' }}
+      HAS_GDRIVE: ${{ secrets.GDRIVE_CREDENTIALS != '' }}
+      HAS_ENCRYPTION: ${{ secrets.BACKUP_ENCRYPTION_KEY != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,6 +40,9 @@ jobs:
           stamp="$(TZ=Asia/Kolkata date +%Y%m%d-%H%M%S)"
           file="sahara-os-${stamp}.tar.gz"
           echo "ARCHIVE=$file" >> "$GITHUB_ENV"
+          echo "STAMP=$stamp" >> "$GITHUB_ENV"
+          # Sunday = day-of-week 7 in TZ=Asia/Kolkata date(1) "%u".
+          if [ "$(TZ=Asia/Kolkata date +%u)" = "7" ]; then echo "IS_WEEKLY=1" >> "$GITHUB_ENV"; else echo "IS_WEEKLY=" >> "$GITHUB_ENV"; fi
           curl -fsSL --retry 4 --retry-delay 15 --retry-all-errors --max-time 600 \
             -H "Authorization: Bearer ${BACKUP_TOKEN}" \
             "${BACKUP_URL}" -o "$file"
@@ -44,10 +59,31 @@ jobs:
       - name: Verify backup integrity (stdlib sqlite3 — must pass before upload)
         run: python .github/scripts/verify_backup.py "$ARCHIVE"
 
+      # ── Primary off-site destination: Google Drive ───────────────────────
+      # Owner decision 2026-09-22: Google Drive (the existing Workspace
+      # account, no new paid storage) is the primary off-site destination —
+      # supersedes the 2026-09-21 "S3 primary" decision, since no S3-
+      # compatible bucket was ever actually provisioned.
+      #
+      # Uploads via OAuth as the owner's own account (contact@
+      # saharacleaningservices.com), not a service account: Google service
+      # accounts have zero Drive storage quota of their own, so they cannot
+      # create files in a regular "My Drive" folder even when shared as
+      # Editor (confirmed this session — run #43 failed with "Service
+      # Accounts do not have storage quota"). A true Shared Drive would also
+      # work but requires a Workspace plan tier not confirmed here. OAuth
+      # credentials (client_id/client_secret/refresh_token, minted once via
+      # the OAuth Playground, GDRIVE_CREDENTIALS secret) write into the
+      # owner's own quota, into the "Sahara OS Backups" folder only.
+      # Verified end-to-end: run #44 uploaded a real archive, visible in
+      # Drive under the owner's account, owner: "me".
+      # Skips gracefully (not a failure) if GDRIVE_CREDENTIALS isn't set.
       - name: Install Google API client
+        if: ${{ env.HAS_GDRIVE == 'true' }}
         run: pip install --quiet google-api-python-client google-auth
 
-      - name: Upload to Google Drive and apply daily/monthly retention
+      - name: Upload to Google Drive (primary) and apply retention
+        if: ${{ env.HAS_GDRIVE == 'true' }}
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
@@ -55,17 +91,54 @@ jobs:
           KEEP_MONTHLY: "12"
         run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
 
-      # Runs whether the job succeeded or a step above failed — the app's own
-      # BackupEvent logging (src/app/api/backup/route.ts) only knows about
-      # the download step; this is the one place that can also see a failure
-      # in verification, the Google Drive upload, or retention cleanup, and
-      # surface it somewhere a human will actually notice it (the run's
-      # summary tab) instead of only in the raw job log.
+      # ── Weekly full encrypted backup (Sundays) ──────────────────────────
+      # Owner instruction: "Weekly: Full encrypted backup." Same verified
+      # archive, additionally AES-256 encrypted with a passphrase before a
+      # second upload to the same Drive folder — the .enc suffix keeps it
+      # distinct from the daily plaintext archives. Skips gracefully if
+      # Drive or the encryption passphrase isn't configured yet.
+      - name: Weekly full encrypted backup
+        if: ${{ env.IS_WEEKLY == '1' && env.HAS_GDRIVE == 'true' && env.HAS_ENCRYPTION == 'true' }}
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          KEEP_DAILY: "12"
+          KEEP_MONTHLY: "0"
+        run: |
+          set -euo pipefail
+          encrypted="${ARCHIVE}.enc"
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in "$ARCHIVE" -out "$encrypted" -pass env:BACKUP_ENCRYPTION_KEY
+          ls -lh "$encrypted"
+          python .github/scripts/gdrive_backup.py "$encrypted"
+          rm -f "$encrypted"
+
+      # ── Secondary/optional destination: S3-compatible object storage ────
+      # Not configured — no bucket credentials exist for this project
+      # (deliberately: "do not provision a new paid storage service").
+      # Kept here, inert, in case the owner adds a bucket later (e.g. an
+      # existing allowance with no added cost); skips entirely otherwise.
+      - name: Upload to S3-compatible storage (secondary, optional)
+        if: ${{ env.HAS_S3 == 'true' }}
+        env:
+          S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          KEEP_DAILY: "30"
+          KEEP_MONTHLY: "12"
+        run: |
+          pip install --quiet boto3
+          python .github/scripts/s3_backup.py "$ARCHIVE"
+
+      # Runs whether the job succeeded or a step above failed — surfaces the
+      # outcome in the run's summary tab instead of only in the raw job log.
       - name: Report outcome
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then
-            echo "✅ Backup **succeeded** — \`${ARCHIVE:-unknown}\` verified and uploaded to Google Drive." >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ Backup **succeeded** — \`${ARCHIVE:-unknown}\` verified and uploaded." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "❌ Backup **failed** — see the job log above for which step failed (archive: \`${ARCHIVE:-not downloaded}\`)." >> "$GITHUB_STEP_SUMMARY"
           fi

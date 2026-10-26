@@ -37,6 +37,12 @@ export type WhatsAppMessageMinAggregateOutputType = {
   relatedId: string | null
   createdAt: Date | null
   sentAt: Date | null
+  direction: string | null
+  deliveredAt: Date | null
+  readAt: Date | null
+  templateName: string | null
+  sentByUserId: string | null
+  sentByName: string | null
 }
 
 export type WhatsAppMessageMaxAggregateOutputType = {
@@ -52,6 +58,12 @@ export type WhatsAppMessageMaxAggregateOutputType = {
   relatedId: string | null
   createdAt: Date | null
   sentAt: Date | null
+  direction: string | null
+  deliveredAt: Date | null
+  readAt: Date | null
+  templateName: string | null
+  sentByUserId: string | null
+  sentByName: string | null
 }
 
 export type WhatsAppMessageCountAggregateOutputType = {
@@ -67,6 +79,12 @@ export type WhatsAppMessageCountAggregateOutputType = {
   relatedId: number
   createdAt: number
   sentAt: number
+  direction: number
+  deliveredAt: number
+  readAt: number
+  templateName: number
+  sentByUserId: number
+  sentByName: number
   _all: number
 }
 
@@ -84,6 +102,12 @@ export type WhatsAppMessageMinAggregateInputType = {
   relatedId?: true
   createdAt?: true
   sentAt?: true
+  direction?: true
+  deliveredAt?: true
+  readAt?: true
+  templateName?: true
+  sentByUserId?: true
+  sentByName?: true
 }
 
 export type WhatsAppMessageMaxAggregateInputType = {
@@ -99,6 +123,12 @@ export type WhatsAppMessageMaxAggregateInputType = {
   relatedId?: true
   createdAt?: true
   sentAt?: true
+  direction?: true
+  deliveredAt?: true
+  readAt?: true
+  templateName?: true
+  sentByUserId?: true
+  sentByName?: true
 }
 
 export type WhatsAppMessageCountAggregateInputType = {
@@ -114,6 +144,12 @@ export type WhatsAppMessageCountAggregateInputType = {
   relatedId?: true
   createdAt?: true
   sentAt?: true
+  direction?: true
+  deliveredAt?: true
+  readAt?: true
+  templateName?: true
+  sentByUserId?: true
+  sentByName?: true
   _all?: true
 }
 
@@ -202,6 +238,12 @@ export type WhatsAppMessageGroupByOutputType = {
   relatedId: string | null
   createdAt: Date
   sentAt: Date | null
+  direction: string
+  deliveredAt: Date | null
+  readAt: Date | null
+  templateName: string | null
+  sentByUserId: string | null
+  sentByName: string | null
   _count: WhatsAppMessageCountAggregateOutputType | null
   _min: WhatsAppMessageMinAggregateOutputType | null
   _max: WhatsAppMessageMaxAggregateOutputType | null
@@ -238,6 +280,12 @@ export type WhatsAppMessageWhereInput = {
   relatedId?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WhatsAppMessage"> | Date | string
   sentAt?: Prisma.DateTimeNullableFilter<"WhatsAppMessage"> | Date | string | null
+  direction?: Prisma.StringFilter<"WhatsAppMessage"> | string
+  deliveredAt?: Prisma.DateTimeNullableFilter<"WhatsAppMessage"> | Date | string | null
+  readAt?: Prisma.DateTimeNullableFilter<"WhatsAppMessage"> | Date | string | null
+  templateName?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
+  sentByUserId?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
+  sentByName?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
 }
 
 export type WhatsAppMessageOrderByWithRelationInput = {
@@ -253,6 +301,12 @@ export type WhatsAppMessageOrderByWithRelationInput = {
   relatedId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  deliveredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  templateName?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentByName?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type WhatsAppMessageWhereUniqueInput = Prisma.AtLeast<{
@@ -271,6 +325,12 @@ export type WhatsAppMessageWhereUniqueInput = Prisma.AtLeast<{
   relatedId?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WhatsAppMessage"> | Date | string
   sentAt?: Prisma.DateTimeNullableFilter<"WhatsAppMessage"> | Date | string | null
+  direction?: Prisma.StringFilter<"WhatsAppMessage"> | string
+  deliveredAt?: Prisma.DateTimeNullableFilter<"WhatsAppMessage"> | Date | string | null
+  readAt?: Prisma.DateTimeNullableFilter<"WhatsAppMessage"> | Date | string | null
+  templateName?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
+  sentByUserId?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
+  sentByName?: Prisma.StringNullableFilter<"WhatsAppMessage"> | string | null
 }, "id">
 
 export type WhatsAppMessageOrderByWithAggregationInput = {
@@ -286,6 +346,12 @@ export type WhatsAppMessageOrderByWithAggregationInput = {
   relatedId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  deliveredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  readAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  templateName?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sentByName?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.WhatsAppMessageCountOrderByAggregateInput
   _max?: Prisma.WhatsAppMessageMaxOrderByAggregateInput
   _min?: Prisma.WhatsAppMessageMinOrderByAggregateInput
@@ -307,6 +373,12 @@ export type WhatsAppMessageScalarWhereWithAggregatesInput = {
   relatedId?: Prisma.StringNullableWithAggregatesFilter<"WhatsAppMessage"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WhatsAppMessage"> | Date | string
   sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WhatsAppMessage"> | Date | string | null
+  direction?: Prisma.StringWithAggregatesFilter<"WhatsAppMessage"> | string
+  deliveredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WhatsAppMessage"> | Date | string | null
+  readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WhatsAppMessage"> | Date | string | null
+  templateName?: Prisma.StringNullableWithAggregatesFilter<"WhatsAppMessage"> | string | null
+  sentByUserId?: Prisma.StringNullableWithAggregatesFilter<"WhatsAppMessage"> | string | null
+  sentByName?: Prisma.StringNullableWithAggregatesFilter<"WhatsAppMessage"> | string | null
 }
 
 export type WhatsAppMessageCreateInput = {
@@ -322,6 +394,12 @@ export type WhatsAppMessageCreateInput = {
   relatedId?: string | null
   createdAt?: Date | string
   sentAt?: Date | string | null
+  direction?: string
+  deliveredAt?: Date | string | null
+  readAt?: Date | string | null
+  templateName?: string | null
+  sentByUserId?: string | null
+  sentByName?: string | null
 }
 
 export type WhatsAppMessageUncheckedCreateInput = {
@@ -337,6 +415,12 @@ export type WhatsAppMessageUncheckedCreateInput = {
   relatedId?: string | null
   createdAt?: Date | string
   sentAt?: Date | string | null
+  direction?: string
+  deliveredAt?: Date | string | null
+  readAt?: Date | string | null
+  templateName?: string | null
+  sentByUserId?: string | null
+  sentByName?: string | null
 }
 
 export type WhatsAppMessageUpdateInput = {
@@ -352,6 +436,12 @@ export type WhatsAppMessageUpdateInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  direction?: Prisma.StringFieldUpdateOperationsInput | string
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  templateName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type WhatsAppMessageUncheckedUpdateInput = {
@@ -367,6 +457,12 @@ export type WhatsAppMessageUncheckedUpdateInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  direction?: Prisma.StringFieldUpdateOperationsInput | string
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  templateName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type WhatsAppMessageCreateManyInput = {
@@ -382,6 +478,12 @@ export type WhatsAppMessageCreateManyInput = {
   relatedId?: string | null
   createdAt?: Date | string
   sentAt?: Date | string | null
+  direction?: string
+  deliveredAt?: Date | string | null
+  readAt?: Date | string | null
+  templateName?: string | null
+  sentByUserId?: string | null
+  sentByName?: string | null
 }
 
 export type WhatsAppMessageUpdateManyMutationInput = {
@@ -397,6 +499,12 @@ export type WhatsAppMessageUpdateManyMutationInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  direction?: Prisma.StringFieldUpdateOperationsInput | string
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  templateName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type WhatsAppMessageUncheckedUpdateManyInput = {
@@ -412,6 +520,12 @@ export type WhatsAppMessageUncheckedUpdateManyInput = {
   relatedId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  direction?: Prisma.StringFieldUpdateOperationsInput | string
+  deliveredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  templateName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type WhatsAppMessageCountOrderByAggregateInput = {
@@ -427,6 +541,12 @@ export type WhatsAppMessageCountOrderByAggregateInput = {
   relatedId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  deliveredAt?: Prisma.SortOrder
+  readAt?: Prisma.SortOrder
+  templateName?: Prisma.SortOrder
+  sentByUserId?: Prisma.SortOrder
+  sentByName?: Prisma.SortOrder
 }
 
 export type WhatsAppMessageMaxOrderByAggregateInput = {
@@ -442,6 +562,12 @@ export type WhatsAppMessageMaxOrderByAggregateInput = {
   relatedId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  deliveredAt?: Prisma.SortOrder
+  readAt?: Prisma.SortOrder
+  templateName?: Prisma.SortOrder
+  sentByUserId?: Prisma.SortOrder
+  sentByName?: Prisma.SortOrder
 }
 
 export type WhatsAppMessageMinOrderByAggregateInput = {
@@ -457,6 +583,12 @@ export type WhatsAppMessageMinOrderByAggregateInput = {
   relatedId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  direction?: Prisma.SortOrder
+  deliveredAt?: Prisma.SortOrder
+  readAt?: Prisma.SortOrder
+  templateName?: Prisma.SortOrder
+  sentByUserId?: Prisma.SortOrder
+  sentByName?: Prisma.SortOrder
 }
 
 export type EnumWhatsAppKindFieldUpdateOperationsInput = {
@@ -482,6 +614,12 @@ export type WhatsAppMessageSelect<ExtArgs extends runtime.Types.Extensions.Inter
   relatedId?: boolean
   createdAt?: boolean
   sentAt?: boolean
+  direction?: boolean
+  deliveredAt?: boolean
+  readAt?: boolean
+  templateName?: boolean
+  sentByUserId?: boolean
+  sentByName?: boolean
 }, ExtArgs["result"]["whatsAppMessage"]>
 
 export type WhatsAppMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -497,6 +635,12 @@ export type WhatsAppMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   relatedId?: boolean
   createdAt?: boolean
   sentAt?: boolean
+  direction?: boolean
+  deliveredAt?: boolean
+  readAt?: boolean
+  templateName?: boolean
+  sentByUserId?: boolean
+  sentByName?: boolean
 }, ExtArgs["result"]["whatsAppMessage"]>
 
 export type WhatsAppMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -512,6 +656,12 @@ export type WhatsAppMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   relatedId?: boolean
   createdAt?: boolean
   sentAt?: boolean
+  direction?: boolean
+  deliveredAt?: boolean
+  readAt?: boolean
+  templateName?: boolean
+  sentByUserId?: boolean
+  sentByName?: boolean
 }, ExtArgs["result"]["whatsAppMessage"]>
 
 export type WhatsAppMessageSelectScalar = {
@@ -527,9 +677,15 @@ export type WhatsAppMessageSelectScalar = {
   relatedId?: boolean
   createdAt?: boolean
   sentAt?: boolean
+  direction?: boolean
+  deliveredAt?: boolean
+  readAt?: boolean
+  templateName?: boolean
+  sentByUserId?: boolean
+  sentByName?: boolean
 }
 
-export type WhatsAppMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "toNumber" | "toName" | "body" | "status" | "providerMessageId" | "errorMessage" | "relatedType" | "relatedId" | "createdAt" | "sentAt", ExtArgs["result"]["whatsAppMessage"]>
+export type WhatsAppMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "toNumber" | "toName" | "body" | "status" | "providerMessageId" | "errorMessage" | "relatedType" | "relatedId" | "createdAt" | "sentAt" | "direction" | "deliveredAt" | "readAt" | "templateName" | "sentByUserId" | "sentByName", ExtArgs["result"]["whatsAppMessage"]>
 
 export type $WhatsAppMessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WhatsAppMessage"
@@ -547,6 +703,12 @@ export type $WhatsAppMessagePayload<ExtArgs extends runtime.Types.Extensions.Int
     relatedId: string | null
     createdAt: Date
     sentAt: Date | null
+    direction: string
+    deliveredAt: Date | null
+    readAt: Date | null
+    templateName: string | null
+    sentByUserId: string | null
+    sentByName: string | null
   }, ExtArgs["result"]["whatsAppMessage"]>
   composites: {}
 }
@@ -982,6 +1144,12 @@ export interface WhatsAppMessageFieldRefs {
   readonly relatedId: Prisma.FieldRef<"WhatsAppMessage", 'String'>
   readonly createdAt: Prisma.FieldRef<"WhatsAppMessage", 'DateTime'>
   readonly sentAt: Prisma.FieldRef<"WhatsAppMessage", 'DateTime'>
+  readonly direction: Prisma.FieldRef<"WhatsAppMessage", 'String'>
+  readonly deliveredAt: Prisma.FieldRef<"WhatsAppMessage", 'DateTime'>
+  readonly readAt: Prisma.FieldRef<"WhatsAppMessage", 'DateTime'>
+  readonly templateName: Prisma.FieldRef<"WhatsAppMessage", 'String'>
+  readonly sentByUserId: Prisma.FieldRef<"WhatsAppMessage", 'String'>
+  readonly sentByName: Prisma.FieldRef<"WhatsAppMessage", 'String'>
 }
     
 

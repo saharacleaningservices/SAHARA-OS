@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { canManageDataSafety } from "@/lib/permissions";
+import { canManageDataSafety, canRestoreRecords } from "@/lib/permissions";
 import { softDeleteMany, restoreMany, logAudit, type EntityType } from "@/server/audit";
 
 const PATHS: Record<EntityType, string[]> = {
@@ -19,6 +19,11 @@ function revalidateFor(entityType: EntityType) {
 }
 
 export async function bulkSoftDelete(entityType: EntityType, ids: string[]) {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
   if (ids.length === 0) return { error: "Nothing selected" };
@@ -30,7 +35,13 @@ export async function bulkSoftDelete(entityType: EntityType, ids: string[]) {
 export async function restoreRecord(entityType: EntityType, id: string) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
-  if (!canManageDataSafety(session.role)) return { error: "Admin only" };
+  // Was gated to canManageDataSafety (Admin-only) — that's meant for bulk/
+  // destructive data-safety actions ("delete all demo data"), not for
+  // undoing a single accidental delete. This silently blocked Accounts
+  // (and now Operations/Supervisor) from ever actually restoring anything
+  // despite Trash being listed as part of their access — see
+  // canRestoreRecords in src/lib/permissions.ts.
+  if (!canRestoreRecords(session.role)) return { error: "Not authorized to restore records" };
   await restoreMany(entityType, [id], session);
   revalidateFor(entityType);
   revalidatePath("/admin/trash");
@@ -40,7 +51,7 @@ export async function restoreRecord(entityType: EntityType, id: string) {
 export async function bulkRestore(entityType: EntityType, ids: string[]) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
-  if (!canManageDataSafety(session.role)) return { error: "Admin only" };
+  if (!canRestoreRecords(session.role)) return { error: "Not authorized to restore records" };
   const count = await restoreMany(entityType, ids, session);
   revalidateFor(entityType);
   revalidatePath("/admin/trash");

@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local email workspace (signature, filters, Apps Script) - never commit
+email-workspace/
+
+# Local/seed databases are never committed — a fresh volume is built by scripts/db-setup.mjs + prisma/seed.ts
+/dev.db
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3

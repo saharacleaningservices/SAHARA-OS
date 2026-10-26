@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { addJobPhoto } from "@/server/actions/jobs";
+import { compressToWebp } from "@/lib/image-compress";
 
 export function PhotoUploader({ jobId, type }: { jobId: string; type: "BEFORE" | "AFTER" }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -19,7 +20,7 @@ export function PhotoUploader({ jobId, type }: { jobId: string; type: "BEFORE" |
     setUploading(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", await compressToWebp(file));
       formData.append("folder", "photos");
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const data = await res.json();

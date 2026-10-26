@@ -13,6 +13,10 @@ const ACTION_TONE: Record<string, "muted" | "warning" | "destructive" | "success
   BULK_RESTORE: "success",
   BACKUP: "muted",
   RESTORE_BACKUP: "warning",
+  // A failed database restore attempt (src/app/api/backup/restore/route.ts)
+  // — surfaced here now that the route logs every failure path, not just
+  // successful restores.
+  RESTORE_BACKUP_FAILED: "destructive",
 };
 
 export default async function AuditLogPage() {

@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { uploadsRoot } from "@/lib/uploads";
 
 /**
  * Reads a file under /public and returns it as a data: URL for embedding in
@@ -13,11 +14,34 @@ export async function publicFileToDataUrl(publicPath: string): Promise<string | 
   if (![".png", ".jpg", ".jpeg"].includes(ext)) return null;
 
   try {
-    const absolute = path.join(process.cwd(), "public", publicPath.replace(/^\//, ""));
-    const buffer = await readFile(absolute);
+    const rel = publicPath.replace(/^\//, "");
+    // Runtime uploads live in the persistent uploads folder (lib/uploads.ts).
+    const candidates = rel.startsWith("uploads/")
+      ? [path.join(uploadsRoot(), rel.slice("uploads/".length)), path.join(process.cwd(), "public", rel)]
+      : [path.join(process.cwd(), "public", rel)];
+    let buffer: Buffer | null = null;
+    for (const c of candidates) {
+      buffer = await readFile(c).catch(() => null);
+      if (buffer) break;
+    }
+    if (!buffer) return null;
     const mime = ext === ".png" ? "image/png" : "image/jpeg";
     return `data:${mime};base64,${buffer.toString("base64")}`;
   } catch {
     return null;
   }
+}
+
+/**
+ * The brand logo for a PDF header: the admin-uploaded logo if it's a raster,
+ * else the committed /brand/sahara-logo@2x.png. Returns null → the document
+ * renders its styled text header instead (never a broken image).
+ */
+export async function resolveBrandLogoDataUrl(logoUrl?: string | null): Promise<string | null> {
+  // 830 px official artwork first (sharp when printed); the 415 px file stays as a fallback.
+  return (
+    (await publicFileToDataUrl(logoUrl ?? "")) ??
+    (await publicFileToDataUrl("/brand/sahara-logo@2x.png")) ??
+    (await publicFileToDataUrl("/brand/sahara-logo.png"))
+  );
 }

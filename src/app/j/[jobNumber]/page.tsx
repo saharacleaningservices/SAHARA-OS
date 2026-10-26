@@ -1,20 +1,44 @@
 import { notFound } from "next/navigation";
-import { CheckCircle2, Star, Sparkles, Gift, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
+import { CheckCircle2, Star, Sparkles, Gift, Image as ImageIcon, Video as VideoIcon, Wallet, Copy } from "lucide-react";
 import { getPublicJobSummary } from "@/server/public-job";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatINR } from "@/lib/utils";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 
-export const metadata = { title: "Your Booking — Sahara Cleaning Services" };
+export const metadata = { title: "Your Booking — Sahara Cleaning Services", robots: { index: false, follow: false } };
 
-export default async function PublicJobConfirmationPage({ params }: { params: Promise<{ jobNumber: string }> }) {
+export default async function PublicJobConfirmationPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ jobNumber: string }>;
+  searchParams: Promise<{ t?: string }>;
+}) {
   const { jobNumber } = await params;
+  const { t } = await searchParams;
   const data = await getPublicJobSummary(jobNumber);
   if (!data) notFound();
+  // Job numbers are sequential and guessable, so customer data is shown only
+  // with the booking's unguessable token (?t=). Without it: no data at all.
+  if (!t || !data.job.publicToken || t !== data.job.publicToken) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-sm space-y-3 rounded-xl border border-border bg-card p-6 text-center">
+          <h1 className="text-lg font-semibold text-foreground">Open your booking link</h1>
+          <p className="text-sm text-muted-foreground">
+            For your privacy, please open the booking link from your latest WhatsApp message from {COMPANY.name}, or call us on{" "}
+            {COMPANY.phones.join(" / ")}.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-  const { job, googleReviewUrl, offer, referralCode } = data;
+  const { job, googleReviewUrl, offer, referralCode, balanceDue, payment } = data;
   const before = job.photos.filter((p) => p.type === "BEFORE");
   const after = job.photos.filter((p) => p.type === "AFTER");
-  const bookLink = `https://app.saharacleaningservices.com/book?ref=${referralCode}`;
+  const bookLink = `${PUBLIC_BOOKING_URL}/book?ref=${referralCode}`;
+  const hasPaymentDetails = !!(payment.upiId || payment.upiQrUrl || payment.bankAccountNumber);
 
   return (
     <div className="min-h-screen bg-background px-4 py-8 sm:py-12">
@@ -31,6 +55,43 @@ export default async function PublicJobConfirmationPage({ params }: { params: Pr
           </p>
           <p className="text-xs text-muted-foreground">Ref: {job.jobNumber}</p>
         </div>
+
+        {balanceDue > 0 && (
+          <section id="payment" className="scroll-mt-6 space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4 sahara-shadow">
+            <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <Wallet className="size-4 text-primary" /> Payment
+            </h2>
+            <p className="text-sm text-foreground">
+              Amount due: <span className="font-semibold">{formatINR(balanceDue)}</span>
+            </p>
+            {hasPaymentDetails ? (
+              <div className="space-y-2 text-sm text-muted-foreground">
+                {payment.upiId && (
+                  <p className="flex flex-wrap items-center gap-1.5">
+                    <Copy className="size-3.5" /> UPI: <span className="font-medium text-foreground">{payment.upiId}</span>
+                  </p>
+                )}
+                {payment.upiQrUrl && (
+                  <img src={payment.upiQrUrl} alt="Scan to pay" className="h-40 w-40 rounded-md border border-border object-contain bg-white" />
+                )}
+                {payment.bankAccountNumber && (
+                  <p>
+                    Bank Transfer — {payment.bankAccountName ?? COMPANY.name}
+                    <br />
+                    A/C {payment.bankAccountNumber}
+                    {payment.bankIfsc ? ` · IFSC ${payment.bankIfsc}` : ""}
+                    {payment.bankName ? ` · ${payment.bankName}` : ""}
+                  </p>
+                )}
+                <p>Please share the payment screenshot on WhatsApp once done. Thank you!</p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Our team will share payment details shortly, or call/WhatsApp {COMPANY.phones[0]}.
+              </p>
+            )}
+          </section>
+        )}
 
         {(before.length > 0 || after.length > 0) && (
           <section className="space-y-2 rounded-xl border border-border bg-card p-4 sahara-shadow">

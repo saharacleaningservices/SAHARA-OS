@@ -1,23 +1,51 @@
 import Link from "next/link";
+import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
-import { FileText, Users, Pencil, ExternalLink } from "lucide-react";
+import type { ReactNode } from "react";
+import { FileText, Pencil, Phone, MessageCircle, Navigation, Receipt, MapPin, Download } from "lucide-react";
 import { getJobDetail, getOwnStaffId, canAccessJob } from "@/server/jobs";
-import { getVehiclesForAssignment } from "@/server/vehicles";
+import { getCompanySettings } from "@/server/settings";
+import { SendPaymentLinkButton } from "@/components/shared/send-payment-link-button";
+import { cleanCustomerName } from "@/lib/job-display";
+import { SendBookingFormButton } from "@/components/shared/send-booking-form-button";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-badge";
+import { JobStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
-import { PhotoUploader } from "@/components/jobs/photo-uploader";
-import { VideoUploader } from "@/components/jobs/video-uploader";
-import { SignatureCapture } from "@/components/jobs/signature-capture";
-import { JobLogisticsCard } from "@/components/jobs/job-logistics-card";
 import { SendDispatchButton } from "@/components/jobs/send-dispatch-button";
-import { EmptyState } from "@/components/shared/empty-state";
-import { formatINR, formatDate, formatDateTime } from "@/lib/utils";
+import { GenerateInvoiceButton } from "@/components/jobs/generate-invoice-button";
+import { JobBillingCard } from "@/components/jobs/job-billing-card";
+import { ResendInvoiceLinkButton } from "@/components/jobs/resend-invoice-link-button";
+import { crewGroupMessage, getCrewCard } from "@/server/crew-card";
+import { crewCardToken } from "@/lib/crew-card-token";
+import { INTERNAL_CRM_URL } from "@/lib/site-urls";
+import { canEditBilling, canViewRevenue, canViewJobAmount, canSeeCustomerContact as canSeeContact } from "@/lib/permissions";
+import { formatINR, formatDate, toTelLink, toWhatsAppLink } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { buildDirectionsLink, parseMapLink } from "@/lib/maps";
 import { requireUser } from "@/lib/current-user";
+import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+import { ensureJobToken } from "@/server/booking-messages";
+import { compactServiceLines } from "@/lib/service-scope";
+import { documentShareMessage } from "@/lib/whatsapp-templates";
+
+/** One compact row: label left, value right (stacks only when the value is long). */
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex min-w-0 items-start justify-between gap-3 py-2 text-sm">
+      <span className="shrink-0 text-xs text-muted-foreground">{label}</span>
+      <span className="min-w-0 text-right font-medium text-foreground">{children}</span>
+    </div>
+  );
+}
+
+
+const PAY_TONE: Record<string, string> = {
+  Paid: "bg-emerald-100 text-emerald-800",
+  Partial: "bg-amber-100 text-amber-800",
+  Unpaid: "bg-red-100 text-red-700",
+};
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,21 +57,94 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (!canAccessJob(session, job, ownStaffId)) {
     redirect("/jobs");
   }
-  const canManage = session.role === "ADMIN" || session.role === "OPERATIONS";
-  const vehicles = canManage ? await getVehiclesForAssignment() : [];
+  const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
+  // Customer phone + click-to-call: Super Admin + Accounts only (owner rule
+  // 2026-10-08 — Operations sees the job, address and Maps, never the number).
+  const canSeeCustomerContact = canSeeContact(session.role);
+  // Payment ledger / expenses — owner + Accounts only.
+  const showMoney = canViewRevenue(session.role);
+  // Job amount / advance / balance — Super Admin, Accounts, Operations.
+  const showJobAmount = canViewJobAmount(session.role);
+  const settings = await getCompanySettings();
+  const paymentDetails = {
+    upiId: settings.upiId ?? null,
+    upiQrUrl: settings.upiQrUrl ?? null,
+    bankName: settings.bankName ?? null,
+    bankAccountName: settings.bankAccountName ?? null,
+    bankAccountNumber: settings.bankAccountNumber ?? null,
+    bankIfsc: settings.bankIfsc ?? null,
+  };
 
-  const beforePhotos = job.photos.filter((p) => p.type === "BEFORE");
-  const afterPhotos = job.photos.filter((p) => p.type === "AFTER");
+  const advance = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
+  const balance = Math.max(job.jobValue - advance, 0);
+  const paymentStatus = balance <= 0 && advance > 0 ? "Paid" : advance > 0 ? "Partial" : "Unpaid";
+  const completed = job.status === "COMPLETED";
+  const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
+  const packageLabel = job.packageName || null;
+  // Compact list of what was booked (no room-by-room checklist on CRM pages).
+  const services = compactServiceLines(job);
+  // Same rule as the PDF route: Field Coordinator only for today's jobs — never show a button that 403s.
+  const istDay = (d: Date) => new Date(d.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+  const canJobCard = session.role !== "SUPERVISOR" || istDay(job.scheduledDate) === istDay(new Date());
+  const crew = job.assignments.map((a) => ({ id: a.id, name: a.staff.name, lead: a.isLead }));
+
+
+  // Customer documents (secure token links) — Super Admin, Operations and Accounts.
+  // Sending opens WhatsApp with the message pre-filled; staff still press send themselves.
+  // Sending opens WhatsApp to the customer's number — contact roles only.
+  // 1-click "WhatsApp Group": opens WhatsApp with the masked job card text so the office picks the team group (the Cloud API
+  // cannot post into groups). Job ID, service & package, date/slot, location and team only — never the phone or an amount.
+  const crewCard = canManage && !job.isDemo ? await getCrewCard(job.id) : null;
+  const groupShareHref = crewCard ? `https://wa.me/?text=${encodeURIComponent(crewGroupMessage(crewCard, `${INTERNAL_CRM_URL}/crew-card/${crewCardToken(job.id)}`))}` : null;
+  // Owner 2026-10-23: show the booking-confirmation WhatsApp result right on the job, so a failed send is never silent.
+  const waConfirm = canManage
+    ? await db.whatsAppMessage.findFirst({ where: { kind: "BOOKING_CONFIRMATION", relatedType: "Job", relatedId: job.id }, orderBy: { createdAt: "desc" }, select: { status: true, errorMessage: true, templateName: true, createdAt: true } })
+    : null;
+  const canSendDocs = canManage && showJobAmount && canSeeCustomerContact && !job.isDemo;
+  const docToken = canSendDocs ? (job.publicToken ?? (await ensureJobToken(job.id))) : null;
+  const quotationUrl = docToken ? `${PUBLIC_BOOKING_URL}/booking/quotation/${docToken}` : "";
+  // The final invoice exists only once the job is completed (the public route 404s before that too).
+  const leadQuote = job.lead?.quotations[0] ?? null;
+  // The ONE document button (owner 2026-10-23): the single-page A4 PDF. Invoice: the server-rendered invoice PDF; quotation: the lead's
+  // quotation PDF when there is one, else the quotation page opened straight into the print / Save-as-PDF view (also A4, one page).
+  const invoicePdfHref = job.invoice && completed ? `/api/invoices/${job.invoice.id}/pdf` : null;
+  const quotationPdfHref = leadQuote ? `/api/quotations/${leadQuote.id}/pdf` : quotationUrl ? `${quotationUrl}?print=1` : null;
+  const invoiceUrl = docToken && completed ? `${PUBLIC_BOOKING_URL}/booking/invoice/${docToken}` : "";
+  const docMessage = (label: "quotation" | "final invoice", url: string) =>
+    documentShareMessage({
+      customerName: job.customerName,
+      label,
+      reference: job.jobNumber,
+      url,
+      serviceSummary: services.join(", ") || null,
+      total: job.jobValue,
+      paid: advance,
+    });
+
+  const coords = job.mapLink ? parseMapLink(job.mapLink) : null;
+  const directions = coords ? buildDirectionsLink(coords) : job.mapLink;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <PageHeader
-        title={job.customerName}
-        description={`${job.jobNumber} · ${SERVICE_LABELS[job.service]} · ${job.area}`}
+        title={cleanCustomerName(job.customerName)}
+        description={[job.jobNumber, serviceLabel, packageLabel].filter(Boolean).join(" · ")}
         actions={
           <>
-            <CallButton mobile={job.customerMobile} />
-            <WhatsAppButton mobile={job.customerMobile} />
+            {canSeeCustomerContact && (
+              <>
+                <CallButton mobile={job.customerMobile} />
+                <WhatsAppButton mobile={job.customerMobile} />
+              </>
+            )}
+            {/* Job Card PDF — field roles automatically get the team copy (no phone / money / notes). */}
+            {canJobCard && (
+              <Button variant="outline" size="sm" asChild>
+                <a href={`/api/jobs/${job.id}/card/pdf?download=1`} download={`job-card-${job.jobNumber}.pdf`}>
+                  <Download className="size-3.5" /> Job Card
+                </a>
+              </Button>
+            )}
             {canManage && (
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/jobs/${job.id}/edit`}>
@@ -51,214 +152,255 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 </Link>
               </Button>
             )}
-            {job.certificate && (
-              <Button variant="outline" size="sm" asChild>
-                <a href={`/api/certificates/${job.certificate.id}/pdf`} target="_blank" rel="noreferrer">
-                  <FileText className="size-3.5" /> Certificate
+            {/* One contextual document action: Quotation before completion, Invoice after. */}
+            {invoicePdfHref ? (
+              <Button size="sm" asChild>
+                <a href={invoicePdfHref} target="_blank" rel="noreferrer">
+                  <Receipt className="size-3.5" /> Invoice
                 </a>
               </Button>
-            )}
-            {job.invoice && (
-              <Button variant="outline" size="sm" asChild>
-                <a href={`/api/invoices/${job.invoice.id}/pdf`} target="_blank" rel="noreferrer">
-                  <FileText className="size-3.5" /> Invoice
+            ) : quotationPdfHref && !completed ? (
+              <Button size="sm" asChild>
+                <a href={quotationPdfHref} target="_blank" rel="noreferrer">
+                  <FileText className="size-3.5" /> Quotation
                 </a>
               </Button>
-            )}
-            <Button variant="outline" size="sm" asChild>
-              <a href={`/j/${job.jobNumber}`} target="_blank" rel="noreferrer">
-                <ExternalLink className="size-3.5" /> Customer Page
-              </a>
-            </Button>
+            ) : null}
           </>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle>Job Status</CardTitle>
+      <div>
+        {/* ── JOB STATUS workspace ─────────────────────────────── */}
+        <section className="rounded-xl border bg-card p-3 sm:p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Job Status</h2>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium">{formatDate(job.scheduledDate)} · {job.scheduledTime}</span>
               <JobStatusBadge status={job.status} />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-                <div>
-                  <p className="text-xs text-muted-foreground">Scheduled</p>
-                  <p className="font-medium text-foreground">
-                    {formatDate(job.scheduledDate)} · {job.scheduledTime}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Job Value</p>
-                  <p className="font-medium text-foreground">{formatINR(job.jobValue)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Supervisor</p>
-                  <p className="font-medium text-foreground">{job.supervisor?.name ?? "—"}</p>
-                </div>
-                <div className="col-span-2 sm:col-span-3">
-                  <p className="text-xs text-muted-foreground">Address</p>
-                  <p className="font-medium text-foreground">{job.address}</p>
-                </div>
-                {job.notes && (
-                  <div className="col-span-2 sm:col-span-3">
-                    <p className="text-xs text-muted-foreground">Notes</p>
-                    <p className="font-medium text-foreground">{job.notes}</p>
-                  </div>
-                )}
+            </div>
+          </div>
+
+          {/* Desktop: details | actions side by side; phone: one column. */}
+          <div className="lg:grid lg:grid-cols-2 lg:gap-6">
+          <div>
+          {showJobAmount && (
+            <div className="mt-3 grid grid-cols-3 divide-x rounded-lg border text-center">
+              <div className="px-1 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Job Amount</p>
+                <p className="text-sm font-bold sm:text-base">{formatINR(job.jobValue)}</p>
               </div>
-              <StatusActions jobId={job.id} status={job.status} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="size-4" /> Assigned Crew
-              </CardTitle>
-              {canManage && job.assignments.length > 0 && <SendDispatchButton jobId={job.id} />}
-            </CardHeader>
-            <CardContent>
-              {job.assignments.length === 0 ? (
-                <EmptyState title="No crew assigned" />
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {job.assignments.map((a) => (
-                    <span
-                      key={a.id}
-                      className="rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-foreground"
-                    >
-                      {a.staff.name}
-                      {a.isLead && " (Lead)"}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Before Photos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {beforePhotos.length === 0 ? (
-                <EmptyState title="No before photos yet" />
-              ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {beforePhotos.map((p) => (
-                    <img key={p.id} src={p.url} alt={p.caption ?? "Before photo"} className="aspect-square w-full rounded-lg border border-border object-cover" />
-                  ))}
-                </div>
-              )}
-              <PhotoUploader jobId={job.id} type="BEFORE" />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>After Photos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {afterPhotos.length === 0 ? (
-                <EmptyState title="No after photos yet" />
-              ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {afterPhotos.map((p) => (
-                    <img key={p.id} src={p.url} alt={p.caption ?? "After photo"} className="aspect-square w-full rounded-lg border border-border object-cover" />
-                  ))}
-                </div>
-              )}
-              <PhotoUploader jobId={job.id} type="AFTER" />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Job Videos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {job.videos.length === 0 ? (
-                <EmptyState title="No videos yet" />
-              ) : (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {job.videos.map((v) => (
-                    <video key={v.id} src={v.url} controls className="w-full rounded-lg border border-border" />
-                  ))}
-                </div>
-              )}
-              <VideoUploader jobId={job.id} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-4">
-          <JobLogisticsCard
-            jobId={job.id}
-            mapLink={job.mapLink}
-            vehicleId={job.vehicleId}
-            vehicleName={job.vehicle?.name ?? null}
-            vehicles={vehicles}
-            materials={job.materialIssues}
-            canEdit={canManage}
-          />
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer Signature</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SignatureCapture jobId={job.id} existingUrl={job.customerSignatureUrl} />
-            </CardContent>
-          </Card>
-
-          {job.payments.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Invoice</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {job.payments.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between rounded-lg border border-border p-3">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{p.invoiceNumber}</p>
-                      <p className="text-xs text-muted-foreground">Due {formatDate(p.dueDate)}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">{formatINR(p.amount)}</span>
-                      <PaymentStatusBadge status={p.status} />
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+              <div className="px-1 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Advance</p>
+                <p className="text-sm font-bold text-success sm:text-base">{formatINR(advance)}</p>
+              </div>
+              <div className="px-1 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Balance</p>
+                <p className="text-sm font-bold sm:text-base">{formatINR(balance)}</p>
+                <span className={`mt-0.5 inline-block rounded-full px-1.5 text-[10px] font-semibold ${PAY_TONE[paymentStatus]}`}>{paymentStatus}</span>
+              </div>
+            </div>
           )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {job.activityLogs.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No activity yet.</p>
+          <div className="mt-1 divide-y">
+            <div className="py-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">Team</span>
+                <span className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{job.teamNumber ? `Team ${job.teamNumber}` : "No team"}</span>
+                  {canManage && crew.length > 0 && <SendDispatchButton jobId={job.id} />}
+                  {groupShareHref && (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={groupShareHref} target="_blank" rel="noreferrer" title="Share the masked job card to the team WhatsApp group (no phone, no amounts)">
+                        <MessageCircle className="size-3.5" /> WhatsApp Group
+                      </a>
+                    </Button>
+                  )}
+                </span>
+              </div>
+              <div className="mt-1.5 flex flex-wrap justify-end gap-1">
+                {crew.length === 0 ? (
+                  <span className="text-xs text-muted-foreground">No crew assigned yet</span>
+                ) : (
+                  crew.map((c) => (
+                    <span key={c.id} className="rounded-full border bg-muted/50 px-2.5 py-0.5 text-xs font-medium">
+                      {c.name}{c.lead ? " (Lead)" : ""}
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 divide-y sm:grid-cols-2 sm:gap-x-6 sm:divide-y-0">
+              <Row label="Property / Flat">{job.serviceVariant ?? "—"}</Row>
+              <Row label={services.length > 1 ? "Services" : "Package"}>
+                {services.length ? (
+                  services.map((s) => <span key={s} className="block">{s}</span>)
+                ) : (
+                  packageLabel ?? serviceLabel
+                )}
+              </Row>
+              {canSeeCustomerContact && (
+                <Row label="Customer Phone">
+                  <a href={toTelLink(job.customerMobile)} className="text-primary">{job.customerMobile}</a>
+                  {job.alternateMobile && <span className="block text-xs text-muted-foreground">Alt {job.alternateMobile}</span>}
+                </Row>
+              )}
+              <Row label="Location">
+                {job.mapLink ? (
+                  <span className="inline-flex gap-3">
+                    <a href={job.mapLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary"><MapPin className="size-3.5" /> Maps</a>
+                    {directions && <a href={directions} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary"><Navigation className="size-3.5" /> Navigate</a>}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">Not shared</span>
+                )}
+              </Row>
+            </div>
+            <Row label="Service Address">{job.address}</Row>
+          </div>
+
+          </div>
+          <div>
+          <div className="mt-2 border-t pt-3 lg:mt-3 lg:border-t-0 lg:pt-0">
+            <StatusActions
+              jobId={job.id}
+              status={job.status}
+              scheduledDate={new Date(job.scheduledDate.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10)}
+              scheduledTime={job.scheduledTime}
+              invoiceUrl={invoicePdfHref ?? undefined}
+              canResendInvoice={canEditBilling(session.role) && !job.isDemo}
+            />
+          </div>
+
+          {canEditBilling(session.role) && job.status !== "CANCELLED" && !job.isDemo && (
+            <JobBillingCard
+              jobId={job.id}
+              jobValue={job.jobValue}
+              gstAmount={job.gstAmount}
+              discountAmount={job.discountAmount}
+              discountMode={job.discountMode}
+              discountValue={job.discountValue}
+              gstEnabled={job.gstEnabled}
+              customerGstin={job.customerGstin}
+              advance={advance}
+              completed={completed}
+            />
+          )}
+
+          {canManage && (
+            <p className={`mt-3 rounded-lg border px-2.5 py-1.5 text-xs ${!waConfirm ? "text-muted-foreground" : waConfirm.status === "SENT" ? "border-success/40 text-success" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
+              <span className="font-semibold">WhatsApp booking confirmation:</span>{" "}
+              {!waConfirm
+                ? "not sent yet"
+                : waConfirm.status === "SENT"
+                  ? `sent${waConfirm.templateName ? ` (template ${waConfirm.templateName})` : ""} · ${formatDate(waConfirm.createdAt)}`
+                  : `${waConfirm.status.toLowerCase()} — ${waConfirm.errorMessage ?? "waiting to be sent"}`}
+            </p>
+          )}
+
+          {/* Quotation → Invoice: the only place these controls live. */}
+          {canSendDocs && (
+            <div className="mt-3 space-y-2 rounded-lg bg-muted/40 p-2.5 text-sm">
+              {!completed ? (
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="min-w-0">
+                    <span className="font-semibold">Quotation</span>{" "}
+                    <span className="text-xs text-muted-foreground">
+                      {leadQuote ? `${leadQuote.quoteNumber} · ${leadQuote.status.toLowerCase()}` : "from booking"} · invoice after completion
+                    </span>
+                  </span>
+                  <span className="flex gap-1.5">
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={toWhatsAppLink(job.customerMobile, docMessage("quotation", quotationUrl))} target="_blank" rel="noreferrer">
+                        <MessageCircle className="size-3.5" /> Send
+                      </a>
+                    </Button>
+                  </span>
+                </div>
+              ) : job.invoice ? (
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="min-w-0">
+                    <span className="font-semibold">Final Invoice</span>{" "}
+                    <span className="text-xs text-muted-foreground">{job.invoice.invoiceNumber}</span>{" "}
+                    <span className={`rounded-full px-1.5 text-[10px] font-semibold ${PAY_TONE[paymentStatus]}`}>{paymentStatus}</span>
+                  </span>
+                  <span className="flex gap-1.5">
+                    {canEditBilling(session.role) && <ResendInvoiceLinkButton jobId={job.id} />}
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={toWhatsAppLink(job.customerMobile, docMessage("final invoice", invoiceUrl))} target="_blank" rel="noreferrer">
+                        <MessageCircle className="size-3.5" /> Send
+                      </a>
+                    </Button>
+                  </span>
+                </div>
               ) : (
-                <div className="space-y-3 border-l border-border pl-4">
-                  {job.activityLogs.map((log) => (
-                    <div key={log.id} className="relative">
-                      <span className="absolute -left-[21px] top-1 size-2 rounded-full bg-primary" />
-                      <p className="text-sm text-foreground">{log.action}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDateTime(log.createdAt)} {log.actor && `· ${log.actor.name}`}
-                      </p>
-                    </div>
-                  ))}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">Completed before auto-invoicing — no final invoice yet.</span>
+                  <GenerateInvoiceButton jobId={job.id} />
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
+              {(completed || (showMoney && balance > 0) || job.certificate) && (
+                <div className="flex flex-wrap gap-1.5">
+                  {showMoney && balance > 0 && (
+                    <SendPaymentLinkButton
+                      mobile={job.customerMobile}
+                      details={paymentDetails}
+                      context={{
+                        customerName: job.customerName,
+                        bookingId: job.jobNumber,
+                        service: serviceLabel,
+                        packageName: job.packageName,
+                        quote: job.jobValue,
+                        advance,
+                        balance,
+                      }}
+                      purpose="BALANCE"
+                    />
+                  )}
+                  {completed && canSeeCustomerContact && <SendBookingFormButton name={job.customerName} mobile={job.customerMobile} jobId={job.id} kind="REVIEW" />}
+                  {job.certificate && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={`/api/certificates/${job.certificate.id}/pdf`} target="_blank" rel="noreferrer">
+                        <FileText className="size-3.5" /> Certificate
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          </div>
+          </div>
+        </section>
+
       </div>
+
+      {/* Mobile sticky action bar — the field's core actions. */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-border bg-card/95 px-3 py-2.5 backdrop-blur lg:hidden">
+        {canSeeCustomerContact && (
+          <>
+            <Button asChild className="flex-1" size="lg" variant="outline">
+              <a href={toTelLink(job.customerMobile)}>
+                <Phone className="size-4" /> Call
+              </a>
+            </Button>
+            <Button asChild className="flex-1 text-success" size="lg" variant="outline">
+              <a href={toWhatsAppLink(job.customerMobile)} target="_blank" rel="noreferrer">
+                <MessageCircle className="size-4" /> WhatsApp
+              </a>
+            </Button>
+          </>
+        )}
+        {directions ? (
+          <Button asChild className="flex-1" size="lg" variant="outline">
+            <a href={directions} target="_blank" rel="noreferrer">
+              <Navigation className="size-4" /> Maps
+            </a>
+          </Button>
+        ) : null}
+      </div>
+      <div className="h-16 lg:hidden" />
     </div>
   );
 }

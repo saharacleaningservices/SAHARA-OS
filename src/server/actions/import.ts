@@ -1,6 +1,7 @@
 "use server";
 
 // Bulk CSV import for Leads and Staff. Mirrors createLead/createStaff's
+import { createWithCustomerNumber } from "@/server/customer-db";
 // write logic (see src/server/actions/leads.ts and staff.ts) but processes
 // rows sequentially in one transaction-free loop — so LD-/SCS- numbering
 // stays correctly sequential — and revalidates paths once at the end
@@ -8,16 +9,28 @@
 // schemas the manual forms use, even though the client already validated,
 // since a server action must never trust its input.
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "node:crypto";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { leadSchema, staffSchema } from "@/lib/validation";
+import type { CustomerImportRow } from "@/lib/csv-import";
+import { deriveArea } from "@/lib/utils";
 import { generateLeadNumber, generateEmployeeCode } from "@/lib/id-generators";
+import { canExportCustomers } from "@/lib/permissions";
 
-export type ImportRowResult = { row: number; status: "created" | "skipped" | "invalid"; message: string };
-export type ImportSummary = { results: ImportRowResult[]; created: number };
+export type ImportRowResult = { row: number; status: "created" | "merged" | "skipped" | "invalid"; message: string };
+export type ImportSummary = { results: ImportRowResult[]; created: number; merged?: number };
 
 export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
   const session = await getSession();
+  // Bulk import is an administrative action, not day-to-day today/tomorrow
+  // operational editing — blocked for Francis (SUPERVISOR) at the action
+  // level too, not just by hiding the Import button (2026-09-21 policy).
+  // Signed-out callers and Field Staff are refused too (a server action is
+  // callable directly, not only from the Import button).
+  if (!session || !["ADMIN", "ACCOUNTS", "OPERATIONS"].includes(session.role)) {
+    return { results: [{ row: 0, status: "invalid", message: "Not authorized" }], created: 0 };
+  }
   const results: ImportRowResult[] = [];
   let created = 0;
 
@@ -54,7 +67,8 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
         mobile: data.mobile,
         whatsapp: data.whatsapp || data.mobile,
         address: data.address || null,
-        area: data.area,
+        area: deriveArea(data),
+        pinCode: data.pinCode || null,
         service: data.service,
         source: data.source,
         quoteAmount: data.quoteAmount ?? null,
@@ -93,6 +107,11 @@ export async function importLeads(rows: unknown[]): Promise<ImportSummary> {
 }
 
 export async function importStaff(rows: unknown[]): Promise<ImportSummary> {
+  // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
+  {
+    const __s = await getSession();
+    if (!__s || !["ADMIN", "ACCOUNTS"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
+  }
   const results: ImportRowResult[] = [];
   let created = 0;
 
@@ -133,4 +152,83 @@ export async function importStaff(rows: unknown[]): Promise<ImportSummary> {
     revalidatePath("/staff");
   }
   return { results, created };
+}
+
+// ── Customers — bulk import with merge-by-mobile (Master Prompt v3.1) ──────
+
+export async function importCustomers(rows: CustomerImportRow[]): Promise<ImportSummary> {
+  const session = await getSession();
+  // Francis (SUPERVISOR) must not touch the Customers database at all —
+  // canExportCustomers is the shared "full Customers module capability"
+  // check (ADMIN/ACCOUNTS/OPERATIONS), already excludes him.
+  if (!session || !canExportCustomers(session.role)) {
+    return { results: [{ row: 0, status: "invalid", message: "Not authorized" }], created: 0 };
+  }
+
+  const batchId = randomBytes(6).toString("hex");
+  const results: ImportRowResult[] = [];
+  let created = 0;
+  let merged = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const rowNum = i + 1;
+    const r = rows[i];
+    const mobile = (r.mobile || "").replace(/[^\d]/g, "").slice(-10);
+    if (mobile.length !== 10) {
+      results.push({ row: rowNum, status: "invalid", message: `Invalid mobile "${r.mobile ?? ""}"` });
+      continue;
+    }
+
+    const existing = await db.customer.findUnique({ where: { mobile } });
+    const lastDate = r.lastServiceDate ? new Date(r.lastServiceDate) : null;
+
+    if (existing) {
+      // Merge — fill blanks, keep the most recent service date, replace the
+      // outstanding balance with the imported figure (source of truth), and
+      // append new service history.
+      const hist = [existing.serviceHistory, r.serviceHistory].filter(Boolean).join(" · ") || null;
+      await db.customer.update({
+        where: { id: existing.id },
+        data: {
+          name: existing.name && existing.name !== "Customer" ? existing.name : r.name,
+          alternateMobile: existing.alternateMobile ?? r.alternateMobile ?? null,
+          address: existing.address ?? r.address ?? null,
+          area: existing.area ?? r.area ?? null,
+          serviceHistory: hist,
+          lastServiceDate:
+            lastDate && (!existing.lastServiceDate || lastDate > existing.lastServiceDate)
+              ? lastDate
+              : existing.lastServiceDate,
+          outstandingBalance: r.outstandingBalance != null ? r.outstandingBalance : existing.outstandingBalance,
+          source: existing.source ?? r.source ?? null,
+          importBatchId: batchId,
+        },
+      });
+      results.push({ row: rowNum, status: "merged", message: `${r.name} merged into existing customer` });
+      merged++;
+      continue;
+    }
+
+    await createWithCustomerNumber((customerNumber) => ({
+        customerNumber,
+        name: r.name,
+        mobile,
+        alternateMobile: r.alternateMobile ?? null,
+        address: r.address ?? null,
+        area: r.area ?? null,
+        serviceHistory: r.serviceHistory ?? null,
+        lastServiceDate: lastDate,
+        outstandingBalance: r.outstandingBalance ?? 0,
+        source: r.source ?? null,
+        importBatchId: batchId,
+    }));
+    results.push({ row: rowNum, status: "created", message: `${r.name} imported` });
+    created++;
+  }
+
+  if (created > 0 || merged > 0) {
+    revalidatePath("/customers");
+    revalidatePath("/dashboard");
+  }
+  return { results, created, merged };
 }

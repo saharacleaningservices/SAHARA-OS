@@ -75,7 +75,7 @@ Sign in as Admin to see every module; the other roles are restricted to their re
 - **Quotations** — line-item builder with GST, producing a branded, print-ready PDF (with a UPI QR code placeholder) via `@react-pdf/renderer`.
 - **Jobs** — scheduling, supervisor & crew assignment, status flow (Assigned → On the Way → Started → Completed), before/after photo upload, canvas customer signature capture, and an auto-generated completion certificate + invoice on completion.
 - **Staff** — 20-employee roster, attendance (present/absent/half-day/leave), daily or monthly wages, availability, and QR/GPS-ready attendance fields for a future rollout.
-- **Payments** — recovery queue color-coded Paid / Due Soon / Overdue, with Call / WhatsApp / Email reminder logging and a MyBillBook invoice-number field (Phase 1 integration).
+- **Payments** — recovery queue color-coded Paid / Due Soon / Overdue, with Call / WhatsApp / Email reminder logging and an external/reference invoice-number field.
 - **Expenses & Profit Dashboard** — Chemicals / Fuel / Equipment / Staff Advance / Misc. tracking, plus daily revenue, monthly profit, lead-conversion funnel and staff-utilization charts (Recharts).
 - **Reports** — job history, before/after photo gallery, invoice history, payment history and certificates, with CSV export.
 - **AI Assistant** — a local, deterministic rule engine (no external API calls, no data leaves the server) that drafts quotations, drafts payment reminders with escalating tone, ranks staff for a job by availability/skill/workload, narrates the day's profit, and suggests the next follow-up action per lead.

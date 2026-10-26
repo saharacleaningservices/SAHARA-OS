@@ -1,5 +1,6 @@
 "use client";
 
+import { todayIST } from "@/lib/pricing-master";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -36,18 +37,21 @@ type AmcRow = {
   customerName: string;
   customerMobile: string;
   area: string | null;
+  address: string | null;
   category: string;
   frequency: string;
   amount: number;
   nextVisitDate: Date;
   lastVisitDate: Date | null;
+  serviceReminderDate: Date | null;
+  contractExpiryDate: Date | null;
   status: string;
 };
 
 export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; canManage: boolean }) {
   const [open, setOpen] = useState(false);
   const [visitDialogId, setVisitDialogId] = useState<string | null>(null);
-  const [visitDate, setVisitDate] = useState(new Date().toISOString().slice(0, 10));
+  const [visitDate, setVisitDate] = useState(todayIST());
   const [visitNotes, setVisitNotes] = useState("");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -56,11 +60,12 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
     customerName: "",
     customerMobile: "",
     address: "",
-    area: "",
     category: "RESIDENTIAL",
     frequency: "QUARTERLY",
     amount: "",
-    startDate: new Date().toISOString().slice(0, 10),
+    startDate: todayIST(),
+    serviceReminderDate: "",
+    contractExpiryDate: "",
     notes: "",
   });
 
@@ -73,7 +78,7 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
       }
       toast.success("AMC contract created");
       setOpen(false);
-      setForm({ ...form, customerName: "", customerMobile: "", address: "", area: "", amount: "", notes: "" });
+      setForm({ ...form, customerName: "", customerMobile: "", address: "", amount: "", notes: "", serviceReminderDate: "", contractExpiryDate: "" });
       router.refresh();
     });
   }
@@ -145,15 +150,9 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
                     <Input value={form.customerMobile} onChange={(e) => setForm({ ...form, customerMobile: e.target.value })} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label>Area</Label>
-                    <Input value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label>Address</Label>
-                    <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-                  </div>
+                <div className="space-y-1">
+                  <Label>Address</Label>
+                  <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Full address incl. area & PIN" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
@@ -192,6 +191,17 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
                     <Input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label>Service Reminder Date</Label>
+                    <Input type="date" value={form.serviceReminderDate} onChange={(e) => setForm({ ...form, serviceReminderDate: e.target.value })} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label>Contract Expiry Reminder</Label>
+                    <Input type="date" value={form.contractExpiryDate} onChange={(e) => setForm({ ...form, contractExpiryDate: e.target.value })} />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">Leave blank to auto-set from frequency (reminder) and a 1-year term (expiry).</p>
                 <div className="space-y-1">
                   <Label>Notes (optional)</Label>
                   <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} />
@@ -219,6 +229,7 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
               <TableHead>Category / Frequency</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Next Visit</TableHead>
+              <TableHead>Expiry</TableHead>
               <TableHead>Status</TableHead>
               {canManage && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
@@ -229,13 +240,28 @@ export function AmcExplorer({ contracts, canManage }: { contracts: AmcRow[]; can
                 <TableCell className="font-medium text-foreground">{c.contractNumber}</TableCell>
                 <TableCell className="text-sm">
                   {c.customerName}
-                  <div className="text-xs text-muted-foreground">{c.customerMobile} {c.area && `· ${c.area}`}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {c.customerMobile}
+                    {c.address ? ` · ${c.address}` : c.area ? ` · ${c.area}` : ""}
+                  </div>
                 </TableCell>
                 <TableCell className="text-sm">{AMC_CATEGORY_LABELS[c.category]} · {AMC_FREQUENCY_LABELS[c.frequency]}</TableCell>
-                <TableCell className="text-sm">{formatINR(c.amount)}</TableCell>
+                <TableCell className="text-sm">{c.amount ? formatINR(c.amount) : "—"}</TableCell>
                 <TableCell className="text-sm">
-                  {formatDate(c.nextVisitDate)}
+                  {formatDate(c.serviceReminderDate ?? c.nextVisitDate)}
+                  {(() => {
+                    const d = c.serviceReminderDate ?? c.nextVisitDate;
+                    return d && new Date(d).getTime() <= Date.now() + 7 * 86400000 ? (
+                      <div><Badge variant="warning" className="mt-1 text-[10px]">Due soon</Badge></div>
+                    ) : null;
+                  })()}
                   {c.lastVisitDate && <div className="text-xs text-muted-foreground">Last: {formatDate(c.lastVisitDate)}</div>}
+                </TableCell>
+                <TableCell className="text-sm">
+                  {c.contractExpiryDate ? formatDate(c.contractExpiryDate) : "—"}
+                  {c.contractExpiryDate && new Date(c.contractExpiryDate).getTime() <= Date.now() + 30 * 86400000 && (
+                    <div><Badge variant="destructive" className="mt-1 text-[10px]">Expiring</Badge></div>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge variant={c.status === "ACTIVE" ? "success" : c.status === "EXPIRED" ? "warning" : "muted"}>

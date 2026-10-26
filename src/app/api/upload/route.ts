@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { uploadsRoot } from "@/lib/uploads";
 import { randomUUID } from "node:crypto";
 import { getSession } from "@/lib/session";
 import { isSameOrigin } from "@/lib/csrf";
 
-const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo"];
+const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo", "gallery"];
 const AUDIO_FOLDERS = ["voice"];
 const VIDEO_FOLDERS = ["videos"];
-const ALLOWED_FOLDERS = [...IMAGE_FOLDERS, ...AUDIO_FOLDERS, ...VIDEO_FOLDERS];
+// Document folders accept images OR PDFs — staff KYC docs, company profile
+// documents, uploaded invoice attachments.
+const DOC_FOLDERS = ["staff-docs", "company-docs", "invoices"];
+const ALLOWED_FOLDERS = [...IMAGE_FOLDERS, ...AUDIO_FOLDERS, ...VIDEO_FOLDERS, ...DOC_FOLDERS];
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
 const MAX_AUDIO_SIZE = 25 * 1024 * 1024; // 25MB
 const MAX_VIDEO_SIZE = 60 * 1024 * 1024; // 60MB
+const MAX_DOC_SIZE = 20 * 1024 * 1024; // 20MB
 
 const VIDEO_EXT: Record<string, string> = {
   "video/mp4": "mp4",
@@ -51,7 +56,14 @@ export async function POST(request: NextRequest) {
 
   const isAudio = AUDIO_FOLDERS.includes(folder);
   const isVideo = VIDEO_FOLDERS.includes(folder);
-  const maxSize = isVideo ? MAX_VIDEO_SIZE : isAudio ? MAX_AUDIO_SIZE : MAX_IMAGE_SIZE;
+  const isDoc = DOC_FOLDERS.includes(folder);
+  const maxSize = isVideo
+    ? MAX_VIDEO_SIZE
+    : isAudio
+      ? MAX_AUDIO_SIZE
+      : isDoc
+        ? MAX_DOC_SIZE
+        : MAX_IMAGE_SIZE;
   if (file.size > maxSize) {
     return NextResponse.json(
       { error: `File too large (max ${Math.round(maxSize / 1024 / 1024)}MB)` },
@@ -70,6 +82,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Only audio uploads are supported here" }, { status: 400 });
     }
     ext = AUDIO_EXT[file.type.split(";")[0]] ?? "webm";
+  } else if (isDoc) {
+    if (file.type === "application/pdf") {
+      ext = "pdf";
+    } else if (file.type.startsWith("image/")) {
+      ext = (file.type.split("/")[1] || "jpg").replace("jpeg", "jpg");
+    } else {
+      return NextResponse.json({ error: "Upload a PDF or image" }, { status: 400 });
+    }
   } else {
     if (!file.type.startsWith("image/")) {
       return NextResponse.json({ error: "Only image uploads are supported" }, { status: 400 });
@@ -78,7 +98,8 @@ export async function POST(request: NextRequest) {
   }
 
   const filename = `${Date.now()}-${randomUUID().slice(0, 8)}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "uploads", folder);
+  // Persistent uploads folder (served by app/uploads/[...path]) — see lib/uploads.ts.
+  const dir = path.join(uploadsRoot(), folder);
   await mkdir(dir, { recursive: true });
 
   const buffer = Buffer.from(await file.arrayBuffer());

@@ -20,8 +20,22 @@ export type CompanySettingsModel = runtime.Types.Result.DefaultSelection<Prisma.
 
 export type AggregateCompanySettings = {
   _count: CompanySettingsCountAggregateOutputType | null
+  _avg: CompanySettingsAvgAggregateOutputType | null
+  _sum: CompanySettingsSumAggregateOutputType | null
   _min: CompanySettingsMinAggregateOutputType | null
   _max: CompanySettingsMaxAggregateOutputType | null
+}
+
+export type CompanySettingsAvgAggregateOutputType = {
+  signatureLogoWidth: number | null
+  signatureLogoHeight: number | null
+  bankBalance: number | null
+}
+
+export type CompanySettingsSumAggregateOutputType = {
+  signatureLogoWidth: number | null
+  signatureLogoHeight: number | null
+  bankBalance: number | null
 }
 
 export type CompanySettingsMinAggregateOutputType = {
@@ -30,8 +44,23 @@ export type CompanySettingsMinAggregateOutputType = {
   phone: string | null
   email: string | null
   address: string | null
+  website: string | null
   logoUrl: string | null
   googleReviewUrl: string | null
+  googleRating: string | null
+  googleReviewCount: string | null
+  linkedinUrl: string | null
+  signatureLogoWidth: number | null
+  signatureLogoHeight: number | null
+  happyCustomers: string | null
+  featuredReviews: string | null
+  bankBalance: number | null
+  upiId: string | null
+  upiQrUrl: string | null
+  bankName: string | null
+  bankAccountName: string | null
+  bankAccountNumber: string | null
+  bankIfsc: string | null
   updatedAt: Date | null
 }
 
@@ -41,8 +70,23 @@ export type CompanySettingsMaxAggregateOutputType = {
   phone: string | null
   email: string | null
   address: string | null
+  website: string | null
   logoUrl: string | null
   googleReviewUrl: string | null
+  googleRating: string | null
+  googleReviewCount: string | null
+  linkedinUrl: string | null
+  signatureLogoWidth: number | null
+  signatureLogoHeight: number | null
+  happyCustomers: string | null
+  featuredReviews: string | null
+  bankBalance: number | null
+  upiId: string | null
+  upiQrUrl: string | null
+  bankName: string | null
+  bankAccountName: string | null
+  bankAccountNumber: string | null
+  bankIfsc: string | null
   updatedAt: Date | null
 }
 
@@ -52,12 +96,39 @@ export type CompanySettingsCountAggregateOutputType = {
   phone: number
   email: number
   address: number
+  website: number
   logoUrl: number
   googleReviewUrl: number
+  googleRating: number
+  googleReviewCount: number
+  linkedinUrl: number
+  signatureLogoWidth: number
+  signatureLogoHeight: number
+  happyCustomers: number
+  featuredReviews: number
+  bankBalance: number
+  upiId: number
+  upiQrUrl: number
+  bankName: number
+  bankAccountName: number
+  bankAccountNumber: number
+  bankIfsc: number
   updatedAt: number
   _all: number
 }
 
+
+export type CompanySettingsAvgAggregateInputType = {
+  signatureLogoWidth?: true
+  signatureLogoHeight?: true
+  bankBalance?: true
+}
+
+export type CompanySettingsSumAggregateInputType = {
+  signatureLogoWidth?: true
+  signatureLogoHeight?: true
+  bankBalance?: true
+}
 
 export type CompanySettingsMinAggregateInputType = {
   id?: true
@@ -65,8 +136,23 @@ export type CompanySettingsMinAggregateInputType = {
   phone?: true
   email?: true
   address?: true
+  website?: true
   logoUrl?: true
   googleReviewUrl?: true
+  googleRating?: true
+  googleReviewCount?: true
+  linkedinUrl?: true
+  signatureLogoWidth?: true
+  signatureLogoHeight?: true
+  happyCustomers?: true
+  featuredReviews?: true
+  bankBalance?: true
+  upiId?: true
+  upiQrUrl?: true
+  bankName?: true
+  bankAccountName?: true
+  bankAccountNumber?: true
+  bankIfsc?: true
   updatedAt?: true
 }
 
@@ -76,8 +162,23 @@ export type CompanySettingsMaxAggregateInputType = {
   phone?: true
   email?: true
   address?: true
+  website?: true
   logoUrl?: true
   googleReviewUrl?: true
+  googleRating?: true
+  googleReviewCount?: true
+  linkedinUrl?: true
+  signatureLogoWidth?: true
+  signatureLogoHeight?: true
+  happyCustomers?: true
+  featuredReviews?: true
+  bankBalance?: true
+  upiId?: true
+  upiQrUrl?: true
+  bankName?: true
+  bankAccountName?: true
+  bankAccountNumber?: true
+  bankIfsc?: true
   updatedAt?: true
 }
 
@@ -87,8 +188,23 @@ export type CompanySettingsCountAggregateInputType = {
   phone?: true
   email?: true
   address?: true
+  website?: true
   logoUrl?: true
   googleReviewUrl?: true
+  googleRating?: true
+  googleReviewCount?: true
+  linkedinUrl?: true
+  signatureLogoWidth?: true
+  signatureLogoHeight?: true
+  happyCustomers?: true
+  featuredReviews?: true
+  bankBalance?: true
+  upiId?: true
+  upiQrUrl?: true
+  bankName?: true
+  bankAccountName?: true
+  bankAccountNumber?: true
+  bankIfsc?: true
   updatedAt?: true
   _all?: true
 }
@@ -131,6 +247,18 @@ export type CompanySettingsAggregateArgs<ExtArgs extends runtime.Types.Extension
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CompanySettingsAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CompanySettingsSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CompanySettingsMinAggregateInputType
@@ -161,6 +289,8 @@ export type CompanySettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   _count?: CompanySettingsCountAggregateInputType | true
+  _avg?: CompanySettingsAvgAggregateInputType
+  _sum?: CompanySettingsSumAggregateInputType
   _min?: CompanySettingsMinAggregateInputType
   _max?: CompanySettingsMaxAggregateInputType
 }
@@ -171,10 +301,27 @@ export type CompanySettingsGroupByOutputType = {
   phone: string
   email: string
   address: string
+  website: string | null
   logoUrl: string | null
   googleReviewUrl: string | null
+  googleRating: string | null
+  googleReviewCount: string | null
+  linkedinUrl: string | null
+  signatureLogoWidth: number | null
+  signatureLogoHeight: number | null
+  happyCustomers: string | null
+  featuredReviews: string | null
+  bankBalance: number | null
+  upiId: string | null
+  upiQrUrl: string | null
+  bankName: string | null
+  bankAccountName: string | null
+  bankAccountNumber: string | null
+  bankIfsc: string | null
   updatedAt: Date
   _count: CompanySettingsCountAggregateOutputType | null
+  _avg: CompanySettingsAvgAggregateOutputType | null
+  _sum: CompanySettingsSumAggregateOutputType | null
   _min: CompanySettingsMinAggregateOutputType | null
   _max: CompanySettingsMaxAggregateOutputType | null
 }
@@ -203,8 +350,23 @@ export type CompanySettingsWhereInput = {
   phone?: Prisma.StringFilter<"CompanySettings"> | string
   email?: Prisma.StringFilter<"CompanySettings"> | string
   address?: Prisma.StringFilter<"CompanySettings"> | string
+  website?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  googleRating?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  linkedinUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  signatureLogoWidth?: Prisma.IntNullableFilter<"CompanySettings"> | number | null
+  signatureLogoHeight?: Prisma.IntNullableFilter<"CompanySettings"> | number | null
+  happyCustomers?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  featuredReviews?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankBalance?: Prisma.FloatNullableFilter<"CompanySettings"> | number | null
+  upiId?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  upiQrUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankName?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankAccountName?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankAccountNumber?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankIfsc?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"CompanySettings"> | Date | string
 }
 
@@ -214,8 +376,23 @@ export type CompanySettingsOrderByWithRelationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  website?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleRating?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  signatureLogoWidth?: Prisma.SortOrderInput | Prisma.SortOrder
+  signatureLogoHeight?: Prisma.SortOrderInput | Prisma.SortOrder
+  happyCustomers?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredReviews?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankBalance?: Prisma.SortOrderInput | Prisma.SortOrder
+  upiId?: Prisma.SortOrderInput | Prisma.SortOrder
+  upiQrUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -228,8 +405,23 @@ export type CompanySettingsWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringFilter<"CompanySettings"> | string
   email?: Prisma.StringFilter<"CompanySettings"> | string
   address?: Prisma.StringFilter<"CompanySettings"> | string
+  website?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  googleRating?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  linkedinUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  signatureLogoWidth?: Prisma.IntNullableFilter<"CompanySettings"> | number | null
+  signatureLogoHeight?: Prisma.IntNullableFilter<"CompanySettings"> | number | null
+  happyCustomers?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  featuredReviews?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankBalance?: Prisma.FloatNullableFilter<"CompanySettings"> | number | null
+  upiId?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  upiQrUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankName?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankAccountName?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankAccountNumber?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  bankIfsc?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   updatedAt?: Prisma.DateTimeFilter<"CompanySettings"> | Date | string
 }, "id">
 
@@ -239,12 +431,29 @@ export type CompanySettingsOrderByWithAggregationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  website?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleRating?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  signatureLogoWidth?: Prisma.SortOrderInput | Prisma.SortOrder
+  signatureLogoHeight?: Prisma.SortOrderInput | Prisma.SortOrder
+  happyCustomers?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredReviews?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankBalance?: Prisma.SortOrderInput | Prisma.SortOrder
+  upiId?: Prisma.SortOrderInput | Prisma.SortOrder
+  upiQrUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountName?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CompanySettingsCountOrderByAggregateInput
+  _avg?: Prisma.CompanySettingsAvgOrderByAggregateInput
   _max?: Prisma.CompanySettingsMaxOrderByAggregateInput
   _min?: Prisma.CompanySettingsMinOrderByAggregateInput
+  _sum?: Prisma.CompanySettingsSumOrderByAggregateInput
 }
 
 export type CompanySettingsScalarWhereWithAggregatesInput = {
@@ -256,8 +465,23 @@ export type CompanySettingsScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringWithAggregatesFilter<"CompanySettings"> | string
   email?: Prisma.StringWithAggregatesFilter<"CompanySettings"> | string
   address?: Prisma.StringWithAggregatesFilter<"CompanySettings"> | string
+  website?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   googleReviewUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  googleRating?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  googleReviewCount?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  linkedinUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  signatureLogoWidth?: Prisma.IntNullableWithAggregatesFilter<"CompanySettings"> | number | null
+  signatureLogoHeight?: Prisma.IntNullableWithAggregatesFilter<"CompanySettings"> | number | null
+  happyCustomers?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  featuredReviews?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  bankBalance?: Prisma.FloatNullableWithAggregatesFilter<"CompanySettings"> | number | null
+  upiId?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  upiQrUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  bankName?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  bankAccountName?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  bankAccountNumber?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  bankIfsc?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CompanySettings"> | Date | string
 }
 
@@ -267,8 +491,23 @@ export type CompanySettingsCreateInput = {
   phone?: string
   email?: string
   address?: string
+  website?: string | null
   logoUrl?: string | null
   googleReviewUrl?: string | null
+  googleRating?: string | null
+  googleReviewCount?: string | null
+  linkedinUrl?: string | null
+  signatureLogoWidth?: number | null
+  signatureLogoHeight?: number | null
+  happyCustomers?: string | null
+  featuredReviews?: string | null
+  bankBalance?: number | null
+  upiId?: string | null
+  upiQrUrl?: string | null
+  bankName?: string | null
+  bankAccountName?: string | null
+  bankAccountNumber?: string | null
+  bankIfsc?: string | null
   updatedAt?: Date | string
 }
 
@@ -278,8 +517,23 @@ export type CompanySettingsUncheckedCreateInput = {
   phone?: string
   email?: string
   address?: string
+  website?: string | null
   logoUrl?: string | null
   googleReviewUrl?: string | null
+  googleRating?: string | null
+  googleReviewCount?: string | null
+  linkedinUrl?: string | null
+  signatureLogoWidth?: number | null
+  signatureLogoHeight?: number | null
+  happyCustomers?: string | null
+  featuredReviews?: string | null
+  bankBalance?: number | null
+  upiId?: string | null
+  upiQrUrl?: string | null
+  bankName?: string | null
+  bankAccountName?: string | null
+  bankAccountNumber?: string | null
+  bankIfsc?: string | null
   updatedAt?: Date | string
 }
 
@@ -289,8 +543,23 @@ export type CompanySettingsUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureLogoWidth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signatureLogoHeight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -300,8 +569,23 @@ export type CompanySettingsUncheckedUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureLogoWidth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signatureLogoHeight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -311,8 +595,23 @@ export type CompanySettingsCreateManyInput = {
   phone?: string
   email?: string
   address?: string
+  website?: string | null
   logoUrl?: string | null
   googleReviewUrl?: string | null
+  googleRating?: string | null
+  googleReviewCount?: string | null
+  linkedinUrl?: string | null
+  signatureLogoWidth?: number | null
+  signatureLogoHeight?: number | null
+  happyCustomers?: string | null
+  featuredReviews?: string | null
+  bankBalance?: number | null
+  upiId?: string | null
+  upiQrUrl?: string | null
+  bankName?: string | null
+  bankAccountName?: string | null
+  bankAccountNumber?: string | null
+  bankIfsc?: string | null
   updatedAt?: Date | string
 }
 
@@ -322,8 +621,23 @@ export type CompanySettingsUpdateManyMutationInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureLogoWidth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signatureLogoHeight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -333,8 +647,23 @@ export type CompanySettingsUncheckedUpdateManyInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureLogoWidth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signatureLogoHeight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  happyCustomers?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredReviews?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  upiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  upiQrUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankIfsc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -344,9 +673,30 @@ export type CompanySettingsCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  website?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrder
+  googleRating?: Prisma.SortOrder
+  googleReviewCount?: Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrder
+  signatureLogoWidth?: Prisma.SortOrder
+  signatureLogoHeight?: Prisma.SortOrder
+  happyCustomers?: Prisma.SortOrder
+  featuredReviews?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
+  upiId?: Prisma.SortOrder
+  upiQrUrl?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankAccountName?: Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CompanySettingsAvgOrderByAggregateInput = {
+  signatureLogoWidth?: Prisma.SortOrder
+  signatureLogoHeight?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
 }
 
 export type CompanySettingsMaxOrderByAggregateInput = {
@@ -355,8 +705,23 @@ export type CompanySettingsMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  website?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrder
+  googleRating?: Prisma.SortOrder
+  googleReviewCount?: Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrder
+  signatureLogoWidth?: Prisma.SortOrder
+  signatureLogoHeight?: Prisma.SortOrder
+  happyCustomers?: Prisma.SortOrder
+  featuredReviews?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
+  upiId?: Prisma.SortOrder
+  upiQrUrl?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankAccountName?: Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -366,9 +731,30 @@ export type CompanySettingsMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  website?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrder
+  googleRating?: Prisma.SortOrder
+  googleReviewCount?: Prisma.SortOrder
+  linkedinUrl?: Prisma.SortOrder
+  signatureLogoWidth?: Prisma.SortOrder
+  signatureLogoHeight?: Prisma.SortOrder
+  happyCustomers?: Prisma.SortOrder
+  featuredReviews?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
+  upiId?: Prisma.SortOrder
+  upiQrUrl?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  bankAccountName?: Prisma.SortOrder
+  bankAccountNumber?: Prisma.SortOrder
+  bankIfsc?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CompanySettingsSumOrderByAggregateInput = {
+  signatureLogoWidth?: Prisma.SortOrder
+  signatureLogoHeight?: Prisma.SortOrder
+  bankBalance?: Prisma.SortOrder
 }
 
 
@@ -379,8 +765,23 @@ export type CompanySettingsSelect<ExtArgs extends runtime.Types.Extensions.Inter
   phone?: boolean
   email?: boolean
   address?: boolean
+  website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  googleRating?: boolean
+  googleReviewCount?: boolean
+  linkedinUrl?: boolean
+  signatureLogoWidth?: boolean
+  signatureLogoHeight?: boolean
+  happyCustomers?: boolean
+  featuredReviews?: boolean
+  bankBalance?: boolean
+  upiId?: boolean
+  upiQrUrl?: boolean
+  bankName?: boolean
+  bankAccountName?: boolean
+  bankAccountNumber?: boolean
+  bankIfsc?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["companySettings"]>
 
@@ -390,8 +791,23 @@ export type CompanySettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   phone?: boolean
   email?: boolean
   address?: boolean
+  website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  googleRating?: boolean
+  googleReviewCount?: boolean
+  linkedinUrl?: boolean
+  signatureLogoWidth?: boolean
+  signatureLogoHeight?: boolean
+  happyCustomers?: boolean
+  featuredReviews?: boolean
+  bankBalance?: boolean
+  upiId?: boolean
+  upiQrUrl?: boolean
+  bankName?: boolean
+  bankAccountName?: boolean
+  bankAccountNumber?: boolean
+  bankIfsc?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["companySettings"]>
 
@@ -401,8 +817,23 @@ export type CompanySettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   phone?: boolean
   email?: boolean
   address?: boolean
+  website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  googleRating?: boolean
+  googleReviewCount?: boolean
+  linkedinUrl?: boolean
+  signatureLogoWidth?: boolean
+  signatureLogoHeight?: boolean
+  happyCustomers?: boolean
+  featuredReviews?: boolean
+  bankBalance?: boolean
+  upiId?: boolean
+  upiQrUrl?: boolean
+  bankName?: boolean
+  bankAccountName?: boolean
+  bankAccountNumber?: boolean
+  bankIfsc?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["companySettings"]>
 
@@ -412,12 +843,27 @@ export type CompanySettingsSelectScalar = {
   phone?: boolean
   email?: boolean
   address?: boolean
+  website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  googleRating?: boolean
+  googleReviewCount?: boolean
+  linkedinUrl?: boolean
+  signatureLogoWidth?: boolean
+  signatureLogoHeight?: boolean
+  happyCustomers?: boolean
+  featuredReviews?: boolean
+  bankBalance?: boolean
+  upiId?: boolean
+  upiQrUrl?: boolean
+  bankName?: boolean
+  bankAccountName?: boolean
+  bankAccountNumber?: boolean
+  bankIfsc?: boolean
   updatedAt?: boolean
 }
 
-export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "logoUrl" | "googleReviewUrl" | "updatedAt", ExtArgs["result"]["companySettings"]>
+export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "website" | "logoUrl" | "googleReviewUrl" | "googleRating" | "googleReviewCount" | "linkedinUrl" | "signatureLogoWidth" | "signatureLogoHeight" | "happyCustomers" | "featuredReviews" | "bankBalance" | "upiId" | "upiQrUrl" | "bankName" | "bankAccountName" | "bankAccountNumber" | "bankIfsc" | "updatedAt", ExtArgs["result"]["companySettings"]>
 
 export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CompanySettings"
@@ -428,8 +874,23 @@ export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.Int
     phone: string
     email: string
     address: string
+    website: string | null
     logoUrl: string | null
     googleReviewUrl: string | null
+    googleRating: string | null
+    googleReviewCount: string | null
+    linkedinUrl: string | null
+    signatureLogoWidth: number | null
+    signatureLogoHeight: number | null
+    happyCustomers: string | null
+    featuredReviews: string | null
+    bankBalance: number | null
+    upiId: string | null
+    upiQrUrl: string | null
+    bankName: string | null
+    bankAccountName: string | null
+    bankAccountNumber: string | null
+    bankIfsc: string | null
     updatedAt: Date
   }, ExtArgs["result"]["companySettings"]>
   composites: {}
@@ -859,8 +1320,23 @@ export interface CompanySettingsFieldRefs {
   readonly phone: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly email: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly address: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly website: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly logoUrl: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly googleReviewUrl: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly googleRating: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly googleReviewCount: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly linkedinUrl: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly signatureLogoWidth: Prisma.FieldRef<"CompanySettings", 'Int'>
+  readonly signatureLogoHeight: Prisma.FieldRef<"CompanySettings", 'Int'>
+  readonly happyCustomers: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly featuredReviews: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly bankBalance: Prisma.FieldRef<"CompanySettings", 'Float'>
+  readonly upiId: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly upiQrUrl: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly bankName: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly bankAccountName: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly bankAccountNumber: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly bankIfsc: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly updatedAt: Prisma.FieldRef<"CompanySettings", 'DateTime'>
 }
     

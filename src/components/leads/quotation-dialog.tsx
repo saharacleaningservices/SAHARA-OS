@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { GstToggle } from "@/components/shared/gst-toggle";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -17,39 +18,105 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createQuotation } from "@/server/actions/leads";
+import { packageToQuoteItems, packageTotals, parsePackage } from "@/lib/package-calc";
 import { formatINR } from "@/lib/utils";
 import { SERVICE_LABELS } from "@/lib/constants";
+import { PRICING_MASTER, activeCampaign, todayIST, unitPriceFor, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
+import { getCatalogueForCrm } from "@/server/actions/pricing";
 
 type LineItem = { name: string; description: string; amount: number };
+
+// Individual Cleaning quantity selections carry no price. Customized
+// Service items are priced automatically where a rate is configured
+// (already folded into the lead's Estimated Amount, so not repeated here);
+// an item with no configured rate and no unit price typed yet is recorded
+// with the distinct "(price to be confirmed)" marker. ServiceQuantityFields
+// records these as plain Notes lines (see
+// src/components/shared/service-quantity-fields.tsx). Pull the still-
+// unpriced ones back out so a freshly opened Generate Quotation dialog
+// already lists exactly what the customer selected, as $0 "price to be
+// confirmed" line items, so staff aren't the ones who have to remember to
+// retype them. "Custom Package —" / "Customizer Package (price to be
+// confirmed) —" are kept for backward compatibility with leads saved
+// before the display name changed from "Customizer Package" to
+// "Customized Service" (2026-09-21).
+function selectionLinesFromNotes(notes?: string | null): string[] {
+  return (notes ?? "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(
+      (l) =>
+        l.startsWith("Custom Package —") ||
+        l.startsWith("Individual Cleaning —") ||
+        l.startsWith("Customizer Package (price to be confirmed) —") ||
+        l.startsWith("Customized Service (price to be confirmed) —")
+    );
+}
 
 export function QuotationDialog({
   leadId,
   service,
   suggestedAmount,
   area,
+  notes,
   trigger,
+  serviceItems,
+  discountAmount,
 }: {
   leadId: string;
   service: string;
   suggestedAmount?: number | null;
   area: string;
+  notes?: string | null;
   trigger?: React.ReactNode;
+  /** Package Calculator lines saved on the lead — when present they become the quote lines. */
+  serviceItems?: string | null;
+  discountAmount?: number | null;
 }) {
+  const pkg = parsePackage(serviceItems, discountAmount);
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<LineItem[]>([
+  // Live prices (Super Admin → Pricing & Packages); catalogue defaults until loaded.
+  const [catalogue, setCatalogue] = useState<PriceItem[]>(PRICING_MASTER);
+  // Festival windows: while a festival campaign runs, "Add from price list" defaults to the exact festival
+  // price (staff can switch to Regular for non-festival dates). Regular stays available.
+  const [festivals, setFestivals] = useState<FestivalWindow[]>([]);
+  const [festivalId, setFestivalId] = useState("");
+  useEffect(() => {
+    if (!open) return;
+    getCatalogueForCrm()
+      .then((p) => {
+        if (!p) return;
+        setCatalogue(p.items);
+        setFestivals(p.festivals);
+        const c = activeCampaign(p.festivals, todayIST());
+        if (c) setFestivalId(c.current.id);
+      })
+      .catch(() => {});
+  }, [open]);
+  const festival = festivals.find((f) => f.id === festivalId) ?? null;
+  const priceOf = (p: PriceItem) => unitPriceFor(p, festival);
+  const [items, setItems] = useState<LineItem[]>(pkg.lines.length ? packageToQuoteItems(pkg) : [
     {
       name: SERVICE_LABELS[service] ?? service,
       description: `${SERVICE_LABELS[service] ?? service} at ${area}`,
-      amount: suggestedAmount ?? 3999,
+      amount: suggestedAmount ?? 0,
     },
+    ...selectionLinesFromNotes(notes).map((line) => ({
+      name: line,
+      description: `${line} — price to be confirmed`,
+      amount: 0,
+    })),
   ]);
   const [gstPercent, setGstPercent] = useState(0);
+  const discount = pkg.lines.length ? packageTotals(pkg).discount : 0;
+  const complimentary = pkg.lines.length ? packageTotals(pkg).complimentary : 0;
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
   const subTotal = items.reduce((s, i) => s + (Number(i.amount) || 0), 0);
-  const gstAmount = Math.round((subTotal * gstPercent) / 100);
-  const total = subTotal + gstAmount;
+  const taxable = Math.max(0, subTotal - discount);
+  const gstAmount = Math.round(((taxable * gstPercent) / 100) * 100) / 100; // exact to the paisa
+  const total = taxable + gstAmount;
 
   function updateItem(idx: number, patch: Partial<LineItem>) {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
@@ -57,15 +124,15 @@ export function QuotationDialog({
 
   function submit() {
     startTransition(async () => {
-      const res = await createQuotation(leadId, items, gstPercent);
-      if (res.error) {
+      const res = await createQuotation(leadId, items, gstPercent, discount);
+      if ("error" in res && res.error) {
         toast.error(res.error);
         return;
       }
       toast.success("Quotation generated");
       setOpen(false);
       router.refresh();
-      if (res.quotationId) {
+      if ("quotationId" in res && res.quotationId) {
         window.open(`/api/quotations/${res.quotationId}/pdf`, "_blank");
       }
     });
@@ -119,30 +186,82 @@ export function QuotationDialog({
               />
             </div>
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setItems((prev) => [...prev, { name: "", description: "", amount: 0 }])}
-          >
-            <Plus className="size-3.5" /> Add line item
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setItems((prev) => [...prev, { name: "", description: "", amount: 0 }])}
+            >
+              <Plus className="size-3.5" /> Add line item
+            </Button>
+            {festivals.length > 0 && (
+              <select
+                value={festivalId}
+                onChange={(e) => setFestivalId(e.target.value)}
+                aria-label="Price type for price-list items"
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="">Regular prices</option>
+                {festivals.map((f) => (
+                  <option key={f.id} value={f.id}>{f.name} festival prices ({f.start} → {f.end})</option>
+                ))}
+              </select>
+            )}
+            {/* Same approved prices as the landing pages, booking page and catalogue (pricing master). */}
+            <select
+              value=""
+              onChange={(e) => {
+                const p = catalogue.find((x) => x.contentId === e.target.value);
+                if (!p) return;
+                const qty = p.minQty ?? 1;
+                const unit = priceOf(p);
+                const festivalPriced = !!festival && unit != null && unit !== p.price;
+                setItems((prev) => [
+                  ...prev,
+                  {
+                    name: p.name,
+                    description:
+                      unit == null
+                        ? `${p.name} — price after inspection`
+                        : `${p.name}${festivalPriced ? ` — ${festival!.name} price` : ""}${p.unit ? ` — ${qty} × ₹${unit.toLocaleString("en-IN")} ${p.unit}` : ""}${p.rule ? ` (${p.rule})` : ""}`,
+                    amount: unit == null ? 0 : unit * Math.max(qty, p.minQty ?? 1),
+                  },
+                ]);
+              }}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            >
+              <option value="">+ Add from Sahara price list…</option>
+              {catalogue.map((p) => (
+                <option key={p.contentId} value={p.contentId}>
+                  {p.name} — {priceOf(p) == null ? "after inspection" : `₹${priceOf(p)!.toLocaleString("en-IN")}${p.unit ? ` ${p.unit}` : ""}`}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-24 text-xs text-muted-foreground">GST %</Label>
-            <Input
-              type="number"
-              value={gstPercent}
-              onChange={(e) => setGstPercent(Number(e.target.value))}
-              className="w-24"
-            />
+            <Label className="w-24 text-xs text-muted-foreground">GST</Label>
+            <GstToggle value={gstPercent} onChange={setGstPercent} />
           </div>
 
           <div className="space-y-1 rounded-lg bg-muted/50 p-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">{complimentary > 0 || discount > 0 ? "Actual Value" : "Subtotal"}</span>
               <span>{formatINR(subTotal)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Discount (package)</span>
+                <span>− {formatINR(discount)}</span>
+              </div>
+            )}
+            {complimentary > 0 && (
+              <div className="flex justify-between text-emerald-700 dark:text-emerald-400">
+                <span>Complimentary (free)</span>
+                <span>{formatINR(complimentary)}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">GST ({gstPercent}%)</span>
               <span>{formatINR(gstAmount)}</span>

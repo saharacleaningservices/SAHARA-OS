@@ -27,11 +27,19 @@ export type AggregateJob = {
 }
 
 export type JobAvgAggregateOutputType = {
+  teamNumber: number | null
   jobValue: number | null
+  discountAmount: number | null
+  gstAmount: number | null
+  discountValue: number | null
 }
 
 export type JobSumAggregateOutputType = {
+  teamNumber: number | null
   jobValue: number | null
+  discountAmount: number | null
+  gstAmount: number | null
+  discountValue: number | null
 }
 
 export type JobMinAggregateOutputType = {
@@ -40,11 +48,22 @@ export type JobMinAggregateOutputType = {
   leadId: string | null
   customerName: string | null
   customerMobile: string | null
+  alternateMobile: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
   service: $Enums.ServiceType | null
+  serviceVariant: string | null
+  propertyType: string | null
+  packageName: string | null
+  comboServices: string | null
   scheduledDate: Date | null
   scheduledTime: string | null
+  teamNumber: number | null
+  publicToken: string | null
+  shortCode: string | null
+  paymentPreference: string | null
+  advanceRequestedAt: Date | null
   supervisorId: string | null
   status: $Enums.JobStatus | null
   onTheWayAt: Date | null
@@ -54,7 +73,19 @@ export type JobMinAggregateOutputType = {
   notes: string | null
   customerSignatureUrl: string | null
   signedAt: Date | null
+  teamSnapshot: string | null
+  serviceItems: string | null
+  discountAmount: number | null
+  gstEnabled: boolean | null
+  gstAmount: number | null
+  customerGstin: string | null
+  discountMode: string | null
+  discountValue: number | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
   mapLink: string | null
+  siteId: string | null
   vehicleId: string | null
   isDemo: boolean | null
   deletedAt: Date | null
@@ -69,11 +100,22 @@ export type JobMaxAggregateOutputType = {
   leadId: string | null
   customerName: string | null
   customerMobile: string | null
+  alternateMobile: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
   service: $Enums.ServiceType | null
+  serviceVariant: string | null
+  propertyType: string | null
+  packageName: string | null
+  comboServices: string | null
   scheduledDate: Date | null
   scheduledTime: string | null
+  teamNumber: number | null
+  publicToken: string | null
+  shortCode: string | null
+  paymentPreference: string | null
+  advanceRequestedAt: Date | null
   supervisorId: string | null
   status: $Enums.JobStatus | null
   onTheWayAt: Date | null
@@ -83,7 +125,19 @@ export type JobMaxAggregateOutputType = {
   notes: string | null
   customerSignatureUrl: string | null
   signedAt: Date | null
+  teamSnapshot: string | null
+  serviceItems: string | null
+  discountAmount: number | null
+  gstEnabled: boolean | null
+  gstAmount: number | null
+  customerGstin: string | null
+  discountMode: string | null
+  discountValue: number | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
   mapLink: string | null
+  siteId: string | null
   vehicleId: string | null
   isDemo: boolean | null
   deletedAt: Date | null
@@ -98,11 +152,22 @@ export type JobCountAggregateOutputType = {
   leadId: number
   customerName: number
   customerMobile: number
+  alternateMobile: number
   address: number
   area: number
+  pinCode: number
   service: number
+  serviceVariant: number
+  propertyType: number
+  packageName: number
+  comboServices: number
   scheduledDate: number
   scheduledTime: number
+  teamNumber: number
+  publicToken: number
+  shortCode: number
+  paymentPreference: number
+  advanceRequestedAt: number
   supervisorId: number
   status: number
   onTheWayAt: number
@@ -112,7 +177,19 @@ export type JobCountAggregateOutputType = {
   notes: number
   customerSignatureUrl: number
   signedAt: number
+  teamSnapshot: number
+  serviceItems: number
+  discountAmount: number
+  gstEnabled: number
+  gstAmount: number
+  customerGstin: number
+  discountMode: number
+  discountValue: number
+  priceType: number
+  festivalName: number
+  scopeOfWork: number
   mapLink: number
+  siteId: number
   vehicleId: number
   isDemo: number
   deletedAt: number
@@ -124,11 +201,19 @@ export type JobCountAggregateOutputType = {
 
 
 export type JobAvgAggregateInputType = {
+  teamNumber?: true
   jobValue?: true
+  discountAmount?: true
+  gstAmount?: true
+  discountValue?: true
 }
 
 export type JobSumAggregateInputType = {
+  teamNumber?: true
   jobValue?: true
+  discountAmount?: true
+  gstAmount?: true
+  discountValue?: true
 }
 
 export type JobMinAggregateInputType = {
@@ -137,11 +222,22 @@ export type JobMinAggregateInputType = {
   leadId?: true
   customerName?: true
   customerMobile?: true
+  alternateMobile?: true
   address?: true
   area?: true
+  pinCode?: true
   service?: true
+  serviceVariant?: true
+  propertyType?: true
+  packageName?: true
+  comboServices?: true
   scheduledDate?: true
   scheduledTime?: true
+  teamNumber?: true
+  publicToken?: true
+  shortCode?: true
+  paymentPreference?: true
+  advanceRequestedAt?: true
   supervisorId?: true
   status?: true
   onTheWayAt?: true
@@ -151,7 +247,19 @@ export type JobMinAggregateInputType = {
   notes?: true
   customerSignatureUrl?: true
   signedAt?: true
+  teamSnapshot?: true
+  serviceItems?: true
+  discountAmount?: true
+  gstEnabled?: true
+  gstAmount?: true
+  customerGstin?: true
+  discountMode?: true
+  discountValue?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
   mapLink?: true
+  siteId?: true
   vehicleId?: true
   isDemo?: true
   deletedAt?: true
@@ -166,11 +274,22 @@ export type JobMaxAggregateInputType = {
   leadId?: true
   customerName?: true
   customerMobile?: true
+  alternateMobile?: true
   address?: true
   area?: true
+  pinCode?: true
   service?: true
+  serviceVariant?: true
+  propertyType?: true
+  packageName?: true
+  comboServices?: true
   scheduledDate?: true
   scheduledTime?: true
+  teamNumber?: true
+  publicToken?: true
+  shortCode?: true
+  paymentPreference?: true
+  advanceRequestedAt?: true
   supervisorId?: true
   status?: true
   onTheWayAt?: true
@@ -180,7 +299,19 @@ export type JobMaxAggregateInputType = {
   notes?: true
   customerSignatureUrl?: true
   signedAt?: true
+  teamSnapshot?: true
+  serviceItems?: true
+  discountAmount?: true
+  gstEnabled?: true
+  gstAmount?: true
+  customerGstin?: true
+  discountMode?: true
+  discountValue?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
   mapLink?: true
+  siteId?: true
   vehicleId?: true
   isDemo?: true
   deletedAt?: true
@@ -195,11 +326,22 @@ export type JobCountAggregateInputType = {
   leadId?: true
   customerName?: true
   customerMobile?: true
+  alternateMobile?: true
   address?: true
   area?: true
+  pinCode?: true
   service?: true
+  serviceVariant?: true
+  propertyType?: true
+  packageName?: true
+  comboServices?: true
   scheduledDate?: true
   scheduledTime?: true
+  teamNumber?: true
+  publicToken?: true
+  shortCode?: true
+  paymentPreference?: true
+  advanceRequestedAt?: true
   supervisorId?: true
   status?: true
   onTheWayAt?: true
@@ -209,7 +351,19 @@ export type JobCountAggregateInputType = {
   notes?: true
   customerSignatureUrl?: true
   signedAt?: true
+  teamSnapshot?: true
+  serviceItems?: true
+  discountAmount?: true
+  gstEnabled?: true
+  gstAmount?: true
+  customerGstin?: true
+  discountMode?: true
+  discountValue?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
   mapLink?: true
+  siteId?: true
   vehicleId?: true
   isDemo?: true
   deletedAt?: true
@@ -311,11 +465,22 @@ export type JobGroupByOutputType = {
   leadId: string | null
   customerName: string
   customerMobile: string
+  alternateMobile: string | null
   address: string
   area: string
+  pinCode: string | null
   service: $Enums.ServiceType
+  serviceVariant: string | null
+  propertyType: string | null
+  packageName: string | null
+  comboServices: string | null
   scheduledDate: Date
   scheduledTime: string
+  teamNumber: number | null
+  publicToken: string | null
+  shortCode: string | null
+  paymentPreference: string | null
+  advanceRequestedAt: Date | null
   supervisorId: string | null
   status: $Enums.JobStatus
   onTheWayAt: Date | null
@@ -325,7 +490,19 @@ export type JobGroupByOutputType = {
   notes: string | null
   customerSignatureUrl: string | null
   signedAt: Date | null
+  teamSnapshot: string | null
+  serviceItems: string | null
+  discountAmount: number | null
+  gstEnabled: boolean
+  gstAmount: number
+  customerGstin: string | null
+  discountMode: string | null
+  discountValue: number | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
   mapLink: string | null
+  siteId: string | null
   vehicleId: string | null
   isDemo: boolean
   deletedAt: Date | null
@@ -363,11 +540,22 @@ export type JobWhereInput = {
   leadId?: Prisma.StringNullableFilter<"Job"> | string | null
   customerName?: Prisma.StringFilter<"Job"> | string
   customerMobile?: Prisma.StringFilter<"Job"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Job"> | string | null
   address?: Prisma.StringFilter<"Job"> | string
   area?: Prisma.StringFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Job"> | $Enums.ServiceType
+  serviceVariant?: Prisma.StringNullableFilter<"Job"> | string | null
+  propertyType?: Prisma.StringNullableFilter<"Job"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Job"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeFilter<"Job"> | Date | string
   scheduledTime?: Prisma.StringFilter<"Job"> | string
+  teamNumber?: Prisma.IntNullableFilter<"Job"> | number | null
+  publicToken?: Prisma.StringNullableFilter<"Job"> | string | null
+  shortCode?: Prisma.StringNullableFilter<"Job"> | string | null
+  paymentPreference?: Prisma.StringNullableFilter<"Job"> | string | null
+  advanceRequestedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   supervisorId?: Prisma.StringNullableFilter<"Job"> | string | null
   status?: Prisma.EnumJobStatusFilter<"Job"> | $Enums.JobStatus
   onTheWayAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -377,7 +565,19 @@ export type JobWhereInput = {
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableFilter<"Job"> | number | null
+  priceType?: Prisma.StringNullableFilter<"Job"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -404,11 +604,22 @@ export type JobOrderByWithRelationInput = {
   leadId?: Prisma.SortOrderInput | Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyType?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageName?: Prisma.SortOrderInput | Prisma.SortOrder
+  comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
   scheduledTime?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  shortCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  advanceRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   supervisorId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   onTheWayAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -418,7 +629,19 @@ export type JobOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   signedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -442,17 +665,28 @@ export type JobOrderByWithRelationInput = {
 export type JobWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   jobNumber?: string
+  publicToken?: string
+  shortCode?: string
   AND?: Prisma.JobWhereInput | Prisma.JobWhereInput[]
   OR?: Prisma.JobWhereInput[]
   NOT?: Prisma.JobWhereInput | Prisma.JobWhereInput[]
   leadId?: Prisma.StringNullableFilter<"Job"> | string | null
   customerName?: Prisma.StringFilter<"Job"> | string
   customerMobile?: Prisma.StringFilter<"Job"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Job"> | string | null
   address?: Prisma.StringFilter<"Job"> | string
   area?: Prisma.StringFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Job"> | $Enums.ServiceType
+  serviceVariant?: Prisma.StringNullableFilter<"Job"> | string | null
+  propertyType?: Prisma.StringNullableFilter<"Job"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Job"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeFilter<"Job"> | Date | string
   scheduledTime?: Prisma.StringFilter<"Job"> | string
+  teamNumber?: Prisma.IntNullableFilter<"Job"> | number | null
+  paymentPreference?: Prisma.StringNullableFilter<"Job"> | string | null
+  advanceRequestedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   supervisorId?: Prisma.StringNullableFilter<"Job"> | string | null
   status?: Prisma.EnumJobStatusFilter<"Job"> | $Enums.JobStatus
   onTheWayAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -462,7 +696,19 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableFilter<"Job"> | number | null
+  priceType?: Prisma.StringNullableFilter<"Job"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -481,7 +727,7 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   materialIssues?: Prisma.MaterialIssueListRelationFilter
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
   videos?: Prisma.JobVideoListRelationFilter
-}, "id" | "jobNumber">
+}, "id" | "jobNumber" | "publicToken" | "shortCode">
 
 export type JobOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -489,11 +735,22 @@ export type JobOrderByWithAggregationInput = {
   leadId?: Prisma.SortOrderInput | Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyType?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageName?: Prisma.SortOrderInput | Prisma.SortOrder
+  comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
   scheduledTime?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  publicToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  shortCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  advanceRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   supervisorId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   onTheWayAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -503,7 +760,19 @@ export type JobOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   signedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountValue?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -526,11 +795,22 @@ export type JobScalarWhereWithAggregatesInput = {
   leadId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   customerName?: Prisma.StringWithAggregatesFilter<"Job"> | string
   customerMobile?: Prisma.StringWithAggregatesFilter<"Job"> | string
+  alternateMobile?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   address?: Prisma.StringWithAggregatesFilter<"Job"> | string
   area?: Prisma.StringWithAggregatesFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeWithAggregatesFilter<"Job"> | $Enums.ServiceType
+  serviceVariant?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  propertyType?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  packageName?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  comboServices?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeWithAggregatesFilter<"Job"> | Date | string
   scheduledTime?: Prisma.StringWithAggregatesFilter<"Job"> | string
+  teamNumber?: Prisma.IntNullableWithAggregatesFilter<"Job"> | number | null
+  publicToken?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  shortCode?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  paymentPreference?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  advanceRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
   supervisorId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   status?: Prisma.EnumJobStatusWithAggregatesFilter<"Job"> | $Enums.JobStatus
   onTheWayAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
@@ -540,7 +820,19 @@ export type JobScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  serviceItems?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  discountAmount?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolWithAggregatesFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatWithAggregatesFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  priceType?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  festivalName?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  scopeOfWork?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
@@ -554,11 +846,22 @@ export type JobCreateInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -567,7 +870,19 @@ export type JobCreateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -593,11 +908,22 @@ export type JobUncheckedCreateInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -607,7 +933,19 @@ export type JobUncheckedCreateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -630,11 +968,22 @@ export type JobUpdateInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -643,7 +992,19 @@ export type JobUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -669,11 +1030,22 @@ export type JobUncheckedUpdateInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -683,7 +1055,19 @@ export type JobUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -707,11 +1091,22 @@ export type JobCreateManyInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -721,7 +1116,19 @@ export type JobCreateManyInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -735,11 +1142,22 @@ export type JobUpdateManyMutationInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -748,7 +1166,19 @@ export type JobUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -762,11 +1192,22 @@ export type JobUncheckedUpdateManyInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -776,7 +1217,19 @@ export type JobUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -801,11 +1254,22 @@ export type JobCountOrderByAggregateInput = {
   leadId?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
   service?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrder
+  propertyType?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
   scheduledTime?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
+  shortCode?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
+  advanceRequestedAt?: Prisma.SortOrder
   supervisorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   onTheWayAt?: Prisma.SortOrder
@@ -815,7 +1279,19 @@ export type JobCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrder
+  discountMode?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -825,7 +1301,11 @@ export type JobCountOrderByAggregateInput = {
 }
 
 export type JobAvgOrderByAggregateInput = {
+  teamNumber?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
 }
 
 export type JobMaxOrderByAggregateInput = {
@@ -834,11 +1314,22 @@ export type JobMaxOrderByAggregateInput = {
   leadId?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
   service?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrder
+  propertyType?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
   scheduledTime?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
+  shortCode?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
+  advanceRequestedAt?: Prisma.SortOrder
   supervisorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   onTheWayAt?: Prisma.SortOrder
@@ -848,7 +1339,19 @@ export type JobMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrder
+  discountMode?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -863,11 +1366,22 @@ export type JobMinOrderByAggregateInput = {
   leadId?: Prisma.SortOrder
   customerName?: Prisma.SortOrder
   customerMobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
   service?: Prisma.SortOrder
+  serviceVariant?: Prisma.SortOrder
+  propertyType?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
   scheduledDate?: Prisma.SortOrder
   scheduledTime?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
+  publicToken?: Prisma.SortOrder
+  shortCode?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
+  advanceRequestedAt?: Prisma.SortOrder
   supervisorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   onTheWayAt?: Prisma.SortOrder
@@ -877,7 +1391,19 @@ export type JobMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
   signedAt?: Prisma.SortOrder
+  teamSnapshot?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
+  gstEnabled?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  customerGstin?: Prisma.SortOrder
+  discountMode?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -887,7 +1413,11 @@ export type JobMinOrderByAggregateInput = {
 }
 
 export type JobSumOrderByAggregateInput = {
+  teamNumber?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  discountValue?: Prisma.SortOrder
 }
 
 export type JobScalarRelationFilter = {
@@ -1169,11 +1699,22 @@ export type JobCreateWithoutSupervisorInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -1182,7 +1723,19 @@ export type JobCreateWithoutSupervisorInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1207,11 +1760,22 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -1220,7 +1784,19 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1272,11 +1848,22 @@ export type JobScalarWhereInput = {
   leadId?: Prisma.StringNullableFilter<"Job"> | string | null
   customerName?: Prisma.StringFilter<"Job"> | string
   customerMobile?: Prisma.StringFilter<"Job"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Job"> | string | null
   address?: Prisma.StringFilter<"Job"> | string
   area?: Prisma.StringFilter<"Job"> | string
+  pinCode?: Prisma.StringNullableFilter<"Job"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Job"> | $Enums.ServiceType
+  serviceVariant?: Prisma.StringNullableFilter<"Job"> | string | null
+  propertyType?: Prisma.StringNullableFilter<"Job"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Job"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Job"> | string | null
   scheduledDate?: Prisma.DateTimeFilter<"Job"> | Date | string
   scheduledTime?: Prisma.StringFilter<"Job"> | string
+  teamNumber?: Prisma.IntNullableFilter<"Job"> | number | null
+  publicToken?: Prisma.StringNullableFilter<"Job"> | string | null
+  shortCode?: Prisma.StringNullableFilter<"Job"> | string | null
+  paymentPreference?: Prisma.StringNullableFilter<"Job"> | string | null
+  advanceRequestedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   supervisorId?: Prisma.StringNullableFilter<"Job"> | string | null
   status?: Prisma.EnumJobStatusFilter<"Job"> | $Enums.JobStatus
   onTheWayAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -1286,7 +1873,19 @@ export type JobScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
   signedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  teamSnapshot?: Prisma.StringNullableFilter<"Job"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  gstEnabled?: Prisma.BoolFilter<"Job"> | boolean
+  gstAmount?: Prisma.FloatFilter<"Job"> | number
+  customerGstin?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  discountValue?: Prisma.FloatNullableFilter<"Job"> | number | null
+  priceType?: Prisma.StringNullableFilter<"Job"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
   isDemo?: Prisma.BoolFilter<"Job"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
@@ -1300,11 +1899,22 @@ export type JobCreateWithoutLeadInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -1313,7 +1923,19 @@ export type JobCreateWithoutLeadInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1337,11 +1959,22 @@ export type JobUncheckedCreateWithoutLeadInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -1351,7 +1984,19 @@ export type JobUncheckedCreateWithoutLeadInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1399,11 +2044,22 @@ export type JobCreateWithoutAssignmentsInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -1412,7 +2068,19 @@ export type JobCreateWithoutAssignmentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1437,11 +2105,22 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -1451,7 +2130,19 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1489,11 +2180,22 @@ export type JobUpdateWithoutAssignmentsInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1502,7 +2204,19 @@ export type JobUpdateWithoutAssignmentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1527,11 +2241,22 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1541,7 +2266,19 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1563,11 +2300,22 @@ export type JobCreateWithoutPhotosInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -1576,7 +2324,19 @@ export type JobCreateWithoutPhotosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1601,11 +2361,22 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -1615,7 +2386,19 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1653,11 +2436,22 @@ export type JobUpdateWithoutPhotosInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1666,7 +2460,19 @@ export type JobUpdateWithoutPhotosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1691,11 +2497,22 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1705,7 +2522,19 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1727,11 +2556,22 @@ export type JobCreateWithoutCertificateInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -1740,7 +2580,19 @@ export type JobCreateWithoutCertificateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1765,11 +2617,22 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -1779,7 +2642,19 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1817,11 +2692,22 @@ export type JobUpdateWithoutCertificateInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1830,7 +2716,19 @@ export type JobUpdateWithoutCertificateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1855,11 +2753,22 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1869,7 +2778,19 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1891,11 +2812,22 @@ export type JobCreateWithoutPaymentsInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -1904,7 +2836,19 @@ export type JobCreateWithoutPaymentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1929,11 +2873,22 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -1943,7 +2898,19 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -1981,11 +2948,22 @@ export type JobUpdateWithoutPaymentsInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1994,7 +2972,19 @@ export type JobUpdateWithoutPaymentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2019,11 +3009,22 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2033,7 +3034,19 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2055,11 +3068,22 @@ export type JobCreateWithoutExpensesInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -2068,7 +3092,19 @@ export type JobCreateWithoutExpensesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2093,11 +3129,22 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -2107,7 +3154,19 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2145,11 +3204,22 @@ export type JobUpdateWithoutExpensesInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2158,7 +3228,19 @@ export type JobUpdateWithoutExpensesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2183,11 +3265,22 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2197,7 +3290,19 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2219,11 +3324,22 @@ export type JobCreateWithoutActivityLogsInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -2232,7 +3348,19 @@ export type JobCreateWithoutActivityLogsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2257,11 +3385,22 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -2271,7 +3410,19 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2309,11 +3460,22 @@ export type JobUpdateWithoutActivityLogsInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2322,7 +3484,19 @@ export type JobUpdateWithoutActivityLogsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2347,11 +3521,22 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2361,7 +3546,19 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2383,11 +3580,22 @@ export type JobCreateWithoutVehicleInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -2396,7 +3604,19 @@ export type JobCreateWithoutVehicleInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2421,11 +3641,22 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -2435,7 +3666,19 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2482,11 +3725,22 @@ export type JobCreateWithoutMaterialIssuesInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -2495,7 +3749,19 @@ export type JobCreateWithoutMaterialIssuesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2520,11 +3786,22 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -2534,7 +3811,19 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2572,11 +3861,22 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2585,7 +3885,19 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2610,11 +3922,22 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2624,7 +3947,19 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2646,11 +3981,22 @@ export type JobCreateWithoutInvoiceInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -2659,7 +4005,19 @@ export type JobCreateWithoutInvoiceInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2684,11 +4042,22 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -2698,7 +4067,19 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2736,11 +4117,22 @@ export type JobUpdateWithoutInvoiceInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2749,7 +4141,19 @@ export type JobUpdateWithoutInvoiceInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2774,11 +4178,22 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2788,7 +4203,19 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2810,11 +4237,22 @@ export type JobCreateWithoutVideosInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -2823,7 +4261,19 @@ export type JobCreateWithoutVideosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2848,11 +4298,22 @@ export type JobUncheckedCreateWithoutVideosInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -2862,7 +4323,19 @@ export type JobUncheckedCreateWithoutVideosInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -2900,11 +4373,22 @@ export type JobUpdateWithoutVideosInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2913,7 +4397,19 @@ export type JobUpdateWithoutVideosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2938,11 +4434,22 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2952,7 +4459,19 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2975,11 +4494,22 @@ export type JobCreateManySupervisorInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
@@ -2988,7 +4518,19 @@ export type JobCreateManySupervisorInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3002,11 +4544,22 @@ export type JobUpdateWithoutSupervisorInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3015,7 +4568,19 @@ export type JobUpdateWithoutSupervisorInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3040,11 +4605,22 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3053,7 +4629,19 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3077,11 +4665,22 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3090,7 +4689,19 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3104,11 +4715,22 @@ export type JobCreateManyLeadInput = {
   jobNumber: string
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -3118,7 +4740,19 @@ export type JobCreateManyLeadInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   vehicleId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
@@ -3132,11 +4766,22 @@ export type JobUpdateWithoutLeadInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3145,7 +4790,19 @@ export type JobUpdateWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3169,11 +4826,22 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3183,7 +4851,19 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3206,11 +4886,22 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3220,7 +4911,19 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3235,11 +4938,22 @@ export type JobCreateManyVehicleInput = {
   leadId?: string | null
   customerName: string
   customerMobile: string
+  alternateMobile?: string | null
   address: string
   area: string
+  pinCode?: string | null
   service: $Enums.ServiceType
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
   scheduledDate: Date | string
   scheduledTime: string
+  teamNumber?: number | null
+  publicToken?: string | null
+  shortCode?: string | null
+  paymentPreference?: string | null
+  advanceRequestedAt?: Date | string | null
   supervisorId?: string | null
   status?: $Enums.JobStatus
   onTheWayAt?: Date | string | null
@@ -3249,7 +4963,19 @@ export type JobCreateManyVehicleInput = {
   notes?: string | null
   customerSignatureUrl?: string | null
   signedAt?: Date | string | null
+  teamSnapshot?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  gstEnabled?: boolean
+  gstAmount?: number
+  customerGstin?: string | null
+  discountMode?: string | null
+  discountValue?: number | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
   mapLink?: string | null
+  siteId?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -3262,11 +4988,22 @@ export type JobUpdateWithoutVehicleInput = {
   jobNumber?: Prisma.StringFieldUpdateOperationsInput | string
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3275,7 +5012,19 @@ export type JobUpdateWithoutVehicleInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3300,11 +5049,22 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3314,7 +5074,19 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3337,11 +5109,22 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerName?: Prisma.StringFieldUpdateOperationsInput | string
   customerMobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   scheduledTime?: Prisma.StringFieldUpdateOperationsInput | string
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publicToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shortCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   supervisorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3351,7 +5134,19 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  teamSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  gstAmount?: Prisma.FloatFieldUpdateOperationsInput | number
+  customerGstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountValue?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3450,11 +5245,22 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   leadId?: boolean
   customerName?: boolean
   customerMobile?: boolean
+  alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
+  serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
   scheduledDate?: boolean
   scheduledTime?: boolean
+  teamNumber?: boolean
+  publicToken?: boolean
+  shortCode?: boolean
+  paymentPreference?: boolean
+  advanceRequestedAt?: boolean
   supervisorId?: boolean
   status?: boolean
   onTheWayAt?: boolean
@@ -3464,7 +5270,19 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -3492,11 +5310,22 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   leadId?: boolean
   customerName?: boolean
   customerMobile?: boolean
+  alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
+  serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
   scheduledDate?: boolean
   scheduledTime?: boolean
+  teamNumber?: boolean
+  publicToken?: boolean
+  shortCode?: boolean
+  paymentPreference?: boolean
+  advanceRequestedAt?: boolean
   supervisorId?: boolean
   status?: boolean
   onTheWayAt?: boolean
@@ -3506,7 +5335,19 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -3524,11 +5365,22 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   leadId?: boolean
   customerName?: boolean
   customerMobile?: boolean
+  alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
+  serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
   scheduledDate?: boolean
   scheduledTime?: boolean
+  teamNumber?: boolean
+  publicToken?: boolean
+  shortCode?: boolean
+  paymentPreference?: boolean
+  advanceRequestedAt?: boolean
   supervisorId?: boolean
   status?: boolean
   onTheWayAt?: boolean
@@ -3538,7 +5390,19 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -3556,11 +5420,22 @@ export type JobSelectScalar = {
   leadId?: boolean
   customerName?: boolean
   customerMobile?: boolean
+  alternateMobile?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
   service?: boolean
+  serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
   scheduledDate?: boolean
   scheduledTime?: boolean
+  teamNumber?: boolean
+  publicToken?: boolean
+  shortCode?: boolean
+  paymentPreference?: boolean
+  advanceRequestedAt?: boolean
   supervisorId?: boolean
   status?: boolean
   onTheWayAt?: boolean
@@ -3570,7 +5445,19 @@ export type JobSelectScalar = {
   notes?: boolean
   customerSignatureUrl?: boolean
   signedAt?: boolean
+  teamSnapshot?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
+  gstEnabled?: boolean
+  gstAmount?: boolean
+  customerGstin?: boolean
+  discountMode?: boolean
+  discountValue?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
   mapLink?: boolean
+  siteId?: boolean
   vehicleId?: boolean
   isDemo?: boolean
   deletedAt?: boolean
@@ -3579,7 +5466,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "address" | "area" | "service" | "scheduledDate" | "scheduledTime" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "shortCode" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "gstEnabled" | "gstAmount" | "customerGstin" | "discountMode" | "discountValue" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -3628,11 +5515,22 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     leadId: string | null
     customerName: string
     customerMobile: string
+    alternateMobile: string | null
     address: string
     area: string
+    pinCode: string | null
     service: $Enums.ServiceType
+    serviceVariant: string | null
+    propertyType: string | null
+    packageName: string | null
+    comboServices: string | null
     scheduledDate: Date
     scheduledTime: string
+    teamNumber: number | null
+    publicToken: string | null
+    shortCode: string | null
+    paymentPreference: string | null
+    advanceRequestedAt: Date | null
     supervisorId: string | null
     status: $Enums.JobStatus
     onTheWayAt: Date | null
@@ -3642,7 +5540,19 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     notes: string | null
     customerSignatureUrl: string | null
     signedAt: Date | null
+    teamSnapshot: string | null
+    serviceItems: string | null
+    discountAmount: number | null
+    gstEnabled: boolean
+    gstAmount: number
+    customerGstin: string | null
+    discountMode: string | null
+    discountValue: number | null
+    priceType: string | null
+    festivalName: string | null
+    scopeOfWork: string | null
     mapLink: string | null
+    siteId: string | null
     vehicleId: string | null
     isDemo: boolean
     deletedAt: Date | null
@@ -4089,11 +5999,22 @@ export interface JobFieldRefs {
   readonly leadId: Prisma.FieldRef<"Job", 'String'>
   readonly customerName: Prisma.FieldRef<"Job", 'String'>
   readonly customerMobile: Prisma.FieldRef<"Job", 'String'>
+  readonly alternateMobile: Prisma.FieldRef<"Job", 'String'>
   readonly address: Prisma.FieldRef<"Job", 'String'>
   readonly area: Prisma.FieldRef<"Job", 'String'>
+  readonly pinCode: Prisma.FieldRef<"Job", 'String'>
   readonly service: Prisma.FieldRef<"Job", 'ServiceType'>
+  readonly serviceVariant: Prisma.FieldRef<"Job", 'String'>
+  readonly propertyType: Prisma.FieldRef<"Job", 'String'>
+  readonly packageName: Prisma.FieldRef<"Job", 'String'>
+  readonly comboServices: Prisma.FieldRef<"Job", 'String'>
   readonly scheduledDate: Prisma.FieldRef<"Job", 'DateTime'>
   readonly scheduledTime: Prisma.FieldRef<"Job", 'String'>
+  readonly teamNumber: Prisma.FieldRef<"Job", 'Int'>
+  readonly publicToken: Prisma.FieldRef<"Job", 'String'>
+  readonly shortCode: Prisma.FieldRef<"Job", 'String'>
+  readonly paymentPreference: Prisma.FieldRef<"Job", 'String'>
+  readonly advanceRequestedAt: Prisma.FieldRef<"Job", 'DateTime'>
   readonly supervisorId: Prisma.FieldRef<"Job", 'String'>
   readonly status: Prisma.FieldRef<"Job", 'JobStatus'>
   readonly onTheWayAt: Prisma.FieldRef<"Job", 'DateTime'>
@@ -4103,7 +6024,19 @@ export interface JobFieldRefs {
   readonly notes: Prisma.FieldRef<"Job", 'String'>
   readonly customerSignatureUrl: Prisma.FieldRef<"Job", 'String'>
   readonly signedAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly teamSnapshot: Prisma.FieldRef<"Job", 'String'>
+  readonly serviceItems: Prisma.FieldRef<"Job", 'String'>
+  readonly discountAmount: Prisma.FieldRef<"Job", 'Float'>
+  readonly gstEnabled: Prisma.FieldRef<"Job", 'Boolean'>
+  readonly gstAmount: Prisma.FieldRef<"Job", 'Float'>
+  readonly customerGstin: Prisma.FieldRef<"Job", 'String'>
+  readonly discountMode: Prisma.FieldRef<"Job", 'String'>
+  readonly discountValue: Prisma.FieldRef<"Job", 'Float'>
+  readonly priceType: Prisma.FieldRef<"Job", 'String'>
+  readonly festivalName: Prisma.FieldRef<"Job", 'String'>
+  readonly scopeOfWork: Prisma.FieldRef<"Job", 'String'>
   readonly mapLink: Prisma.FieldRef<"Job", 'String'>
+  readonly siteId: Prisma.FieldRef<"Job", 'String'>
   readonly vehicleId: Prisma.FieldRef<"Job", 'String'>
   readonly isDemo: Prisma.FieldRef<"Job", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Job", 'DateTime'>

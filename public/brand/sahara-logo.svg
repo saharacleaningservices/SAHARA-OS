@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 172" role="img" aria-label="Sahara Cleaning Services">
+  <defs>
+    <linearGradient id="sahara-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2456b0"/>
+      <stop offset="1" stop-color="#173e8c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Cleaning-figure mark on a soft blue disc -->
+  <ellipse cx="66" cy="120" rx="58" ry="14" fill="#173e8c" opacity="0.16"/>
+  <g fill="url(#sahara-blue)">
+    <circle cx="60" cy="30" r="11"/>
+    <path d="M52 40 h16 l6 30 -9 3 -5 -20 -5 20 -9 -3 z"/>
+    <path d="M45 58 l-16 44 8 3 14 -38 z"/>
+    <path d="M75 58 l14 40 h9 l-15 -44 z"/>
+    <rect x="28" y="100" width="70" height="8" rx="4"/>
+    <path d="M43 44 c-14 -3 -24 4 -26 16 l7 3 c2 -8 8 -12 18 -11 z"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="128" y="90" font-family="Georgia, 'Times New Roman', serif" font-weight="700"
+        font-size="74" letter-spacing="2" fill="url(#sahara-blue)">SAHARA</text>
+  <text x="130" y="130" font-family="Georgia, 'Times New Roman', serif" font-weight="700"
+        font-size="33" letter-spacing="7.5" fill="#58595b">CLEANING SERVICES</text>
+  <text x="612" y="46" font-family="Arial, sans-serif" font-size="18" fill="#173e8c">&#8482;</text>
+</svg>

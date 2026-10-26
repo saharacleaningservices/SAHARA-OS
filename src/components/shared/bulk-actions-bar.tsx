@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Trash2, X, Loader2 } from "lucide-react";
@@ -22,11 +22,13 @@ export function BulkActionsBar({
   entityLabel,
   onDelete,
   onClear,
+  children,
 }: {
   count: number;
   entityLabel: string;
   onDelete: () => Promise<ActionResult>;
   onClear: () => void;
+  children?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -55,7 +57,8 @@ export function BulkActionsBar({
           {count} {entityLabel}
           {count === 1 ? "" : "s"} selected
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {children}
           <Button type="button" variant="ghost" size="sm" onClick={onClear}>
             <X className="size-3.5" /> Clear
           </Button>

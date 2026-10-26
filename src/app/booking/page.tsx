@@ -1,0 +1,133 @@
+import { paymentDetailsFrom } from "@/lib/booking-payment";
+import { customerNumberFor } from "@/server/customer-db";
+import type { Metadata } from "next";
+import { db } from "@/lib/db";
+import { getCompanySettings } from "@/server/settings";
+import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, breadcrumbBookingJsonLd, Faqs } from "@/components/public/landing-kit";
+import { nearMeFaqs, SCHEMA_MICRO_LOCATIONS } from "@/lib/seo-schema";
+import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
+import { getPublicPricing } from "@/server/pricing";
+import { getFeaturedGallery } from "@/server/actions/gallery";
+import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
+import { campaignFestivalNames, todayIST } from "@/lib/pricing-master";
+
+// Customer booking page in the approved transparent-pricing landing design.
+// /booking                → pick a package, date, available slot, payment preference
+// /booking?quote=<token>  → quotation booking: customer only picks date, slot, payment
+// Submitting creates a booking REQUEST; the office confirms it in the CRM.
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ quote?: string }> }): Promise<Metadata> {
+  const [{ quote }, pricing] = await Promise.all([searchParams, getPublicPricing()]);
+  // Festival mention only while the Settings → Pricing campaign runs (same windows as the prices).
+  const festivals = campaignFestivalNames(pricing.festivals, todayIST());
+  return {
+    title: "Cleaning Services Near Me in Pune – Book Deep Cleaning Slots | Sahara Cleaning Services",
+    description: `Book home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC: transparent prices, real available slots, pay advance or after service.${festivals ? ` Festival cleaning slots for ${festivals.replace(/ • (?=[^•]*$)/, " and ").replace(/ • /g, ", ")}.` : ""}`,
+    alternates: { canonical: `${BASE_URL}/booking` },
+    robots: quote ? { index: false, follow: false } : undefined,
+    openGraph: {
+      title: "Book Professional Cleaning in Pune & PCMC — Sahara Cleaning Services",
+      description: "Home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC. Transparent prices, real available slots, pay advance or after service.",
+      url: `${BASE_URL}/booking`,
+      siteName: "Sahara Cleaning Services",
+      images: [`${BASE_URL}/marketing/hero-home.webp`],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Book Professional Cleaning in Pune & PCMC — Sahara Cleaning Services",
+      description: "Transparent prices, real available slots, pay advance or after service.",
+      images: [`${BASE_URL}/marketing/hero-home.webp`],
+    },
+  };
+}
+
+const WA = "Hi Sahara, I'd like help with my booking.";
+
+async function loadQuote(token?: string): Promise<QuotePrefill | null> {
+  if (!token || !/^[A-Za-z0-9_-]{20,40}$/.test(token)) return null;
+  const q = await db.quotation.findFirst({
+    where: { publicToken: token, status: { notIn: ["REJECTED", "CANCELLED", "EXPIRED"] } },
+    include: { lead: { select: { name: true, mobile: true, deletedAt: true } } },
+  });
+  if (!q || q.lead.deletedAt) return null;
+  let services: string[] = [];
+  try {
+    services = (JSON.parse(q.services) as { name?: string }[]).map((s) => s.name ?? "").filter(Boolean);
+  } catch {
+    services = [];
+  }
+  const customerNumber = await customerNumberFor(q.lead.mobile);
+  return { token, quoteNumber: q.quoteNumber, customerName: q.lead.name, mobile: q.lead.mobile, customerNumber, services: services.length ? services : ["As per quotation"], totalAmount: q.totalAmount };
+}
+
+const CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { home: "HOME", commercial: "COMMERCIAL", pest: "PEST", painting: "PAINTING" };
+
+export default async function BookingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ quote?: string; service?: string; ref?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
+}) {
+  const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
+  const [settings, quote, pricing, galleryItems] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing(), getFeaturedGallery(12).catch(() => [])]);
+  const festivalEyebrow = campaignFestivalNames(pricing.festivals, todayIST());
+
+  return (
+    // On a quotation link, Book Now scrolls to the wizard on THIS page (keeps ?quote=).
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={quote ? [businessJsonLd()] : [businessJsonLd(), faqJsonLd(nearMeFaqs()), breadcrumbBookingJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} {...(quote ? { bookHref: "#book" } : {})}>
+      <Hero
+        {...(quote ? { bookHrefOverride: "#book" } : {})}
+        image={CAROUSEL.home.src}
+        alt={CAROUSEL.home.alt}
+        images={ALL_SERVICES_SLIDES}
+        eyebrow={quote ? `Quotation ${quote.quoteNumber}` : festivalEyebrow ? `${festivalEyebrow} · Festival cleaning` : "Serving Pune Since 2012"}
+        badge={quote ? `Quotation ${quote.quoteNumber}` : undefined}
+        title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Pune's Most Trusted Cleaning Service Provider — Residential & Commercial"}
+        subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Verified Staff | Transparent Pricing | Pay After Service"}
+        primaryLabel="Choose Date & Slot"
+        variant="booking"
+        primaryHref="#book"
+        waText={WA}
+      />
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-8">
+        {quoteToken && !quote && (
+          <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">This quotation link is no longer valid. You can still book below, or call us on 8956567130 / 7083347130.</p>
+        )}
+        {!quote && (
+          <>
+            <FunnelCards />
+            <CompactPriceSelector />
+          </>
+        )}
+        {/* Drag / touch Before–After transformation slider inside the booking flow (owner 2026-10-25). */}
+        {!quote && galleryItems.length > 0 && <BeforeAfterGallery items={galleryItems} />}
+        <section id="book" className="scroll-mt-20">
+          <BookingWizard
+            quote={quote}
+            defaultCategory={CATEGORY[service ?? ""]}
+            hidePicker={!quote}
+            referralCode={ref}
+            prefill={{ name: name ?? customer, mobile: mobile ?? phone }}
+            pricing={pricing}
+            paymentDetails={paymentDetailsFrom(settings)}
+          />
+        </section>
+        {!quote && (
+          <>
+            {/* Local SEO / AI-search block (owner 2026-10-26): one H2 per intent, real text, matches the FAQ JSON-LD. */}
+            <section aria-labelledby="near-me" className="rounded-3xl bg-white p-5 shadow-sm">
+              <h2 id="near-me" className="text-lg font-bold">Cleaning services near you in Pune &amp; PCMC</h2>
+              <p className="mt-1 text-sm text-[#0a2540]/75">Home deep cleaning, office and commercial cleaning, housekeeping contracts, pest control and interior painting — trained in-house teams from our Magarpatta City base.</p>
+              <ul className="mt-3 flex flex-wrap gap-1.5 text-xs font-semibold">
+                {SCHEMA_MICRO_LOCATIONS.map((a) => <li key={a} className="rounded-full bg-[#eef4fb] px-2.5 py-1 text-[#0a2540]">{a}</li>)}
+              </ul>
+            </section>
+            <Faqs faqs={nearMeFaqs()} compact />
+          </>
+        )}
+      </main>
+    </LandingShell>
+  );
+}

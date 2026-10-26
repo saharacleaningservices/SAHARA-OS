@@ -4,17 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { jobSchema, type JobFormValues } from "@/lib/validation";
 import { SERVICE_OPTIONS } from "@/lib/constants";
 import { updateJob } from "@/server/actions/jobs";
+import { TeamSelect } from "@/components/shared/team-select";
 
 type StaffOption = { id: string; name: string; designation: string };
 
@@ -22,13 +25,19 @@ export function JobEditForm({
   jobId,
   staffOptions,
   defaultValues,
+  defaultStaffIds = [],
+  restricted = false,
 }: {
   jobId: string;
   staffOptions: StaffOption[];
   defaultValues: JobFormValues;
+  defaultStaffIds?: string[];
+  /** Operations: no customer mobile / job value fields (never sent, never saved). */
+  restricted?: boolean;
 }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<string[]>(defaultStaffIds);
 
   const {
     register,
@@ -36,21 +45,24 @@ export function JobEditForm({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<JobFormValues>({ resolver: zodResolver(jobSchema), defaultValues });
+  } = useForm<JobFormValues>({
+    resolver: zodResolver(restricted ? jobSchema.extend({ customerMobile: z.string().optional().or(z.literal("")), jobValue: z.coerce.number().optional() }) : jobSchema) as never,
+    defaultValues,
+  });
 
   const supervisors = staffOptions.filter((s) => s.designation === "Supervisor");
 
   async function onSubmit(values: JobFormValues) {
     setSubmitting(true);
-    const res = await updateJob(jobId, values);
+    const { customerMobile, jobValue, ...rest } = values;
+    const res = await updateJob(jobId, restricted ? { ...rest, staffIds: selectedStaff } : { ...rest, customerMobile, jobValue, staffIds: selectedStaff });
     setSubmitting(false);
-    if (res.error) {
+    if ("error" in res && res.error) {
       toast.error(res.error);
       return;
     }
     toast.success("Job updated");
-    router.push(`/jobs/${jobId}`);
-    router.refresh();
+    router.push(`/jobs/${jobId}`); // push already loads fresh data (dynamic page) — no second refresh render
   }
 
   return (
@@ -65,15 +77,17 @@ export function JobEditForm({
             <Input id="customerName" {...register("customerName")} />
             {errors.customerName && <p className="text-xs text-destructive">{errors.customerName.message}</p>}
           </div>
+          {!restricted && (
+            <div className="space-y-1.5">
+              <Label htmlFor="customerMobile">Mobile</Label>
+              <Input id="customerMobile" {...register("customerMobile")} />
+              {errors.customerMobile && <p className="text-xs text-destructive">{errors.customerMobile.message}</p>}
+            </div>
+          )}
           <div className="space-y-1.5">
-            <Label htmlFor="customerMobile">Mobile</Label>
-            <Input id="customerMobile" {...register("customerMobile")} />
-            {errors.customerMobile && <p className="text-xs text-destructive">{errors.customerMobile.message}</p>}
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="area">Area</Label>
-            <Input id="area" {...register("area")} />
-            {errors.area && <p className="text-xs text-destructive">{errors.area.message}</p>}
+            <Label htmlFor="pinCode">PIN Code</Label>
+            <Input id="pinCode" {...register("pinCode")} inputMode="numeric" maxLength={6} placeholder="411028" />
+            {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
           </div>
           <div className="space-y-1.5">
             <Label>Service</Label>
@@ -90,6 +104,14 @@ export function JobEditForm({
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="serviceVariant">Flat / Type</Label>
+            <Input id="serviceVariant" {...register("serviceVariant")} placeholder="2 BHK / Sofa …" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="packageName">Package (optional)</Label>
+            <Input id="packageName" {...register("packageName")} placeholder="Premium / Platinum …" />
+          </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="address">Address</Label>
             <Textarea id="address" rows={2} {...register("address")} />
@@ -105,11 +127,14 @@ export function JobEditForm({
             <Input id="scheduledTime" type="time" {...register("scheduledTime")} />
             {errors.scheduledTime && <p className="text-xs text-destructive">{errors.scheduledTime.message}</p>}
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="jobValue">Job Value (₹)</Label>
-            <Input id="jobValue" type="number" {...register("jobValue")} />
-            {errors.jobValue && <p className="text-xs text-destructive">{errors.jobValue.message}</p>}
-          </div>
+          {!restricted && (
+            <div className="space-y-1.5">
+              <Label htmlFor="jobValue">Job Value (₹)</Label>
+              <Input id="jobValue" type="number" {...register("jobValue")} />
+              {errors.jobValue && <p className="text-xs text-destructive">{errors.jobValue.message}</p>}
+            </div>
+          )}
+          <TeamSelect value={watch("teamNumber")} onChange={(v) => setValue("teamNumber", v)} />
           <div className="space-y-1.5">
             <Label>Supervisor</Label>
             <Select
@@ -128,6 +153,33 @@ export function JobEditForm({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Assign Crew</Label>
+            <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border p-2">
+              {staffOptions
+                .filter((s) => s.designation !== "Supervisor")
+                .map((s) => (
+                  <label key={s.id} className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-accent">
+                    <Checkbox
+                      checked={selectedStaff.includes(s.id)}
+                      onCheckedChange={(checked) =>
+                        setSelectedStaff((prev) => (checked ? [...prev, s.id] : prev.filter((id) => id !== s.id)))
+                      }
+                    />
+                    {s.name} <span className="text-xs text-muted-foreground">({s.designation})</span>
+                  </label>
+                ))}
+            </div>
+            {selectedStaff.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Crew: {selectedStaff.map((id) => staffOptions.find((s) => s.id === id)?.name).filter(Boolean).join(", ")}
+              </p>
+            )}
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="scopeOfWork">Scope of work (shown in the Staff App)</Label>
+            <Textarea id="scopeOfWork" rows={3} {...register("scopeOfWork")} placeholder="Exact package / rooms / items agreed with the customer" />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="notes">Notes</Label>

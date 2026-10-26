@@ -101,8 +101,11 @@ export function CsvImportDialog<T>({
     startTransition(async () => {
       const res = await runImport(validRows.map((r) => r.validation.data));
       setResults(res.results);
-      if (res.created > 0) {
-        toast.success(`Imported ${res.created} of ${validRows.length} row${validRows.length === 1 ? "" : "s"}`);
+      const mergedN = res.merged ?? 0;
+      if (res.created > 0 || mergedN > 0) {
+        toast.success(
+          `Imported ${res.created} new${mergedN ? `, merged ${mergedN}` : ""} of ${validRows.length} row${validRows.length === 1 ? "" : "s"}`,
+        );
         router.refresh();
       } else {
         toast.error("Nothing was imported — see details below");
@@ -204,6 +207,9 @@ export function CsvImportDialog<T>({
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="success">{results.filter((r) => r.status === "created").length} created</Badge>
+                {results.some((r) => r.status === "merged") && (
+                  <Badge variant="default">{results.filter((r) => r.status === "merged").length} merged</Badge>
+                )}
                 {results.some((r) => r.status === "skipped") && (
                   <Badge variant="warning">{results.filter((r) => r.status === "skipped").length} skipped (duplicates)</Badge>
                 )}
@@ -215,6 +221,7 @@ export function CsvImportDialog<T>({
                 {results.map((r) => (
                   <div key={r.row} className="flex items-start gap-2 px-1.5 py-1 text-xs">
                     {r.status === "created" && <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-success" />}
+                    {r.status === "merged" && <RotateCcw className="mt-0.5 size-3.5 shrink-0 text-primary" />}
                     {r.status === "skipped" && <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" />}
                     {r.status === "invalid" && <XCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" />}
                     <span>

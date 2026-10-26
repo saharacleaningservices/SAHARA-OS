@@ -34,6 +34,10 @@ enum LeadSource {
   CALL
   WEBSITE
   GOOGLE
+  GMB
+  FACEBOOK
+  INSTAGRAM
+  META
 }
 
 enum ServiceType {
@@ -52,14 +56,19 @@ enum LeadStage {
   NEGOTIATION
   CONFIRMED
   JOB_SCHEDULED
+  CANCELLED
   COMPLETED
 }
 
 enum JobStatus {
+  PENDING
   ASSIGNED
   ON_THE_WAY
   STARTED
   COMPLETED
+  POSTPONED
+  CANCELLED
+  REACTIVATED
 }
 
 enum PaymentStatus {
@@ -70,11 +79,20 @@ enum PaymentStatus {
 }
 
 enum ExpenseCategory {
-  CHEMICALS
+  HOUSEKEEPING_MATERIAL
   FUEL
+  AUTO_CAB_FARE
   EQUIPMENT
+  BIKE_SERVICE
   STAFF_ADVANCE
+  VENDOR_PAYMENT
   MISCELLANEOUS
+  SALARY // salary paid out — link the staff member (Expense.staffId)
+  OFFICE_RENT
+  MACHINE_REPAIR
+  // legacy — kept so historical rows still deserialize
+  CHEMICALS
+  BACK_OFFICE
 }
 
 enum AttendanceStatus {
@@ -82,6 +100,7 @@ enum AttendanceStatus {
   ABSENT
   HALF_DAY
   LEAVE
+  WEEKLY_OFF
 }
 
 enum PhotoType {
@@ -140,7 +159,11 @@ enum ServiceCategory {
   INDIVIDUAL_CLEANING
   PAINTING
   PEST_CONTROL
+  HOUSEKEEPING
   COMMERCIAL_CLEANING
+  AMC
+  CUSTOMIZER_PACKAGE
+  COMBO_PACKAGE
 }
 
 // Phase 3 — Revenue, WhatsApp & Workforce Automation
@@ -163,14 +186,20 @@ enum AmcStatus {
 }
 
 enum WhatsAppKind {
+  JOB_COMPLETED
+  SERVICE_STARTED
+  QUOTATION_NOTICE
   BOOKING_CONFIRMATION
   TEAM_DISPATCH
   CUSTOMER_REMINDER
   PAYMENT_REMINDER
   REVIEW_REQUEST
+  REVIEW_CAMPAIGN
   AMC_RENEWAL
   ATTENDANCE_SUMMARY
   DEVICE_APPROVAL
+  DAILY_SUMMARY
+  MONTHLY_SUMMARY
   OTHER
 }
 
@@ -178,6 +207,8 @@ enum WhatsAppStatus {
   QUEUED
   SENT
   FAILED
+  CANCELLED // withdrawn by an admin; never flushed or retried (flush only picks QUEUED/FAILED)
+  RECEIVED // inbound customer message (never flushed)
 }
 
 enum DeviceStatus {
@@ -191,27 +222,35 @@ enum DeviceStatus {
 // ─────────────────────────────────────────────────────────────────────────
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  phone        String?
-  passwordHash String
-  role         Role
-  avatarUrl    String?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  name                String
+  email               String   @unique
+  phone               String?
+  passwordHash        String
+  role                Role
+  avatarUrl           String?
+  isActive            Boolean  @default(true)
+  mustChangePassword  Boolean  @default(false) // force a policy-compliant reset on next login
+  sessionVersion      Int      @default(0) // bumped to revoke every session (password reset, access disabled)
+  // Ops-reminder alert preferences (own account only). Never change reminder tracking itself.
+  soundEnabled         Boolean  @default(true)
+  notificationsEnabled Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  staffProfile      Staff?
-  leadsCreated      Lead[]        @relation("LeadCreatedBy")
-  leadsAssigned     Lead[]        @relation("LeadAssignedTo")
-  followUpsAssigned FollowUp[]    @relation("FollowUpAssignedTo")
-  expensesAdded     Expense[]     @relation("ExpenseAddedBy")
-  photosUploaded    Photo[]       @relation("PhotoUploadedBy")
-  activityLogs      ActivityLog[] @relation("ActivityActor")
-  paymentsRecorded  Payment[]     @relation("PaymentRecordedBy")
-  timelineEntries   TimelineEntry[] @relation("TimelineAuthor")
-  devices           Device[]
+  staffProfile        Staff?
+  pushSubscriptions    PushSubscription[]
+  notifications        Notification[]
+  leadsCreated          Lead[]        @relation("LeadCreatedBy")
+  leadsAssigned         Lead[]        @relation("LeadAssignedTo")
+  followUpsAssigned     FollowUp[]    @relation("FollowUpAssignedTo")
+  expensesAdded         Expense[]     @relation("ExpenseAddedBy")
+  photosUploaded        Photo[]       @relation("PhotoUploadedBy")
+  activityLogs          ActivityLog[] @relation("ActivityActor")
+  paymentsRecorded      Payment[]     @relation("PaymentRecordedBy")
+  timelineEntries        TimelineEntry[] @relation("TimelineAuthor")
+  devices               Device[]
+  webauthnCredentials   WebAuthnCredential[]
 
   @@index([role])
 }
@@ -240,60 +279,205 @@ model Device {
 }
 
 model Staff {
-  id                String            @id @default(cuid())
-  employeeCode      String            @unique
-  name              String
-  mobile            String
-  designation       String // e.g. Cleaning Executive, Supervisor, Painter, Pest Control Technician
-  salaryType         SalaryType        @default(DAILY)
-  dailyWage         Float?
-  monthlySalary     Float?
-  availability      StaffAvailability @default(AVAILABLE)
-  joinDate          DateTime          @default(now())
-  isActive          Boolean           @default(true)
-  photoUrl          String?
-  notes             String?
-  qrCode            String?           @unique // future QR check-in token
-  userId            String?           @unique
-  user              User?             @relation(fields: [userId], references: [id])
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id              String            @id @default(cuid())
+  employeeCode    String            @unique
+  name            String
+  mobile          String
+  designation     String // e.g. Cleaning Executive, Supervisor, Painter, Pest Control Technician
+  alternateMobile String?
+  salaryType      SalaryType        @default(DAILY)
+  dailyWage       Float?
+  monthlySalary   Float?
+  availability    StaffAvailability @default(AVAILABLE)
+  joinDate        DateTime          @default(now())
+  joiningDate     DateTime? // HR joining date (editable; joinDate is the system default)
+  reference       String? // who referred / hired this staff member
+  bankAccount     String?
+  bankIfsc        String?
+  gpayNumber      String?
+  documents       String? // JSON array [{label,url,uploadedAt}] — Aadhaar/PAN/passbook/etc.
+  isActive        Boolean           @default(true)
+  photoUrl        String?
+  notes           String?
+  // Khata Book migration (2026-10-05): history up to this moment lives in
+  // StaffLedgerEntry; attendance/advances/fines/salary-paid dated after it
+  // are added on top. Null = no imported history (native data only).
+  ledgerCutoverAt DateTime?
+  language        String? // Staff App language: en | hi | mr
+  bankName        String?
+  bankAccountName String?
+  upiId           String?
+  qrCode          String?           @unique // future QR check-in token
+  userId          String?           @unique
+  user            User?             @relation(fields: [userId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
-  isDemo            Boolean           @default(false)
-  deletedAt         DateTime?
-  deletedByName     String?
+  isDemo        Boolean   @default(false)
+  deletedAt     DateTime?
+  deletedByName String?
 
-  attendance        Attendance[]
-  jobAssignments    JobAssignment[]
-  supervisedJobs    Job[]             @relation("JobSupervisor")
-  leadAssignments   Lead[]            @relation("LeadAssignedStaff")
-  expenses          Expense[]         @relation("ExpenseStaff")
-  advances          Advance[]
-  fines             FineRecord[]
-  rewards           RewardRecord[]
+  attendance      Attendance[]
+  jobAssignments  JobAssignment[]
+  supervisedJobs  Job[]           @relation("JobSupervisor")
+  leadAssignments Lead[]          @relation("LeadAssignedStaff")
+  expenses        Expense[]       @relation("ExpenseStaff")
+  advances        Advance[]
+  fines           FineRecord[]
+  rewards         RewardRecord[]
+  ledgerEntries   StaffLedgerEntry[]
+  overtime        OvertimeRecord[]
+  loanEntries     StaffLoanEntry[]
 
   @@index([availability])
   @@index([designation])
 }
 
 model Attendance {
-  id           String            @id @default(cuid())
-  staffId      String
-  staff        Staff             @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  date         DateTime
-  status       AttendanceStatus  @default(PRESENT)
-  checkInTime  DateTime?
-  checkOutTime DateTime?
-  wageForDay   Float?
-  gpsLat       Float? // future GPS attendance
-  gpsLng       Float? // future GPS attendance
-  method       String            @default("MANUAL") // MANUAL | QR | GPS (future-ready)
-  notes        String?
-  createdAt    DateTime          @default(now())
+  id            String           @id @default(cuid())
+  staffId       String
+  staff         Staff            @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date          DateTime
+  status        AttendanceStatus @default(PRESENT)
+  checkInTime   DateTime?
+  checkOutTime  DateTime?
+  wageForDay    Float?
+  gpsLat        Float? // future GPS attendance
+  gpsLng        Float? // future GPS attendance
+  method        String           @default("MANUAL") // MANUAL | QR | GPS (future-ready)
+  notes         String?
+  markedByName  String? // office user who first set this day
+  updatedByName String? // office user who last edited it
+  updatedAt     DateTime?
+  createdAt     DateTime         @default(now())
 
   @@unique([staffId, date])
   @@index([date])
   @@index([status])
+}
+
+// Immutable edit trail for attendance — every create/change writes a row here.
+// Never deleted (Phase 4: "No permanent deletion").
+model AttendanceAudit {
+  id           String   @id @default(cuid())
+  staffId      String
+  staffName    String
+  date         DateTime
+  oldStatus    String? // null = first time the day was marked
+  newStatus    String
+  editedByName String
+  editedAt     DateTime @default(now())
+
+  @@index([staffId, date])
+  @@index([editedAt])
+}
+
+// Marketing gallery — before/after photos and result videos, uploaded by the
+// office and reused on the booking page, in WhatsApp links and review campaigns.
+model GalleryItem {
+  id            String   @id @default(cuid())
+  type          String   @default("PHOTO") // PHOTO | VIDEO
+  kind          String   @default("GENERAL") // BEFORE | AFTER | GENERAL
+  category      String? // Home Cleaning | Commercial | Painting | Pest Control
+  url           String
+  thumbnailUrl  String?
+  caption       String?
+  jobId         String?
+  pairKey       String? // links a BEFORE + AFTER of the same job
+  featured      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdByName String
+  createdAt     DateTime @default(now())
+
+  @@index([type])
+  @@index([featured])
+  @@index([category])
+}
+
+// Imported / master customer record. The CRM still derives "customers" from
+// Leads + Jobs by mobile; this table is an additive master layer for the
+// existing 6000-customer base (bulk import, merge-by-mobile). Never blocks
+// or replaces lead/job history.
+model Customer {
+  id                 String    @id @default(cuid())
+  name               String
+  mobile             String    @unique
+  alternateMobile    String?
+  address            String?
+  area               String?
+  serviceHistory     String?
+  lastServiceDate    DateTime?
+  outstandingBalance Float     @default(0)
+  source             String?
+  notes              String?
+  importBatchId      String?
+  // Customer CRM (2026-10-08, additive): one contact per mobile, many sites.
+  email              String?
+  contactType        String    @default("CUSTOMER") // CUSTOMER | BROKER | ARCHITECT | INTERIOR_DESIGNER | SOCIETY | CORPORATE
+  // Permanent customer ID shown on CRM views, quotations and invoices (CUST-0001…, owner 2026-10-18).
+  // Assigned on create; existing rows are backfilled in creation order by scripts/db-setup.mjs.
+  customerNumber     String?   @unique
+  isRepeat           Boolean   @default(false)
+  sites              CustomerSite[]
+  mybillbookInvoices MybillbookInvoice[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([area])
+  @@index([lastServiceDate])
+  @@index([contactType])
+}
+
+// A service address under one contact — a repeat customer's homes, or the
+// many client sites a broker / architect brings. Leads and Jobs point to it by
+// siteId (optional); their own address fields stay the booking-time snapshot.
+model CustomerSite {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  label      String?
+  address    String
+  pinCode    String?
+  area       String?
+  mapLink    String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([customerId])
+}
+
+// A personalized customer link (booking form / follow-up / review request)
+// sent over WhatsApp from the CRM. Tracks the funnel: sent → opened → submitted.
+model BookingLink {
+  id             String    @id @default(cuid())
+  token          String    @unique
+  kind           String    @default("BOOKING_FORM") // BOOKING_FORM | FOLLOWUP | REVIEW
+  customerName   String
+  customerMobile String
+  leadId         String?
+  jobId          String?
+  createdByName  String
+  sentAt         DateTime  @default(now())
+  openedAt       DateTime?
+  submittedAt    DateTime?
+  followUpMade   Boolean   @default(false)
+
+  @@index([customerMobile])
+  @@index([sentAt])
+}
+
+// One row per closed payroll month. Present + reopenedAt == null → locked.
+model MonthClose {
+  id             String    @id @default(cuid())
+  year           Int
+  month          Int // 1-12
+  closedByName   String
+  closedAt       DateTime  @default(now())
+  reopenedByName String?
+  reopenedAt     DateTime?
+
+  @@unique([year, month])
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -301,87 +485,165 @@ model Attendance {
 // ─────────────────────────────────────────────────────────────────────────
 
 model Lead {
-  id               String      @id @default(cuid())
-  leadNumber       String      @unique
-  name             String
-  mobile           String
-  whatsapp         String?
-  address          String?
-  area             String
-  service          ServiceType
-  source           LeadSource
-  quoteAmount      Float?
-  stage            LeadStage   @default(NEW)
-  followUpDate     DateTime?
-  notes            String?
+  id              String      @id @default(cuid())
+  leadNumber      String      @unique
+  name            String
+  mobile          String
+  alternateMobile String? // optional second contact number
+  whatsapp        String?
+  email           String?
+  address         String?
+  area            String
+  pinCode         String? // 6-digit PIN — replaces the free-text Area field on forms
+  addOnServices   String? // JSON array of add-on service names picked on the booking form
+  service         ServiceType
+  source          LeadSource
+  quoteAmount     Float?
+  stage           LeadStage   @default(NEW)
+  intakeKey       String?   @unique // automatic-intake idempotency key, e.g. "WA:<mobile>:<IST day>" — one WhatsApp lead per customer per day
+  followUpDate    DateTime?
+  serviceDate     DateTime? // customer-requested service date (from the booking form) — distinct from followUpDate
+  timeSlot        String? // customer-requested slot, e.g. "10:00 AM" — carried into Job.scheduledTime on confirm
+  teamNumber      Int? // internal crew team 1–4, carried into the Job on confirm
+  notes           String?
 
   serviceCategory  ServiceCategory?
   serviceVariant   String?
-  mapLink          String?
-  referralCode     String?
+  propertyType     String? // 1-5 BHK / Villa / Office / Shop … (v2.0 booking form)
+  packageName      String? // optional package tier (Premium/Platinum/…)
+  comboServices    String? // JSON array of combo bundles picked
+  assignedStaffIds String? // JSON array of Staff ids — multi-staff assignment; assignedStaffId stays as the primary
 
-  isDemo           Boolean     @default(false)
-  deletedAt        DateTime?
-  deletedByName    String?
+  // Advance payment captured at booking / manual lead entry. quoteAmount is
+  // the estimated total; balance is quoteAmount - advanceAmount.
+  advanceAmount Float?
+  paymentMode   String? // UPI | QR | BANK | CASH
+  paymentStatus String? // PENDING | PARTIAL | PAID | PENDING_ADVANCE
+  mapLink       String?
+   siteId        String? // CustomerSite this enquiry is for (additive, 2026-10-08)
+  referralCode  String?
 
-  assignedStaffId  String?
-  assignedStaff    Staff?      @relation("LeadAssignedStaff", fields: [assignedStaffId], references: [id])
+  // Marketing attribution (2026-09-29 independent marketing system).
+  // acquisitionChannel is the ORIGINAL source and is never overwritten once
+  // set — later touches only update the latestTouch* fields.
+  acquisitionChannel  String?
+  acquisitionCampaign String?
+  utmSource           String?
+  utmMedium           String?
+  utmCampaign         String?
+  utmTerm             String?
+  utmContent          String?
+  gclid               String?
+  fbclid              String?
+  landingPage         String?
+  landingPageUrl      String?
+  firstTouchSource    String?
+  firstTouchMedium    String?
+  firstTouchCampaign  String?
+  firstTouchAt        DateTime?
+  latestTouchSource   String?
+  latestTouchMedium   String?
+  latestTouchCampaign String?
+  latestTouchAt       DateTime?
+  formSubmittedAt     DateTime?
+  // WhatsApp marketing consent: UNKNOWN | OPT_IN | OPT_OUT. Never assumed.
+  marketingConsent    String    @default("UNKNOWN")
+  // Customer choice on the booking page: PAY_ADVANCE | PAY_AFTER_SERVICE (copied to the Job on confirmation).
+  paymentPreference String?
+  marketingConsentAt  DateTime?
 
-  assignedToId     String?
-  assignedTo       User?       @relation("LeadAssignedTo", fields: [assignedToId], references: [id])
+  // Price snapshot frozen at booking (2026-10-05 pricing master): REGULAR |
+  // FESTIVAL, the festival name, and the scope text the customer booked.
+  // Never recalculated from later price changes.
+  priceType    String?
+  festivalName String?
+  scopeOfWork  String?
+  // Multi-service package (Package Calculator): JSON [{group, contentId, name, unit, qty, unitPrice}]
+  // and the discount; quoteAmount = subtotal − discount. Carried to the Job on Confirm Booking.
+  serviceItems   String?
+  discountAmount Float?
 
-  createdById      String?
-  createdBy        User?       @relation("LeadCreatedBy", fields: [createdById], references: [id])
+  isDemo        Boolean   @default(false)
+  deletedAt     DateTime?
+  deletedByName String?
 
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  assignedStaffId String?
+  assignedStaff   Staff?  @relation("LeadAssignedStaff", fields: [assignedStaffId], references: [id])
 
-  quotations   Quotation[]
-  jobs         Job[]
-  followUps    FollowUp[]
-  payments     Payment[]
-  activityLogs ActivityLog[]   @relation("ActivityLead")
-  timeline     TimelineEntry[]
-  amcContracts AmcContract[]
+  assignedToId String?
+  assignedTo   User?   @relation("LeadAssignedTo", fields: [assignedToId], references: [id])
+
+  createdById String?
+  createdBy   User?   @relation("LeadCreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quotations    Quotation[]
+  jobs          Job[]
+  followUps     FollowUp[]
+  payments      Payment[]
+  activityLogs  ActivityLog[] @relation("ActivityLead")
+  timeline      TimelineEntry[]
+  amcContracts  AmcContract[]
 
   @@index([stage])
   @@index([followUpDate])
   @@index([source])
   @@index([area])
   @@index([createdAt])
+  @@index([mobile])
 }
 
 model Quotation {
-  id             String    @id @default(cuid())
-  quoteNumber    String    @unique
-  leadId         String
-  lead           Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  services       String // JSON-encoded line items [{name, description, amount}]
-  subTotal       Float
-  gstPercent     Float     @default(0)
-  gstAmount      Float     @default(0)
-  totalAmount    Float
-  terms          String
-  validTill      DateTime?
-  pdfUrl         String?
-  createdAt      DateTime  @default(now())
+  id          String          @id @default(cuid())
+  quoteNumber String          @unique
+  // Unguessable token for the customer booking link (/booking?quote=<token>).
+  publicToken String?         @unique
+  leadId      String
+  lead        Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  services    String // JSON-encoded line items [{name, description, amount}]
+  subTotal    Float
+  discount    Float           @default(0)
+  gstPercent  Float           @default(0)
+  gstAmount   Float           @default(0)
+  totalAmount Float
+  terms       String
+  validTill   DateTime?
+  pdfUrl      String?
+  status      QuotationStatus @default(SENT)
+  invoice     Invoice?
+  opsReminders OpsReminder[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([leadId])
+  @@index([status])
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
 }
 
 model FollowUp {
-  id           String          @id @default(cuid())
+  id           String           @id @default(cuid())
   leadId       String
-  lead         Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  lead         Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
   dueDate      DateTime
-  type         FollowUpType    @default(CALL)
+  type         FollowUpType     @default(CALL)
   priority     FollowUpPriority @default(MEDIUM)
   notes        String?
-  isDone       Boolean         @default(false)
+  isDone       Boolean          @default(false)
   doneAt       DateTime?
   assignedToId String?
-  assignedTo   User?           @relation("FollowUpAssignedTo", fields: [assignedToId], references: [id])
-  createdAt    DateTime        @default(now())
+  assignedTo   User?            @relation("FollowUpAssignedTo", fields: [assignedToId], references: [id])
+  opsReminders OpsReminder[]
+  createdAt    DateTime         @default(now())
 
   @@index([dueDate])
   @@index([isDone])
@@ -410,44 +672,84 @@ model TimelineEntry {
 // ─────────────────────────────────────────────────────────────────────────
 
 model Job {
-  id               String    @id @default(cuid())
-  jobNumber        String    @unique
-  leadId           String?
-  lead             Lead?     @relation(fields: [leadId], references: [id])
+  id     String @id @default(cuid())
+  jobNumber String @unique
+  leadId String?
+  lead   Lead?   @relation(fields: [leadId], references: [id])
 
-  customerName     String
-  customerMobile   String
-  address          String
-  area             String
-  service          ServiceType
+  customerName    String
+  customerMobile  String
+  alternateMobile String?
+  address         String
+  area            String
+  pinCode         String?
+  service         ServiceType
+  serviceVariant  String? // "flat type" / package, carried from the Lead
+  propertyType    String? // carried from the Lead
+  packageName     String? // optional package tier, carried from the Lead
+  comboServices   String? // JSON array of combo bundles, carried from the Lead
 
-  scheduledDate    DateTime
-  scheduledTime    String // e.g. "10:00 AM"
+  scheduledDate DateTime
+  scheduledTime String // time slot, e.g. "10:00 AM"
 
-  supervisorId     String?
-  supervisor       Staff?    @relation("JobSupervisor", fields: [supervisorId], references: [id])
+  teamNumber Int? // internal crew team 1–4, inherited from the Lead / set on the job
 
-  status           JobStatus @default(ASSIGNED)
-  onTheWayAt       DateTime?
-  startedAt        DateTime?
-  completedAt      DateTime?
+  // Customer-facing booking page (/booking/<publicToken>) — unguessable, unlike
+  // jobNumber. paymentPreference: PAY_AFTER_SERVICE when the customer chooses it;
+  // advanceRequestedAt: when an advance was requested. Paid amounts always come
+  // from Payment rows recorded by staff — never marked paid automatically.
+  publicToken        String?   @unique
+  shortCode          String?   @unique // 10-char code for the short customer links /q /i /p /b (src/server/short-links.ts)
+  paymentPreference  String?
+  advanceRequestedAt DateTime?
 
-  jobValue         Float
-  notes            String?
+  supervisorId String?
+  supervisor   Staff?  @relation("JobSupervisor", fields: [supervisorId], references: [id])
+
+  status      JobStatus @default(ASSIGNED)
+  onTheWayAt  DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  jobValue Float
+  notes    String?
 
   customerSignatureUrl String?
   signedAt             DateTime?
 
-  mapLink       String?
-  vehicleId     String?
-  vehicle       Vehicle?  @relation(fields: [vehicleId], references: [id])
+  // Frozen crew at completion — JSON [{staffId, name, employeeCode, isLead}].
+  // The Staff Portal calendar reads this first, so a completed job always
+  // shows the team exactly as it was on that day, even if the crew is
+  // edited, a staff record is renamed or soft-deleted later.
+  teamSnapshot String?
+  serviceItems   String? // package lines carried from the enquiry (Package Calculator)
+  discountAmount Float?
+  // Billing (owner 2026-10-22): optional 18% GST (B2B), the discount as entered, and the customer GSTIN.
+  // jobValue is always the FINAL payable total (discount applied, GST included when gstEnabled).
+  gstEnabled     Boolean @default(false)
+  gstAmount      Float   @default(0)
+  customerGstin  String?
+  discountMode   String? // FLAT | PERCENT
+  discountValue  Float?
+
+  // Price snapshot frozen at booking (2026-10-05 pricing master): REGULAR |
+  // FESTIVAL, the festival name, and the scope text the customer booked.
+  // Never recalculated from later price changes.
+  priceType    String?
+  festivalName String?
+  scopeOfWork  String?
+
+  mapLink   String?
+  siteId    String? // CustomerSite this job is for (additive, 2026-10-08)
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
 
   isDemo        Boolean   @default(false)
   deletedAt     DateTime?
   deletedByName String?
 
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   assignments    JobAssignment[]
   photos         Photo[]
@@ -462,14 +764,15 @@ model Job {
   @@index([status])
   @@index([scheduledDate])
   @@index([area])
+  @@index([customerMobile])
 }
 
 model JobAssignment {
-  id      String @id @default(cuid())
+  id      String  @id @default(cuid())
   jobId   String
-  job     Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job     Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
   staffId String
-  staff   Staff  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  staff   Staff   @relation(fields: [staffId], references: [id], onDelete: Cascade)
   isLead  Boolean @default(false)
 
   @@unique([jobId, staffId])
@@ -477,15 +780,15 @@ model JobAssignment {
 }
 
 model Photo {
-  id           String    @id @default(cuid())
+  id           String   @id @default(cuid())
   jobId        String
-  job          Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job          Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
   type         PhotoType
   url          String
   caption      String?
   uploadedById String?
-  uploadedBy   User?     @relation("PhotoUploadedBy", fields: [uploadedById], references: [id])
-  uploadedAt   DateTime  @default(now())
+  uploadedBy   User?    @relation("PhotoUploadedBy", fields: [uploadedById], references: [id])
+  uploadedAt   DateTime @default(now())
 
   @@index([jobId, type])
 }
@@ -509,40 +812,43 @@ model Certificate {
 // ─────────────────────────────────────────────────────────────────────────
 
 model Payment {
-  id                String        @id @default(cuid())
-  invoiceNumber     String        @unique
-  jobId             String?
-  job               Job?          @relation(fields: [jobId], references: [id])
-  leadId            String?
-  lead              Lead?         @relation(fields: [leadId], references: [id])
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique
+  jobId         String?
+  job           Job?     @relation(fields: [jobId], references: [id])
+  leadId        String?
+  lead          Lead?    @relation(fields: [leadId], references: [id])
 
-  clientName        String
-  clientMobile      String?
-  amount            Float
-  paidAmount        Float         @default(0)
-  dueDate           DateTime
-  paidDate          DateTime?
-  status            PaymentStatus @default(PENDING)
+  clientName   String
+  clientMobile String?
+  amount       Float
+  paidAmount   Float          @default(0)
+  dueDate      DateTime
+  paidDate     DateTime?
+  status       PaymentStatus  @default(PENDING)
 
-  mybillbookInvoiceNo String?
-  lastReminderAt       DateTime?
-  lastReminderChannel  ReminderChannel?
+  mode                  String? // UPI | QR | BANK | CASH — how the advance / collection was made
+  mybillbookInvoiceNo   String? // free-text external/reference invoice number, no API tie
+  invoiceAttachmentUrl  String? // uploaded invoice PDF or image
+  lastReminderAt        DateTime?
+  lastReminderChannel   ReminderChannel?
 
-  recordedById      String?
-  recordedBy        User?         @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
+  recordedById String?
+  recordedBy   User?   @relation("PaymentRecordedBy", fields: [recordedById], references: [id])
 
-  notes             String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  isDemo            Boolean       @default(false)
-  deletedAt         DateTime?
-  deletedByName     String?
+  isDemo        Boolean   @default(false)
+  deletedAt     DateTime?
+  deletedByName String?
 
-  invoice           Invoice?
+  invoice Invoice?
 
   @@index([status])
   @@index([dueDate])
+  @@index([paidDate])
 }
 
 model Expense {
@@ -553,16 +859,16 @@ model Expense {
   date        DateTime        @default(now())
   paidTo      String?
 
-  jobId       String?
-  job         Job?            @relation("ExpenseJob", fields: [jobId], references: [id])
+  jobId String?
+  job   Job?    @relation("ExpenseJob", fields: [jobId], references: [id])
 
-  staffId     String?
-  staff       Staff?          @relation("ExpenseStaff", fields: [staffId], references: [id])
+  staffId String?
+  staff   Staff?  @relation("ExpenseStaff", fields: [staffId], references: [id])
 
-  addedById   String?
-  addedBy     User?           @relation("ExpenseAddedBy", fields: [addedById], references: [id])
+  addedById String?
+  addedBy   User?   @relation("ExpenseAddedBy", fields: [addedById], references: [id])
 
-  createdAt   DateTime        @default(now())
+  createdAt DateTime @default(now())
 
   isDemo        Boolean   @default(false)
   deletedAt     DateTime?
@@ -570,6 +876,7 @@ model Expense {
 
   @@index([category])
   @@index([date])
+  @@index([staffId, category])
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -597,14 +904,48 @@ model ActivityLog {
 // ─────────────────────────────────────────────────────────────────────────
 
 model CompanySettings {
-  id        String   @id @default("default")
-  name      String   @default("Sahara Cleaning Services")
-  phone     String   @default("7083347130")
-  email     String   @default("contact@saharacleaningservices.com")
-  address   String   @default("Opp. South Gate, Magarpatta City, Hadapsar, Pune.")
-  logoUrl   String?
-  googleReviewUrl String?
+  id                String  @id @default("default")
+  name              String  @default("Sahara Cleaning Services")
+  phone             String  @default("7083347130")
+  email             String  @default("contact@saharacleaningservices.com")
+  address           String  @default("Opp. South Gate, Magarpatta City, Hadapsar, Pune.")
+  website           String?
+  logoUrl           String?
+  googleReviewUrl   String?
+  googleRating      String? @default("4.9")
+  googleReviewCount String? @default("1800+")
+  linkedinUrl       String? // official LinkedIn page — footers + email signature (owner-entered in Settings)
+  signatureLogoWidth  Int? // email-signature logo width in px (Settings); blank = default 220
+  signatureLogoHeight Int? // optional fixed height in px; blank = proportional
+  happyCustomers    String? @default("8000+")
+  featuredReviews   String? // JSON [{ name, text, rating }] shown in the booking-page carousel
+  bankBalance       Float? // owner-maintained; shown on the Owner Dashboard
+
+  // Payment collection details shown to customers (booking form) and used to
+  // build the "Send Payment Link" WhatsApp message.
+  upiId              String?
+  upiQrUrl           String? // uploaded QR image
+  bankName           String?
+  bankAccountName    String?
+  bankAccountNumber  String?
+  bankIfsc           String?
+
   updatedAt DateTime @updatedAt
+}
+
+// Company documents library — Profile PDF, PPT, GST, Shop Act, MSME,
+// certificates, brochures. Uploaded from /settings and shared to customers
+// over WhatsApp / email / direct download.
+model CompanyDocument {
+  id             String   @id @default(cuid())
+  category       String // PROFILE_PDF | PPT | GST | SHOP_ACT | MSME | CERTIFICATE | BROCHURE | OTHER
+  label          String
+  url            String
+  sizeBytes      Int?
+  uploadedByName String?
+  createdAt      DateTime @default(now())
+
+  @@index([category])
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -616,7 +957,7 @@ model AuditLog {
   id         String   @id @default(cuid())
   entityType String // "Lead" | "Job" | "Staff" | "Payment" | "Expense" | "Backup"
   entityId   String
-  action     String // "DELETE" | "RESTORE" | "BULK_DELETE" | "BULK_RESTORE" | "BACKUP" | "RESTORE_BACKUP"
+  action     String // "DELETE" | "RESTORE" | "BULK_DELETE" | "BULK_RESTORE" | "BACKUP" | "RESTORE_BACKUP" | "RESTORE_BACKUP_FAILED"
   summary    String
   actorName  String?
   actorEmail String?
@@ -628,12 +969,15 @@ model AuditLog {
 }
 
 model Vehicle {
-  id          String   @id @default(cuid())
-  name        String
-  plateNumber String   @unique
-  type        String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id              String    @id @default(cuid())
+  name            String
+  plateNumber     String    @unique
+  type            String?
+  currentKm       Int?
+  lastServiceDate DateTime?
+  nextServiceDate DateTime? // next service reminder date
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
 
   jobs Job[]
 }
@@ -651,14 +995,28 @@ model MaterialIssue {
 }
 
 model Review {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   customerMobile String
   customerName   String?
   rating         Int
   comment        String?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime  @default(now())
+
+  // Review response workflow — a Google review has no reply-tracking API
+  // connected yet, so staff log it here and mark it once they've replied
+  // on Google directly.
+  replied        Boolean   @default(false)
+  repliedAt      DateTime?
+  replyNote      String?
+
+  // Best-effort attribution: the customer's most recent completed job at the
+  // time the review was logged (matched by mobile). Google gives no reliable
+  // confirmation, so this is informational only — never a payroll input.
+  jobId          String?
 
   @@index([customerMobile])
+  @@index([jobId])
+  @@index([replied])
 }
 
 model BackupEvent {
@@ -684,6 +1042,19 @@ model BackupEvent {
 // WHATSAPP_PHONE_NUMBER_ID aren't configured yet, the row is left QUEUED
 // instead of sent — nothing is lost, and the send resumes automatically the
 // moment credentials are added. See src/lib/whatsapp.ts.
+// One row per customer WhatsApp number: who is handling the conversation.
+// mode AI = the grounded assistant may answer; HUMAN = staff only (takeover).
+model WhatsAppConversation {
+  id            String   @id @default(cuid())
+  number        String   @unique
+  mode          String   @default("HUMAN")
+  handoffReason String?
+  changedByName String?
+  changedAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model WhatsAppMessage {
   id                String         @id @default(cuid())
   kind              WhatsAppKind
@@ -697,30 +1068,64 @@ model WhatsAppMessage {
   relatedId         String?
   createdAt         DateTime       @default(now())
   sentAt            DateTime?
+  // Cloud API go-live additions: inbound rows, delivery/read receipts,
+  // and which approved template (if any) an outbound row used.
+  direction         String         @default("OUTBOUND") // OUTBOUND | INBOUND
+  deliveredAt       DateTime?
+  readAt            DateTime?
+  templateName      String?
+  // Who sent an outbound message from the CRM (staff user, or the AI assistant).
+  sentByUserId      String?
+  sentByName        String?
 
   @@index([kind])
   @@index([status])
+  @@index([toNumber])
+  @@index([providerMessageId])
   @@index([createdAt])
 }
 
+// Per-number WhatsApp consent/opt-out state (Meta Cloud API policy requires
+// honoring STOP/UNSUBSCRIBE-style replies). sendWhatsApp() checks this
+// before every send and skips (logging why) rather than messaging an opted-
+// out number; the inbound webhook flips it automatically when a customer
+// texts an opt-out/opt-in keyword, and it can also be set by hand from the
+// Message Log. phoneNumber uses the same normalized format as
+// WhatsAppMessage.toNumber. See src/lib/whatsapp.ts.
+model WhatsAppConsent {
+  id           String    @id @default(cuid())
+  phoneNumber  String    @unique
+  optedOut     Boolean   @default(false)
+  optedOutAt   DateTime?
+  optedOutVia  String? // "CUSTOMER_REPLY" | "MANUAL"
+  reinstatedAt DateTime?
+  notes        String?
+  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
+
+  @@index([optedOut])
+}
+
 model AmcContract {
-  id              String           @id @default(cuid())
-  contractNumber  String           @unique
-  customerName    String
-  customerMobile  String
-  address         String?
-  area            String?
-  category        AmcCategory
-  frequency       AmcFrequency
-  serviceCategory ServiceCategory?
-  amount          Float
-  startDate       DateTime
-  nextVisitDate   DateTime
-  lastVisitDate   DateTime?
-  status          AmcStatus        @default(ACTIVE)
-  notes           String?
-  leadId          String?
-  lead            Lead?            @relation(fields: [leadId], references: [id])
+  id                  String       @id @default(cuid())
+  contractNumber      String       @unique
+  customerName        String
+  customerMobile      String
+  address             String?
+  area                String?
+  category            AmcCategory
+  frequency           AmcFrequency
+  serviceCategory     ServiceCategory?
+  amount              Float
+  startDate           DateTime
+  nextVisitDate       DateTime
+  lastVisitDate       DateTime?
+  serviceReminderDate DateTime?
+  contractExpiryDate  DateTime?
+  status              AmcStatus    @default(ACTIVE)
+  notes               String?
+  leadId              String?
+  lead                Lead?        @relation(fields: [leadId], references: [id])
 
   isDemo        Boolean   @default(false)
   deletedAt     DateTime?
@@ -785,6 +1190,7 @@ model Advance {
   createdAt   DateTime @default(now())
 
   @@index([staffId])
+  @@index([staffId, givenAt])
 }
 
 model FineRecord {
@@ -799,6 +1205,7 @@ model FineRecord {
   createdAt      DateTime @default(now())
 
   @@index([staffId])
+  @@index([staffId, date])
 }
 
 model RewardRecord {
@@ -813,32 +1220,84 @@ model RewardRecord {
   createdAt      DateTime @default(now())
 
   @@index([staffId])
+  @@index([staffId, date])
 }
 
-// CRM-native quotation/invoice document. mybillbookSyncStatus reflects the
-// MyBillBook push: NOT_CONFIGURED until an API key is supplied (see
-// src/lib/mybillbook.ts), then QUEUED/SYNCED/FAILED.
+// ₹50 TEAM incentive — one TOTAL amount recorded against one Job + the team
+// that was assigned to it. Never split into individual shares and never
+// written to any individual's payroll (owner rule, 2026-10-04 scope lock).
+// Not tied to a Google review or star rating.
+model TeamIncentive {
+  id             String   @id @default(cuid())
+  jobId          String   @unique // one team incentive per job
+  amount         Float    @default(50)
+  teamSnapshot   String // JSON [{staffId, name, isLead}] — the team as on the job
+  notes          String?
+  date           DateTime @default(now())
+  recordedByName String?
+  createdAt      DateTime @default(now())
+
+  @@index([date])
+}
+
+// Company announcements published from the CRM and shown in the Staff App.
+model Announcement {
+  id            String    @id @default(cuid())
+  title         String
+  body          String
+  important     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  publishedAt   DateTime  @default(now())
+  expiresAt     DateTime?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+  // Recipients: ALL | STAFF (staffIds) | TEAM (teamNumbers). Office messages only — never auto job alerts.
+  audience      String    @default("ALL")
+  staffIds      String? // JSON array of Staff ids
+  teamNumbers   String? // JSON array of team numbers 1-4
+
+  @@index([isActive, publishedAt])
+}
+
+// CRM-native invoice document — Sahara OS's own billing record, generated
+// automatically at job completion or created directly (e.g. from an
+// accepted Quotation). No third-party billing API involved.
 model Invoice {
-  id                   String   @id @default(cuid())
-  invoiceNumber        String   @unique
-  jobId                String?  @unique
-  job                  Job?     @relation(fields: [jobId], references: [id])
-  paymentId            String?  @unique
-  payment              Payment? @relation(fields: [paymentId], references: [id])
-  customerName         String
-  customerMobile       String?
-  customerAddress      String?
-  lineItems            String // JSON [{name, description, amount}]
-  subTotal             Float
-  gstPercent           Float    @default(0)
-  gstAmount            Float    @default(0)
-  totalAmount          Float
-  pdfUrl               String?
-  mybillbookInvoiceId  String?
-  mybillbookSyncStatus String   @default("NOT_CONFIGURED")
-  createdAt            DateTime @default(now())
+  id              String        @id @default(cuid())
+  invoiceNumber   String        @unique
+  jobId           String?       @unique
+  job             Job?          @relation(fields: [jobId], references: [id])
+  paymentId       String?       @unique
+  payment         Payment?      @relation(fields: [paymentId], references: [id])
+  quotationId     String?       @unique
+  quotation       Quotation?    @relation(fields: [quotationId], references: [id])
+  customerName    String
+  customerMobile  String?
+  customerAddress String?
+  lineItems       String // JSON [{name, description, amount}]
+  subTotal        Float
+  discount        Float         @default(0)
+  gstPercent      Float         @default(0)
+  gstAmount       Float         @default(0)
+  totalAmount     Float
+  notes           String?
+  terms           String?
+  pdfUrl          String?
+  status          InvoiceStatus @default(ISSUED)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([jobId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  CANCELLED
 }
 
 model JobVideo {
@@ -850,4 +1309,615 @@ model JobVideo {
   uploadedAt DateTime @default(now())
 
   @@index([jobId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Connector settings — a single row ("default"), edited from
+// /settings → Integrations ("Connect Later"). Every third-party integration
+// reads its credentials from here FIRST, then falls back to the matching
+// environment variable, so a key can be pasted once in the UI without a
+// redeploy. Secret fields (whatsappAccessToken, backupToken) are stored
+// encrypted at rest with AES-256-GCM keyed off AUTH_SECRET — see
+// src/lib/crypto.ts and src/server/integrations.ts.
+// ─────────────────────────────────────────────────────────────────────────
+
+model IntegrationSettings {
+  id String @id @default("default")
+
+  // WhatsApp Cloud API (Meta). accessToken is encrypted at rest.
+  whatsappAccessToken   String?
+  whatsappPhoneNumberId String?
+  whatsappBusinessId    String?
+  whatsappApiVersion    String   @default("v21.0")
+  whatsappVerifiedAt    DateTime?
+  whatsappLastError     String?
+
+  // Google Maps JavaScript / Embed / Geocoding API. This key is delivered to
+  // the browser by design — restrict it by HTTP referrer in Google Cloud.
+  googleMapsApiKey     String?
+  googleMapsVerifiedAt DateTime?
+
+  // Web Push (VAPID). Public key is safe to ship to the browser; private key
+  // encrypted at rest. Generated once from /settings if not provided by env.
+  webPushPublicKey  String?
+  webPushPrivateKey String?
+  webPushSubject    String?
+
+  // Google Drive nightly off-site backup. backupToken is encrypted at rest
+  // and authorises GET /api/backup for the GitHub Actions workflow; the
+  // Drive OAuth credentials themselves live in GitHub repo secrets because
+  // the upload runs inside GitHub Actions, not this server.
+  backupToken      String?
+  gdriveFolderId   String?
+  backupVerifiedAt DateTime?
+
+  // SMS gateway (fallback channel for staff notifications + review requests).
+  // apiKey encrypted at rest. provider is a free-text label (MSG91 / Twilio /
+  // Fast2SMS / …); the send call is a generic HTTPS POST — see src/lib/sms.ts.
+  smsProvider    String?
+  smsApiKey      String?
+  smsSenderId    String?
+  smsEndpoint    String?
+  smsVerifiedAt  DateTime?
+
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
+// Every SMS the app sends (staff attendance, review requests, reminders).
+// Queued when no gateway is configured; flushed automatically once creds land.
+model SmsMessage {
+  id          String    @id @default(cuid())
+  toNumber    String
+  toName      String?
+  body        String
+  kind        String    @default("OTHER")
+  status      String    @default("QUEUED") // QUEUED | SENT | FAILED
+  attempts    Int       @default(0)
+  error       String?
+  relatedType String?
+  relatedId   String?
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Every email the app sends (currently: owner password/login-ID recovery
+// notifications — see src/lib/email.ts). Queued when no provider is
+// configured (EMAIL_* env vars); flushed automatically once they're set.
+// Mirrors SmsMessage/WhatsAppMessage's queue-first pattern exactly.
+model EmailMessage {
+  id          String    @id @default(cuid())
+  toEmail     String
+  toName      String?
+  subject     String
+  body        String
+  bodyHtml    String? // optional HTML part (branded emails with the signature); body stays the plain-text part
+  kind        String    @default("OTHER")
+  status      String    @default("QUEUED") // QUEUED | SENT | FAILED
+  attempts    Int       @default(0)
+  error       String?
+  relatedType String?
+  relatedId   String?
+  sentAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Security — OTP for password reset/change, always delivered to the Super
+// Admin (Altaf). Codes are hashed at rest.
+// ─────────────────────────────────────────────────────────────────────────
+
+model SecurityOtp {
+  id              String    @id @default(cuid())
+  purpose         String // PASSWORD_RESET | PASSWORD_CHANGE
+  targetUserId    String // whose password is being changed
+  targetUserName  String
+  targetUserEmail String
+  codeHash        String
+  codePlain       String? // readable ONLY on the Super Admin's /admin/security-approvals page (in-app relay when WhatsApp is offline)
+  payload         String? // e.g. the pending bcrypt hash to apply once the OTP is confirmed
+  expiresAt       DateTime
+  consumedAt      DateTime?
+  attempts        Int       @default(0)
+  requestedByName String?
+  createdAt       DateTime  @default(now())
+
+  @@index([targetUserId])
+  @@index([expiresAt])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Real-time notifications — role-routed in-app feed + Web Push fan-out.
+// ─────────────────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String // NEW_BOOKING | NEW_INQUIRY | PAYMENT_RECEIVED | FOLLOWUP_DUE | STALE_LEAD | SITE_VISIT | CREW_UPDATE | DEVICE_LOGIN | PASSWORD_OTP | APPROVAL_REQUEST | LOGIN_ATTEMPT | LOGIN_ID_RECOVERY | Staff App: STAFF_ATTENDANCE | STAFF_ADVANCE | STAFF_FINE | STAFF_REWARD | STAFF_JOB_ASSIGNED | STAFF_JOB_CHANGED | ANNOUNCEMENT | STAFF_PIN_RESET
+  title     String
+  body      String?
+  href      String?
+  critical  Boolean   @default(false)
+  meta      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+}
+
+model PushSubscription {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  lastOkAt   DateTime @default(now())
+
+  @@index([userId])
+}
+// ─────────────────────────────────────────────────────────────────────────
+// Owner Command Center — ADMIN-editable monthly business revenue target.
+// ─────────────────────────────────────────────────────────────────────────
+
+model BusinessTarget {
+  id           String   @id @default(cuid())
+  year         Int
+  month        Int // 1-12
+  targetAmount Float
+  setByName    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([year, month])
+}
+
+// Monthly ad / marketing spend entered by the owner, per channel + campaign —
+// feeds the admin Marketing ROI dashboard (spend → leads → bookings → revenue).
+model MarketingSpend {
+  id        String   @id @default(cuid())
+  month     String // YYYY-MM
+  channel   String // same values as Lead.acquisitionChannel
+  campaign  String   @default("")
+  amount    Float
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([month])
+  @@index([channel])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Pricing & Packages (Super Admin). PRICING_MASTER in src/lib/pricing-master.ts
+// holds the catalogue (names, scope, units); these tables hold the editable
+// numbers. PriceSetting overrides an item's regular price; FestivalOffer +
+// FestivalPrice hold separate festival prices for a date window. Bookings
+// copy the price they were confirmed at, so edits never touch history.
+// ─────────────────────────────────────────────────────────────────────────
+// Manual slot-availability control (CRM → Jobs → Slot Availability). One row per
+// date + slot; slot "*" is the whole day. status OPEN | FILLING | FULL overrides
+// the automatic team-capacity calculation; teamCapacity (day row only) replaces
+// the default crew count for that date. No row = automatic.
+model BookingSlotControl {
+  id            String   @id @default(cuid())
+  date          String // YYYY-MM-DD (IST)
+  slot          String // a TIME_SLOTS label, or "*" for the whole day
+  status        String? // OPEN | FILLING | FULL
+  teamCapacity  Int?
+  updatedByName String?
+  updatedAt     DateTime @updatedAt
+
+  @@unique([date, slot])
+}
+
+model PriceSetting {
+  contentId     String   @id
+  price         Float?
+  mrp           Float?
+  isActive      Boolean  @default(true)
+  updatedByName String?
+  updatedAt     DateTime @updatedAt
+}
+
+// MyBillBook sales-report history (owner 2026-10-23): one row per MyBillBook invoice, imported from the Sales Summary CSV. The invoice
+// number is unique, so re-importing never duplicates a row. A row is attached to a customer only on a safe match (CRM invoice number,
+// or exactly one customer with the same full name); everything else waits on a review list. Service details are filled in later.
+model MybillbookInvoice {
+  id             String    @id @default(cuid())
+  invoiceNo      String // shown to people; MyBillBook can reuse a number (two different invoices both numbered 53), so it is NOT unique
+  invoiceKey     String    @unique // the invoice link's path ("i/116dkox", "cpp/7qo8tmlxrw") — unique per invoice, the real identity
+  invoiceDate    DateTime
+  contactName    String
+  amount         Float
+  remaining      Float     @default(0)
+  status         String // Paid | Unpaid (MyBillBook wording)
+  invoiceLink    String
+  paymentType    String?
+  createdByName  String?
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  matchStatus    String    @default("UNMATCHED") // MATCHED | REVIEW | UNMATCHED | MANUAL
+  matchMethod    String? // INVOICE_NO | NAME | PHONE | AUTO_CREATED | MANUAL
+  candidateIds   String? // JSON string[] of customer ids to choose from when REVIEW
+  jobId          String? // the CRM job this invoice belongs to, when known
+  serviceName    String? // filled from the CRM job, or from the invoice detail
+  importBatchId  String?
+  // Invoice detail read from the shared invoice link (owner 2026-10-23): service lines, notes, customer mobile / address.
+  detailStatus    String    @default("PENDING") // PENDING | DONE | FAILED | MISMATCH
+  detailJson      String? // JSON InvoiceDetail (src/lib/mybillbook-detail.ts)
+  detailFetchedAt DateTime?
+  detailError     String?
+  partyMobile     String? // 10-digit mobile printed on the invoice — used to attach it to a customer
+  partyAddress    String?
+  dueDate         DateTime? // payment due date from the report; blank → invoice date + credit days
+  dataset         String    @default("B2C") // B2C | GST — which MyBillBook book the report came from (owner 2026-10-23)
+  gstin           String? // customer GSTIN when the report or invoice carries one
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([invoiceNo])
+  @@index([customerId])
+  @@index([matchStatus])
+  @@index([invoiceDate])
+  @@index([detailStatus])
+  @@index([partyMobile])
+}
+
+// Service Catalog (owner 2026-10-22): the written scope of work, terms & conditions and equipment for each service. Prices are
+// NOT here — they stay in the pricing master. Defaults live in src/lib/service-catalog-seed.ts and are copied in on demand.
+model ServiceCatalog {
+  slug            String   @id
+  name            String
+  serviceGroup    String // HOME | COMMERCIAL | PEST_CONTROL | PAINTING
+  scopeOfWork     String // JSON string[]
+  termsConditions String // JSON string[]
+  equipmentsUsed  String // JSON string[]
+  reviewed        Boolean  @default(false) // true once the owner has read and approved this wording
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  updatedByName   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model FestivalOffer {
+  id            String          @id @default(cuid())
+  name          String
+  startDate     DateTime
+  endDate       DateTime
+  isActive      Boolean         @default(true)
+  // OFFER = the festival package prices below; SEASONAL = a percentage added to (+) or taken off (-) every regular price in the window
+  // (peak-season surcharge or a flat seasonal discount). Seasonal windows never switch the public pages into festival-campaign mode.
+  kind          String          @default("OFFER")
+  adjustPercent Float           @default(0)
+  updatedByName String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  prices        FestivalPrice[]
+
+  @@index([isActive, startDate])
+}
+
+model FestivalPrice {
+  id         String        @id @default(cuid())
+  festivalId String
+  festival   FestivalOffer @relation(fields: [festivalId], references: [id], onDelete: Cascade)
+  contentId  String
+  price      Float
+
+  @@unique([festivalId, contentId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff money ledgers (2026-10-05, Khata Book migration). Financial rows are
+// NEVER hard-deleted — deletedAt/deletedByName only. Every imported row keeps
+// its Khata Book source (party, row no., exact description) and a unique
+// sourceHash so the same transaction can never be imported twice.
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Salary ledger. kind: EARNING | OTHER_CREDIT | PAYMENT | ADVANCE | FINE | DEDUCTION | OPENING_BALANCE.
+ *  amount is always positive; sign comes from kind (OPENING_BALANCE uses signedAmount). */
+model StaffLedgerEntry {
+  id            String    @id @default(cuid())
+  staffId       String
+  staff         Staff     @relation(fields: [staffId], references: [id])
+  date          DateTime
+  kind          String
+  amount        Float
+  signedAmount  Float // + = Sahara owes the worker, − = paid / deducted
+  description   String?
+  paymentMode   String? // CASH | UPI | GOOGLE_PAY | BANK_TRANSFER | OTHER
+  reference     String? // UTR / transaction id / bank reference
+  upiId         String?
+  reversalOfId  String? // correction = a reversal entry, never an edit
+  reason        String? // required for adjustments / reversals
+  source        String    @default("MANUAL") // KHATABOOK | MANUAL
+  sourceParty   String? // exact Khata Book party name
+  sourceRow     Int? // Khata Book report S.No.
+  sourceHash    String?   @unique
+  batchId       String?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+  deletedAt     DateTime?
+  deletedByName String?
+
+  @@index([staffId, date])
+  @@index([batchId])
+}
+
+/** Loan ledger — separate from salary. kind: LOAN_GIVEN | LOAN_REPAID | LOAN_OPENING.
+ *  fromSalary = recovery cut from salary (also reduces Salary Due). */
+/** Overtime — separate from multiple jobs. Only Super Admin / Accounts approve; only APPROVED counts as earning. */
+model OvertimeRecord {
+  id             String    @id @default(cuid())
+  staffId        String
+  staff          Staff     @relation(fields: [staffId], references: [id])
+  date           DateTime
+  jobId          String?
+  regularHours   Float     @default(8)
+  otHours        Float
+  otRate         Float // per hour
+  otAmount       Float
+  reason         String?
+  status         String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdByName  String?
+  approvedByName String?
+  approvedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  deletedAt      DateTime?
+  deletedByName  String?
+
+  @@index([staffId, date])
+  @@index([status])
+}
+
+model StaffLoanEntry {
+  id            String    @id @default(cuid())
+  staffId       String
+  staff         Staff     @relation(fields: [staffId], references: [id])
+  date          DateTime
+  kind          String
+  amount        Float
+  signedAmount  Float // + = loan outstanding increases, − = repaid
+  fromSalary    Boolean   @default(false)
+  description   String?
+  reversalOfId  String? // correction = an opposite row pointing at the original, never an edit
+  reason        String? // required for corrections
+  source        String    @default("MANUAL")
+  sourceParty   String?
+  sourceRow     Int?
+  sourceHash    String?   @unique
+  batchId       String?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+  deletedAt     DateTime?
+  deletedByName String?
+
+  @@index([staffId, date])
+  @@index([batchId])
+}
+
+/** Read receipt per staff user for office announcements. */
+model AnnouncementRead {
+  id             String   @id @default(cuid())
+  announcementId String
+  userId         String
+  readAt         DateTime @default(now())
+
+  @@unique([announcementId, userId])
+}
+
+model KhataImportBatch {
+  id            String    @id @default(cuid())
+  status        String // PREVIEW | APPLIED | PARTIAL | FAILED | ROLLED_BACK
+  cutoffDate    DateTime
+  sourceName    String?
+  sourceRows    Int?
+  datasetJson   String // uploaded dataset (kept for audit)
+  previewJson   String?
+  resultJson    String?
+  snapshotFile  String?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+  appliedAt     DateTime?
+  rolledBackAt  DateTime?
+}
+
+model KhataImportLog {
+  id           String   @id @default(cuid())
+  batchId      String
+  party        String
+  staffId      String?
+  staffName    String?
+  sourceRow    Int?
+  date         DateTime?
+  amount       Float?
+  type         String?
+  description  String?
+  destination  String? // e.g. StaffLedgerEntry:<id>
+  status       String // MIGRATED | SKIPPED_DUPLICATE | BLOCKED | FAILED | ROLLED_BACK
+  message      String?
+  createdAt    DateTime @default(now())
+
+  @@index([batchId])
+  @@index([party])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Ops reminders (2026-10-13): job-closure + payment-collection reminders for
+// Accounts, escalation to the Super Admin, daily summary. DB-backed queue —
+// the server sweep (src/server/ops-reminders.ts) is the only sender, so open
+// tabs/devices never duplicate an alert. Never changes job or payment status.
+// ─────────────────────────────────────────────────────────────────────────
+
+model OpsReminder {
+  id             String    @id @default(cuid())
+  kind           String // JOB_CLOSURE | PAYMENT_COLLECTION | QUOTATION_FOLLOWUP | FOLLOWUP_DUE
+  // JOB_CLOSURE / PAYMENT_COLLECTION: the job id. QUOTATION_FOLLOWUP / FOLLOWUP_DUE: a synthetic
+  // subject key ("Q:<quotationId>" / "F:<followUpId>") so @@unique([kind, jobId]) still holds.
+  jobId          String
+  // true = recorded as part of the one-time baseline when this reminder kind first went live
+  // (historical backlog): it still repeats to Accounts but is never escalated to the Super Admin.
+  isBacklog      Boolean   @default(false)
+  quotationId    String?
+  quotation      Quotation? @relation(fields: [quotationId], references: [id], onDelete: SetNull)
+  followUpId     String?
+  followUp       FollowUp?  @relation(fields: [followUpId], references: [id], onDelete: SetNull)
+  status         String    @default("OPEN") // OPEN | RESOLVED
+  dueAt          DateTime
+  nextAlertAt    DateTime
+  lastAlertAt    DateTime?
+  alertCount     Int       @default(0)
+  escalatedAt    DateTime?
+  snoozedUntil   DateTime?
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+  delayReason    String?
+  followUpNote   String?
+  followUpUntil  DateTime?
+  resolvedAt     DateTime?
+  resolvedReason String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  events OpsReminderEvent[]
+
+  @@unique([kind, jobId])
+  @@index([status, nextAlertAt])
+  @@index([quotationId])
+  @@index([followUpId])
+}
+
+model OpsReminderEvent {
+  id         String      @id @default(cuid())
+  reminderId String?
+  reminder   OpsReminder? @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+  type       String // ALERT | ESCALATED | ACK | SNOOZE | DELAY | FOLLOW_UP | RESOLVED | DAILY_SUMMARY | EOD_SUMMARY | EOD_ACK | PREF_CHANGE
+  note       String?
+  actorName  String?
+  userId     String? // acting user (null = system sweep)
+  createdAt  DateTime    @default(now())
+
+  @@index([reminderId])
+  @@index([createdAt])
+}
+
+model OpsReminderSettings {
+  id                      String   @id @default("default")
+  enabled                 Boolean  @default(true)
+  jobIntervalMin          Int      @default(15)
+  paymentIntervalMin      Int      @default(30)
+  escalateAfterMin        Int      @default(120)
+  defaultJobHours         Int      @default(4)
+  paymentLookbackDays     Int      @default(30)
+  quietStart              String   @default("21:00") // IST HH:MM
+  quietEnd                String   @default("08:00")
+  soundEnabled            Boolean  @default(true)
+  maxSnoozeMin            Int      @default(120)
+  dailySummaryHour        Int      @default(9) // IST hour, -1 = off
+  lastDailySummaryDay     String?
+  eodSummaryTime          String   @default("18:30") // IST HH:MM, "off" = disabled
+  lastEodSummaryDay       String?
+  quotationFollowUpDays   Int      @default(2) // SENT quotation older than this needs a follow-up
+  followUpIntervalMin     Int      @default(120) // repeat for quotation / customer follow-up reminders
+  staffSignupNeedsApproval Boolean @default(true)
+  updatedByName           String?
+  updatedAt               DateTime @updatedAt
+}
+
+// Biometric / passkey sign-in (WebAuthn, 2026-10-18). One row per device a user enabled Face ID /
+// fingerprint / screen lock on. Only the PUBLIC key is stored — biometric data never leaves the phone.
+// Removed with the user, and when their sessions are revoked (password / PIN reset, access disabled).
+model WebAuthnCredential {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialId String    @unique // base64url
+  publicKey    String // base64url COSE public key
+  counter      Int       @default(0)
+  transports   String? // JSON array, e.g. ["internal","hybrid"]
+  label        String? // "Android · Chrome" — from the browser at registration
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([userId])
+}
+
+// SQLite-backed background job queue (owner 2026-10-22: no Redis/BullMQ). Work that talks to WhatsApp (crew dispatch,
+// completion notice) is queued so a request never waits on Meta, retried with back-off, and never duplicated.
+model OutboxJob {
+  id        String    @id @default(cuid())
+  kind      String // TEAM_DISPATCH | JOB_COMPLETED_NOTICE
+  payload   String // JSON
+  dedupeKey String? // an unfinished job with the same key is not queued twice
+  status    String    @default("PENDING") // PENDING | RUNNING | DONE | FAILED
+  attempts  Int       @default(0)
+  runAt     DateTime  @default(now())
+  lockedAt  DateTime?
+  lastError String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, runAt])
+  @@index([dedupeKey])
+}
+
+// One row per lifecycle reminder actually sent (or attempted), so a customer / invoice is never reminded twice for the same milestone.
+// dedupeKey: REBOOK:<customerId>:<6|12>:<last-service-date>  or  PAY:<invoiceKey>:<1|2|3>.
+model ReminderLog {
+  id         String   @id @default(cuid())
+  kind       String // REBOOK | PAYMENT | SWEEP
+  dedupeKey  String
+  customerId String?
+  toNumber   String?
+  status     String // SENT | FAILED
+  detail     String?
+  createdAt  DateTime @default(now())
+
+  @@index([dedupeKey])
+  @@index([kind, createdAt])
+}
+
+// Sales / purchase vouchers beyond the quotation and invoice (owner 2026-10-23): Proforma Invoice, Credit Note, Delivery Challan and
+// Purchase Voucher share one table. number is sequential per type and financial year (PF/26-27/0001). A PURCHASE is what Sahara owes a
+// vendor ("To Pay" on the dashboard: totalAmount - paidAmount); the others are customer-facing documents.
+model Voucher {
+  id            String   @id @default(cuid())
+  type          String // PROFORMA | CREDIT_NOTE | DELIVERY_CHALLAN | PURCHASE
+  number        String   @unique
+  voucherDate   DateTime
+  partyName     String
+  partyMobile   String?
+  partyGstin    String?
+  partyAddress  String?
+  customerId    String?
+  refNumber     String? // credit note: the invoice it corrects; purchase: the vendor's bill number
+  lineItems     String // JSON [{name, description?, qty, rate}]
+  subTotal      Float
+  discount      Float    @default(0)
+  isGst         Boolean  @default(false)
+  gstPercent    Float    @default(0)
+  gstAmount     Float    @default(0)
+  totalAmount   Float
+  paidAmount    Float    @default(0) // purchases only: what has been paid to the vendor so far
+  dueDate       DateTime?
+  status        String   @default("ISSUED") // ISSUED | PAID | CANCELLED
+  notes         String?
+  createdByName String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type, voucherDate])
+  @@index([status])
+  @@index([customerId])
 }

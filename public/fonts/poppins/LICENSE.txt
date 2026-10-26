@@ -1,0 +1,3 @@
+Poppins — Copyright 2020 The Poppins Project Authors (https://github.com/itfoundry/Poppins).
+Licensed under the SIL Open Font License, Version 1.1 (https://openfontlicense.org).
+Used by the PDF renderer for the ₹ sign and Devanagari (Hindi staff rules on the Job Card).

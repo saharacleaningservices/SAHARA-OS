@@ -24,7 +24,11 @@ export const LeadSource = {
   WHATSAPP: 'WHATSAPP',
   CALL: 'CALL',
   WEBSITE: 'WEBSITE',
-  GOOGLE: 'GOOGLE'
+  GOOGLE: 'GOOGLE',
+  GMB: 'GMB',
+  FACEBOOK: 'FACEBOOK',
+  INSTAGRAM: 'INSTAGRAM',
+  META: 'META'
 } as const
 
 export type LeadSource = (typeof LeadSource)[keyof typeof LeadSource]
@@ -49,6 +53,7 @@ export const LeadStage = {
   NEGOTIATION: 'NEGOTIATION',
   CONFIRMED: 'CONFIRMED',
   JOB_SCHEDULED: 'JOB_SCHEDULED',
+  CANCELLED: 'CANCELLED',
   COMPLETED: 'COMPLETED'
 } as const
 
@@ -56,10 +61,14 @@ export type LeadStage = (typeof LeadStage)[keyof typeof LeadStage]
 
 
 export const JobStatus = {
+  PENDING: 'PENDING',
   ASSIGNED: 'ASSIGNED',
   ON_THE_WAY: 'ON_THE_WAY',
   STARTED: 'STARTED',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+  POSTPONED: 'POSTPONED',
+  CANCELLED: 'CANCELLED',
+  REACTIVATED: 'REACTIVATED'
 } as const
 
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
@@ -76,11 +85,19 @@ export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
 export const ExpenseCategory = {
-  CHEMICALS: 'CHEMICALS',
+  HOUSEKEEPING_MATERIAL: 'HOUSEKEEPING_MATERIAL',
   FUEL: 'FUEL',
+  AUTO_CAB_FARE: 'AUTO_CAB_FARE',
   EQUIPMENT: 'EQUIPMENT',
+  BIKE_SERVICE: 'BIKE_SERVICE',
   STAFF_ADVANCE: 'STAFF_ADVANCE',
-  MISCELLANEOUS: 'MISCELLANEOUS'
+  VENDOR_PAYMENT: 'VENDOR_PAYMENT',
+  MISCELLANEOUS: 'MISCELLANEOUS',
+  SALARY: 'SALARY',
+  OFFICE_RENT: 'OFFICE_RENT',
+  MACHINE_REPAIR: 'MACHINE_REPAIR',
+  CHEMICALS: 'CHEMICALS',
+  BACK_OFFICE: 'BACK_OFFICE'
 } as const
 
 export type ExpenseCategory = (typeof ExpenseCategory)[keyof typeof ExpenseCategory]
@@ -90,7 +107,8 @@ export const AttendanceStatus = {
   PRESENT: 'PRESENT',
   ABSENT: 'ABSENT',
   HALF_DAY: 'HALF_DAY',
-  LEAVE: 'LEAVE'
+  LEAVE: 'LEAVE',
+  WEEKLY_OFF: 'WEEKLY_OFF'
 } as const
 
 export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]
@@ -171,7 +189,11 @@ export const ServiceCategory = {
   INDIVIDUAL_CLEANING: 'INDIVIDUAL_CLEANING',
   PAINTING: 'PAINTING',
   PEST_CONTROL: 'PEST_CONTROL',
-  COMMERCIAL_CLEANING: 'COMMERCIAL_CLEANING'
+  HOUSEKEEPING: 'HOUSEKEEPING',
+  COMMERCIAL_CLEANING: 'COMMERCIAL_CLEANING',
+  AMC: 'AMC',
+  CUSTOMIZER_PACKAGE: 'CUSTOMIZER_PACKAGE',
+  COMBO_PACKAGE: 'COMBO_PACKAGE'
 } as const
 
 export type ServiceCategory = (typeof ServiceCategory)[keyof typeof ServiceCategory]
@@ -205,14 +227,20 @@ export type AmcStatus = (typeof AmcStatus)[keyof typeof AmcStatus]
 
 
 export const WhatsAppKind = {
+  JOB_COMPLETED: 'JOB_COMPLETED',
+  SERVICE_STARTED: 'SERVICE_STARTED',
+  QUOTATION_NOTICE: 'QUOTATION_NOTICE',
   BOOKING_CONFIRMATION: 'BOOKING_CONFIRMATION',
   TEAM_DISPATCH: 'TEAM_DISPATCH',
   CUSTOMER_REMINDER: 'CUSTOMER_REMINDER',
   PAYMENT_REMINDER: 'PAYMENT_REMINDER',
   REVIEW_REQUEST: 'REVIEW_REQUEST',
+  REVIEW_CAMPAIGN: 'REVIEW_CAMPAIGN',
   AMC_RENEWAL: 'AMC_RENEWAL',
   ATTENDANCE_SUMMARY: 'ATTENDANCE_SUMMARY',
   DEVICE_APPROVAL: 'DEVICE_APPROVAL',
+  DAILY_SUMMARY: 'DAILY_SUMMARY',
+  MONTHLY_SUMMARY: 'MONTHLY_SUMMARY',
   OTHER: 'OTHER'
 } as const
 
@@ -222,7 +250,9 @@ export type WhatsAppKind = (typeof WhatsAppKind)[keyof typeof WhatsAppKind]
 export const WhatsAppStatus = {
   QUEUED: 'QUEUED',
   SENT: 'SENT',
-  FAILED: 'FAILED'
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  RECEIVED: 'RECEIVED'
 } as const
 
 export type WhatsAppStatus = (typeof WhatsAppStatus)[keyof typeof WhatsAppStatus]
@@ -235,3 +265,26 @@ export const DeviceStatus = {
 } as const
 
 export type DeviceStatus = (typeof DeviceStatus)[keyof typeof DeviceStatus]
+
+
+export const QuotationStatus = {
+  DRAFT: 'DRAFT',
+  SENT: 'SENT',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type QuotationStatus = (typeof QuotationStatus)[keyof typeof QuotationStatus]
+
+
+export const InvoiceStatus = {
+  DRAFT: 'DRAFT',
+  ISSUED: 'ISSUED',
+  PARTIALLY_PAID: 'PARTIALLY_PAID',
+  PAID: 'PAID',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus]

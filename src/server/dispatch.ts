@@ -5,14 +5,19 @@
 // per staff member rather than a single post into a native WhatsApp group.
 import { db } from "@/lib/db";
 import { SERVICE_LABELS } from "@/lib/constants";
-import { sendWhatsApp } from "@/lib/whatsapp";
+import { isMutedStaffAlert, sendWhatsApp } from "@/lib/whatsapp";
 import { teamDispatchMessage } from "@/lib/whatsapp-templates";
+import { crewCardToken } from "@/lib/crew-card-token";
+import { INTERNAL_CRM_URL } from "@/lib/site-urls";
 
 export async function dispatchTeamForJob(jobId: string) {
+  // Staff WhatsApp alerts are off (owner 2026-10-25): the crew sees the job in the Staff App. Nothing is sent or logged.
+  if (isMutedStaffAlert("TEAM_DISPATCH")) return { sent: 0, queued: 0, muted: true as const };
   const job = await db.job.findUnique({
     where: { id: jobId },
     include: {
       vehicle: true,
+      supervisor: true,
       materialIssues: true,
       assignments: { include: { staff: true } },
     },
@@ -21,14 +26,24 @@ export async function dispatchTeamForJob(jobId: string) {
 
   const body = teamDispatchMessage({
     customerName: job.customerName,
+    mobile: job.customerMobile,
     area: job.area,
+    address: job.address,
     mapLink: job.mapLink,
     service: SERVICE_LABELS[job.service] ?? job.service,
+    flatType: job.serviceVariant,
     date: job.scheduledDate,
     timeSlot: job.scheduledTime,
+    team: job.teamNumber,
+    supervisor: job.supervisor?.name ?? null,
     vehicle: job.vehicle ? `${job.vehicle.name} (${job.vehicle.plateNumber})` : null,
     materials: job.materialIssues.map((m) => (m.quantity ? `${m.item} x${m.quantity}` : m.item)),
+    notes: job.notes,
   });
+
+  // The digital job card (A4 web view) travels with the message; the card never loads the customer phone or amounts.
+  const cardLink = `${INTERNAL_CRM_URL}/crew-card/${crewCardToken(job.id)}`;
+  const bodyWithCard = `${body}\n\n\u{1F9FE} Job card: ${cardLink}`;
 
   let sent = 0;
   let queued = 0;
@@ -38,7 +53,7 @@ export async function dispatchTeamForJob(jobId: string) {
       kind: "TEAM_DISPATCH",
       toNumber: a.staff.mobile,
       toName: a.staff.name,
-      body,
+      body: bodyWithCard,
       relatedType: "Job",
       relatedId: job.id,
     });

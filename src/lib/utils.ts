@@ -10,8 +10,24 @@ export function formatINR(amount: number | null | undefined): string {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2, // exact amounts — paise shown only when present, never rounded
   }).format(value);
+}
+
+/**
+ * Short Indian-unit money for tight mobile cards: ₹6.81L, ₹1.25Cr (owner 2026-10-22). Below one lakh it is the normal
+ * whole-rupee amount (₹45,500). Display only — totals and documents keep formatINR's exact value.
+ */
+export function formatCompactINR(amount: number | null | undefined): string {
+  const value = amount ?? 0;
+  if (!Number.isFinite(value)) return formatINR(0);
+  const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  const unit = (n: number, suffix: string) => `${sign}₹${(Math.round(n * 100) / 100).toFixed(2).replace(/\.?0+$/, "")}${suffix}`;
+  if (abs >= 1e7) return unit(abs / 1e7, "Cr");
+  if (abs >= 1e5) return unit(abs / 1e5, "L");
+  return `${sign}${formatINR(Math.round(abs))}`;
 }
 
 export function formatDate(date: Date | string | null | undefined): string {
@@ -21,6 +37,19 @@ export function formatDate(date: Date | string | null | undefined): string {
     day: "2-digit",
     month: "short",
     year: "numeric",
+  }).format(d);
+}
+
+/** Compact "22 Sep" — no year — for dense table cells (Jobs/Leads Schedule
+ * column) where the year is implied and every character of row height/width
+ * counts. Use formatDate() instead wherever the year matters (invoices,
+ * detail pages, anything printed). */
+export function formatDateShort(date: Date | string | null | undefined): string {
+  if (!date) return "-";
+  const d = typeof date === "string" ? new Date(date) : date;
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
   }).format(d);
 }
 
@@ -62,10 +91,94 @@ export function toTelLink(mobile: string): string {
   return `tel:${digits}`;
 }
 
+/**
+ * The customer-facing Area field was removed from the booking / lead / job
+ * forms in favour of a full Address + PIN Code. The `area` column stays
+ * NOT NULL for existing reports, dashboards and job cards, so derive a value
+ * from PIN → first address line → placeholder.
+ */
+export function deriveArea(input: {
+  area?: string | null;
+  pinCode?: string | null;
+  address?: string | null;
+}): string {
+  return (
+    (input.area && input.area.trim()) ||
+    (input.pinCode && input.pinCode.trim()) ||
+    (input.address ? input.address.split(/[\n,]/)[0]!.trim().slice(0, 60) : "") ||
+    "—"
+  );
+}
+
+/**
+ * Relative-day classification for a date, used for the "TODAY / Tomorrow /
+ * Overdue" badges across the Leads CRM and Jobs list.
+ */
+export type DayBucket = "OVERDUE" | "TODAY" | "TOMORROW" | "FUTURE" | "NONE";
+
+export function dayBucket(date: Date | string | null | undefined): DayBucket {
+  if (!date) return "NONE";
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "NONE";
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(d);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target.getTime() - start.getTime()) / 86400000);
+  if (diffDays < 0) return "OVERDUE";
+  if (diffDays === 0) return "TODAY";
+  if (diffDays === 1) return "TOMORROW";
+  return "FUTURE";
+}
+
+/**
+ * Minutes-after-midnight for an arrival-window label ("8:00 – 11:00",
+ * "10:00 AM", "2 PM"). Bare 1–7 o'clock means afternoon (business hours).
+ * Unparseable / "Flexible" sorts last within its day.
+ */
+export function slotStartMinutes(slot: string | null | undefined): number {
+  const m = (slot ?? "").match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+  if (!m) return 24 * 60;
+  let h = Number(m[1]);
+  const ampm = m[3]?.toLowerCase();
+  if (ampm) h = (h % 12) + (ampm === "pm" ? 12 : 0);
+  else if (h >= 1 && h <= 7) h += 12;
+  return h * 60 + Number(m[2] ?? 0);
+}
+
+/**
+ * Today's records first, then tomorrow's — each in time order — then
+ * everything else in its original order.
+ */
+export function todayTomorrowFirst<T>(items: T[], date: (t: T) => Date | string | null | undefined, time: (t: T) => string | null | undefined): T[] {
+  const rank = (t: T) => {
+    const b = dayBucket(date(t));
+    return b === "TODAY" ? 0 : b === "TOMORROW" ? 1 : 2;
+  };
+  return items
+    .map((t, i) => ({ t, i, r: rank(t) }))
+    .sort((a, b) => a.r - b.r || (a.r < 2 ? slotStartMinutes(time(a.t)) - slotStartMinutes(time(b.t)) : 0) || a.i - b.i)
+    .map((x) => x.t);
+}
+
+export const DAY_BUCKET_META: Record<
+  Exclude<DayBucket, "NONE" | "FUTURE">,
+  { label: string; badge: "destructive" | "success" | "info"; dot: string }
+> = {
+  OVERDUE: { label: "Overdue", badge: "destructive", dot: "bg-destructive" },
+  TODAY: { label: "TODAY", badge: "success", dot: "bg-success" },
+  TOMORROW: { label: "Tomorrow", badge: "info", dot: "bg-primary" },
+};
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");
+}
+
+/** XXXXXX1234 — never show full bank / phone numbers in lists. */
+export function maskTail(v?: string | null): string {
+  return v ? `${"X".repeat(Math.max(0, v.length - 4))}${v.slice(-4)}` : "";
 }

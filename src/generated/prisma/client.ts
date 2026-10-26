@@ -62,6 +62,36 @@ export type Staff = Prisma.StaffModel
  */
 export type Attendance = Prisma.AttendanceModel
 /**
+ * Model AttendanceAudit
+ * 
+ */
+export type AttendanceAudit = Prisma.AttendanceAuditModel
+/**
+ * Model GalleryItem
+ * 
+ */
+export type GalleryItem = Prisma.GalleryItemModel
+/**
+ * Model Customer
+ * 
+ */
+export type Customer = Prisma.CustomerModel
+/**
+ * Model CustomerSite
+ * 
+ */
+export type CustomerSite = Prisma.CustomerSiteModel
+/**
+ * Model BookingLink
+ * 
+ */
+export type BookingLink = Prisma.BookingLinkModel
+/**
+ * Model MonthClose
+ * 
+ */
+export type MonthClose = Prisma.MonthCloseModel
+/**
  * Model Lead
  * 
  */
@@ -122,6 +152,11 @@ export type ActivityLog = Prisma.ActivityLogModel
  */
 export type CompanySettings = Prisma.CompanySettingsModel
 /**
+ * Model CompanyDocument
+ * 
+ */
+export type CompanyDocument = Prisma.CompanyDocumentModel
+/**
  * Model AuditLog
  * 
  */
@@ -147,10 +182,20 @@ export type Review = Prisma.ReviewModel
  */
 export type BackupEvent = Prisma.BackupEventModel
 /**
+ * Model WhatsAppConversation
+ * 
+ */
+export type WhatsAppConversation = Prisma.WhatsAppConversationModel
+/**
  * Model WhatsAppMessage
  * 
  */
 export type WhatsAppMessage = Prisma.WhatsAppMessageModel
+/**
+ * Model WhatsAppConsent
+ * 
+ */
+export type WhatsAppConsent = Prisma.WhatsAppConsentModel
 /**
  * Model AmcContract
  * 
@@ -187,6 +232,16 @@ export type FineRecord = Prisma.FineRecordModel
  */
 export type RewardRecord = Prisma.RewardRecordModel
 /**
+ * Model TeamIncentive
+ * 
+ */
+export type TeamIncentive = Prisma.TeamIncentiveModel
+/**
+ * Model Announcement
+ * 
+ */
+export type Announcement = Prisma.AnnouncementModel
+/**
  * Model Invoice
  * 
  */
@@ -196,3 +251,141 @@ export type Invoice = Prisma.InvoiceModel
  * 
  */
 export type JobVideo = Prisma.JobVideoModel
+/**
+ * Model IntegrationSettings
+ * 
+ */
+export type IntegrationSettings = Prisma.IntegrationSettingsModel
+/**
+ * Model SmsMessage
+ * 
+ */
+export type SmsMessage = Prisma.SmsMessageModel
+/**
+ * Model EmailMessage
+ * 
+ */
+export type EmailMessage = Prisma.EmailMessageModel
+/**
+ * Model SecurityOtp
+ * 
+ */
+export type SecurityOtp = Prisma.SecurityOtpModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model PushSubscription
+ * 
+ */
+export type PushSubscription = Prisma.PushSubscriptionModel
+/**
+ * Model BusinessTarget
+ * 
+ */
+export type BusinessTarget = Prisma.BusinessTargetModel
+/**
+ * Model MarketingSpend
+ * 
+ */
+export type MarketingSpend = Prisma.MarketingSpendModel
+/**
+ * Model BookingSlotControl
+ * 
+ */
+export type BookingSlotControl = Prisma.BookingSlotControlModel
+/**
+ * Model PriceSetting
+ * 
+ */
+export type PriceSetting = Prisma.PriceSettingModel
+/**
+ * Model MybillbookInvoice
+ * 
+ */
+export type MybillbookInvoice = Prisma.MybillbookInvoiceModel
+/**
+ * Model ServiceCatalog
+ * 
+ */
+export type ServiceCatalog = Prisma.ServiceCatalogModel
+/**
+ * Model FestivalOffer
+ * 
+ */
+export type FestivalOffer = Prisma.FestivalOfferModel
+/**
+ * Model FestivalPrice
+ * 
+ */
+export type FestivalPrice = Prisma.FestivalPriceModel
+/**
+ * Model StaffLedgerEntry
+ * * Salary ledger. kind: EARNING | OTHER_CREDIT | PAYMENT | ADVANCE | FINE | DEDUCTION | OPENING_BALANCE.
+ *  *  amount is always positive; sign comes from kind (OPENING_BALANCE uses signedAmount).
+ */
+export type StaffLedgerEntry = Prisma.StaffLedgerEntryModel
+/**
+ * Model OvertimeRecord
+ * * Loan ledger — separate from salary. kind: LOAN_GIVEN | LOAN_REPAID | LOAN_OPENING.
+ *  *  fromSalary = recovery cut from salary (also reduces Salary Due).
+ * * Overtime — separate from multiple jobs. Only Super Admin / Accounts approve; only APPROVED counts as earning.
+ */
+export type OvertimeRecord = Prisma.OvertimeRecordModel
+/**
+ * Model StaffLoanEntry
+ * 
+ */
+export type StaffLoanEntry = Prisma.StaffLoanEntryModel
+/**
+ * Model AnnouncementRead
+ * * Read receipt per staff user for office announcements.
+ */
+export type AnnouncementRead = Prisma.AnnouncementReadModel
+/**
+ * Model KhataImportBatch
+ * 
+ */
+export type KhataImportBatch = Prisma.KhataImportBatchModel
+/**
+ * Model KhataImportLog
+ * 
+ */
+export type KhataImportLog = Prisma.KhataImportLogModel
+/**
+ * Model OpsReminder
+ * 
+ */
+export type OpsReminder = Prisma.OpsReminderModel
+/**
+ * Model OpsReminderEvent
+ * 
+ */
+export type OpsReminderEvent = Prisma.OpsReminderEventModel
+/**
+ * Model OpsReminderSettings
+ * 
+ */
+export type OpsReminderSettings = Prisma.OpsReminderSettingsModel
+/**
+ * Model WebAuthnCredential
+ * 
+ */
+export type WebAuthnCredential = Prisma.WebAuthnCredentialModel
+/**
+ * Model OutboxJob
+ * 
+ */
+export type OutboxJob = Prisma.OutboxJobModel
+/**
+ * Model ReminderLog
+ * 
+ */
+export type ReminderLog = Prisma.ReminderLogModel
+/**
+ * Model Voucher
+ * 
+ */
+export type Voucher = Prisma.VoucherModel

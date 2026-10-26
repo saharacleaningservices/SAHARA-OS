@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { jobSchema, type JobFormValues } from "@/lib/validation";
 import { SERVICE_OPTIONS } from "@/lib/constants";
 import { createJob } from "@/server/actions/jobs";
+import { TeamSelect } from "@/components/shared/team-select";
 
 type StaffOption = { id: string; name: string; designation: string };
 
@@ -44,8 +45,9 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
     resolver: zodResolver(jobSchema),
     defaultValues: {
       service: "HOME_DEEP_CLEANING",
-      jobValue: 3999,
+      jobValue: 0,
       scheduledTime: "10:00",
+      teamNumber: "",
     },
   });
 
@@ -63,8 +65,7 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
     setOpen(false);
     reset();
     setSelectedStaff([]);
-    router.push(`/jobs/${res.jobId}`);
-    router.refresh();
+    router.push(`/jobs/${res.jobId}`); // push already loads fresh data (dynamic page) — no second refresh render
   }
 
   return (
@@ -77,7 +78,7 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Schedule a New Job</DialogTitle>
-          <DialogDescription>Minimum job value is ₹3,999.</DialogDescription>
+          <DialogDescription>Enter the job value as per the Sahara pricing master.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
@@ -96,8 +97,9 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label>Area</Label>
-              <Input {...register("area")} />
+              <Label>PIN Code</Label>
+              <Input {...register("pinCode")} inputMode="numeric" maxLength={6} placeholder="411028" />
+              {errors.pinCode && <p className="text-xs text-destructive">{errors.pinCode.message}</p>}
             </div>
             <div className="space-y-1">
               <Label>Service</Label>
@@ -116,6 +118,16 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>Flat / Type</Label>
+              <Input {...register("serviceVariant")} placeholder="2 BHK / Sofa …" />
+            </div>
+            <div className="space-y-1">
+              <Label>Package (optional)</Label>
+              <Input {...register("packageName")} placeholder="Premium / Platinum …" />
+            </div>
+          </div>
           <div className="space-y-1">
             <Label>Address</Label>
             <Textarea rows={2} {...register("address")} />
@@ -136,6 +148,8 @@ export function NewJobDialog({ staffOptions }: { staffOptions: StaffOption[] }) 
               {errors.jobValue && <p className="text-xs text-destructive">{errors.jobValue.message}</p>}
             </div>
           </div>
+
+          <TeamSelect value={watch("teamNumber")} onChange={(v) => setValue("teamNumber", v)} />
 
           <div className="space-y-1">
             <Label>Supervisor</Label>

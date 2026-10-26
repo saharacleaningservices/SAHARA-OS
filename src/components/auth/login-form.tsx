@@ -2,16 +2,18 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Lock, Mail, ShieldCheck, XCircle } from "lucide-react";
+import { Loader2, Lock, Smartphone, ShieldCheck, XCircle, Eye, EyeOff, Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { biometricSupported, markActiveNow, passkeyOnThisDevice, signInWithBiometric } from "@/lib/webauthn-client";
 
 const schema = z.object({
-  email: z.string().email("Enter a valid email address"),
+  loginId: z.string().trim().min(3, "Enter your mobile number"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -25,7 +27,28 @@ export function LoginForm({ next }: { next?: string }) {
   const [loading, setLoading] = useState(false);
   const [pendingApproval, setPendingApproval] = useState(false);
   const [denied, setDenied] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Biometric sign-in (Face ID / fingerprint / device PIN) — shown only where the device supports it.
+  const [bioReady, setBioReady] = useState(false);
+  const [bioHere, setBioHere] = useState(false);
+  const [bioLoading, setBioLoading] = useState(false);
+  useEffect(() => {
+    void biometricSupported().then((ok) => {
+      setBioReady(ok);
+      setBioHere(ok && passkeyOnThisDevice());
+    });
+  }, []);
+
+  async function onBiometric() {
+    setError(null);
+    setDenied(false);
+    setBioLoading(true);
+    const r = await signInWithBiometric();
+    setBioLoading(false);
+    if (r.ok) return goToDestination();
+    if (!r.cancelled) setError(r.error);
+  }
 
   const {
     register,
@@ -33,7 +56,7 @@ export function LoginForm({ next }: { next?: string }) {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { loginId: "", password: "" },
   });
 
   useEffect(() => {
@@ -43,6 +66,7 @@ export function LoginForm({ next }: { next?: string }) {
   }, []);
 
   function goToDestination() {
+    markActiveNow();
     router.push(next && next.startsWith("/") ? next : "/dashboard");
     router.refresh();
   }
@@ -59,10 +83,10 @@ export function LoginForm({ next }: { next?: string }) {
           if (pollRef.current) clearInterval(pollRef.current);
           setPendingApproval(false);
           setDenied(true);
-        } else if (data.expired) {
+        } else if (data.expired || res.status === 401) {
           if (pollRef.current) clearInterval(pollRef.current);
           setPendingApproval(false);
-          setError("The approval request expired. Please sign in again.");
+          setError(data.expired ? "The approval request expired. Please sign in again." : "Device approved — please sign in again.");
         }
       } catch {
         // transient network issue — keep polling
@@ -118,24 +142,85 @@ export function LoginForm({ next }: { next?: string }) {
 
   return (
     <div className="w-full max-w-sm space-y-6">
+      {bioReady && (
+        <div className="space-y-3">
+          <Button type="button" variant={bioHere ? "default" : "outline"} className="h-11 w-full" onClick={onBiometric} disabled={bioLoading || loading}>
+            {bioLoading ? <Loader2 className="animate-spin" /> : <Fingerprint className="size-5" />}
+            Sign in with Face ID / Fingerprint
+          </Button>
+          <p className="text-center text-[11px] text-muted-foreground">
+            {bioHere ? "Uses this phone's own Face ID, fingerprint or screen lock." : "Enable it once from My Profile after signing in with your password."}
+          </p>
+          <div className="flex items-center gap-3 text-[11px] uppercase tracking-wide text-muted-foreground">
+            <span className="h-px flex-1 bg-border" /> or use password <span className="h-px flex-1 bg-border" />
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="loginId">Mobile Number</Label>
           <div className="relative">
-            <Mail className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="email" type="email" placeholder="you@saharacleaningservices.com" className="pl-8" {...register("email")} />
+            <Smartphone className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="loginId"
+              type="text"
+              inputMode="tel"
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              placeholder="10-digit mobile number"
+              className="pl-8"
+              {...register("loginId")}
+            />
           </div>
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          {errors.loginId && <p className="text-xs text-destructive">{errors.loginId.message}</p>}
         </div>
 
         <div className="space-y-1.5">
           <Label htmlFor="password">Password</Label>
           <div className="relative">
             <Lock className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input id="password" type="password" placeholder="••••••••" className="pl-8" {...register("password")} />
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="Password or PIN"
+              className="pl-8 pr-10"
+              {...register("password")}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-1 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
           </div>
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
+
+        <div className="flex items-center justify-between">
+          <Link href="/forgot-login-id" className="text-xs font-medium text-primary hover:underline">
+            Forgot Login ID?
+          </Link>
+          <Link href="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+        <p className="text-center text-xs text-muted-foreground">
+          Field staff forgot PIN?{" "}
+          <Link href="/staff-reset" className="font-medium text-primary hover:underline">
+            Request a reset
+          </Link>
+          {" · "}
+          New staff?{" "}
+          <Link href="/staff-register" className="font-medium text-primary hover:underline">
+            Register
+          </Link>
+        </p>
 
         {denied && (
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">

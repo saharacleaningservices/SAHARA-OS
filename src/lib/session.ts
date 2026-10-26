@@ -1,11 +1,15 @@
+import { cache } from "react";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { SESSION_COOKIE } from "@/lib/session-cookie";
 
-export const SESSION_COOKIE = "sahara_session";
+export { SESSION_COOKIE };
 // Enterprise-appropriate session timeout for a system holding real customer
-// and financial data — was 7 days. A device that's had its approval revoked
-// (see Device/device-approvals) stays logged in for at most this long,
-// since sessions are stateless JWTs with no server-side revocation list.
+// and financial data — was 7 days. Revocation (2026-10-13): every token
+// carries the user's sessionVersion; getSession() rejects a token whose
+// version is stale or whose account is disabled, so bumping
+// User.sessionVersion (revokeUserSessions) signs that user out everywhere.
 const SESSION_TTL_SECONDS = 60 * 60 * 12; // 12 hours
 
 function getSecretKey() {
@@ -23,10 +27,12 @@ export type SessionPayload = {
   role: "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
   avatarUrl?: string | null;
   deviceId?: string; // set only for roles gated by owner-controlled device login
+  sv?: number; // User.sessionVersion at sign-in (absent on pre-2026-10-13 tokens = 0)
 };
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
-  return new SignJWT({ ...payload })
+  const sv = payload.sv ?? (await db.user.findUnique({ where: { id: payload.sub }, select: { sessionVersion: true } }))?.sessionVersion ?? 0;
+  return new SignJWT({ ...payload, sv })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_TTL_SECONDS}s`)
@@ -42,12 +48,29 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
   }
 }
 
+/** Account still active and token not revoked (memoised per request). */
+const isSessionCurrent = cache(async (userId: string, sv: number) => {
+  const user = await db.user.findUnique({ where: { id: userId }, select: { isActive: true, sessionVersion: true } });
+  return Boolean(user?.isActive && user.sessionVersion === sv);
+});
+
 /** Server Component / Route Handler helper — reads & verifies the session cookie. */
 export async function getSession(): Promise<SessionPayload | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  return verifySessionToken(token);
+  const payload = await verifySessionToken(token);
+  if (!payload) return null;
+  return (await isSessionCurrent(payload.sub, payload.sv ?? 0)) ? payload : null;
+}
+
+/** Sign a user out of every device (password reset, access disabled). Their biometric passkeys are removed too,
+ *  so a lost / shared phone can't sign back in after a reset — they re-enable it after the next password sign-in. */
+export async function revokeUserSessions(userId: string) {
+  await db.$transaction([
+    db.user.update({ where: { id: userId }, data: { sessionVersion: { increment: 1 } } }),
+    db.webAuthnCredential.deleteMany({ where: { userId } }),
+  ]);
 }
 
 export async function setSessionCookie(token: string) {

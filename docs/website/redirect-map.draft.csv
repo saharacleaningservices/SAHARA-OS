@@ -1,0 +1,108 @@
+old_path,new_path,http_status,action,rule_and_reason,owner_review
+/,/,200,KEEP,R1 homepage stays at the root,NO
+/video-gallery/,/gallery/,301,REDIRECT_301,R3 one gallery page,NO
+/services/,/services/,200,KEEP,R1 services hub keeps its path,NO
+/cleaning-services-in-amanora-park/,/services/home-deep-cleaning/,301,REVIEW,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/cleaning-services-in-mohammadwadi/,/services/home-deep-cleaning/,301,REVIEW,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/cleaning-services-in-pune/,/services/home-deep-cleaning/,301,REVIEW,R2 Pune page == the service's main page,YES
+/cleaning-services-in-undri/,/services/home-deep-cleaning/,301,REVIEW,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/deep-cleaning-services-in-undri/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/deep-cleaning-services-in-pune/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/home-deep-cleaning-services-in-pune/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/home-deep-cleaning-services-in-undri/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/house-cleaning-services-in-pune/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/house-cleaning-services-in-undri/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/housekeeping-services-in-pune/,/services/housekeeping/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/housekeeping-services-in-undri/,/services/housekeeping/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-cleaning-services-in-pune/,/services/mattress-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/mattress-cleaning-services-in-undri/,/services/mattress-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-steam-services-in-kharadi/,/services/mattress-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-steam-services-in-pune/,/services/mattress-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/mattress-steam-services-in-undri/,/services/mattress-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/office-cleaning-services-in-pune/,/services/office-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/office-cleaning-services-in-undri/,/services/office-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/sofa-cleaning-services-in-pune/,/services/sofa-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/sofa-cleaning-services-in-undri/,/services/sofa-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/window-cleaning-services-in-pune/,/services/window-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/window-cleaning-services-in-undri/,/services/window-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bathroom-cleaning-services-in-pune/,/services/bathroom-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/bathroom-cleaning-services-in-undri/,/services/bathroom-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bungalows-cleaning-services-in-pune/,/services/home-deep-cleaning/,301,REVIEW,R2 Pune page == the service's main page,YES
+/bungalows-cleaning-services-in-undri/,/services/home-deep-cleaning/,301,REVIEW,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/carpet-cleaning-services-in-kharadi/,/services/carpet-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/carpet-cleaning-services-in-pune/,/services/carpet-cleaning/,301,REDIRECT_301,R2 Pune page == the service's main page,NO
+/carpet-cleaning-services-in-undri/,/services/carpet-cleaning/,301,REDIRECT_301,R2 undri page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bathroom-cleaning-services-in-amanora-park/,/services/bathroom-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bathroom-cleaning-services-in-mohammadwadi/,/services/bathroom-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bungalows-cleaning-services-in-amanora-park/,/services/home-deep-cleaning/,301,REVIEW,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/bungalows-cleaning-services-in-mohammadwadi/,/services/home-deep-cleaning/,301,REVIEW,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/carpet-cleaning-services-in-amanora-park/,/services/carpet-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/carpet-cleaning-services-in-mohammadwadi/,/services/carpet-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/deep-cleaning-services-in-amanora-park/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/deep-cleaning-services-in-mohammadwadi/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/home-deep-cleaning-services-in-amanora-park/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/home-deep-cleaning-services-in-mohammadwadi/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/house-cleaning-services-in-amanora-park/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/house-cleaning-services-in-mohammadwadi/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/housekeeping-services-in-amanora-park/,/services/housekeeping/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/housekeeping-services-in-mohammadwadi/,/services/housekeeping/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-cleaning-services-in-amanora-park/,/services/mattress-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-cleaning-services-in-mohammadwadi/,/services/mattress-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-steam-services-in-amanora-park/,/services/mattress-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-steam-services-in-mohammadwadi/,/services/mattress-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/office-cleaning-services-in-amanora-park/,/services/office-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/office-cleaning-services-in-mohammadwadi/,/services/office-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/sofa-cleaning-services-in-amanora-park/,/services/sofa-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/sofa-cleaning-services-in-mohammadwadi/,/services/sofa-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/window-cleaning-services-in-amanora-park/,/services/window-cleaning/,301,REDIRECT_301,R2 amanora-park page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/window-cleaning-services-in-mohammadwadi/,/services/window-cleaning/,301,REDIRECT_301,R2 mohammadwadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/about/,/about/,200,KEEP,R1 same path on the new site,NO
+/bathroom-cleaning-services-in-kharadi/,/services/bathroom-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/deep-cleaning-services-in-kharadi/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/window-cleaning-services-in-kharadi/,/services/window-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/sofa-cleaning-services-in-kharadi/,/services/sofa-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/office-cleaning-services-in-kharadi/,/services/office-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-cleaning-services-in-kharadi/,/services/mattress-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/housekeeping-services-in-kharadi/,/services/housekeeping/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/cleaning-services-in-kharadi/,/services/home-deep-cleaning/,301,REVIEW,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/more-services/,/services/,301,REDIRECT_301,R3 merged into the services hub,NO
+/cleaning-services-in-hadapsar/,/services/home-deep-cleaning/,301,REVIEW,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/home-deep-cleaning-services-in-hadapsar/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/house-cleaning-services-in-hadapsar/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/deep-cleaning-services-in-hadapsar/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/sofa-cleaning-services-in-hadapsar/,/services/sofa-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/office-cleaning-services-in-hadapsar/,/services/office-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bathroom-cleaning-services-in-hadapsar/,/services/bathroom-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/window-cleaning-services-in-hadapsar/,/services/window-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-cleaning-services-in-hadapsar/,/services/mattress-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/mattress-steam-services-in-hadapsar/,/services/mattress-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/carpet-cleaning-services-in-hadapsar/,/services/carpet-cleaning/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/housekeeping-services-in-hadapsar/,/services/housekeeping/,301,REDIRECT_301,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bungalows-cleaning-services-in-hadapsar/,/services/home-deep-cleaning/,301,REVIEW,R2 hadapsar page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/home-deep-cleaning-services-in-kharadi/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/house-cleaning-services-in-kharadi/,/services/home-deep-cleaning/,301,REDIRECT_301,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,NO
+/bungalows-cleaning-services-in-kharadi/,/services/home-deep-cleaning/,301,REVIEW,R2 kharadi page is a near-identical copy of the Pune page (audit 15 Oct): consolidate; locality hub decision (Q5) may change the target,YES
+/online-booking/,/book/,301,REDIRECT_301,R3 old booking page -> new booking flow,NO
+/housekeeping-services/,/services/housekeeping/,301,REDIRECT_301,R3 service root page,NO
+/deep-cleaning-services/,/services/home-deep-cleaning/,301,REDIRECT_301,R3 service root page,NO
+/contact/,/contact/,200,KEEP,R1 same path on the new site,NO
+/sofa-cleaning-shampooing/,/services/sofa-cleaning/,301,REDIRECT_301,R3 same service,NO
+/bathroom-cleaning-service/,/services/bathroom-cleaning/,301,REDIRECT_301,R3 same service,NO
+/corporate-office-cleaning/,/services/office-cleaning/,301,REDIRECT_301,R3 commercial/office cluster,NO
+/residential-apartment-cleaning/,/services/home-deep-cleaning/,301,REVIEW,R4 apartment cleaning: dedicated page or part of deep cleaning?,YES
+/one-time-cleaning/,/services/home-deep-cleaning/,301,REVIEW,R4 unclear intent: confirm target,YES
+/window-cleaning/,/services/window-cleaning/,301,REDIRECT_301,R3 same service,NO
+/kitchen-cleaning/,/services/kitchen-cleaning/,301,REDIRECT_301,R3 same service,NO
+/mattress-cleaning/,/services/mattress-cleaning/,301,REDIRECT_301,R3 same service,NO
+/carpet-cleaning/,/services/carpet-cleaning/,301,REDIRECT_301,R3 same service,NO
+/steam-cleaning/,/services/,301,REVIEW,R4 steam cleaning spans sofa/carpet/mattress: pick one target,YES
+/building-and-housing-society-cleaning/,/services/society-cleaning/,301,REVIEW,R4 society cleaning: new page needed? (high-value commercial),YES
+/house-deep-cleaning/,/services/home-deep-cleaning/,301,REDIRECT_301,R3 same service,NO
+/commercial-deep-cleaning/,/services/office-cleaning/,301,REDIRECT_301,R3 commercial/office cluster,NO
+/business-office-cleaning/,/services/office-cleaning/,301,REDIRECT_301,R3 commercial/office cluster,NO
+/chair-cleaning-residential-commercial/,/services/sofa-cleaning/,301,REVIEW,R4 upholstery: confirm it belongs with sofa cleaning,YES
+/intensive-deep-cleaning/,/services/home-deep-cleaning/,301,REDIRECT_301,R3 same service,NO
+/move-in-move-out-cleaning/,/services/move-in-out-cleaning/,301,REVIEW,R4 new move-in/out page needed?,YES
+/end-of-tenancy-cleaning/,/services/move-in-out-cleaning/,301,REVIEW,R4 merge with move-in/move-out page?,YES
+/privacy-policy/,/privacy-policy/,200,KEEP,R1 same path on the new site,NO
+/photo-gallery/,/gallery/,301,REDIRECT_301,R3 one gallery page,NO

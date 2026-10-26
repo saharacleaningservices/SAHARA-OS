@@ -48,6 +48,8 @@ export type AmcContractMinAggregateOutputType = {
   startDate: Date | null
   nextVisitDate: Date | null
   lastVisitDate: Date | null
+  serviceReminderDate: Date | null
+  contractExpiryDate: Date | null
   status: $Enums.AmcStatus | null
   notes: string | null
   leadId: string | null
@@ -72,6 +74,8 @@ export type AmcContractMaxAggregateOutputType = {
   startDate: Date | null
   nextVisitDate: Date | null
   lastVisitDate: Date | null
+  serviceReminderDate: Date | null
+  contractExpiryDate: Date | null
   status: $Enums.AmcStatus | null
   notes: string | null
   leadId: string | null
@@ -96,6 +100,8 @@ export type AmcContractCountAggregateOutputType = {
   startDate: number
   nextVisitDate: number
   lastVisitDate: number
+  serviceReminderDate: number
+  contractExpiryDate: number
   status: number
   notes: number
   leadId: number
@@ -130,6 +136,8 @@ export type AmcContractMinAggregateInputType = {
   startDate?: true
   nextVisitDate?: true
   lastVisitDate?: true
+  serviceReminderDate?: true
+  contractExpiryDate?: true
   status?: true
   notes?: true
   leadId?: true
@@ -154,6 +162,8 @@ export type AmcContractMaxAggregateInputType = {
   startDate?: true
   nextVisitDate?: true
   lastVisitDate?: true
+  serviceReminderDate?: true
+  contractExpiryDate?: true
   status?: true
   notes?: true
   leadId?: true
@@ -178,6 +188,8 @@ export type AmcContractCountAggregateInputType = {
   startDate?: true
   nextVisitDate?: true
   lastVisitDate?: true
+  serviceReminderDate?: true
+  contractExpiryDate?: true
   status?: true
   notes?: true
   leadId?: true
@@ -289,6 +301,8 @@ export type AmcContractGroupByOutputType = {
   startDate: Date
   nextVisitDate: Date
   lastVisitDate: Date | null
+  serviceReminderDate: Date | null
+  contractExpiryDate: Date | null
   status: $Enums.AmcStatus
   notes: string | null
   leadId: string | null
@@ -336,6 +350,8 @@ export type AmcContractWhereInput = {
   startDate?: Prisma.DateTimeFilter<"AmcContract"> | Date | string
   nextVisitDate?: Prisma.DateTimeFilter<"AmcContract"> | Date | string
   lastVisitDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
+  serviceReminderDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
+  contractExpiryDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
   status?: Prisma.EnumAmcStatusFilter<"AmcContract"> | $Enums.AmcStatus
   notes?: Prisma.StringNullableFilter<"AmcContract"> | string | null
   leadId?: Prisma.StringNullableFilter<"AmcContract"> | string | null
@@ -362,6 +378,8 @@ export type AmcContractOrderByWithRelationInput = {
   startDate?: Prisma.SortOrder
   nextVisitDate?: Prisma.SortOrder
   lastVisitDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceReminderDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  contractExpiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   leadId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -391,6 +409,8 @@ export type AmcContractWhereUniqueInput = Prisma.AtLeast<{
   startDate?: Prisma.DateTimeFilter<"AmcContract"> | Date | string
   nextVisitDate?: Prisma.DateTimeFilter<"AmcContract"> | Date | string
   lastVisitDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
+  serviceReminderDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
+  contractExpiryDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
   status?: Prisma.EnumAmcStatusFilter<"AmcContract"> | $Enums.AmcStatus
   notes?: Prisma.StringNullableFilter<"AmcContract"> | string | null
   leadId?: Prisma.StringNullableFilter<"AmcContract"> | string | null
@@ -417,6 +437,8 @@ export type AmcContractOrderByWithAggregationInput = {
   startDate?: Prisma.SortOrder
   nextVisitDate?: Prisma.SortOrder
   lastVisitDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceReminderDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  contractExpiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   leadId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -449,6 +471,8 @@ export type AmcContractScalarWhereWithAggregatesInput = {
   startDate?: Prisma.DateTimeWithAggregatesFilter<"AmcContract"> | Date | string
   nextVisitDate?: Prisma.DateTimeWithAggregatesFilter<"AmcContract"> | Date | string
   lastVisitDate?: Prisma.DateTimeNullableWithAggregatesFilter<"AmcContract"> | Date | string | null
+  serviceReminderDate?: Prisma.DateTimeNullableWithAggregatesFilter<"AmcContract"> | Date | string | null
+  contractExpiryDate?: Prisma.DateTimeNullableWithAggregatesFilter<"AmcContract"> | Date | string | null
   status?: Prisma.EnumAmcStatusWithAggregatesFilter<"AmcContract"> | $Enums.AmcStatus
   notes?: Prisma.StringNullableWithAggregatesFilter<"AmcContract"> | string | null
   leadId?: Prisma.StringNullableWithAggregatesFilter<"AmcContract"> | string | null
@@ -473,6 +497,8 @@ export type AmcContractCreateInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   isDemo?: boolean
@@ -498,6 +524,8 @@ export type AmcContractUncheckedCreateInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   leadId?: string | null
@@ -523,6 +551,8 @@ export type AmcContractUpdateInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -548,6 +578,8 @@ export type AmcContractUncheckedUpdateInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -573,6 +605,8 @@ export type AmcContractCreateManyInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   leadId?: string | null
@@ -597,6 +631,8 @@ export type AmcContractUpdateManyMutationInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -620,6 +656,8 @@ export type AmcContractUncheckedUpdateManyInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -654,6 +692,8 @@ export type AmcContractCountOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   nextVisitDate?: Prisma.SortOrder
   lastVisitDate?: Prisma.SortOrder
+  serviceReminderDate?: Prisma.SortOrder
+  contractExpiryDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
@@ -682,6 +722,8 @@ export type AmcContractMaxOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   nextVisitDate?: Prisma.SortOrder
   lastVisitDate?: Prisma.SortOrder
+  serviceReminderDate?: Prisma.SortOrder
+  contractExpiryDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
@@ -706,6 +748,8 @@ export type AmcContractMinOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   nextVisitDate?: Prisma.SortOrder
   lastVisitDate?: Prisma.SortOrder
+  serviceReminderDate?: Prisma.SortOrder
+  contractExpiryDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
@@ -807,6 +851,8 @@ export type AmcContractCreateWithoutLeadInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   isDemo?: boolean
@@ -831,6 +877,8 @@ export type AmcContractUncheckedCreateWithoutLeadInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   isDemo?: boolean
@@ -883,6 +931,8 @@ export type AmcContractScalarWhereInput = {
   startDate?: Prisma.DateTimeFilter<"AmcContract"> | Date | string
   nextVisitDate?: Prisma.DateTimeFilter<"AmcContract"> | Date | string
   lastVisitDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
+  serviceReminderDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
+  contractExpiryDate?: Prisma.DateTimeNullableFilter<"AmcContract"> | Date | string | null
   status?: Prisma.EnumAmcStatusFilter<"AmcContract"> | $Enums.AmcStatus
   notes?: Prisma.StringNullableFilter<"AmcContract"> | string | null
   leadId?: Prisma.StringNullableFilter<"AmcContract"> | string | null
@@ -907,6 +957,8 @@ export type AmcContractCreateWithoutVisitsInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   isDemo?: boolean
@@ -931,6 +983,8 @@ export type AmcContractUncheckedCreateWithoutVisitsInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   leadId?: string | null
@@ -971,6 +1025,8 @@ export type AmcContractUpdateWithoutVisitsInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -995,6 +1051,8 @@ export type AmcContractUncheckedUpdateWithoutVisitsInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1019,6 +1077,8 @@ export type AmcContractCreateManyLeadInput = {
   startDate: Date | string
   nextVisitDate: Date | string
   lastVisitDate?: Date | string | null
+  serviceReminderDate?: Date | string | null
+  contractExpiryDate?: Date | string | null
   status?: $Enums.AmcStatus
   notes?: string | null
   isDemo?: boolean
@@ -1042,6 +1102,8 @@ export type AmcContractUpdateWithoutLeadInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1066,6 +1128,8 @@ export type AmcContractUncheckedUpdateWithoutLeadInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1090,6 +1154,8 @@ export type AmcContractUncheckedUpdateManyWithoutLeadInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nextVisitDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastVisitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceReminderDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  contractExpiryDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumAmcStatusFieldUpdateOperationsInput | $Enums.AmcStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1144,6 +1210,8 @@ export type AmcContractSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   startDate?: boolean
   nextVisitDate?: boolean
   lastVisitDate?: boolean
+  serviceReminderDate?: boolean
+  contractExpiryDate?: boolean
   status?: boolean
   notes?: boolean
   leadId?: boolean
@@ -1171,6 +1239,8 @@ export type AmcContractSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   startDate?: boolean
   nextVisitDate?: boolean
   lastVisitDate?: boolean
+  serviceReminderDate?: boolean
+  contractExpiryDate?: boolean
   status?: boolean
   notes?: boolean
   leadId?: boolean
@@ -1196,6 +1266,8 @@ export type AmcContractSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   startDate?: boolean
   nextVisitDate?: boolean
   lastVisitDate?: boolean
+  serviceReminderDate?: boolean
+  contractExpiryDate?: boolean
   status?: boolean
   notes?: boolean
   leadId?: boolean
@@ -1221,6 +1293,8 @@ export type AmcContractSelectScalar = {
   startDate?: boolean
   nextVisitDate?: boolean
   lastVisitDate?: boolean
+  serviceReminderDate?: boolean
+  contractExpiryDate?: boolean
   status?: boolean
   notes?: boolean
   leadId?: boolean
@@ -1231,7 +1305,7 @@ export type AmcContractSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AmcContractOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "contractNumber" | "customerName" | "customerMobile" | "address" | "area" | "category" | "frequency" | "serviceCategory" | "amount" | "startDate" | "nextVisitDate" | "lastVisitDate" | "status" | "notes" | "leadId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["amcContract"]>
+export type AmcContractOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "contractNumber" | "customerName" | "customerMobile" | "address" | "area" | "category" | "frequency" | "serviceCategory" | "amount" | "startDate" | "nextVisitDate" | "lastVisitDate" | "serviceReminderDate" | "contractExpiryDate" | "status" | "notes" | "leadId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["amcContract"]>
 export type AmcContractInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.AmcContract$leadArgs<ExtArgs>
   visits?: boolean | Prisma.AmcContract$visitsArgs<ExtArgs>
@@ -1264,6 +1338,8 @@ export type $AmcContractPayload<ExtArgs extends runtime.Types.Extensions.Interna
     startDate: Date
     nextVisitDate: Date
     lastVisitDate: Date | null
+    serviceReminderDate: Date | null
+    contractExpiryDate: Date | null
     status: $Enums.AmcStatus
     notes: string | null
     leadId: string | null
@@ -1710,6 +1786,8 @@ export interface AmcContractFieldRefs {
   readonly startDate: Prisma.FieldRef<"AmcContract", 'DateTime'>
   readonly nextVisitDate: Prisma.FieldRef<"AmcContract", 'DateTime'>
   readonly lastVisitDate: Prisma.FieldRef<"AmcContract", 'DateTime'>
+  readonly serviceReminderDate: Prisma.FieldRef<"AmcContract", 'DateTime'>
+  readonly contractExpiryDate: Prisma.FieldRef<"AmcContract", 'DateTime'>
   readonly status: Prisma.FieldRef<"AmcContract", 'AmcStatus'>
   readonly notes: Prisma.FieldRef<"AmcContract", 'String'>
   readonly leadId: Prisma.FieldRef<"AmcContract", 'String'>

@@ -56,6 +56,26 @@
   --chart-5: #dc2626;
 }
 
+/* Navy Blue brand theme for the customer-facing pages (landing pages, booking form): the same tokens as the CRM, with the
+   primary colour switched from royal blue to the navy of the Sahara uniform. Applied by LandingShell; the CRM is unchanged. */
+.theme-navy {
+  --primary: #1f2f66;
+  --primary-foreground: #ffffff;
+  --ring: #1f2f66;
+  --accent: #e8ecf6;
+  --accent-foreground: #1f2f66;
+  --chart-1: #1f2f66;
+}
+
+/* Customer quotation / invoice view (owner 2026-10-25): strict A4 blue theme. */
+.theme-sahara-blue {
+  --primary: #1E40AF;
+  --primary-foreground: #ffffff;
+  --ring: #1E40AF;
+  --accent: #eaf0ff;
+  --accent-foreground: #1E40AF;
+}
+
 .dark {
   --background: #071626;
   --foreground: #e8f0fb;
@@ -151,7 +171,25 @@
   background: linear-gradient(135deg, #0b5ed7 0%, #0a2540 100%);
 }
 
+/* Utility: attention pulse ring for the Call button */
+@keyframes sahara-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0.5); }
+  70% { box-shadow: 0 0 0 14px rgba(11, 94, 215, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0); }
+}
+.sahara-pulse {
+  animation: sahara-pulse-ring 1.6s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sahara-pulse { animation: none; }
+}
+
 /* Signature pad canvas */
 .signature-canvas {
   touch-action: none;
+}
+
+/* Staff App: Devanagari-capable font stack for हिंदी / मराठी. */
+.staff-app {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Devanagari", "Noto Sans", "Mangal", "Nirmala UI", sans-serif;
 }

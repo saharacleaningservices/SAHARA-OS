@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { startOfDay, endOfDay, addDays } from "date-fns";
-import { jobScopeFor } from "@/lib/permissions";
+import { jobScopeFor, type JobScope } from "@/lib/permissions";
 import type { SessionPayload } from "@/lib/session";
 
 /** Resolves the logged-in user's own Staff record id, if they have one. */
@@ -10,8 +10,25 @@ export async function getOwnStaffId(userId: string): Promise<string | null> {
 }
 
 /**
+ * Date window (inclusive) a time-scoped role may see/act on; null = unrestricted.
+ * One definition for the Jobs list, Job Detail, Dispatch, Dashboard and the
+ * server actions, so the UI and the server-side block can never disagree.
+ */
+export function jobDateWindow(scope: JobScope, now = new Date()): { from: Date; to: Date } | null {
+  if (scope === "YESTERDAY_TODAY_TOMORROW") return { from: startOfDay(addDays(now, -1)), to: endOfDay(addDays(now, 1)) };
+  if (scope === "TODAY_TOMORROW" || scope === "OWN_TODAY_TOMORROW") return { from: startOfDay(now), to: endOfDay(addDays(now, 1)) };
+  if (scope === "OWN_TODAY") return { from: startOfDay(now), to: endOfDay(now) };
+  return null;
+}
+
+/** The window for a role (null = unrestricted). */
+export function jobDateWindowForRole(role: string, now = new Date()) {
+  return jobDateWindow(jobScopeFor(role), now);
+}
+
+/**
  * Job list, scoped per role:
- * - Operations Manager: today + tomorrow only
+ * - Operations (Francis): yesterday + today + tomorrow only
  * - Field Supervisor: jobs they supervise or are assigned to, AND only if
  *   scheduled today or tomorrow
  * - Worker: jobs they're assigned to, today only
@@ -23,8 +40,9 @@ export async function getAllJobsForList(session?: SessionPayload) {
 
   const where: Record<string, unknown> = { deletedAt: null };
 
-  if (scope === "TODAY_TOMORROW") {
-    where.scheduledDate = { gte: startOfDay(now), lte: endOfDay(addDays(now, 1)) };
+  if (scope === "YESTERDAY_TODAY_TOMORROW" || scope === "TODAY_TOMORROW") {
+    const w = jobDateWindow(scope, now)!;
+    where.scheduledDate = { gte: w.from, lte: w.to };
   } else if (scope === "OWN_TODAY_TOMORROW" || scope === "OWN_TODAY") {
     const staffId = session ? await getOwnStaffId(session.sub) : null;
     where.OR = [{ supervisorId: staffId ?? "__none__" }, { assignments: { some: { staffId: staffId ?? "__none__" } } }];
@@ -34,33 +52,114 @@ export async function getAllJobsForList(session?: SessionPayload) {
         : { gte: startOfDay(now), lte: endOfDay(addDays(now, 1)) };
   }
 
-  return db.job.findMany({
+  const rows = await db.job.findMany({
     where,
-    orderBy: { scheduledDate: "desc" },
+    orderBy: [{ scheduledDate: "desc" }, { jobNumber: "desc" }],
     include: {
+      lead: { select: { leadNumber: true } },
       supervisor: { select: { name: true } },
       assignments: { include: { staff: { select: { name: true } } } },
-      payments: { select: { status: true } },
+      // Trashed (soft-deleted) payments never count as paid.
+      payments: { where: { deletedAt: null }, select: { status: true, amount: true, paidAmount: true } },
       vehicle: { select: { name: true, plateNumber: true } },
     },
   });
+  return orderJobsForList(rows, now);
+}
+
+/**
+ * List order (owner 2026-10-23): what is coming up first, in calendar order — today, 24 Oct, 25 Oct, 26 Oct … — then everything
+ * that already happened, most recent first. (The earlier "newest date first" put November at the top of the list.) Within one
+ * day the oldest Job ID comes first for upcoming work and the newest first for past work.
+ */
+export function orderJobsForList<T extends { scheduledDate: Date; jobNumber: string }>(rows: T[], now = new Date()): T[] {
+  const start = startOfDay(now).getTime();
+  const upcoming = rows.filter((r) => r.scheduledDate.getTime() >= start).sort((a, b) => a.scheduledDate.getTime() - b.scheduledDate.getTime() || a.jobNumber.localeCompare(b.jobNumber));
+  const past = rows.filter((r) => r.scheduledDate.getTime() < start).sort((a, b) => b.scheduledDate.getTime() - a.scheduledDate.getTime() || b.jobNumber.localeCompare(a.jobNumber));
+  return [...upcoming, ...past];
+}
+
+/** Summary cards shown above the Jobs list. */
+export async function getJobsPageStats(window: { from: Date; to: Date } | null = null) {
+  const now = new Date();
+  const inWindow = window ? { scheduledDate: { gte: window.from, lte: window.to } } : {};
+  const [todayJobs, tomorrowJobs, pendingJobs, completedToday, pendingPaymentsAgg, yesterdayJobs] = await Promise.all([
+    db.job.count({
+      where: { deletedAt: null, status: { notIn: ["CANCELLED"] }, scheduledDate: { gte: startOfDay(now), lte: endOfDay(now) } },
+    }),
+    db.job.count({
+      where: {
+        deletedAt: null,
+        status: { notIn: ["CANCELLED"] },
+        scheduledDate: { gte: startOfDay(addDays(now, 1)), lte: endOfDay(addDays(now, 1)) },
+      },
+    }),
+    db.job.count({ where: { deletedAt: null, status: "PENDING", ...inWindow } }),
+    db.job.count({ where: { deletedAt: null, status: "COMPLETED", completedAt: { gte: startOfDay(now), lte: endOfDay(now) }, ...inWindow } }),
+    db.payment.aggregate({
+      where: { deletedAt: null, status: { not: "PAID" }, jobId: { not: null } },
+      _sum: { amount: true, paidAmount: true },
+    }),
+    db.job.count({
+      where: { deletedAt: null, status: { notIn: ["CANCELLED"] }, scheduledDate: { gte: startOfDay(addDays(now, -1)), lte: endOfDay(addDays(now, -1)) } },
+    }),
+  ]);
+  return {
+    yesterdayJobs,
+    todayJobs,
+    tomorrowJobs,
+    pendingJobs,
+    completedToday,
+    pendingPayments: (pendingPaymentsAgg._sum.amount ?? 0) - (pendingPaymentsAgg._sum.paidAmount ?? 0),
+  };
+}
+
+/** Today's jobs grouped by area, for the Team Dispatch / route planner. */
+export async function getTodayDispatch(dateStr?: string) {
+  const base = dateStr ? new Date(dateStr) : new Date();
+  const jobs = await db.job.findMany({
+    where: {
+      deletedAt: null,
+      status: { notIn: ["CANCELLED", "COMPLETED"] },
+      scheduledDate: { gte: startOfDay(base), lte: endOfDay(base) },
+    },
+    orderBy: [{ area: "asc" }, { scheduledTime: "asc" }],
+    include: {
+      supervisor: { select: { name: true } },
+      assignments: { include: { staff: { select: { name: true } } } },
+      vehicle: { select: { name: true, plateNumber: true } },
+    },
+  });
+
+  const groups = new Map<
+    string,
+    { area: string; jobs: typeof jobs }
+  >();
+  for (const j of jobs) {
+    const key = j.area || "—";
+    if (!groups.has(key)) groups.set(key, { area: key, jobs: [] });
+    groups.get(key)!.jobs.push(j);
+  }
+  return { date: base, total: jobs.length, groups: [...groups.values()] };
 }
 
 export async function getJobDetail(id: string) {
   return db.job.findFirst({
     where: { id, deletedAt: null },
     include: {
-      lead: true,
+      // Latest quotation of the enquiry — the Job Status workspace shows its number/status.
+      lead: { include: { quotations: { orderBy: { createdAt: "desc" }, take: 1, select: { id: true, quoteNumber: true, status: true, totalAmount: true } } } },
       supervisor: true,
       vehicle: true,
       assignments: { include: { staff: true } },
-      photos: { orderBy: { uploadedAt: "desc" } },
-      videos: { orderBy: { uploadedAt: "desc" } },
       materialIssues: { orderBy: { issuedAt: "desc" } },
       certificate: true,
-      payments: true,
+      payments: { where: { deletedAt: null } },
       invoice: true,
-      activityLogs: { orderBy: { createdAt: "desc" }, include: { actor: { select: { name: true } } } },
+      // Expenses linked to this job (fuel, material, staff advance, vendor
+      // payment, etc. tagged with jobId when recorded) — surfaced on the
+      // Job Detail page so cost-per-job is visible without leaving the job.
+      expenses: { where: { deletedAt: null }, orderBy: { date: "desc" } },
     },
   });
 }
@@ -72,14 +171,35 @@ export function canAccessJob(
   ownStaffId: string | null
 ): boolean {
   const scope = jobScopeFor(session.role);
-  if (scope === "ALL" || scope === "TODAY_TOMORROW") return true;
+  if (scope === "ALL") return true;
+  const now = new Date();
+  if (scope === "YESTERDAY_TODAY_TOMORROW" || scope === "TODAY_TOMORROW") {
+    // Operations: yesterday/today/tomorrow; Field Coordinator: today/tomorrow — any team.
+    const w = jobDateWindow(scope, now)!;
+    return job.scheduledDate >= w.from && job.scheduledDate <= w.to;
+  }
   if (!ownStaffId) return false;
   const isOwnJob = job.supervisorId === ownStaffId || job.assignments.some((a) => a.staffId === ownStaffId);
   if (!isOwnJob) return false;
   if (scope === "OWN_TODAY_TOMORROW" || scope === "OWN_TODAY") {
-    const now = new Date();
     const daysAhead = scope === "OWN_TODAY" ? 0 : 1;
     return job.scheduledDate >= startOfDay(now) && job.scheduledDate <= endOfDay(addDays(now, daysAhead));
   }
   return true;
+}
+
+/**
+ * Lightweight job list for pickers — currently used by the "Link to Job"
+ * selector on the Record an Expense dialog, so an expense (fuel, material,
+ * staff advance, vendor payment...) can be tagged to the job it was spent
+ * on. Ordered most-recent-first and capped so the dropdown stays fast on a
+ * large job history.
+ */
+export async function getJobsForSelection() {
+  return db.job.findMany({
+    where: { deletedAt: null },
+    orderBy: { scheduledDate: "desc" },
+    take: 200,
+    select: { id: true, jobNumber: true, customerName: true },
+  });
 }

@@ -224,6 +224,7 @@ export type FollowUpWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FollowUp"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  opsReminders?: Prisma.OpsReminderListRelationFilter
 }
 
 export type FollowUpOrderByWithRelationInput = {
@@ -239,6 +240,7 @@ export type FollowUpOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   lead?: Prisma.LeadOrderByWithRelationInput
   assignedTo?: Prisma.UserOrderByWithRelationInput
+  opsReminders?: Prisma.OpsReminderOrderByRelationAggregateInput
 }
 
 export type FollowUpWhereUniqueInput = Prisma.AtLeast<{
@@ -257,6 +259,7 @@ export type FollowUpWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FollowUp"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  opsReminders?: Prisma.OpsReminderListRelationFilter
 }, "id">
 
 export type FollowUpOrderByWithAggregationInput = {
@@ -302,6 +305,7 @@ export type FollowUpCreateInput = {
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutFollowUpsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutFollowUpsAssignedInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutFollowUpInput
 }
 
 export type FollowUpUncheckedCreateInput = {
@@ -315,6 +319,7 @@ export type FollowUpUncheckedCreateInput = {
   doneAt?: Date | string | null
   assignedToId?: string | null
   createdAt?: Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutFollowUpInput
 }
 
 export type FollowUpUpdateInput = {
@@ -328,6 +333,7 @@ export type FollowUpUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutFollowUpsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutFollowUpsAssignedNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutFollowUpNestedInput
 }
 
 export type FollowUpUncheckedUpdateInput = {
@@ -341,6 +347,7 @@ export type FollowUpUncheckedUpdateInput = {
   doneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutFollowUpNestedInput
 }
 
 export type FollowUpCreateManyInput = {
@@ -427,6 +434,11 @@ export type FollowUpMinOrderByAggregateInput = {
   doneAt?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type FollowUpNullableScalarRelationFilter = {
+  is?: Prisma.FollowUpWhereInput | null
+  isNot?: Prisma.FollowUpWhereInput | null
 }
 
 export type FollowUpCreateNestedManyWithoutAssignedToInput = {
@@ -521,6 +533,22 @@ export type EnumFollowUpPriorityFieldUpdateOperationsInput = {
   set?: $Enums.FollowUpPriority
 }
 
+export type FollowUpCreateNestedOneWithoutOpsRemindersInput = {
+  create?: Prisma.XOR<Prisma.FollowUpCreateWithoutOpsRemindersInput, Prisma.FollowUpUncheckedCreateWithoutOpsRemindersInput>
+  connectOrCreate?: Prisma.FollowUpCreateOrConnectWithoutOpsRemindersInput
+  connect?: Prisma.FollowUpWhereUniqueInput
+}
+
+export type FollowUpUpdateOneWithoutOpsRemindersNestedInput = {
+  create?: Prisma.XOR<Prisma.FollowUpCreateWithoutOpsRemindersInput, Prisma.FollowUpUncheckedCreateWithoutOpsRemindersInput>
+  connectOrCreate?: Prisma.FollowUpCreateOrConnectWithoutOpsRemindersInput
+  upsert?: Prisma.FollowUpUpsertWithoutOpsRemindersInput
+  disconnect?: Prisma.FollowUpWhereInput | boolean
+  delete?: Prisma.FollowUpWhereInput | boolean
+  connect?: Prisma.FollowUpWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FollowUpUpdateToOneWithWhereWithoutOpsRemindersInput, Prisma.FollowUpUpdateWithoutOpsRemindersInput>, Prisma.FollowUpUncheckedUpdateWithoutOpsRemindersInput>
+}
+
 export type FollowUpCreateWithoutAssignedToInput = {
   id?: string
   dueDate: Date | string
@@ -531,6 +559,7 @@ export type FollowUpCreateWithoutAssignedToInput = {
   doneAt?: Date | string | null
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutFollowUpsInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutFollowUpInput
 }
 
 export type FollowUpUncheckedCreateWithoutAssignedToInput = {
@@ -543,6 +572,7 @@ export type FollowUpUncheckedCreateWithoutAssignedToInput = {
   isDone?: boolean
   doneAt?: Date | string | null
   createdAt?: Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutFollowUpInput
 }
 
 export type FollowUpCreateOrConnectWithoutAssignedToInput = {
@@ -596,6 +626,7 @@ export type FollowUpCreateWithoutLeadInput = {
   doneAt?: Date | string | null
   createdAt?: Date | string
   assignedTo?: Prisma.UserCreateNestedOneWithoutFollowUpsAssignedInput
+  opsReminders?: Prisma.OpsReminderCreateNestedManyWithoutFollowUpInput
 }
 
 export type FollowUpUncheckedCreateWithoutLeadInput = {
@@ -608,6 +639,7 @@ export type FollowUpUncheckedCreateWithoutLeadInput = {
   doneAt?: Date | string | null
   assignedToId?: string | null
   createdAt?: Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedCreateNestedManyWithoutFollowUpInput
 }
 
 export type FollowUpCreateOrConnectWithoutLeadInput = {
@@ -635,6 +667,74 @@ export type FollowUpUpdateManyWithWhereWithoutLeadInput = {
   data: Prisma.XOR<Prisma.FollowUpUpdateManyMutationInput, Prisma.FollowUpUncheckedUpdateManyWithoutLeadInput>
 }
 
+export type FollowUpCreateWithoutOpsRemindersInput = {
+  id?: string
+  dueDate: Date | string
+  type?: $Enums.FollowUpType
+  priority?: $Enums.FollowUpPriority
+  notes?: string | null
+  isDone?: boolean
+  doneAt?: Date | string | null
+  createdAt?: Date | string
+  lead: Prisma.LeadCreateNestedOneWithoutFollowUpsInput
+  assignedTo?: Prisma.UserCreateNestedOneWithoutFollowUpsAssignedInput
+}
+
+export type FollowUpUncheckedCreateWithoutOpsRemindersInput = {
+  id?: string
+  leadId: string
+  dueDate: Date | string
+  type?: $Enums.FollowUpType
+  priority?: $Enums.FollowUpPriority
+  notes?: string | null
+  isDone?: boolean
+  doneAt?: Date | string | null
+  assignedToId?: string | null
+  createdAt?: Date | string
+}
+
+export type FollowUpCreateOrConnectWithoutOpsRemindersInput = {
+  where: Prisma.FollowUpWhereUniqueInput
+  create: Prisma.XOR<Prisma.FollowUpCreateWithoutOpsRemindersInput, Prisma.FollowUpUncheckedCreateWithoutOpsRemindersInput>
+}
+
+export type FollowUpUpsertWithoutOpsRemindersInput = {
+  update: Prisma.XOR<Prisma.FollowUpUpdateWithoutOpsRemindersInput, Prisma.FollowUpUncheckedUpdateWithoutOpsRemindersInput>
+  create: Prisma.XOR<Prisma.FollowUpCreateWithoutOpsRemindersInput, Prisma.FollowUpUncheckedCreateWithoutOpsRemindersInput>
+  where?: Prisma.FollowUpWhereInput
+}
+
+export type FollowUpUpdateToOneWithWhereWithoutOpsRemindersInput = {
+  where?: Prisma.FollowUpWhereInput
+  data: Prisma.XOR<Prisma.FollowUpUpdateWithoutOpsRemindersInput, Prisma.FollowUpUncheckedUpdateWithoutOpsRemindersInput>
+}
+
+export type FollowUpUpdateWithoutOpsRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  type?: Prisma.EnumFollowUpTypeFieldUpdateOperationsInput | $Enums.FollowUpType
+  priority?: Prisma.EnumFollowUpPriorityFieldUpdateOperationsInput | $Enums.FollowUpPriority
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  doneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.LeadUpdateOneRequiredWithoutFollowUpsNestedInput
+  assignedTo?: Prisma.UserUpdateOneWithoutFollowUpsAssignedNestedInput
+}
+
+export type FollowUpUncheckedUpdateWithoutOpsRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  type?: Prisma.EnumFollowUpTypeFieldUpdateOperationsInput | $Enums.FollowUpType
+  priority?: Prisma.EnumFollowUpPriorityFieldUpdateOperationsInput | $Enums.FollowUpPriority
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  doneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type FollowUpCreateManyAssignedToInput = {
   id?: string
   leadId: string
@@ -657,6 +757,7 @@ export type FollowUpUpdateWithoutAssignedToInput = {
   doneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutFollowUpsNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutFollowUpNestedInput
 }
 
 export type FollowUpUncheckedUpdateWithoutAssignedToInput = {
@@ -669,6 +770,7 @@ export type FollowUpUncheckedUpdateWithoutAssignedToInput = {
   isDone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   doneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutFollowUpNestedInput
 }
 
 export type FollowUpUncheckedUpdateManyWithoutAssignedToInput = {
@@ -705,6 +807,7 @@ export type FollowUpUpdateWithoutLeadInput = {
   doneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.UserUpdateOneWithoutFollowUpsAssignedNestedInput
+  opsReminders?: Prisma.OpsReminderUpdateManyWithoutFollowUpNestedInput
 }
 
 export type FollowUpUncheckedUpdateWithoutLeadInput = {
@@ -717,6 +820,7 @@ export type FollowUpUncheckedUpdateWithoutLeadInput = {
   doneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  opsReminders?: Prisma.OpsReminderUncheckedUpdateManyWithoutFollowUpNestedInput
 }
 
 export type FollowUpUncheckedUpdateManyWithoutLeadInput = {
@@ -732,6 +836,35 @@ export type FollowUpUncheckedUpdateManyWithoutLeadInput = {
 }
 
 
+/**
+ * Count Type FollowUpCountOutputType
+ */
+
+export type FollowUpCountOutputType = {
+  opsReminders: number
+}
+
+export type FollowUpCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  opsReminders?: boolean | FollowUpCountOutputTypeCountOpsRemindersArgs
+}
+
+/**
+ * FollowUpCountOutputType without action
+ */
+export type FollowUpCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FollowUpCountOutputType
+   */
+  select?: Prisma.FollowUpCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FollowUpCountOutputType without action
+ */
+export type FollowUpCountOutputTypeCountOpsRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OpsReminderWhereInput
+}
+
 
 export type FollowUpSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -746,6 +879,8 @@ export type FollowUpSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   assignedTo?: boolean | Prisma.FollowUp$assignedToArgs<ExtArgs>
+  opsReminders?: boolean | Prisma.FollowUp$opsRemindersArgs<ExtArgs>
+  _count?: boolean | Prisma.FollowUpCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["followUp"]>
 
 export type FollowUpSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -795,6 +930,8 @@ export type FollowUpOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type FollowUpInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   assignedTo?: boolean | Prisma.FollowUp$assignedToArgs<ExtArgs>
+  opsReminders?: boolean | Prisma.FollowUp$opsRemindersArgs<ExtArgs>
+  _count?: boolean | Prisma.FollowUpCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FollowUpIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
@@ -810,6 +947,7 @@ export type $FollowUpPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     lead: Prisma.$LeadPayload<ExtArgs>
     assignedTo: Prisma.$UserPayload<ExtArgs> | null
+    opsReminders: Prisma.$OpsReminderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1218,6 +1356,7 @@ export interface Prisma__FollowUpClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   lead<T extends Prisma.LeadDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LeadDefaultArgs<ExtArgs>>): Prisma.Prisma__LeadClient<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   assignedTo<T extends Prisma.FollowUp$assignedToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FollowUp$assignedToArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  opsReminders<T extends Prisma.FollowUp$opsRemindersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FollowUp$opsRemindersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OpsReminderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1667,6 +1806,30 @@ export type FollowUp$assignedToArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * FollowUp.opsReminders
+ */
+export type FollowUp$opsRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OpsReminder
+   */
+  select?: Prisma.OpsReminderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OpsReminder
+   */
+  omit?: Prisma.OpsReminderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OpsReminderInclude<ExtArgs> | null
+  where?: Prisma.OpsReminderWhereInput
+  orderBy?: Prisma.OpsReminderOrderByWithRelationInput | Prisma.OpsReminderOrderByWithRelationInput[]
+  cursor?: Prisma.OpsReminderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OpsReminderScalarFieldEnum | Prisma.OpsReminderScalarFieldEnum[]
 }
 
 /**

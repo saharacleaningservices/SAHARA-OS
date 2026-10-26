@@ -31,10 +31,13 @@ export async function getAssistantOverview() {
       where: { stage: { in: ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] } },
       orderBy: { createdAt: "desc" },
       take: 15,
-      select: { id: true, leadNumber: true, name: true, mobile: true, area: true, service: true, stage: true, quoteAmount: true },
+      // notes is included so draftQuotation() can surface Custom Package /
+      // Individual Cleaning quantity selections in the suggested quotation
+      // (see src/lib/ai/quotation.ts) — nothing else about this query changed.
+      select: { id: true, leadNumber: true, name: true, mobile: true, area: true, service: true, stage: true, quoteAmount: true, notes: true },
     }),
     db.payment.findMany({
-      where: { status: { not: "PAID" } },
+      where: { status: { not: "PAID" }, deletedAt: null },
       orderBy: { dueDate: "asc" },
       take: 15,
       select: { id: true, invoiceNumber: true, clientName: true, clientMobile: true, amount: true, paidAmount: true, dueDate: true, status: true },
@@ -56,11 +59,11 @@ export async function getAssistantOverview() {
       orderBy: { scheduledDate: "asc" },
       take: 30,
     }),
-    db.payment.aggregate({ where: { status: "PAID", paidDate: { gte: todayStart, lte: todayEnd } }, _sum: { paidAmount: true } }),
-    db.payment.aggregate({ where: { status: "PAID", paidDate: { gte: yesterdayStart, lte: yesterdayEnd } }, _sum: { paidAmount: true } }),
+    db.payment.aggregate({ where: { status: "PAID", deletedAt: null, paidDate: { gte: todayStart, lte: todayEnd } }, _sum: { paidAmount: true } }),
+    db.payment.aggregate({ where: { status: "PAID", deletedAt: null, paidDate: { gte: yesterdayStart, lte: yesterdayEnd } }, _sum: { paidAmount: true } }),
     db.expense.aggregate({ where: { date: { gte: todayStart, lte: todayEnd } }, _sum: { amount: true } }),
     db.expense.aggregate({ where: { date: { gte: yesterdayStart, lte: yesterdayEnd } }, _sum: { amount: true } }),
-    db.payment.aggregate({ where: { status: "PAID", paidDate: { gte: weekAgoStart, lte: weekAgoEnd } }, _sum: { paidAmount: true } }),
+    db.payment.aggregate({ where: { status: "PAID", deletedAt: null, paidDate: { gte: weekAgoStart, lte: weekAgoEnd } }, _sum: { paidAmount: true } }),
     db.expense.aggregate({ where: { date: { gte: weekAgoStart, lte: weekAgoEnd } }, _sum: { amount: true } }),
     db.job.count({ where: { completedAt: { gte: todayStart, lte: todayEnd } } }),
     db.lead.count({ where: { createdAt: { gte: todayStart, lte: todayEnd } } }),

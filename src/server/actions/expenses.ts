@@ -5,14 +5,38 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { expenseSchema } from "@/lib/validation";
 import { softDeleteMany } from "@/server/audit";
+import { canViewSalary } from "@/lib/permissions";
+
+/**
+ * None of these actions had ANY role check at all before the 2026-09-21
+ * Francis policy audit — only page-level nav access (middleware +
+ * ROLE_NAV_ACCESS) gated the Expenses module, which stops a restricted
+ * role from ever seeing the page but doesn't stop a direct Server Action
+ * call. Matches who actually has "expenses" in ROLE_NAV_ACCESS
+ * (src/lib/constants.ts): ADMIN, ACCOUNTS, OPERATIONS. SUPERVISOR
+ * (Francis) and STAFF are excluded — same as everyone without page access.
+ */
+// Matches the Expenses page + ROLE_NAV_ACCESS (Operations has no Expenses module since 2026-09-25).
+function canAccessExpenses(role: string | undefined): boolean {
+  return role === "ADMIN" || role === "ACCOUNTS";
+}
 
 export async function createExpense(values: unknown) {
+  const session = await getSession();
+  if (!canAccessExpenses(session?.role)) return { error: "Not authorized", success: false as const };
   const parsed = expenseSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const data = parsed.data;
-  const session = await getSession();
+  // Salary payouts are salary figures — Super Admin + Accounts only.
+  if (data.category === "SALARY" && !canViewSalary(session?.role ?? "")) {
+    return { error: "Not authorized to record salary", success: false as const };
+  }
+  // ONE ledger: an employee's salary / advance is recorded only in Staff → Money Khata.
+  if ((data.category === "SALARY" || data.category === "STAFF_ADVANCE") && data.staffId) {
+    return { error: "Salary and advances for an employee are recorded in Staff → Money Khata (one ledger), not as an expense.", success: false as const };
+  }
 
   await db.expense.create({
     data: {
@@ -34,11 +58,19 @@ export async function createExpense(values: unknown) {
 }
 
 export async function updateExpense(id: string, values: unknown) {
+  const session = await getSession();
+  if (!canAccessExpenses(session?.role)) return { error: "Not authorized", success: false as const };
   const parsed = expenseSchema.partial().safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const d = parsed.data;
+  if (d.category === "SALARY" && !canViewSalary(session?.role ?? "")) {
+    return { error: "Not authorized to record salary", success: false as const };
+  }
+  if ((d.category === "SALARY" || d.category === "STAFF_ADVANCE") && d.staffId) {
+    return { error: "Salary and advances for an employee are recorded in Staff → Money Khata (one ledger), not as an expense.", success: false as const };
+  }
   await db.expense.update({
     where: { id },
     data: {
@@ -57,7 +89,7 @@ export async function updateExpense(id: string, values: unknown) {
 
 export async function deleteExpense(id: string) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canAccessExpenses(session.role)) return { error: "Not authorized" };
   await softDeleteMany("Expense", [id], session);
   revalidatePath("/expenses");
   revalidatePath("/profit");
@@ -67,7 +99,7 @@ export async function deleteExpense(id: string) {
 
 export async function bulkDeleteExpenses(ids: string[]) {
   const session = await getSession();
-  if (!session) return { error: "Not authorized" };
+  if (!session || !canAccessExpenses(session.role)) return { error: "Not authorized" };
   const count = await softDeleteMany("Expense", ids, session);
   revalidatePath("/expenses");
   revalidatePath("/profit");

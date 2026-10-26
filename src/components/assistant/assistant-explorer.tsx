@@ -35,7 +35,20 @@ import { suggestFollowUpAction } from "@/lib/ai/followups";
 import { createQuotation, toggleFollowUpDone } from "@/server/actions/leads";
 import { recordReminder } from "@/server/actions/payments";
 
-type Lead = { id: string; leadNumber: string; name: string; mobile: string; area: string; service: string; stage: string; quoteAmount: number | null };
+type Lead = {
+  id: string;
+  leadNumber: string;
+  name: string;
+  mobile: string;
+  area: string;
+  service: string;
+  stage: string;
+  quoteAmount: number | null;
+  // Carries any Custom Package / Individual Cleaning quantity selections
+  // (see service-quantity-fields.tsx) through to draftQuotation() so the
+  // suggested quotation lists them — quantity only, no price.
+  notes: string | null;
+};
 type Payment = { id: string; invoiceNumber: string; clientName: string; clientMobile: string | null; amount: number; paidAmount: number; dueDate: Date; status: string };
 type JobNeedingCrew = { id: string; jobNumber: string; customerName: string; service: string; area: string; scheduledDate: Date; scheduledTime: string; crewCount: number };
 type DueFollowUp = { id: string; dueDate: Date; type: string; notes: string | null; lead: { id: string; name: string; mobile: string; area: string; service: string; stage: string } };
@@ -63,7 +76,8 @@ export function AssistantExplorer({
   jobsNeedingCrew: JobNeedingCrew[];
   dueFollowUps: DueFollowUp[];
   staleLeads: StaleLead[];
-  profitInputs: ProfitSummaryInput;
+  /** null = the viewer may not see profit (non-Admin): the tab is not rendered. */
+  profitInputs: ProfitSummaryInput | null;
 }) {
   return (
     <Tabs defaultValue="quotations">
@@ -71,7 +85,7 @@ export function AssistantExplorer({
         <TabsTrigger value="quotations">Draft Quotation</TabsTrigger>
         <TabsTrigger value="reminders">Payment Reminders</TabsTrigger>
         <TabsTrigger value="staffing">Staff Suggestion</TabsTrigger>
-        <TabsTrigger value="profit">Daily Profit Summary</TabsTrigger>
+        {profitInputs && <TabsTrigger value="profit">Daily Profit Summary</TabsTrigger>}
         <TabsTrigger value="followups">Follow-up Suggestions</TabsTrigger>
       </TabsList>
 
@@ -80,9 +94,7 @@ export function AssistantExplorer({
           <EmptyState icon={<FileText className="size-6" />} title="No leads waiting on a quote" description="New, site-visited or negotiating leads will show up here." />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
-            {quotableLeads.map((lead) => (
-              <QuotationCard key={lead.id} lead={lead} />
-            ))}
+            <Capped items={quotableLeads} render={(lead) => <QuotationCard key={lead.id} lead={lead} />} />
           </div>
         )}
       </TabsContent>
@@ -92,9 +104,7 @@ export function AssistantExplorer({
           <EmptyState icon={<Mail className="size-6" />} title="Nothing pending" description="Every invoice is paid up." />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
-            {duePayments.map((payment) => (
-              <ReminderCard key={payment.id} payment={payment} />
-            ))}
+            <Capped items={duePayments} render={(payment) => <ReminderCard key={payment.id} payment={payment} />} />
           </div>
         )}
       </TabsContent>
@@ -103,9 +113,11 @@ export function AssistantExplorer({
         <StaffingTool staffList={staffList} jobsNeedingCrew={jobsNeedingCrew} />
       </TabsContent>
 
-      <TabsContent value="profit">
-        <ProfitSummaryCard input={profitInputs} />
-      </TabsContent>
+      {profitInputs && (
+        <TabsContent value="profit">
+          <ProfitSummaryCard input={profitInputs} />
+        </TabsContent>
+      )}
 
       <TabsContent value="followups" className="space-y-5">
         <div className="space-y-3">
@@ -114,9 +126,7 @@ export function AssistantExplorer({
             <EmptyState icon={<CalendarClock className="size-6" />} title="No follow-ups due" />
           ) : (
             <div className="grid gap-3 lg:grid-cols-2">
-              {dueFollowUps.map((f) => (
-                <FollowUpCard key={f.id} lead={f.lead} followUpId={f.id} dueDate={f.dueDate} notes={f.notes} />
-              ))}
+              <Capped items={dueFollowUps} render={(f) => <FollowUpCard key={f.id} lead={f.lead} followUpId={f.id} dueDate={f.dueDate} notes={f.notes} />} />
             </div>
           )}
         </div>
@@ -126,9 +136,7 @@ export function AssistantExplorer({
             <EmptyState icon={<Users className="size-6" />} title="No stale leads" description="Every open lead has had recent activity." />
           ) : (
             <div className="grid gap-3 lg:grid-cols-2">
-              {staleLeads.map((lead) => (
-                <FollowUpCard key={lead.id} lead={lead} />
-              ))}
+              <Capped items={staleLeads} render={(lead) => <FollowUpCard key={lead.id} lead={lead} />} />
             </div>
           )}
         </div>
@@ -147,13 +155,13 @@ function QuotationCard({ lead }: { lead: Lead }) {
   function generate() {
     startTransition(async () => {
       const res = await createQuotation(lead.id, draft.lineItems, draft.gstPercent);
-      if (res.error) {
+      if ("error" in res && res.error) {
         toast.error(res.error);
         return;
       }
       toast.success("Quotation created");
       router.refresh();
-      if (res.quotationId) {
+      if ("quotationId" in res && res.quotationId) {
         window.open(`/api/quotations/${res.quotationId}/pdf`, "_blank");
       }
     });
@@ -474,5 +482,20 @@ function FollowUpCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+/** First few suggestions, the rest on request — keeps each tab short on a phone. */
+function Capped<T>({ items, render, cap = 4 }: { items: T[]; render: (item: T) => React.ReactNode; cap?: number }) {
+  const [all, setAll] = useState(false);
+  return (
+    <>
+      {(all ? items : items.slice(0, cap)).map(render)}
+      {items.length > cap && !all && (
+        <Button type="button" variant="outline" size="sm" className="lg:col-span-2" onClick={() => setAll(true)}>
+          Show all {items.length}
+        </Button>
+      )}
+    </>
   );
 }

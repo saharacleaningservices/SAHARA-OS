@@ -28,10 +28,16 @@ export type AggregateLead = {
 
 export type LeadAvgAggregateOutputType = {
   quoteAmount: number | null
+  teamNumber: number | null
+  advanceAmount: number | null
+  discountAmount: number | null
 }
 
 export type LeadSumAggregateOutputType = {
   quoteAmount: number | null
+  teamNumber: number | null
+  advanceAmount: number | null
+  discountAmount: number | null
 }
 
 export type LeadMinAggregateOutputType = {
@@ -39,19 +45,63 @@ export type LeadMinAggregateOutputType = {
   leadNumber: string | null
   name: string | null
   mobile: string | null
+  alternateMobile: string | null
   whatsapp: string | null
+  email: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
+  addOnServices: string | null
   service: $Enums.ServiceType | null
   source: $Enums.LeadSource | null
   quoteAmount: number | null
   stage: $Enums.LeadStage | null
+  intakeKey: string | null
   followUpDate: Date | null
+  serviceDate: Date | null
+  timeSlot: string | null
+  teamNumber: number | null
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
+  propertyType: string | null
+  packageName: string | null
+  comboServices: string | null
+  assignedStaffIds: string | null
+  advanceAmount: number | null
+  paymentMode: string | null
+  paymentStatus: string | null
   mapLink: string | null
+  siteId: string | null
   referralCode: string | null
+  acquisitionChannel: string | null
+  acquisitionCampaign: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  utmTerm: string | null
+  utmContent: string | null
+  gclid: string | null
+  fbclid: string | null
+  landingPage: string | null
+  landingPageUrl: string | null
+  firstTouchSource: string | null
+  firstTouchMedium: string | null
+  firstTouchCampaign: string | null
+  firstTouchAt: Date | null
+  latestTouchSource: string | null
+  latestTouchMedium: string | null
+  latestTouchCampaign: string | null
+  latestTouchAt: Date | null
+  formSubmittedAt: Date | null
+  marketingConsent: string | null
+  paymentPreference: string | null
+  marketingConsentAt: Date | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
+  serviceItems: string | null
+  discountAmount: number | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -67,19 +117,63 @@ export type LeadMaxAggregateOutputType = {
   leadNumber: string | null
   name: string | null
   mobile: string | null
+  alternateMobile: string | null
   whatsapp: string | null
+  email: string | null
   address: string | null
   area: string | null
+  pinCode: string | null
+  addOnServices: string | null
   service: $Enums.ServiceType | null
   source: $Enums.LeadSource | null
   quoteAmount: number | null
   stage: $Enums.LeadStage | null
+  intakeKey: string | null
   followUpDate: Date | null
+  serviceDate: Date | null
+  timeSlot: string | null
+  teamNumber: number | null
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
+  propertyType: string | null
+  packageName: string | null
+  comboServices: string | null
+  assignedStaffIds: string | null
+  advanceAmount: number | null
+  paymentMode: string | null
+  paymentStatus: string | null
   mapLink: string | null
+  siteId: string | null
   referralCode: string | null
+  acquisitionChannel: string | null
+  acquisitionCampaign: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  utmTerm: string | null
+  utmContent: string | null
+  gclid: string | null
+  fbclid: string | null
+  landingPage: string | null
+  landingPageUrl: string | null
+  firstTouchSource: string | null
+  firstTouchMedium: string | null
+  firstTouchCampaign: string | null
+  firstTouchAt: Date | null
+  latestTouchSource: string | null
+  latestTouchMedium: string | null
+  latestTouchCampaign: string | null
+  latestTouchAt: Date | null
+  formSubmittedAt: Date | null
+  marketingConsent: string | null
+  paymentPreference: string | null
+  marketingConsentAt: Date | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
+  serviceItems: string | null
+  discountAmount: number | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -95,19 +189,63 @@ export type LeadCountAggregateOutputType = {
   leadNumber: number
   name: number
   mobile: number
+  alternateMobile: number
   whatsapp: number
+  email: number
   address: number
   area: number
+  pinCode: number
+  addOnServices: number
   service: number
   source: number
   quoteAmount: number
   stage: number
+  intakeKey: number
   followUpDate: number
+  serviceDate: number
+  timeSlot: number
+  teamNumber: number
   notes: number
   serviceCategory: number
   serviceVariant: number
+  propertyType: number
+  packageName: number
+  comboServices: number
+  assignedStaffIds: number
+  advanceAmount: number
+  paymentMode: number
+  paymentStatus: number
   mapLink: number
+  siteId: number
   referralCode: number
+  acquisitionChannel: number
+  acquisitionCampaign: number
+  utmSource: number
+  utmMedium: number
+  utmCampaign: number
+  utmTerm: number
+  utmContent: number
+  gclid: number
+  fbclid: number
+  landingPage: number
+  landingPageUrl: number
+  firstTouchSource: number
+  firstTouchMedium: number
+  firstTouchCampaign: number
+  firstTouchAt: number
+  latestTouchSource: number
+  latestTouchMedium: number
+  latestTouchCampaign: number
+  latestTouchAt: number
+  formSubmittedAt: number
+  marketingConsent: number
+  paymentPreference: number
+  marketingConsentAt: number
+  priceType: number
+  festivalName: number
+  scopeOfWork: number
+  serviceItems: number
+  discountAmount: number
   isDemo: number
   deletedAt: number
   deletedByName: number
@@ -122,10 +260,16 @@ export type LeadCountAggregateOutputType = {
 
 export type LeadAvgAggregateInputType = {
   quoteAmount?: true
+  teamNumber?: true
+  advanceAmount?: true
+  discountAmount?: true
 }
 
 export type LeadSumAggregateInputType = {
   quoteAmount?: true
+  teamNumber?: true
+  advanceAmount?: true
+  discountAmount?: true
 }
 
 export type LeadMinAggregateInputType = {
@@ -133,19 +277,63 @@ export type LeadMinAggregateInputType = {
   leadNumber?: true
   name?: true
   mobile?: true
+  alternateMobile?: true
   whatsapp?: true
+  email?: true
   address?: true
   area?: true
+  pinCode?: true
+  addOnServices?: true
   service?: true
   source?: true
   quoteAmount?: true
   stage?: true
+  intakeKey?: true
   followUpDate?: true
+  serviceDate?: true
+  timeSlot?: true
+  teamNumber?: true
   notes?: true
   serviceCategory?: true
   serviceVariant?: true
+  propertyType?: true
+  packageName?: true
+  comboServices?: true
+  assignedStaffIds?: true
+  advanceAmount?: true
+  paymentMode?: true
+  paymentStatus?: true
   mapLink?: true
+  siteId?: true
   referralCode?: true
+  acquisitionChannel?: true
+  acquisitionCampaign?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  utmTerm?: true
+  utmContent?: true
+  gclid?: true
+  fbclid?: true
+  landingPage?: true
+  landingPageUrl?: true
+  firstTouchSource?: true
+  firstTouchMedium?: true
+  firstTouchCampaign?: true
+  firstTouchAt?: true
+  latestTouchSource?: true
+  latestTouchMedium?: true
+  latestTouchCampaign?: true
+  latestTouchAt?: true
+  formSubmittedAt?: true
+  marketingConsent?: true
+  paymentPreference?: true
+  marketingConsentAt?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
+  serviceItems?: true
+  discountAmount?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -161,19 +349,63 @@ export type LeadMaxAggregateInputType = {
   leadNumber?: true
   name?: true
   mobile?: true
+  alternateMobile?: true
   whatsapp?: true
+  email?: true
   address?: true
   area?: true
+  pinCode?: true
+  addOnServices?: true
   service?: true
   source?: true
   quoteAmount?: true
   stage?: true
+  intakeKey?: true
   followUpDate?: true
+  serviceDate?: true
+  timeSlot?: true
+  teamNumber?: true
   notes?: true
   serviceCategory?: true
   serviceVariant?: true
+  propertyType?: true
+  packageName?: true
+  comboServices?: true
+  assignedStaffIds?: true
+  advanceAmount?: true
+  paymentMode?: true
+  paymentStatus?: true
   mapLink?: true
+  siteId?: true
   referralCode?: true
+  acquisitionChannel?: true
+  acquisitionCampaign?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  utmTerm?: true
+  utmContent?: true
+  gclid?: true
+  fbclid?: true
+  landingPage?: true
+  landingPageUrl?: true
+  firstTouchSource?: true
+  firstTouchMedium?: true
+  firstTouchCampaign?: true
+  firstTouchAt?: true
+  latestTouchSource?: true
+  latestTouchMedium?: true
+  latestTouchCampaign?: true
+  latestTouchAt?: true
+  formSubmittedAt?: true
+  marketingConsent?: true
+  paymentPreference?: true
+  marketingConsentAt?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
+  serviceItems?: true
+  discountAmount?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -189,19 +421,63 @@ export type LeadCountAggregateInputType = {
   leadNumber?: true
   name?: true
   mobile?: true
+  alternateMobile?: true
   whatsapp?: true
+  email?: true
   address?: true
   area?: true
+  pinCode?: true
+  addOnServices?: true
   service?: true
   source?: true
   quoteAmount?: true
   stage?: true
+  intakeKey?: true
   followUpDate?: true
+  serviceDate?: true
+  timeSlot?: true
+  teamNumber?: true
   notes?: true
   serviceCategory?: true
   serviceVariant?: true
+  propertyType?: true
+  packageName?: true
+  comboServices?: true
+  assignedStaffIds?: true
+  advanceAmount?: true
+  paymentMode?: true
+  paymentStatus?: true
   mapLink?: true
+  siteId?: true
   referralCode?: true
+  acquisitionChannel?: true
+  acquisitionCampaign?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  utmTerm?: true
+  utmContent?: true
+  gclid?: true
+  fbclid?: true
+  landingPage?: true
+  landingPageUrl?: true
+  firstTouchSource?: true
+  firstTouchMedium?: true
+  firstTouchCampaign?: true
+  firstTouchAt?: true
+  latestTouchSource?: true
+  latestTouchMedium?: true
+  latestTouchCampaign?: true
+  latestTouchAt?: true
+  formSubmittedAt?: true
+  marketingConsent?: true
+  paymentPreference?: true
+  marketingConsentAt?: true
+  priceType?: true
+  festivalName?: true
+  scopeOfWork?: true
+  serviceItems?: true
+  discountAmount?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -304,19 +580,63 @@ export type LeadGroupByOutputType = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile: string | null
   whatsapp: string | null
+  email: string | null
   address: string | null
   area: string
+  pinCode: string | null
+  addOnServices: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount: number | null
   stage: $Enums.LeadStage
+  intakeKey: string | null
   followUpDate: Date | null
+  serviceDate: Date | null
+  timeSlot: string | null
+  teamNumber: number | null
   notes: string | null
   serviceCategory: $Enums.ServiceCategory | null
   serviceVariant: string | null
+  propertyType: string | null
+  packageName: string | null
+  comboServices: string | null
+  assignedStaffIds: string | null
+  advanceAmount: number | null
+  paymentMode: string | null
+  paymentStatus: string | null
   mapLink: string | null
+  siteId: string | null
   referralCode: string | null
+  acquisitionChannel: string | null
+  acquisitionCampaign: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  utmTerm: string | null
+  utmContent: string | null
+  gclid: string | null
+  fbclid: string | null
+  landingPage: string | null
+  landingPageUrl: string | null
+  firstTouchSource: string | null
+  firstTouchMedium: string | null
+  firstTouchCampaign: string | null
+  firstTouchAt: Date | null
+  latestTouchSource: string | null
+  latestTouchMedium: string | null
+  latestTouchCampaign: string | null
+  latestTouchAt: Date | null
+  formSubmittedAt: Date | null
+  marketingConsent: string
+  paymentPreference: string | null
+  marketingConsentAt: Date | null
+  priceType: string | null
+  festivalName: string | null
+  scopeOfWork: string | null
+  serviceItems: string | null
+  discountAmount: number | null
   isDemo: boolean
   deletedAt: Date | null
   deletedByName: string | null
@@ -355,19 +675,63 @@ export type LeadWhereInput = {
   leadNumber?: Prisma.StringFilter<"Lead"> | string
   name?: Prisma.StringFilter<"Lead"> | string
   mobile?: Prisma.StringFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableFilter<"Lead"> | string | null
+  email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
   area?: Prisma.StringFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
+  intakeKey?: Prisma.StringNullableFilter<"Lead"> | string | null
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
+  teamNumber?: Prisma.IntNullableFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  propertyType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
+  marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -393,19 +757,63 @@ export type LeadOrderByWithRelationInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsapp?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  addOnServices?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   stage?: Prisma.SortOrder
+  intakeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyType?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageName?: Prisma.SortOrderInput | Prisma.SortOrder
+  comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmTerm?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmContent?: Prisma.SortOrderInput | Prisma.SortOrder
+  gclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  fbclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPage?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -429,24 +837,68 @@ export type LeadOrderByWithRelationInput = {
 export type LeadWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   leadNumber?: string
+  intakeKey?: string
   AND?: Prisma.LeadWhereInput | Prisma.LeadWhereInput[]
   OR?: Prisma.LeadWhereInput[]
   NOT?: Prisma.LeadWhereInput | Prisma.LeadWhereInput[]
   name?: Prisma.StringFilter<"Lead"> | string
   mobile?: Prisma.StringFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableFilter<"Lead"> | string | null
+  email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
   area?: Prisma.StringFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
+  teamNumber?: Prisma.IntNullableFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  propertyType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
+  marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -465,26 +917,70 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   activityLogs?: Prisma.ActivityLogListRelationFilter
   timeline?: Prisma.TimelineEntryListRelationFilter
   amcContracts?: Prisma.AmcContractListRelationFilter
-}, "id" | "leadNumber">
+}, "id" | "leadNumber" | "intakeKey">
 
 export type LeadOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsapp?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  addOnServices?: Prisma.SortOrderInput | Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   stage?: Prisma.SortOrder
+  intakeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
+  propertyType?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageName?: Prisma.SortOrderInput | Prisma.SortOrder
+  comboServices?: Prisma.SortOrderInput | Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrderInput | Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
+  siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrderInput | Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmTerm?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmContent?: Prisma.SortOrderInput | Prisma.SortOrder
+  gclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  fbclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPage?: Prisma.SortOrderInput | Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrderInput | Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceItems?: Prisma.SortOrderInput | Prisma.SortOrder
+  discountAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -508,19 +1004,63 @@ export type LeadScalarWhereWithAggregatesInput = {
   leadNumber?: Prisma.StringWithAggregatesFilter<"Lead"> | string
   name?: Prisma.StringWithAggregatesFilter<"Lead"> | string
   mobile?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   area?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeWithAggregatesFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceWithAggregatesFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableWithAggregatesFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageWithAggregatesFilter<"Lead"> | $Enums.LeadStage
+  intakeKey?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   followUpDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  serviceDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  teamNumber?: Prisma.IntNullableWithAggregatesFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableWithAggregatesFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  propertyType?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableWithAggregatesFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  marketingConsentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableWithAggregatesFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -536,19 +1076,63 @@ export type LeadCreateInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -571,19 +1155,63 @@ export type LeadUncheckedCreateInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -606,19 +1234,63 @@ export type LeadUpdateInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -641,19 +1313,63 @@ export type LeadUncheckedUpdateInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -676,19 +1392,63 @@ export type LeadCreateManyInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -704,19 +1464,63 @@ export type LeadUpdateManyMutationInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -729,19 +1533,63 @@ export type LeadUncheckedUpdateManyInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -767,19 +1615,63 @@ export type LeadCountOrderByAggregateInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   whatsapp?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
+  addOnServices?: Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrder
   stage?: Prisma.SortOrder
+  intakeKey?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
+  serviceDate?: Prisma.SortOrder
+  timeSlot?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
+  propertyType?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  utmTerm?: Prisma.SortOrder
+  utmContent?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
+  landingPage?: Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -792,6 +1684,9 @@ export type LeadCountOrderByAggregateInput = {
 
 export type LeadAvgOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
 }
 
 export type LeadMaxOrderByAggregateInput = {
@@ -799,19 +1694,63 @@ export type LeadMaxOrderByAggregateInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   whatsapp?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
+  addOnServices?: Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrder
   stage?: Prisma.SortOrder
+  intakeKey?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
+  serviceDate?: Prisma.SortOrder
+  timeSlot?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
+  propertyType?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  utmTerm?: Prisma.SortOrder
+  utmContent?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
+  landingPage?: Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -827,19 +1766,63 @@ export type LeadMinOrderByAggregateInput = {
   leadNumber?: Prisma.SortOrder
   name?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
+  alternateMobile?: Prisma.SortOrder
   whatsapp?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   area?: Prisma.SortOrder
+  pinCode?: Prisma.SortOrder
+  addOnServices?: Prisma.SortOrder
   service?: Prisma.SortOrder
   source?: Prisma.SortOrder
   quoteAmount?: Prisma.SortOrder
   stage?: Prisma.SortOrder
+  intakeKey?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
+  serviceDate?: Prisma.SortOrder
+  timeSlot?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   serviceCategory?: Prisma.SortOrder
   serviceVariant?: Prisma.SortOrder
+  propertyType?: Prisma.SortOrder
+  packageName?: Prisma.SortOrder
+  comboServices?: Prisma.SortOrder
+  assignedStaffIds?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  paymentMode?: Prisma.SortOrder
+  paymentStatus?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
+  siteId?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  acquisitionChannel?: Prisma.SortOrder
+  acquisitionCampaign?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  utmTerm?: Prisma.SortOrder
+  utmContent?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
+  landingPage?: Prisma.SortOrder
+  landingPageUrl?: Prisma.SortOrder
+  firstTouchSource?: Prisma.SortOrder
+  firstTouchMedium?: Prisma.SortOrder
+  firstTouchCampaign?: Prisma.SortOrder
+  firstTouchAt?: Prisma.SortOrder
+  latestTouchSource?: Prisma.SortOrder
+  latestTouchMedium?: Prisma.SortOrder
+  latestTouchCampaign?: Prisma.SortOrder
+  latestTouchAt?: Prisma.SortOrder
+  formSubmittedAt?: Prisma.SortOrder
+  marketingConsent?: Prisma.SortOrder
+  paymentPreference?: Prisma.SortOrder
+  marketingConsentAt?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  festivalName?: Prisma.SortOrder
+  scopeOfWork?: Prisma.SortOrder
+  serviceItems?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -852,6 +1835,9 @@ export type LeadMinOrderByAggregateInput = {
 
 export type LeadSumOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
+  teamNumber?: Prisma.SortOrder
+  advanceAmount?: Prisma.SortOrder
+  discountAmount?: Prisma.SortOrder
 }
 
 export type LeadScalarRelationFilter = {
@@ -1002,6 +1988,14 @@ export type EnumLeadStageFieldUpdateOperationsInput = {
   set?: $Enums.LeadStage
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type NullableEnumServiceCategoryFieldUpdateOperationsInput = {
   set?: $Enums.ServiceCategory | null
 }
@@ -1117,19 +2111,63 @@ export type LeadCreateWithoutCreatedByInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1151,19 +2189,63 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1194,19 +2276,63 @@ export type LeadCreateWithoutAssignedToInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1228,19 +2354,63 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1290,19 +2460,63 @@ export type LeadScalarWhereInput = {
   leadNumber?: Prisma.StringFilter<"Lead"> | string
   name?: Prisma.StringFilter<"Lead"> | string
   mobile?: Prisma.StringFilter<"Lead"> | string
+  alternateMobile?: Prisma.StringNullableFilter<"Lead"> | string | null
   whatsapp?: Prisma.StringNullableFilter<"Lead"> | string | null
+  email?: Prisma.StringNullableFilter<"Lead"> | string | null
   address?: Prisma.StringNullableFilter<"Lead"> | string | null
   area?: Prisma.StringFilter<"Lead"> | string
+  pinCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  addOnServices?: Prisma.StringNullableFilter<"Lead"> | string | null
   service?: Prisma.EnumServiceTypeFilter<"Lead"> | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
+  intakeKey?: Prisma.StringNullableFilter<"Lead"> | string | null
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
+  teamNumber?: Prisma.IntNullableFilter<"Lead"> | number | null
   notes?: Prisma.StringNullableFilter<"Lead"> | string | null
   serviceCategory?: Prisma.EnumServiceCategoryNullableFilter<"Lead"> | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
+  propertyType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  packageName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  comboServices?: Prisma.StringNullableFilter<"Lead"> | string | null
+  assignedStaffIds?: Prisma.StringNullableFilter<"Lead"> | string | null
+  advanceAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
+  paymentMode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  paymentStatus?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
+  siteId?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionChannel?: Prisma.StringNullableFilter<"Lead"> | string | null
+  acquisitionCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmTerm?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmContent?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPage?: Prisma.StringNullableFilter<"Lead"> | string | null
+  landingPageUrl?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  firstTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  latestTouchSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  latestTouchAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  formSubmittedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  marketingConsent?: Prisma.StringFilter<"Lead"> | string
+  paymentPreference?: Prisma.StringNullableFilter<"Lead"> | string | null
+  marketingConsentAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  priceType?: Prisma.StringNullableFilter<"Lead"> | string | null
+  festivalName?: Prisma.StringNullableFilter<"Lead"> | string | null
+  scopeOfWork?: Prisma.StringNullableFilter<"Lead"> | string | null
+  serviceItems?: Prisma.StringNullableFilter<"Lead"> | string | null
+  discountAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -1334,19 +2548,63 @@ export type LeadCreateWithoutAssignedStaffInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1368,19 +2626,63 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1427,19 +2729,63 @@ export type LeadCreateWithoutQuotationsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1461,19 +2807,63 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1511,19 +2901,63 @@ export type LeadUpdateWithoutQuotationsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1545,19 +2979,63 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1579,19 +3057,63 @@ export type LeadCreateWithoutFollowUpsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1613,19 +3135,63 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1663,19 +3229,63 @@ export type LeadUpdateWithoutFollowUpsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1697,19 +3307,63 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1731,19 +3385,63 @@ export type LeadCreateWithoutTimelineInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1765,19 +3463,63 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1815,19 +3557,63 @@ export type LeadUpdateWithoutTimelineInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1849,19 +3635,63 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1883,19 +3713,63 @@ export type LeadCreateWithoutJobsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1917,19 +3791,63 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1967,19 +3885,63 @@ export type LeadUpdateWithoutJobsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2001,19 +3963,63 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2035,19 +4041,63 @@ export type LeadCreateWithoutPaymentsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2069,19 +4119,63 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2119,19 +4213,63 @@ export type LeadUpdateWithoutPaymentsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2153,19 +4291,63 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2187,19 +4369,63 @@ export type LeadCreateWithoutActivityLogsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2221,19 +4447,63 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2271,19 +4541,63 @@ export type LeadUpdateWithoutActivityLogsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2305,19 +4619,63 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2339,19 +4697,63 @@ export type LeadCreateWithoutAmcContractsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2373,19 +4775,63 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2423,19 +4869,63 @@ export type LeadUpdateWithoutAmcContractsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2457,19 +4947,63 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2491,19 +5025,63 @@ export type LeadCreateManyCreatedByInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2518,19 +5096,63 @@ export type LeadCreateManyAssignedToInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2545,19 +5167,63 @@ export type LeadUpdateWithoutCreatedByInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2579,19 +5245,63 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2613,19 +5323,63 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2640,19 +5394,63 @@ export type LeadUpdateWithoutAssignedToInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2674,19 +5472,63 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2708,19 +5550,63 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2735,19 +5621,63 @@ export type LeadCreateManyAssignedStaffInput = {
   leadNumber: string
   name: string
   mobile: string
+  alternateMobile?: string | null
   whatsapp?: string | null
+  email?: string | null
   address?: string | null
   area: string
+  pinCode?: string | null
+  addOnServices?: string | null
   service: $Enums.ServiceType
   source: $Enums.LeadSource
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
+  intakeKey?: string | null
   followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
   notes?: string | null
   serviceCategory?: $Enums.ServiceCategory | null
   serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
   mapLink?: string | null
+  siteId?: string | null
   referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2762,19 +5692,63 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2796,19 +5770,63 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2830,19 +5848,63 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
   source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2942,19 +6004,63 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
+  email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
   stage?: boolean
+  intakeKey?: boolean
   followUpDate?: boolean
+  serviceDate?: boolean
+  timeSlot?: boolean
+  teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  paymentPreference?: boolean
+  marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -2981,19 +6087,63 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
+  email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
   stage?: boolean
+  intakeKey?: boolean
   followUpDate?: boolean
+  serviceDate?: boolean
+  timeSlot?: boolean
+  teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  paymentPreference?: boolean
+  marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -3012,19 +6162,63 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
+  email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
   stage?: boolean
+  intakeKey?: boolean
   followUpDate?: boolean
+  serviceDate?: boolean
+  timeSlot?: boolean
+  teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  paymentPreference?: boolean
+  marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -3043,19 +6237,63 @@ export type LeadSelectScalar = {
   leadNumber?: boolean
   name?: boolean
   mobile?: boolean
+  alternateMobile?: boolean
   whatsapp?: boolean
+  email?: boolean
   address?: boolean
   area?: boolean
+  pinCode?: boolean
+  addOnServices?: boolean
   service?: boolean
   source?: boolean
   quoteAmount?: boolean
   stage?: boolean
+  intakeKey?: boolean
   followUpDate?: boolean
+  serviceDate?: boolean
+  timeSlot?: boolean
+  teamNumber?: boolean
   notes?: boolean
   serviceCategory?: boolean
   serviceVariant?: boolean
+  propertyType?: boolean
+  packageName?: boolean
+  comboServices?: boolean
+  assignedStaffIds?: boolean
+  advanceAmount?: boolean
+  paymentMode?: boolean
+  paymentStatus?: boolean
   mapLink?: boolean
+  siteId?: boolean
   referralCode?: boolean
+  acquisitionChannel?: boolean
+  acquisitionCampaign?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  utmTerm?: boolean
+  utmContent?: boolean
+  gclid?: boolean
+  fbclid?: boolean
+  landingPage?: boolean
+  landingPageUrl?: boolean
+  firstTouchSource?: boolean
+  firstTouchMedium?: boolean
+  firstTouchCampaign?: boolean
+  firstTouchAt?: boolean
+  latestTouchSource?: boolean
+  latestTouchMedium?: boolean
+  latestTouchCampaign?: boolean
+  latestTouchAt?: boolean
+  formSubmittedAt?: boolean
+  marketingConsent?: boolean
+  paymentPreference?: boolean
+  marketingConsentAt?: boolean
+  priceType?: boolean
+  festivalName?: boolean
+  scopeOfWork?: boolean
+  serviceItems?: boolean
+  discountAmount?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -3066,7 +6304,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "intakeKey" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "siteId" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -3110,19 +6348,63 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     leadNumber: string
     name: string
     mobile: string
+    alternateMobile: string | null
     whatsapp: string | null
+    email: string | null
     address: string | null
     area: string
+    pinCode: string | null
+    addOnServices: string | null
     service: $Enums.ServiceType
     source: $Enums.LeadSource
     quoteAmount: number | null
     stage: $Enums.LeadStage
+    intakeKey: string | null
     followUpDate: Date | null
+    serviceDate: Date | null
+    timeSlot: string | null
+    teamNumber: number | null
     notes: string | null
     serviceCategory: $Enums.ServiceCategory | null
     serviceVariant: string | null
+    propertyType: string | null
+    packageName: string | null
+    comboServices: string | null
+    assignedStaffIds: string | null
+    advanceAmount: number | null
+    paymentMode: string | null
+    paymentStatus: string | null
     mapLink: string | null
+    siteId: string | null
     referralCode: string | null
+    acquisitionChannel: string | null
+    acquisitionCampaign: string | null
+    utmSource: string | null
+    utmMedium: string | null
+    utmCampaign: string | null
+    utmTerm: string | null
+    utmContent: string | null
+    gclid: string | null
+    fbclid: string | null
+    landingPage: string | null
+    landingPageUrl: string | null
+    firstTouchSource: string | null
+    firstTouchMedium: string | null
+    firstTouchCampaign: string | null
+    firstTouchAt: Date | null
+    latestTouchSource: string | null
+    latestTouchMedium: string | null
+    latestTouchCampaign: string | null
+    latestTouchAt: Date | null
+    formSubmittedAt: Date | null
+    marketingConsent: string
+    paymentPreference: string | null
+    marketingConsentAt: Date | null
+    priceType: string | null
+    festivalName: string | null
+    scopeOfWork: string | null
+    serviceItems: string | null
+    discountAmount: number | null
     isDemo: boolean
     deletedAt: Date | null
     deletedByName: string | null
@@ -3568,19 +6850,63 @@ export interface LeadFieldRefs {
   readonly leadNumber: Prisma.FieldRef<"Lead", 'String'>
   readonly name: Prisma.FieldRef<"Lead", 'String'>
   readonly mobile: Prisma.FieldRef<"Lead", 'String'>
+  readonly alternateMobile: Prisma.FieldRef<"Lead", 'String'>
   readonly whatsapp: Prisma.FieldRef<"Lead", 'String'>
+  readonly email: Prisma.FieldRef<"Lead", 'String'>
   readonly address: Prisma.FieldRef<"Lead", 'String'>
   readonly area: Prisma.FieldRef<"Lead", 'String'>
+  readonly pinCode: Prisma.FieldRef<"Lead", 'String'>
+  readonly addOnServices: Prisma.FieldRef<"Lead", 'String'>
   readonly service: Prisma.FieldRef<"Lead", 'ServiceType'>
   readonly source: Prisma.FieldRef<"Lead", 'LeadSource'>
   readonly quoteAmount: Prisma.FieldRef<"Lead", 'Float'>
   readonly stage: Prisma.FieldRef<"Lead", 'LeadStage'>
+  readonly intakeKey: Prisma.FieldRef<"Lead", 'String'>
   readonly followUpDate: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly serviceDate: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly timeSlot: Prisma.FieldRef<"Lead", 'String'>
+  readonly teamNumber: Prisma.FieldRef<"Lead", 'Int'>
   readonly notes: Prisma.FieldRef<"Lead", 'String'>
   readonly serviceCategory: Prisma.FieldRef<"Lead", 'ServiceCategory'>
   readonly serviceVariant: Prisma.FieldRef<"Lead", 'String'>
+  readonly propertyType: Prisma.FieldRef<"Lead", 'String'>
+  readonly packageName: Prisma.FieldRef<"Lead", 'String'>
+  readonly comboServices: Prisma.FieldRef<"Lead", 'String'>
+  readonly assignedStaffIds: Prisma.FieldRef<"Lead", 'String'>
+  readonly advanceAmount: Prisma.FieldRef<"Lead", 'Float'>
+  readonly paymentMode: Prisma.FieldRef<"Lead", 'String'>
+  readonly paymentStatus: Prisma.FieldRef<"Lead", 'String'>
   readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
+  readonly siteId: Prisma.FieldRef<"Lead", 'String'>
   readonly referralCode: Prisma.FieldRef<"Lead", 'String'>
+  readonly acquisitionChannel: Prisma.FieldRef<"Lead", 'String'>
+  readonly acquisitionCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmSource: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmMedium: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmTerm: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmContent: Prisma.FieldRef<"Lead", 'String'>
+  readonly gclid: Prisma.FieldRef<"Lead", 'String'>
+  readonly fbclid: Prisma.FieldRef<"Lead", 'String'>
+  readonly landingPage: Prisma.FieldRef<"Lead", 'String'>
+  readonly landingPageUrl: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchSource: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchMedium: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly firstTouchAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly latestTouchSource: Prisma.FieldRef<"Lead", 'String'>
+  readonly latestTouchMedium: Prisma.FieldRef<"Lead", 'String'>
+  readonly latestTouchCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly latestTouchAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly formSubmittedAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly marketingConsent: Prisma.FieldRef<"Lead", 'String'>
+  readonly paymentPreference: Prisma.FieldRef<"Lead", 'String'>
+  readonly marketingConsentAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly priceType: Prisma.FieldRef<"Lead", 'String'>
+  readonly festivalName: Prisma.FieldRef<"Lead", 'String'>
+  readonly scopeOfWork: Prisma.FieldRef<"Lead", 'String'>
+  readonly serviceItems: Prisma.FieldRef<"Lead", 'String'>
+  readonly discountAmount: Prisma.FieldRef<"Lead", 'Float'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly deletedByName: Prisma.FieldRef<"Lead", 'String'>

@@ -1,5 +1,6 @@
 "use client";
 
+import { todayIST } from "@/lib/pricing-master";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -20,10 +21,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { expenseSchema, type ExpenseFormValues } from "@/lib/validation";
-import { EXPENSE_CATEGORY_LABELS } from "@/lib/constants";
+import { EXPENSE_CATEGORY_OPTIONS } from "@/lib/constants";
 import { createExpense } from "@/server/actions/expenses";
 
-export function NewExpenseDialog() {
+type JobOption = { id: string; jobNumber: string; customerName: string };
+type StaffOption = { id: string; name: string; employeeCode: string };
+
+export function NewExpenseDialog({ jobOptions = [], staffOptions = [] }: { jobOptions?: JobOption[]; staffOptions?: StaffOption[] }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -37,7 +41,7 @@ export function NewExpenseDialog() {
     formState: { errors },
   } = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
-    defaultValues: { category: "MISCELLANEOUS", date: new Date().toISOString().slice(0, 10) },
+    defaultValues: { category: "MISCELLANEOUS", date: todayIST() },
   });
 
   async function onSubmit(values: ExpenseFormValues) {
@@ -64,7 +68,7 @@ export function NewExpenseDialog() {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Record an Expense</DialogTitle>
-          <DialogDescription>Track chemicals, fuel, equipment, staff advances and more.</DialogDescription>
+          <DialogDescription>Track material purchases, fuel, cab fare, equipment, vendor payments, salaries, rent, repairs and more.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div className="space-y-1">
@@ -74,7 +78,7 @@ export function NewExpenseDialog() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(EXPENSE_CATEGORY_LABELS).map(([value, label]) => (
+                {EXPENSE_CATEGORY_OPTIONS.map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>
@@ -82,6 +86,25 @@ export function NewExpenseDialog() {
               </SelectContent>
             </Select>
           </div>
+          {watch("category") === "SALARY" && staffOptions.length > 0 && (
+            <div className="space-y-1">
+              <Label>Staff member</Label>
+              <Select value={watch("staffId") || "none"} onValueChange={(v) => setValue("staffId", v === "none" ? "" : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select staff" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Not for one staff member</SelectItem>
+                  {staffOptions.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name} · {s.employeeCode}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Shows in that staff member’s Staff App as salary paid.</p>
+            </div>
+          )}
           <div className="space-y-1">
             <Label>Description</Label>
             <Input {...register("description")} />
@@ -102,6 +125,30 @@ export function NewExpenseDialog() {
             <Label>Paid To</Label>
             <Input {...register("paidTo")} placeholder="Vendor / staff name" />
           </div>
+          {jobOptions.length > 0 && (
+            <div className="space-y-1">
+              <Label>Link to Job (optional)</Label>
+              <Select
+                value={watch("jobId") || "none"}
+                onValueChange={(v) => setValue("jobId", v === "none" ? "" : v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Not linked to a job" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Not linked to a job</SelectItem>
+                  {jobOptions.map((j) => (
+                    <SelectItem key={j.id} value={j.id}>
+                      {j.jobNumber} · {j.customerName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Shows this expense on the job&apos;s page so cost-per-job stays accurate.
+              </p>
+            </div>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
