@@ -1,7 +1,7 @@
 // Sahara TAX INVOICE PDF (owner 2026-10-25): one A4 page, new columns, no QR / no static advance box, clickable social links. Run: npm run test:invoice
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { buildSync } from "esbuild";
@@ -18,6 +18,7 @@ const pages = (buf: Buffer) => (buf.toString("latin1").match(/\/Type\s*\/Page(?!
 
 const base: InvoiceDocumentProps = {
   number: "INV-2026-0300", date: "25 Oct 2026", jobId: "JOB-2026-0310",
+  stampDataUrl: `data:image/png;base64,${readFileSync("public/stamp.png").toString("base64")}`,
   company: { name: "Sahara Cleaning Services", phones: ["7083347130", "8956567130"], email: "contact@saharacleaningservices.com", website: "www.saharacleaningservices.com", address: "Opp. South Gate, Magarpatta City, Hadapsar, Pune.", gstin: "27DMTPS3584R2ZJ" },
   billTo: { name: "Rahul Sharma", address: "Flat 402, Magarpatta, Pune", mobile: "9800000000" },
   rows: [{ name: "Full Home Cleaning — Premium", qty: 1, rate: 6999, total: 6999 }],

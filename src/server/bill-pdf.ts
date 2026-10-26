@@ -14,7 +14,7 @@ import { UPI_QR_OPTIONS, upiPayUri } from "@/lib/upi";
 export async function billChrome(
   amountDue: number,
   _ref: string, // document number — kept for callers; the owner's UPI format carries no note
-): Promise<Pick<BillDocumentProps, "company" | "logoDataUrl" | "bank" | "upiId" | "qrDataUrl" | "qrAmount" | "bookQrDataUrl" | "bookUrl">> {
+): Promise<Pick<BillDocumentProps, "company" | "logoDataUrl" | "bank" | "upiId" | "qrDataUrl" | "qrAmount" | "bookQrDataUrl" | "bookUrl" | "stampDataUrl">> {
   const settings = await getCompanySettings();
   const company = {
     name: settings.name || COMPANY.name,
@@ -26,10 +26,11 @@ export async function billChrome(
     gstin: COMPANY.gstin,
     phones: [...COMPANY.phones],
   };
-  const upiId = settings.upiId?.trim() || null;
+  const upiId = settings.upiId?.trim() || COMPANY.upiId;
   const bookUrl = `${PUBLIC_BOOKING_URL}/booking`;
-  const [logoDataUrl, qrDataUrl, bookQrDataUrl] = await Promise.all([
+  const [logoDataUrl, stampDataUrl, qrDataUrl, bookQrDataUrl] = await Promise.all([
     resolveBrandLogoDataUrl(settings.logoUrl),
+    publicFileToDataUrl("/stamp.png"), // company seal, printed inside the signatory box (owner 2026-10-26)
     upiId
       ? QRCode.toDataURL(upiPayUri({ upiId, payeeName: company.name, amount: amountDue }), UPI_QR_OPTIONS)
       : settings.upiQrUrl
@@ -40,6 +41,7 @@ export async function billChrome(
   return {
     company,
     logoDataUrl,
+    stampDataUrl,
     upiId,
     qrDataUrl,
     qrAmount: upiId && amountDue > 0 ? amountDue : null,

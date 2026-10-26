@@ -119,6 +119,7 @@ export async function renderInvoicePdf(invoiceId: string): Promise<PdfFile | nul
       jobId: invoice.job?.jobNumber ?? null,
       company: { name: chrome.company.name, phones: chrome.company.phones ?? [chrome.company.phone], email: chrome.company.email, website: chrome.company.website, address: chrome.company.address, gstin: chrome.company.gstin ?? COMPANY.gstin },
       logoDataUrl: chrome.logoDataUrl,
+      stampDataUrl: chrome.stampDataUrl,
       billTo: { name: invoice.customerName, address: invoice.customerAddress, mobile: invoice.customerMobile, email: invoice.job?.lead?.email ?? null },
       rows,
       showArea: rows.some((r) => !!r.area),

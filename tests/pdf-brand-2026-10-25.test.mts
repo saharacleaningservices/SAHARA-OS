@@ -98,3 +98,16 @@ test("SAC 998533 sits beside the GSTIN on the quotation and the invoice header",
     assert.ok(/GSTIN: \{p\.company\.gstin\}\s*\|\s*SAC: \{COMPANY\.sac\}/.test(readFileSync(f, "utf8")), `${f} prints the SAC beside the GSTIN`);
   }
 });
+
+// Owner 2026-10-26: the company seal is embedded in the signatory box of both documents, and the UPI ID falls back to the owner's ID.
+test("stamp.png is a transparent PNG wired into both documents; UPI fallback is the owner's ID", async () => {
+  const { readFileSync } = await import("node:fs");
+  const png = readFileSync("public/stamp.png");
+  assert.equal(png.subarray(1, 4).toString(), "PNG");
+  assert.equal(png[25], 6, "RGBA colour type (transparent background)");
+  assert.ok(png.length < 250_000, "small enough to embed in every PDF");
+  for (const f of ["src/lib/pdf/sahara-bill-document.tsx", "src/lib/pdf/sahara-invoice-document.tsx"]) assert.ok(readFileSync(f, "utf8").includes("stampDataUrl={p.stampDataUrl}"), `${f} passes the stamp to the signatory box`);
+  assert.ok(readFileSync("src/server/bill-pdf.ts", "utf8").includes('publicFileToDataUrl("/stamp.png")'));
+  const { COMPANY } = (await import("../src/lib/constants")) as { COMPANY: { upiId: string } };
+  assert.equal(COMPANY.upiId, "9168337130@ibl");
+});

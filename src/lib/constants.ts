@@ -5,6 +5,7 @@ export const COMPANY = {
   address: "Opp. South Gate, Magarpatta City, Hadapsar, Pune.",
   email: "contact@saharacleaningservices.com",
   gstin: "27DMTPS3584R2ZJ", // real registered GSTIN, 2026-09-22 booking-form master prompt
+  upiId: "9168337130@ibl", // fallback only: CRM Settings → Company UPI ID wins when set (owner 2026-10-26)
   sac: "998533", // SAC for our cleaning services, printed beside the GSTIN on quotations and invoices (owner 2026-10-26)
   // No minimum job value (owner decision 2026-09-30) — prices come from the pricing master.
   minimumJobValue: 0,

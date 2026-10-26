@@ -27,6 +27,8 @@ export type InvoiceDocumentProps = {
   number: string;
   date: string;
   jobId?: string | null;
+  /** Company seal (data URL of public/stamp.png) printed inside the signatory box. */
+  stampDataUrl?: string | null;
   company: { name: string; tagline?: string; phones: string[]; email: string; website: string; address: string; gstin: string };
   logoDataUrl?: string | null;
   billTo: { name: string; address?: string | null; mobile?: string | null; email?: string | null; gstin?: string | null };
@@ -54,7 +56,7 @@ const num = fmtNum;
 /** Scale factor so the whole invoice stays on ONE A4 page. */
 export function invoiceFit(p: Pick<InvoiceDocumentProps, "rows" | "scope" | "terms"> & { payment?: boolean }): number {
   const wrap = (t: string, per: number) => Math.max(1, Math.ceil(t.length / per));
-  const load = p.rows.reduce((n, r) => n + (r.detail ? 2.4 : 1.6), 0) + p.scope.reduce((n, t) => n + wrap(t, 95), 0) * 0.9 + (p.terms ?? INVOICE_LEGAL_TERMS).reduce((n, t) => n + wrap(t, 105), 0) * 0.85 + (p.payment ? 12 : 0) + 4; // + stamp box & icon footer
+  const load = p.rows.reduce((n, r) => n + (r.detail ? 2.4 : 1.6), 0) + p.scope.reduce((n, t) => n + wrap(t, 95), 0) * 0.9 + (p.terms ?? INVOICE_LEGAL_TERMS).reduce((n, t) => n + wrap(t, 105), 0) * 0.85 + (p.payment ? 12 : 0) + 15; // + stamp box & icon footer
   if (load <= 24) return 1;
   if (load <= 30) return 0.92;
   if (load <= 38) return 0.82;
@@ -87,10 +89,14 @@ function styles(k: number) {
     billL: { fontFamily: FONT.bold, fontSize: z(8), color: BLUE, marginBottom: z(2) },
     billN: { fontFamily: FONT.bold, fontSize: z(10.5), marginBottom: z(1.5) },
     billT: { fontSize: z(8.5), color: MUTED, marginBottom: z(1.5) },
-    th: { flexDirection: "row", backgroundColor: BLUE, paddingVertical: z(5), paddingHorizontal: z(16) },
-    thT: { color: "#ffffff", fontFamily: FONT.bold, fontSize: z(8.5) },
-    tr: { flexDirection: "row", paddingVertical: z(5), paddingHorizontal: z(16), borderBottomWidth: 0.6, borderBottomColor: LINE },
-    cell: { fontSize: z(9) },
+    // Boxed grid (owner 2026-10-26): the table sits in one bordered box with a thin vertical rule between columns.
+    tbl: { marginHorizontal: z(16), borderWidth: 0.8, borderColor: BLUE },
+    vl: { borderRightWidth: 0.6, borderRightColor: LINE, paddingHorizontal: z(4) },
+    th: { flexDirection: "row", backgroundColor: BLUE, paddingVertical: z(5) },
+    thT: { color: "#ffffff", fontFamily: FONT.bold, fontSize: z(8.5), paddingHorizontal: z(4) },
+    tr: { flexDirection: "row", paddingVertical: z(5), borderTopWidth: 0.6, borderTopColor: LINE },
+    cell: { fontSize: z(9), paddingHorizontal: z(4) },
+    scopeBox: { marginHorizontal: z(16), marginTop: z(8), borderWidth: 0.8, borderColor: BLUE, borderRadius: 4, paddingHorizontal: z(8), paddingBottom: z(4) },
     detail: { fontSize: z(7.5), color: MUTED, marginTop: z(1) },
     sumWrap: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: z(16), paddingTop: z(10) },
     words: { width: "52%", paddingRight: z(10) },
@@ -152,27 +158,29 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
             {p.billTo.gstin ? <Text style={s.billT}>GSTIN: {p.billTo.gstin}</Text> : null}
           </View>
 
-          <View style={s.th}>
-            <Text style={[s.thT, { width: w.no }]}>Sr. No.</Text>
-            <Text style={[s.thT, { width: w.name }]}>SERVICES</Text>
-            <Text style={[s.thT, { width: w.qty, textAlign: "right" }]}>Qty</Text>
-            <Text style={[s.thT, { width: w.rate, textAlign: "right" }]}>Rate (₹)</Text>
-            {p.showArea ? <Text style={[s.thT, { width: w.area, textAlign: "right" }]}>Sq. Ft / Area</Text> : null}
-            <Text style={[s.thT, { width: w.total, textAlign: "right" }]}>Total (₹)</Text>
-          </View>
-          {p.rows.map((r, i) => (
-            <View key={i} style={s.tr} wrap={false}>
-              <Text style={[s.cell, { width: w.no }]}>{i + 1}</Text>
-              <View style={{ width: w.name, paddingRight: 6 }}>
-                <Text style={s.cell}>{r.name}</Text>
-                {r.detail ? <Text style={s.detail}>{r.detail}</Text> : null}
-              </View>
-              <Text style={[s.cell, { width: w.qty, textAlign: "right" }]}>{r.qty}</Text>
-              <Text style={[s.cell, { width: w.rate, textAlign: "right" }]}>{num(r.rate)}</Text>
-              {p.showArea ? <Text style={[s.cell, { width: w.area, textAlign: "right" }]}>{r.area ?? "—"}</Text> : null}
-              <Text style={[s.cell, { width: w.total, textAlign: "right", fontFamily: FONT.bold }]}>{num(r.total)}</Text>
+          <View style={s.tbl}>
+            <View style={s.th}>
+              <Text style={[s.thT, s.vl, { width: w.no, color: "#ffffff", borderRightColor: "#ffffff55" }]}>Sr. No.</Text>
+              <Text style={[s.thT, s.vl, { width: w.name, color: "#ffffff", borderRightColor: "#ffffff55" }]}>SERVICES</Text>
+              <Text style={[s.thT, s.vl, { width: w.qty, textAlign: "right", color: "#ffffff", borderRightColor: "#ffffff55" }]}>Qty</Text>
+              <Text style={[s.thT, s.vl, { width: w.rate, textAlign: "right", color: "#ffffff", borderRightColor: "#ffffff55" }]}>Rate (₹)</Text>
+              {p.showArea ? <Text style={[s.thT, s.vl, { width: w.area, textAlign: "right", color: "#ffffff", borderRightColor: "#ffffff55" }]}>Sq. Ft / Area</Text> : null}
+              <Text style={[s.thT, { width: w.total, textAlign: "right" }]}>Total (₹)</Text>
             </View>
-          ))}
+            {p.rows.map((r, i) => (
+              <View key={i} style={s.tr} wrap={false}>
+                <Text style={[s.cell, s.vl, { width: w.no }]}>{i + 1}</Text>
+                <View style={[s.vl, { width: w.name }]}>
+                  <Text style={{ fontSize: s.cell.fontSize }}>{r.name}</Text>
+                  {r.detail ? <Text style={s.detail}>{r.detail}</Text> : null}
+                </View>
+                <Text style={[s.cell, s.vl, { width: w.qty, textAlign: "right" }]}>{r.qty}</Text>
+                <Text style={[s.cell, s.vl, { width: w.rate, textAlign: "right" }]}>{num(r.rate)}</Text>
+                {p.showArea ? <Text style={[s.cell, s.vl, { width: w.area, textAlign: "right" }]}>{r.area ?? "—"}</Text> : null}
+                <Text style={[s.cell, { width: w.total, textAlign: "right", fontFamily: FONT.bold }]}>{num(r.total)}</Text>
+              </View>
+            ))}
+          </View>
 
           <View style={s.sumWrap}>
             <View style={s.words}>
@@ -191,8 +199,8 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
           </View>
 
           {p.scope.length > 0 ? (
-            <View style={s.bullets}>
-              <Text style={s.secT}>Scope of Work</Text>
+            <View style={s.scopeBox}>
+              <Text style={s.secT}>Service Scope Notes</Text>
               {p.scope.map((t, i) => (
                 <View key={i} style={s.bullet} wrap={false}><Text style={s.dot}>•</Text><Text style={[s.para, { flex: 1 }]}>{t}</Text></View>
               ))}
@@ -213,7 +221,7 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
           ) : null}
 
           <View style={s.signRow}>
-            <SignatoryBox company={p.company.name} k={k} />
+            <SignatoryBox company={p.company.name} stampDataUrl={p.stampDataUrl} k={k} />
           </View>
 
           <View style={s.footer}>
