@@ -1,6 +1,6 @@
 import { Document, Image, Link, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { COMPANY } from "../constants";
-import { BrandFooter, FONT, PaymentBlock, SignatoryBox, hasPaymentBlock, inr, num as fmtNum } from "./brand-kit";
+import { BrandFooter, FONT, PaymentBlock, SignatoryBox, formatPhoneIN, hasPaymentBlock, inr, num as fmtNum } from "./brand-kit";
 
 // One professional layout for Sahara quotations and invoices (MyBillBook-style
 // structure: framed page, brand header, number/date strip, Bill To, service
@@ -23,15 +23,21 @@ function makeStyles(k: number) {
   return StyleSheet.create({
   page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: FONT.regular },
   frame: { borderWidth: 1, borderColor: ROYAL, flexGrow: 1 },
-  headerC: { alignItems: "center", paddingHorizontal: z(18), paddingTop: z(10), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
-  logoSm: { width: z(104), height: z(34), objectFit: "contain", marginBottom: z(3) },
-  companyNameC: { fontFamily: FONT.bold, fontSize: z(17), letterSpacing: z(0.8), color: ROYAL, textAlign: "center" },
+  // Header (owner 2026-10-26): logo LEFT · name + tagline CENTRE · GSTIN/SAC → badge → copy label → +91 numbers RIGHT.
+  headerC: { flexDirection: "row", alignItems: "center", paddingHorizontal: z(16), paddingTop: z(12), paddingBottom: z(10), borderBottomWidth: 1, borderBottomColor: GOLD },
+  headLogoCol: { width: z(104), justifyContent: "center", alignItems: "flex-start" },
+  headMidCol: { flexGrow: 1, flexShrink: 1, alignItems: "center", paddingHorizontal: z(8) },
+  headRightCol: { width: z(172), alignItems: "flex-end" },
+  gstR: { fontFamily: FONT.bold, fontSize: z(8.4), color: NAVY, marginBottom: z(4), textAlign: "right" },
+  phonesR: { fontFamily: FONT.medium, fontSize: z(8.4), color: NAVY, marginTop: z(3), textAlign: "right" },
+  logoSm: { width: z(100), height: z(50), objectFit: "contain" },
+  companyNameC: { fontFamily: FONT.bold, fontSize: z(21), letterSpacing: z(0.6), lineHeight: 1.15, color: ROYAL, textAlign: "center" },
   phonesC: { fontFamily: FONT.bold, fontSize: z(9.5), color: NAVY, marginTop: z(1), textAlign: "center" },
-  titleBadge: { marginTop: z(5), backgroundColor: ROYAL, color: "#ffffff", fontFamily: FONT.bold, fontSize: z(10.5), letterSpacing: z(1.5), paddingVertical: z(2.5), paddingHorizontal: z(16), borderRadius: 0 },
+  titleBadge: { marginTop: 0, backgroundColor: ROYAL, color: "#ffffff", fontFamily: FONT.bold, fontSize: z(10.5), letterSpacing: z(1.5), paddingVertical: z(2.5), paddingHorizontal: z(16), borderRadius: 0 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
   headRight: { flexGrow: 1, flexShrink: 1, alignItems: "flex-end", paddingLeft: z(10) },
   docTitle: { fontFamily: FONT.bold, fontSize: z(14), color: NAVY, letterSpacing: 1, marginTop: z(4) },
-  slogan: { fontFamily: FONT.italic, fontSize: z(10.5), color: NAVY, marginTop: z(2), marginBottom: z(3), textAlign: "center" },
+  slogan: { fontFamily: FONT.italic, fontSize: z(10), color: MUTED, marginTop: z(3), textAlign: "center" },
   phones: { fontFamily: FONT.bold, fontSize: z(9.5), color: NAVY, marginTop: z(2), textAlign: "right" },
   contactC: { fontFamily: FONT.bold, fontSize: z(8.5), color: NAVY, marginBottom: z(1), textAlign: "center" },
   titleBar: { flexDirection: "row", justifyContent: "center", alignItems: "center", paddingVertical: z(5), borderBottomWidth: 1, borderBottomColor: GOLD, backgroundColor: BEIGE },
@@ -55,11 +61,12 @@ function makeStyles(k: number) {
   billName: { fontSize: z(11.5), marginBottom: z(2) },
   billLine: { fontSize: z(9.5), color: MUTED, marginBottom: z(2) },
   // Boxed grid (owner 2026-10-26): header, rows and SUBTOTAL sit in one bordered box with thin column rules.
-  tbl: { marginHorizontal: z(18), borderWidth: 1, borderColor: ROYAL },
+  tbl: { marginHorizontal: z(18), borderWidth: 1, borderColor: ROYAL, flexGrow: 1 }, // grows into spare page height, like a myBillBook items box
   tHead: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6) },
   tRow: { flexDirection: "row", paddingVertical: z(6), borderTopWidth: 1, borderTopColor: GOLD },
   tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), borderTopWidth: 1, borderTopColor: ROYAL, fontFamily: FONT.bold },
   notesBox: { borderWidth: 1, borderColor: ROYAL, borderRadius: 0, padding: z(6), marginBottom: z(4) },
+  notesWrap: { marginHorizontal: z(18), marginTop: z(8) },
   notesP: { fontSize: z(9.5), color: NAVY, lineHeight: 1.35, marginBottom: z(1.5) },
   cNo: { width: "9%", paddingHorizontal: z(4), borderRightWidth: 1, borderRightColor: GOLD },
   cName: { width: "39%", paddingHorizontal: z(4), borderRightWidth: 1, borderRightColor: GOLD },
@@ -71,7 +78,7 @@ function makeStyles(k: number) {
   rowName: { fontSize: z(10) },
   rowDetail: { fontSize: z(8.5), color: MUTED, marginTop: z(1) },
   pct: { fontSize: z(7), color: MUTED },
-  bottom: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(10) },
+  bottom: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(4), paddingBottom: z(10) },
   left: { width: "52%", paddingRight: 14 },
   right: { width: "48%" },
   secTitle: { fontFamily: FONT.bold, fontSize: z(10), marginBottom: z(3), marginTop: z(6) },
@@ -156,7 +163,8 @@ export type BillDocumentProps = {
 /** Rough line count of the longest column + table rows → scale factor for a single A4 page. Verified by tests/quotation-pdf.test.mts. */
 export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyNote" | "terms"> & Partial<Pick<BillDocumentProps, "paymentSplit" | "bookQrDataUrl" | "billTo" | "bank" | "qrDataUrl" | "upiId" | "totals" | "legalNote" | "whatsappConfirm">>): number {
   const wrap = (t: string, per: number) => Math.max(1, Math.ceil(t.length / per)) * 1;
-  const left = p.notes.reduce((n, t) => n + wrap(t, 66), 0) + p.kindlyNote.reduce((n, t) => n + wrap(t, 66), 0) + p.terms.split("\n").reduce((n, t) => n + wrap(t, 66), 0);
+  // Service Scope Notes now span the full width (owner 2026-10-26), so they wrap at ~100 characters.
+  const left = p.notes.reduce((n, t) => n + wrap(t, 100), 0) + p.kindlyNote.reduce((n, t) => n + wrap(t, 66), 0) + p.terms.split("\n").reduce((n, t) => n + wrap(t, 66), 0);
   const table = p.rows.reduce((n, r) => n + (r.detail ? 2.6 : 1.7), 0);
   // Payment-terms box, booking QR footer and the extra Bill To lines (email, property / service) take fixed space.
   const extra =
@@ -165,8 +173,10 @@ export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyN
     // Full-width payment block (bank left, QR right) + signatory stamp box + icon footer (owner 2026-10-25).
     (p.bank?.account || p.bank?.ifsc || p.qrDataUrl || p.upiId ? 6 : 0) + 8 + (p.totals?.received !== undefined ? 6 : 0) + 3 + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0) +
     // Quotation extras: MSMED line under the terms, WhatsApp confirm box in the right column.
-    (p.legalNote ? wrap(p.legalNote, 66) : 0) + (p.whatsappConfirm ? 3 : 0);
-  const load = (left + table * 1.4 + extra) * 1.4; // Poppins sets taller than Helvetica (type sizes raised 2026-10-26)
+    (p.legalNote ? wrap(p.legalNote, 66) : 0) + (p.whatsappConfirm ? 3 : 0) + 8;
+  const load = (left + table * 1.4 + extra) * 1.56; // Poppins sets taller than Helvetica (type sizes raised 2026-10-26)
+  if (load <= 24) return 1.16; // short quotations grow (type, line height, padding) so the A4 page is filled without gaps
+  if (load <= 32) return 1.08;
   if (load <= 40) return 1;
   if (load <= 50) return 0.92;
   if (load <= 62) return 0.84;
@@ -174,7 +184,9 @@ export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyN
   if (load <= 88) return 0.7;
   if (load <= 104) return 0.64;
   if (load <= 120) return 0.59;
-  return 0.55;
+  if (load <= 136) return 0.54;
+  if (load <= 152) return 0.5;
+  return 0.46;
 }
 
 export function SaharaBillDocument(p: BillDocumentProps) {
@@ -184,14 +196,18 @@ export function SaharaBillDocument(p: BillDocumentProps) {
     <Document title={`${p.title} ${p.number}`}>
       <Page size="A4" style={s.page}>
         <View style={s.frame}>
-          {/* Centered header (owner 2026-10-25): small logo, name, the two numbers and GSTIN only — no address up here (it is in the footer). */}
           <View style={s.headerC}>
-            {p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logoSm} /> : null}
-            <Text style={s.companyNameC}>{p.company.name.toUpperCase()}</Text>
-            <Text style={s.phonesC}>{(p.company.phones ?? [p.company.phone]).join("  |  ")}</Text>
-            {p.company.gstin ? <Text style={s.contactC}>GSTIN: {p.company.gstin}  |  SAC: {COMPANY.sac}</Text> : null}
-            <Text style={s.titleBadge}>{p.title}</Text>
-            {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 2 }]}>{p.copyLabel}</Text> : null}
+            <View style={s.headLogoCol}>{p.logoDataUrl ? <Image src={p.logoDataUrl} style={s.logoSm} /> : null}</View>
+            <View style={s.headMidCol}>
+              <Text style={s.companyNameC}>{p.company.name.toUpperCase()}</Text>
+              <Text style={s.slogan}>{SLOGAN}</Text>
+            </View>
+            <View style={s.headRightCol}>
+              {p.company.gstin ? <Text style={s.gstR}>GSTIN: {p.company.gstin}  |  SAC: {COMPANY.sac}</Text> : null}
+              <Text style={s.titleBadge}>{p.title}</Text>
+              {p.copyLabel ? <Text style={[s.copyBox, { marginTop: 3 }]}>{p.copyLabel}</Text> : null}
+              <Text style={s.phonesR}>{(p.company.phones ?? [p.company.phone]).map(formatPhoneIN).join("  |  ")}</Text>
+            </View>
           </View>
 
           <View style={s.metaStrip}>
@@ -265,6 +281,14 @@ export function SaharaBillDocument(p: BillDocumentProps) {
               <Text style={[s.rowName, s.cTotal]}>{num(r.total)}</Text>
             </View>
           ))}
+          <View style={[s.tRow, { flexGrow: 1, paddingVertical: 0 }]} wrap={false}>
+            <Text style={s.cNo}> </Text>
+            <Text style={s.cName}> </Text>
+            <Text style={s.cQty}> </Text>
+            <Text style={s.cRate}> </Text>
+            <Text style={s.cDisc}> </Text>
+            <Text style={s.cTotal}> </Text>
+          </View>
           <View style={s.tSub}>
             <Text style={s.cNo} />
             <Text style={s.cName}>SUBTOTAL</Text>
@@ -275,16 +299,19 @@ export function SaharaBillDocument(p: BillDocumentProps) {
           </View>
           </View>
 
+          {p.notes.length > 0 && (
+            <View style={s.notesWrap}>
+              <View style={s.notesBox}>
+                <Text style={[s.secTitle, { marginTop: 0 }]}>Service Scope Notes</Text>
+                {p.notes.map((n, i) => (
+                  <Text key={i} style={s.notesP}>{n}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+
           <View style={s.bottom}>
             <View style={s.left}>
-              {p.notes.length > 0 && (
-                <View style={s.notesBox}>
-                  <Text style={[s.secTitle, { marginTop: 0 }]}>Service Scope Notes</Text>
-                  {p.notes.map((n, i) => (
-                    <Text key={i} style={s.notesP}>{n}</Text>
-                  ))}
-                </View>
-              )}
               {p.exclusionsTitle && p.kindlyNote.length > 0 && (
                 <>
                   <Text style={s.secTitle}>{p.exclusionsTitle}</Text>

@@ -9,6 +9,7 @@ import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wi
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
+import { BookingFooter } from "@/components/public/booking-footer";
 import { ClientLogosSlider } from "@/components/public/client-logos-slider";
 import { ReviewsCarousel, type Review } from "@/components/public/reviews-carousel";
 import { campaignFestivalNames, todayIST } from "@/lib/pricing-master";
@@ -86,7 +87,7 @@ export default async function BookingPage({
 
   return (
     // On a quotation link, Book Now scrolls to the wizard on THIS page (keeps ?quote=).
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={quote ? [businessJsonLd()] : [businessJsonLd(), faqJsonLd(nearMeFaqs()), breadcrumbBookingJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} singleMap {...(quote ? { bookHref: "#book" } : {})}>
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={quote ? [businessJsonLd()] : [businessJsonLd(), faqJsonLd(nearMeFaqs()), breadcrumbBookingJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} footer={<BookingFooter />} {...(quote ? { bookHref: "#book" } : {})}>
       <Hero
         {...(quote ? { bookHrefOverride: "#book" } : {})}
         image={CAROUSEL.home.src}
@@ -126,13 +127,7 @@ export default async function BookingPage({
         </section>
         {!quote && (
           <>
-            {/* Local SEO / AI-search block (owner 2026-10-26): one H2 per intent, real text, matches the FAQ JSON-LD. */}
-            <section aria-labelledby="near-me" className="rounded-3xl bg-white p-5 shadow-sm">
-              <h2 id="near-me" className="text-lg font-bold">Cleaning services near you in Pune &amp; PCMC</h2>
-              <p className="mt-1 text-sm text-[#0a2540]/75">Home deep cleaning, office and commercial cleaning, housekeeping contracts, pest control and interior painting — trained in-house teams from our Magarpatta City base.</p>
-              {/* The area list lives once, in the footer's "Areas we serve" block (owner 2026-10-26: no duplicate area blocks). */}
-            </section>
-            {/* Social proof sits right above the FAQs (owner 2026-10-26): corporate logos, then real Google reviews. */}
+            {/* Social proof (owner 2026-10-26): corporate logos, then real Google reviews; the FAQs sit last, right above the footer. */}
             <ClientLogosSlider />
             {featuredReviews.length > 0 && <ReviewsCarousel reviews={featuredReviews} reviewUrl={settings.googleReviewUrl || undefined} />}
             <Faqs faqs={nearMeFaqs()} compact />

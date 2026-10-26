@@ -35,6 +35,11 @@ export const num = (n: number) => latinDigits(NF.format(Number.isFinite(n) ? n :
 export const inr = (n: number) => `₹${num(n)}`;
 
 export const BRAND_BLUE = "#1E40AF";
+/** "7083347130" → "+91 70833 47130" (country code + 5/5 grouping, as printed in the document headers). */
+export const formatPhoneIN = (n: string) => {
+  const d = n.replace(/\D/g, "").slice(-10);
+  return d.length === 10 ? `+91 ${d.slice(0, 5)} ${d.slice(5)}` : n;
+};
 const SOFT = "#eff4ff";
 const INK = "#0f172a";
 const MUTED = "#475569";
@@ -131,13 +136,13 @@ export function PaymentBlock(p: PaymentBlockProps) {
       </View>
       {p.qrDataUrl ? (
         // Fixed-width QR column (2026-10-26): the instruction lines word-wrap under the code and can never push it out of the box.
-        <View style={{ width: 104, flexShrink: 0, alignItems: "center" }}>
-          {/* Fixed 84 pt (≈3 cm) whatever the page scale, on a white quiet zone — scannable from print and screen. */}
-          <Image src={p.qrDataUrl} style={{ width: 84, height: 84, backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 0, padding: 3 }} />
-          <Text style={{ width: 104, fontFamily: FONT.bold, fontSize: z(8.5), color: accent, marginTop: z(2), textAlign: "center" }}>
+        <View style={{ width: 124, flexShrink: 0, alignItems: "center" }}>
+          {/* Fixed 104 pt (≈3.7 cm) whatever the page scale, on a white quiet zone — a version-5 UPI code decodes down to ~175 px, so this prints well clear of that. */}
+          <Image src={p.qrDataUrl} style={{ width: 104, height: 104, backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 0, padding: 3 }} />
+          <Text style={{ width: 124, fontFamily: FONT.bold, fontSize: z(8.5), color: accent, marginTop: z(2), textAlign: "center" }}>
             Scan & Pay{p.amount ? ` ${inr(p.amount)}` : ""}
           </Text>
-          <Text style={{ width: 104, fontSize: z(7), color: MUTED, textAlign: "center", lineHeight: 1.25 }}>GPay · PhonePe · Paytm · BHIM or any UPI app — amount fills in automatically</Text>
+          <Text style={{ width: 124, fontSize: z(7), color: MUTED, textAlign: "center", lineHeight: 1.25 }}>GPay · PhonePe · Paytm · BHIM or any UPI app — amount fills in automatically</Text>
         </View>
       ) : null}
     </View>
@@ -152,6 +157,8 @@ export type BrandFooterProps = {
   address: string;
   accent?: string;
   soft?: string;
+  /** Light theme: the service-category band is a soft tint with dark text instead of a solid accent bar. */
+  light?: boolean;
   k?: number;
 };
 const withScheme = (u: string) => (/^https?:\/\//i.test(u) ? u : `https://${u}`);
@@ -167,8 +174,8 @@ export function BrandFooter(p: BrandFooterProps) {
   const tel = p.phones[0]?.replace(/\D/g, "");
   return (
     <View wrap={false}>
-      <View style={{ backgroundColor: accent, paddingVertical: z(6), paddingHorizontal: z(8) }}>
-        <Text style={{ color: "#ffffff", fontFamily: FONT.bold, fontSize: z(7.6), textAlign: "center", letterSpacing: 0.3 }}>{FOOTER_CATEGORIES.join("   •   ")}</Text>
+      <View style={{ backgroundColor: p.light ? soft : accent, borderTopWidth: p.light ? 1 : 0, borderTopColor: accent, paddingVertical: z(6), paddingHorizontal: z(8) }}>
+        <Text style={{ color: p.light ? accent : "#ffffff", fontFamily: FONT.bold, fontSize: z(7.6), textAlign: "center", letterSpacing: 0.3 }}>{FOOTER_CATEGORIES.join("   •   ")}</Text>
       </View>
       <View style={{ backgroundColor: soft, paddingVertical: z(5), paddingHorizontal: z(8) }}>
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>

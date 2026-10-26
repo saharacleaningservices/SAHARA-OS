@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { sendWhatsAppTemplate, normalizeNumber } from "@/lib/whatsapp";
 import { sendSMS } from "@/lib/sms";
 import { recordCallLead } from "@/server/call-lead";
-import { AUTO_REPLY_COOLDOWN_HOURS, CALL_TEMPLATE_LANGUAGE, callerFrom, classifyCall, planAutoReply, smsMode } from "@/lib/call-autoresponder";
+import { AUTO_REPLY_COOLDOWN_HOURS, CALL_TEMPLATE_LANGUAGE, callDetailsFrom, callerFrom, classifyCall, planAutoReply, smsMode } from "@/lib/call-autoresponder";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -79,7 +79,7 @@ async function handle(req: NextRequest) {
   if (!caller) return NextResponse.json({ error: "No valid Indian mobile caller number" }, { status: 400 });
   const event = classifyCall(payload);
 
-  const lead = await recordCallLead(caller, event).catch((e) => {
+  const lead = await recordCallLead(caller, event, callDetailsFrom(payload)).catch((e) => {
     console.error("[call-trigger] lead logging failed", e);
     return { leadId: null, leadNumber: null, name: null, created: false };
   });

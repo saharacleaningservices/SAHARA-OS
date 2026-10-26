@@ -4,7 +4,7 @@ import { CONTACT, GOOGLE_MAPS_URL, LOCALITIES } from "@/lib/marketing-content";
 
 // One "Areas We Serve" tag list + embedded Google Map, used by EVERY public footer (service landing pages, /book, /booking,
 // campaign pages) so the two hosts never drift apart (owner 2026-10-25). Layout model: FLUID — tags wrap, the map stretches.
-const MAP_QUERY = "Sahara Cleaning Services, Opposite South Gate, Magarpatta City, Hadapsar, Pune 411028";
+export const MAP_QUERY = "Sahara Cleaning Services, Opposite South Gate, Magarpatta City, Hadapsar, Pune 411028";
 
 export function AreasMapBlock({ dark = false }: { dark?: boolean }) {
   const tag = dark ? "bg-white/10 text-white/85" : "bg-primary/5 text-[#0a2540]/75";
