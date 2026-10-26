@@ -1,10 +1,10 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sendWhatsAppTemplate, normalizeNumber } from "@/lib/whatsapp";
 import { sendSMS } from "@/lib/sms";
 import { recordCallLead } from "@/server/call-lead";
-import { AUTO_REPLY_COOLDOWN_HOURS, CALL_TEMPLATE_LANGUAGE, callDetailsFrom, callerFrom, classifyCall, planAutoReply, smsMode } from "@/lib/call-autoresponder";
+import { callWebhookAuthorised } from "@/lib/call-webhook-auth";
+import { AUTO_REPLY_COOLDOWN_HOURS, CALL_TEMPLATE_LANGUAGE, callDetailsFrom, callMetaFrom, callerFrom, classifyCall, planAutoReply, smsMode } from "@/lib/call-autoresponder";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,20 +29,6 @@ export const dynamic = "force-dynamic";
  *   CALL_TRIGGER_SMS          always | fallback | off
  *   DLT_TEMPLATE_FESTIVAL_FULL / DLT_TEMPLATE_MISSED_CALL / DLT_ENTITY_ID   DLT registration ids for the SMS texts.
  */
-
-function safeEqual(a: string, b: string) {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
-}
-
-function authorised(req: NextRequest): boolean {
-  const token = process.env.CALL_TRIGGER_TOKEN || process.env.MISSED_CALL_TOKEN || process.env.CRON_TOKEN;
-  if (!token) return false;
-  const header = req.headers.get("authorization") ?? "";
-  const q = req.nextUrl.searchParams.get("token") ?? "";
-  return safeEqual(header, `Bearer ${token}`) || safeEqual(q, token);
-}
 
 async function readPayload(req: NextRequest): Promise<Record<string, unknown>> {
   const query = Object.fromEntries(req.nextUrl.searchParams.entries());
@@ -73,19 +59,23 @@ async function recentlyAnswered(mobile10: string): Promise<boolean> {
 }
 
 async function handle(req: NextRequest) {
-  if (!authorised(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!callWebhookAuthorised(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const payload = await readPayload(req);
   const caller = callerFrom(payload);
   if (!caller) return NextResponse.json({ error: "No valid Indian mobile caller number" }, { status: 400 });
   const event = classifyCall(payload);
 
-  const lead = await recordCallLead(caller, event, callDetailsFrom(payload)).catch((e) => {
+  // History (the Helper app scanning old call logs, or a call that reaches us late) and outgoing calls are logged on an existing lead only:
+  // no new lead, no call-back task and — below — no auto-reply.
+  const meta = callMetaFrom(payload);
+  const quiet = meta.backfill || meta.direction === "OUTGOING";
+  const lead = await recordCallLead(caller, event, { ...callDetailsFrom(payload), externalId: meta.externalId, deviceLabel: meta.deviceLabel }, { noCreate: quiet }).catch((e) => {
     console.error("[call-trigger] lead logging failed", e);
     return { leadId: null, leadNumber: null, name: null, created: false };
   });
 
-  const plan = planAutoReply({ event, caller, now: new Date(), festivalFullUntil: process.env.FESTIVAL_FULL_UNTIL, name: lead.name });
-  const base = { ok: true, event, lead: lead.leadNumber, leadCreated: lead.created };
+  const plan = quiet ? null : planAutoReply({ event, caller, now: new Date(), festivalFullUntil: process.env.FESTIVAL_FULL_UNTIL, name: lead.name });
+  const base = { ok: true, event, lead: lead.leadNumber, leadCreated: lead.created, ...(quiet ? { logged: meta.backfill ? "backfill" : "outgoing" } : {}) };
   if (!plan) return NextResponse.json({ ...base, autoReply: "none" });
 
   if (process.env.CALL_AUTOREPLY !== "on") return NextResponse.json({ ...base, autoReply: "dry-run", template: plan.template, whatsapp: plan.preview, sms: plan.sms });

@@ -13,7 +13,9 @@ import { formatTalkTime } from "@/lib/call-autoresponder";
 export async function recordCallLead(
   mobile: string,
   event: "MISSED" | "ANSWERED",
-  details: { durationSec?: number | null; recordingUrl?: string | null } = {},
+  details: { durationSec?: number | null; recordingUrl?: string | null; externalId?: string | null; deviceLabel?: string | null } = {},
+  // noCreate: history (back-fill) and outgoing calls are noted on an existing lead only — they never create a lead or a call-back task.
+  opts: { noCreate?: boolean } = {},
 ): Promise<{ leadId: string | null; leadNumber: string | null; name: string | null; created: boolean }> {
   const recent = await db.lead.findFirst({
     where: {
@@ -27,17 +29,24 @@ export async function recordCallLead(
   if (recent) {
     // Talk time and the provider's recording link ride on the same CALL entry (owner 2026-10-26); the timeline shows an audio player for it.
     const talk = details.durationSec ? ` · ${formatTalkTime(details.durationSec)}` : "";
-    await addTimelineEntry({
-      leadId: recent.id,
-      type: "CALL",
-      body: (event === "MISSED" ? "Missed call received (auto-detected)" : "Inbound call answered (auto-logged)") + talk,
-      audioUrl: details.recordingUrl ?? null,
-      meta: details.durationSec || details.recordingUrl ? { durationSec: details.durationSec ?? null, source: "call-trigger" } : null,
-    }).catch(() => {});
+    const phone = details.deviceLabel ? ` · ${details.deviceLabel}` : "";
+    // The same call reported twice (app retry, history re-scan) is noted once.
+    const dupe = details.externalId
+      ? await db.timelineEntry.findFirst({ where: { leadId: recent.id, type: "CALL", meta: { contains: `"externalId":"${details.externalId}"` } }, select: { id: true } }).catch(() => null)
+      : null;
+    if (!dupe) {
+      await addTimelineEntry({
+        leadId: recent.id,
+        type: "CALL",
+        body: (event === "MISSED" ? "Missed call received (auto-detected)" : "Inbound call answered (auto-logged)") + talk + phone,
+        audioUrl: details.recordingUrl ?? null,
+        meta: details.durationSec || details.recordingUrl || details.externalId ? { durationSec: details.durationSec ?? null, externalId: details.externalId ?? null, source: "call-trigger" } : null,
+      }).catch(() => {});
+    }
     const name = /^Missed call \d+$/.test(recent.name) ? existingCustomer?.name ?? null : recent.name;
     return { leadId: recent.id, leadNumber: recent.leadNumber, name, created: false };
   }
-  if (event === "ANSWERED") return { leadId: null, leadNumber: null, name: existingCustomer?.name ?? null, created: false };
+  if (event === "ANSWERED" || opts.noCreate) return { leadId: null, leadNumber: null, name: existingCustomer?.name ?? null, created: false };
 
   const leadNumber = await generateLeadNumber();
   const lead = await db.lead.create({
@@ -62,7 +71,7 @@ export async function recordCallLead(
   await db.followUp
     .create({ data: { leadId: lead.id, dueDate: new Date(Date.now() + 15 * 60 * 1000), type: "CALL", priority: "HIGH", notes: "Missed call — call back" } })
     .catch(() => {});
-  await addTimelineEntry({ leadId: lead.id, type: "CALL", body: "Missed call received — lead auto-created" }).catch(() => {});
+  await addTimelineEntry({ leadId: lead.id, type: "CALL", body: "Missed call received — lead auto-created", meta: details.externalId ? { externalId: details.externalId, source: "call-trigger" } : null }).catch(() => {});
   await notify({
     kind: "NEW_INQUIRY",
     title: `📞 Missed call — ${existingCustomer?.name || mobile}`,

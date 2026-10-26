@@ -51,7 +51,7 @@ test("auto-reply plan: festival notice for every caller; missed-call reply other
   const fest = planAutoReply({ event: "ANSWERED", caller: "9876543210", now: NOW, festivalFullUntil: "2026-11-05" })!;
   assert.equal(fest.template, "festival_booking_full_notice");
   assert.deepEqual(fest.bodyParams, ["5 Nov 2026", "6 Nov 2026"]);
-  assert.match(fest.preview, /100% booked until 5 Nov 2026/);
+  assert.match(fest.preview, /fully booked until 5 Nov 2026\. We are accepting new bookings from 6 Nov 2026 onwards/); // wording of 2026-10-26 (post-call branding)
   assert.match(fest.sms, /saharacleaningservices\.com\/booking/);
   assert.ok(fest.sms.length <= 306, "fits 2 SMS segments");
   assert.ok(/^[\x20-\x7E]+$/.test(fest.sms), "GSM-safe ASCII only");
@@ -74,12 +74,12 @@ test("call templates: UTILITY, placeholders match examples, Book Now → booking
     assert.ok(t, name);
     assert.equal(t.category, "UTILITY");
     assert.equal(placeholderCount(t), t.examples.length);
-    assert.equal(t.buttons!.find((b) => b.text === "Book Now" && b.type === "URL")!.type === "URL" && (t.buttons!.find((b) => b.text === "Book Now") as { url: string }).url, "https://saharacleaningservices.com/booking");
+    assert.equal(t.buttons!.find((b) => b.text === "Book Now" && b.type === "URL")!.type === "URL" && (t.buttons!.find((b) => b.text === "Book Now") as { url: string }).url, "https://booking.saharacleaningservices.com/booking"); // call messages link the booking host directly (owner 2026-10-26)
     assert.ok(t.buttons!.filter((b) => b.type === "URL").length <= 2);
     assert.ok((t.footer ?? "").length <= 60);
     assert.ok(t.body.length <= 1024);
   }
-  assert.match(templateByName("festival_booking_full_notice")!.body, /4\.9★ by 1,800\+ customers on Google · GSTIN 27DMTPS3584R2ZJ/);
+  assert.match(templateByName("festival_booking_full_notice")!.body, /4\.9★ by 1,800\+ customers on Google[\s\S]*GSTIN 27DMTPS3584R2ZJ/);
 });
 
 test("chatbot: greeting triggers, 4 menu rows within Meta limits, every reply links to the booking target", () => {

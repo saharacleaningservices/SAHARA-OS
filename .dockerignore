@@ -9,3 +9,4 @@ dev.db.wiped-check
 dev.db.*-test
 dev.db.*-check
 backups/
+android/

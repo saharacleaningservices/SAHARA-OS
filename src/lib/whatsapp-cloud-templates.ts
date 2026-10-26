@@ -15,7 +15,7 @@
 
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { FIXED_PROFILES } from "@/lib/social-links";
-import { CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
+import { CALL_BOOKING_URL, CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
 import { COMPANY } from "@/lib/constants";
 
 export type TemplateButton =
@@ -484,11 +484,11 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     language: "en",
     purpose: "Reply to every caller while festival slots are full (FESTIVAL_FULL_UNTIL): booked till {{1}}, book from {{2}}",
     body:
-      `Hello, thank you for calling Sahara Cleaning Services. Due to the festival rush, all our cleaning slots are 100% booked until {{1}}. Bookings for {{2}} onwards are open now — tap Book Now to reserve your preferred date and slot.\n\nRated ${TRUST.rating}★ by ${TRUST.reviewLabel} customers on Google · GSTIN ${COMPANY.gstin}`,
+      `Hello, thank you for calling Sahara Cleaning Services.\n\n🎉 Festival rush: all our slots are fully booked until {{1}}. We are accepting new bookings from {{2}} onwards.\n\n📅 Book your slot: ${CALL_BOOKING_URL}\n\n⭐ Rated ${TRUST.rating}★ by ${TRUST.reviewLabel} customers on Google\n🌐 www.saharacleaningservices.com\n📸 instagram.com/saharacleaningservices.pune\n\nGSTIN ${COMPANY.gstin}`,
     footer: "Instagram & Facebook: @saharacleaningservices",
     examples: ["5 Nov 2026", "6 Nov 2026"],
     buttons: [
-      { type: "URL", text: "Book Now", url: CUSTOMER_BOOKING_URL },
+      { type: "URL", text: "Book Now", url: CALL_BOOKING_URL },
       { type: "URL", text: "Google Reviews", url: GOOGLE_REVIEW_URL },
       { type: "PHONE_NUMBER", text: "Call Us", phone: "+918956567130" },
     ],
@@ -503,7 +503,7 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     footer: `Rated ${TRUST.rating}★ on Google · Serving Pune since ${TRUST.since}`,
     examples: ["Priya"],
     buttons: [
-      { type: "URL", text: "Book Now", url: CUSTOMER_BOOKING_URL },
+      { type: "URL", text: "Book Now", url: CALL_BOOKING_URL },
       { type: "PHONE_NUMBER", text: "Call Us", phone: "+918956567130" },
     ],
   },

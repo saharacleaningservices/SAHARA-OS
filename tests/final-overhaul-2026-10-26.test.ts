@@ -64,7 +64,7 @@ test("call details: talk time and an http(s) recording link are read from common
 });
 
 test("call recordings: the call-trigger route passes them to the lead timeline, which plays CALL entries with audio", () => {
-  assert.ok(read("src/app/api/v1/webhooks/call-trigger/route.ts").includes("recordCallLead(caller, event, callDetailsFrom(payload))"));
+  assert.ok(read("src/app/api/v1/webhooks/call-trigger/route.ts").includes("...callDetailsFrom(payload)"));
   assert.ok(read("src/server/call-lead.ts").includes("audioUrl: details.recordingUrl ?? null"));
   assert.ok(read("src/components/leads/conversation-timeline.tsx").includes('e.type === "CALL" && e.audioUrl'));
 });

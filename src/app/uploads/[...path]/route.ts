@@ -21,6 +21,7 @@ const PRIVATE_FOLDERS: Record<string, string[]> = {
   "staff-docs": ["ADMIN", "ACCOUNTS"], // staff KYC documents
   invoices: ["ADMIN", "ACCOUNTS"], // payment / invoice attachments
   voice: OFFICE, // lead voice notes
+  "call-recordings": OFFICE, // customer call audio from the Helper app (private, never cached)
   signatures: OFFICE, // customer signatures (PDFs read them from disk, not over HTTP)
 };
 
