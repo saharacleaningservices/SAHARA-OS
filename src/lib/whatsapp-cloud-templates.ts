@@ -15,6 +15,8 @@
 
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { FIXED_PROFILES } from "@/lib/social-links";
+import { CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
+import { COMPANY } from "@/lib/constants";
 
 export type TemplateButton =
   | { type: "URL"; text: string; url: string; example?: string }
@@ -453,12 +455,12 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     name: "sahara_rebook_reminder_v1",
     category: "MARKETING",
     language: "en",
-    purpose: "Re-booking reminder 6 / 12 months after a deep-cleaning service (opt-in contacts only)",
+    purpose: "Re-booking reminder 3 / 6 / 12 months after a deep-cleaning service (opt-in contacts only)",
     body:
       "Hi {{1}}, it has been {{2}} since your {{3}} with Sahara Cleaning Services. A fresh deep clean keeps your home healthy and hygienic. Tap below to book your next service.\n\nReply STOP to opt out.",
     examples: ["Priya", "6 months", "Home Deep Cleaning"],
     buttons: [
-      { type: "URL", text: "Book Now", url: `${PUBLIC_BOOKING_URL}/booking` },
+      { type: "URL", text: "Book Now", url: CUSTOMER_BOOKING_URL },
       { type: "PHONE_NUMBER", text: "Call Helpline", phone: "+917083347130" },
     ],
   },
@@ -472,6 +474,38 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
       "Hi {{1}}, a friendly reminder that invoice {{2}} for ₹{{3}} (due {{4}}) is still pending. Please pay by UPI to 7083347130 or call us if it is already paid. Thank you for your business.",
     examples: ["Acme Traders", "SC/SL/26-27/1501", "11,800", "05 Oct 2026"],
     buttons: [{ type: "PHONE_NUMBER", text: "Call Helpline", phone: "+917083347130" }],
+  },
+  // ── Owner 2026-10-26: call auto-responder (POST /api/v1/webhooks/call-trigger). Customer-initiated (they just called us),
+  // so both are submitted as UTILITY; Meta may re-categorise the festival notice — its decision wins.
+  {
+    key: "call1",
+    name: "festival_booking_full_notice",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Reply to every caller while festival slots are full (FESTIVAL_FULL_UNTIL): booked till {{1}}, book from {{2}}",
+    body:
+      `Hello, thank you for calling Sahara Cleaning Services. Due to the festival rush, all our cleaning slots are 100% booked until {{1}}. Bookings for {{2}} onwards are open now — tap Book Now to reserve your preferred date and slot.\n\nRated ${TRUST.rating}★ by ${TRUST.reviewLabel} customers on Google · GSTIN ${COMPANY.gstin}`,
+    footer: "Instagram & Facebook: @saharacleaningservices",
+    examples: ["5 Nov 2026", "6 Nov 2026"],
+    buttons: [
+      { type: "URL", text: "Book Now", url: CUSTOMER_BOOKING_URL },
+      { type: "URL", text: "Google Reviews", url: GOOGLE_REVIEW_URL },
+      { type: "PHONE_NUMBER", text: "Call Us", phone: "+918956567130" },
+    ],
+  },
+  {
+    key: "call2",
+    name: "missed_call_auto_responder",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Missed-call reply with the direct booking link",
+    body: "Hello {{1}}, we missed your call to Sahara Cleaning Services. Our team will call you back shortly. To book faster, tap Book Now to choose your service, date and an available slot.",
+    footer: `Rated ${TRUST.rating}★ on Google · Serving Pune since ${TRUST.since}`,
+    examples: ["Priya"],
+    buttons: [
+      { type: "URL", text: "Book Now", url: CUSTOMER_BOOKING_URL },
+      { type: "PHONE_NUMBER", text: "Call Us", phone: "+918956567130" },
+    ],
   },
 ];
 

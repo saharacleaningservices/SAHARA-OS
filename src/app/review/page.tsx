@@ -25,5 +25,5 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
     }
   }
   const settings = await db.companySettings.findUnique({ where: { id: "default" }, select: { googleReviewUrl: true } }).catch(() => null);
-  return <ReviewFunnel name={name} serviceKey={reviewServiceOf(service)} serviceLabel={service ? (SERVICE_LABELS[service] ?? null) : null} reviewUrl={settings?.googleReviewUrl || GOOGLE_REVIEW_URL} />;
+  return <ReviewFunnel name={name} serviceKey={reviewServiceOf(service)} serviceLabel={service ? (SERVICE_LABELS[service] ?? null) : null} reviewUrl={settings?.googleReviewUrl || GOOGLE_REVIEW_URL} token={t ?? null} code={c ?? null} />;
 }

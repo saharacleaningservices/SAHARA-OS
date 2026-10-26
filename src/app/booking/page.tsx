@@ -3,7 +3,8 @@ import { customerNumberFor } from "@/server/customer-db";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
-import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd } from "@/components/public/landing-kit";
+import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, breadcrumbBookingJsonLd, Faqs } from "@/components/public/landing-kit";
+import { nearMeFaqs, SCHEMA_MICRO_LOCATIONS } from "@/lib/seo-schema";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -22,7 +23,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   // Festival mention only while the Settings → Pricing campaign runs (same windows as the prices).
   const festivals = campaignFestivalNames(pricing.festivals, todayIST());
   return {
-    title: "Book Professional Cleaning in Pune & PCMC – Available Slots | Sahara Cleaning Services",
+    title: "Cleaning Services Near Me in Pune – Book Deep Cleaning Slots | Sahara Cleaning Services",
     description: `Book home cleaning, commercial cleaning, pest control and interior painting across Pune & PCMC: transparent prices, real available slots, pay advance or after service.${festivals ? ` Festival cleaning slots for ${festivals.replace(/ • (?=[^•]*$)/, " and ").replace(/ • /g, ", ")}.` : ""}`,
     alternates: { canonical: `${BASE_URL}/booking` },
     robots: quote ? { index: false, follow: false } : undefined,
@@ -75,7 +76,7 @@ export default async function BookingPage({
 
   return (
     // On a quotation link, Book Now scrolls to the wizard on THIS page (keeps ?quote=).
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} {...(quote ? { bookHref: "#book" } : {})}>
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={quote ? [businessJsonLd()] : [businessJsonLd(), faqJsonLd(nearMeFaqs()), breadcrumbBookingJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} {...(quote ? { bookHref: "#book" } : {})}>
       <Hero
         {...(quote ? { bookHrefOverride: "#book" } : {})}
         image={CAROUSEL.home.src}
@@ -86,6 +87,7 @@ export default async function BookingPage({
         title={quote ? `Book your service, ${quote.customerName.split(" ")[0]}` : "Pune's Most Trusted Cleaning Service Provider — Residential & Commercial"}
         subtitle={quote ? "Pick a date, an available time slot and your payment preference." : "Verified Staff | Transparent Pricing | Pay After Service"}
         primaryLabel="Choose Date & Slot"
+        variant="booking"
         primaryHref="#book"
         waText={WA}
       />
@@ -112,6 +114,19 @@ export default async function BookingPage({
             paymentDetails={paymentDetailsFrom(settings)}
           />
         </section>
+        {!quote && (
+          <>
+            {/* Local SEO / AI-search block (owner 2026-10-26): one H2 per intent, real text, matches the FAQ JSON-LD. */}
+            <section aria-labelledby="near-me" className="rounded-3xl bg-white p-5 shadow-sm">
+              <h2 id="near-me" className="text-lg font-bold">Cleaning services near you in Pune &amp; PCMC</h2>
+              <p className="mt-1 text-sm text-[#0a2540]/75">Home deep cleaning, office and commercial cleaning, housekeeping contracts, pest control and interior painting — trained in-house teams from our Magarpatta City base.</p>
+              <ul className="mt-3 flex flex-wrap gap-1.5 text-xs font-semibold">
+                {SCHEMA_MICRO_LOCATIONS.map((a) => <li key={a} className="rounded-full bg-[#eef4fb] px-2.5 py-1 text-[#0a2540]">{a}</li>)}
+              </ul>
+            </section>
+            <Faqs faqs={nearMeFaqs()} compact />
+          </>
+        )}
       </main>
     </LandingShell>
   );

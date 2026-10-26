@@ -119,19 +119,20 @@ export function PaymentBlock(p: PaymentBlockProps) {
           .map(([label, v]) => (
             <View key={label} style={{ flexDirection: "row", marginBottom: z(1.5) }}>
               <Text style={{ width: z(62), fontFamily: FONT.medium, fontSize: z(7.8), color: INK }}>{label}</Text>
-              <Text style={{ flexShrink: 1, fontSize: z(7.8), color: MUTED }}>{v}</Text>
+              <Text style={{ flexShrink: 1, flexGrow: 1, fontSize: z(7.8), color: MUTED }}>{v}</Text>
             </View>
           ))}
-        <Text style={{ fontSize: z(6.8), color: MUTED, marginTop: z(2) }}>Please share the payment screenshot on WhatsApp after paying.</Text>
+        <Text style={{ fontSize: z(6.8), color: MUTED, marginTop: z(2), lineHeight: 1.3 }}>Please share the payment screenshot on WhatsApp after paying.</Text>
       </View>
       {p.qrDataUrl ? (
-        <View style={{ alignItems: "center" }}>
+        // Fixed-width QR column (2026-10-26): the instruction lines word-wrap under the code and can never push it out of the box.
+        <View style={{ width: 104, flexShrink: 0, alignItems: "center" }}>
           {/* Fixed 84 pt (≈3 cm) whatever the page scale, on a white quiet zone — scannable from print and screen. */}
           <Image src={p.qrDataUrl} style={{ width: 84, height: 84, backgroundColor: "#ffffff", borderWidth: 1, borderColor: "#cbd5e1", borderRadius: 4, padding: 3 }} />
-          <Text style={{ fontFamily: FONT.bold, fontSize: z(7.5), color: BRAND_BLUE, marginTop: z(2) }}>
+          <Text style={{ width: 104, fontFamily: FONT.bold, fontSize: z(7.5), color: BRAND_BLUE, marginTop: z(2), textAlign: "center" }}>
             Scan & Pay{p.amount ? ` ${inr(p.amount)}` : ""}
           </Text>
-          <Text style={{ fontSize: z(6.2), color: MUTED }}>Any UPI app</Text>
+          <Text style={{ width: 104, fontSize: z(6.2), color: MUTED, textAlign: "center", lineHeight: 1.25 }}>GPay · PhonePe · Paytm · BHIM or any UPI app — amount fills in automatically</Text>
         </View>
       ) : null}
     </View>

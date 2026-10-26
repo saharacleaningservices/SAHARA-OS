@@ -22,10 +22,23 @@ test("business JSON-LD: NAP from the single CONTACT source, geo, map, services, 
   assert.deepEqual(j.sameAs, ["https://example.test/profile"]);
 });
 
-test("business JSON-LD carries no prices and no self-published ratings", () => {
-  const s = JSON.stringify(buildBusinessJsonLd());
-  for (const key of ["price", "priceRange", "aggregateRating", "review", "ratingValue"]) assert.ok(!s.includes(`"${key}"`), `unexpected ${key}`);
+test("business JSON-LD carries no prices; rating is the public GBP figure (owner 2026-10-26)", () => {
+  const j = buildBusinessJsonLd() as Record<string, unknown> & { aggregateRating: { ratingValue: string; ratingCount: number } };
+  const s = JSON.stringify(j);
+  for (const key of ["price", "priceRange", "review"]) assert.ok(!s.includes(`"${key}"`), `unexpected ${key}`);
   assert.ok(!/₹|\bbest\b|\btop\b|#1/i.test(s), "no prices or superlative claims");
+  assert.equal(j.aggregateRating.ratingValue, "4.9");
+  assert.equal(j.aggregateRating.ratingCount, 1800);
+});
+
+test("business JSON-LD: GSTIN, three contact points (primary, GMB, WhatsApp API), owner micro-locations, booking action", () => {
+  const j = buildBusinessJsonLd() as Record<string, unknown> & { contactPoint: { telephone: string }[]; areaServed: { name: string }[]; potentialAction: { target: { urlTemplate: string } } };
+  assert.equal(j.taxID, "27DMTPS3584R2ZJ");
+  assert.deepEqual(j.contactPoint.map((c) => c.telephone), ["+918956567130", "+917083347130", "+919175220270"]);
+  const names = j.areaServed.map((a) => a.name);
+  for (const a of ["Magarpatta City", "Kharadi", "Wakad", "Baner", "Hadapsar", "Viman Nagar", "Hinjewadi", "Kothrud", "Aundh", "Undri", "Kondhwa", "Koregaon Park", "Shivajinagar"]) assert.ok(names.includes(`${a}, Pune`), a);
+  assert.equal(new Set(names).size, names.length, "no duplicate areas");
+  assert.equal(j.potentialAction.target.urlTemplate, "https://saharacleaningservices.com/booking");
 });
 
 test("page-specific extras still merge in (package offers on the home-cleaning pages)", () => {

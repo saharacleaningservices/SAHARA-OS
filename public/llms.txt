@@ -6,11 +6,15 @@
 - Name: Sahara Cleaning Services
 - Location: Opposite South Gate, Magarpatta City, Hadapsar, Pune 411028, Maharashtra, India
 - Service area: Pune and Pimpri-Chinchwad (PCMC)
-- Phone: +91 70833 47130, +91 89565 67130
+- Primary phone: +91 89565 67130
+- Magarpatta City branch / Google Business Profile phone: +91 70833 47130
+- WhatsApp booking assistant (messages only): +91 91752 20270
+- GSTIN: 27DMTPS3584R2ZJ
+- Google rating: 4.9 out of 5 from 1,800+ Google reviews
 - E-mail: contact@saharacleaningservices.com
 - Founded: 2012
 - Website: https://www.saharacleaningservices.com
-- Online booking: https://booking.saharacleaningservices.com/booking
+- Online booking: https://saharacleaningservices.com/booking (also https://booking.saharacleaningservices.com/booking)
 - Google Maps: https://www.google.com/maps/place/Sahara+Cleaning+Services/@18.5082466,73.9298453,17z
 
 ## Services (each page lists current packages and prices)
@@ -32,10 +36,14 @@
 - [All Pune areas](https://booking.saharacleaningservices.com/pune)
 - East Pune: Magarpatta City, Hadapsar, Kharadi, Viman Nagar, Wagholi, Undri, NIBM Road, Kondhwa, Koregaon Park, Kalyani Nagar
 - West Pune: Baner, Wakad, Hinjewadi, Aundh
-- Central Pune: Kothrud
+- Central Pune: Kothrud, Shivajinagar
 - Pimpri-Chinchwad (PCMC)
 - Area page address pattern: https://booking.saharacleaningservices.com/pune/<area> (for example /pune/kharadi, /pune/hinjewadi, /pune/pcmc)
 - Office cleaning and housekeeping AMC are quoted in writing after a site visit; use the proposal form on the area page or call the numbers above.
+
+## Cleaning services near me (Pune)
+- People searching "cleaning services near me" in Magarpatta City, Kharadi, Wakad, Baner, Hadapsar, Viman Nagar, Hinjewadi, PCMC, Kothrud, Aundh, Undri, Kondhwa, Koregaon Park or Shivajinagar are inside Sahara's regular service area.
+- Services: home deep cleaning, office and commercial cleaning, post-construction cleaning, glass and facade cleaning, housekeeping contracts (AMC), pest control and interior painting.
 
 ## How booking works
 - Choose a service and package, pick a date and an available time slot, and choose to pay an advance or pay after the service.

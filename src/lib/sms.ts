@@ -27,7 +27,7 @@ export async function isSmsReady(): Promise<boolean> {
   return Boolean(sms?.apiKey && sms?.endpoint);
 }
 
-async function deliver(to: string, body: string): Promise<{ ok: boolean; error?: string }> {
+async function deliver(to: string, body: string, dltTemplateId?: string | null): Promise<{ ok: boolean; error?: string }> {
   const { sms } = await getResolvedIntegrations();
   if (!sms?.apiKey || !sms?.endpoint) return { ok: false, error: "SMS gateway not configured" };
   try {
@@ -41,6 +41,9 @@ async function deliver(to: string, body: string): Promise<{ ok: boolean; error?:
         recipients: [{ mobiles: to }],
         message: body,
         sms: [{ message: body, to: [to] }],
+        // India DLT: the registered content-template id (MSG91 reads DLT_TE_ID, Fast2SMS template_id) and principal entity id.
+        ...(dltTemplateId ? { DLT_TE_ID: dltTemplateId, template_id: dltTemplateId } : {}),
+        ...(process.env.DLT_ENTITY_ID ? { PE_ID: process.env.DLT_ENTITY_ID, entity_id: process.env.DLT_ENTITY_ID } : {}),
       }),
     });
     if (!res.ok) return { ok: false, error: `HTTP ${res.status} ${await res.text().catch(() => "")}`.slice(0, 300) };
@@ -59,6 +62,8 @@ export async function sendSMS(input: {
   relatedId?: string;
   /** OTPs: the log row keeps a redacted body and is never re-sent by flushSmsQueue (a stale code is useless). */
   sensitive?: boolean;
+  /** DLT content-template id registered for this exact text (Indian operators drop unregistered promotional/transactional SMS). */
+  dltTemplateId?: string | null;
 }) {
   const to = normalize(input.toNumber);
   const row = await db.smsMessage.create({
@@ -78,7 +83,7 @@ export async function sendSMS(input: {
     return { queued: !input.sensitive, sent: false, id: row.id };
   }
 
-  const r = await deliver(to, input.body);
+  const r = await deliver(to, input.body, input.dltTemplateId);
   await db.smsMessage.update({
     where: { id: row.id },
     data: {

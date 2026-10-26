@@ -16,6 +16,7 @@
     "test:pricing": "tsx --test tests/pricing.test.ts",
     "test:b2b": "tsx --test tests/b2b-proposal.test.ts",
     "test:geo": "tsx --test tests/geo-schema.test.ts",
+    "test:automation": "tsx --test tests/automation-2026-10-26.test.ts",
     "test:domains": "tsx --test tests/booking-host.test.ts",
     "test:roles": "tsx --test tests/role-permissions.test.ts",
     "test:cache": "tsx --test tests/static-cache.test.ts",

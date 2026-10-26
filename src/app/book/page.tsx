@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { businessJsonLd } from "@/components/public/landing-kit";
 import { FooterSocial } from "@/components/public/footer-social";
 import Image from "next/image";
 import Link from "next/link";
@@ -149,6 +150,7 @@ export default async function PublicBookingPage({
 
   return (
     <div id="top" className="min-h-screen bg-[#eef4fb] pb-20 lg:pb-0">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd()) }} />
       {/* Meta Pixel (Phase 6 readiness) — loads only when NEXT_PUBLIC_META_PIXEL_ID
           is set; renders nothing until a real Pixel exists in Meta Events
           Manager. See SAHARA_OS_META_READINESS.md. */}
