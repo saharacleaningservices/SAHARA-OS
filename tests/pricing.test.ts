@@ -740,7 +740,8 @@ test("/booking UI: new headline + stacked numbers, price line without service na
   assert.match(kit, /w-\[88px\][\s\S]*w-\[88px\]/, "Call + WhatsApp buttons share one width");
   for (const id of ["ft-location", "ft-services", "ft-trust"]) assert.ok(kit.includes(id), `footer block ${id}`);
   for (const frag of ["mailto:${CONTACT.email}", "Serving Pune Since 2012", "COMPANY.gstin", "/privacy-policy", "/terms"]) assert.ok(kit.includes(frag), frag);
-  for (const href of ["/home-deep-cleaning-pune#price-selector", "/commercial-cleaning-pune", "/interior-painting-pune", "/pest-control-pune", "/housekeeping-services"]) assert.ok(kit.includes(href), `footer link ${href}`);
+  // Owner 2026-10-26: footer service links are booking intents → /booking with the service pre-selected (housekeeping → its landing page).
+  for (const href of ["/booking?service=home#book", "/booking?service=commercial#book", "/booking?service=painting#book", "/booking?service=pest#book", "/housekeeping-services"]) assert.ok(kit.includes(href), `footer link ${href}`);
 });
 
 test("Google Ads landing pages (/landing/*): 4 isolated single-service routes with a hero lead form, UTM capture, tracking, sticky bar and clean footer", async () => {

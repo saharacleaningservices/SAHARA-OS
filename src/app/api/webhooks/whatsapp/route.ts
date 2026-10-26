@@ -17,13 +17,13 @@ import { getCompanySettings } from "@/server/settings";
 import { GALLERY_PUBLIC_URL } from "@/lib/gallery";
 import { moreOptionsListMessage } from "@/lib/whatsapp-templates";
 import { COMPANY } from "@/lib/constants";
-import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { generateLeadNumber } from "@/lib/id-generators";
 import { addTimelineEntry } from "@/server/timeline";
 import { notify } from "@/server/notify";
 import { answerWhatsApp, HANDOFF_ACK } from "@/server/whatsapp-ai";
 import { setConversationMode } from "@/server/whatsapp-access";
 import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "@/lib/whatsapp-keywords";
+import { botMenu, botReply, isBotRow, isBotTrigger, NEW_ENQUIRY_OPENING } from "@/lib/whatsapp-chatbot";
 
 // Grounded AI assistant — off unless explicitly enabled.
 const AI_ENABLED = process.env.WHATSAPP_AI_ENABLED === "on";
@@ -289,6 +289,11 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
         });
       } else if (MORE_OPTIONS_KEYWORDS.test(body)) {
         await sendMoreOptionsList(m.from, m.id);
+      } else if (body && isBotTrigger(body) && !AI_ENABLED) {
+        // In-house booking chatbot (owner 2026-10-26): greetings / "price" / "book" get the service menu.
+        // The enquiry is still logged (lead / timeline) — without the plain acknowledgement, the menu is the reply.
+        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { silent: true });
+        await sendBotMenu(m.from, m.id);
       } else if (body) {
         // Any other free-text inbound message is a genuine new inquiry
         // (Phase 7 CRM automation trigger, 2026-09-21: "WhatsApp inquiry").
@@ -299,6 +304,13 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
         await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral));
         await aiRespond(m.from, body);
       }
+      return;
+    }
+
+    const tapped = m.interactive?.list_reply?.id || m.interactive?.button_reply?.id;
+    if (m.type === "interactive" && isBotRow(tapped)) {
+      const reply = botReply(tapped!);
+      if (reply) await sendWhatsApp({ kind: "OTHER", toNumber: m.from, body: reply, relatedType: "WhatsAppChatbot", relatedId: m.id });
       return;
     }
 
@@ -412,7 +424,15 @@ const isUniqueViolation = (e: unknown, field: string) => {
  *     win and the other becomes a timeline note on the winner.
  * Existing leads and jobs are never modified (only notes are added).
  */
-async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null) {
+/** Chatbot service menu — skipped while a human has taken over the conversation in the WhatsApp Inbox. */
+async function sendBotMenu(toNumber: string, messageId?: string, opening?: string) {
+  const conv = await db.whatsAppConversation.findUnique({ where: { number: toNumber.replace(/\D/g, "") } }).catch(() => null);
+  if (conv && conv.mode === "HUMAN") return null;
+  const menu = botMenu(opening);
+  return sendWhatsAppInteractiveList({ kind: "OTHER", toNumber, bodyText: menu.bodyText, buttonLabel: menu.buttonLabel, rows: menu.rows, relatedType: "WhatsAppChatbot", relatedId: messageId });
+}
+
+async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean } = {}) {
   const mobile = last10Digits(from);
   if (mobile.length !== 10) return;
   const adLine = ad ? ` · ${describeCtwa(ad)}` : "";
@@ -496,15 +516,10 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
     href: `/leads/${lead.id}`,
   }).catch(() => {});
 
-  // When the grounded AI assistant is on, it answers instead (no double reply).
-  if (AI_ENABLED) return;
-  await sendWhatsApp({
-    kind: "OTHER",
-    toNumber: from,
-    body: `Thanks for reaching out to ${COMPANY.name}! Our team will get back to you shortly. Meanwhile, you can book directly here: ${PUBLIC_BOOKING_URL}/booking`,
-    relatedType: "Lead",
-    relatedId: lead.id,
-  });
+  // When the grounded AI assistant is on, it answers instead (no double reply); a chatbot trigger sends its own menu.
+  if (AI_ENABLED || opts.silent) return;
+  // Owner 2026-10-26: the acknowledgement IS the chatbot menu (one message): thanks + 4 services → direct booking links.
+  await sendBotMenu(from, undefined, NEW_ENQUIRY_OPENING);
 }
 
 /**

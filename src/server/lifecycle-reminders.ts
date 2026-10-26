@@ -29,7 +29,7 @@ export type PaymentCandidate = { invoiceKey: string; invoiceNo: string; customer
 
 const shortDate = (d: Date) => d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
 
-/** Customers whose last deep-cleaning service is 6 / 12 months old, with no later booking or enquiry, opted in, not yet reminded. */
+/** Customers whose last deep-cleaning service is 3 / 6 / 12 months old, with no later booking or enquiry, opted in, not yet reminded. */
 export async function collectRebook(now = new Date()): Promise<RebookCandidate[]> {
   const horizon = new Date(now.getTime() - 13 * 31 * 24 * 3600 * 1000);
   const [jobs, history] = await Promise.all([

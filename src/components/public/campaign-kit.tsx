@@ -122,12 +122,14 @@ export function CampaignBar({ label, price, mrp, priceNote, cta = "Lock Slot (Pa
   );
 }
 
-const FOOTER_COLUMNS: { title: string; href?: string; items: string[] }[] = [
-  { title: "Home Cleaning", href: "/home-deep-cleaning-pune", items: ["Full Home Deep Cleaning", "Post-Interior Cleaning", "Move-In / Move-Out", "Sofa & Carpet", "Kitchen & Bathroom"] },
-  { title: "Painting Services", href: "/interior-painting-pune", items: ["Interior Painting", "Exterior Painting", "Waterproofing", "Rental Repaint", "Texture Painting"] },
-  { title: "Pest Control", href: "/pest-control-pune", items: ["Cockroach Control", "Bed Bugs", "Termite Drill-Fill", "Rodent Control", "AMC Plans"] },
-  { title: "Commercial Cleaning", href: "/commercial-cleaning-pune", items: ["Office Deep Cleaning", "Glass Partition Cleaning", "Floor Scrubbing", "Restaurant / Shop Cleaning"] },
-  { title: "Facility Management", items: ["Corporate Housekeeping", "Society Housekeeping", "Security Guard Services", "Manpower Augmentation"] },
+// Owner 2026-10-26: every service heading is a booking intent → /booking with the service pre-selected; the service
+// landing page stays linked underneath ("Prices & details") for internal SEO linking.
+const FOOTER_COLUMNS: { title: string; href: string; info?: string; items: string[] }[] = [
+  { title: "Home Cleaning", href: "/booking?service=home#book", info: "/home-deep-cleaning-pune", items: ["Full Home Deep Cleaning", "Post-Interior Cleaning", "Move-In / Move-Out", "Sofa & Carpet", "Kitchen & Bathroom"] },
+  { title: "Painting Services", href: "/booking?service=painting#book", info: "/interior-painting-pune", items: ["Interior Painting", "Exterior Painting", "Waterproofing", "Rental Repaint", "Texture Painting"] },
+  { title: "Pest Control", href: "/booking?service=pest#book", info: "/pest-control-pune", items: ["Cockroach Control", "Bed Bugs", "Termite Drill-Fill", "Rodent Control", "AMC Plans"] },
+  { title: "Commercial Cleaning", href: "/booking?service=commercial#book", info: "/commercial-cleaning-pune", items: ["Office Deep Cleaning", "Glass Partition Cleaning", "Floor Scrubbing", "Restaurant / Shop Cleaning"] },
+  { title: "Facility Management", href: "/housekeeping-services", items: ["Corporate Housekeeping", "Society Housekeeping", "Security Guard Services", "Manpower Augmentation"] },
 ];
 
 export function CampaignFooter({ logoUrl, waText }: { logoUrl?: string | null; waText: string }) {
@@ -137,12 +139,9 @@ export function CampaignFooter({ logoUrl, waText }: { logoUrl?: string | null; w
         <nav aria-label="Services" className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 lg:grid-cols-5">
           {FOOTER_COLUMNS.map((c) => (
             <div key={c.title}>
-              {c.href ? (
-                <Link href={c.href} className="text-xs font-bold uppercase tracking-wide text-[#0a2540] hover:text-primary">{c.title}</Link>
-              ) : (
-                <p className="text-xs font-bold uppercase tracking-wide text-[#0a2540]">{c.title}</p>
-              )}
+              <Link href={c.href} className="text-xs font-bold uppercase tracking-wide text-[#0a2540] hover:text-primary">{c.title} →</Link>
               <ul className="mt-1.5 space-y-0.5 text-[13px]">{c.items.map((i) => <li key={i}>{i}</li>)}</ul>
+              {c.info && <Link href={c.info} className="mt-1 inline-flex min-h-8 items-center text-[12px] font-semibold text-primary hover:underline">Prices &amp; details</Link>}
             </div>
           ))}
         </nav>

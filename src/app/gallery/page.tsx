@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Phone } from "lucide-react";
-import { BASE_URL } from "@/components/public/landing-kit";
+import { BASE_URL, businessJsonLd } from "@/components/public/landing-kit";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -50,6 +50,7 @@ export default async function PublicGalleryPage() {
 
   return (
     <div className="min-h-screen bg-[#eef4fb] pb-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd()) }} />
       <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
           <Link href="/book"><CompanyLogo logoUrl={settings.logoUrl} className="h-[42px] w-auto max-w-[170px]" showTm /></Link>

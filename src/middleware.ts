@@ -14,7 +14,7 @@ import {
 // middleware already always lets through. Everything else must never be
 // reachable from booking.* (2026-09-22 domain-split master prompt: "Do not
 // expose internal CRM routes through the public booking domain").
-const BOOKING_HOST_ALLOWED_PREFIXES = ["/robots.txt", "/sitemap.xml", "/llms.txt", "/book","/review","/connect","/q/", "/i/", "/p/", "/b/","/offers", "/home-deep-cleaning-pune", "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/residential-cleaning", "/commercial-cleaning", "/painting-services", "/pest-control", "/housekeeping-services", "/pune", "/landing", "/marketing/", "/j/", "/gallery", "/privacy-policy", "/terms", "/data-deletion", "/api/booking-link", "/api/meta/capi", "/api/webhook"];
+const BOOKING_HOST_ALLOWED_PREFIXES = ["/robots.txt", "/sitemap.xml", "/llms.txt", "/book","/review","/connect","/q/", "/i/", "/p/", "/b/","/offers", "/home-deep-cleaning-pune", "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/residential-cleaning", "/commercial-cleaning", "/painting-services", "/pest-control", "/housekeeping-services", "/pune", "/landing", "/marketing/", "/j/", "/gallery", "/privacy-policy", "/terms", "/data-deletion", "/api/booking-link", "/api/meta/capi", "/api/webhook", "/api/v1/webhooks"];
 
 // /api/backup and /api/cron do their own bearer-token auth (see
 // src/app/api/backup/route.ts and src/app/api/cron/reminders/route.ts).
@@ -53,6 +53,7 @@ const PUBLIC_PATHS = [
   "/api/booking-link",
   "/api/meta/capi",
   "/api/webhook",
+  "/api/v1/webhooks", // call-trigger auto-responder: own Bearer-token auth, fails closed when unset
   "/api/public", // public REST API for the marketing website: does its own Bearer + HMAC auth, inert (404) until configured
   "/robots.txt",
   "/sitemap.xml",

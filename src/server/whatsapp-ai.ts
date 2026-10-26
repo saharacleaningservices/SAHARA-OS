@@ -1,5 +1,5 @@
 import { PRICING_MASTER, PRICING_NOTICE, pricesIn, priceLabel, HOME_FROM_PRICE } from "@/lib/pricing-master";
-import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
+import { CUSTOMER_BOOKING_URL } from "@/lib/booking-target";
 
 // Grounded WhatsApp assistant (Sahara Marketing number). Deterministic by
 // design: every answer is assembled ONLY from the pricing master, the
@@ -12,7 +12,7 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 // the team). Only runs when WHATSAPP_AI_ENABLED=on AND the conversation is in
 // AI mode AND auto-replies are allowed (see the webhook).
 
-const BOOK = `${PUBLIC_BOOKING_URL}/booking`;
+const BOOK = CUSTOMER_BOOKING_URL; // single booking target for every auto-responder (owner 2026-10-26)
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 export type AiResult = { reply: string; handoff?: undefined } | { handoff: string; reply?: string };

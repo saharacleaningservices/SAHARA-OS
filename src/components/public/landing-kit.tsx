@@ -2,7 +2,7 @@ import Link from "next/link";
 import { socialProfileUrls } from "@/lib/social-links";
 import { FooterSocial } from "@/components/public/footer-social";
 import type { ReactNode } from "react";
-import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe } from "lucide-react";
+import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe, ShieldCheck, Star, CalendarCheck } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AreasMapBlock } from "@/components/public/areas-map-block";
@@ -25,6 +25,7 @@ import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, h
 import { toWhatsAppLink } from "@/lib/utils";
 import { paymentDetailsFrom } from "@/lib/booking-payment";
 import { COMPANY } from "@/lib/constants";
+import { TRUST } from "@/lib/booking-target";
 
 // Building blocks for the public marketing landing pages (/offers, /booking
 // and the four service pages). Server components; all SEO text is real HTML.
@@ -43,6 +44,16 @@ export const SERVICE_LINKS = [
   { href: "/interior-painting-pune", label: "Interior Painting Pune" },
   { href: "/pest-control-pune", label: "Pest Control Pune" },
 ];
+
+/** Footer service directory: every booking-intent link opens /booking with the service pre-selected (never the homepage).
+ * Housekeeping has no instant-booking package (site survey + quote), so it goes to its localized landing page. */
+export const FOOTER_SERVICE_LINKS = [
+  { href: "/booking?service=home#book", label: "Home Deep Cleaning" },
+  { href: "/booking?service=commercial#book", label: "Office & Commercial Cleaning" },
+  { href: "/booking?service=painting#book", label: "Interior Painting" },
+  { href: "/booking?service=pest#book", label: "Pest Control" },
+  { href: "/housekeeping-services", label: "Housekeeping & AMC" },
+] as const;
 
 // Hero slides — real Sahara service visuals, one per service.
 export const CAROUSEL = {
@@ -75,6 +86,14 @@ function heroImages(image: string, alt: string): CarouselImage[] {
 /** Business JSON-LD for every public page — built in src/lib/seo-schema.ts (single source for NAP + services). */
 export function businessJsonLd(extra: Record<string, unknown> = {}) {
   return buildBusinessJsonLd({ sameAs: SOCIAL.map((s) => s.href), extra });
+}
+
+/** Breadcrumb for /booking (Home → Book a cleaning service). */
+export function breadcrumbBookingJsonLd() {
+  return { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Sahara Cleaning Services", item: WEBSITE_URL },
+    { "@type": "ListItem", position: 2, name: "Book a cleaning service", item: `${BASE_URL}/booking` },
+  ] };
 }
 
 export function faqJsonLd(faqs: { q: string; a: string }[]) {
@@ -129,11 +148,10 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
           <section aria-labelledby="ft-services" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
             <h2 id="ft-services" className="text-base font-extrabold text-white">Our services</h2>
             <ul className="space-y-1.5 text-[13px]">
-              <li><Link href="/home-deep-cleaning-pune#price-selector" className="hover:text-white">Home Deep Cleaning — packages &amp; prices</Link></li>
-              <li><Link href="/commercial-cleaning-pune" className="hover:text-white">Office &amp; Commercial Cleaning</Link></li>
-              <li><Link href="/interior-painting-pune" className="hover:text-white">Interior Painting</Link></li>
-              <li><Link href="/pest-control-pune" className="hover:text-white">Pest Control</Link></li>
-              <li><Link href="/housekeeping-services" className="hover:text-white">Housekeeping &amp; AMC</Link></li>
+              {/* Booking intent → straight into the booking wizard with the service pre-selected (owner 2026-10-26). */}
+              {FOOTER_SERVICE_LINKS.map((l) => (
+                <li key={l.href}><Link href={l.href} className="hover:text-white">{l.label}</Link></li>
+              ))}
               <li><Link href="/booking#book" className="font-semibold text-amber-400">Book Online</Link></li>
             </ul>
             <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
@@ -192,13 +210,16 @@ export const FESTIVAL_BADGE = "🪔 Diwali Special Discounts Live!";
 // fully visible. Mobile — full-width photo, then badge + headline + actions
 // below it. Desktop — text column left, photo column right. `eyebrow`,
 // `note` and `primaryLabel` stay accepted for call-site compatibility.
-export async function Hero({ image, alt, title, subtitle, badge, waText, primaryHref = "/booking", images, bookHrefOverride, quote }: {
+export async function Hero({ image, alt, title, subtitle, badge, waText, primaryHref = "/booking", images, bookHrefOverride, quote, variant = "landing" }: {
   image: string; alt: string; eyebrow?: string; title: string; subtitle: string; badge?: string; note?: string; primaryLabel: string; waText: string; primaryHref?: string; images?: CarouselImage[];
   /** Same-page anchor for Book Now (package pages scroll to their own booking form). */
   bookHrefOverride?: string;
   /** Service the floating "Get a Quick Quote" card enquires about (default: Home Deep Cleaning). */
   quote?: { service: string; serviceLabel: string };
+  /** "booking" (owner 2026-10-26): no "from ₹" badge, no Quick Quote form; bold numbers under Book Now; trust card grid. */
+  variant?: "landing" | "booking";
 }) {
+  const isBooking = variant === "booking";
   // Book Now goes straight to the service selection with Home Cleaning open.
   const bookHref = bookHrefOverride ?? (primaryHref === "/booking" || primaryHref.startsWith("#") ? "/booking?service=home#book" : primaryHref);
   // Trust + price proof from CRM Settings and the live price list — never hard-coded claims.
@@ -230,7 +251,7 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
           <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl">{title}</h1>
           <p className="mt-2 max-w-md text-sm text-white/85 sm:text-base">{subtitle.split(/(?<=\.)\s/)[0]}</p>
           <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] font-semibold sm:text-xs">
-              {(settings?.googleRating || reviews) && (
+              {!isBooking && (settings?.googleRating || reviews) && (
                 <a
                   href={settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL}
                   target="_blank"
@@ -243,17 +264,24 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
                 </a>
               )}
               <span className="rounded-full bg-white/10 px-2.5 py-1 text-white/90">Residential &amp; Commercial Services</span>
-              {fromPrice != null && <span className="rounded-full bg-amber-400/90 px-2.5 py-1 text-[#0a2540]">Full home deep cleaning from {inr(fromPrice)}</span>}
+              {fromPrice != null && !isBooking && <span className="rounded-full bg-amber-400/90 px-2.5 py-1 text-[#0a2540]">Full home deep cleaning from {inr(fromPrice)}</span>}
           </div>
-          <div className="mt-4" id="hero-quote">
+          {!isBooking && <div className="mt-4" id="hero-quote">
             <QuickLeadForm service={quote?.service ?? "HOME_DEEP_CLEANING"} serviceLabel={quote?.serviceLabel ?? "Home Deep Cleaning"} campaignName="Landing hero" waNumber={CONTACT.whatsapp} />
-          </div>
+          </div>}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Link href={bookHref} className="relative rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-lg">
               <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-white/50 [animation-duration:2.2s]" aria-hidden />
               Book Now
             </Link>
           </div>
+          {isBooking ? (
+            <>
+              <BookingContactNumbers waText={waText} />
+              <BookingTrustGrid rating={settings?.googleRating || TRUST.rating} reviews={reviews || TRUST.reviewLabel} reviewUrl={settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL} />
+            </>
+          ) : (
+            <>
           {/* Both customer numbers stacked; Call + WhatsApp buttons share one fixed size so every row lines up. */}
           <div className="mt-3 grid max-w-sm gap-2">
             {CONTACT.call.map((n) => (
@@ -265,6 +293,8 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
             ))}
           </div>
           <p className="mt-4 text-[11px] font-semibold text-white/70">Since 2012</p>
+            </>
+          )}
         </div>
       </div>
     </section>
@@ -621,5 +651,48 @@ export async function FunnelCards() {
         PAINTING: "Free Site Inspection",
       }}
     />
+  );
+}
+
+/**
+ * /booking: both customer numbers directly under Book Now — large, bold, tap-to-call, with a WhatsApp button.
+ * Layout model: BOXED — fixed max-w-sm stack so the rows line up on every phone width (no fluid stretching).
+ */
+export function BookingContactNumbers({ waText }: { waText: string }) {
+  return (
+    <div className="mt-3 grid max-w-sm gap-2" aria-label="Call or WhatsApp Sahara Cleaning Services">
+      {CONTACT.call.map((n) => (
+        <div key={n} className="grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded-2xl bg-white p-1.5 pl-4 text-[#0a2540] shadow-md">
+          <a href={`tel:+91${n}`} className="text-base font-extrabold tracking-wide tabular-nums sm:text-lg">+91 {n.slice(0, 5)} {n.slice(5)}</a>
+          <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="flex h-10 w-[76px] items-center justify-center gap-1.5 rounded-xl bg-primary text-xs font-bold text-white"><Phone className="size-3.5" /> Call</a>
+          <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${CONTACT.whatsapp}`} className="flex h-10 w-[76px] items-center justify-center gap-1 rounded-xl bg-[#25D366] text-xs font-bold text-white"><MessageCircle className="size-3.5" /> Chat</a>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** /booking trust grid (owner 2026-10-26): Since 2012 · Verified GSTIN · Google rating · social profiles — 2×2 rounded cards. */
+export function BookingTrustGrid({ rating, reviews, reviewUrl }: { rating: string; reviews: string; reviewUrl: string }) {
+  const card = "flex min-h-[64px] items-center gap-2.5 rounded-2xl bg-white/10 p-3 ring-1 ring-white/15";
+  return (
+    <div className="mt-4 grid max-w-sm grid-cols-2 gap-2 text-left">
+      <div className={card}>
+        <CalendarCheck className="size-5 shrink-0 text-amber-300" aria-hidden />
+        <div><p className="text-[10px] font-semibold uppercase tracking-wide text-white/60">Serving Pune</p><p className="text-sm font-extrabold">Since {TRUST.since}</p></div>
+      </div>
+      <a href={reviewUrl} target="_blank" rel="noopener noreferrer" className={`${card} hover:bg-white/15`} aria-label="Read our Google reviews (opens in a new tab)">
+        <Star className="size-5 shrink-0 fill-amber-300 text-amber-300" aria-hidden />
+        <div><p className="text-sm font-extrabold">{rating}★ Google</p><p className="text-[10px] font-semibold text-white/70">{reviews} reviews</p></div>
+      </a>
+      <div className={card}>
+        <ShieldCheck className="size-5 shrink-0 text-emerald-300" aria-hidden />
+        <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-wide text-white/60">Verified GSTIN</p><p className="truncate text-[12px] font-bold tabular-nums">{COMPANY.gstin}</p></div>
+      </div>
+      <div className={`${card} flex-col items-start justify-center gap-1.5`}>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-white/60">Follow us</p>
+        <FooterSocial className="flex items-center gap-1.5" iconClass="flex size-7 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white hover:text-[#0a2540]" />
+      </div>
+    </div>
   );
 }
