@@ -318,6 +318,7 @@ export function teamDispatchMessage(input: {
   mobile?: string | null;
   area: string;
   address?: string | null;
+  /** Kept for callers; never printed as a raw URL (it would trigger a Google Maps preview). The job card carries the Maps button. */
   mapLink: string | null;
   service: string;
   flatType?: string | null;
@@ -328,27 +329,19 @@ export function teamDispatchMessage(input: {
   vehicle: string | null;
   materials: string[];
   notes?: string | null;
+  /** The job-card token URL: the only link in the message (owner 2026-10-26). */
+  cardLink?: string | null;
 }) {
+  // Customer phone is deliberately NOT shared with field crew — they reach the customer through the office.
   const lines = [
-    `📋 Job Dispatch — ${formatDate(input.date)}`,
-    ``,
-    input.team ? `Team: ${input.team}` : null,
-    `Customer: ${input.customerName}`,
-    // Customer phone is deliberately NOT shared with field crew — they reach
-    // the customer through the office. See the office job card for contact.
-    `Area: ${input.area}`,
-    input.address ? `Address: ${input.address}` : null,
-    input.mapLink ? `Map: ${input.mapLink}` : null,
-    `Service: ${input.service}`,
-    input.flatType ? `Flat / Type: ${input.flatType}` : null,
-    `Date: ${formatDate(input.date)}`,
-    `Time Slot: ${input.timeSlot}`,
-    input.supervisor ? `Supervisor: ${input.supervisor}` : null,
-    `Vehicle: ${input.vehicle ?? "Not assigned yet"}`,
-    input.materials.length ? `Material: ${input.materials.join(", ")}` : `Material: —`,
-    input.notes ? `Notes: ${input.notes}` : null,
-    ``,
-    `— ${COMPANY.name}`,
+    `📋 *Job Card* — ${formatDate(input.date)} · ${input.timeSlot}${input.team ? ` · Team ${input.team}` : ""}`,
+    `${input.customerName} · ${input.service}${input.flatType ? ` (${input.flatType})` : ""}`,
+    `📍 ${input.area}${input.address ? `, ${input.address}` : ""}`,
+    input.supervisor ? `🧑‍💼 ${input.supervisor}` : null,
+    input.vehicle ? `🚐 ${input.vehicle}` : null,
+    input.materials.length ? `🧴 ${input.materials.join(", ")}` : null,
+    input.notes ? `📝 ${input.notes}` : null,
+    input.cardLink ? `🧾 Job card & map: ${input.cardLink}` : null,
   ].filter(Boolean) as string[];
   return lines.join("\n");
 }

@@ -111,3 +111,13 @@ test("stamp.png is a transparent PNG wired into both documents; UPI fallback is 
   const { COMPANY } = (await import("../src/lib/constants")) as { COMPANY: { upiId: string } };
   assert.equal(COMPANY.upiId, "9168337130@ibl");
 });
+
+// Owner 2026-10-26: the QR opens PhonePe / GPay / Paytm with the payee and the amount already filled in; invoices are maroon, quotations blue.
+test("UPI QR payload is a standard upi://pay intent for the owner's ID with the amount; invoice theme is maroon, quotation blue", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { upiPayUri } = (await import("../src/lib/upi")) as { upiPayUri: (i: { upiId: string; payeeName: string; amount?: number | null }) => string };
+  assert.equal(upiPayUri({ upiId: "9168337130@ibl", payeeName: "Sahara Cleaning Services", amount: 7500 }), "upi://pay?pa=9168337130@ibl&pn=Sahara%20Cleaning%20Services&am=7500&cu=INR");
+  assert.equal(upiPayUri({ upiId: "9168337130@ibl", payeeName: "Sahara Cleaning Services", amount: 1234.5 }), "upi://pay?pa=9168337130@ibl&pn=Sahara%20Cleaning%20Services&am=1234.50&cu=INR");
+  assert.ok(/const BLUE = "#800000"/.test(readFileSync("src/lib/pdf/sahara-invoice-document.tsx", "utf8")), "invoice accent is deep maroon");
+  assert.ok(/const ROYAL = "#1E40AF"/.test(readFileSync("src/lib/pdf/sahara-bill-document.tsx", "utf8")), "quotation stays royal blue");
+});

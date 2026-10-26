@@ -22,12 +22,12 @@ function makeStyles(k: number) {
   const z = (n: number) => Math.round(n * k * 10) / 10;
   return StyleSheet.create({
   page: { padding: z(22), fontSize: z(9), color: NAVY, fontFamily: FONT.regular },
-  frame: { borderWidth: 1.5, borderColor: GOLD, flexGrow: 1 },
+  frame: { borderWidth: 1, borderColor: ROYAL, flexGrow: 1 },
   headerC: { alignItems: "center", paddingHorizontal: z(18), paddingTop: z(10), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
   logoSm: { width: z(104), height: z(34), objectFit: "contain", marginBottom: z(3) },
   companyNameC: { fontFamily: FONT.bold, fontSize: z(17), letterSpacing: z(0.8), color: ROYAL, textAlign: "center" },
   phonesC: { fontFamily: FONT.bold, fontSize: z(9.5), color: NAVY, marginTop: z(1), textAlign: "center" },
-  titleBadge: { marginTop: z(5), backgroundColor: ROYAL, color: "#ffffff", fontFamily: FONT.bold, fontSize: z(10.5), letterSpacing: z(1.5), paddingVertical: z(2.5), paddingHorizontal: z(16), borderRadius: 3 },
+  titleBadge: { marginTop: z(5), backgroundColor: ROYAL, color: "#ffffff", fontFamily: FONT.bold, fontSize: z(10.5), letterSpacing: z(1.5), paddingVertical: z(2.5), paddingHorizontal: z(16), borderRadius: 0 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(8), borderBottomWidth: 1, borderBottomColor: GOLD },
   headRight: { flexGrow: 1, flexShrink: 1, alignItems: "flex-end", paddingLeft: z(10) },
   docTitle: { fontFamily: FONT.bold, fontSize: z(14), color: NAVY, letterSpacing: 1, marginTop: z(4) },
@@ -48,54 +48,55 @@ function makeStyles(k: number) {
   copyBox: { marginTop: z(4), borderWidth: 0.8, borderColor: MUTED, paddingHorizontal: z(5), paddingVertical: z(2), fontSize: z(6.5), color: MUTED },
   metaStrip: { flexDirection: "row", paddingHorizontal: z(18), paddingVertical: z(9), borderBottomWidth: 1, borderBottomColor: GOLD },
   metaCell: { marginRight: z(32) },
-  metaLabel: { fontFamily: FONT.bold, fontSize: z(8.5), marginBottom: z(2) },
-  metaValue: { fontSize: z(8.5), color: MUTED },
+  metaLabel: { fontFamily: FONT.bold, fontSize: z(9.5), marginBottom: z(2) },
+  metaValue: { fontSize: z(9.5), color: MUTED },
   billTo: { paddingHorizontal: z(18), paddingVertical: z(10) },
-  billToLabel: { fontFamily: FONT.bold, fontSize: z(9.5), marginBottom: z(2) },
-  billName: { fontSize: z(10.5), marginBottom: z(2) },
-  billLine: { fontSize: z(8.5), color: MUTED, marginBottom: z(2) },
+  billToLabel: { fontFamily: FONT.bold, fontSize: z(10), marginBottom: z(2) },
+  billName: { fontSize: z(11.5), marginBottom: z(2) },
+  billLine: { fontSize: z(9.5), color: MUTED, marginBottom: z(2) },
   // Boxed grid (owner 2026-10-26): header, rows and SUBTOTAL sit in one bordered box with thin column rules.
-  tbl: { marginHorizontal: z(18), borderWidth: 0.8, borderColor: GOLD },
+  tbl: { marginHorizontal: z(18), borderWidth: 1, borderColor: ROYAL },
   tHead: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6) },
-  tRow: { flexDirection: "row", paddingVertical: z(6), borderTopWidth: 0.6, borderTopColor: GOLD },
-  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), borderTopWidth: 0.6, borderTopColor: GOLD, fontFamily: FONT.bold },
-  notesBox: { borderWidth: 0.8, borderColor: GOLD, borderRadius: 4, padding: z(6), marginBottom: z(4) },
-  cNo: { width: "9%", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
-  cName: { width: "39%", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
-  cQty: { width: "10%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
-  cRate: { width: "14%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
-  cDisc: { width: "13%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 0.6, borderRightColor: GOLD },
+  tRow: { flexDirection: "row", paddingVertical: z(6), borderTopWidth: 1, borderTopColor: GOLD },
+  tSub: { flexDirection: "row", backgroundColor: BEIGE, paddingVertical: z(6), borderTopWidth: 1, borderTopColor: ROYAL, fontFamily: FONT.bold },
+  notesBox: { borderWidth: 1, borderColor: ROYAL, borderRadius: 0, padding: z(6), marginBottom: z(4) },
+  notesP: { fontSize: z(9.5), color: NAVY, lineHeight: 1.35, marginBottom: z(1.5) },
+  cNo: { width: "9%", paddingHorizontal: z(4), borderRightWidth: 1, borderRightColor: GOLD },
+  cName: { width: "39%", paddingHorizontal: z(4), borderRightWidth: 1, borderRightColor: GOLD },
+  cQty: { width: "10%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 1, borderRightColor: GOLD },
+  cRate: { width: "14%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 1, borderRightColor: GOLD },
+  cDisc: { width: "13%", textAlign: "right", paddingHorizontal: z(4), borderRightWidth: 1, borderRightColor: GOLD },
   cTotal: { width: "15%", textAlign: "right", paddingHorizontal: z(4) },
-  headTxt: { fontSize: z(8.5), fontFamily: FONT.bold },
-  rowName: { fontSize: z(9) },
-  rowDetail: { fontSize: z(7.5), color: MUTED, marginTop: z(1) },
+  headTxt: { fontSize: z(9.5), fontFamily: FONT.bold },
+  rowName: { fontSize: z(10) },
+  rowDetail: { fontSize: z(8.5), color: MUTED, marginTop: z(1) },
   pct: { fontSize: z(7), color: MUTED },
   bottom: { flexDirection: "row", paddingHorizontal: z(18), paddingTop: z(12), paddingBottom: z(10) },
   left: { width: "52%", paddingRight: 14 },
   right: { width: "48%" },
-  secTitle: { fontFamily: FONT.bold, fontSize: z(9), marginBottom: z(3), marginTop: z(6) },
-  para: { fontSize: z(7.5), color: MUTED, lineHeight: 1.4, marginBottom: z(1.5) },
+  secTitle: { fontFamily: FONT.bold, fontSize: z(10), marginBottom: z(3), marginTop: z(6) },
+  para: { fontSize: z(9), color: MUTED, lineHeight: 1.35, marginBottom: z(1.5) },
   totalBox: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: GOLD, paddingVertical: z(6), flexDirection: "row", justifyContent: "space-between", marginBottom: z(6) },
   totalLbl: { fontFamily: FONT.bold, fontSize: z(11) },
   totalVal: { fontFamily: FONT.bold, fontSize: z(11) },
   kv: { flexDirection: "row", justifyContent: "space-between", marginBottom: z(2) },
-  kvL: { fontSize: z(8.5), color: MUTED },
-  kvR: { fontSize: z(8.5) },
-  kvBold: { fontSize: z(8.5), fontFamily: FONT.bold },
-  words: { fontSize: z(8.5), color: MUTED, marginBottom: z(8) },
-  splitBox: { borderWidth: 1, borderColor: GOLD, borderRadius: 4, padding: z(4), marginTop: z(4), marginBottom: z(6) },
+  kvL: { fontSize: z(9.5), color: MUTED },
+  kvR: { fontSize: z(9.5) },
+  kvBold: { fontSize: z(9.5), fontFamily: FONT.bold },
+  words: { fontSize: z(9.5), color: MUTED, marginBottom: z(8) },
+  splitBox: { borderWidth: 1, borderColor: ROYAL, borderRadius: 0, padding: z(4), marginTop: z(4), marginBottom: z(6) },
   footer: { marginTop: "auto" },
   signRow: { flexDirection: "row", justifyContent: "flex-end", paddingHorizontal: z(18), paddingBottom: z(6) },
   servicesBar: { backgroundColor: ROYAL, paddingVertical: z(6), paddingHorizontal: z(10) },
   footSlogan: { color: "#ffffff", fontFamily: FONT.italic, fontSize: z(10.5), textAlign: "center", marginBottom: z(2) },
   footContact: { color: "#ffffff", fontSize: z(7.5), textAlign: "center", marginTop: z(1) },
   servicesTxt: { color: "#ffffff", fontSize: z(8), textAlign: "center", letterSpacing: 0.3 },
-  signBox: { width: z(170), borderWidth: 1, borderColor: GOLD, borderRadius: 8, height: z(46), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(5) },
+  signBox: { width: z(170), borderWidth: 1, borderColor: GOLD, borderRadius: 0, height: z(46), justifyContent: "flex-end", alignItems: "center", paddingBottom: z(5) },
   signLbl: { fontFamily: FONT.bold, fontSize: z(8.5) },
   signName: { fontSize: z(8), color: MUTED },
   payRow: { flexDirection: "row", alignItems: "center", marginTop: z(6) },
   // Fixed 78 pt (2.75 cm) whatever the page scale: the code itself stays above 2.5 cm and keeps its white quiet zone.
-  qr: { width: 78, height: 78, borderWidth: 1, borderColor: GOLD, borderRadius: 6, padding: 1.5, marginRight: z(10), backgroundColor: "#ffffff" },
+  qr: { width: 78, height: 78, borderWidth: 1, borderColor: GOLD, borderRadius: 0, padding: 1.5, marginRight: z(10), backgroundColor: "#ffffff" },
   bankGrid: { flexDirection: "row", marginBottom: z(1) },
   bankK: { width: 64, fontSize: z(8), fontFamily: FONT.bold },
   bankV: { fontSize: z(8), color: MUTED, flexShrink: 1 },
@@ -165,7 +166,7 @@ export function fitFactor(p: Pick<BillDocumentProps, "rows" | "notes" | "kindlyN
     (p.bank?.account || p.bank?.ifsc || p.qrDataUrl || p.upiId ? 6 : 0) + 8 + (p.totals?.received !== undefined ? 6 : 0) + 3 + (p.totals?.gstAmount ? 1 : 0) + (p.totals?.discount ? 2 : 0) +
     // Quotation extras: MSMED line under the terms, WhatsApp confirm box in the right column.
     (p.legalNote ? wrap(p.legalNote, 66) : 0) + (p.whatsappConfirm ? 3 : 0);
-  const load = (left + table * 1.4 + extra) * 1.2; // Poppins sets taller than Helvetica
+  const load = (left + table * 1.4 + extra) * 1.4; // Poppins sets taller than Helvetica (type sizes raised 2026-10-26)
   if (load <= 40) return 1;
   if (load <= 50) return 0.92;
   if (load <= 62) return 0.84;
@@ -280,7 +281,7 @@ export function SaharaBillDocument(p: BillDocumentProps) {
                 <View style={s.notesBox}>
                   <Text style={[s.secTitle, { marginTop: 0 }]}>Service Scope Notes</Text>
                   {p.notes.map((n, i) => (
-                    <Text key={i} style={s.para}>{n}</Text>
+                    <Text key={i} style={s.notesP}>{n}</Text>
                   ))}
                 </View>
               )}

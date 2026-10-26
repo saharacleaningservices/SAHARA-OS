@@ -4,11 +4,13 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, breadcrumbBookingJsonLd, Faqs } from "@/components/public/landing-kit";
-import { nearMeFaqs, SCHEMA_MICRO_LOCATIONS } from "@/lib/seo-schema";
+import { nearMeFaqs } from "@/lib/seo-schema";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
+import { ClientLogosSlider } from "@/components/public/client-logos-slider";
+import { ReviewsCarousel, type Review } from "@/components/public/reviews-carousel";
 import { campaignFestivalNames, todayIST } from "@/lib/pricing-master";
 
 // Customer booking page in the approved transparent-pricing landing design.
@@ -73,10 +75,18 @@ export default async function BookingPage({
   const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
   const [settings, quote, pricing, galleryItems] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing(), getFeaturedGallery(12).catch(() => [])]);
   const festivalEyebrow = campaignFestivalNames(pricing.festivals, todayIST());
+  // Real Google reviews the owner entered in Settings → Featured Reviews; none configured → no slider (never an invented testimonial).
+  let featuredReviews: Review[] = [];
+  try {
+    const parsed = settings.featuredReviews ? JSON.parse(settings.featuredReviews) : [];
+    if (Array.isArray(parsed)) featuredReviews = parsed.filter((r) => r && r.text && r.name).slice(0, 8);
+  } catch {
+    featuredReviews = [];
+  }
 
   return (
     // On a quotation link, Book Now scrolls to the wizard on THIS page (keeps ?quote=).
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={quote ? [businessJsonLd()] : [businessJsonLd(), faqJsonLd(nearMeFaqs()), breadcrumbBookingJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} {...(quote ? { bookHref: "#book" } : {})}>
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={quote ? [businessJsonLd()] : [businessJsonLd(), faqJsonLd(nearMeFaqs()), breadcrumbBookingJsonLd()]} mobileBar={<CallWhatsAppBar waText={WA} />} singleMap {...(quote ? { bookHref: "#book" } : {})}>
       <Hero
         {...(quote ? { bookHrefOverride: "#book" } : {})}
         image={CAROUSEL.home.src}
@@ -120,10 +130,11 @@ export default async function BookingPage({
             <section aria-labelledby="near-me" className="rounded-3xl bg-white p-5 shadow-sm">
               <h2 id="near-me" className="text-lg font-bold">Cleaning services near you in Pune &amp; PCMC</h2>
               <p className="mt-1 text-sm text-[#0a2540]/75">Home deep cleaning, office and commercial cleaning, housekeeping contracts, pest control and interior painting — trained in-house teams from our Magarpatta City base.</p>
-              <ul className="mt-3 flex flex-wrap gap-1.5 text-xs font-semibold">
-                {SCHEMA_MICRO_LOCATIONS.map((a) => <li key={a} className="rounded-full bg-[#eef4fb] px-2.5 py-1 text-[#0a2540]">{a}</li>)}
-              </ul>
+              {/* The area list lives once, in the footer's "Areas we serve" block (owner 2026-10-26: no duplicate area blocks). */}
             </section>
+            {/* Social proof sits right above the FAQs (owner 2026-10-26): corporate logos, then real Google reviews. */}
+            <ClientLogosSlider />
+            {featuredReviews.length > 0 && <ReviewsCarousel reviews={featuredReviews} reviewUrl={settings.googleReviewUrl || undefined} />}
             <Faqs faqs={nearMeFaqs()} compact />
           </>
         )}

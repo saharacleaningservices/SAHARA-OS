@@ -39,11 +39,10 @@ export async function dispatchTeamForJob(jobId: string) {
     vehicle: job.vehicle ? `${job.vehicle.name} (${job.vehicle.plateNumber})` : null,
     materials: job.materialIssues.map((m) => (m.quantity ? `${m.item} x${m.quantity}` : m.item)),
     notes: job.notes,
+    // The digital job card (A4 web view) is the message's only link; the card never loads the customer phone or amounts.
+    cardLink: `${INTERNAL_CRM_URL}/crew-card/${crewCardToken(job.id)}`,
   });
-
-  // The digital job card (A4 web view) travels with the message; the card never loads the customer phone or amounts.
-  const cardLink = `${INTERNAL_CRM_URL}/crew-card/${crewCardToken(job.id)}`;
-  const bodyWithCard = `${body}\n\n\u{1F9FE} Job card: ${cardLink}`;
+  const bodyWithCard = body;
 
   let sent = 0;
   let queued = 0;

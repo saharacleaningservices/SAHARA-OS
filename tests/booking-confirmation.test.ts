@@ -202,9 +202,12 @@ test("crew job card hides the customer phone and any amount", async () => {
   const body = teamDispatchMessage({
     customerName: "Asha", mobile: "9876543210", area: "Kharadi", address: "Flat 2", mapLink: "https://maps.google.com/?q=1",
     service: "Home Deep Cleaning", flatType: "2 BHK", date: new Date("2026-11-02T00:00:00Z"), timeSlot: "10:00 AM", team: 2,
-    supervisor: "Ravi", vehicle: "Tempo (MH12)", materials: ["Vacuum x1"], notes: "Use side gate",
+    supervisor: "Ravi", vehicle: "Tempo (MH12)", materials: ["Vacuum x1"], notes: "Use side gate", cardLink: "https://crm.example.test/crew-card/tok123",
   });
   assert.ok(!body.includes("9876543210") && !/987654|43210/.test(body), "no phone");
   assert.ok(!/₹|Rs\.?\s?\d|\bINR\b|Amount|Price|Balance|Advance/i.test(body), "no amounts");
-  assert.ok(body.includes("Maps") || body.includes("Map:"), "map link kept");
+  // Owner 2026-10-26: compact card — location is plain text and the job-card token URL is the ONLY link (no Google Maps preview box).
+  assert.ok(body.includes("📍 Kharadi, Flat 2"), "plain-text location");
+  assert.deepEqual(body.match(/https?:\/\/\S+/g), ["https://crm.example.test/crew-card/tok123"], "exactly one link: the job card");
+  assert.ok(!/maps\.google|google\.com/.test(body), "no Google Maps URL in the message");
 });

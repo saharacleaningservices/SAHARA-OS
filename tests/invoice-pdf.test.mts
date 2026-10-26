@@ -35,6 +35,8 @@ test("standard invoice: ONE A4 page, TAX INVOICE badge, GSTIN, clickable social 
   assert.equal(pages(buf), 1);
   const raw = buf.toString("latin1");
   for (const u of ["instagram.com/saharacleaningservices.pune", "facebook.com/saharacleaningservices", "youtube.com/channel", "g.page/r/"]) assert.ok(raw.includes(u), `link ${u}`);
+  // Contact protocols are real, tappable links too (owner 2026-10-26): call, e-mail, website and the map.
+  for (const u of ["tel:+917083347130", "mailto:contact@saharacleaningservices.com", "https://www.saharacleaningservices.com", "https://maps.google.com/?q="]) assert.ok(raw.includes(u), `link ${u}`);
 });
 
 test("commercial invoice with Sq. Ft column, many lines, GST and advance still fits ONE page", async () => {
