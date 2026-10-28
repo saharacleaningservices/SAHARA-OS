@@ -134,6 +134,33 @@ export default async function BookingPage({
           </>
         )}
       </main>
+      <FloatingCallButton />
     </LandingShell>
+  );
+}
+
+// Floating pulsing call button (bottom-right) — same as saharacleaningservices.com.
+// Sits above the mobile Call/WhatsApp bar on small screens.
+const FCALL_CSS = `
+#sh-fcall{position:fixed;right:20px;bottom:24px;z-index:60;width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#2563EB,#1D4ED8);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(29,78,216,.45);border:3px solid #fff;text-decoration:none}
+#sh-fcall svg{width:26px;height:26px;position:relative;z-index:2;animation:shRing 2.4s ease-in-out infinite}
+#sh-fcall:before,#sh-fcall:after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(37,99,235,.6);animation:shWave 2s cubic-bezier(.2,.6,.3,1) infinite;z-index:1}
+#sh-fcall:after{animation-delay:1s}
+@keyframes shWave{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+@keyframes shRing{0%,60%,100%{transform:rotate(0)}5%,15%,25%{transform:rotate(-14deg)}10%,20%,30%{transform:rotate(14deg)}}
+@media(max-width:639px){#sh-fcall{right:14px;bottom:calc(60px + env(safe-area-inset-bottom));width:54px;height:54px}}
+@media(prefers-reduced-motion:reduce){#sh-fcall:before,#sh-fcall:after,#sh-fcall svg{animation:none}}
+`;
+
+function FloatingCallButton() {
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: FCALL_CSS }} />
+      <a id="sh-fcall" href="tel:+917083347130" aria-label="Call Sahara Cleaning Services on +91 70833 47130">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" />
+        </svg>
+      </a>
+    </>
   );
 }
