@@ -18,7 +18,10 @@ export async function BookingFooter() {
         <section aria-labelledby="bf-visit" className={`${card} space-y-3`}>
           <h2 id="bf-visit" className="text-base font-extrabold text-white">Visit us</h2>
           <div className="grid gap-3 md:grid-cols-[1.4fr_1fr_1.2fr]">
-            <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
+            <div className="space-y-2">
+              <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" /><span><strong className="block text-[11px] uppercase tracking-wide text-white">Main Head Office</strong>{CONTACT.address}</span></address>
+              <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" /><span><strong className="block text-[11px] uppercase tracking-wide text-white">Branch Office</strong>Mohammadwadi Road, Mohammadwadi, Pune 411060</span></address>
+            </div>
             <p className="flex flex-col gap-1 text-[13px] font-semibold text-white">
               {CONTACT.call.map((n) => (
                 <a key={n} href={`tel:+91${n}`} className="inline-flex min-h-9 items-center gap-1.5 hover:text-amber-300"><Phone className="size-3.5 shrink-0" />+91 {n.slice(0, 5)} {n.slice(5)}</a>
