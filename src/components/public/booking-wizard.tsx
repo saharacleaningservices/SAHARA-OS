@@ -212,6 +212,32 @@ export function BookingWizard({
       window.removeEventListener("sahara:select-package", onPackage);
     };
   }, [campaign]);
+  // Deep links from saharacleaningservices.com service cards:
+  //   /booking?service=kitchen|bathroom|sofa|mattress|carpet  → Home → Individual Cleaning with that item pre-filled
+  //   /booking?service=post-construction|post-interior        → Commercial (free site inspection / written quote)
+  useEffect(() => {
+    const s = new URLSearchParams(window.location.search).get("service")?.toLowerCase();
+    if (!s) return;
+    const variants: Record<string, string> = {
+      kitchen: "Kitchen Deep Cleaning",
+      bathroom: "Bathroom Cleaning",
+      sofa: "Sofa Cleaning",
+      mattress: "Mattress Cleaning",
+      carpet: "Carpet Cleaning",
+    };
+    if (s === "post-construction" || s === "post-interior") {
+      setCategory("COMMERCIAL");
+    } else if (variants[s]) {
+      const it = CUSTOMISED.find((x) => x.variant === variants[s]);
+      setCategory("HOME");
+      setHomeType("CUSTOM");
+      if (it) setQty({ [it.contentId]: it.minQty ?? 1 });
+    } else {
+      return;
+    }
+    const t = setTimeout(() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "start" }), 400);
+    return () => clearTimeout(t);
+  }, [CUSTOMISED]);
   // Schedule / details
   const [dates, setDates] = useState<{ date: string; available: boolean; status: DayStatus }[] | null>(null);
   const [monthOffset, setMonthOffset] = useState(0);
