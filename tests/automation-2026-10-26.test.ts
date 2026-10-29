@@ -87,13 +87,15 @@ test("chatbot: greeting triggers, 4 menu rows within Meta limits, every reply li
   for (const t of ["STOP", "start", "I want to clean my 3BHK flat in Baner on Sunday, how much?", ""]) assert.ok(!isBotTrigger(t), t);
   const m = botMenu();
   assert.equal(m.rows.length, 4);
-  assert.deepEqual(m.rows.map((r) => r.title), ["Home Deep Cleaning", "Sofa / Carpet Cleaning", "Commercial / Office", "Slot Availability"]);
+  assert.deepEqual(m.rows.map((r) => r.title), ["Deep Cleaning & Offers", "Pest Control", "Painting & Waterproofing", "Booking / Crew Status"]);
   for (const r of BOT_ROWS) {
     assert.ok(r.title.length <= 24 && r.description.length <= 72 && r.id.length <= 200, r.id);
     assert.ok(isBotRow(r.id));
     assert.match(botReply(r.id)!, /https:\/\/saharacleaningservices\.com\/booking(\?|$|\s)/);
     assert.match(botReply(r.id)!, /utm_source=whatsapp&utm_medium=chatbot/);
   }
+  assert.match(botReply("bot_pest")!, /service=pest/);
+  assert.match(botReply("bot_painting")!, /service=painting/);
   assert.ok(m.bodyText.length <= 1024 && m.buttonLabel.length <= 20);
   assert.match(botReply("bot_home")!, /service=home/);
   assert.match(botReply("bot_commercial")!, /service=commercial/);

@@ -23,6 +23,14 @@ export const BOT_ROWS: BotRow[] = [
   { id: "bot_painting", title: "Painting & Waterproofing", description: "Interior painting, damp & leakage repair — free inspection" },
   { id: "bot_status", title: "Booking / Crew Status", description: "Check your booking date, slot and crew status" },
 ];
+/** Menu row → CRM service (ServiceType) used to tag the lead when a customer taps it. Rows not listed (status/slots) don't change the service. */
+export const BOT_ROW_SERVICE: Record<string, "HOME_DEEP_CLEANING" | "COMMERCIAL_CLEANING" | "PEST_CONTROL" | "INTERIOR_PAINTING"> = {
+  bot_home: "HOME_DEEP_CLEANING",
+  bot_sofa: "HOME_DEEP_CLEANING",
+  bot_pest: "PEST_CONTROL",
+  bot_painting: "INTERIOR_PAINTING",
+  bot_commercial: "COMMERCIAL_CLEANING",
+};
 // Earlier menus (still in customers' chat history) keep working when tapped.
 const LEGACY_BOT_IDS = ["bot_sofa", "bot_commercial", "bot_slots"];
 
