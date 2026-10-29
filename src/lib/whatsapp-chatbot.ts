@@ -18,13 +18,15 @@ export type BotRow = { id: string; title: string; description: string };
 
 /** Row titles ≤ 24 chars, descriptions ≤ 72 chars (Meta list limits). */
 export const BOT_ROWS: BotRow[] = [
-  { id: "bot_home", title: "Home Deep Cleaning", description: "1–3 BHK full home, kitchen & bathrooms" },
-  { id: "bot_sofa", title: "Sofa / Carpet Cleaning", description: "Shampoo & extraction for sofa, carpet, mattress" },
-  { id: "bot_commercial", title: "Commercial / Office", description: "Offices, shops, post-construction, housekeeping" },
-  { id: "bot_slots", title: "Slot Availability", description: "See open dates & time slots and book" },
+  { id: "bot_home", title: "Deep Cleaning & Offers", description: "1–3 BHK packages, combos from ₹1,899, sofa & kitchen" },
+  { id: "bot_pest", title: "Pest Control", description: "Cockroach & ant ₹999 · Bed bug ₹1,199 · Termite on inspection" },
+  { id: "bot_painting", title: "Painting & Waterproofing", description: "Interior painting, damp & leakage repair — free inspection" },
+  { id: "bot_status", title: "Booking / Crew Status", description: "Check your booking date, slot and crew status" },
 ];
+// Earlier menus (still in customers' chat history) keep working when tapped.
+const LEGACY_BOT_IDS = ["bot_sofa", "bot_commercial", "bot_slots"];
 
-export const isBotRow = (id: string | null | undefined) => !!id && BOT_ROWS.some((r) => r.id === id);
+export const isBotRow = (id: string | null | undefined) => !!id && (BOT_ROWS.some((r) => r.id === id) || LEGACY_BOT_IDS.includes(id));
 
 export function botMenu(opening?: string) {
   return {
@@ -44,6 +46,12 @@ export function botReply(rowId: string): string | null {
   switch (rowId) {
     case "bot_home":
       return `🏠 *Home Deep Cleaning*\nFull-home deep cleaning by trained in-house teams with machines and safe chemicals: every room, kitchen, bathrooms, windows and balconies.\n\nSee packages, pick your date and an available slot here:\n${link("home", "home_deep_cleaning")}\n\nPay after service · GST invoice available.`;
+    case "bot_pest":
+      return `🪳 *Pest Control*\nCockroach & ant control from ₹999 · Bed bug treatment from ₹1,199 · Termite, rodent & mosquito control after a free inspection.\n\nPick a date and slot here:\n${link("pest", "pest_control")}`;
+    case "bot_painting":
+      return `🎨 *Interior Painting & Waterproofing*\nDust-free interior painting, damp and leakage patchwork and waterproofing. Every job starts with a free site inspection and a written quote.\n\nBook your free inspection here:\n${link("painting", "painting_waterproofing")}`;
+    case "bot_status":
+      return `📋 *Booking / Crew Status*\nWe couldn't find an upcoming booking for this number. If you booked from another number, reply with your booking ID or name and our team will update you.\n\nNew booking: ${link(undefined, "status_new")}`;
     case "bot_sofa":
       return `🛋️ *Sofa / Carpet / Mattress Cleaning*\nShampooing and hot-water extraction that lifts stains, dust mites and odour.\n\nChoose seats / sizes and book a slot here:\n${link("home", "sofa_carpet")}`;
     case "bot_commercial":

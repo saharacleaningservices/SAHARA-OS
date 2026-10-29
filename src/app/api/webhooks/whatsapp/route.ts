@@ -308,6 +308,33 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
     }
 
     const tapped = m.interactive?.list_reply?.id || m.interactive?.button_reply?.id;
+    // "Booking / Crew Status" menu row: the customer's own latest job (matched on the sending number). Shows date,
+    // slot, status and the supervisor's first name only — never amounts or other customers' data.
+    if (m.type === "interactive" && tapped === "bot_status") {
+      const tail = m.from.replace(/\D/g, "").slice(-10);
+      const job = tail.length === 10
+        ? await db.job.findFirst({
+            where: { deletedAt: null, customerMobile: { endsWith: tail }, status: { not: "CANCELLED" } },
+            orderBy: { scheduledDate: "desc" },
+            select: { jobNumber: true, scheduledDate: true, scheduledTime: true, status: true, supervisor: { select: { name: true } } },
+          })
+        : null;
+      const label: Record<string, string> = {
+        PENDING: "Confirmed — crew being assigned",
+        ASSIGNED: "Confirmed — crew assigned",
+        REACTIVATED: "Confirmed — crew assigned",
+        ON_THE_WAY: "Crew is on the way",
+        STARTED: "Work in progress",
+        COMPLETED: "Completed",
+        POSTPONED: "Postponed — our team will call to reschedule",
+      };
+      const body = job
+        ? `📋 *Booking ${job.jobNumber}*\nDate: ${job.scheduledDate.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short" })}\nSlot: ${job.scheduledTime}\nStatus: ${label[job.status] ?? job.status}${job.supervisor?.name ? `\nSupervisor: ${job.supervisor.name.split(" ")[0]}` : ""}\n\nNeed a change? Reply here and our team will help.`
+        : botReply("bot_status");
+      if (body) await sendWhatsApp({ kind: "OTHER", toNumber: m.from, body, relatedType: "WhatsAppChatbot", relatedId: m.id });
+      return;
+    }
+
     if (m.type === "interactive" && isBotRow(tapped)) {
       const reply = botReply(tapped!);
       if (reply) await sendWhatsApp({ kind: "OTHER", toNumber: m.from, body: reply, relatedType: "WhatsAppChatbot", relatedId: m.id });
