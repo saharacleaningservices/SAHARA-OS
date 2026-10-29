@@ -246,6 +246,7 @@ components:
         upsellLabel: { type: string, maxLength: 120, description: Ignored; the rule's own label is recorded. }
         upsellValue: { type: number, minimum: 0, maximum: 10000000, description: Ignored server-side. }
         upsellAccepted: { type: boolean }
+        leadTag: { type: string, enum: [B2C_BOOKING, B2B_COMMERCIAL_INSPECTION, PROPERTY_SOLUTIONS], description: "Set by the website server (WordPress proxy); recorded on the lead timeline and in the new-booking alert." }
         marketingOptIn: { type: boolean, description: Explicit WhatsApp marketing opt-in ticked by the customer; never pre-ticked. }
         website: { type: string, maxLength: 200, description: HONEYPOT. Hidden field; must stay empty. }
         attribution:
