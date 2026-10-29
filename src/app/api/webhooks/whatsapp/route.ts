@@ -23,7 +23,7 @@ import { notify } from "@/server/notify";
 import { answerWhatsApp, HANDOFF_ACK } from "@/server/whatsapp-ai";
 import { setConversationMode } from "@/server/whatsapp-access";
 import { OPT_OUT_KEYWORDS, OPT_IN_KEYWORDS } from "@/lib/whatsapp-keywords";
-import { botMenu, botReply, isBotRow, isBotTrigger, NEW_ENQUIRY_OPENING } from "@/lib/whatsapp-chatbot";
+import { botMenu, botReply, BOT_ROW_SERVICE, isBotRow, isBotTrigger, NEW_ENQUIRY_OPENING } from "@/lib/whatsapp-chatbot";
 
 // Grounded AI assistant — off unless explicitly enabled.
 const AI_ENABLED = process.env.WHATSAPP_AI_ENABLED === "on";
@@ -64,18 +64,38 @@ function isValidMetaSignature(rawBody: string, header: string | null): boolean {
 // as the 5000+ customer bulk broadcast. This route only needs to exist and
 // behave correctly so that step, whenever it happens, just works:
 //
-// Callback URL: https://crm.saharacleaningservices.com/api/webhooks/whatsapp
-// (this route is served identically from any domain pointed at this
-// deployment, so the legacy app.saharacleaningservices.com URL keeps
-// working too until the crm.* domain is confirmed live)
-// Verify token: whatever value is set as WHATSAPP_WEBHOOK_VERIFY_TOKEN
-//               in the Coolify environment (Settings → Environment
-//               Variables on the app) — pick any long random string and
-//               paste the same value into the Meta dashboard field.
+// Callback URL: https://booking.saharacleaningservices.com/api/webhooks/whatsapp
+// (the production Coolify deployment; /api/webhook is allow-listed for the
+// public booking host in src/middleware.ts). Meta Cloud API is called
+// directly — there is no third-party WhatsApp middleware in this path.
+// Verify token: the value of WHATSAPP_WEBHOOK_VERIFY_TOKEN in the Coolify
+//               environment (Environment Variables → Production); paste the
+//               same value into the Meta dashboard field.
+// Signature:    WHATSAPP_APP_SECRET must be set in production, otherwise every
+//               POST is rejected with 401.
 // Subscribe to: messages (for the Quick Reply button auto-replies and the
 //               STOP/START opt-out handling below)
 
 export const dynamic = "force-dynamic";
+
+/** One-line JSON logs so Coolify's log viewer can be searched for `"src":"wa-webhook"`. Never logs message bodies or tokens. */
+function log(level: "info" | "warn" | "error", evt: string, data: Record<string, unknown> = {}) {
+  console[level](JSON.stringify({ ts: new Date().toISOString(), src: "wa-webhook", evt, ...data }));
+}
+
+/**
+ * Failure counts per Meta message id (in memory). A real failure returns HTTP 500 so Meta redelivers with backoff; after
+ * MAX_INBOUND_FAILURES a message is given up on (200 + team alert) so one poison message can never make Meta disable the webhook.
+ */
+const MAX_INBOUND_FAILURES = 3;
+const inboundFailures = new Map<string, number>();
+function noteInboundFailure(id: string | undefined): boolean {
+  if (!id) return true;
+  const n = (inboundFailures.get(id) ?? 0) + 1;
+  inboundFailures.set(id, n);
+  if (inboundFailures.size > 500) inboundFailures.delete(inboundFailures.keys().next().value as string);
+  return n < MAX_INBOUND_FAILURES; // true = still worth a Meta retry
+}
 
 // Pre-go-live guard: every customer-facing message this webhook would send
 // on its own (new-inquiry acknowledgement, STOP/START confirmations, MORE
@@ -192,13 +212,15 @@ async function sendMoreOptionsList(toNumber: string, messageId?: string) {
  *    Inbox and linked to the customer's latest lead; Meta redeliveries of
  *    the same message id are ignored.
  *
- * Always resolves fast with 200 — Meta disables a webhook that times out or
- * errors repeatedly, and a malformed/unexpected payload is never the
- * customer's fault.
+ * Resolves fast with 200 for anything a retry cannot fix (bad JSON, duplicates,
+ * unsupported types). A real processing failure returns 500 so Meta redelivers
+ * (capped at MAX_INBOUND_FAILURES per message — then it is dropped and the team
+ * is alerted) — Meta disables a webhook that keeps failing.
  */
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   if (!isValidMetaSignature(rawBody, req.headers.get("x-hub-signature-256"))) {
+    log("warn", "invalid_signature", { ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null });
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
@@ -206,60 +228,96 @@ export async function POST(req: NextRequest) {
   try {
     payload = JSON.parse(rawBody) as MetaWebhookPayload;
   } catch {
-    return NextResponse.json({ ok: true });
+    log("warn", "unparseable_json", { bytes: rawBody.length });
+    return NextResponse.json({ ok: true }); // nothing a retry could fix
   }
 
+  // A genuine failure (database busy/down, unexpected exception) → HTTP 500 so Meta redelivers with backoff.
+  // Inbound failures also remove their dedupe row (see handleInboundMessages) so the redelivery is processed, not skipped.
+  let allOk = true;
   try {
     for (const entry of payload?.entry ?? []) {
       for (const change of entry?.changes ?? []) {
         const value = change?.value ?? {};
-        await Promise.all([handleInboundMessages(value), handleStatuses(value)]);
+        const [inbound, statuses] = await Promise.allSettled([handleInboundMessages(value), handleStatuses(value)]);
+        if (inbound.status === "rejected") { allOk = false; log("error", "inbound_batch_failed", { err: errText(inbound.reason) }); }
+        else if (inbound.value === false) allOk = false;
+        if (statuses.status === "rejected") { allOk = false; log("error", "status_batch_failed", { err: errText(statuses.reason) }); }
       }
     }
   } catch (err) {
-    console.error("[whatsapp webhook] processing error", err);
+    allOk = false;
+    log("error", "payload_failed", { err: errText(err) });
   }
 
-  return NextResponse.json({ ok: true });
+  return allOk ? NextResponse.json({ ok: true }) : NextResponse.json({ ok: false }, { status: 500 });
 }
+
+const errText = (e: unknown) => (e instanceof Error ? e.message : String(e)).slice(0, 300);
 
 async function handleStatuses(value: MetaChangeValue) {
   for (const s of value.statuses ?? []) {
     if (!s.id || !s.status) continue;
-    await applyWhatsAppStatus({
-      providerMessageId: s.id,
-      status: s.status,
-      timestamp: s.timestamp,
-      error: s.errors?.[0]?.title || s.errors?.[0]?.message,
-    }).catch(() => {});
+    const error = s.errors?.[0]?.title || s.errors?.[0]?.message;
+    if (s.status === "failed" || error) log("warn", "delivery_status_error", { id: s.id, status: s.status, code: (s.errors?.[0] as { code?: number } | undefined)?.code ?? null, error: error ?? null });
+    // Idempotent updates — an error here propagates so the webhook returns 500 and Meta redelivers.
+    await applyWhatsAppStatus({ providerMessageId: s.id, status: s.status, timestamp: s.timestamp, error });
   }
 }
 
-async function handleInboundMessages(value: MetaChangeValue) {
+/** Returns true when every message was handled (or deliberately skipped); false asks the caller for a 500 so Meta retries. */
+async function handleInboundMessages(value: MetaChangeValue): Promise<boolean> {
   const messages = value.messages ?? [];
-  if (messages.length === 0) return;
+  if (messages.length === 0) return true;
 
   const settings = await getCompanySettings().catch(() => null);
   const reviewUrl = settings?.googleReviewUrl || "";
+  let ok = true;
 
   for (const m of messages) {
     if (!m.from) continue;
-
-    // Log every inbound message for the WhatsApp Inbox, mapped to the
-    // customer's latest lead. A redelivered webhook (same Meta message id)
-    // is skipped entirely so it can't trigger duplicate replies or leads.
-    const profileName = value.contacts?.find((c) => c.wa_id === m.from)?.profile?.name ?? null;
-    const inboundText =
-      m.text?.body || m.button?.text || m.interactive?.list_reply?.title || m.interactive?.button_reply?.title || `(${m.type || "message"})`;
-    const inbound = await recordInboundWhatsApp({ from: m.from, providerMessageId: m.id, body: inboundText, profileName }).catch(() => undefined);
-    if (inbound === null) continue;
-    await processInboundMessage({ ...m, from: m.from }, reviewUrl, profileName);
-    if (inbound && !inbound.relatedId) {
-      // A brand-new inquiry creates its lead during processing — link it now.
-      const lead = await findLeadForNumber(m.from);
-      if (lead) await db.whatsAppMessage.update({ where: { id: inbound.id }, data: { relatedType: "Lead", relatedId: lead.id } }).catch(() => {});
+    try {
+      // Log every inbound message for the WhatsApp Inbox, mapped to the
+      // customer's latest lead. A redelivered webhook (same Meta message id)
+      // is skipped entirely so it can't trigger duplicate replies or leads.
+      const profileName = value.contacts?.find((c) => c.wa_id === m.from)?.profile?.name ?? null;
+      const inboundText =
+        m.text?.body || m.button?.text || m.interactive?.list_reply?.title || m.interactive?.button_reply?.title || `(${m.type || "message"})`;
+      // No .catch here: a database failure must surface (→ 500 → Meta retries) instead of silently losing the message.
+      const inbound = await recordInboundWhatsApp({ from: m.from, providerMessageId: m.id, body: inboundText, profileName });
+      if (inbound === null) {
+        log("info", "duplicate_skipped", { id: m.id });
+        continue;
+      }
+      try {
+        await processInboundMessage({ ...m, from: m.from }, reviewUrl, profileName);
+        log("info", "processed", { id: m.id, type: m.type, tap: m.interactive?.list_reply?.id ?? m.interactive?.button_reply?.id ?? null });
+      } catch (err) {
+        // Remove the dedupe row so Meta's redelivery is processed rather than skipped as "already seen".
+        await db.whatsAppMessage.delete({ where: { id: inbound.id } }).catch(() => {});
+        throw err;
+      }
+      if (!inbound.relatedId) {
+        // A brand-new inquiry creates its lead during processing — link it now.
+        const lead = await findLeadForNumber(m.from);
+        if (lead) await db.whatsAppMessage.update({ where: { id: inbound.id }, data: { relatedType: "Lead", relatedId: lead.id } }).catch(() => {});
+      }
+      inboundFailures.delete(m.id ?? "");
+    } catch (err) {
+      const retry = noteInboundFailure(m.id);
+      log("error", retry ? "inbound_failed_retrying" : "inbound_dropped", { id: m.id, type: m.type, err: errText(err) });
+      if (retry) ok = false;
+      else {
+        await notify({
+          kind: "NEW_INQUIRY",
+          title: `⚠️ WhatsApp message could not be processed — +${m.from}`,
+          body: "Sahara OS failed to process an inbound WhatsApp message several times. Please check the WhatsApp Inbox / reply manually.",
+          href: `/admin/whatsapp-inbox?n=${m.from.replace(/\D/g, "")}`,
+        }).catch(() => {});
+      }
     }
   }
+  return ok;
 }
 
 /** The original per-message routing (opt-out/in, MORE, inquiries, quick replies). */
@@ -308,6 +366,11 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
     }
 
     const tapped = m.interactive?.list_reply?.id || m.interactive?.button_reply?.id;
+    // Every chatbot menu tap lands in the CRM: finds/creates the customer's lead, notes the choice on its timeline and
+    // tags the lead's service (while it is still NEW) before the booking-link reply goes out.
+    if (m.type === "interactive" && isBotRow(tapped)) {
+      await captureMenuSelection(m.from, tapped!, m.interactive?.list_reply?.title || m.interactive?.button_reply?.title || tapped!, profileName);
+    }
     // "Booking / Crew Status" menu row: the customer's own latest job (matched on the sending number). Shows date,
     // slot, status and the supervisor's first name only — never amounts or other customers' data.
     if (m.type === "interactive" && tapped === "bot_status") {
@@ -449,7 +512,8 @@ const isUniqueViolation = (e: unknown, field: string) => {
  *     team alert. `intakeKey` (unique: WA:<mobile>:<IST day>) makes this
  *     idempotent: if two messages race, the database lets only one insert
  *     win and the other becomes a timeline note on the winner.
- * Existing leads and jobs are never modified (only notes are added).
+ * Existing leads and jobs are never modified by free text (only notes are added);
+ * a chatbot menu tap may additionally set the service of a lead that is still NEW.
  */
 /** Chatbot service menu — skipped while a human has taken over the conversation in the WhatsApp Inbox. */
 async function sendBotMenu(toNumber: string, messageId?: string, opening?: string) {
@@ -459,9 +523,9 @@ async function sendBotMenu(toNumber: string, messageId?: string, opening?: strin
   return sendWhatsAppInteractiveList({ kind: "OTHER", toNumber, bodyText: menu.bodyText, buttonLabel: menu.buttonLabel, rows: menu.rows, relatedType: "WhatsAppChatbot", relatedId: messageId });
 }
 
-async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean } = {}) {
+async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean } = {}): Promise<{ leadId: string | null; created: boolean }> {
   const mobile = last10Digits(from);
-  if (mobile.length !== 10) return;
+  if (mobile.length !== 10) return { leadId: null, created: false };
   const adLine = ad ? ` · ${describeCtwa(ad)}` : "";
   const note = `Inbound WhatsApp: "${body.slice(0, 300)}"${adLine}`;
 
@@ -469,7 +533,7 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   const recent = (await findLeadsForMobile(mobile)).find((l) => !["COMPLETED", "CANCELLED"].includes(l.stage) || l.createdAt >= dayAgo);
   if (recent) {
     await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: note }).catch(() => {});
-    return;
+    return { leadId: recent.id, created: false };
   }
 
   const tail = mobile.slice(-4);
@@ -484,7 +548,7 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   if (activeJob) {
     if (activeJob.leadId) await addTimelineEntry({ leadId: activeJob.leadId, type: "NOTE", body: note }).catch(() => {});
     else await db.activityLog.create({ data: { jobId: activeJob.id, action: note.slice(0, 300) } }).catch(() => {});
-    return;
+    return { leadId: activeJob.leadId ?? null, created: false };
   }
 
   const intakeKey = `WA:${mobile}:${istDay()}`;
@@ -524,12 +588,12 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
         // Another message from this customer created the lead a moment ago.
         const winner = await db.lead.findUnique({ where: { intakeKey }, select: { id: true } });
         if (winner) await addTimelineEntry({ leadId: winner.id, type: "NOTE", body: note }).catch(() => {});
-        return;
+        return { leadId: winner?.id ?? null, created: false };
       }
       if (!isUniqueViolation(e, "leadNumber")) throw e; // a different customer took the same LD number — retry
     }
   }
-  if (!lead) return;
+  if (!lead) return { leadId: null, created: false };
   const leadNumber = lead.leadNumber;
 
   await db.followUp
@@ -544,9 +608,23 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   }).catch(() => {});
 
   // When the grounded AI assistant is on, it answers instead (no double reply); a chatbot trigger sends its own menu.
-  if (AI_ENABLED || opts.silent) return;
+  if (AI_ENABLED || opts.silent) return { leadId: lead.id, created: true };
   // Owner 2026-10-26: the acknowledgement IS the chatbot menu (one message): thanks + 4 services → direct booking links.
   await sendBotMenu(from, undefined, NEW_ENQUIRY_OPENING);
+  return { leadId: lead.id, created: true };
+}
+
+/**
+ * A chatbot menu tap → CRM. Reuses handleWhatsAppInquiry (idempotent: one lead per customer per IST day, open leads and
+ * active jobs only get a timeline note) and then tags the lead's service from the row chosen — but only while the lead is
+ * still NEW, so an advanced lead (quotation, scheduled…) is never changed by a menu tap.
+ */
+async function captureMenuSelection(from: string, rowId: string, title: string, profileName: string | null) {
+  const { leadId } = await handleWhatsAppInquiry(from, `Menu selection: ${title}`, profileName, null, { silent: true });
+  const service = BOT_ROW_SERVICE[rowId];
+  if (leadId && service) {
+    await db.lead.updateMany({ where: { id: leadId, stage: "NEW", NOT: { service: service as never } }, data: { service: service as never } });
+  }
 }
 
 /**
