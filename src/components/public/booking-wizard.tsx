@@ -109,6 +109,16 @@ function Stepper({ value, min, onChange }: { value: number; min: number; onChang
   );
 }
 
+// Cross-sell interests (owner 2026-10-29): recorded in the lead notes for the office to quote; they never change the price here.
+const XSELL = [
+  "Cockroach & ant control (from ₹999)",
+  "Bed bug treatment (from ₹1,199)",
+  "Interior painting (free inspection)",
+  "Anti-dampness patchwork (free inspection)",
+] as const;
+// Area tag shown under the address once a served Pune hub is recognised.
+const AREA_HUBS = ["Magarpatta", "Kharadi", "Hadapsar", "Mohammadwadi", "Viman Nagar", "Baner", "Wakad", "Hinjewadi", "NIBM", "Kothrud", "Pimple Saudagar", "Undri", "Wagholi"];
+
 export function BookingWizard({
   quote,
   defaultCategory,
@@ -280,6 +290,9 @@ export function BookingWizard({
   const [altMobile, setAltMobile] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [promo, setPromo] = useState(referralCode ?? "");
+  const [xsell, setXsell] = useState<string[]>([]);
+  const areaHit = AREA_HUBS.find((a) => address.toLowerCase().includes(a.toLowerCase()));
   const [mapLink, setMapLink] = useState("");
   const [locating, setLocating] = useState(false);
   const [pay, setPay] = useState<"PAY_ADVANCE" | "PAY_AFTER_SERVICE" | "">("");
@@ -529,8 +542,8 @@ export function BookingWizard({
         paymentPreference: pay || undefined,
         marketingOptIn,
         quotationToken: quote?.token ?? "",
-        referralCode: referralCode ?? "",
-        notes: quote ? `Quotation ${quote.quoteNumber}` : `${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`,
+        referralCode: promo.trim(),
+        notes: [quote ? `Quotation ${quote.quoteNumber}` : `${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`, xsell.length ? `Also interested in: ${xsell.join(", ")}` : "", promo.trim() ? `Promo code: ${promo.trim()}` : ""].filter(Boolean).join(" | "),
         // Empty: the server derives the lead source from the detected channel (Google Ads,
         // Meta, GBP…) and falls back to WEBSITE — a hard-coded WEBSITE hid ad leads.
         source: "",
@@ -1245,6 +1258,23 @@ export function BookingWizard({
               <input className={input} autoComplete="email" placeholder="Email (optional)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               <FieldHint show={!!email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())}>Enter a valid email, or leave it blank</FieldHint>
             </div>
+            <div>
+              <input className={input} autoComplete="off" placeholder="Promo / referral code (optional), e.g. REFER200" value={promo} onChange={(e) => setPromo(e.target.value.toUpperCase().replace(/\s/g, "").slice(0, 40))} />
+              {!!promo.trim() && <p className="mt-1 text-xs text-[#0a2540]/70">Code noted. Any eligible discount is applied on your final invoice once the office verifies it.</p>}
+            </div>
+            {category === "HOME" && (
+              <div className="rounded-xl border border-[#0a2540]/10 bg-[#f5faff] p-3">
+                <p className="text-sm font-semibold text-[#0a2540]">Add to the same visit? <span className="font-normal text-[#0a2540]/70">(office confirms the price)</span></p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {XSELL.map((x) => (
+                    <label key={x} className="inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#0a2540]/15 bg-white px-3 text-[13px]">
+                      <input type="checkbox" className="size-4" checked={xsell.includes(x)} onChange={(e) => setXsell((s) => (e.target.checked ? [...s, x] : s.filter((y) => y !== x)))} />
+                      {x}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1254,6 +1284,7 @@ export function BookingWizard({
           {step(5, "Service address", address.trim().length >= 5)}
           <textarea className={`${input} mt-3 h-24 py-2.5`} autoComplete="street-address" placeholder="Full address * (flat, building / society, area, landmark)" value={address} onChange={(e) => setAddress(e.target.value)} />
           <FieldHint show={!!address && address.trim().length < 5}>Add flat, building / society and area</FieldHint>
+          {areaHit && <p className="mt-2 text-[13px] font-semibold text-emerald-700">✓ {areaHit}: regular Sahara crews work in your area</p>}
           <button
             type="button"
             onClick={useCurrentLocation}
