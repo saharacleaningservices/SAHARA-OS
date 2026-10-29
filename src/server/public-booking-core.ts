@@ -62,6 +62,8 @@ const publicBookingSchema = z.object({
   upsellLabel: z.string().max(120).optional().or(z.literal("")),
   upsellValue: z.coerce.number().min(0).max(10_000_000).optional(), // ignored server-side: the rule's own label/price are recorded
   upsellAccepted: z.boolean().optional(),
+  // Website lead tag set by the WordPress server-side proxy (docs/website/wordpress-lead-proxy.php). Optional; unknown values are refused.
+  leadTag: z.enum(["B2C_BOOKING", "B2B_COMMERCIAL_INSPECTION", "PROPERTY_SOLUTIONS"]).optional(),
   // Booking page v2: the customer's payment choice, and the quotation link
   // token when the booking comes from a quotation (/booking?quote=<token>).
   paymentPreference: z.enum(["PAY_ADVANCE", "PAY_AFTER_SERVICE"]).optional(),
@@ -403,6 +405,7 @@ export async function publicBookLeadCore(values: unknown, ctx: { ip: string | nu
         : `Booked online (${source.toLowerCase()}) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}${firstTouch?.landingPage ?? "/book"} (unverified — no OTP yet)`,
       `Attribution: ${existingOpen?.acquisitionChannel ?? channel}${campaignOf(firstTouch) ? ` / ${campaignOf(firstTouch)}` : ""}${latestTouch && latestFields.latestTouchSource !== channel ? ` · latest touch: ${latestFields.latestTouchSource}` : ""}`,
       isRepeatCustomer ? `⭐ Existing customer — ${priorLeads} prior enquir${priorLeads === 1 ? "y" : "ies"}, ${priorJobs} job(s) on this number` : null,
+      data.leadTag ? `Lead tag: ${data.leadTag}` : null,
       data.propertyType ? `Property type: ${data.propertyType}` : null,
       data.marketingOptIn ? "WhatsApp marketing opt-in: ticked by the customer on the web booking form (optional, not pre-ticked)" : null,
       inspectionRequired ? `SITE INSPECTION REQUIRED — no price shown or charged; assess scope and prepare a custom quotation` : null,
@@ -506,7 +509,7 @@ export async function publicBookLeadCore(values: unknown, ctx: { ip: string | nu
       .join(" · "),
     href: `/leads/${lead.id}`,
     whatsappToAdmin: true,
-    meta: { leadId: lead.id, leadNumber, source },
+    meta: { leadId: lead.id, leadNumber, source, ...(data.leadTag ? { leadTag: data.leadTag } : {}) },
   });
 
   // Close the loop on a personalized CRM link, if this booking came from one.

@@ -160,6 +160,17 @@ test("leads: a signed booking creates exactly what the booking form creates", as
   assert.equal(await db.whatsAppMessage.count({ where: { relatedId: row.id, kind: "BOOKING_CONFIRMATION" } }), 1);
 });
 
+test("leads: leadTag from the WordPress proxy is recorded on the timeline; unknown tags are refused", async () => {
+  const m = mobile();
+  const ok = await leads.POST(req("POST", "/leads", lead({ mobile: m, area: "Kharadi", leadTag: "B2B_COMMERCIAL_INSPECTION", serviceCategory: "COMMERCIAL_CLEANING" })));
+  assert.equal(ok.status, 200);
+  const row = await db.lead.findFirstOrThrow({ where: { mobile: m } });
+  const tl = await db.timelineEntry.findMany({ where: { leadId: row.id } });
+  assert.ok(tl.some((e) => (e.body ?? "").includes("Lead tag: B2B_COMMERCIAL_INSPECTION")));
+  const bad = await leads.POST(req("POST", "/leads", lead({ leadTag: "SOMETHING_ELSE" })));
+  assert.equal(bad.status, 400);
+});
+
 test("leads: request shape errors are 400 VALIDATION", async () => {
   const cases: [string, Request][] = [
     ["no Idempotency-Key", req("POST", "/leads", lead(), { idem: null })],
