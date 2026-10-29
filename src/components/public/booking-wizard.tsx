@@ -213,20 +213,39 @@ export function BookingWizard({
     };
   }, [campaign]);
   // Deep links from saharacleaningservices.com service cards:
-  //   /booking?service=kitchen|bathroom|sofa|mattress|carpet  → Home → Individual Cleaning with that item pre-filled
-  //   /booking?service=post-construction|post-interior        → Commercial (free site inspection / written quote)
+  //   ?service=kitchen|bathroom|sofa|mattress|carpet|window  → Home → Individual Cleaning with that item pre-filled
+  //   ?service=pest[&pest=cockroach|ant|bed-bug|termite]     → Pest Control (optionally with the pest chosen)
+  //   ?service=post-construction|post-interior               → Commercial (free site inspection / written quote)
+  //   ?combo=SCS-26 (any package COMBO contentId)            → Home → Combo Packages with that combo ticked
   useEffect(() => {
-    const s = new URLSearchParams(window.location.search).get("service")?.toLowerCase();
-    if (!s) return;
+    const q = new URLSearchParams(window.location.search);
+    const s = q.get("service")?.toLowerCase() ?? "";
+    const combo = q.get("combo")?.toUpperCase() ?? "";
     const variants: Record<string, string> = {
       kitchen: "Kitchen Deep Cleaning",
       bathroom: "Bathroom Cleaning",
       sofa: "Sofa Cleaning",
       mattress: "Mattress Cleaning",
       carpet: "Carpet Cleaning",
+      window: "Window Cleaning",
     };
-    if (s === "post-construction" || s === "post-interior") {
+    const pests: Record<string, string> = {
+      cockroach: "Cockroach Control",
+      ant: "Ant Control",
+      "bed-bug": "Bed Bug Control",
+      bedbug: "Bed Bug Control",
+      termite: "Termite Control",
+    };
+    if (combo && PACKAGE_COMBOS.some((c) => c.contentId === combo)) {
+      setCategory("HOME");
+      setHomeType("COMBO");
+      setCombos({ [combo]: true });
+    } else if (s === "post-construction" || s === "post-interior") {
       setCategory("COMMERCIAL");
+    } else if (s === "pest") {
+      setCategory("PEST");
+      const p = pests[q.get("pest")?.toLowerCase() ?? ""];
+      if (p && PEST_ITEMS.some((x) => x.name === p)) setPest(p);
     } else if (variants[s]) {
       const it = CUSTOMISED.find((x) => x.variant === variants[s]);
       setCategory("HOME");
@@ -237,7 +256,7 @@ export function BookingWizard({
     }
     const t = setTimeout(() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth", block: "start" }), 400);
     return () => clearTimeout(t);
-  }, [CUSTOMISED]);
+  }, [CUSTOMISED, PACKAGE_COMBOS, PEST_ITEMS]);
   // Schedule / details
   const [dates, setDates] = useState<{ date: string; available: boolean; status: DayStatus }[] | null>(null);
   const [monthOffset, setMonthOffset] = useState(0);
