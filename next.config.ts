@@ -29,6 +29,19 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      // In-place booking drawer (owner 2026-10-29): only the marketing site may frame /book-embed.
+      // CSP frame-ancestors takes precedence over X-Frame-Options in current browsers; this later entry
+      // overrides the DENY above for this one route.
+      {
+        source: "/book-embed",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self' https://saharacleaningservices.com https://www.saharacleaningservices.com",
+          },
+        ],
+      },
       // Brand + marketing images in /public were served with max-age=0 (re-validated on every page view).
       // File names are not content-hashed, so keep it short: 1 day fresh, then served stale while refreshing.
       // Not applied to /uploads (customer/staff files) or /sw.js (service worker must always be fresh).
