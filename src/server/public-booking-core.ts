@@ -4,6 +4,7 @@
 // tests/public-booking-characterisation.test.ts.
 
 import { sendEnquiryAck } from "@/server/enquiry-ack-email";
+import { autoConfirmWebBooking } from "@/server/public-auto-confirm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
@@ -449,13 +450,20 @@ export async function publicBookLeadCore(values: unknown, ctx: { ip: string | nu
   // confirmed only when the office confirms the booking (confirmBooking /
   // manual job → src/server/booking-messages.ts). One acknowledgement per
   // lead per day, so a repeat submission doesn't message the customer again.
+  // Instant confirmation (owner decision 30 Oct 2026): open slot + fixed-price service from the start date ->
+  // scheduled Job + the standard booking confirmation WhatsApp (sent by the confirm core), so the "request
+  // received" acknowledgement below is skipped. Anything else stays a request for the office, exactly as before.
+  const auto = existingOpen?.stage === "JOB_SCHEDULED"
+    ? ({ confirmed: false, reason: "already-scheduled" } as const)
+    : await autoConfirmWebBooking(lead.id, { serviceDate: data.serviceDate, timeSlot: data.timeSlot, serviceCategory: data.serviceCategory, inspectionRequired });
+
   const svc = SERVICE_LABELS[legacyService] ?? legacyService;
   const ackedRecently = await db.whatsAppMessage.findFirst({
     where: { relatedType: "Lead", relatedId: lead.id, kind: "BOOKING_CONFIRMATION", createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
     select: { id: true },
   });
-  if (ackedRecently) {
-    // skip — already acknowledged
+  if (ackedRecently || auto.confirmed) {
+    // skip — already acknowledged, or confirmed (the booking confirmation was sent instead)
   } else if (process.env.WHATSAPP_USE_TEMPLATES === "on") {
     const t = templateByName("sahara_booking_request_received")!;
     const params = [data.name, leadNumber, svc, data.serviceDate || "your preferred date", data.timeSlot || "flexible time"];
@@ -498,7 +506,7 @@ export async function publicBookLeadCore(values: unknown, ctx: { ip: string | nu
   // Real-time alert: loud notification + popup + vibration; tap opens the lead.
   await notify({
     kind: "NEW_BOOKING",
-    title: `New booking — ${data.name}${isRepeatCustomer ? " (repeat customer)" : ""}`,
+    title: `${auto.confirmed ? `Auto-confirmed ${auto.jobNumber} — assign crew` : "New booking"} — ${data.name}${isRepeatCustomer ? " (repeat customer)" : ""}`,
     body: [
       `${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}`,
       data.address || (data.pinCode ? `PIN ${data.pinCode}` : ""),
@@ -538,7 +546,9 @@ export async function publicBookLeadCore(values: unknown, ctx: { ip: string | nu
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");
-  return { success: true as const, leadNumber };
+  return auto.confirmed
+    ? { success: true as const, leadNumber, status: "CONFIRMED" as const, jobNumber: auto.jobNumber, bookingUrl: auto.bookingUrl }
+    : { success: true as const, leadNumber, status: "PENDING" as const };
 }
 
 /**
