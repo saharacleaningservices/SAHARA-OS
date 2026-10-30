@@ -14,6 +14,7 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { recordUpsellEvent } from "@/server/upsell";
 import { sendWhatsApp, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
+import { slotLockKey, withSlotLock } from "@/lib/slot-lock";
 import { getSlotAvailability } from "@/server/actions/slot-availability";
 import { notify } from "@/server/notify";
 import { z } from "zod";
@@ -93,7 +94,7 @@ const OPEN_STAGES = ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATIO
  * Creates a lead with source=WEBSITE. No OTP yet — the form notes it's
  * "unverified" in the timeline for staff follow-up (OTP is future-ready).
  */
-export async function publicBookLeadCore(values: unknown, ctx: { ip: string | null }) {
+async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null }) {
   const parsed = publicBookingSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Please check the form and try again.", code: "VALIDATION" as PublicBookingErrorCode };
@@ -557,6 +558,13 @@ export async function publicBookLeadCore(values: unknown, ctx: { ip: string | nu
  * only picks date, slot and payment preference. Updates the quotation's own
  * lead (never creates a duplicate) and leaves it for the office to confirm.
  */
+/** Public booking entry: bookings for the same service date run one at a time, so the capacity re-check and
+ *  the lead insert are atomic per date (Diwali last-slot races) — different dates stay fully parallel. */
+export async function publicBookLeadCore(values: unknown, ctx: { ip: string | null }) {
+  const key = slotLockKey(values);
+  return key ? withSlotLock(`book:${key}`, () => publicBookLeadUnlocked(values, ctx)) : publicBookLeadUnlocked(values, ctx);
+}
+
 async function bookFromQuotation(data: z.infer<typeof publicBookingSchema>) {
   const token = data.quotationToken ?? "";
   if (!/^[A-Za-z0-9_-]{20,40}$/.test(token)) return { error: "This quotation link is not valid." };
