@@ -35,7 +35,16 @@ export async function POST(req: NextRequest) {
   try {
     const out = await withIdempotency(key, raw, async () => {
       const res = await publicBookLeadCore(form, { ip });
-      if ("success" in res) return { status: 200, body: { success: true, leadNumber: res.leadNumber } };
+      if ("success" in res) {
+        // status CONFIRMED = instantly scheduled as a Job (public-auto-confirm.ts); PENDING = request for the office.
+        const confirmed = "status" in res && res.status === "CONFIRMED";
+        return {
+          status: 200,
+          body: confirmed
+            ? { success: true, leadNumber: res.leadNumber, status: "CONFIRMED", jobNumber: res.jobNumber, bookingUrl: res.bookingUrl }
+            : { success: true, leadNumber: res.leadNumber, status: "PENDING" },
+        };
+      }
       const r = bookingErrorResponse(res);
       return { status: r.status, body: await r.json() };
     });
