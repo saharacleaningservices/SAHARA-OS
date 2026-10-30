@@ -10,7 +10,7 @@ const STEPS = ["ON_THE_WAY", "STARTED", "COMPLETED"] as const;
 const ORDER = ["PENDING", "ASSIGNED", "REACTIVATED", "ON_THE_WAY", "STARTED", "COMPLETED"];
 
 /** Assigned → On the way → Started → Completed (forward only, server-checked). */
-export function StaffJobStatusButtons({ jobId, status, labels }: { jobId: string; status: string; labels: { onTheWay: string; start: string; complete: string } }) {
+export function StaffJobStatusButtons({ jobId, status, labels, directionsHref }: { jobId: string; status: string; labels: { onTheWay: string; start: string; complete: string }; directionsHref?: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const at = ORDER.indexOf(status);
@@ -26,14 +26,16 @@ export function StaffJobStatusButtons({ jobId, status, labels }: { jobId: string
             key={s}
             type="button"
             disabled={done || !next || pending}
-            onClick={() =>
+            onClick={() => {
+              // "Start Job / Route to Site": open Google Maps right away (inside the tap, so the browser allows it).
+              if (s === "ON_THE_WAY" && directionsHref) window.open(directionsHref, "_blank", "noopener");
               start(async () => {
                 const res = await staffUpdateJobStatus(jobId, s);
                 if ("error" in res && res.error) return void toast.error(res.error);
                 toast.success(label[s]);
                 router.refresh();
-              })
-            }
+              });
+            }}
             className={cn(
               "min-h-12 rounded-xl text-sm font-bold",
               done ? "bg-success text-white" : next ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",

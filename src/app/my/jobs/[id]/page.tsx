@@ -124,7 +124,7 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
       </section>
 
       {/* Status (today, own job) */}
-      {job.isToday && !preview && <StaffJobStatusButtons jobId={job.id} status={job.status} labels={{ onTheWay: t("btnOnTheWay"), start: t("btnStart"), complete: t("btnComplete") }} />}
+      {job.isToday && !preview && <StaffJobStatusButtons jobId={job.id} status={job.status} labels={{ onTheWay: t("btnOnTheWay"), start: t("btnStart"), complete: t("btnComplete") }} directionsHref={directionsHref(job.address, job.mapLink)} />}
 
       {job.marketingConsent !== null && (
         <StaffJobConsentToggle
