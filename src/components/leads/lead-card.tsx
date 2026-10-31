@@ -6,6 +6,8 @@ import { ScheduleVisitDialog } from "./schedule-visit-dialog";
 import { StageSelect } from "./stage-select";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 import { formatINR, formatDate, dayBucket, DAY_BUCKET_META } from "@/lib/utils";
+import { LeadResponseTimer } from "@/components/leads/lead-response-timer";
+import { isLeadResponseOverdue } from "@/lib/lead-response";
 import { Badge } from "@/components/ui/badge";
 
 type LeadCardData = {
@@ -24,6 +26,7 @@ type LeadCardData = {
   teamNumber?: number | null;
   assignedStaff?: { name: string } | null;
   assignedStaffNames?: string[];
+  createdAt?: Date | string;
 };
 
 export function LeadCard({ lead }: { lead: LeadCardData }) {
@@ -38,8 +41,9 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
       ? [lead.assignedStaff.name]
       : [];
 
+  const uncontacted = !!lead.createdAt && isLeadResponseOverdue(lead.stage, lead.createdAt);
   return (
-    <div className={`space-y-1.5 rounded-lg border bg-card p-2.5 sahara-shadow ${isTodayJob ? "border-success ring-1 ring-success/40" : "border-border"}`}>
+    <div className={`space-y-1.5 rounded-lg border bg-card p-2.5 sahara-shadow ${uncontacted ? "border-destructive bg-destructive/5 ring-1 ring-destructive/40" : isTodayJob ? "border-success ring-1 ring-success/40" : "border-border"}`}>
       <div className="flex items-start justify-between gap-2">
         <Link href={`/leads/${lead.id}`} className="min-w-0 hover:underline">
           <p className="truncate text-sm font-semibold text-foreground">{lead.name}</p>
@@ -52,6 +56,7 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
         </Badge>
       </div>
 
+      {lead.createdAt && <LeadResponseTimer stage={lead.stage} createdAt={lead.createdAt} />}
       <p className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
         <MapPin className="size-3 shrink-0" /> <span className="truncate">{lead.area} · {SERVICE_LABELS[lead.service]}</span>
       </p>
@@ -80,14 +85,15 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
         </p>
       )}
 
-      <div className="flex items-center gap-1.5">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <div className="min-w-[8rem] flex-1">
           <StageSelect leadId={lead.id} stage={lead.stage} />
         </div>
         <CallButton mobile={lead.mobile} />
         <WhatsAppButton
           mobile={lead.mobile}
           message={`Hi ${lead.name}, this is Sahara Cleaning Services regarding your ${SERVICE_LABELS[lead.service]} enquiry.`}
+          context={{ name: lead.name, service: SERVICE_LABELS[lead.service], amount: lead.quoteAmount }}
         />
         {lead.mobile && (
         <QuotationDialog
@@ -96,7 +102,7 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
           suggestedAmount={lead.quoteAmount}
           area={lead.area}
           trigger={
-            <button className="rounded-md border border-input px-2 py-1 text-[11px] font-medium hover:bg-accent">
+            <button className="min-h-11 rounded-md border border-input px-3 py-1 text-xs font-medium hover:bg-accent sm:min-h-0 sm:px-2 sm:text-[11px]">
               Quote
             </button>
           }
@@ -105,7 +111,7 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
         <ScheduleVisitDialog
           leadId={lead.id}
           trigger={
-            <button className="rounded-md border border-input px-2 py-1 text-[11px] font-medium hover:bg-accent">
+            <button className="min-h-11 rounded-md border border-input px-3 py-1 text-xs font-medium hover:bg-accent sm:min-h-0 sm:px-2 sm:text-[11px]">
               Visit
             </button>
           }

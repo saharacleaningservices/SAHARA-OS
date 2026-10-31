@@ -1,6 +1,7 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { ingestEnquiry } from "@/server/enquiry-intake";
+import { safeEqual } from "@/lib/safe-equal";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,13 +16,6 @@ export const dynamic = "force-dynamic";
  * WhatsApp sends go through sendWhatsApp(), so TEST MODE / opt-out rules still apply.
  * The intake itself (dedupe, lead, follow-up, alerts) lives in src/server/enquiry-intake.ts, shared with the Cognito webhook.
  */
-
-/** Constant-time string comparison (no early exit on the first differing byte). */
-function safeEqual(a: string, b: string) {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
-}
 
 /** Max clock difference accepted for a signed request — limits replay of a captured request. */
 const SIGNATURE_MAX_AGE_SECONDS = 300;

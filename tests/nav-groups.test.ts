@@ -35,10 +35,10 @@ test("OPERATIONS (Francis): field-only — no money, profit, user or audit pages
   for (const g of groupsFor("OPERATIONS")) assert.ok(g.items.length > 0, "empty groups are hidden");
 });
 
-test("ACCOUNTS (Shoyab): finance and reports yes; profit, user management, audit log, device/security approvals no", () => {
+test("ACCOUNTS (Shoyab): finance yes, revenue/reports no (owner 2026-10-31); profit, user management, audit log, device/security approvals no", () => {
   const hrefs = itemsFor("ACCOUNTS").map((i) => i.href);
-  for (const ok of ["/payments", "/expenses", "/quotations", "/invoices", "/revenue", "/reports", "/customers"]) assert.ok(hrefs.includes(ok), `ACCOUNTS should get ${ok}`);
-  for (const banned of ["/profit", "/profit/marketing", "/admin/users", "/admin/audit-log", "/admin/device-approvals", "/admin/security-approvals"]) {
+  for (const ok of ["/payments", "/expenses", "/quotations", "/invoices", "/customers", "/vehicles", "/staff"]) assert.ok(hrefs.includes(ok), `ACCOUNTS should get ${ok}`);
+  for (const banned of ["/revenue", "/reports", "/reports/export-center", "/profit", "/profit/marketing", "/admin/users", "/admin/audit-log", "/admin/device-approvals", "/admin/security-approvals"]) {
     assert.ok(!hrefs.includes(banned), `ACCOUNTS must not get ${banned}`);
   }
 });

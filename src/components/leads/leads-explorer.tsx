@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { LeadCard } from "./lead-card";
 import { LeadStageBadge } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
+import { LeadResponseTimer } from "@/components/leads/lead-response-timer";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete-button";
 import { BulkActionsBar } from "@/components/shared/bulk-actions-bar";
@@ -289,6 +290,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                           </Link>
                           <CustomerHistoryButton mobile={lead.mobile} name={lead.name} />
                         </span>
+                        <LeadResponseTimer stage={lead.stage} createdAt={lead.createdAt} className="mb-0.5" />
                         <p className="text-xs text-muted-foreground">
                           {lead.leadNumber}{lead.customerNumber ? ` · ${lead.customerNumber}` : ""} · {lead.area}
                         </p>
@@ -306,7 +308,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                       <TableCell>
                         <div className="flex items-center justify-end gap-1.5">
                           <CallButton mobile={lead.mobile} />
-                          <WhatsAppButton mobile={lead.mobile} />
+                          <WhatsAppButton mobile={lead.mobile} context={{ name: lead.name, service: SERVICE_LABELS[lead.service], amount: lead.quoteAmount }} />
                           <Button variant="outline" size="icon" className="size-8" aria-label="Edit lead" asChild>
                             <Link href={`/leads/${lead.id}/edit`}>
                               <Pencil className="size-3.5" />

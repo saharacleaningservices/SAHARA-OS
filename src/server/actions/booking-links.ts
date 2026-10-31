@@ -26,7 +26,7 @@ type Kind = "BOOKING_FORM" | "FOLLOWUP" | "REVIEW" | "PAYMENT" | "GALLERY";
 // name/mobile from the BookingLink row. Personal data in a URL would leak to
 // analytics tags (Meta Pixel / GA4 page views), browser history and referrers.
 function bookUrl(token: string) {
-  return `${BASE}/book?${new URLSearchParams({ bl: token }).toString()}`;
+  return `${BASE}/booking?${new URLSearchParams({ bl: token }).toString()}`;
 }
 
 /**

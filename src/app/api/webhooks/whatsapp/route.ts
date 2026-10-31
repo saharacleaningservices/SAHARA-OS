@@ -1,12 +1,12 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { parseCtwaReferral, ctwaLeadFields, describeCtwa, type CtwaReferral } from "@/lib/whatsapp-referral";
+import { last10 } from "@/lib/phone";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
   applyWhatsAppStatus,
   findLeadForNumber,
   findLeadsForMobile,
-  last10Digits,
   recordInboundWhatsApp,
   sendWhatsApp as sendWhatsAppNow,
   sendWhatsAppInteractiveList as sendWhatsAppInteractiveListNow,
@@ -524,7 +524,7 @@ async function sendBotMenu(toNumber: string, messageId?: string, opening?: strin
 }
 
 async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean } = {}): Promise<{ leadId: string | null; created: boolean }> {
-  const mobile = last10Digits(from);
+  const mobile = last10(from);
   if (mobile.length !== 10) return { leadId: null, created: false };
   const adLine = ad ? ` · ${describeCtwa(ad)}` : "";
   const note = `Inbound WhatsApp: "${body.slice(0, 300)}"${adLine}`;
@@ -544,7 +544,7 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
       take: 50,
       select: { id: true, leadId: true, customerMobile: true, alternateMobile: true },
     })
-  ).find((j) => last10Digits(j.customerMobile) === mobile || last10Digits(j.alternateMobile) === mobile);
+  ).find((j) => last10(j.customerMobile) === mobile || last10(j.alternateMobile) === mobile);
   if (activeJob) {
     if (activeJob.leadId) await addTimelineEntry({ leadId: activeJob.leadId, type: "NOTE", body: note }).catch(() => {});
     else await db.activityLog.create({ data: { jobId: activeJob.id, action: note.slice(0, 300) } }).catch(() => {});

@@ -28,10 +28,10 @@ export default async function PrivacyPolicyPage() {
     <div className="min-h-screen bg-[#eef4fb]">
       <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
-          <Link href="/book" className="flex items-center gap-2">
+          <Link href="/booking" className="flex items-center gap-2">
             <CompanyLogo logoUrl={settings.logoUrl} className="h-10 w-auto max-w-[150px]" showTm />
           </Link>
-          <Link href="/book" className="flex items-center gap-1.5 text-xs font-semibold text-primary sm:text-sm">
+          <Link href="/booking" className="flex items-center gap-1.5 text-xs font-semibold text-primary sm:text-sm">
             <ArrowLeft className="size-4" /> Back to Booking
           </Link>
         </div>

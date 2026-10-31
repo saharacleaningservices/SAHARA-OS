@@ -7,8 +7,8 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
 import { isOutboundAllowed, sendWhatsApp, WHATSAPP_TEST_MODE_NUMBERS, whatsappOutboundMode } from "@/lib/whatsapp";
+import { requireAdminResult } from "@/lib/require-admin";
 import {
   ensureBackupToken,
   getResolvedIntegrations,
@@ -21,12 +21,7 @@ import {
   updateWhatsAppSettings,
 } from "@/server/integrations";
 
-async function requireAdmin() {
-  const session = await getSession();
-  if (!session) return { error: "Not authorized" as const, session: null };
-  if (session.role !== "ADMIN") return { error: "Only an admin can change integrations" as const, session: null };
-  return { error: null, session };
-}
+const requireAdmin = () => requireAdminResult("Only an admin can change integrations");
 
 function refresh() {
   revalidatePath("/settings");

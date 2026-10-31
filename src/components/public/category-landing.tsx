@@ -1,15 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Check, MessageCircle, Phone } from "lucide-react";
-import { CONTACT } from "@/lib/marketing-content";
-import { toWhatsAppLink } from "@/lib/utils";
+import { waLink, CONTACT } from "@/lib/marketing-content";
 
 // Shared blocks for the category ad-landing pages (/residential-cleaning, /commercial-cleaning,
 // /painting-services, /pest-control, /housekeeping-services). Server components, no client JS
 // except the form (category-lead-form.tsx). Rendered inside LandingShell, which already loads
 // AttributionCapture (UTM / gclid / fbclid → localStorage) and the Meta Pixel + GA tags.
 
-const waLink = (text: string) => `${toWhatsAppLink(CONTACT.whatsapp)}?text=${encodeURIComponent(text)}`;
 
 export function CategoryHero({ title, subtitle, image, alt, points, waText, badge, cta = "Get Free Quote", ctaHref = "#enquiry" }: {
   title: string;

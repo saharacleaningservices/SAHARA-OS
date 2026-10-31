@@ -56,7 +56,8 @@ export function canViewSalary(role: string): boolean {
  * Same set as canViewJobAmount — nobody who cannot see the amount can change it.
  */
 export function canEditBilling(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS" || role === "OPERATIONS";
+  // Owner rule 2026-10-31: Operations (Francis) can no longer edit billing / invoices.
+  return role === "ADMIN" || role === "ACCOUNTS";
 }
 
 /** Profit dashboard (revenue − expenses − wages). Super Admin only. */
@@ -82,7 +83,8 @@ export function canManageJobs(role: string): boolean {
 
 /** Soft-delete individual records (leads, jobs, payments, expenses) — owner-controlled, unchanged by the 2026-09-21 Operations/Supervisor expansion (that expansion granted edit/restore, not delete). */
 export function canDeleteRecords(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS";
+  // Owner rule 2026-10-31: hard/soft delete is Super Admin only (Shoyab's Accounts role no longer deletes).
+  return role === "ADMIN";
 }
 
 /** Company settings, backups, logo/branding. */
@@ -120,7 +122,8 @@ export function canSearchGlobally(role: string): boolean {
  *  search/export both surface customer name + mobile, which he must never
  *  see. Same reasoning SUPERVISOR was removed 2026-09-21. */
 export function canExportCustomers(role: string): boolean {
-  return role === "ADMIN" || role === "ACCOUNTS";
+  // Owner rule 2026-10-31: customer-list CSV export is Super Admin only.
+  return role === "ADMIN";
 }
 
 /** Vehicle & material allocation. SUPERVISOR keeps this — Vehicles stays in Francis's narrowed 2026-09-21 module list, needed for Team Dispatch. */

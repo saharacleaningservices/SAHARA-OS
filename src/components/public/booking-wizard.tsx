@@ -125,6 +125,7 @@ export function BookingWizard({
   hidePicker,
   campaignName,
   referralCode,
+  bookingLinkToken,
   prefill,
   preset,
   pricing,
@@ -138,6 +139,8 @@ export function BookingWizard({
   preset?: { bhk: string; pkg: HomeTier };
   campaignName?: string;
   referralCode?: string;
+  /** Staff-sent personalised booking link (?bl=): ties the submission back to the link record. */
+  bookingLinkToken?: string;
   prefill?: { name?: string; mobile?: string };
   /** Live prices + festival offers (server/pricing.ts). Falls back to the catalogue. */
   pricing?: LivePricing;
@@ -543,6 +546,7 @@ export function BookingWizard({
         marketingOptIn,
         quotationToken: quote?.token ?? "",
         referralCode: promo.trim(),
+        bookingLinkToken: bookingLinkToken ?? "",
         notes: [quote ? `Quotation ${quote.quoteNumber}` : `${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`, xsell.length ? `Also interested in: ${xsell.join(", ")}` : "", promo.trim() ? `Promo code: ${promo.trim()}` : ""].filter(Boolean).join(" | "),
         // Empty: the server derives the lead source from the detected channel (Google Ads,
         // Meta, GBP…) and falls back to WEBSITE — a hard-coded WEBSITE hid ad leads.

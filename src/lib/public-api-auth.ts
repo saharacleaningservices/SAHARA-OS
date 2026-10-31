@@ -1,4 +1,5 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHmac } from "node:crypto";
+import { safeEqual } from "@/lib/safe-equal";
 
 // Request authentication for the public REST API used by the separate marketing website
 // (docs/website/public-api-v1.openapi.yaml). Server-to-server only: the website's server signs each request.
@@ -22,13 +23,6 @@ export function publicApiConfigured(env: Env = process.env): boolean {
   const t = env.PUBLIC_API_TOKEN;
   const s = env.PUBLIC_API_HMAC_SECRET;
   return !!t && !!s && t.length >= MIN_SECRET_LENGTH && s.length >= MIN_SECRET_LENGTH;
-}
-
-/** Constant-time string comparison (no early exit on the first differing byte). */
-function safeEqual(a: string, b: string): boolean {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
 }
 
 /** The signature a client must send for this timestamp and raw body. Exported for the website client and tests. */

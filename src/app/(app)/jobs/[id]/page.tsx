@@ -134,7 +134,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             {canSeeCustomerContact && (
               <>
                 <CallButton mobile={job.customerMobile} />
-                <WhatsAppButton mobile={job.customerMobile} />
+                <WhatsAppButton mobile={job.customerMobile} context={{ name: cleanCustomerName(job.customerName), service: serviceLabel, when: `${formatDate(job.scheduledDate)}${job.scheduledTime ? `, ${job.scheduledTime}` : ""}` }} />
               </>
             )}
             {/* Job Card PDF — field roles automatically get the team copy (no phone / money / notes). */}

@@ -35,6 +35,7 @@ import { canAccessLead } from "@/server/leads";
 import { confirmLeadIntoJob } from "@/server/confirm-lead-core";
 import { channelForManualLead } from "@/lib/attribution";
 import { addressKey, linkCustomerAndSite } from "@/server/customer-db";
+import { last10 as normalizeLast10 } from "@/lib/phone";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit allowed lead/booking
@@ -90,7 +91,7 @@ function normalizeTeam(value: number | "" | undefined): number | null {
  * office can still save it after confirming.
  */
 async function findExactDuplicateLead(data: { mobile: string; service: string; serviceDate?: string | null; timeSlot?: string | null; siteId?: string | null; address?: string | null }) {
-  const last10 = data.mobile.replace(/\D/g, "").slice(-10);
+  const last10 = normalizeLast10(data.mobile);
   if (last10.length !== 10 || !data.serviceDate) return null;
   const day = new Date(`${data.serviceDate.slice(0, 10)}T00:00:00+05:30`);
   if (Number.isNaN(day.getTime())) return null;

@@ -256,7 +256,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                           {canSeeCustomerContact && (
                             <>
                               <CallButton mobile={job.customerMobile} />
-                              <WhatsAppButton mobile={job.customerMobile} />
+                              <WhatsAppButton mobile={job.customerMobile} context={{ name: job.customerName, service: SERVICE_LABELS[job.service] ?? job.service, amount: bal }} />
                             </>
                           )}
                           {href && (
@@ -361,7 +361,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                         {canSeeCustomerContact && (
                           <>
                             <CallButton mobile={job.customerMobile} />
-                            <WhatsAppButton mobile={job.customerMobile} />
+                            <WhatsAppButton mobile={job.customerMobile} context={{ name: job.customerName, service: SERVICE_LABELS[job.service] ?? job.service, amount: bal }} />
                           </>
                         )}
                         {href && (

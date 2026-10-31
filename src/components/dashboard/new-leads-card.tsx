@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LeadStageBadge } from "@/components/shared/status-badge";
+import { LeadResponseTimer } from "@/components/leads/lead-response-timer";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatDateShort, formatDateTime } from "@/lib/utils";
 
@@ -62,7 +63,7 @@ export function NewLeadsCard({ rows, newCount }: { rows: Row[]; newCount: number
                   {l.packageName ? ` · ${l.packageName}` : ""} · {l.area}
                   {l.serviceDate ? ` · Service ${formatDateShort(l.serviceDate)}${l.timeSlot ? ` ${l.timeSlot}` : ""}` : ""}
                 </p>
-                <p className="text-[11px] text-muted-foreground">Received {formatDateTime(l.createdAt)}</p>
+                <p className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">Received {formatDateTime(l.createdAt)} <LeadResponseTimer stage={l.stage} createdAt={l.createdAt} /></p>
               </div>
               <LeadStageBadge stage={l.stage} />
             </Link>

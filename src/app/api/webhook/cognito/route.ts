@@ -1,9 +1,9 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { parseCognitoEntry } from "@/lib/cognito-entry";
 import { ingestEnquiry } from "@/server/enquiry-intake";
 import { notify } from "@/server/notify";
 import { rateLimit } from "@/lib/rate-limit";
+import { safeEqual } from "@/lib/safe-equal";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,12 +22,6 @@ export const dynamic = "force-dynamic";
  */
 const MAX_BODY_BYTES = 64_000;
 const MIN_SECRET = 24;
-
-function safeEqual(a: string, b: string) {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
-}
 
 export async function POST(req: NextRequest) {
   const secret = process.env.COGNITO_WEBHOOK_SECRET ?? "";

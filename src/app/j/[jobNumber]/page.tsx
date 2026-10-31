@@ -37,7 +37,7 @@ export default async function PublicJobConfirmationPage({
   const { job, googleReviewUrl, offer, referralCode, balanceDue, payment } = data;
   const before = job.photos.filter((p) => p.type === "BEFORE");
   const after = job.photos.filter((p) => p.type === "AFTER");
-  const bookLink = `${PUBLIC_BOOKING_URL}/book?ref=${referralCode}`;
+  const bookLink = `${PUBLIC_BOOKING_URL}/booking?ref=${referralCode}`;
   const hasPaymentDetails = !!(payment.upiId || payment.upiQrUrl || payment.bankAccountNumber);
 
   return (

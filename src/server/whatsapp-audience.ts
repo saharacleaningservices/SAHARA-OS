@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { validMobile10 } from "@/lib/phone";
 
 // WhatsApp marketing audience. The ONLY people a promotional message may go
 // to: a valid Indian mobile with an explicit, recorded WhatsApp marketing
@@ -8,10 +9,7 @@ import { db } from "@/lib/db";
 
 const TEST = /\btest\b|demo|dummy|asdf|xxx/i;
 
-export const last10 = (raw?: string | null) => {
-  const d = (raw ?? "").replace(/\D/g, "").slice(-10);
-  return /^[6-9]\d{9}$/.test(d) ? d : null;
-};
+export const last10 = validMobile10;
 
 const consentOf = (v?: string | null) => (/OUT/.test(v ?? "") ? "OPT_OUT" : /IN$/.test(v ?? "") ? "OPT_IN" : "UNKNOWN");
 

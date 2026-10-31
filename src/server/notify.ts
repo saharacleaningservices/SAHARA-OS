@@ -27,6 +27,7 @@ export type NotifKind =
   | "PAYMENT_RECEIVED"
   | "FOLLOWUP_DUE"
   | "STALE_LEAD"
+  | "LEAD_UNCONTACTED"
   | "SITE_VISIT"
   | "CREW_UPDATE"
   | "DEVICE_LOGIN"
@@ -55,6 +56,8 @@ const KIND_ROLES: Record<NotifKind, Role[]> = {
   PAYMENT_RECEIVED: ["ADMIN", "ACCOUNTS"], // amounts — not Operations (owner rule 2026-10-08)
   FOLLOWUP_DUE: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
   STALE_LEAD: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
+  // NEW lead untouched for 15 min (src/server/lead-response.ts) — Admin + Accounts (Shoyab) only.
+  LEAD_UNCONTACTED: ["ADMIN", "ACCOUNTS"],
   SITE_VISIT: ["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR"],
   CREW_UPDATE: ["ADMIN", "OPERATIONS", "SUPERVISOR"],
   DEVICE_LOGIN: ["ADMIN"],

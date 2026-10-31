@@ -9,6 +9,7 @@ import { NAV_GROUPS, NAV_ITEMS, type NavItem } from "./nav-config";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { canAccess } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { useNavBadges } from "@/lib/nav-badges";
 
 export function SidebarNav({
   role,
@@ -21,6 +22,7 @@ export function SidebarNav({
 }) {
   const pathname = usePathname();
   const lang = useCrmLang();
+  const badges = useNavBadges();
   const items = NAV_ITEMS.filter((item) => canAccess(role, item.section));
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
   // Accordion: the Dashboard link plus four sections instead of one 30+ item list. Empty groups (nothing the role may open) are hidden;
@@ -65,7 +67,12 @@ export function SidebarNav({
         )}
       >
         <Icon className="size-4 shrink-0" />
-        {crmT(lang, item.label)}
+        <span className="flex-1">{crmT(lang, item.label)}</span>
+        {(badges[item.href] ?? 0) > 0 && (
+          <span aria-label={`${badges[item.href]} unread`} className="min-w-5 rounded-full bg-destructive px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+            {badges[item.href] > 99 ? "99+" : badges[item.href]}
+          </span>
+        )}
       </Link>
     );
   };

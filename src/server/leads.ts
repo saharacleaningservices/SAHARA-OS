@@ -27,28 +27,27 @@ export function supervisorLeadWhere() {
   };
 }
 
-/**
- * Francis (OPERATIONS) — owner request 2026-10-05: a "New Leads" section with
- * Create New Lead. Scoped, not the full customer database: every NEW
- * enquiry, leads assigned to or created by him, plus the same today/tomorrow
- * window as SUPERVISOR.
- */
-// Open enquiry stages. Booked leads (Confirmed / Job Scheduled / Completed)
-// carry job detail, so Operations sees them only inside the today/tomorrow
-// window — the same Today + Tomorrow rule as the job pages.
-const OPEN_LEAD_STAGES = ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"];
+// Open enquiry stages (used by dashboard counters).
+export const OPEN_LEAD_STAGES = ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"];
 
-export function operationsLeadWhere(userId: string) {
-  const now = new Date();
-  const todayStart = startOfDay(now);
-  const tomorrowEnd = endOfDay(addDays(now, 1));
+/**
+ * Francis (OPERATIONS) — strict 3-day window (owner rule 2026-10-31): a lead is
+ * visible only when its service date, follow-up date or creation date falls
+ * on yesterday, today or tomorrow. Same window as his job list
+ * (jobScopeFor → YESTERDAY_TODAY_TOMORROW). No older/open backlog, no
+ * "assigned to me" exception. All three columns are indexed range filters.
+ */
+export function operationsLeadWindow(now = new Date()) {
+  return { from: startOfDay(addDays(now, -1)), to: endOfDay(addDays(now, 1)) };
+}
+
+export function operationsLeadWhere(_userId?: string) {
+  const { from, to } = operationsLeadWindow();
   return {
     OR: [
-      { serviceDate: { gte: todayStart, lte: tomorrowEnd } },
-      { followUpDate: { gte: todayStart, lte: tomorrowEnd }, stage: { in: OPEN_LEAD_STAGES as never } },
-      { stage: "NEW" as never },
-      { assignedToId: userId, stage: { in: OPEN_LEAD_STAGES as never } },
-      { createdById: userId, stage: { in: OPEN_LEAD_STAGES as never } },
+      { serviceDate: { gte: from, lte: to } },
+      { followUpDate: { gte: from, lte: to } },
+      { createdAt: { gte: from, lte: to } },
     ],
   };
 }
@@ -66,11 +65,9 @@ export function canAccessLead(
   lead: { followUpDate: Date | null; serviceDate: Date | null; createdAt: Date; stage: string; assignedToId?: string | null; createdById?: string | null },
 ): boolean {
   if (session.role === "OPERATIONS") {
-    const now = new Date();
-    const inWin = (d: Date | null) => !!d && d >= startOfDay(now) && d <= endOfDay(addDays(now, 1));
-    if (inWin(lead.serviceDate)) return true;
-    if (!OPEN_LEAD_STAGES.includes(lead.stage)) return false;
-    return lead.stage === "NEW" || inWin(lead.followUpDate) || lead.assignedToId === session.sub || lead.createdById === session.sub;
+    const { from, to } = operationsLeadWindow();
+    const inWin = (d: Date | null) => !!d && d >= from && d <= to;
+    return inWin(lead.serviceDate) || inWin(lead.followUpDate) || inWin(lead.createdAt);
   }
   if (session.role !== "SUPERVISOR") return true;
   const now = new Date();
@@ -168,12 +165,14 @@ export async function getLeadDetail(id: string) {
 
 /** Francis's dashboard "New Leads" card: open NEW enquiries + leads assigned to him. */
 export async function getNewLeadsForDashboard(userId: string) {
+  // Francis's Operations home: NEW enquiries and leads assigned to him — inside his strict yesterday→tomorrow window only.
+  const windowWhere = operationsLeadWhere(userId);
   const rows = await db.lead.findMany({
-    where: { deletedAt: null, OR: [{ stage: "NEW" }, { assignedToId: userId, stage: { in: OPEN_LEAD_STAGES as never } }] },
+    where: { deletedAt: null, AND: [windowWhere, { OR: [{ stage: "NEW" }, { assignedToId: userId, stage: { in: OPEN_LEAD_STAGES as never } }] }] },
     orderBy: { createdAt: "desc" },
     take: 12,
     select: { id: true, leadNumber: true, name: true, service: true, area: true, stage: true, createdAt: true, serviceDate: true, timeSlot: true, assignedToId: true, packageName: true },
   });
-  const newCount = await db.lead.count({ where: { deletedAt: null, stage: "NEW" } });
+  const newCount = await db.lead.count({ where: { deletedAt: null, stage: "NEW", AND: [windowWhere] } });
   return { rows: rows.map((r) => ({ ...r, assignedToMe: r.assignedToId === userId })), newCount };
 }

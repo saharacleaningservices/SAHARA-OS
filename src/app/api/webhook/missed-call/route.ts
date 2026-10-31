@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { last10 } from "@/lib/phone";
+import { safeEqual } from "@/lib/safe-equal";
 import { recordCallLead } from "@/server/call-lead";
 
 export const runtime = "nodejs";
@@ -31,12 +33,12 @@ async function handle(req: NextRequest, raw: Record<string, unknown>) {
   const token = process.env.MISSED_CALL_TOKEN || process.env.CRON_TOKEN;
   const provided = req.headers.get("authorization") ?? "";
   const qToken = req.nextUrl.searchParams.get("token") ?? "";
-  if (!token || (provided !== `Bearer ${token}` && qToken !== token)) {
+  if (!token || (!safeEqual(provided, `Bearer ${token}`) && !safeEqual(qToken, token))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const number = extractNumber(raw);
-  const mobile = (number ?? "").replace(/\D/g, "").slice(-10);
+  const mobile = last10(number);
   if (mobile.length !== 10) return NextResponse.json({ error: "No valid caller number" }, { status: 400 });
 
   // Match an open / recent lead or auto-create one (shared with /api/v1/webhooks/call-trigger).

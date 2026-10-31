@@ -23,7 +23,7 @@ import {
 import { formatINR } from "@/lib/utils";
 
 /** Simple +/- quantity field. Shared by the public Booking Form V2
- * (src/components/public/public-booking-form.tsx) and the CRM New Lead
+ * (src/components/public/booking-wizard.tsx) and the CRM New Lead
  * form's dynamic service sub-fields below, so both stay visually and
  * behaviourally identical. Defined at module scope so it keeps a stable
  * identity across re-renders. */

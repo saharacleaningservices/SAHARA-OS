@@ -53,7 +53,7 @@ export default async function PublicGalleryPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd()) }} />
       <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Link href="/book"><CompanyLogo logoUrl={settings.logoUrl} className="h-[42px] w-auto max-w-[170px]" showTm /></Link>
+          <Link href="/booking"><CompanyLogo logoUrl={settings.logoUrl} className="h-[42px] w-auto max-w-[170px]" showTm /></Link>
           <div className="flex items-center gap-2">
             <a href={`tel:+91${CALL_NUMBER}`} className="sahara-pulse flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-white">
               <Phone className="size-4" /> Call {CALL_NUMBER}
@@ -69,7 +69,7 @@ export default async function PublicGalleryPage() {
         <div className="mx-auto max-w-5xl px-4 py-8 text-center">
           <h1 className="font-serif text-2xl italic sm:text-3xl">Our Work — Before &amp; After</h1>
           <p className="mt-1 text-sm text-white/85">Real results from cleaning, painting &amp; pest-control jobs across Pune</p>
-          <a href="/book" className="mt-4 inline-block rounded-full bg-white px-5 py-2 text-sm font-bold text-primary shadow-lg">Book Your Service</a>
+          <Link href="/booking" className="mt-4 inline-block rounded-full bg-white px-5 py-2 text-sm font-bold text-primary shadow-lg">Book Your Service</Link>
         </div>
       </section>
 
@@ -96,7 +96,7 @@ export default async function PublicGalleryPage() {
       </main>
 
       <footer className="sahara-gradient py-4 text-center text-[11px] text-white/75">
-        <Link href="/book" className="hover:text-white">Book a service</Link>
+        <Link href="/booking" className="hover:text-white">Book a service</Link>
         <span className="mx-2">·</span>
         {COMPANY.name}
         <sup className="ml-0.5 text-[0.7em]">™</sup>

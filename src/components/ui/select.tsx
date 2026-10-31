@@ -28,8 +28,8 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 py-2 text-sm shadow-sm outline-none transition-colors",
-        "data-[size=sm]:h-8 data-[size=default]:h-9",
+        "flex w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 py-2 text-base shadow-sm outline-none transition-colors sm:text-sm",
+        "data-[size=sm]:h-11 data-[size=default]:h-11 sm:data-[size=sm]:h-8 sm:data-[size=default]:h-9",
         "focus:ring-2 focus:ring-ring",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "[&>span]:line-clamp-1",
@@ -98,7 +98,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none",
+        "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-2.5 pr-8 pl-2 text-base outline-none select-none sm:py-1.5 sm:text-sm",
         "focus:bg-accent focus:text-accent-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className

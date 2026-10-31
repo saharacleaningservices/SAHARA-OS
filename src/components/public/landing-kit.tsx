@@ -13,7 +13,7 @@ import { BookingWizard } from "@/components/public/booking-wizard";
 import { ServiceCards } from "@/components/public/service-cards";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import type { HomeRow } from "@/components/public/price-selector";
-import { CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
+import { waLink, CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
 import { buildBusinessJsonLd } from "@/lib/seo-schema";
 import { PriceSelector } from "@/components/public/price-selector";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
@@ -22,7 +22,6 @@ import { festivalUrgency } from "@/lib/festival-urgency";
 import { getPublicPricing, publicFestivalOffersOn } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
-import { toWhatsAppLink } from "@/lib/utils";
 import { paymentDetailsFrom } from "@/lib/booking-payment";
 import { COMPANY } from "@/lib/constants";
 import { TRUST } from "@/lib/booking-target";
@@ -31,7 +30,6 @@ import { TRUST } from "@/lib/booking-target";
 // and the four service pages). Server components; all SEO text is real HTML.
 
 export const BASE_URL = "https://booking.saharacleaningservices.com";
-const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAppLink(number)}?text=${encodeURIComponent(text)}`;
 
 // Verified public profiles (checked 30 Sep 2026) — only these are linked.
 // Clean (untagged) profile URLs for the business JSON-LD `sameAs` — UTM-tagged links are for visitors, not search engines.

@@ -42,7 +42,7 @@ export async function addGalleryItem(input: AddInput) {
 
   revalidatePath("/admin/gallery");
   revalidatePath("/gallery");
-  revalidatePath("/book");
+  revalidatePath("/booking");
   return { success: true as const };
 }
 
@@ -51,7 +51,7 @@ export async function deleteGalleryItem(id: string) {
   await db.galleryItem.delete({ where: { id } }).catch(() => {});
   revalidatePath("/admin/gallery");
   revalidatePath("/gallery");
-  revalidatePath("/book");
+  revalidatePath("/booking");
   return { success: true as const };
 }
 
@@ -60,7 +60,7 @@ export async function toggleGalleryFeatured(id: string, featured: boolean) {
   await db.galleryItem.update({ where: { id }, data: { featured } }).catch(() => {});
   revalidatePath("/admin/gallery");
   revalidatePath("/gallery");
-  revalidatePath("/book");
+  revalidatePath("/booking");
   return { success: true as const };
 }
 

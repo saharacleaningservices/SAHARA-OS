@@ -66,7 +66,7 @@ export const SERVICE_CATEGORY_TO_LEGACY: Record<string, string> = {
 
 // The customer-facing categories shown on the public booking page (Service
 // Category dropdown + the landing page's Service Category cards/deep link).
-// Defined here — NOT inside the "use client" PublicBookingForm — because the
+// Defined here — NOT inside the "use client" BookingWizard — because the
 // Server Component booking page (src/app/book/page.tsx) reads this array
 // during SSR; importing a plain constant from a "use client" module into a
 // Server Component resolves to a client-reference proxy on the server (not
@@ -301,7 +301,7 @@ export const LEAD_SOURCE_OPTIONS = Object.entries(LEAD_SOURCE_LABELS).map(([valu
 // Booking Form V2 — dynamic service sub-fields & indicative live pricing.
 //
 // These figures power the "Estimated from your selections" suggestion shown
-// while the customer fills the form (see PublicBookingForm). They are
+// while the customer fills the form (see BookingWizard). They are
 // ESTIMATE-ONLY: the number is offered as a one-click suggestion into the
 // existing "Estimated ₹" field, never submitted on its own or treated as a
 // final price. The office team always confirms the real amount. Tune these
@@ -687,9 +687,8 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "service-housekeeping",
           "service-pest-control",
           "service-interior-painting",
-          "revenue",
+          // "revenue" and "reports" (P&L / Export Center) removed from Accounts — owner rule 2026-10-31.
           "customers",
-          "reports",
           "assistant",
           "admin",
           "announcements", // nav visibility for /admin/announcements (Staff App announcements)

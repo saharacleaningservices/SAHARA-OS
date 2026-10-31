@@ -36,6 +36,7 @@ import { db } from "@/lib/db";
 import { templateByName } from "@/lib/whatsapp-cloud-templates";
 import { filterToMarketingOptIn } from "@/server/whatsapp-audience";
 import { getResolvedIntegrations } from "@/server/integrations";
+import { last10 } from "@/lib/phone";
 
 export type WhatsAppKind =
   | "BOOKING_CONFIRMATION"
@@ -709,7 +710,8 @@ export function shouldFallBackToText(error: string | null | undefined): boolean 
 }
 
 /** Last 10 digits of any stored phone format ("+91 75203 63157", "09730048233", …). */
-export const last10Digits = (n: string | null | undefined) => (n ?? "").replace(/\D/g, "").slice(-10);
+/** @deprecated use `last10` from "@/lib/phone" */
+export const last10Digits = last10;
 
 /**
  * Every non-deleted lead whose mobile, WhatsApp or alternate number is this

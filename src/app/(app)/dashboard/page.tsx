@@ -45,6 +45,7 @@ import { getOperationsDashboardSections } from "@/components/dashboard/owner/ope
 import { TabbedDashboard } from "@/components/dashboard/tabbed-dashboard";
 import { PendingActionsPanel } from "@/components/dashboard/pending-actions-panel";
 import { CollectPayWidget } from "@/components/dashboard/collect-pay-widget";
+import { QuickPhoneLead } from "@/components/dashboard/quick-phone-lead";
 import { OwnerQuickInquiry } from "@/components/dashboard/owner-quick-inquiry";
 import { OwnerInquiryTracker } from "@/components/dashboard/owner-inquiry-tracker";
 import { RoleViewToggle, dashboardViewFor } from "@/components/dashboard/role-view-toggle";
@@ -92,10 +93,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       inquiryTools:
         asRole === "ADMIN" ? (
           <div className="space-y-4">
+            <QuickPhoneLead />
             <OwnerQuickInquiry />
             <OwnerInquiryTracker />
           </div>
-        ) : null,
+        ) : (
+          // Shoyab: 10-second log of a call / WhatsApp on 7083347130, 9175220270 or 8956567130.
+          <QuickPhoneLead />
+        ),
     });
     return (
       <TabbedDashboard
