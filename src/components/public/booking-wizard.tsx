@@ -35,8 +35,6 @@ export type QuotePrefill = {
 };
 
 type Category = "HOME" | "COMMERCIAL" | "PEST" | "PAINTING";
-const AGREED_CATEGORY_LABEL: Record<Category, string> = { HOME: "Home Cleaning", COMMERCIAL: "Commercial", PEST: "Pest Control", PAINTING: "Painting" };
-const AGREED_PROPERTY_TYPES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK +", "Villa / Bungalow", "Office", "Shop / Showroom", "Society / Building", "Other"];
 type Line = { label: string; amount: number | null; note?: string; /** Owner-set MRP of the package (struck through only when above the price paid). */ mrp?: number };
 
 // Owner 2026-10-05: Property Type + 4 packages. Fixed prices exist only for
@@ -179,10 +177,6 @@ export function BookingWizard({
     if (campaign || (festivals.length && /[?&]price=festival/i.test(window.location.search))) setPriceMode("FESTIVAL");
   }, [campaign, festivals.length]);
   const [category, setCategory] = useState<Category | "">(preset ? "HOME" : (defaultCategory ?? ""));
-  // Price mode (owner 2026-11-01): the standard package rate, or a rate already agreed on a verbal call / at inspection.
-  // Agreed rate shows no price, needs only Name, Phone, Address, Date, Slot and Property type, and is always pay-after-service.
-  const [rateMode, setRateMode] = useState<"STANDARD" | "AGREED">("STANDARD");
-  const [agreedProperty, setAgreedProperty] = useState("");
   // Home
   const [bhk, setBhk] = useState(preset?.bhk ?? "");
   const [homeType, setHomeType] = useState<"FULL" | "CUSTOM" | "COMBO" | "">(preset ? "FULL" : "");
@@ -354,9 +348,6 @@ export function BookingWizard({
   // Selected lines + dynamic total (priced lines only; no minimum booking value).
   const lines: Line[] = useMemo(() => {
     if (quote) return quote.services.map((s) => ({ label: s, amount: null }));
-    if (rateMode === "AGREED") {
-      return category ? [{ label: `${AGREED_CATEGORY_LABEL[category]}${agreedProperty ? ` · ${agreedProperty}` : ""} — agreed rate`, amount: null, note: "Rate agreed on call / at inspection" }] : [];
-    }
     const out: Line[] = [];
     if (category === "HOME" && homeType === "FULL" && bhk && pkg) {
       const item = items.find((p) => p.bhk === bhk && p.variant === pkg);
@@ -394,7 +385,7 @@ export function BookingWizard({
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quote, rateMode, agreedProperty, category, homeType, bhk, pkg, qty, combos, comType, area, comFreq, pest, pestSize, paint, paintProperty, paintJob, paintSide, sqft, putty, items, activeFestival]);
+  }, [quote, category, homeType, bhk, pkg, qty, combos, comType, area, comFreq, pest, pestSize, paint, paintProperty, paintJob, paintSide, sqft, putty, items, activeFestival]);
 
   const pricedTotal = quote ? quote.totalAmount : lines.reduce((s, l) => s + (l.amount ?? 0), 0);
   const hasUnpriced = !quote && lines.some((l) => l.amount == null);
@@ -419,12 +410,9 @@ export function BookingWizard({
     setMonthOffset((y1 - y0) * 12 + (m1 - m0));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [priceMode, dates, needsPriceMode]);
-  const agreed = !quote && rateMode === "AGREED";
   const serviceChosen = quote
     ? true
-    : agreed
-      ? !!category && !!agreedProperty
-      : lines.length > 0 &&
+    : lines.length > 0 &&
       (!needsPriceMode || !!priceMode) &&
       !addOnOnlyAlone &&
       (category !== "PEST" || !!pestSize) &&
@@ -462,17 +450,9 @@ export function BookingWizard({
     // Nothing is charged before an approved quotation, so the payment choice is fixed to "after service".
     if (inspection && pay !== "PAY_AFTER_SERVICE") setPay("PAY_AFTER_SERVICE");
   }, [inspection, pay]);
-  useEffect(() => {
-    // Agreed rate: nothing is charged online, so the payment choice is fixed to "after service".
-    if (agreed && pay !== "PAY_AFTER_SERVICE") setPay("PAY_AFTER_SERVICE");
-  }, [agreed, pay]);
   const ready = serviceChosen && date && slot && pay && detailsOk;
 
   function mapping() {
-    if (agreed) {
-      const sc = category === "COMMERCIAL" ? "COMMERCIAL_CLEANING" : category === "PEST" ? "PEST_CONTROL" : category === "PAINTING" ? "PAINTING" : "HOME_DEEP_CLEANING";
-      return { serviceCategory: sc, serviceVariant: "", packageName: "Agreed rate", propertyType: agreedProperty };
-    }
     if (category === "HOME" && homeType === "FULL") {
       return { serviceCategory: "HOME_DEEP_CLEANING", serviceVariant: pkg, packageName: `${bhk} ${pkg}`, propertyType: bhk };
     }
@@ -488,7 +468,7 @@ export function BookingWizard({
   }
 
   function selectedItems() {
-    if (agreed || category !== "HOME") return [];
+    if (category !== "HOME") return [];
     if (homeType === "FULL") {
       const it = items.find((p) => p.bhk === bhk && p.variant === pkg);
       const addOns = ADDON_ITEMS.filter((a) => (qty[a.contentId] ?? 0) > 0).map((a) => ({ contentId: a.contentId, qty: qty[a.contentId] }));
@@ -557,7 +537,7 @@ export function BookingWizard({
         // Full-home add-ons, so the CRM lead lists them alongside the package.
         addOnServices: lines.filter((l) => l.label.startsWith("+ ")).map((l) => l.label.slice(2)),
         // Price snapshot — the server re-prices these items and freezes the amount on the lead.
-        priceType: category === "HOME" && !quote && !agreed ? (priceMode === "FESTIVAL" ? "FESTIVAL" : "REGULAR") : undefined,
+        priceType: category === "HOME" && !quote ? (priceMode === "FESTIVAL" ? "FESTIVAL" : "REGULAR") : undefined,
         selectedItems: quote ? [] : selectedItems(),
         estimatedAmount: pricedTotal > 0 ? pricedTotal : undefined,
         serviceDate: date,
@@ -567,7 +547,7 @@ export function BookingWizard({
         quotationToken: quote?.token ?? "",
         referralCode: promo.trim(),
         bookingLinkToken: bookingLinkToken ?? "",
-        notes: [quote ? `Quotation ${quote.quoteNumber}` : `${agreed ? "AGREED RATE — rate to be confirmed on verbal call / at inspection (no online price) — " : ""}${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`, xsell.length ? `Also interested in: ${xsell.join(", ")}` : "", promo.trim() ? `Promo code: ${promo.trim()}` : ""].filter(Boolean).join(" | "),
+        notes: [quote ? `Quotation ${quote.quoteNumber}` : `${inspection ? "SITE INSPECTION REQUIRED — " : ""}${campaignName ? `${campaignName} — ` : "Booking page — "}${summary}`, xsell.length ? `Also interested in: ${xsell.join(", ")}` : "", promo.trim() ? `Promo code: ${promo.trim()}` : ""].filter(Boolean).join(" | "),
         // Empty: the server derives the lead source from the detected channel (Google Ads,
         // Meta, GBP…) and falls back to WEBSITE — a hard-coded WEBSITE hid ad leads.
         source: "",
@@ -755,36 +735,8 @@ export function BookingWizard({
       ) : (
         <div id="bk-service" className={`${card} scroll-mt-20 ${svcCollapsed ? "max-sm:hidden" : ""}`}>
           {step(1, hidePicker ? "Your package" : "Choose service & package", serviceChosen)}
-          <fieldset className="mt-3 grid gap-2 sm:grid-cols-2" aria-label="Price mode">
-            <legend className="sr-only">Price mode</legend>
-            {([["STANDARD", "Standard Package Rate", "See fixed package prices"], ["AGREED", "Agreed Rate on Verbal Call / Inspection", "Price already discussed with our team"]] as const).map(([v, t, sub]) => (
-              <label key={v} className={`flex min-h-12 cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-sm ${rateMode === v ? "border-primary bg-primary/[0.06]" : "border-[#0a2540]/15 bg-white"}`}>
-                <input type="radio" name="rate-mode" value={v} checked={rateMode === v} onChange={() => setRateMode(v)} className="mt-0.5 size-4 accent-[#2563eb]" />
-                <span><span className="block font-bold">{t}</span><span className="block text-xs text-[#0a2540]/60">{sub}</span></span>
-              </label>
-            ))}
-          </fieldset>
-          {agreed && (
-            <div className="mt-3 space-y-3 rounded-xl bg-[#eef4fb] p-3.5" id="bk-agreed">
-              <p className="text-sm font-semibold text-[#0a2540]">Fixed pricing is switched off. Your rate was agreed on a call or will be confirmed at inspection — no online payment is taken. Just share your details, date and slot and we will confirm.</p>
-              <div>
-                <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-[#0a2540]/60">Service</p>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {(Object.keys(AGREED_CATEGORY_LABEL) as Category[]).map((c) => (
-                    <button key={c} type="button" onClick={() => setCategory(c)} aria-pressed={category === c} className={`min-h-11 rounded-xl border px-2 text-sm font-semibold ${category === c ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white"}`}>{AGREED_CATEGORY_LABEL[c]}</button>
-                  ))}
-                </div>
-              </div>
-              <label className="block text-xs font-bold uppercase tracking-wide text-[#0a2540]/60">Property type
-                <select value={agreedProperty} onChange={(e) => setAgreedProperty(e.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#0a2540]">
-                  <option value="">Select property type</option>
-                  {AGREED_PROPERTY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </label>
-            </div>
-          )}
-          {hidePicker && !category && !agreed && <p className="mt-3 rounded-xl bg-[#eef4fb] p-3 text-sm text-[#0a2540]/75">Tap a service above to see its packages and book.</p>}
-          <div className={`mt-3 space-y-2.5 ${agreed ? "hidden" : ""}`}>
+          {hidePicker && !category && <p className="mt-3 rounded-xl bg-[#eef4fb] p-3 text-sm text-[#0a2540]/75">Tap a service above to see its packages and book.</p>}
+          <div className="mt-3 space-y-2.5">
             {section("HOME", <Home className="size-5" />, "Home Cleaning", "Full Home Deep Cleaning, Sofa, Mattress & More", (
               <>
                 {pkgCollapsed && (
@@ -1434,9 +1386,8 @@ export function BookingWizard({
           </div>
         )}
         {error && <p className="mt-2 text-sm font-semibold text-red-600" role="alert">{error}</p>}
-        {/* Never a dead grey button: while something is missing it stays active and jumps to the first missing step. */}
-        <button type="button" onClick={() => (ready ? submit() : go(missing[0]?.id ?? nextStep))} disabled={pending} className={`mt-3 min-h-12 w-full rounded-xl py-3.5 text-base font-bold text-white ${ready ? "bg-primary" : "bg-primary/85"}`}>
-          {pending ? "Sending…" : !ready ? (nextStep === "bk-service" ? "Choose your service" : nextStep === "bk-date" ? "Proceed to Select Slot" : nextStep === "bk-details" ? "Add your details to continue" : "Choose payment to continue") : agreed ? "Submit Inquiry" : inspection ? "Request Site Inspection" : !quote && pricedTotal === 0 ? "Request Quote" : "Confirm Booking Request"}
+        <button type="button" onClick={submit} disabled={!ready || pending} className="mt-3 min-h-12 w-full rounded-xl bg-primary py-3.5 text-base font-bold text-white disabled:opacity-50">
+          {pending ? "Sending…" : inspection ? "Request Site Inspection" : !quote && pricedTotal === 0 ? "Request Quote" : "Confirm Booking Request"}
         </button>
         <p className="mt-2 text-center text-xs text-[#0a2540]/60">Your booking is confirmed only after our team verifies the slot.</p>
       </div>
