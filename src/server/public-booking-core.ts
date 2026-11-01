@@ -234,7 +234,10 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
   // Only a server-priced catalogue total is authoritative. A browser-supplied
   // estimatedAmount is never stored as the quote — it becomes an unverified staff note.
   // 4 BHK and larger, villas, bungalows, full houses: staff inspect and quote — never an instant price.
-  const inspectionRequired = data.serviceCategory === "HOME_DEEP_CLEANING" && needsInspection(data.propertyType);
+  // "Agreed rate on verbal call / inspection" bookings (booking form price-mode toggle, 2026-11-01) carry no online price,
+  // so they are never auto-confirmed into a Job — the office confirms the rate first.
+  const agreedRate = /^agreed rate$/i.test((data.packageName ?? "").trim());
+  const inspectionRequired = agreedRate || (data.serviceCategory === "HOME_DEEP_CLEANING" && needsInspection(data.propertyType));
   let estimated: number | null = null;
   let priceType: "REGULAR" | "FESTIVAL" | null = null;
   let festivalName: string | null = null;

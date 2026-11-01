@@ -27,7 +27,7 @@ const CRM_HOST = new URL(CRM).host;
 // Mirrors src/app/sitemap.ts on purpose: a route disappearing from the sitemap (or the page) must fail a test.
 const PACKAGE_PATHS = ["1-bhk", "2-bhk", "3-bhk"].flatMap((b) => ["premium", "platinum"].map((t) => `/home-deep-cleaning-pune/${b}-${t}`));
 const PROGRAMMATIC = PROGRAMMATIC_PAGES.map((p) => `/services/${p.category}/${p.location}`);
-const SEO_HUBS = ["/services", ...SERVICE_CATEGORIES.map((c) => `/services/${c.slug}`), "/b2b/architects", "/b2b/corporate-facility"];
+const SEO_HUBS = ["/services", "/contact", ...SERVICE_CATEGORIES.map((c) => `/services/${c.slug}`), "/b2b/architects", "/b2b/corporate-facility"];
 // Programmatic pages are sampled in the per-page checks below (all of them are checked for the sitemap and by tests/pune-seo-matrix.test.ts).
 const PROGRAMMATIC_SAMPLE = PROGRAMMATIC.filter((_, i) => i % 37 === 0);
 const CORE = ["/booking", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];

@@ -28,7 +28,7 @@ test("business JSON-LD carries no prices; rating is the public GBP figure (owner
   for (const key of ["price", "priceRange", "review"]) assert.ok(!s.includes(`"${key}"`), `unexpected ${key}`);
   assert.ok(!/₹|\bbest\b|\btop\b|#1/i.test(s), "no prices or superlative claims");
   assert.equal(j.aggregateRating.ratingValue, "4.9");
-  assert.equal(j.aggregateRating.ratingCount, 1800);
+  assert.equal(j.aggregateRating.ratingCount, 1830);
 });
 
 test("business JSON-LD: GSTIN, three contact points (primary, GMB, WhatsApp API), owner micro-locations, booking action", () => {

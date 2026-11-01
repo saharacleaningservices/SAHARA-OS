@@ -30,6 +30,7 @@ import { MarketingConsentControl } from "@/components/leads/marketing-consent-co
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 import { canAccessAudioAudit, canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
+import { LeadOriginBadge } from "@/components/leads/lead-origin-badge";
 import { SourceLineBadge } from "@/components/leads/source-line-badge";
 import { AudioAuditPanel } from "@/components/leads/audio-audit-panel";
 import { loadRecordingsForAdmin } from "@/server/actions/call-recordings";
@@ -171,8 +172,17 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Source</p>
-                <p className="flex flex-wrap items-center gap-1.5 font-medium text-foreground">{LEAD_SOURCE_LABELS[lead.source]} <SourceLineBadge line={rawLead.sourceLine} always /></p>
+                <p className="flex flex-wrap items-center gap-1.5 font-medium text-foreground">{LEAD_SOURCE_LABELS[lead.source]} <LeadOriginBadge lead={rawLead as never} /> <SourceLineBadge line={rawLead.sourceLine} always /></p>
               </div>
+              {(rawLead.utmSource || rawLead.utmMedium || rawLead.utmCampaign || rawLead.landingPageUrl) && (
+                <div className="col-span-2 sm:col-span-4">
+                  <p className="text-xs text-muted-foreground">Campaign tracking (UTM)</p>
+                  <p className="break-words text-xs font-medium text-foreground">
+                    source: {rawLead.utmSource ?? "—"} · medium: {rawLead.utmMedium ?? "—"} · campaign: {rawLead.utmCampaign ?? "—"}
+                    {rawLead.landingPageUrl && <span className="block font-normal text-muted-foreground">Landing page: {rawLead.landingPageUrl}</span>}
+                  </p>
+                </div>
+              )}
               <div className="col-span-2 sm:col-span-4">
                 <p className="text-xs text-muted-foreground">Address</p>
                 <p className="font-medium text-foreground">{lead.address || "—"}</p>

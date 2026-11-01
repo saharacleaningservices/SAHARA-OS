@@ -73,7 +73,7 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
     email: CONTACT.email,
     taxID: COMPANY.gstin,
     foundingDate: "2012",
-    aggregateRating: { "@type": "AggregateRating", ratingValue: TRUST.rating, bestRating: "5", worstRating: "1", ratingCount: TRUST.reviewCount, reviewCount: TRUST.reviewCount },
+    aggregateRating: { "@type": "AggregateRating", ratingValue: TRUST.rating, bestRating: "5", worstRating: "1", ratingCount: TRUST.siteReviewCount, reviewCount: TRUST.siteReviewCount },
     address: {
       "@type": "PostalAddress",
       streetAddress: "Opposite South Gate, Magarpatta City, Hadapsar",
@@ -133,7 +133,7 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
 export function nearMeFaqs(): { q: string; a: string }[] {
   const areas = SCHEMA_MICRO_LOCATIONS.join(", ");
   return [
-    { q: "Which is the most reliable cleaning service near me in Pune?", a: `Sahara Cleaning Services has served Pune since 2012 from Magarpatta City, Hadapsar, with trained in-house staff and a ${TRUST.rating}/5 Google rating from ${TRUST.reviewLabel} reviews. Book online at ${CUSTOMER_BOOKING_URL} or call +91 ${CONTACT.call[0].slice(0, 5)} ${CONTACT.call[0].slice(5)}.` },
+    { q: "Which is the most reliable cleaning service near me in Pune?", a: `Sahara Cleaning Services has served Pune since 2012 from Magarpatta City, Hadapsar, with trained in-house staff and a ${TRUST.rating}/5 Google rating from ${TRUST.siteReviewLabel} reviews. Book online at ${CUSTOMER_BOOKING_URL} or call +91 ${CONTACT.call[0].slice(0, 5)} ${CONTACT.call[0].slice(5)}.` },
     { q: "Do you provide home deep cleaning near me?", a: `Yes. Sahara covers ${areas} and the rest of Pune and PCMC for full home deep cleaning, sofa, carpet, kitchen and bathroom cleaning. Pick a date and an available slot at ${CUSTOMER_BOOKING_URL}.` },
     { q: "Is there an office or commercial cleaning company near me in Pune?", a: "Sahara Cleaning Services handles office deep cleaning, floor scrubbing, glass and facade cleaning, post-construction cleaning and housekeeping contracts (AMC) across Pune and PCMC, with a written quotation before work." },
     { q: "Is Sahara Cleaning Services GST registered?", a: `Yes. GSTIN ${COMPANY.gstin}. GST invoices are issued for corporate and residential customers on request.` },

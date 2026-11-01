@@ -1,3 +1,4 @@
+import { classifyTouch } from "@/lib/attribution";
 import { sendEnquiryAck } from "@/server/enquiry-ack-email";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
@@ -53,6 +54,16 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
   const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRaw) ? emailRaw : "";
   const sourceLabel = str(raw.source, 60) || opts.defaultSource || "Email / Cognito Form";
   const service = serviceFrom(`${serviceText} ${message}`);
+  // Optional attribution + branch from the native contact form (2026-11-01): UTM tags, landing page and the branch the visitor picked.
+  const utm = {
+    source: str(raw.utm_source ?? raw.utmSource, 80) || null,
+    medium: str(raw.utm_medium ?? raw.utmMedium, 80) || null,
+    campaign: str(raw.utm_campaign ?? raw.utmCampaign, 120) || null,
+  };
+  const landingPageUrl = str(raw.landing_page_url ?? raw.landingPageUrl, 500) || null;
+  const channel = utm.source ? classifyTouch({ source: utm.source, medium: utm.medium, campaign: utm.campaign, at: "x" }) : "Website Form";
+  const branchPick = str(raw.branch, 20).toLowerCase();
+  const sourceLine = branchPick === "mohammadwadi" || utm.medium?.toLowerCase().includes("mohammadwadi") ? "Shoyab-GMB" : branchPick === "magarpatta" || utm.medium?.toLowerCase().includes("magarpatta") ? "Main-API" : "Main";
 
   // Reuse an open / very recent lead for the same number — or the same e-mail (a customer who types a
   // different number) — instead of creating a duplicate. E-mails are stored lower-cased (see create below).
@@ -90,10 +101,17 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
         address: existingCustomer?.address || null,
         service: service as never,
         source: "WEBSITE" as never,
-        acquisitionChannel: "Website Form",
-        firstTouchSource: "Website Form",
+        acquisitionChannel: channel,
+        utmSource: utm.source,
+        utmMedium: utm.medium,
+        utmCampaign: utm.campaign,
+        landingPageUrl,
+        sourceLine,
+        firstTouchSource: utm.source ?? "Website Form",
+        firstTouchMedium: utm.medium,
+        firstTouchCampaign: utm.campaign,
         firstTouchAt: new Date(),
-        latestTouchSource: "Website Form",
+        latestTouchSource: utm.source ?? "Website Form",
         latestTouchAt: new Date(),
         stage: "NEW",
         notes: [`Via ${sourceLabel}`, serviceText && `Service: ${serviceText}`, email && `Email: ${email}`, message && `Message: ${message}`]

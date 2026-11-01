@@ -1,5 +1,6 @@
 "use server";
 
+import { originSnapshot } from "@/lib/lead-origin";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
@@ -165,6 +166,7 @@ async function autoQuotationForLead(leadId: string, actorId?: string) {
       totalAmount: subTotal - discount,
       terms: STANDARD_TERMS_TEXT,
       validTill: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      ...originSnapshot(lead),
       status: "DRAFT",
     },
   });
@@ -949,6 +951,7 @@ export async function createQuotation(
       totalAmount,
       terms: typeof opts.terms === "string" && opts.terms.trim() ? opts.terms.trim().slice(0, 6000) : STANDARD_TERMS_TEXT,
       validTill: new Date(Date.now() + Math.min(60, Math.max(1, Math.round(opts.validDays ?? 7))) * 24 * 60 * 60 * 1000),
+      ...originSnapshot(lead),
     },
   });
 

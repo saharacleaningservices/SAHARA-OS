@@ -56,6 +56,8 @@ export type QuotationMinAggregateOutputType = {
   terms: string | null
   validTill: Date | null
   pdfUrl: string | null
+  leadSource: string | null
+  branchTag: string | null
   status: $Enums.QuotationStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -75,6 +77,8 @@ export type QuotationMaxAggregateOutputType = {
   terms: string | null
   validTill: Date | null
   pdfUrl: string | null
+  leadSource: string | null
+  branchTag: string | null
   status: $Enums.QuotationStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -94,6 +98,8 @@ export type QuotationCountAggregateOutputType = {
   terms: number
   validTill: number
   pdfUrl: number
+  leadSource: number
+  branchTag: number
   status: number
   createdAt: number
   updatedAt: number
@@ -131,6 +137,8 @@ export type QuotationMinAggregateInputType = {
   terms?: true
   validTill?: true
   pdfUrl?: true
+  leadSource?: true
+  branchTag?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -150,6 +158,8 @@ export type QuotationMaxAggregateInputType = {
   terms?: true
   validTill?: true
   pdfUrl?: true
+  leadSource?: true
+  branchTag?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -169,6 +179,8 @@ export type QuotationCountAggregateInputType = {
   terms?: true
   validTill?: true
   pdfUrl?: true
+  leadSource?: true
+  branchTag?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -275,6 +287,8 @@ export type QuotationGroupByOutputType = {
   terms: string
   validTill: Date | null
   pdfUrl: string | null
+  leadSource: string | null
+  branchTag: string | null
   status: $Enums.QuotationStatus
   createdAt: Date
   updatedAt: Date
@@ -317,6 +331,8 @@ export type QuotationWhereInput = {
   terms?: Prisma.StringFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  leadSource?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  branchTag?: Prisma.StringNullableFilter<"Quotation"> | string | null
   status?: Prisma.EnumQuotationStatusFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
@@ -339,6 +355,8 @@ export type QuotationOrderByWithRelationInput = {
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchTag?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -364,6 +382,8 @@ export type QuotationWhereUniqueInput = Prisma.AtLeast<{
   terms?: Prisma.StringFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  leadSource?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  branchTag?: Prisma.StringNullableFilter<"Quotation"> | string | null
   status?: Prisma.EnumQuotationStatusFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
@@ -386,6 +406,8 @@ export type QuotationOrderByWithAggregationInput = {
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchTag?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -413,6 +435,8 @@ export type QuotationScalarWhereWithAggregatesInput = {
   terms?: Prisma.StringWithAggregatesFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableWithAggregatesFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
+  leadSource?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
+  branchTag?: Prisma.StringNullableWithAggregatesFilter<"Quotation"> | string | null
   status?: Prisma.EnumQuotationStatusWithAggregatesFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Quotation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Quotation"> | Date | string
@@ -431,6 +455,8 @@ export type QuotationCreateInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -453,6 +479,8 @@ export type QuotationUncheckedCreateInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -473,6 +501,8 @@ export type QuotationUpdateInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -495,6 +525,8 @@ export type QuotationUncheckedUpdateInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -516,6 +548,8 @@ export type QuotationCreateManyInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -534,6 +568,8 @@ export type QuotationUpdateManyMutationInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -553,6 +589,8 @@ export type QuotationUncheckedUpdateManyInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -582,6 +620,8 @@ export type QuotationCountOrderByAggregateInput = {
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  leadSource?: Prisma.SortOrder
+  branchTag?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -609,6 +649,8 @@ export type QuotationMaxOrderByAggregateInput = {
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  leadSource?: Prisma.SortOrder
+  branchTag?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -628,6 +670,8 @@ export type QuotationMinOrderByAggregateInput = {
   terms?: Prisma.SortOrder
   validTill?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  leadSource?: Prisma.SortOrder
+  branchTag?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -737,6 +781,8 @@ export type QuotationCreateWithoutLeadInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -757,6 +803,8 @@ export type QuotationUncheckedCreateWithoutLeadInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -806,6 +854,8 @@ export type QuotationScalarWhereInput = {
   terms?: Prisma.StringFilter<"Quotation"> | string
   validTill?: Prisma.DateTimeNullableFilter<"Quotation"> | Date | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  leadSource?: Prisma.StringNullableFilter<"Quotation"> | string | null
+  branchTag?: Prisma.StringNullableFilter<"Quotation"> | string | null
   status?: Prisma.EnumQuotationStatusFilter<"Quotation"> | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Quotation"> | Date | string
@@ -824,6 +874,8 @@ export type QuotationCreateWithoutInvoiceInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -845,6 +897,8 @@ export type QuotationUncheckedCreateWithoutInvoiceInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -880,6 +934,8 @@ export type QuotationUpdateWithoutInvoiceInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -901,6 +957,8 @@ export type QuotationUncheckedUpdateWithoutInvoiceInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -920,6 +978,8 @@ export type QuotationCreateWithoutOpsRemindersInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -941,6 +1001,8 @@ export type QuotationUncheckedCreateWithoutOpsRemindersInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -976,6 +1038,8 @@ export type QuotationUpdateWithoutOpsRemindersInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -997,6 +1061,8 @@ export type QuotationUncheckedUpdateWithoutOpsRemindersInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1016,6 +1082,8 @@ export type QuotationCreateManyLeadInput = {
   terms: string
   validTill?: Date | string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.QuotationStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1034,6 +1102,8 @@ export type QuotationUpdateWithoutLeadInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1054,6 +1124,8 @@ export type QuotationUncheckedUpdateWithoutLeadInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1074,6 +1146,8 @@ export type QuotationUncheckedUpdateManyWithoutLeadInput = {
   terms?: Prisma.StringFieldUpdateOperationsInput | string
   validTill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumQuotationStatusFieldUpdateOperationsInput | $Enums.QuotationStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1124,6 +1198,8 @@ export type QuotationSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1147,6 +1223,8 @@ export type QuotationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1167,6 +1245,8 @@ export type QuotationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1187,12 +1267,14 @@ export type QuotationSelectScalar = {
   terms?: boolean
   validTill?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteNumber" | "publicToken" | "leadId" | "services" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "terms" | "validTill" | "pdfUrl" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["quotation"]>
+export type QuotationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quoteNumber" | "publicToken" | "leadId" | "services" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "terms" | "validTill" | "pdfUrl" | "leadSource" | "branchTag" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["quotation"]>
 export type QuotationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Quotation$invoiceArgs<ExtArgs>
@@ -1227,6 +1309,8 @@ export type $QuotationPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     terms: string
     validTill: Date | null
     pdfUrl: string | null
+    leadSource: string | null
+    branchTag: string | null
     status: $Enums.QuotationStatus
     createdAt: Date
     updatedAt: Date
@@ -1669,6 +1753,8 @@ export interface QuotationFieldRefs {
   readonly terms: Prisma.FieldRef<"Quotation", 'String'>
   readonly validTill: Prisma.FieldRef<"Quotation", 'DateTime'>
   readonly pdfUrl: Prisma.FieldRef<"Quotation", 'String'>
+  readonly leadSource: Prisma.FieldRef<"Quotation", 'String'>
+  readonly branchTag: Prisma.FieldRef<"Quotation", 'String'>
   readonly status: Prisma.FieldRef<"Quotation", 'QuotationStatus'>
   readonly createdAt: Prisma.FieldRef<"Quotation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Quotation", 'DateTime'>

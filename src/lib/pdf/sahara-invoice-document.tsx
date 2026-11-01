@@ -28,6 +28,8 @@ export type InvoiceDocumentProps = {
   number: string;
   date: string;
   jobId?: string | null;
+  /** "GMB Magarpatta · Magarpatta branch" — lead origin carried from the lead (2026-11-01). */
+  originLine?: string | null;
   /** Company seal (data URL of public/stamp.png) printed inside the signatory box. */
   stampDataUrl?: string | null;
   company: { name: string; tagline?: string; phones: string[]; email: string; website: string; address: string; gstin: string };
@@ -154,6 +156,7 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
             <View style={s.metaCell}><Text style={s.mL}>Invoice No.</Text><Text style={s.mV}>{p.number}</Text></View>
             <View style={s.metaCell}><Text style={s.mL}>Invoice Date</Text><Text style={s.mV}>{p.date}</Text></View>
             {p.jobId ? <View style={s.metaCell}><Text style={s.mL}>Job ID</Text><Text style={s.mV}>{p.jobId}</Text></View> : null}
+            {p.originLine ? <View style={s.metaCell}><Text style={s.mL}>Lead Source</Text><Text style={s.mV}>{p.originLine}</Text></View> : null}
           </View>
 
           <View style={s.bill}>

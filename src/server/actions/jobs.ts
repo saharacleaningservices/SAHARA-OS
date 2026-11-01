@@ -1,5 +1,6 @@
 "use server";
 
+import { originSnapshot } from "@/lib/lead-origin";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
@@ -371,9 +372,14 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
     ? await db.quotation.findFirst({
         where: { leadId: job.leadId, status: { notIn: ["REJECTED", "EXPIRED"] }, invoice: null },
         orderBy: { createdAt: "desc" },
-        select: { id: true, terms: true },
+        select: { id: true, terms: true, leadSource: true, branchTag: true },
       })
     : null;
+  // Lead origin carried forward onto the invoice (quotation snapshot first, else the lead itself).
+  const originLead = job.leadId && !quotation?.leadSource
+    ? await db.lead.findUnique({ where: { id: job.leadId }, select: { source: true, sourceLine: true, acquisitionChannel: true, utmSource: true, utmMedium: true, utmCampaign: true, gclid: true, fbclid: true } })
+    : null;
+  const origin = quotation?.leadSource ? { leadSource: quotation.leadSource, branchTag: quotation.branchTag } : originLead ? originSnapshot(originLead) : { leadSource: null, branchTag: null };
 
   const serviceLabel = SERVICE_LABELS[job.service] ?? job.service;
   // Multi-service package → one invoice line per service + the discount; else one line.
@@ -393,6 +399,8 @@ async function createFinalInvoice(jobId: string, actorId?: string) {
       jobId,
       paymentId: paymentTaken ? null : payment.id,
       quotationId: quotation?.id ?? null,
+      leadSource: origin.leadSource,
+      branchTag: origin.branchTag,
       customerName: job.customerName,
       customerMobile: job.customerMobile,
       customerAddress: job.address,

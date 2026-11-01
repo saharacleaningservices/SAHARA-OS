@@ -60,6 +60,8 @@ export type InvoiceMinAggregateOutputType = {
   notes: string | null
   terms: string | null
   pdfUrl: string | null
+  leadSource: string | null
+  branchTag: string | null
   status: $Enums.InvoiceStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -83,6 +85,8 @@ export type InvoiceMaxAggregateOutputType = {
   notes: string | null
   terms: string | null
   pdfUrl: string | null
+  leadSource: string | null
+  branchTag: string | null
   status: $Enums.InvoiceStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -106,6 +110,8 @@ export type InvoiceCountAggregateOutputType = {
   notes: number
   terms: number
   pdfUrl: number
+  leadSource: number
+  branchTag: number
   status: number
   createdAt: number
   updatedAt: number
@@ -147,6 +153,8 @@ export type InvoiceMinAggregateInputType = {
   notes?: true
   terms?: true
   pdfUrl?: true
+  leadSource?: true
+  branchTag?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -170,6 +178,8 @@ export type InvoiceMaxAggregateInputType = {
   notes?: true
   terms?: true
   pdfUrl?: true
+  leadSource?: true
+  branchTag?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -193,6 +203,8 @@ export type InvoiceCountAggregateInputType = {
   notes?: true
   terms?: true
   pdfUrl?: true
+  leadSource?: true
+  branchTag?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -303,6 +315,8 @@ export type InvoiceGroupByOutputType = {
   notes: string | null
   terms: string | null
   pdfUrl: string | null
+  leadSource: string | null
+  branchTag: string | null
   status: $Enums.InvoiceStatus
   createdAt: Date
   updatedAt: Date
@@ -349,6 +363,8 @@ export type InvoiceWhereInput = {
   notes?: Prisma.StringNullableFilter<"Invoice"> | string | null
   terms?: Prisma.StringNullableFilter<"Invoice"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  leadSource?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  branchTag?: Prisma.StringNullableFilter<"Invoice"> | string | null
   status?: Prisma.EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
@@ -375,6 +391,8 @@ export type InvoiceOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   terms?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchTag?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -404,6 +422,8 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Invoice"> | string | null
   terms?: Prisma.StringNullableFilter<"Invoice"> | string | null
   pdfUrl?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  leadSource?: Prisma.StringNullableFilter<"Invoice"> | string | null
+  branchTag?: Prisma.StringNullableFilter<"Invoice"> | string | null
   status?: Prisma.EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
@@ -430,6 +450,8 @@ export type InvoiceOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   terms?: Prisma.SortOrderInput | Prisma.SortOrder
   pdfUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  branchTag?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -461,6 +483,8 @@ export type InvoiceScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   terms?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   pdfUrl?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
+  leadSource?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
+  branchTag?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   status?: Prisma.EnumInvoiceStatusWithAggregatesFilter<"Invoice"> | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
@@ -481,6 +505,8 @@ export type InvoiceCreateInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -507,6 +533,8 @@ export type InvoiceUncheckedCreateInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -527,6 +555,8 @@ export type InvoiceUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -553,6 +583,8 @@ export type InvoiceUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -576,6 +608,8 @@ export type InvoiceCreateManyInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -596,6 +630,8 @@ export type InvoiceUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -619,6 +655,8 @@ export type InvoiceUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -647,6 +685,8 @@ export type InvoiceCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  leadSource?: Prisma.SortOrder
+  branchTag?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -678,6 +718,8 @@ export type InvoiceMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  leadSource?: Prisma.SortOrder
+  branchTag?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -701,6 +743,8 @@ export type InvoiceMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   terms?: Prisma.SortOrder
   pdfUrl?: Prisma.SortOrder
+  leadSource?: Prisma.SortOrder
+  branchTag?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -829,6 +873,8 @@ export type InvoiceCreateWithoutQuotationInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -853,6 +899,8 @@ export type InvoiceUncheckedCreateWithoutQuotationInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -889,6 +937,8 @@ export type InvoiceUpdateWithoutQuotationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -913,6 +963,8 @@ export type InvoiceUncheckedUpdateWithoutQuotationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -933,6 +985,8 @@ export type InvoiceCreateWithoutJobInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -957,6 +1011,8 @@ export type InvoiceUncheckedCreateWithoutJobInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -993,6 +1049,8 @@ export type InvoiceUpdateWithoutJobInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1017,6 +1075,8 @@ export type InvoiceUncheckedUpdateWithoutJobInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1037,6 +1097,8 @@ export type InvoiceCreateWithoutPaymentInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1061,6 +1123,8 @@ export type InvoiceUncheckedCreateWithoutPaymentInput = {
   notes?: string | null
   terms?: string | null
   pdfUrl?: string | null
+  leadSource?: string | null
+  branchTag?: string | null
   status?: $Enums.InvoiceStatus
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1097,6 +1161,8 @@ export type InvoiceUpdateWithoutPaymentInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1121,6 +1187,8 @@ export type InvoiceUncheckedUpdateWithoutPaymentInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   terms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pdfUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1146,6 +1214,8 @@ export type InvoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   notes?: boolean
   terms?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1172,6 +1242,8 @@ export type InvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   terms?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1198,6 +1270,8 @@ export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   terms?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1224,12 +1298,14 @@ export type InvoiceSelectScalar = {
   notes?: boolean
   terms?: boolean
   pdfUrl?: boolean
+  leadSource?: boolean
+  branchTag?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "paymentId" | "quotationId" | "customerName" | "customerMobile" | "customerAddress" | "lineItems" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "notes" | "terms" | "pdfUrl" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "jobId" | "paymentId" | "quotationId" | "customerName" | "customerMobile" | "customerAddress" | "lineItems" | "subTotal" | "discount" | "gstPercent" | "gstAmount" | "totalAmount" | "notes" | "terms" | "pdfUrl" | "leadSource" | "branchTag" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
 export type InvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   job?: boolean | Prisma.Invoice$jobArgs<ExtArgs>
   payment?: boolean | Prisma.Invoice$paymentArgs<ExtArgs>
@@ -1271,6 +1347,8 @@ export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     notes: string | null
     terms: string | null
     pdfUrl: string | null
+    leadSource: string | null
+    branchTag: string | null
     status: $Enums.InvoiceStatus
     createdAt: Date
     updatedAt: Date
@@ -1717,6 +1795,8 @@ export interface InvoiceFieldRefs {
   readonly notes: Prisma.FieldRef<"Invoice", 'String'>
   readonly terms: Prisma.FieldRef<"Invoice", 'String'>
   readonly pdfUrl: Prisma.FieldRef<"Invoice", 'String'>
+  readonly leadSource: Prisma.FieldRef<"Invoice", 'String'>
+  readonly branchTag: Prisma.FieldRef<"Invoice", 'String'>
   readonly status: Prisma.FieldRef<"Invoice", 'InvoiceStatus'>
   readonly createdAt: Prisma.FieldRef<"Invoice", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Invoice", 'DateTime'>

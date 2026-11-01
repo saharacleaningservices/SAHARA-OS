@@ -1,5 +1,6 @@
 // The single-page A4 quotation / invoice PDFs, built from the database. One implementation for the CRM routes (signed-in office roles)
 // and the customer routes (the booking token is the credential) so the two can never drift apart.
+import { originLineOf } from "@/lib/lead-origin";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { db } from "@/lib/db";
 import { SaharaBillDocument } from "@/lib/pdf/sahara-bill-document";
@@ -42,7 +43,7 @@ export async function renderQuotationPdf(quotationId: string): Promise<PdfFile |
       title: "QUOTATION",
       number: quotation.quoteNumber,
       date: formatDate(quotation.createdAt),
-      extraMeta: [...(quotation.validTill ? [{ label: "Valid Till", value: formatDate(quotation.validTill) }] : []), { label: "Lead ID", value: lead.leadNumber }],
+      extraMeta: [...(quotation.validTill ? [{ label: "Valid Till", value: formatDate(quotation.validTill) }] : []), { label: "Lead ID", value: lead.leadNumber }, ...(originLineOf(quotation.leadSource, quotation.branchTag) ? [{ label: "Lead Source", value: originLineOf(quotation.leadSource, quotation.branchTag)! }] : [])],
       billTo: {
         name: lead.name,
         address: lead.address || lead.area,
@@ -117,6 +118,7 @@ export async function renderInvoicePdf(invoiceId: string): Promise<PdfFile | nul
       number: invoice.invoiceNumber,
       date: formatDate(invoice.createdAt),
       jobId: invoice.job?.jobNumber ?? null,
+      originLine: originLineOf(invoice.leadSource, invoice.branchTag),
       company: { name: chrome.company.name, phones: chrome.company.phones ?? [chrome.company.phone], email: chrome.company.email, website: chrome.company.website, address: chrome.company.address, gstin: chrome.company.gstin ?? COMPANY.gstin },
       logoDataUrl: chrome.logoDataUrl,
       stampDataUrl: chrome.stampDataUrl,

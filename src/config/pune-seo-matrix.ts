@@ -16,6 +16,10 @@ export type Branch = {
   name: string;
   gmbName: string;
   phone: string; // 10-digit, customer-facing
+  /** Further customer-facing numbers for this branch's schema (owner 2026-11-01: Mohammadwadi carries both 8956567130 and 7083347130). */
+  altPhones: string[];
+  /** GMB "Book online" action link for this branch — fixed UTM set so CRM badges it GMB Magarpatta / GMB Mohammadwadi. */
+  bookOnlineUrl: string;
   whatsapp: string; // 10-digit wa.me target for this branch
   /** CRM Lead.sourceLine this line is tagged with (src/lib/source-line.ts). */
   sourceLine: "Main-API" | "Shoyab-GMB";
@@ -35,7 +39,9 @@ export const BRANCHES: Record<BranchKey, Branch> = {
     key: "magarpatta",
     name: "Sahara Cleaning Services — Magarpatta City",
     gmbName: "Sahara Cleaning Services (Magarpatta)",
-    phone: "8956567130",
+    phone: "7083347130",
+    altPhones: [],
+    bookOnlineUrl: "https://booking.saharacleaningservices.com?utm_source=gmb&utm_medium=magarpatta_branch&utm_campaign=gmb_book_online",
     whatsapp: "9175220270",
     sourceLine: "Main-API",
     locality: "Magarpatta City, Hadapsar",
@@ -46,7 +52,9 @@ export const BRANCHES: Record<BranchKey, Branch> = {
     key: "mohammadwadi",
     name: "Sahara Cleaning Services — Mohammadwadi",
     gmbName: "Sahara Cleaning Services (Mohammadwadi)",
-    phone: "7083347130",
+    phone: "8956567130",
+    altPhones: ["7083347130"],
+    bookOnlineUrl: "https://booking.saharacleaningservices.com?utm_source=gmb&utm_medium=mohammadwadi_branch&utm_campaign=gmb_book_online",
     whatsapp: "7083347130",
     sourceLine: "Shoyab-GMB",
     locality: "Mohammadwadi",
@@ -316,3 +324,12 @@ export function whatsappTextFor(c: ServiceCategory, l: Locality): string {
   const b = branchForLocality(l);
   return `Hi Sahara, I need ${c.name} in ${l.name}, Pune (${l.pins[0]}). Branch: ${b.locality}. Ref: ${c.vertical}/${c.slug}/${l.slug}`;
 }
+
+// ── Legacy URLs (SEO protection) ──────────────────────────────────────────
+// Every URL below already ranks / is linked from Google, WhatsApp campaigns or the old WordPress site and MUST keep working.
+// The navigation mega-menu (src/config/nav-menu.ts) only rearranges how links are shown — it never removes or renames a route.
+// Tests (tests/nav-menu.test.ts) fail if a menu link points at a path that is neither here nor a /services/<category> page.
+export const LEGACY_PATHS = [
+  "/home-deep-cleaning-pune", "/residential-cleaning", "/commercial-cleaning", "/commercial-cleaning-pune", "/housekeeping-services",
+  "/pest-control", "/pest-control-pune", "/interior-painting-pune", "/painting-services", "/offers", "/booking", "/gallery", "/contact",
+] as const;
