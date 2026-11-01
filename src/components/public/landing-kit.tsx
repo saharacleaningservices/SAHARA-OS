@@ -601,11 +601,11 @@ export function festivalPriceNote(campaign: ReturnType<typeof activeCampaign>): 
  * The compact "Select BHK → package → price" picker used identically on /booking and /offers.
  * Live prices (festival-aware); choosing Book hands the BHK + package to the booking form below.
  */
-export async function CompactPriceSelector() {
+export async function CompactPriceSelector({ checkoutBase }: { /** Book Now goes to this checkout URL instead of a booking form on the same page. */ checkoutBase?: string } = {}) {
   const pricing = await getPublicPricing(); // same prices the booking server charges
   const campaign = activeCampaign(pricing.festivals, todayIST());
   const rows = buildHomeRows(livePkgs(pricing.items, "PREMIUM", campaign?.current), livePkgs(pricing.items, "PLATINUM", campaign?.current));
-  return <PriceSelector rows={rows} note={festivalPriceNote(campaign)} bookHref="#book" hideDetails heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />;
+  return <PriceSelector rows={rows} note={festivalPriceNote(campaign)} bookHref="#book" checkoutBase={checkoutBase} hideDetails heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />;
 }
 
 /** The four service cards (same on /booking and /offers): tapping one opens that service in the booking form. */
@@ -618,12 +618,13 @@ export function FestivalUrgencyBar() {
   return null;
 }
 
-export async function FunnelCards() {
+export async function FunnelCards({ checkoutBase }: { /** Cards go to this checkout (Home scrolls to the BHK selector) instead of a booking form on the same page. */ checkoutBase?: string } = {}) {
   const pricing = await getPublicPricing();
   const bathroom = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
   const urgency = publicFestivalOffersOn() ? festivalUrgency(todayIST()) : null;
   return (
     <ServiceCards
+      checkoutBase={checkoutBase}
       badge={urgency ? `🔥 High demand ${urgency.label} — book early` : undefined}
       starts={{
         HOME: bathroom ? `Starting from ₹${bathroom.price!.toLocaleString("en-IN")}` : undefined,

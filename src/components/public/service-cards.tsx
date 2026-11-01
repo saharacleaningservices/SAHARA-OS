@@ -16,10 +16,15 @@ const SERVICES = [
 ] as const;
 
 /** starts: optional honest "starting from" line per service (from the live price list). */
-export function ServiceCards({ starts = {}, badge }: { starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>>; /** Optional demand badge shown on every card (festival season). */ badge?: string }) {
+export function ServiceCards({ starts = {}, badge, checkoutBase }: { /** Homepage: Home scrolls to the BHK selector, the others open this checkout. */ checkoutBase?: string; starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>>; /** Optional demand badge shown on every card (festival season). */ badge?: string }) {
   const [active, setActive] = useState<string>("");
   function open(key: string) {
     setActive(key);
+    if (checkoutBase) {
+      if (key === "HOME") document.getElementById("price-selector")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      else window.location.href = `${checkoutBase}?service=${({ COMMERCIAL: "commercial", PEST: "pest", PAINTING: "painting" } as Record<string, string>)[key]}`;
+      return;
+    }
     window.dispatchEvent(new CustomEvent("sahara:select-service", { detail: key }));
     document.getElementById("bk-service")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
