@@ -28,11 +28,12 @@ import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, h
 import { paymentDetailsFrom } from "@/lib/booking-payment";
 import { COMPANY } from "@/lib/constants";
 import { TRUST } from "@/lib/booking-target";
+import { SITE_ORIGIN } from "@/lib/site-origin";
 
 // Building blocks for the public marketing landing pages (/offers, /booking
 // and the four service pages). Server components; all SEO text is real HTML.
 
-export const BASE_URL = "https://booking.saharacleaningservices.com";
+export const BASE_URL = SITE_ORIGIN;
 
 // Verified public profiles (checked 30 Sep 2026) — only these are linked.
 // Clean (untagged) profile URLs for the business JSON-LD `sameAs` — UTM-tagged links are for visitors, not search engines.

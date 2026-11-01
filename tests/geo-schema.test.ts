@@ -18,7 +18,7 @@ test("business JSON-LD: NAP from the single CONTACT source, geo, map, services, 
   assert.deepEqual({ latitude: j.geo.latitude, longitude: j.geo.longitude }, BUSINESS_GEO);
   assert.match(j.hasMap, /google\.com\/maps/);
   assert.equal(j.hasOfferCatalog.itemListElement.length, SCHEMA_SERVICES.length);
-  for (const o of j.hasOfferCatalog.itemListElement) assert.match(o.itemOffered.url, /^https:\/\/booking\.saharacleaningservices\.com\//);
+  for (const o of j.hasOfferCatalog.itemListElement) assert.match(o.itemOffered.url, /^https:\/\/saharacleaningservices\.com\//);
   assert.deepEqual(j.sameAs, ["https://example.test/profile"]);
 });
 

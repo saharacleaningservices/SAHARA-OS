@@ -19,7 +19,7 @@ import path from "node:path";
 import { PUNE_AREAS } from "../src/lib/pune-areas";
 import { PROGRAMMATIC_PAGES, SERVICE_CATEGORIES } from "../src/config/pune-seo-matrix";
 
-const BOOKING = "https://booking.saharacleaningservices.com";
+const BOOKING = "https://saharacleaningservices.com";
 const CRM = "https://crm.saharacleaningservices.com";
 const BOOKING_HOST = new URL(BOOKING).host;
 const CRM_HOST = new URL(CRM).host;
