@@ -1087,13 +1087,13 @@ test("Footers: direct Google Maps listing, clickable email and website", async (
   assert.match(GOOGLE_MAPS_URL, /^https:\/\/www\.google\.com\/maps\/place\/Sahara\+Cleaning\+Services\/@18\.508/, "direct place URL, not a search query");
   assert.doesNotMatch(GOOGLE_MAPS_URL, /\/search\//);
   assert.match(GOOGLE_MAPS_URL, /0x3bc2ea0728111bc5:0x78a3192231b37d82/, "Google place id of the Magarpatta listing");
-  assert.equal(WEBSITE_URL, "https://www.saharacleaningservices.com");
+  assert.equal(WEBSITE_URL, "https://saharacleaningservices.com"); // apex only (owner 2026-11-01)
   assert.equal(CONTACT.email, "contact@saharacleaningservices.com");
   for (const f of ["src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx"]) {
     const src = read(f);
     assert.match(src, /href=\{`mailto:\$\{CONTACT\.email\}`\}/, `${f}: clickable email`);
     assert.match(src, /href=\{WEBSITE_URL\}[^>]*target="_blank"/, `${f}: clickable website`);
-    assert.match(src, /www\.saharacleaningservices\.com/, `${f}: website shown`);
+    assert.match(src, />saharacleaningservices\.com</, `${f}: website shown`);
   }
   // The landing footer's separate "Open in Google Maps" button was removed on purpose (commit 9e8d2ab): the page keeps the embedded map card.
   assert.doesNotMatch(read("src/components/public/landing-kit.tsx"), /Open in Google Maps/);

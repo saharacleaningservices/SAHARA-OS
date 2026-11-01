@@ -77,11 +77,12 @@ export default async function BookingPage({
 }) {
   const sp = await searchParams;
   const { quote: quoteToken, service, ref, bl, name, customer, mobile, phone } = sp;
-  // The main website now carries the whole booking flow (owner 2026-11-01). Plain /booking visits go to "/#book" (query kept);
-  // only a quotation link (?quote=) keeps this focused view.
+  // Owner 2026-11-01: booking links open the streamlined checkout (/booking/checkout, params kept); a bare /booking goes to the
+  // homepage. Only a quotation link (?quote=) keeps this view.
   if (!quoteToken) {
     const qs = new URLSearchParams(Object.entries(sp).filter(([, v]) => typeof v === "string") as [string, string][]).toString();
-    redirect(`/${qs ? `?${qs}` : ""}#book`);
+    const intent = ["service", "bl", "name", "mobile", "phone", "customer", "ref"].some((k) => typeof (sp as Record<string, unknown>)[k] === "string");
+    redirect(intent ? `/booking/checkout?${qs}` : `/${qs ? `?${qs}` : ""}`);
   }
   // Staff-sent personalised link (?bl=<token>): prefill from the link record, ping it as opened, tie the submission to it.
   const link = bl && /^[a-f0-9]{8,64}$/.test(bl) ? await db.bookingLink.findUnique({ where: { token: bl }, select: { customerName: true, customerMobile: true } }).catch(() => null) : null;
