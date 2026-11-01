@@ -35,7 +35,7 @@ export default async function AreaPage({ params }: Props) {
     { q: `Do you provide cleaning services in ${area.name}?`, a: `Yes. Sahara Cleaning Services serves ${area.name} and the rest of Pune and Pimpri-Chinchwad (PCMC), including ${area.premises}.` },
     { q: `Which services are available in ${area.name}?`, a: "Home deep cleaning, commercial and office cleaning, pest control, interior and exterior painting, and facility management with housekeeping AMC." },
     { q: `How do I get a housekeeping AMC or office cleaning quote in ${area.name}?`, a: "Send an enquiry from this page or call 7083347130 / 8956567130. We visit the site, agree the scope and share a written proposal." },
-    { q: "How do I book?", a: "Book online at booking.saharacleaningservices.com/booking, or call or WhatsApp us. Every booking request is confirmed by our office." },
+    { q: "How do I book?", a: "Book online at saharacleaningservices.com, or call or WhatsApp us. Every booking request is confirmed by our office." },
   ];
   const others = PUNE_AREAS.filter((a) => a.cluster === area.cluster && a.slug !== area.slug);
   return (
