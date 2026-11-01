@@ -1,6 +1,7 @@
 // Builds the Cloud API "create message template" body (POST /{waba-id}/message_templates) from a CloudTemplate definition,
 // so the CRM submits exactly what the repo defines — no retyping in WhatsApp Manager. Pure: no network, no secrets.
 import type { CloudTemplate } from "@/lib/whatsapp-cloud-templates";
+import { MAIN_HOST } from "@/lib/site-origin";
 
 /** The WABA whose API, templates and settings must never be touched (SAHARA_MASTER_SYSTEM_RECORD §2). */
 export const PROTECTED_WABA_ID = "108381505270532";
@@ -9,7 +10,7 @@ export const PROTECTED_WABA_ID = "108381505270532";
 export const SUBMITTABLE_TEMPLATES = ["sahara_booking_confirmed_v6", "sahara_booking_confirmed_v5", "sahara_payment_received_v1", "sahara_job_completed_v1", "sahara_service_started_v1", "sahara_job_completed_v2", "sahara_job_completed_v3", "sahara_rebook_reminder_v1", "sahara_payment_due_reminder_v1", "festival_booking_full_notice", "missed_call_auto_responder"] as const;
 
 /** Customer-facing links must be on this host — never the CRM (app.) domain. */
-export const BOOKING_HOST = "booking.saharacleaningservices.com";
+export const BOOKING_HOST = MAIN_HOST;
 
 /** URL buttons whose link is not on the booking host (e.g. BOOKING_URL unset, so links fell back to the CRM domain). */
 export function foreignUrlButtons(t: CloudTemplate): string[] {

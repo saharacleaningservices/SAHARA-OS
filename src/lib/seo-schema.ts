@@ -2,6 +2,7 @@ import { CONTACT, GOOGLE_MAPS_URL } from "@/lib/marketing-content";
 import { PUNE_AREAS } from "@/lib/pune-areas";
 import { COMPANY } from "@/lib/constants";
 import { CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
+import { SITE_ORIGIN } from "@/lib/site-origin";
 
 // Structured data (schema.org JSON-LD) for the public booking site. One builder, used by businessJsonLd()
 // in components/public/landing-kit.tsx, so name / address / phone stay identical everywhere (search engines
@@ -11,7 +12,7 @@ import { CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
 // answer engines quote it consistently. Google does not show review stars for a business's own LocalBusiness markup —
 // that is expected; the value must stay in step with the live GBP figure (update TRUST in lib/booking-target.ts).
 
-export const SCHEMA_SITE = "https://booking.saharacleaningservices.com";
+export const SCHEMA_SITE = SITE_ORIGIN;
 
 /** Google Business Profile pin of the Magarpatta City branch (same place as GOOGLE_MAPS_URL). */
 export const BUSINESS_GEO = { latitude: 18.5082466, longitude: 73.9298453 } as const;
