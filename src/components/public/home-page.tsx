@@ -11,11 +11,11 @@ import { NAV_MEGA } from "@/config/nav-menu";
 import { SERVICE_CATEGORIES, VERTICALS, ZONES, LOCALITIES } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
-import { FunnelCards, CompactPriceSelector } from "@/components/public/landing-kit";
+import { FunnelCards, HomeBhkPriceCards } from "@/components/public/landing-kit";
+import { LeadModal } from "@/components/public/bhk-price-cards";
+import { CONTACT } from "@/lib/marketing-content";
 import { ReviewsCarousel, type Review } from "@/components/public/reviews-carousel";
 
-/** Streamlined checkout: Book Now and the BHK price card go here, so the homepage itself never holds the booking form. */
-export const CHECKOUT = "/booking/checkout";
 
 const WA = "Hi Sahara, I'd like a quote for a service in Pune.";
 export const HOME_FAQS = [
@@ -27,7 +27,7 @@ export const HOME_FAQS = [
 /**
  * Public homepage of the standalone Next.js website (owner 2026-11-01: zero WordPress). Served at "/" on the public hosts.
  * Sections: hero → 4-card service grid → BHK selector (inline price card + Book Now) → service showcase → About / trust → Google reviews →
- * logo marquee → every service hub → branches → FAQ → footer. Booking happens on /booking/checkout, never inside this page. Layout model: BOXED (max-w-6xl) throughout; full-bleed only for the hero background.
+ * logo marquee → every service hub → branches → FAQ → footer. Book Now opens the same-page lead form; no booking wizard here. Layout model: BOXED (max-w-6xl) throughout; full-bleed only for the hero background.
  */
 export async function HomePage() {
   const settings = await getCompanySettings().catch(() => null);
@@ -41,7 +41,7 @@ export async function HomePage() {
   }
   const reviewUrl = settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL;
   return (
-    <LandingShell logoUrl={settings?.logoUrl} waText={WA} bookHref={`${CHECKOUT}?service=home`} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), faqJsonLd(HOME_FAQS)]} mobileBar={<CategoryBar waText={WA} cta="Book Now" href={`${CHECKOUT}?service=home`} />}>
+    <LandingShell logoUrl={settings?.logoUrl} waText={WA} bookHref="#price-selector" jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), faqJsonLd(HOME_FAQS)]} mobileBar={<CategoryBar waText={WA} cta="Book Now" href="#price-selector" />}>
       <CategoryHero
         image="/marketing/hero-home.webp"
         alt="Sahara Cleaning Services crew deep cleaning a Pune home"
@@ -53,11 +53,11 @@ export async function HomePage() {
         ctaHref="#services"
       />
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:py-10">
-        {/* Homepage flow (owner 2026-11-01): 4-card grid → simple BHK selector with an inline price card → service details → reviews → FAQ.
-            No booking form here: Book Now opens the streamlined checkout (/booking/checkout) with the choice pre-filled. */}
+        {/* Homepage flow (owner 2026-11-01, UrbanCompany style): 4-card grid → BHK price cards (price, inclusions, Book Now) → service details
+            → reviews → FAQ → branches. Book Now opens a light same-page lead form (LeadModal); no wizard, no page change. */}
         <div id="services" className="scroll-mt-20 space-y-4">
-          <FunnelCards checkoutBase={CHECKOUT} />
-          <CompactPriceSelector checkoutBase={CHECKOUT} />
+          <FunnelCards leadMode />
+          <HomeBhkPriceCards />
         </div>
 
         <section aria-labelledby="showcase-title" className="relative overflow-hidden rounded-3xl">
@@ -107,6 +107,7 @@ export async function HomePage() {
 
         <Faqs faqs={HOME_FAQS} />
       </main>
+      <LeadModal waNumber={CONTACT.whatsapp} />
     </LandingShell>
   );
 }

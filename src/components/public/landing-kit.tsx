@@ -17,6 +17,7 @@ import type { HomeRow } from "@/components/public/price-selector";
 import { waLink, CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
 import { buildBusinessJsonLd } from "@/lib/seo-schema";
 import { PriceSelector } from "@/components/public/price-selector";
+import { BhkPriceCards } from "@/components/public/bhk-price-cards";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
 import { SERVICE_AREA_NOTICE, activeCampaign, todayIST } from "@/lib/pricing-master";
 import { festivalUrgency } from "@/lib/festival-urgency";
@@ -601,11 +602,19 @@ export function festivalPriceNote(campaign: ReturnType<typeof activeCampaign>): 
  * The compact "Select BHK → package → price" picker used identically on /booking and /offers.
  * Live prices (festival-aware); choosing Book hands the BHK + package to the booking form below.
  */
-export async function CompactPriceSelector({ checkoutBase }: { /** Book Now goes to this checkout URL instead of a booking form on the same page. */ checkoutBase?: string } = {}) {
+export async function CompactPriceSelector() {
   const pricing = await getPublicPricing(); // same prices the booking server charges
   const campaign = activeCampaign(pricing.festivals, todayIST());
   const rows = buildHomeRows(livePkgs(pricing.items, "PREMIUM", campaign?.current), livePkgs(pricing.items, "PLATINUM", campaign?.current));
-  return <PriceSelector rows={rows} note={festivalPriceNote(campaign)} bookHref="#book" checkoutBase={checkoutBase} hideDetails heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />;
+  return <PriceSelector rows={rows} note={festivalPriceNote(campaign)} bookHref="#book" hideDetails heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />;
+}
+
+/** Homepage BHK price cards (UrbanCompany style): same live prices as the booking server, inclusions from the service scope. */
+export async function HomeBhkPriceCards() {
+  const pricing = await getPublicPricing();
+  const campaign = activeCampaign(pricing.festivals, todayIST());
+  const rows = buildHomeRows(livePkgs(pricing.items, "PREMIUM", campaign?.current), livePkgs(pricing.items, "PLATINUM", campaign?.current));
+  return <BhkPriceCards rows={rows} inclusions={{ Premium: homeHighlights("Premium"), Platinum: homeHighlights("Platinum") }} note={festivalPriceNote(campaign)} heading={campaign ? "Festival prices — pick your home size" : "Pick your home size"} />;
 }
 
 /** The four service cards (same on /booking and /offers): tapping one opens that service in the booking form. */
@@ -618,13 +627,13 @@ export function FestivalUrgencyBar() {
   return null;
 }
 
-export async function FunnelCards({ checkoutBase }: { /** Cards go to this checkout (Home scrolls to the BHK selector) instead of a booking form on the same page. */ checkoutBase?: string } = {}) {
+export async function FunnelCards({ leadMode }: { /** Homepage: cards open the same-page lead form (Home scrolls to the BHK price cards). */ leadMode?: boolean } = {}) {
   const pricing = await getPublicPricing();
   const bathroom = pricing.items.find((i) => i.group === "CUSTOMISED" && /bathroom/i.test(i.name) && i.price != null);
   const urgency = publicFestivalOffersOn() ? festivalUrgency(todayIST()) : null;
   return (
     <ServiceCards
-      checkoutBase={checkoutBase}
+      leadMode={leadMode}
       badge={urgency ? `🔥 High demand ${urgency.label} — book early` : undefined}
       starts={{
         HOME: bathroom ? `Starting from ₹${bathroom.price!.toLocaleString("en-IN")}` : undefined,
