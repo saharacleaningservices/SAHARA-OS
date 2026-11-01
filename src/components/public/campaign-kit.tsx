@@ -157,7 +157,7 @@ export function CampaignFooter({ logoUrl, waText }: { logoUrl?: string | null; w
             <p className="flex gap-1.5"><MapPin className="mt-0.5 size-3.5 shrink-0 text-primary" />{CONTACT.address}</p>
             <p className="text-xs">GSTIN: {COMPANY.gstin}</p>
             <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">{CONTACT.email}</a>
-            <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">www.saharacleaningservices.com</a>
+            <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-xs font-medium text-[#0a2540] hover:text-primary">saharacleaningservices.com</a>
             <a href={bookingLink("footer", "social", "book_online")} className="flex min-h-11 items-center gap-1.5 text-xs font-bold text-primary hover:underline">Book online — pick a date &amp; slot →</a>
             <FooterSocial className="flex gap-2 pt-1" iconClass="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white" />
           </div>
