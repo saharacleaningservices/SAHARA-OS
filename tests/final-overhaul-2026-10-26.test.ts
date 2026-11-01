@@ -63,10 +63,10 @@ test("call details: talk time and an http(s) recording link are read from common
   assert.equal(formatTalkTime(45), "45s");
 });
 
-test("call recordings: the call-trigger route passes them to the lead timeline, which plays CALL entries with audio", () => {
+test("call recordings: the call-trigger route passes them to the lead timeline, which keeps audio out of the timeline (Admin audit panel only)", () => {
   assert.ok(read("src/app/api/v1/webhooks/call-trigger/route.ts").includes("...callDetailsFrom(payload)"));
   assert.ok(read("src/server/call-lead.ts").includes("audioUrl: details.recordingUrl ?? null"));
-  assert.ok(read("src/components/leads/conversation-timeline.tsx").includes('e.type === "CALL" && e.audioUrl'));
+  assert.ok(read("src/components/leads/conversation-timeline.tsx").includes("Admin-only Audio Audit panel"));
 });
 
 test("PDF headers: GSTIN/SAC above the badge, +91 numbers below; invoice is the light theme, quotation keeps its blue", () => {

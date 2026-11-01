@@ -117,7 +117,8 @@ export const ModelName = {
   WebAuthnCredential: 'WebAuthnCredential',
   OutboxJob: 'OutboxJob',
   ReminderLog: 'ReminderLog',
-  Voucher: 'Voucher'
+  Voucher: 'Voucher',
+  CallRecording: 'CallRecording'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -351,6 +352,8 @@ export const LeadScalarFieldEnum = {
   quoteAmount: 'quoteAmount',
   stage: 'stage',
   intakeKey: 'intakeKey',
+  receivedOnNumber: 'receivedOnNumber',
+  sourceLine: 'sourceLine',
   followUpDate: 'followUpDate',
   serviceDate: 'serviceDate',
   timeSlot: 'timeSlot',
@@ -1471,6 +1474,19 @@ export const VoucherScalarFieldEnum = {
 } as const
 
 export type VoucherScalarFieldEnum = (typeof VoucherScalarFieldEnum)[keyof typeof VoucherScalarFieldEnum]
+
+
+export const CallRecordingScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  audioUrl: 'audioUrl',
+  duration: 'duration',
+  recordedAt: 'recordedAt',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type CallRecordingScalarFieldEnum = (typeof CallRecordingScalarFieldEnum)[keyof typeof CallRecordingScalarFieldEnum]
 
 
 export const SortOrder = {

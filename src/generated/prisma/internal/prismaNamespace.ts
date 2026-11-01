@@ -458,7 +458,8 @@ export const ModelName = {
   WebAuthnCredential: 'WebAuthnCredential',
   OutboxJob: 'OutboxJob',
   ReminderLog: 'ReminderLog',
-  Voucher: 'Voucher'
+  Voucher: 'Voucher',
+  CallRecording: 'CallRecording'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -474,7 +475,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob" | "reminderLog" | "voucher"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob" | "reminderLog" | "voucher" | "callRecording"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5584,6 +5585,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CallRecording: {
+      payload: Prisma.$CallRecordingPayload<ExtArgs>
+      fields: Prisma.CallRecordingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CallRecordingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CallRecordingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>
+        }
+        findFirst: {
+          args: Prisma.CallRecordingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CallRecordingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>
+        }
+        findMany: {
+          args: Prisma.CallRecordingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>[]
+        }
+        create: {
+          args: Prisma.CallRecordingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>
+        }
+        createMany: {
+          args: Prisma.CallRecordingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CallRecordingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>[]
+        }
+        delete: {
+          args: Prisma.CallRecordingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>
+        }
+        update: {
+          args: Prisma.CallRecordingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>
+        }
+        deleteMany: {
+          args: Prisma.CallRecordingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CallRecordingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CallRecordingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>[]
+        }
+        upsert: {
+          args: Prisma.CallRecordingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallRecordingPayload>
+        }
+        aggregate: {
+          args: Prisma.CallRecordingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCallRecording>
+        }
+        groupBy: {
+          args: Prisma.CallRecordingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallRecordingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CallRecordingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallRecordingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -5838,6 +5913,8 @@ export const LeadScalarFieldEnum = {
   quoteAmount: 'quoteAmount',
   stage: 'stage',
   intakeKey: 'intakeKey',
+  receivedOnNumber: 'receivedOnNumber',
+  sourceLine: 'sourceLine',
   followUpDate: 'followUpDate',
   serviceDate: 'serviceDate',
   timeSlot: 'timeSlot',
@@ -6960,6 +7037,19 @@ export const VoucherScalarFieldEnum = {
 export type VoucherScalarFieldEnum = (typeof VoucherScalarFieldEnum)[keyof typeof VoucherScalarFieldEnum]
 
 
+export const CallRecordingScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  audioUrl: 'audioUrl',
+  duration: 'duration',
+  recordedAt: 'recordedAt',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type CallRecordingScalarFieldEnum = (typeof CallRecordingScalarFieldEnum)[keyof typeof CallRecordingScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -7340,6 +7430,7 @@ export type GlobalOmitConfig = {
   outboxJob?: Prisma.OutboxJobOmit
   reminderLog?: Prisma.ReminderLogOmit
   voucher?: Prisma.VoucherOmit
+  callRecording?: Prisma.CallRecordingOmit
 }
 
 /* Types for Logging */

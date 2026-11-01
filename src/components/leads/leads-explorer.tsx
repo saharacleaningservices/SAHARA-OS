@@ -1,5 +1,6 @@
 "use client";
 
+import { SourceLineBadge } from "@/components/leads/source-line-badge";
 import { useEffect, useMemo, useState } from "react";
 import { CustomerHistoryButton } from "@/components/customers/customer-history-drawer";
 import Link from "next/link";
@@ -298,6 +299,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                       <TableCell className="text-sm">
                         {SERVICE_LABELS[lead.service]}
                         <p className="text-xs text-muted-foreground">{LEAD_SOURCE_LABELS[lead.source]}</p>
+                        <SourceLineBadge line={(lead as { sourceLine?: string | null }).sourceLine} className="mt-0.5" />
                       </TableCell>
                       <TableCell>
                         <LeadStageBadge stage={lead.stage} />

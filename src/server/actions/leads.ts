@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
+import { canAccessAudioAudit, canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 import { enforcePricing, packageTotals, packageToQuoteItems, parsePackage, serializeLines, canEditPackagePricing } from "@/lib/package-calc";
 import { HOME_DURATION, homeScopeByArea, tierFromPackage } from "@/lib/service-scope";
 import { getLivePricing } from "@/server/pricing";
@@ -852,12 +852,7 @@ export async function addVoiceNote(leadId: string, audioUrl: string) {
   // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
   {
     const __s = await getSession();
-    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
-  }
-  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
-  {
-    const scopeError = await assertLeadEditable(leadId);
-    if (scopeError) return { ...scopeError, success: false } as never;
+    if (!__s || !canAccessAudioAudit(__s.role)) return { error: "Not authorized", success: false } as never;
   }
   if (!audioUrl || !audioUrl.startsWith("/uploads/")) {
     return { error: "Invalid recording", success: false as const };

@@ -177,6 +177,11 @@ export function canSeeCustomerContact(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
 }
 
+/** Call recordings, voice notes and any raw audio / media upload — Super Admin ONLY (owner 2026-11-01). */
+export function canAccessAudioAudit(role: string | null | undefined): boolean {
+  return role === "ADMIN";
+}
+
 export function canViewRevenue(role: string): boolean {
   return role === "ADMIN" || role === "ACCOUNTS";
 }
