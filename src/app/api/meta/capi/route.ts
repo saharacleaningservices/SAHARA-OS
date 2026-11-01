@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/site-origin";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
@@ -16,7 +17,7 @@ const bodySchema = z.object({
   value: z.number().positive().max(10_000_000).optional(),
 });
 
-const SOURCE_URL = "https://booking.saharacleaningservices.com/booking";
+const SOURCE_URL = `${SITE_ORIGIN}/`;
 
 export async function POST(request: NextRequest) {
   const ip = clientIp(request.headers);
