@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { openLead } from "@/components/public/bhk-price-cards";
 
 /**
  * Landing service cards — image, one-line benefit and "View Packages". Clicking
@@ -16,13 +17,13 @@ const SERVICES = [
 ] as const;
 
 /** starts: optional honest "starting from" line per service (from the live price list). */
-export function ServiceCards({ starts = {}, badge, checkoutBase }: { /** Homepage: Home scrolls to the BHK selector, the others open this checkout. */ checkoutBase?: string; starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>>; /** Optional demand badge shown on every card (festival season). */ badge?: string }) {
+export function ServiceCards({ starts = {}, badge, leadMode }: { /** Homepage: Home scrolls to the BHK price cards, the others open the lead form on the same page. */ leadMode?: boolean; starts?: Partial<Record<"HOME" | "COMMERCIAL" | "PAINTING" | "PEST", string>>; /** Optional demand badge shown on every card (festival season). */ badge?: string }) {
   const [active, setActive] = useState<string>("");
   function open(key: string) {
     setActive(key);
-    if (checkoutBase) {
+    if (leadMode) {
       if (key === "HOME") document.getElementById("price-selector")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      else window.location.href = `${checkoutBase}?service=${({ COMMERCIAL: "commercial", PEST: "pest", PAINTING: "painting" } as Record<string, string>)[key]}`;
+      else openLead({ service: SERVICES.find((x) => x.key === key)?.title ?? key });
       return;
     }
     window.dispatchEvent(new CustomEvent("sahara:select-service", { detail: key }));

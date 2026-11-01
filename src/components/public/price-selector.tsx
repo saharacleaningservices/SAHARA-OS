@@ -14,7 +14,7 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const TIERS = ["Premium", "Platinum"] as const;
 type Tier = (typeof TIERS)[number];
 
-export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick your home size", hideDetails, checkoutBase }: { /** Set on the homepage: Book Now opens this checkout with the BHK + package pre-filled. */ checkoutBase?: string; rows: HomeRow[]; note: string; bookHref?: string; heading?: string; /** Hide the "What's included" link (isolated PPC pages must not link into the main site). */ hideDetails?: boolean }) {
+export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick your home size", hideDetails }: { rows: HomeRow[]; note: string; bookHref?: string; heading?: string; /** Hide the "What's included" link (isolated PPC pages must not link into the main site). */ hideDetails?: boolean }) {
   const [bhk, setBhk] = useState<string>("");
   const [tier, setTier] = useState<Tier | "">("");
   const row = rows.find((r) => r.bhk === bhk);
@@ -25,8 +25,6 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
     if (!bhk) return;
     window.dispatchEvent(new CustomEvent("sahara:select-package", { detail: { bhk: bhk === "4 BHK+" ? "4 BHK" : bhk, tier: tier || "" } }));
   };
-  const go = checkoutBase ? `${checkoutBase}?${new URLSearchParams({ service: "home", bhk: bhk === "4 BHK+" ? "4 BHK" : bhk, ...(tier ? { tier } : {}) }).toString()}` : bookHref;
-  const onBook = checkoutBase ? undefined : pick;
   const chip = (on: boolean) => `min-h-11 flex-1 whitespace-nowrap rounded-xl px-2 text-sm font-bold transition sm:px-3 ${on ? "bg-primary text-white shadow" : "bg-white text-[#0a2540] ring-1 ring-[#0a2540]/15"}`;
 
   return (
@@ -62,7 +60,7 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
           <>
             <p className="text-sm font-bold text-amber-700">Free site inspection, then a quote</p>
             <p className="text-xs text-[#0a2540]/70">Larger homes are priced after we visit.</p>
-            <a href={go} onClick={onBook} className="mt-2 flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book free inspection</a>
+            <a href={bookHref} onClick={pick} className="mt-2 flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book free inspection</a>
           </>
         ) : !tier ? (
           <p className="text-sm text-[#0a2540]/70">Now choose Premium or Platinum.</p>
@@ -73,7 +71,7 @@ export function PriceSelector({ rows, note, bookHref = "#quote", heading = "Pick
             <p className="text-xs font-semibold text-[#0a2540]/60">{bhk} · {tier} home deep cleaning</p>
             <p className="text-3xl font-extrabold text-primary">{inr(price)}</p>
             <div className={`mt-2 grid gap-2 ${hideDetails ? "" : "grid-cols-2"}`}>
-              <a href={go} onClick={onBook} className="flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book {bhk} {tier}</a>
+              <a href={bookHref} onClick={pick} className="flex min-h-11 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">Book {bhk} {tier}</a>
               {!hideDetails && <Link href={href ?? "/home-deep-cleaning-pune"} className="flex min-h-11 items-center justify-center rounded-xl border border-primary/40 text-sm font-bold text-primary">What&apos;s included</Link>}
             </div>
           </>

@@ -26,15 +26,15 @@ test("no page that reads the database is prerendered at build time (Coolify's Do
 test("standalone homepage: '/' renders the public homepage on the website hosts, CRM elsewhere", () => {
   const page = readFileSync("src/app/page.tsx", "utf8");
   assert.match(page, /<HomePage \/>/);
-  assert.match(page, /redirect\(`\/booking\/checkout\?/);
+  assert.doesNotMatch(page, /booking\/checkout/, "the homepage never routes to a checkout");
   assert.match(page, /redirect\("\/dashboard"\)/);
   assert.match(page, /MAIN_HOST/);
   const mw = readFileSync("src/middleware.ts", "utf8");
   assert.match(mw, /if \(pathname === "\/"\) return NextResponse\.next\(\);/);
   assert.doesNotMatch(mw, /url\.pathname = "\/booking";/, "the booking host no longer bounces / to /booking");
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  for (const part of ["FunnelCards checkoutBase", "CompactPriceSelector checkoutBase", "HomeAbout", "ReviewsCarousel", "ClientCarousel", "NAV_MEGA", "BranchCards", "CategoryHero", "Faqs"]) assert.match(home, new RegExp(part));
-  assert.doesNotMatch(home, /BookingWizard|id="book"/, "the homepage never holds the booking form");
+  for (const part of ["<FunnelCards leadMode />", "<HomeBhkPriceCards />", "<LeadModal", "HomeAbout", "ReviewsCarousel", "ClientCarousel", "NAV_MEGA", "BranchCards", "CategoryHero", "Faqs"]) assert.match(home, new RegExp(part));
+  assert.doesNotMatch(home, /BookingWizard|id="book"|checkout/, "the homepage never holds the booking form or routes to a checkout");
   assert.doesNotMatch(home, /cognito|<iframe|FestivalZoneEffects/i);
 });
 
@@ -44,13 +44,13 @@ test("sitemap includes the homepage", async () => {
   assert.ok(SITEMAP_PATHS.includes("/contact"));
 });
 
-test("streamlined checkout: /booking/checkout holds the booking form with the BHK + package pre-filled, noindex", () => {
-  const page = readFileSync("src/app/booking/checkout/page.tsx", "utf8");
-  assert.match(page, /<BookingWizard/);
-  assert.match(page, /preset=\{preset\}/);
-  assert.match(page, /index: false/);
-  assert.match(page, /export const dynamic = "force-dynamic"/);
-  const sel = readFileSync("src/components/public/price-selector.tsx", "utf8");
-  assert.match(sel, /checkoutBase/);
-  assert.match(readFileSync("src/app/booking/page.tsx", "utf8"), /\/booking\/checkout\?/);
+test("homepage BHK price cards: instant Premium/Platinum cards with inclusions, Book Now opens the same-page lead form", () => {
+  const c = readFileSync("src/components/public/bhk-price-cards.tsx", "utf8");
+  assert.match(c, /useState<\(typeof SIZES\)\[number\]>\("2 BHK"\)/, "2 BHK preselected: cards always rendered, no layout shift");
+  assert.match(c, /"1 BHK", "2 BHK", "3 BHK", "4 BHK\+"/);
+  assert.match(c, /inclusions\[tier\]/);
+  assert.match(c, /\/api\/leads\/submit/);
+  for (const field of ['name="name"', 'name="mobile"', 'name="date"', 'name="website"']) assert.ok(c.includes(field), field);
+  assert.doesNotMatch(c, /BookingWizard|location\.href\s*=|router\.push/, "no wizard, no navigation");
+  assert.match(readFileSync("src/components/public/service-cards.tsx", "utf8"), /openLead\(/);
 });

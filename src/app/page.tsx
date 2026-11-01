@@ -24,18 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: TITLE, description: DESC, alternates: { canonical: `${SITE_ORIGIN}/` }, robots: { index: true, follow: true }, openGraph: { type: "website", url: `${SITE_ORIGIN}/`, title: TITLE, description: DESC, siteName: "Sahara Cleaning Services", locale: "en_IN", images: [`${SITE_ORIGIN}/marketing/hero-home.webp`] } };
 }
 
-const BOOKING_INTENT = ["service", "bl", "name", "mobile", "phone", "customer", "ref"] as const;
-const qsOf = (sp: Record<string, unknown>) => new URLSearchParams(Object.entries(sp).filter(([, v]) => typeof v === "string") as [string, string][]).toString();
-
 type RootSearchParams = Parameters<typeof BookingPage>[0]["searchParams"];
 
-// "/" is the complete main website (header, hero, 4-card service grid, BHK selector with inline price card, service sections, reviews, FAQ, footer).
+// "/" is the complete main website (header, hero, 4-card service grid, BHK price cards + same-page lead form, service sections, reviews, FAQ, footer).
 // Only a personalised/quotation link (?quote= / ?bl=) opens the focused booking view, because those carry a pre-filled quotation.
 export default async function RootPage({ searchParams }: { searchParams: RootSearchParams }) {
   if (!(await isPublicHost())) redirect("/dashboard");
   const sp = await searchParams;
   if (sp.quote) return BookingPage({ searchParams: Promise.resolve(sp) });
-  // Booking-intent links (?service=, staff ?bl=, prefilled name/mobile, referral) open the streamlined checkout; the homepage never holds the form.
-  if (BOOKING_INTENT.some((k) => typeof sp[k] === "string" && sp[k])) redirect(`/booking/checkout?${qsOf(sp)}`);
   return <HomePage />;
 }
