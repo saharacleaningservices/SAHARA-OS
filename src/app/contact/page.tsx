@@ -7,7 +7,9 @@ import { FestivalZoneEffects } from "@/components/public/festival-announcement";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 
-export const revalidate = 86400;
+// Rendered per request like every other public page: the Docker build has no database, so nothing that reads
+// Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
+export const dynamic = "force-dynamic";
 const TITLE = "Contact Sahara Cleaning Services Pune — Magarpatta & Mohammadwadi";
 const DESC = "Call, WhatsApp or message Sahara Cleaning Services. Two Pune branches — Magarpatta City (411028) and Mohammadwadi (411060) — with directions and a same-day reply.";
 export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: `${BASE_URL}/contact` }, robots: { index: true, follow: true }, openGraph: { type: "website", url: `${BASE_URL}/contact`, title: TITLE, description: DESC, siteName: "Sahara Cleaning Services", locale: "en_IN" } };

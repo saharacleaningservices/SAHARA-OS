@@ -10,7 +10,9 @@ import { HomeAbout } from "@/components/public/home-about";
 import { ClientCarousel } from "@/components/ui/client-carousel";
 import { CLIENT_LOGOS } from "@/lib/client-logos";
 
-export const revalidate = 86400;
+// Rendered per request like every other public page: the Docker build has no database, so nothing that reads
+// Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
+export const dynamic = "force-dynamic";
 const TITLE = "Cleaning, Pest Control, Painting & Facility Management in Pune | Sahara";
 const DESC = "Home deep cleaning, office housekeeping, post-interior cleaning, pest control and painting across East, West, North and South Pune and PCMC. Trained in-house staff since 2012.";
 export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: `${BASE_URL}/services` }, robots: { index: true, follow: true }, openGraph: { type: "website", url: `${BASE_URL}/services`, title: TITLE, description: DESC, siteName: "Sahara Cleaning Services", locale: "en_IN" } };

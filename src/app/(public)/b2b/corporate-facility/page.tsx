@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { BASE_URL } from "@/components/public/landing-kit";
 import { B2bPage, type B2bConfig } from "@/components/public/b2b-page";
 
-export const revalidate = 86400;
+// Rendered per request like every other public page: the Docker build has no database, so nothing that reads
+// Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
+export const dynamic = "force-dynamic";
 
 const TITLE = "Corporate Facility Management & Housekeeping in Pune | Sahara";
 const DESC = "Office housekeeping, office boys, security manpower and facility management AMC for Pune offices, IT parks, malls, hospitals and industrial sites. GST invoice. Magarpatta & Mohammadwadi branches.";
