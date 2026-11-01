@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { PUBLIC_BOOKING_HOST, INTERNAL_CRM_HOST } from "@/lib/site-urls";
 import BookingPage from "@/app/booking/page";
+import { HomePage } from "@/components/public/home-page";
 import { SITE_ORIGIN, MAIN_HOST } from "@/lib/site-origin";
 
 // "/" is the public homepage on the website hosts (booking.* today, www once DNS moves off WordPress) and the CRM entry
@@ -23,10 +24,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: TITLE, description: DESC, alternates: { canonical: `${SITE_ORIGIN}/` }, robots: { index: true, follow: true }, openGraph: { type: "website", url: `${SITE_ORIGIN}/`, title: TITLE, description: DESC, siteName: "Sahara Cleaning Services", locale: "en_IN", images: [`${SITE_ORIGIN}/marketing/hero-home.webp`] } };
 }
 
-type BookingSearchParams = Parameters<typeof BookingPage>[0]["searchParams"];
+type RootSearchParams = Parameters<typeof BookingPage>[0]["searchParams"];
 
-// Rolled back 2026-11-01: the public homepage is the original booking landing (hero, 4 service cards, BHK + package picker, booking form).
-export default async function RootPage({ searchParams }: { searchParams: BookingSearchParams }) {
-  if (await isPublicHost()) return BookingPage({ searchParams });
-  redirect("/dashboard");
+// "/" is the complete main website (header, hero, 4-card service grid, BHK picker + booking form, service sections, footer).
+// Only a personalised/quotation link (?quote= / ?bl=) opens the focused booking view, because those carry a pre-filled quotation.
+export default async function RootPage({ searchParams }: { searchParams: RootSearchParams }) {
+  if (!(await isPublicHost())) redirect("/dashboard");
+  const sp = await searchParams;
+  if (sp.quote) return BookingPage({ searchParams: Promise.resolve(sp) });
+  return <HomePage params={sp} />;
 }
