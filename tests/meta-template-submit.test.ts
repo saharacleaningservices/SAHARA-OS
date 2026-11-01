@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 // Production serves customer links from the booking domain; the templates read BOOKING_URL when the module loads.
-process.env.BOOKING_URL = "https://booking.saharacleaningservices.com";
+process.env.BOOKING_URL = "https://saharacleaningservices.com";
 let templateByName: typeof import("../src/lib/whatsapp-cloud-templates").templateByName;
 let buildMetaTemplatePayload: typeof import("../src/lib/meta-template-payload").buildMetaTemplatePayload;
 let foreignUrlButtons: typeof import("../src/lib/meta-template-payload").foreignUrlButtons;
@@ -64,7 +64,7 @@ test("payload: UTILITY components built from the repo definition", () => {
   assert.equal(h.format, "IMAGE");
   assert.deepEqual((b.example as { body_text: string[][] }).body_text[0], ["Priya", "1,000", "JOB-2026-0150", "UPI", "2,999"]);
   const buttons = (btn as { buttons: Record<string, unknown>[] }).buttons;
-  assert.equal(buttons[0].url, "https://booking.saharacleaningservices.com/booking/receipt/{{1}}");
+  assert.equal(buttons[0].url, "https://saharacleaningservices.com/booking/receipt/{{1}}");
   assert.deepEqual(buttons[1], { type: "PHONE_NUMBER", text: "Call Helpline", phone_number: "+917083347130" });
   const done = buildMetaTemplatePayload(templateByName("sahara_job_completed_v1")!);
   assert.ok(!done.components.some((c) => (c as { type: string }).type === "HEADER"));

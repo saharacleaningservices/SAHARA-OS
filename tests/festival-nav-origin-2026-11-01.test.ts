@@ -75,8 +75,8 @@ test("lead source + branch carried into Quotation and Invoice (schema, creation 
 });
 
 test("GMB Book online: ReserveAction with the fixed UTM links; Mohammadwadi carries both numbers", () => {
-  assert.equal(BRANCHES.magarpatta.bookOnlineUrl, "https://booking.saharacleaningservices.com?utm_source=gmb&utm_medium=magarpatta_branch&utm_campaign=gmb_book_online");
-  assert.equal(BRANCHES.mohammadwadi.bookOnlineUrl, "https://booking.saharacleaningservices.com?utm_source=gmb&utm_medium=mohammadwadi_branch&utm_campaign=gmb_book_online");
+  assert.equal(BRANCHES.magarpatta.bookOnlineUrl, "https://saharacleaningservices.com?utm_source=gmb&utm_medium=magarpatta_branch&utm_campaign=gmb_book_online");
+  assert.equal(BRANCHES.mohammadwadi.bookOnlineUrl, "https://saharacleaningservices.com?utm_source=gmb&utm_medium=mohammadwadi_branch&utm_campaign=gmb_book_online");
   const moh = branchGraph().find((n) => (n as { branchCode?: string }).branchCode === "MOHAMMADWADI") as Record<string, unknown>;
   assert.deepEqual(moh.telephone, ["+918956567130", "+917083347130"]);
   const acts = moh.potentialAction as { "@type": string; target: { urlTemplate: string } }[];
