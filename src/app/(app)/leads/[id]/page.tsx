@@ -29,7 +29,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { MarketingConsentControl } from "@/components/leads/marketing-consent-control";
 import { formatINR, formatDate } from "@/lib/utils";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
-import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
+import { canAccessAudioAudit, canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
+import { SourceLineBadge } from "@/components/leads/source-line-badge";
+import { AudioAuditPanel } from "@/components/leads/audio-audit-panel";
+import { loadRecordingsForAdmin } from "@/server/actions/call-recordings";
 import { HIDDEN_CONTACT, maskText, redactLead } from "@/lib/redact";
 import { CustomerServiceHistoryCard } from "@/components/leads/customer-service-history-card";
 
@@ -47,10 +50,13 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
   // Owner rule 2026-10-08: customer contact + amounts only for Super Admin / Accounts.
   const showContact = canSeeCustomerContact(session.role);
   const showMoney = canViewJobAmount(session.role);
+  const showAudio = canAccessAudioAudit(session.role);
+  const auditRecordings = showAudio ? await loadRecordingsForAdmin(rawLead.id) : [];
   const maskDigits = (t: string) => maskText(t, { contact: showContact, money: showMoney }) ?? "";
   const lead = {
     ...redactLead(rawLead, session.role),
-    timeline: rawLead.timeline.map((e) => ({ ...e, body: maskDigits(e.body ?? "") })),
+    // Audio never rides in the timeline payload: call audio shows only in the Admin audit panel, voice notes only for Super Admin.
+    timeline: rawLead.timeline.map((e) => ({ ...e, body: maskDigits(e.body ?? ""), audioUrl: showAudio && e.type === "VOICE" ? e.audioUrl : null })),
     // Quotation / payment records + PDFs carry the customer number — Super Admin / Accounts only.
     quotations: showContact && showMoney ? rawLead.quotations : [],
     payments: showContact && showMoney ? rawLead.payments.filter((p) => !p.deletedAt) : [],
@@ -165,7 +171,7 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Source</p>
-                <p className="font-medium text-foreground">{LEAD_SOURCE_LABELS[lead.source]}</p>
+                <p className="flex flex-wrap items-center gap-1.5 font-medium text-foreground">{LEAD_SOURCE_LABELS[lead.source]} <SourceLineBadge line={rawLead.sourceLine} always /></p>
               </div>
               <div className="col-span-2 sm:col-span-4">
                 <p className="text-xs text-muted-foreground">Address</p>
@@ -250,9 +256,19 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
               <CardTitle>Conversation</CardTitle>
             </CardHeader>
             <CardContent>
-              <ConversationTimeline leadId={lead.id} entries={lead.timeline} />
+              <ConversationTimeline leadId={lead.id} entries={lead.timeline} canAudio={showAudio} />
             </CardContent>
           </Card>
+          {showAudio && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Audio Audit</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AudioAuditPanel leadId={lead.id} recordings={auditRecordings} />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Past Service History & Invoices (owner 2026-10-22): money + contact, Super Admin / Accounts only. */}
           {showContact && showMoney && <CustomerServiceHistoryCard mobile={rawLead.mobile} />}

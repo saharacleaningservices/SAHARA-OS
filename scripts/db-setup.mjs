@@ -1978,3 +1978,28 @@ db.close();
   `);
   wDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Multi-number WhatsApp tracking + Admin call-audio audit (2026-11-01, additive + idempotent).
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const mDb = new Database(dbPath);
+  const have = mDb.prepare(`PRAGMA table_info("Lead")`).all().map((c) => c.name);
+  if (!have.includes("receivedOnNumber")) mDb.exec(`ALTER TABLE "Lead" ADD COLUMN "receivedOnNumber" TEXT`);
+  if (!have.includes("sourceLine")) mDb.exec(`ALTER TABLE "Lead" ADD COLUMN "sourceLine" TEXT NOT NULL DEFAULT 'Main'`);
+  mDb.exec(`
+    CREATE TABLE IF NOT EXISTS "CallRecording" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "leadId" TEXT NOT NULL,
+      "audioUrl" TEXT NOT NULL,
+      "duration" INTEGER,
+      "recordedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "uploadedBy" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "CallRecording_leadId_fkey" FOREIGN KEY ("leadId") REFERENCES "Lead" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+  `);
+  mDb.exec(`CREATE INDEX IF NOT EXISTS "CallRecording_leadId_idx" ON "CallRecording"("leadId")`);
+  console.log("Multi-number tracking + CallRecording migration complete.");
+  mDb.close();
+}
