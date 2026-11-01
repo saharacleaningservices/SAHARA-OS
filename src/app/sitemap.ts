@@ -15,6 +15,9 @@ export const PROGRAMMATIC_PATHS = PROGRAMMATIC_PAGES.map((p) => `/services/${p.c
 
 export const SITEMAP_PATHS = [...CORE, ...SEO_HUB_PATHS, ...PROGRAMMATIC_PATHS];
 
+// Read BOOKING_URL at request time (not frozen at build), so the sitemap always carries the live booking host.
+export const dynamic = "force-dynamic";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   return SITEMAP_PATHS.map((p) => {

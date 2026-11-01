@@ -9,7 +9,7 @@ import { BRANCHES, ZONES, branchForLocality, type Locality, type ServiceCategory
 //     Magarpatta City (Main-API line)  @id …/#business         (same node the rest of the site already emits)
 //     Mohammadwadi    (Shoyab-GMB line) @id …/#branch-mohammadwadi
 // Facts only (no prices, no "best" claims). Mohammadwadi has no street address / geo / rating of its own until the owner adds
-// them in src/config/pune-seo-matrix.ts — we never invent them or copy the Magarpatta rating onto it.
+// (read from Google Maps 2026-11-01, src/config/pune-seo-matrix.ts) — never copied from the Magarpatta node.
 
 export const ORG_ID = `${SCHEMA_SITE}/#organization`;
 export const MAGARPATTA_ID = `${SCHEMA_SITE}/#business`;
@@ -62,7 +62,11 @@ export function mohammadwadiBranchJsonLd() {
     parentOrganization: { "@id": ORG_ID },
     branchOf: { "@id": ORG_ID },
     branchCode: "MOHAMMADWADI",
-    address: { "@type": "PostalAddress", ...(b.streetAddress ? { streetAddress: b.streetAddress } : {}), addressLocality: "Mohammadwadi, Pune", postalCode: b.postalCode, addressRegion: "Maharashtra", addressCountry: "IN" },
+    address: { "@type": "PostalAddress", ...(b.streetAddress ? { streetAddress: b.streetAddress } : {}), addressLocality: "Pune", postalCode: b.postalCode, addressRegion: "Maharashtra", addressCountry: "IN" },
+    ...(b.geo ? { geo: { "@type": "GeoCoordinates", ...b.geo } } : {}),
+    ...(b.mapsUrl ? { hasMap: b.mapsUrl } : {}),
+    ...(b.plusCode ? { identifier: { "@type": "PropertyValue", propertyID: "Google Plus Code", value: b.plusCode } } : {}),
+    ...(b.rating ? { aggregateRating: { "@type": "AggregateRating", ratingValue: b.rating.value, bestRating: "5", worstRating: "1", ratingCount: b.rating.count, reviewCount: b.rating.count } } : {}),
     areaServed: [
       { "@type": "City", name: "Pune" },
       ...["Mohammadwadi", "Undri", "Kondhwa", "NIBM Road", "Wanowrie", "Katraj", "Kothrud", "Baner", "Wakad", "Hinjewadi", "Pimpri-Chinchwad"].map((n) => ({ "@type": "Place", name: `${n}, Pune` })),

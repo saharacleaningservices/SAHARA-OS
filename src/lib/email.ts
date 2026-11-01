@@ -20,19 +20,38 @@
 //   EMAIL_ENDPOINT  — provider's send-email HTTP endpoint
 //   EMAIL_FROM      — verified "from" address for that provider
 
+import nodemailer from "nodemailer";
 import { db } from "@/lib/db";
+import { MAIL_FROM, adminAlertEmail, smtpSettings } from "@/lib/mail-config";
 
-type EmailKind = "PASSWORD_OTP" | "LOGIN_ID_RECOVERY" | "OTHER";
+// Hostinger SMTP (smtp.hostinger.com:465) is the preferred transport when SMTP_USER + SMTP_PASS are set; the HTTP provider
+// below stays as a fallback. The sender is ALWAYS lib/mail-config MAIL_FROM — never taken from env or from the caller.
+
+type EmailKind = "PASSWORD_OTP" | "LOGIN_ID_RECOVERY" | "SYSTEM_ALERT" | "OTHER";
 
 export async function isEmailReady(): Promise<boolean> {
-  return Boolean(process.env.EMAIL_API_KEY && process.env.EMAIL_ENDPOINT && process.env.EMAIL_FROM);
+  return Boolean(smtpSettings() || (process.env.EMAIL_API_KEY && process.env.EMAIL_ENDPOINT));
+}
+
+async function deliverSmtp(to: string, subject: string, body: string, html?: string | null): Promise<{ ok: boolean; error?: string }> {
+  const cfg = smtpSettings();
+  if (!cfg) return { ok: false, error: "SMTP not configured" };
+  try {
+    const transport = nodemailer.createTransport({ ...cfg, connectionTimeout: 15_000, greetingTimeout: 15_000, socketTimeout: 20_000 });
+    await transport.sendMail({ from: MAIL_FROM, to, subject, text: body, ...(html ? { html } : {}) });
+    transport.close();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e instanceof Error ? e.message : e).slice(0, 300) };
+  }
 }
 
 async function deliver(to: string, subject: string, body: string, html?: string | null): Promise<{ ok: boolean; error?: string }> {
+  if (smtpSettings()) return deliverSmtp(to, subject, body, html);
   const apiKey = process.env.EMAIL_API_KEY;
   const endpoint = process.env.EMAIL_ENDPOINT;
-  const from = process.env.EMAIL_FROM;
-  if (!apiKey || !endpoint || !from) return { ok: false, error: "Email provider not configured" };
+  const from = MAIL_FROM;
+  if (!apiKey || !endpoint) return { ok: false, error: "Email provider not configured" };
   try {
     const res = await fetch(endpoint, {
       method: "POST",
@@ -109,4 +128,17 @@ export async function flushEmailQueue({ includeFailed = true }: { includeFailed?
     if (r.ok) sent += 1;
   }
   return { flushed: rows.length, sent };
+}
+
+/**
+ * Server-down / hosting alerts go by e-mail to the Super Admin's backup address ONLY (ADMIN_ALERT_EMAIL,
+ * default sheikhaltaf161@gmail.com). Never to customers, never to staff aliases. Best-effort: never throws.
+ */
+export async function emailAdminAlert(subject: string, body: string) {
+  try {
+    return await sendEmail({ kind: "SYSTEM_ALERT", toEmail: adminAlertEmail(), toName: "Super Admin", subject: `[SAHARA OS] ${subject}`, body });
+  } catch (e) {
+    console.error("[email] admin alert failed:", e);
+    return null;
+  }
 }

@@ -22,6 +22,12 @@ export type Branch = {
   locality: string;
   postalCode: string;
   streetAddress: string | null;
+  /** From the live Google Business Profile (read from Google Maps 2026-11-01). */
+  geo?: { latitude: number; longitude: number };
+  mapsUrl?: string;
+  plusCode?: string;
+  /** Public GBP rating for this listing — keep in step with the live profile. */
+  rating?: { value: string; count: number };
 };
 
 export const BRANCHES: Record<BranchKey, Branch> = {
@@ -45,7 +51,12 @@ export const BRANCHES: Record<BranchKey, Branch> = {
     sourceLine: "Shoyab-GMB",
     locality: "Mohammadwadi",
     postalCode: "411060",
-    streetAddress: null, // owner: add the exact GBP street address here to publish it in the schema
+    streetAddress: "Mohammad Wadi Rd, Sahakarnagar No - 2, Anand Nagar, Hadapsar",
+    geo: { latitude: 18.4754638, longitude: 73.924633 },
+    // Clean place URL of the owner's Mohammadwadi listing (tracking parameters removed).
+    mapsUrl: "https://www.google.com/maps/place/Sahara+Cleaning+Services+in+Pune/@18.4754638,73.924633,17z/data=!3m1!4b1!4m6!3m5!1s0x3bc2eb84538b59cd:0xbcd9dadf0443ecba!8m2!3d18.4754638!4d73.924633",
+    plusCode: "FWGF+5V Pune, Maharashtra",
+    rating: { value: "4.8", count: 234 },
   },
 };
 

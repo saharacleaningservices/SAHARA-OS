@@ -50,7 +50,7 @@ export type NotifKind =
 
 type Role = "ADMIN" | "OPERATIONS" | "ACCOUNTS" | "SUPERVISOR" | "STAFF";
 
-const KIND_ROLES: Record<NotifKind, Role[]> = {
+export const KIND_ROLES: Record<NotifKind, Role[]> = {
   NEW_BOOKING: ["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"],
   NEW_INQUIRY: ["ADMIN", "ACCOUNTS", "OPERATIONS"],
   PAYMENT_RECEIVED: ["ADMIN", "ACCOUNTS"], // amounts — not Operations (owner rule 2026-10-08)

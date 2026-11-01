@@ -51,6 +51,8 @@ export async function maybeBackupStaleAlert(now: Date = new Date()): Promise<"ok
       critical: true,
       tag: "backup-stale",
     });
+    const { emailAdminAlert } = await import("@/lib/email");
+    await emailAdminAlert("Backup overdue", when ? `Last verified backup: ${when} IST.` : "No verified backup has been recorded yet.");
     return "alerted";
   } catch (e) {
     console.error("[backup-health] check failed:", e);
