@@ -4,6 +4,7 @@ import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { QuotationDialog } from "./quotation-dialog";
 import { ScheduleVisitDialog } from "./schedule-visit-dialog";
 import { StageSelect } from "./stage-select";
+import { LeadOriginBadge } from "@/components/leads/lead-origin-badge";
 import { SourceLineBadge } from "@/components/leads/source-line-badge";
 import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 import { formatINR, formatDate, dayBucket, DAY_BUCKET_META } from "@/lib/utils";
@@ -57,7 +58,7 @@ export function LeadCard({ lead }: { lead: LeadCardData }) {
         </Badge>
       </div>
 
-      <SourceLineBadge line={(lead as { sourceLine?: string | null }).sourceLine} />
+      <LeadOriginBadge lead={lead as never} /> <SourceLineBadge line={(lead as { sourceLine?: string | null }).sourceLine} />
       {lead.createdAt && <LeadResponseTimer stage={lead.stage} createdAt={lead.createdAt} />}
       <p className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
         <MapPin className="size-3 shrink-0" /> <span className="truncate">{lead.area} · {SERVICE_LABELS[lead.service]}</span>

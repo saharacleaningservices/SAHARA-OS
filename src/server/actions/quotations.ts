@@ -1,5 +1,6 @@
 "use server";
 
+import { originSnapshot } from "@/lib/lead-origin";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
@@ -69,6 +70,8 @@ export async function convertQuotationToInvoice(quotationId: string) {
     data: {
       invoiceNumber,
       quotationId: quotation.id,
+      leadSource: quotation.leadSource ?? originSnapshot(quotation.lead).leadSource,
+      branchTag: quotation.branchTag ?? originSnapshot(quotation.lead).branchTag,
       customerName: quotation.lead.name,
       customerMobile: quotation.lead.mobile,
       customerAddress: quotation.lead.address,

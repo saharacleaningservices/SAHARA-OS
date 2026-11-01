@@ -171,7 +171,7 @@ export async function getNewLeadsForDashboard(userId: string) {
     where: { deletedAt: null, AND: [windowWhere, { OR: [{ stage: "NEW" }, { assignedToId: userId, stage: { in: OPEN_LEAD_STAGES as never } }] }] },
     orderBy: { createdAt: "desc" },
     take: 12,
-    select: { id: true, leadNumber: true, name: true, service: true, area: true, stage: true, createdAt: true, serviceDate: true, timeSlot: true, assignedToId: true, packageName: true, sourceLine: true },
+    select: { id: true, leadNumber: true, name: true, service: true, area: true, stage: true, createdAt: true, serviceDate: true, timeSlot: true, assignedToId: true, packageName: true, sourceLine: true, source: true, acquisitionChannel: true, utmSource: true, utmMedium: true, utmCampaign: true, gclid: true, fbclid: true },
   });
   const newCount = await db.lead.count({ where: { deletedAt: null, stage: "NEW", AND: [windowWhere] } });
   return { rows: rows.map((r) => ({ ...r, assignedToMe: r.assignedToId === userId })), newCount };

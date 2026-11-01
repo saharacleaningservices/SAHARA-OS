@@ -426,6 +426,8 @@ export const QuotationScalarFieldEnum = {
   terms: 'terms',
   validTill: 'validTill',
   pdfUrl: 'pdfUrl',
+  leadSource: 'leadSource',
+  branchTag: 'branchTag',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -946,6 +948,8 @@ export const InvoiceScalarFieldEnum = {
   notes: 'notes',
   terms: 'terms',
   pdfUrl: 'pdfUrl',
+  leadSource: 'leadSource',
+  branchTag: 'branchTag',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

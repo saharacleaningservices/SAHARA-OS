@@ -17,6 +17,14 @@ export const MOHAMMADWADI_ID = `${SCHEMA_SITE}/#branch-mohammadwadi`;
 
 const tel = (n: string) => `+91${n}`;
 
+/** GMB "Book online" action (schema.org ReserveAction) with the branch's fixed UTM link — one per branch node. */
+export const reserveAction = (b: { bookOnlineUrl: string }) => ({
+  "@type": "ReserveAction",
+  name: "Book online",
+  target: { "@type": "EntryPoint", urlTemplate: b.bookOnlineUrl, inLanguage: "en-IN", actionPlatform: ["https://schema.org/DesktopWebPlatform", "https://schema.org/MobileWebPlatform"] },
+  result: { "@type": "Reservation", name: "Cleaning, pest control or painting booking" },
+});
+
 export function organizationJsonLd(sameAs: string[] = []) {
   return {
     "@context": "https://schema.org",
@@ -31,7 +39,7 @@ export function organizationJsonLd(sameAs: string[] = []) {
     sameAs,
     contactPoint: [
       { "@type": "ContactPoint", telephone: tel(BRANCHES.magarpatta.phone), contactType: "customer service", name: "Magarpatta City branch", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] },
-      { "@type": "ContactPoint", telephone: tel(BRANCHES.mohammadwadi.phone), contactType: "customer service", name: "Mohammadwadi branch", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] },
+      ...[BRANCHES.mohammadwadi.phone, ...BRANCHES.mohammadwadi.altPhones].map((n) => ({ "@type": "ContactPoint", telephone: tel(n), contactType: "customer service", name: "Mohammadwadi branch", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] })),
       { "@type": "ContactPoint", telephone: tel(TRUST.whatsappApi), contactType: "reservations", name: "WhatsApp booking assistant (messages only)", url: `https://wa.me/91${TRUST.whatsappApi}`, areaServed: "IN-MH" },
     ],
     subOrganization: [{ "@id": MAGARPATTA_ID }, { "@id": MOHAMMADWADI_ID }],
@@ -45,6 +53,8 @@ export const magarpattaBranchExtra = () => ({
   branchOf: { "@id": ORG_ID },
   branchCode: "MAGARPATTA",
   hasMap: GOOGLE_MAPS_URL,
+  telephone: [BRANCHES.magarpatta.phone, ...BRANCHES.magarpatta.altPhones, BRANCHES.magarpatta.whatsapp].filter((n, i, a) => a.indexOf(n) === i).map(tel),
+  potentialAction: [reserveAction(BRANCHES.magarpatta), { "@type": "CommunicateAction", name: "Message on WhatsApp", target: { "@type": "EntryPoint", urlTemplate: `https://wa.me/91${BRANCHES.magarpatta.whatsapp}` } }],
 });
 
 export function mohammadwadiBranchJsonLd() {
@@ -56,7 +66,8 @@ export function mohammadwadiBranchJsonLd() {
     name: b.name,
     alternateName: b.gmbName,
     url: `${SCHEMA_SITE}/pune/mohammadwadi`,
-    telephone: tel(b.phone),
+    telephone: [b.phone, ...b.altPhones].map(tel),
+    contactPoint: [b.phone, ...b.altPhones].map((n) => ({ "@type": "ContactPoint", telephone: tel(n), contactType: "customer service", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] })),
     email: CONTACT.email,
     image: `${SCHEMA_SITE}/marketing/hero-home.webp`,
     parentOrganization: { "@id": ORG_ID },
@@ -71,7 +82,7 @@ export function mohammadwadiBranchJsonLd() {
       { "@type": "City", name: "Pune" },
       ...["Mohammadwadi", "Undri", "Kondhwa", "NIBM Road", "Wanowrie", "Katraj", "Kothrud", "Baner", "Wakad", "Hinjewadi", "Pimpri-Chinchwad"].map((n) => ({ "@type": "Place", name: `${n}, Pune` })),
     ],
-    potentialAction: { "@type": "CommunicateAction", name: "Message on WhatsApp", target: { "@type": "EntryPoint", urlTemplate: `https://wa.me/91${b.whatsapp}` } },
+    potentialAction: [reserveAction(b), { "@type": "CommunicateAction", name: "Message on WhatsApp", target: { "@type": "EntryPoint", urlTemplate: `https://wa.me/91${b.whatsapp}` } }],
     knowsAbout: ["Home deep cleaning", "Office and facility management", "Post-interior cleaning", "Pest control", "Interior and exterior painting"],
   };
 }

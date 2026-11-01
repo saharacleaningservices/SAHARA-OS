@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LeadStageBadge } from "@/components/shared/status-badge";
 import { LeadResponseTimer } from "@/components/leads/lead-response-timer";
+import { LeadOriginBadge } from "@/components/leads/lead-origin-badge";
 import { SourceLineBadge } from "@/components/leads/source-line-badge";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { formatDateShort, formatDateTime } from "@/lib/utils";
@@ -64,7 +65,7 @@ export function NewLeadsCard({ rows, newCount }: { rows: Row[]; newCount: number
                   {l.packageName ? ` · ${l.packageName}` : ""} · {l.area}
                   {l.serviceDate ? ` · Service ${formatDateShort(l.serviceDate)}${l.timeSlot ? ` ${l.timeSlot}` : ""}` : ""}
                 </p>
-                <p className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">Received {formatDateTime(l.createdAt)} <LeadResponseTimer stage={l.stage} createdAt={l.createdAt} /> <SourceLineBadge line={(l as { sourceLine?: string | null }).sourceLine} /></p>
+                <p className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">Received {formatDateTime(l.createdAt)} <LeadResponseTimer stage={l.stage} createdAt={l.createdAt} /> <LeadOriginBadge lead={l as never} /> <SourceLineBadge line={(l as { sourceLine?: string | null }).sourceLine} /></p>
               </div>
               <LeadStageBadge stage={l.stage} />
             </Link>

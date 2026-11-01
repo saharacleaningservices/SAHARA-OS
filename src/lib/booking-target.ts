@@ -31,7 +31,10 @@ export function bookingLink(opts: { service?: BookingService; source?: string; m
 export const TRUST = {
   rating: "4.9",
   reviewCount: 1800,
-  reviewLabel: "1,800+",
+  reviewLabel: "1,800+", // frozen: part of the Meta-approved WhatsApp template bodies — do not change without re-approval
+  /** Website figure (owner 2026-11-01): 1,830+ Google reviews at 4.9★. Used on pages, JSON-LD and the About badge. */
+  siteReviewCount: 1830,
+  siteReviewLabel: "1,830+",
   since: 2012,
   /** Meta WhatsApp Cloud API sender — automated booking assistant (messages only, no calls). */
   whatsappApi: "9175220270",

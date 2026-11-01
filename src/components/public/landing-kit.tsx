@@ -1,3 +1,6 @@
+import { activeFestival } from "@/lib/festival-calendar";
+import { MegaMenuHeader } from "@/components/public/mega-menu";
+import { FestivalAnnouncement, FestivalZoneEffects } from "@/components/public/festival-announcement";
 import Link from "next/link";
 import { socialProfileUrls } from "@/lib/social-links";
 import { FooterSocial } from "@/components/public/footer-social";
@@ -104,28 +107,23 @@ export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, foot
     <div className="theme-navy min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
       <MarketingTags withPixel />
+      <FestivalAnnouncement />
       {jsonLd.map((j, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }} />
       ))}
-      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2">
-          <Link href="/offers" aria-label="Sahara Cleaning Services — festival offers"><CompanyLogo logoUrl={logoUrl} className="h-[40px] w-auto max-w-[160px]" /></Link>
-          <div className="flex items-center gap-2">
-            {CONTACT.call.map((n) => (
-              <span key={n} className="hidden items-center gap-1 rounded-xl border border-primary/40 py-1 pl-3 pr-1 text-xs font-semibold text-primary md:flex">
-                {n}
-                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="rounded-lg p-1.5 hover:bg-primary/10"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${waNumber ?? CONTACT.whatsapp}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
-              </span>
-            ))}
-            <Link href={bookHref} className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
-          </div>
-        </div>
-      </header>
-      {children}
+      <MegaMenuHeader logo={<CompanyLogo logoUrl={logoUrl} className="h-[40px] w-auto max-w-[160px]" />} bookHref={bookHref} />
+      {/* Reserves the notice's height while a festival window is open, so showing it never shifts the page (no layout shift). Removed when the visitor dismisses the notice. */}
+      {activeFestival(Date.now()) && <div aria-hidden data-fest-spacer className="h-[54px] sm:h-[62px]" />}
+      {/* Festival Engine: hero / middle / footer canvases (lightweight, reduced-motion safe, only while a festival window is open). */}
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] overflow-hidden" aria-hidden><div className="relative h-full w-full"><FestivalZoneEffects zone="hero" /></div></div>
+        {children}
+        <div className="pointer-events-none absolute inset-x-0 top-[45%] h-[40vh] overflow-hidden" aria-hidden><div className="relative h-full w-full"><FestivalZoneEffects zone="middle" /></div></div>
+      </div>
       <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
       {footer ?? (
-      <footer className="mt-6 bg-[#0a2540] text-white/80">
+      <footer className="relative mt-6 overflow-hidden bg-[#0a2540] text-white/80">
+        <FestivalZoneEffects zone="footer" />
         <div className="mx-auto grid max-w-6xl gap-5 px-4 py-6 text-sm sm:py-8 md:grid-cols-3">
           {/* Block 1 — Location */}
           <section aria-labelledby="ft-location" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
@@ -276,7 +274,7 @@ export async function Hero({ image, alt, title, subtitle, badge, waText, primary
           {isBooking ? (
             <>
               <BookingContactNumbers waText={waText} />
-              <BookingTrustGrid rating={settings?.googleRating || TRUST.rating} reviews={reviews || TRUST.reviewLabel} reviewUrl={settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL} />
+              <BookingTrustGrid rating={settings?.googleRating || TRUST.rating} reviews={reviews || TRUST.siteReviewLabel} reviewUrl={settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL} />
             </>
           ) : (
             <>
@@ -626,14 +624,9 @@ export async function CompactPriceSelector() {
  * window ends and never states a slot count or a price rise.
  */
 export function FestivalUrgencyBar() {
-  // Owner 2026-10-25: no "high demand" / Diwali urgency banners unless the festival offers are switched back on.
-  const u = publicFestivalOffersOn() ? festivalUrgency(todayIST()) : null;
-  if (!u) return null;
-  return (
-    <div role="note" className="bg-[#b45309] px-4 py-2 text-center text-xs font-semibold leading-snug text-white sm:text-sm">
-      ⚡ DIWALI SPECIAL: High demand for {u.label} dates! Book now to lock your preferred slot.
-    </div>
-  );
+  // 2026-11-01: the plain-text notice is replaced by the sticky glassmorphic FestivalAnnouncement (live countdown + pulse badge),
+  // which LandingShell already renders on every landing page. Kept as a no-op so existing call sites stay valid.
+  return null;
 }
 
 export async function FunnelCards() {

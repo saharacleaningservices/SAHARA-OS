@@ -2000,6 +2000,12 @@ db.close();
     );
   `);
   mDb.exec(`CREATE INDEX IF NOT EXISTS "CallRecording_leadId_idx" ON "CallRecording"("leadId")`);
+  // Lead origin snapshot on documents (2026-11-01).
+  for (const t of ["Quotation", "Invoice"]) {
+    const c = mDb.prepare(`PRAGMA table_info("${t}")`).all().map((x) => x.name);
+    if (!c.includes("leadSource")) mDb.exec(`ALTER TABLE "${t}" ADD COLUMN "leadSource" TEXT`);
+    if (!c.includes("branchTag")) mDb.exec(`ALTER TABLE "${t}" ADD COLUMN "branchTag" TEXT`);
+  }
   console.log("Multi-number tracking + CallRecording migration complete.");
   mDb.close();
 }

@@ -6,6 +6,9 @@ import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/c
 import { SERVICE_CATEGORIES, LOCALITIES, VERTICALS } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
+import { HomeAbout } from "@/components/public/home-about";
+import { ClientCarousel } from "@/components/ui/client-carousel";
+import { CLIENT_LOGOS } from "@/lib/client-logos";
 
 export const revalidate = 86400;
 const TITLE = "Cleaning, Pest Control, Painting & Facility Management in Pune | Sahara";
@@ -24,6 +27,8 @@ export default async function ServicesHub() {
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/booking" }, { name: "Services", path: "/services" }]), faqJsonLd(FAQS)]} bookHref="/booking" mobileBar={<CategoryBar waText={WA} cta="Get Quote" href="/booking" />}>
       <CategoryHero image="/marketing/hero-home.webp" alt="Sahara cleaning crew in Pune" title="Sahara Services Across Pune & PCMC" subtitle="Pick a service, then your area — every page names the branch that serves you." points={["Trained in-house staff", "Written quote before work", "Magarpatta & Mohammadwadi branches", "Since 2012 · GST invoice"]} waText={WA} cta="Book Now" ctaHref="/booking" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-5">
+        <HomeAbout reviewUrl={settings.googleReviewUrl?.trim() || undefined} />
+        <ClientCarousel logos={CLIENT_LOGOS} />
         <section className="grid gap-3 sm:grid-cols-2">
           {SERVICE_CATEGORIES.map((c) => (
             <Link key={c.slug} href={`/services/${c.slug}`} className="rounded-2xl bg-white p-4 shadow-sm hover:ring-2 hover:ring-primary">
