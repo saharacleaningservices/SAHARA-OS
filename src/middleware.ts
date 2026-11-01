@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { SESSION_COOKIE } from "@/lib/session-cookie";
 import { canAccess } from "@/lib/constants";
+import { MAIN_HOST, SITE_ORIGIN } from "@/lib/site-origin";
 import {
   PUBLIC_BOOKING_HOST,
   INTERNAL_CRM_HOST,
@@ -11,7 +12,7 @@ import {
 
 // Public website hosts: the booking subdomain, plus the main domain once its DNS points at this app instead of WordPress
 // (inert until then — no request with those Host headers reaches this server).
-const PUBLIC_SITE_HOSTS = new Set([PUBLIC_BOOKING_HOST, "www.saharacleaningservices.com", "saharacleaningservices.com"].filter(Boolean));
+const PUBLIC_SITE_HOSTS = new Set([PUBLIC_BOOKING_HOST, `www.${MAIN_HOST}`, MAIN_HOST].filter(Boolean));
 
 // Paths that are safe (and meant) to serve on the public booking.* domain —
 // a subset of PUBLIC_PATHS below plus the static/branding routes this
@@ -126,6 +127,18 @@ function isStaticAssetPath(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host")?.split(":")[0] ?? "";
+
+  // Main domain only (owner 2026-11-01): once BOOKING_URL is the apex, www.* and booking.* permanently (301) forward to it so
+  // canonicals, sitemap and customer links all live on one origin. Webhooks and API callers keep working on the old host.
+  if (
+    PUBLIC_BOOKING_HOST === MAIN_HOST &&
+    (host === `www.${MAIN_HOST}` || host === `booking.${MAIN_HOST}`) &&
+    !pathname.startsWith("/api/") &&
+    !pathname.startsWith("/_next/") &&
+    pathname !== "/marketing/catalog-feed"
+  ) {
+    return NextResponse.redirect(`${SITE_ORIGIN}${pathname}${request.nextUrl.search}`, 301);
+  }
 
   // ── Domain split (2026-09-22 master prompt) — both branches below are
   // fully inert until the owner sets BOOKING_URL/CRM_URL in Coolify and DNS
