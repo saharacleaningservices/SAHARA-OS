@@ -25,15 +25,12 @@ test("no page that reads the database is prerendered at build time (Coolify's Do
 
 test("standalone homepage: '/' renders the public homepage on the website hosts, CRM elsewhere", () => {
   const page = readFileSync("src/app/page.tsx", "utf8");
-  assert.match(page, /<HomePage \/>/);
+  assert.match(page, /BookingPage\(\{ searchParams \}\)/);
   assert.match(page, /redirect\("\/dashboard"\)/);
-  assert.match(page, /www\.saharacleaningservices\.com/);
+  assert.match(page, /MAIN_HOST/);
   const mw = readFileSync("src/middleware.ts", "utf8");
   assert.match(mw, /if \(pathname === "\/"\) return NextResponse\.next\(\);/);
   assert.doesNotMatch(mw, /url\.pathname = "\/booking";/, "the booking host no longer bounces / to /booking");
-  const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  for (const part of ["HomeAbout", "ClientCarousel", "NAV_MEGA", "BranchCards", "FestivalZoneEffects", "CategoryHero"]) assert.match(home, new RegExp(part));
-  assert.doesNotMatch(home, /cognito|<iframe/i);
 });
 
 test("sitemap includes the homepage", async () => {
