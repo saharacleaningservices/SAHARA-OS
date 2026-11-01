@@ -22,8 +22,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { generateEmployeeCode } from "@/lib/id-generators";
-import { getSession } from "@/lib/session";
 import { getStaffMoney } from "@/server/staff-balance";
+import { getAdminSession } from "@/lib/require-admin";
 
 const row = z.object({ row: z.number().int(), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), details: z.string(), debit: z.number().min(0), credit: z.number().min(0) });
 const employee = z.object({
@@ -92,10 +92,7 @@ function salaryKind(r: Row) {
 const salarySigned = (r: Row) => r.credit - r.debit; // credit = earned (Sahara owes), debit = paid
 const loanSigned = (r: Row) => r.debit - r.credit; // debit = loan given, credit = repaid
 
-async function requireAdmin() {
-  const s = await getSession();
-  return s?.role === "ADMIN" ? s : null;
-}
+const requireAdmin = getAdminSession;
 
 type Plan = Awaited<ReturnType<typeof planEmployee>>;
 

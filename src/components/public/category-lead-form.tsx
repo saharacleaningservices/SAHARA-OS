@@ -14,7 +14,7 @@ import { LOCALITIES } from "@/lib/marketing-content";
 // WhatsApp hand-over. No price is ever calculated or shown here — these services are quoted
 // after a site visit.
 
-export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber, title, cta, typeLabel, typeOptions, areaLabel, showCompany, showDate, schedule, stacked, note }: {
+export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber, title, cta, typeLabel, typeOptions, areaLabel, showCompany, showDate, schedule, stacked, note, defaultLocality }: {
   service: string;
   serviceLabel: string;
   campaignName: string;
@@ -32,13 +32,15 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
   stacked?: boolean;
   /** Footnote under the button; null hides it (default: "no price shown online" text). */
   note?: string | null;
+  /** Pre-selects the locality (location landing pages). Added to the list when it is not one of the standard options. */
+  defaultLocality?: string;
 }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
   const [type, setType] = useState("");
   const [area, setArea] = useState("");
-  const [locality, setLocality] = useState("");
+  const [locality, setLocality] = useState(defaultLocality ?? "");
   const [date, setDate] = useState("");
   const [website, setWebsite] = useState(""); // honeypot
   const [marketingOptIn, setMarketingOptIn] = useState(false); // optional, never pre-ticked
@@ -124,6 +126,7 @@ export function CategoryLeadForm({ service, serviceLabel, campaignName, waNumber
         {areaLabel && <input className={field} placeholder={areaLabel} inputMode="numeric" value={area} onChange={(e) => setArea(e.target.value.replace(/[^\d.,\- a-zA-Z]/g, "").slice(0, 40))} />}
         <select className={field} value={locality} onChange={(e) => setLocality(e.target.value)} aria-label="Locality">
           <option value="">Locality…</option>
+          {defaultLocality && !(LOCALITIES as readonly string[]).includes(defaultLocality) && <option value={defaultLocality}>{defaultLocality}</option>}
           {LOCALITIES.map((l) => <option key={l} value={l}>{l}</option>)}
         </select>
         {showDate && <input className={field} type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} aria-label="Preferred visit date (optional)" />}

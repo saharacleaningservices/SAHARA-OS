@@ -389,3 +389,8 @@ export type ReminderLog = Prisma.ReminderLogModel
  * 
  */
 export type Voucher = Prisma.VoucherModel
+/**
+ * Model CallRecording
+ * 
+ */
+export type CallRecording = Prisma.CallRecordingModel

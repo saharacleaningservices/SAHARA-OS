@@ -164,6 +164,8 @@ export async function maybeHealthAlert(now: number = Date.now()): Promise<"ok" |
       critical: true,
       tag: "server-health",
     });
+    const { emailAdminAlert } = await import("@/lib/email");
+    await emailAdminAlert(h.status === "unhealthy" ? "Server unhealthy" : "Server running hot", `${h.reasons.join("; ") || "Resource use is high"}.\nMemory ${h.memory.usedMB}/${h.memory.limitMB} MB, DB ${h.database.latencyMs ?? "down"} ms.`);
     return "alerted";
   } catch (e) {
     console.error("[health] alert check failed:", e);

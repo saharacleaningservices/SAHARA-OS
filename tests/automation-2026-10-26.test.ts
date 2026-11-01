@@ -87,7 +87,7 @@ test("chatbot: greeting triggers, 4 menu rows within Meta limits, every reply li
   for (const t of ["STOP", "start", "I want to clean my 3BHK flat in Baner on Sunday, how much?", ""]) assert.ok(!isBotTrigger(t), t);
   const m = botMenu();
   assert.equal(m.rows.length, 4);
-  assert.deepEqual(m.rows.map((r) => r.title), ["Deep Cleaning & Offers", "Pest Control", "Painting & Waterproofing", "Booking / Crew Status"]);
+  assert.deepEqual(m.rows.map((r) => r.title), ["Deep Cleaning & Offers", "Pest Control", "Painting Services", "Booking / Crew Status"]);
   for (const r of BOT_ROWS) {
     assert.ok(r.title.length <= 24 && r.description.length <= 72 && r.id.length <= 200, r.id);
     assert.ok(isBotRow(r.id));

@@ -19,10 +19,10 @@ const buttonVariants = cva(
       },
       size: {
         // Comfortable touch targets on mobile; a touch tighter on >=sm screens.
-        default: "h-10 px-4 py-2 sm:h-9 [&_svg]:size-4",
-        sm: "h-9 rounded-md px-3 text-xs sm:h-8 [&_svg]:size-3.5",
+        default: "h-11 px-4 py-2 sm:h-9 [&_svg]:size-4",
+        sm: "h-11 rounded-md px-3 text-sm sm:h-8 sm:text-xs [&_svg]:size-3.5",
         lg: "h-11 rounded-md px-6 [&_svg]:size-4",
-        icon: "size-10 sm:size-9 [&_svg]:size-4",
+        icon: "size-11 sm:size-9 [&_svg]:size-4",
       },
     },
     defaultVariants: {

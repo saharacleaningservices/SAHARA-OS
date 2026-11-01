@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
+import { canAccessAudioAudit, canSeeCustomerContact, canViewJobAmount } from "@/lib/permissions";
 import { enforcePricing, packageTotals, packageToQuoteItems, parsePackage, serializeLines, canEditPackagePricing } from "@/lib/package-calc";
 import { HOME_DURATION, homeScopeByArea, tierFromPackage } from "@/lib/service-scope";
 import { getLivePricing } from "@/server/pricing";
@@ -35,6 +35,7 @@ import { canAccessLead } from "@/server/leads";
 import { confirmLeadIntoJob } from "@/server/confirm-lead-core";
 import { channelForManualLead } from "@/lib/attribution";
 import { addressKey, linkCustomerAndSite } from "@/server/customer-db";
+import { last10 as normalizeLast10 } from "@/lib/phone";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit allowed lead/booking
@@ -90,7 +91,7 @@ function normalizeTeam(value: number | "" | undefined): number | null {
  * office can still save it after confirming.
  */
 async function findExactDuplicateLead(data: { mobile: string; service: string; serviceDate?: string | null; timeSlot?: string | null; siteId?: string | null; address?: string | null }) {
-  const last10 = data.mobile.replace(/\D/g, "").slice(-10);
+  const last10 = normalizeLast10(data.mobile);
   if (last10.length !== 10 || !data.serviceDate) return null;
   const day = new Date(`${data.serviceDate.slice(0, 10)}T00:00:00+05:30`);
   if (Number.isNaN(day.getTime())) return null;
@@ -851,12 +852,7 @@ export async function addVoiceNote(leadId: string, audioUrl: string) {
   // RBAC 2026-10-05: server-side role check (staff and unauthorised roles refused).
   {
     const __s = await getSession();
-    if (!__s || !["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"].includes(__s.role)) return { error: "Not authorized", success: false } as never;
-  }
-  // Operations / Field Coordinator: only leads in their scope (same check as updateLead).
-  {
-    const scopeError = await assertLeadEditable(leadId);
-    if (scopeError) return { ...scopeError, success: false } as never;
+    if (!__s || !canAccessAudioAudit(__s.role)) return { error: "Not authorized", success: false } as never;
   }
   if (!audioUrl || !audioUrl.startsWith("/uploads/")) {
     return { error: "Invalid recording", success: false as const };

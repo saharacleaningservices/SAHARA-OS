@@ -17,6 +17,7 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { PUNE_AREAS } from "../src/lib/pune-areas";
+import { PROGRAMMATIC_PAGES, SERVICE_CATEGORIES } from "../src/config/pune-seo-matrix";
 
 const BOOKING = "https://booking.saharacleaningservices.com";
 const CRM = "https://crm.saharacleaningservices.com";
@@ -25,7 +26,13 @@ const CRM_HOST = new URL(CRM).host;
 
 // Mirrors src/app/sitemap.ts on purpose: a route disappearing from the sitemap (or the page) must fail a test.
 const PACKAGE_PATHS = ["1-bhk", "2-bhk", "3-bhk"].flatMap((b) => ["premium", "platinum"].map((t) => `/home-deep-cleaning-pune/${b}-${t}`));
-const INDEXABLE = ["/booking", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
+const PROGRAMMATIC = PROGRAMMATIC_PAGES.map((p) => `/services/${p.category}/${p.location}`);
+const SEO_HUBS = ["/services", ...SERVICE_CATEGORIES.map((c) => `/services/${c.slug}`), "/b2b/architects", "/b2b/corporate-facility"];
+// Programmatic pages are sampled in the per-page checks below (all of them are checked for the sitemap and by tests/pune-seo-matrix.test.ts).
+const PROGRAMMATIC_SAMPLE = PROGRAMMATIC.filter((_, i) => i % 37 === 0);
+const CORE = ["/booking", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
+const INDEXABLE = [...CORE, ...SEO_HUBS, ...PROGRAMMATIC_SAMPLE];
+const SITEMAP_ALL = [...CORE, ...SEO_HUBS, ...PROGRAMMATIC];
 const LANDING = ["/landing/home-deep-cleaning-pune", "/landing/interior-painting-pune", "/landing/office-commercial-cleaning-pune", "/landing/pest-control-services-pune"];
 // Public pages that must keep answering 200 but are not meant for the sitemap.
 const OTHER_PUBLIC = ["/privacy-policy", "/terms"];
@@ -132,7 +139,8 @@ test("sitemap.xml lists exactly the indexable public pages, on one origin, witho
   const origins = new Set(locs.map((l) => new URL(l).origin));
   assert.equal(origins.size, 1, `sitemap mixes origins: ${[...origins].join(", ")}`);
   const origin = [...origins][0];
-  assert.deepEqual([...locs].sort(), INDEXABLE.map((p) => `${origin}${p}`).sort());
+  assert.deepEqual([...locs].sort(), SITEMAP_ALL.map((p) => `${origin}${p}`).sort());
+  assert.ok(locs.length >= 400, `expected 400+ indexed pages, got ${locs.length}`);
   assert.equal(new Set(locs).size, locs.length, "duplicate sitemap entries");
   for (const l of locs) assert.ok(!/\/(landing|api|my|login|j)(\/|$)/.test(new URL(l).pathname), `non-indexable path in sitemap: ${l}`);
   // The sitemap is prerendered at BUILD time (canonicals are computed per request), so its origin is whatever BOOKING_URL was

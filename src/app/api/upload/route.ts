@@ -1,3 +1,4 @@
+import { canAccessAudioAudit } from "@/lib/permissions";
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -7,7 +8,7 @@ import { getSession } from "@/lib/session";
 import { isSameOrigin } from "@/lib/csrf";
 
 const IMAGE_FOLDERS = ["photos", "signatures", "certificates", "staff", "logo", "gallery"];
-const AUDIO_FOLDERS = ["voice"];
+const AUDIO_FOLDERS = ["voice", "call-recordings"];
 const VIDEO_FOLDERS = ["videos"];
 // Document folders accept images OR PDFs — staff KYC docs, company profile
 // documents, uploaded invoice attachments.
@@ -46,6 +47,11 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get("file");
   const folder = String(formData.get("folder") || "photos");
+
+  // Audio (voice notes, call recordings) is Super Admin only — blocked for every other role, server-side.
+  if (AUDIO_FOLDERS.includes(folder) && !canAccessAudioAudit(session.role)) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+  }
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });

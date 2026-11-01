@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggleItem } from "./theme-toggle-item";
 import { GlobalSearch } from "@/components/shared/global-search";
 import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import { EodSummaryModal } from "@/components/notifications/eod-summary-modal";
@@ -115,6 +116,7 @@ export function Topbar({
               </Link>
             </DropdownMenuItem>
           )}
+          <ThemeToggleItem />
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
             <LogOut /> {crmT(lang, "Log out")}

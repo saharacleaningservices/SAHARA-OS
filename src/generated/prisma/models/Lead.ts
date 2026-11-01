@@ -57,6 +57,8 @@ export type LeadMinAggregateOutputType = {
   quoteAmount: number | null
   stage: $Enums.LeadStage | null
   intakeKey: string | null
+  receivedOnNumber: string | null
+  sourceLine: string | null
   followUpDate: Date | null
   serviceDate: Date | null
   timeSlot: string | null
@@ -129,6 +131,8 @@ export type LeadMaxAggregateOutputType = {
   quoteAmount: number | null
   stage: $Enums.LeadStage | null
   intakeKey: string | null
+  receivedOnNumber: string | null
+  sourceLine: string | null
   followUpDate: Date | null
   serviceDate: Date | null
   timeSlot: string | null
@@ -201,6 +205,8 @@ export type LeadCountAggregateOutputType = {
   quoteAmount: number
   stage: number
   intakeKey: number
+  receivedOnNumber: number
+  sourceLine: number
   followUpDate: number
   serviceDate: number
   timeSlot: number
@@ -289,6 +295,8 @@ export type LeadMinAggregateInputType = {
   quoteAmount?: true
   stage?: true
   intakeKey?: true
+  receivedOnNumber?: true
+  sourceLine?: true
   followUpDate?: true
   serviceDate?: true
   timeSlot?: true
@@ -361,6 +369,8 @@ export type LeadMaxAggregateInputType = {
   quoteAmount?: true
   stage?: true
   intakeKey?: true
+  receivedOnNumber?: true
+  sourceLine?: true
   followUpDate?: true
   serviceDate?: true
   timeSlot?: true
@@ -433,6 +443,8 @@ export type LeadCountAggregateInputType = {
   quoteAmount?: true
   stage?: true
   intakeKey?: true
+  receivedOnNumber?: true
+  sourceLine?: true
   followUpDate?: true
   serviceDate?: true
   timeSlot?: true
@@ -592,6 +604,8 @@ export type LeadGroupByOutputType = {
   quoteAmount: number | null
   stage: $Enums.LeadStage
   intakeKey: string | null
+  receivedOnNumber: string | null
+  sourceLine: string
   followUpDate: Date | null
   serviceDate: Date | null
   timeSlot: string | null
@@ -687,6 +701,8 @@ export type LeadWhereInput = {
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   intakeKey?: Prisma.StringNullableFilter<"Lead"> | string | null
+  receivedOnNumber?: Prisma.StringNullableFilter<"Lead"> | string | null
+  sourceLine?: Prisma.StringFilter<"Lead"> | string
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -740,6 +756,7 @@ export type LeadWhereInput = {
   createdById?: Prisma.StringNullableFilter<"Lead"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
+  callRecordings?: Prisma.CallRecordingListRelationFilter
   assignedStaff?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -769,6 +786,8 @@ export type LeadOrderByWithRelationInput = {
   quoteAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   stage?: Prisma.SortOrder
   intakeKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  receivedOnNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceLine?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
   timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -822,6 +841,7 @@ export type LeadOrderByWithRelationInput = {
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  callRecordings?: Prisma.CallRecordingOrderByRelationAggregateInput
   assignedStaff?: Prisma.StaffOrderByWithRelationInput
   assignedTo?: Prisma.UserOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
@@ -854,6 +874,8 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.EnumLeadSourceFilter<"Lead"> | $Enums.LeadSource
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
+  receivedOnNumber?: Prisma.StringNullableFilter<"Lead"> | string | null
+  sourceLine?: Prisma.StringFilter<"Lead"> | string
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -907,6 +929,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   createdById?: Prisma.StringNullableFilter<"Lead"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
+  callRecordings?: Prisma.CallRecordingListRelationFilter
   assignedStaff?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -936,6 +959,8 @@ export type LeadOrderByWithAggregationInput = {
   quoteAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   stage?: Prisma.SortOrder
   intakeKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  receivedOnNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceLine?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
   timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -1016,6 +1041,8 @@ export type LeadScalarWhereWithAggregatesInput = {
   quoteAmount?: Prisma.FloatNullableWithAggregatesFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageWithAggregatesFilter<"Lead"> | $Enums.LeadStage
   intakeKey?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  receivedOnNumber?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  sourceLine?: Prisma.StringWithAggregatesFilter<"Lead"> | string
   followUpDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -1088,6 +1115,8 @@ export type LeadCreateInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -1138,6 +1167,7 @@ export type LeadCreateInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
@@ -1167,6 +1197,8 @@ export type LeadUncheckedCreateInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -1220,6 +1252,7 @@ export type LeadUncheckedCreateInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
@@ -1246,6 +1279,8 @@ export type LeadUpdateInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1296,6 +1331,7 @@ export type LeadUpdateInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
@@ -1325,6 +1361,8 @@ export type LeadUncheckedUpdateInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1378,6 +1416,7 @@ export type LeadUncheckedUpdateInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
@@ -1404,6 +1443,8 @@ export type LeadCreateManyInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -1476,6 +1517,8 @@ export type LeadUpdateManyMutationInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1545,6 +1588,8 @@ export type LeadUncheckedUpdateManyInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1627,6 +1672,8 @@ export type LeadCountOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   intakeKey?: Prisma.SortOrder
+  receivedOnNumber?: Prisma.SortOrder
+  sourceLine?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   timeSlot?: Prisma.SortOrder
@@ -1706,6 +1753,8 @@ export type LeadMaxOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   intakeKey?: Prisma.SortOrder
+  receivedOnNumber?: Prisma.SortOrder
+  sourceLine?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   timeSlot?: Prisma.SortOrder
@@ -1778,6 +1827,8 @@ export type LeadMinOrderByAggregateInput = {
   quoteAmount?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   intakeKey?: Prisma.SortOrder
+  receivedOnNumber?: Prisma.SortOrder
+  sourceLine?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   timeSlot?: Prisma.SortOrder
@@ -2106,6 +2157,20 @@ export type LeadUpdateOneWithoutAmcContractsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutAmcContractsInput, Prisma.LeadUpdateWithoutAmcContractsInput>, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
 }
 
+export type LeadCreateNestedOneWithoutCallRecordingsInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutCallRecordingsInput, Prisma.LeadUncheckedCreateWithoutCallRecordingsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutCallRecordingsInput
+  connect?: Prisma.LeadWhereUniqueInput
+}
+
+export type LeadUpdateOneRequiredWithoutCallRecordingsNestedInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutCallRecordingsInput, Prisma.LeadUncheckedCreateWithoutCallRecordingsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutCallRecordingsInput
+  upsert?: Prisma.LeadUpsertWithoutCallRecordingsInput
+  connect?: Prisma.LeadWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutCallRecordingsInput, Prisma.LeadUpdateWithoutCallRecordingsInput>, Prisma.LeadUncheckedUpdateWithoutCallRecordingsInput>
+}
+
 export type LeadCreateWithoutCreatedByInput = {
   id?: string
   leadNumber: string
@@ -2123,6 +2188,8 @@ export type LeadCreateWithoutCreatedByInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2173,6 +2240,7 @@ export type LeadCreateWithoutCreatedByInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutLeadInput
@@ -2201,6 +2269,8 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2253,6 +2323,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   assignedToId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
@@ -2288,6 +2359,8 @@ export type LeadCreateWithoutAssignedToInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2338,6 +2411,7 @@ export type LeadCreateWithoutAssignedToInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutLeadInput
@@ -2366,6 +2440,8 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2418,6 +2494,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
@@ -2472,6 +2549,8 @@ export type LeadScalarWhereInput = {
   quoteAmount?: Prisma.FloatNullableFilter<"Lead"> | number | null
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   intakeKey?: Prisma.StringNullableFilter<"Lead"> | string | null
+  receivedOnNumber?: Prisma.StringNullableFilter<"Lead"> | string | null
+  sourceLine?: Prisma.StringFilter<"Lead"> | string
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -2560,6 +2639,8 @@ export type LeadCreateWithoutAssignedStaffInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2610,6 +2691,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
   quotations?: Prisma.QuotationCreateNestedManyWithoutLeadInput
@@ -2638,6 +2720,8 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2690,6 +2774,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
@@ -2741,6 +2826,8 @@ export type LeadCreateWithoutQuotationsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2791,6 +2878,7 @@ export type LeadCreateWithoutQuotationsInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
@@ -2819,6 +2907,8 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2872,6 +2962,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
@@ -2913,6 +3004,8 @@ export type LeadUpdateWithoutQuotationsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2963,6 +3056,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
@@ -2991,6 +3085,8 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3044,6 +3140,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
@@ -3069,6 +3166,8 @@ export type LeadCreateWithoutFollowUpsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3119,6 +3218,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
@@ -3147,6 +3247,8 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3200,6 +3302,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
@@ -3241,6 +3344,8 @@ export type LeadUpdateWithoutFollowUpsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3291,6 +3396,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
@@ -3319,6 +3425,8 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3372,6 +3480,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
@@ -3397,6 +3506,8 @@ export type LeadCreateWithoutTimelineInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3447,6 +3558,7 @@ export type LeadCreateWithoutTimelineInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
@@ -3475,6 +3587,8 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3528,6 +3642,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
@@ -3569,6 +3684,8 @@ export type LeadUpdateWithoutTimelineInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3619,6 +3736,7 @@ export type LeadUpdateWithoutTimelineInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
@@ -3647,6 +3765,8 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3700,6 +3820,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
@@ -3725,6 +3846,8 @@ export type LeadCreateWithoutJobsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3775,6 +3898,7 @@ export type LeadCreateWithoutJobsInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
@@ -3803,6 +3927,8 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3856,6 +3982,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
@@ -3897,6 +4024,8 @@ export type LeadUpdateWithoutJobsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3947,6 +4076,7 @@ export type LeadUpdateWithoutJobsInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
@@ -3975,6 +4105,8 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4028,6 +4160,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
@@ -4053,6 +4186,8 @@ export type LeadCreateWithoutPaymentsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4103,6 +4238,7 @@ export type LeadCreateWithoutPaymentsInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
@@ -4131,6 +4267,8 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4184,6 +4322,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
@@ -4225,6 +4364,8 @@ export type LeadUpdateWithoutPaymentsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4275,6 +4416,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
@@ -4303,6 +4445,8 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4356,6 +4500,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
@@ -4381,6 +4526,8 @@ export type LeadCreateWithoutActivityLogsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4431,6 +4578,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   deletedByName?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
   assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
   assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
   createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
@@ -4459,6 +4607,8 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4512,6 +4662,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   createdById?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
   quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
   jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
   followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
@@ -4553,6 +4704,8 @@ export type LeadUpdateWithoutActivityLogsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4603,6 +4756,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
@@ -4631,6 +4785,8 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4684,6 +4840,7 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
@@ -4709,6 +4866,348 @@ export type LeadCreateWithoutAmcContractsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
+  followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
+  notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
+  mapLink?: string | null
+  siteId?: string | null
+  referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingCreateNestedManyWithoutLeadInput
+  assignedStaff?: Prisma.StaffCreateNestedOneWithoutLeadAssignmentsInput
+  assignedTo?: Prisma.UserCreateNestedOneWithoutLeadsAssignedInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutLeadsCreatedInput
+  quotations?: Prisma.QuotationCreateNestedManyWithoutLeadInput
+  jobs?: Prisma.JobCreateNestedManyWithoutLeadInput
+  followUps?: Prisma.FollowUpCreateNestedManyWithoutLeadInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
+  timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+}
+
+export type LeadUncheckedCreateWithoutAmcContractsInput = {
+  id?: string
+  leadNumber: string
+  name: string
+  mobile: string
+  alternateMobile?: string | null
+  whatsapp?: string | null
+  email?: string | null
+  address?: string | null
+  area: string
+  pinCode?: string | null
+  addOnServices?: string | null
+  service: $Enums.ServiceType
+  source: $Enums.LeadSource
+  quoteAmount?: number | null
+  stage?: $Enums.LeadStage
+  intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
+  followUpDate?: Date | string | null
+  serviceDate?: Date | string | null
+  timeSlot?: string | null
+  teamNumber?: number | null
+  notes?: string | null
+  serviceCategory?: $Enums.ServiceCategory | null
+  serviceVariant?: string | null
+  propertyType?: string | null
+  packageName?: string | null
+  comboServices?: string | null
+  assignedStaffIds?: string | null
+  advanceAmount?: number | null
+  paymentMode?: string | null
+  paymentStatus?: string | null
+  mapLink?: string | null
+  siteId?: string | null
+  referralCode?: string | null
+  acquisitionChannel?: string | null
+  acquisitionCampaign?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  utmTerm?: string | null
+  utmContent?: string | null
+  gclid?: string | null
+  fbclid?: string | null
+  landingPage?: string | null
+  landingPageUrl?: string | null
+  firstTouchSource?: string | null
+  firstTouchMedium?: string | null
+  firstTouchCampaign?: string | null
+  firstTouchAt?: Date | string | null
+  latestTouchSource?: string | null
+  latestTouchMedium?: string | null
+  latestTouchCampaign?: string | null
+  latestTouchAt?: Date | string | null
+  formSubmittedAt?: Date | string | null
+  marketingConsent?: string
+  paymentPreference?: string | null
+  marketingConsentAt?: Date | string | null
+  priceType?: string | null
+  festivalName?: string | null
+  scopeOfWork?: string | null
+  serviceItems?: string | null
+  discountAmount?: number | null
+  isDemo?: boolean
+  deletedAt?: Date | string | null
+  deletedByName?: string | null
+  assignedStaffId?: string | null
+  assignedToId?: string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedCreateNestedManyWithoutLeadInput
+  quotations?: Prisma.QuotationUncheckedCreateNestedManyWithoutLeadInput
+  jobs?: Prisma.JobUncheckedCreateNestedManyWithoutLeadInput
+  followUps?: Prisma.FollowUpUncheckedCreateNestedManyWithoutLeadInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
+  timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+}
+
+export type LeadCreateOrConnectWithoutAmcContractsInput = {
+  where: Prisma.LeadWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+}
+
+export type LeadUpsertWithoutAmcContractsInput = {
+  update: Prisma.XOR<Prisma.LeadUpdateWithoutAmcContractsInput, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
+  create: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+  where?: Prisma.LeadWhereInput
+}
+
+export type LeadUpdateToOneWithWhereWithoutAmcContractsInput = {
+  where?: Prisma.LeadWhereInput
+  data: Prisma.XOR<Prisma.LeadUpdateWithoutAmcContractsInput, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
+}
+
+export type LeadUpdateWithoutAmcContractsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
+  quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
+  assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
+  assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
+  quotations?: Prisma.QuotationUpdateManyWithoutLeadNestedInput
+  jobs?: Prisma.JobUpdateManyWithoutLeadNestedInput
+  followUps?: Prisma.FollowUpUpdateManyWithoutLeadNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
+  timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+}
+
+export type LeadUncheckedUpdateWithoutAmcContractsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  alternateMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  area?: Prisma.StringFieldUpdateOperationsInput | string
+  pinCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  addOnServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  service?: Prisma.EnumServiceTypeFieldUpdateOperationsInput | $Enums.ServiceType
+  source?: Prisma.EnumLeadSourceFieldUpdateOperationsInput | $Enums.LeadSource
+  quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
+  intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceCategory?: Prisma.NullableEnumServiceCategoryFieldUpdateOperationsInput | $Enums.ServiceCategory | null
+  serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  propertyType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  packageName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  comboServices?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  advanceAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  paymentMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  paymentStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  acquisitionCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmTerm?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  landingPageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  latestTouchSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latestTouchAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  formSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  marketingConsent?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentPreference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  marketingConsentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discountAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
+  quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
+  jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
+  followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
+  timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+}
+
+export type LeadCreateWithoutCallRecordingsInput = {
+  id?: string
+  leadNumber: string
+  name: string
+  mobile: string
+  alternateMobile?: string | null
+  whatsapp?: string | null
+  email?: string | null
+  address?: string | null
+  area: string
+  pinCode?: string | null
+  addOnServices?: string | null
+  service: $Enums.ServiceType
+  source: $Enums.LeadSource
+  quoteAmount?: number | null
+  stage?: $Enums.LeadStage
+  intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4768,9 +5267,10 @@ export type LeadCreateWithoutAmcContractsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractCreateNestedManyWithoutLeadInput
 }
 
-export type LeadUncheckedCreateWithoutAmcContractsInput = {
+export type LeadUncheckedCreateWithoutCallRecordingsInput = {
   id?: string
   leadNumber: string
   name: string
@@ -4787,6 +5287,8 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4846,25 +5348,26 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutLeadInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutLeadInput
   timeline?: Prisma.TimelineEntryUncheckedCreateNestedManyWithoutLeadInput
+  amcContracts?: Prisma.AmcContractUncheckedCreateNestedManyWithoutLeadInput
 }
 
-export type LeadCreateOrConnectWithoutAmcContractsInput = {
+export type LeadCreateOrConnectWithoutCallRecordingsInput = {
   where: Prisma.LeadWhereUniqueInput
-  create: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+  create: Prisma.XOR<Prisma.LeadCreateWithoutCallRecordingsInput, Prisma.LeadUncheckedCreateWithoutCallRecordingsInput>
 }
 
-export type LeadUpsertWithoutAmcContractsInput = {
-  update: Prisma.XOR<Prisma.LeadUpdateWithoutAmcContractsInput, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
-  create: Prisma.XOR<Prisma.LeadCreateWithoutAmcContractsInput, Prisma.LeadUncheckedCreateWithoutAmcContractsInput>
+export type LeadUpsertWithoutCallRecordingsInput = {
+  update: Prisma.XOR<Prisma.LeadUpdateWithoutCallRecordingsInput, Prisma.LeadUncheckedUpdateWithoutCallRecordingsInput>
+  create: Prisma.XOR<Prisma.LeadCreateWithoutCallRecordingsInput, Prisma.LeadUncheckedCreateWithoutCallRecordingsInput>
   where?: Prisma.LeadWhereInput
 }
 
-export type LeadUpdateToOneWithWhereWithoutAmcContractsInput = {
+export type LeadUpdateToOneWithWhereWithoutCallRecordingsInput = {
   where?: Prisma.LeadWhereInput
-  data: Prisma.XOR<Prisma.LeadUpdateWithoutAmcContractsInput, Prisma.LeadUncheckedUpdateWithoutAmcContractsInput>
+  data: Prisma.XOR<Prisma.LeadUpdateWithoutCallRecordingsInput, Prisma.LeadUncheckedUpdateWithoutCallRecordingsInput>
 }
 
-export type LeadUpdateWithoutAmcContractsInput = {
+export type LeadUpdateWithoutCallRecordingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4881,6 +5384,8 @@ export type LeadUpdateWithoutAmcContractsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4940,9 +5445,10 @@ export type LeadUpdateWithoutAmcContractsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUpdateManyWithoutLeadNestedInput
 }
 
-export type LeadUncheckedUpdateWithoutAmcContractsInput = {
+export type LeadUncheckedUpdateWithoutCallRecordingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   leadNumber?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4959,6 +5465,8 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5018,6 +5526,7 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutLeadNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutLeadNestedInput
   timeline?: Prisma.TimelineEntryUncheckedUpdateManyWithoutLeadNestedInput
+  amcContracts?: Prisma.AmcContractUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateManyCreatedByInput = {
@@ -5037,6 +5546,8 @@ export type LeadCreateManyCreatedByInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5108,6 +5619,8 @@ export type LeadCreateManyAssignedToInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5179,6 +5692,8 @@ export type LeadUpdateWithoutCreatedByInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5229,6 +5744,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutLeadNestedInput
@@ -5257,6 +5773,8 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5309,6 +5827,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
@@ -5335,6 +5854,8 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5406,6 +5927,8 @@ export type LeadUpdateWithoutAssignedToInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5456,6 +5979,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedStaff?: Prisma.StaffUpdateOneWithoutLeadAssignmentsNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutLeadNestedInput
@@ -5484,6 +6008,8 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5536,6 +6062,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
@@ -5562,6 +6089,8 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5633,6 +6162,8 @@ export type LeadCreateManyAssignedStaffInput = {
   quoteAmount?: number | null
   stage?: $Enums.LeadStage
   intakeKey?: string | null
+  receivedOnNumber?: string | null
+  sourceLine?: string
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5704,6 +6235,8 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5754,6 +6287,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUpdateManyWithoutLeadNestedInput
   assignedTo?: Prisma.UserUpdateOneWithoutLeadsAssignedNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutLeadsCreatedNestedInput
   quotations?: Prisma.QuotationUpdateManyWithoutLeadNestedInput
@@ -5782,6 +6316,8 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5834,6 +6370,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  callRecordings?: Prisma.CallRecordingUncheckedUpdateManyWithoutLeadNestedInput
   quotations?: Prisma.QuotationUncheckedUpdateManyWithoutLeadNestedInput
   jobs?: Prisma.JobUncheckedUpdateManyWithoutLeadNestedInput
   followUps?: Prisma.FollowUpUncheckedUpdateManyWithoutLeadNestedInput
@@ -5860,6 +6397,8 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   quoteAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   stage?: Prisma.EnumLeadStageFieldUpdateOperationsInput | $Enums.LeadStage
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5920,6 +6459,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
  */
 
 export type LeadCountOutputType = {
+  callRecordings: number
   quotations: number
   jobs: number
   followUps: number
@@ -5930,6 +6470,7 @@ export type LeadCountOutputType = {
 }
 
 export type LeadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  callRecordings?: boolean | LeadCountOutputTypeCountCallRecordingsArgs
   quotations?: boolean | LeadCountOutputTypeCountQuotationsArgs
   jobs?: boolean | LeadCountOutputTypeCountJobsArgs
   followUps?: boolean | LeadCountOutputTypeCountFollowUpsArgs
@@ -5947,6 +6488,13 @@ export type LeadCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
    * Select specific fields to fetch from the LeadCountOutputType
    */
   select?: Prisma.LeadCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LeadCountOutputType without action
+ */
+export type LeadCountOutputTypeCountCallRecordingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CallRecordingWhereInput
 }
 
 /**
@@ -6016,6 +6564,8 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   quoteAmount?: boolean
   stage?: boolean
   intakeKey?: boolean
+  receivedOnNumber?: boolean
+  sourceLine?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6069,6 +6619,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdById?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  callRecordings?: boolean | Prisma.Lead$callRecordingsArgs<ExtArgs>
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
   createdBy?: boolean | Prisma.Lead$createdByArgs<ExtArgs>
@@ -6099,6 +6650,8 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   quoteAmount?: boolean
   stage?: boolean
   intakeKey?: boolean
+  receivedOnNumber?: boolean
+  sourceLine?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6174,6 +6727,8 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   quoteAmount?: boolean
   stage?: boolean
   intakeKey?: boolean
+  receivedOnNumber?: boolean
+  sourceLine?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6249,6 +6804,8 @@ export type LeadSelectScalar = {
   quoteAmount?: boolean
   stage?: boolean
   intakeKey?: boolean
+  receivedOnNumber?: boolean
+  sourceLine?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6304,8 +6861,9 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "intakeKey" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "siteId" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "intakeKey" | "receivedOnNumber" | "sourceLine" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "siteId" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  callRecordings?: boolean | Prisma.Lead$callRecordingsArgs<ExtArgs>
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
   createdBy?: boolean | Prisma.Lead$createdByArgs<ExtArgs>
@@ -6332,6 +6890,7 @@ export type LeadIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Lead"
   objects: {
+    callRecordings: Prisma.$CallRecordingPayload<ExtArgs>[]
     assignedStaff: Prisma.$StaffPayload<ExtArgs> | null
     assignedTo: Prisma.$UserPayload<ExtArgs> | null
     createdBy: Prisma.$UserPayload<ExtArgs> | null
@@ -6360,6 +6919,8 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     quoteAmount: number | null
     stage: $Enums.LeadStage
     intakeKey: string | null
+    receivedOnNumber: string | null
+    sourceLine: string
     followUpDate: Date | null
     serviceDate: Date | null
     timeSlot: string | null
@@ -6807,6 +7368,7 @@ readonly fields: LeadFieldRefs;
  */
 export interface Prisma__LeadClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  callRecordings<T extends Prisma.Lead$callRecordingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$callRecordingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallRecordingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedStaff<T extends Prisma.Lead$assignedStaffArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$assignedStaffArgs<ExtArgs>>): Prisma.Prisma__StaffClient<runtime.Types.Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   assignedTo<T extends Prisma.Lead$assignedToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$assignedToArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.Lead$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -6862,6 +7424,8 @@ export interface LeadFieldRefs {
   readonly quoteAmount: Prisma.FieldRef<"Lead", 'Float'>
   readonly stage: Prisma.FieldRef<"Lead", 'LeadStage'>
   readonly intakeKey: Prisma.FieldRef<"Lead", 'String'>
+  readonly receivedOnNumber: Prisma.FieldRef<"Lead", 'String'>
+  readonly sourceLine: Prisma.FieldRef<"Lead", 'String'>
   readonly followUpDate: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly serviceDate: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly timeSlot: Prisma.FieldRef<"Lead", 'String'>
@@ -7306,6 +7870,30 @@ export type LeadDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Leads to delete.
    */
   limit?: number
+}
+
+/**
+ * Lead.callRecordings
+ */
+export type Lead$callRecordingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CallRecording
+   */
+  select?: Prisma.CallRecordingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CallRecording
+   */
+  omit?: Prisma.CallRecordingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CallRecordingInclude<ExtArgs> | null
+  where?: Prisma.CallRecordingWhereInput
+  orderBy?: Prisma.CallRecordingOrderByWithRelationInput | Prisma.CallRecordingOrderByWithRelationInput[]
+  cursor?: Prisma.CallRecordingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CallRecordingScalarFieldEnum | Prisma.CallRecordingScalarFieldEnum[]
 }
 
 /**

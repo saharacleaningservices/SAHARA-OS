@@ -501,6 +501,9 @@ model Lead {
   quoteAmount     Float?
   stage           LeadStage   @default(NEW)
   intakeKey       String?   @unique // automatic-intake idempotency key, e.g. "WA:<mobile>:<IST day>" — one WhatsApp lead per customer per day
+  receivedOnNumber String? // business number (last 10 digits) the customer messaged / called — multi-number tracking
+  sourceLine      String    @default("Main") // Main | Shoyab-GMB | Francis-Direct | Main-API — see lib/source-line.ts
+  callRecordings  CallRecording[]
   followUpDate    DateTime?
   serviceDate     DateTime? // customer-requested service date (from the booking form) — distinct from followUpDate
   timeSlot        String? // customer-requested slot, e.g. "10:00 AM" — carried into Job.scheduledTime on confirm
@@ -1920,4 +1923,19 @@ model Voucher {
   @@index([type, voucherDate])
   @@index([status])
   @@index([customerId])
+}
+
+// Call audio kept for the Super Admin audit (2026-11-01). Only ADMIN can list, play or upload — enforced in
+// server/call-recordings.ts and /uploads (private folder). Timeline CALL entries stay audio-free for everyone else.
+model CallRecording {
+  id         String   @id @default(cuid())
+  leadId     String
+  lead       Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  audioUrl   String
+  duration   Int? // seconds
+  recordedAt DateTime @default(now())
+  uploadedBy String? // User.id of the admin who uploaded it, or "helper-app"
+  createdAt  DateTime @default(now())
+
+  @@index([leadId])
 }

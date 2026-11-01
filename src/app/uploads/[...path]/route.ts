@@ -20,8 +20,8 @@ const OFFICE = ["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR"];
 const PRIVATE_FOLDERS: Record<string, string[]> = {
   "staff-docs": ["ADMIN", "ACCOUNTS"], // staff KYC documents
   invoices: ["ADMIN", "ACCOUNTS"], // payment / invoice attachments
-  voice: OFFICE, // lead voice notes
-  "call-recordings": OFFICE, // customer call audio from the Helper app (private, never cached)
+  voice: ["ADMIN"], // lead voice notes — Super Admin audio audit only (2026-11-01)
+  "call-recordings": ["ADMIN"], // customer call audio — Super Admin audio audit only (private, never cached)
   signatures: OFFICE, // customer signatures (PDFs read them from disk, not over HTTP)
 };
 

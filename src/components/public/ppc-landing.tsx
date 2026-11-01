@@ -7,11 +7,10 @@ import { PriceSelector } from "@/components/public/price-selector";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { BASE_URL, buildHomeRows, festivalPriceNote, businessJsonLd } from "@/components/public/landing-kit";
-import { CONTACT, GOOGLE_MAPS_URL, livePkgs, reviewCountLabel } from "@/lib/marketing-content";
+import { waLink, CONTACT, GOOGLE_MAPS_URL, livePkgs, reviewCountLabel } from "@/lib/marketing-content";
 import { activeCampaign, todayIST } from "@/lib/pricing-master";
 import { PPC_PAGES, type PpcConfig, type PpcIcon } from "@/lib/ppc-landing-content";
 import { COMPANY } from "@/lib/constants";
-import { toWhatsAppLink } from "@/lib/utils";
 import { getCompanySettings } from "@/server/settings";
 import { getLivePricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -29,7 +28,6 @@ const ICONS: Record<PpcIcon, ComponentType<{ className?: string }>> = {
 };
 
 const fmt = (n: string) => `+91 ${n.slice(0, 5)} ${n.slice(5)}`;
-const waLink = (text: string) => `${toWhatsAppLink(CONTACT.whatsapp)}?text=${encodeURIComponent(text)}`;
 
 export const ppcMetadata = (cfg: PpcConfig) => ({
   title: cfg.metaTitle,

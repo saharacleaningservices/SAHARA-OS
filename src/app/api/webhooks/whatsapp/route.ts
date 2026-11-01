@@ -1,12 +1,13 @@
+import { sourceLineForNumber, type SourceLine } from "@/lib/source-line";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { parseCtwaReferral, ctwaLeadFields, describeCtwa, type CtwaReferral } from "@/lib/whatsapp-referral";
+import { last10 } from "@/lib/phone";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import {
   applyWhatsAppStatus,
   findLeadForNumber,
   findLeadsForMobile,
-  last10Digits,
   recordInboundWhatsApp,
   sendWhatsApp as sendWhatsAppNow,
   sendWhatsAppInteractiveList as sendWhatsAppInteractiveListNow,
@@ -153,7 +154,7 @@ type MetaInboundMessage = {
   interactive?: { type?: string; list_reply?: { id?: string; title?: string }; button_reply?: { id?: string; title?: string } };
 };
 type MetaContact = { wa_id?: string; profile?: { name?: string } };
-type MetaChangeValue = { messages?: MetaInboundMessage[]; statuses?: MetaStatus[]; contacts?: MetaContact[] };
+type MetaChangeValue = { metadata?: { display_phone_number?: string; phone_number_id?: string }; messages?: MetaInboundMessage[]; statuses?: MetaStatus[]; contacts?: MetaContact[] };
 type MetaChange = { value?: MetaChangeValue };
 type MetaEntry = { changes?: MetaChange[] };
 type MetaWebhookPayload = { entry?: MetaEntry[] };
@@ -290,7 +291,7 @@ async function handleInboundMessages(value: MetaChangeValue): Promise<boolean> {
         continue;
       }
       try {
-        await processInboundMessage({ ...m, from: m.from }, reviewUrl, profileName);
+        await processInboundMessage({ ...m, from: m.from }, reviewUrl, profileName, sourceLineForNumber(value.metadata?.display_phone_number, process.env), last10(value.metadata?.display_phone_number ?? ""));
         log("info", "processed", { id: m.id, type: m.type, tap: m.interactive?.list_reply?.id ?? m.interactive?.button_reply?.id ?? null });
       } catch (err) {
         // Remove the dedupe row so Meta's redelivery is processed rather than skipped as "already seen".
@@ -321,7 +322,7 @@ async function handleInboundMessages(value: MetaChangeValue): Promise<boolean> {
 }
 
 /** The original per-message routing (opt-out/in, MORE, inquiries, quick replies). */
-async function processInboundMessage(m: MetaInboundMessage & { from: string }, reviewUrl: string, profileName: string | null = null) {
+async function processInboundMessage(m: MetaInboundMessage & { from: string }, reviewUrl: string, profileName: string | null = null, line: SourceLine = "Main-API", toNumber = "") {
   {
     if (m.type === "text") {
       const body = (m.text?.body || "").trim();
@@ -350,7 +351,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
       } else if (body && isBotTrigger(body) && !AI_ENABLED) {
         // In-house booking chatbot (owner 2026-10-26): greetings / "price" / "book" get the service menu.
         // The enquiry is still logged (lead / timeline) — without the plain acknowledgement, the menu is the reply.
-        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { silent: true });
+        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { silent: true, line, toNumber });
         await sendBotMenu(m.from, m.id);
       } else if (body) {
         // Any other free-text inbound message is a genuine new inquiry
@@ -359,7 +360,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
         // missed-call/route.ts) — same dedup logic, same auto-lead shape —
         // so a customer already mid-conversation about an open enquiry or
         // job doesn't get a duplicate Lead created for every message.
-        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral));
+        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { line, toNumber });
         await aiRespond(m.from, body);
       }
       return;
@@ -369,7 +370,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
     // Every chatbot menu tap lands in the CRM: finds/creates the customer's lead, notes the choice on its timeline and
     // tags the lead's service (while it is still NEW) before the booking-link reply goes out.
     if (m.type === "interactive" && isBotRow(tapped)) {
-      await captureMenuSelection(m.from, tapped!, m.interactive?.list_reply?.title || m.interactive?.button_reply?.title || tapped!, profileName);
+      await captureMenuSelection(m.from, tapped!, m.interactive?.list_reply?.title || m.interactive?.button_reply?.title || tapped!, profileName, line, toNumber);
     }
     // "Booking / Crew Status" menu row: the customer's own latest job (matched on the sending number). Shows date,
     // slot, status and the supervisor's first name only — never amounts or other customers' data.
@@ -523,8 +524,8 @@ async function sendBotMenu(toNumber: string, messageId?: string, opening?: strin
   return sendWhatsAppInteractiveList({ kind: "OTHER", toNumber, bodyText: menu.bodyText, buttonLabel: menu.buttonLabel, rows: menu.rows, relatedType: "WhatsAppChatbot", relatedId: messageId });
 }
 
-async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean } = {}): Promise<{ leadId: string | null; created: boolean }> {
-  const mobile = last10Digits(from);
+async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean; line?: SourceLine; toNumber?: string } = {}): Promise<{ leadId: string | null; created: boolean }> {
+  const mobile = last10(from);
   if (mobile.length !== 10) return { leadId: null, created: false };
   const adLine = ad ? ` · ${describeCtwa(ad)}` : "";
   const note = `Inbound WhatsApp: "${body.slice(0, 300)}"${adLine}`;
@@ -532,6 +533,8 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const recent = (await findLeadsForMobile(mobile)).find((l) => !["COMPLETED", "CANCELLED"].includes(l.stage) || l.createdAt >= dayAgo);
   if (recent) {
+    // Dedupe stays last-10; an older untagged lead picks up the line the customer used (never overwritten once set).
+    if (opts.line) await db.lead.updateMany({ where: { id: recent.id, receivedOnNumber: null, sourceLine: "Main" }, data: { sourceLine: opts.line, receivedOnNumber: opts.toNumber || null } }).catch(() => {});
     await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: note }).catch(() => {});
     return { leadId: recent.id, created: false };
   }
@@ -544,7 +547,7 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
       take: 50,
       select: { id: true, leadId: true, customerMobile: true, alternateMobile: true },
     })
-  ).find((j) => last10Digits(j.customerMobile) === mobile || last10Digits(j.alternateMobile) === mobile);
+  ).find((j) => last10(j.customerMobile) === mobile || last10(j.alternateMobile) === mobile);
   if (activeJob) {
     if (activeJob.leadId) await addTimelineEntry({ leadId: activeJob.leadId, type: "NOTE", body: note }).catch(() => {});
     else await db.activityLog.create({ data: { jobId: activeJob.id, action: note.slice(0, 300) } }).catch(() => {});
@@ -552,6 +555,7 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   }
 
   const intakeKey = `WA:${mobile}:${istDay()}`;
+  const lineFields = { sourceLine: opts.line ?? "Main-API", receivedOnNumber: opts.toNumber && opts.toNumber.length === 10 ? opts.toNumber : null };
   const existingCustomer = await db.customer.findUnique({ where: { mobile } }).catch(() => null);
   const displayName = existingCustomer?.name || cleanProfileName(profileName);
   let lead: { id: string; leadNumber: string } | null = null;
@@ -561,6 +565,7 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
         data: {
           leadNumber: await generateLeadNumber(),
           intakeKey,
+          ...lineFields,
           name: displayName || `WhatsApp inquiry ${mobile}`,
           mobile,
           whatsapp: mobile,
@@ -619,8 +624,8 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
  * active jobs only get a timeline note) and then tags the lead's service from the row chosen — but only while the lead is
  * still NEW, so an advanced lead (quotation, scheduled…) is never changed by a menu tap.
  */
-async function captureMenuSelection(from: string, rowId: string, title: string, profileName: string | null) {
-  const { leadId } = await handleWhatsAppInquiry(from, `Menu selection: ${title}`, profileName, null, { silent: true });
+async function captureMenuSelection(from: string, rowId: string, title: string, profileName: string | null, line: SourceLine = "Main-API", toNumber = "") {
+  const { leadId } = await handleWhatsAppInquiry(from, `Menu selection: ${title}`, profileName, null, { silent: true, line, toNumber });
   const service = BOT_ROW_SERVICE[rowId];
   if (leadId && service) {
     await db.lead.updateMany({ where: { id: leadId, stage: "NEW", NOT: { service: service as never } }, data: { service: service as never } });

@@ -9,11 +9,11 @@
 // yet; payload = the bcrypt hash of the password the staff member chose).
 
 import { db } from "@/lib/db";
+import { last10 } from "@/lib/phone";
 
 export const REG_OTP_PURPOSE = "STAFF_REGISTER_OTP";
 export const REG_REQUEST_PURPOSE = "STAFF_REGISTRATION";
 
-const last10 = (v: string) => v.replace(/\D/g, "").slice(-10);
 
 export type EligibleStaff = { id: string; name: string; employeeCode: string; digits: string };
 

@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
   if (meta.externalId) {
     const dupe = await db.timelineEntry.findFirst({
-      where: { leadId: lead.id, type: "CALL", audioUrl: { not: null }, meta: { contains: `"recordingFor":"${meta.externalId}"` } },
+      where: { leadId: lead.id, type: "CALL", meta: { contains: `"recordingFor":"${meta.externalId}"` } },
       select: { id: true },
     });
     if (dupe) return answer(false, "duplicate");
@@ -86,11 +86,14 @@ export async function POST(req: NextRequest) {
 
   const dur = Number(fields.durationSec ?? fields.duration ?? "NaN");
   const talk = Number.isFinite(dur) && dur > 0 ? ` · ${formatTalkTime(Math.round(dur))}` : "";
+  // Audio lives in CallRecording (Super Admin audit only); the timeline keeps a text-only marker for everyone.
+  await db.callRecording.create({
+    data: { leadId: lead.id, audioUrl: `/uploads/call-recordings/${name}`, duration: Number.isFinite(dur) && dur > 0 ? Math.round(dur) : null, uploadedBy: "helper-app" },
+  });
   await addTimelineEntry({
     leadId: lead.id,
     type: "CALL",
     body: `Call recording${talk}${meta.deviceLabel ? ` · ${meta.deviceLabel}` : ""}`,
-    audioUrl: `/uploads/call-recordings/${name}`,
     meta: { recordingFor: meta.externalId, durationSec: Number.isFinite(dur) && dur > 0 ? Math.round(dur) : null, source: "helper-app" },
   });
   return NextResponse.json({ ok: true, stored: true, lead: lead.leadNumber });

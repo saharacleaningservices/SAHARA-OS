@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/current-user";
 import { getCompanySettings } from "@/server/settings";
 import { AppShell } from "@/components/layout/app-shell";
 import { db } from "@/lib/db";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const [session, settings] = await Promise.all([requireUser(), getCompanySettings()]);
@@ -17,8 +18,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   if (account?.mustChangePassword && session.role !== "STAFF") redirect("/set-password");
 
   return (
-    <AppShell name={session.name} role={session.role} logoUrl={settings.logoUrl}>
+    <>
+      <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      <AppShell name={session.name} role={session.role} logoUrl={settings.logoUrl}>
       {children}
-    </AppShell>
+      </AppShell>
+    </>
   );
 }

@@ -41,7 +41,8 @@ test("money: revenue + salary only Admin/Accounts; Operations sees per-job amoun
 test("customer contact (phone/WhatsApp/email): Admin + Accounts only — never Operations, Supervisor or Staff", () => {
   check("canSeeCustomerContact", p.canSeeCustomerContact, only("ADMIN", "ACCOUNTS"));
   check("canSearchGlobally", p.canSearchGlobally, only("ADMIN", "ACCOUNTS"));
-  check("canExportCustomers", p.canExportCustomers, only("ADMIN", "ACCOUNTS"));
+  check("canExportCustomers", p.canExportCustomers, only("ADMIN")); // owner rule 2026-10-31
+  check("canDeleteRecords", p.canDeleteRecords, only("ADMIN"));
   for (const r of ["OPERATIONS", "SUPERVISOR", "STAFF"] as const) assert.equal(canAccess(r, "customers"), false, `${r} must not reach customers`);
 });
 
@@ -61,7 +62,11 @@ test("Operations (Francis): field command centre — jobs/staff/vehicles/attenda
 });
 
 test("Accounts (Shoyab): full working CRM but no owner-only areas", () => {
-  for (const section of ["payments", "quotations", "invoices", "customers", "revenue", "reports"]) assert.equal(canAccess("ACCOUNTS", section), true, section);
+  for (const section of ["payments", "quotations", "invoices", "customers", "expenses", "staff", "attendance", "vehicles", "leads", "jobs"]) assert.equal(canAccess("ACCOUNTS", section), true, section);
+  // owner rule 2026-10-31: no P&L / revenue dashboards or Export Center for Shoyab
+  for (const section of ["revenue", "reports", "settings"]) assert.equal(canAccess("ACCOUNTS", section), false, section);
+  assert.equal(p.canManageSecurity("ACCOUNTS"), false);
+  assert.equal(p.canEditBilling("OPERATIONS"), false);
   for (const section of OWNER_ONLY) assert.equal(canAccess("ACCOUNTS", section), false, section);
   assert.equal(p.jobScopeFor("ACCOUNTS"), "ALL");
 });

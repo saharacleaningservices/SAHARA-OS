@@ -7,17 +7,15 @@ import { MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { QuickLeadForm } from "@/components/public/quick-lead-form";
 import { MapOnTap } from "@/components/public/map-on-tap";
-import { CONTACT, GOOGLE_MAPS_URL, LOCALITIES, WEBSITE_URL, inr } from "@/lib/marketing-content";
+import { waLink, CONTACT, GOOGLE_MAPS_URL, LOCALITIES, WEBSITE_URL, inr } from "@/lib/marketing-content";
 import { COMPANY } from "@/lib/constants";
 import { getCompanySettings } from "@/server/settings";
-import { toWhatsAppLink } from "@/lib/utils";
 
 // Ad-campaign landing pages (Google / Meta traffic): conversion hero with an
 // instant 3-field form, animated CTAs, mobile sticky price bar and a
 // 5-column footer. Used only on the four service landing pages — /booking
 // keeps the standard LandingShell hero and footer.
 
-const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAppLink(number)}?text=${encodeURIComponent(text)}`;
 const MAP_QUERY = "Sahara Cleaning Services, Opposite South Gate, Magarpatta City, Hadapsar, Pune 411028";
 
 /** CTA micro-animations (reduced-motion users get static buttons). */
@@ -126,7 +124,7 @@ export function CampaignBar({ label, price, mrp, priceNote, cta = "Lock Slot (Pa
 // landing page stays linked underneath ("Prices & details") for internal SEO linking.
 const FOOTER_COLUMNS: { title: string; href: string; info?: string; items: string[] }[] = [
   { title: "Home Cleaning", href: "/booking?service=home#book", info: "/home-deep-cleaning-pune", items: ["Full Home Deep Cleaning", "Post-Interior Cleaning", "Move-In / Move-Out", "Sofa & Carpet", "Kitchen & Bathroom"] },
-  { title: "Painting Services", href: "/booking?service=painting#book", info: "/interior-painting-pune", items: ["Interior Painting", "Exterior Painting", "Waterproofing", "Rental Repaint", "Texture Painting"] },
+  { title: "Painting Services", href: "/booking?service=painting#book", info: "/interior-painting-pune", items: ["Interior Painting", "Exterior Painting", "Society & Commercial Painting", "Rental Repaint", "Texture Painting"] },
   { title: "Pest Control", href: "/booking?service=pest#book", info: "/pest-control-pune", items: ["Cockroach Control", "Bed Bugs", "Termite Drill-Fill", "Rodent Control", "AMC Plans"] },
   { title: "Commercial Cleaning", href: "/booking?service=commercial#book", info: "/commercial-cleaning-pune", items: ["Office Deep Cleaning", "Glass Partition Cleaning", "Floor Scrubbing", "Restaurant / Shop Cleaning"] },
   { title: "Facility Management", href: "/housekeeping-services", items: ["Corporate Housekeeping", "Society Housekeeping", "Security Guard Services", "Manpower Augmentation"] },

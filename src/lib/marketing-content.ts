@@ -1,3 +1,4 @@
+import { toWhatsAppLink } from "@/lib/utils";
 import { pricesIn, inGroup, unitPriceFor, type FestivalWindow, type PriceItem } from "@/lib/pricing-master";
 
 // Customer-facing marketing content shared by the public landing pages.
@@ -15,6 +16,9 @@ export const CONTACT = {
   email: "contact@saharacleaningservices.com",
   address: "Opposite South Gate, Magarpatta City, Hadapsar, Pune 411028",
 };
+
+/** wa.me deep link with prefilled text (defaults to the booking-site WhatsApp line). The only waLink in the app. */
+export const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAppLink(number)}?text=${encodeURIComponent(text)}`;
 
 /** Direct Google Maps listing of the Magarpatta City branch (place id of the Google Business Profile). */
 export const GOOGLE_MAPS_URL =

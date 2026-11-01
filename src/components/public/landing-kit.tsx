@@ -13,7 +13,7 @@ import { BookingWizard } from "@/components/public/booking-wizard";
 import { ServiceCards } from "@/components/public/service-cards";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import type { HomeRow } from "@/components/public/price-selector";
-import { CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
+import { waLink, CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
 import { buildBusinessJsonLd } from "@/lib/seo-schema";
 import { PriceSelector } from "@/components/public/price-selector";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
@@ -22,7 +22,6 @@ import { festivalUrgency } from "@/lib/festival-urgency";
 import { getPublicPricing, publicFestivalOffersOn } from "@/server/pricing";
 import { getCompanySettings } from "@/server/settings";
 import { CUSTOMER_REQUIREMENTS, HOME_DURATION, homeHighlights, homePleaseNote, homeScopeByArea, type HomeTier } from "@/lib/service-scope";
-import { toWhatsAppLink } from "@/lib/utils";
 import { paymentDetailsFrom } from "@/lib/booking-payment";
 import { COMPANY } from "@/lib/constants";
 import { TRUST } from "@/lib/booking-target";
@@ -31,7 +30,6 @@ import { TRUST } from "@/lib/booking-target";
 // and the four service pages). Server components; all SEO text is real HTML.
 
 export const BASE_URL = "https://booking.saharacleaningservices.com";
-const waLink = (text: string, number: string = CONTACT.whatsapp) => `${toWhatsAppLink(number)}?text=${encodeURIComponent(text)}`;
 
 // Verified public profiles (checked 30 Sep 2026) — only these are linked.
 // Clean (untagged) profile URLs for the business JSON-LD `sameAs` — UTM-tagged links are for visitors, not search engines.
@@ -101,7 +99,7 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
 }
 
 /** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). */
-export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
+export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; /** Branch WhatsApp line (10 digits) for the header buttons. */ waNumber?: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
   return (
     <div className="theme-navy min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
@@ -117,7 +115,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               <span key={n} className="hidden items-center gap-1 rounded-xl border border-primary/40 py-1 pl-3 pr-1 text-xs font-semibold text-primary md:flex">
                 {n}
                 <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="rounded-lg p-1.5 hover:bg-primary/10"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${CONTACT.whatsapp}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
+                <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${waNumber ?? CONTACT.whatsapp}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
               </span>
             ))}
             <Link href={bookHref} className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>

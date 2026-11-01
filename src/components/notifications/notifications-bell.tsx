@@ -13,6 +13,7 @@ import {
 } from "@/server/actions/notifications";
 import { setMyReminderPrefs } from "@/server/actions/ops-reminders";
 import { playChime, unlockAudio } from "@/lib/alert-audio";
+import { publishNavBadges } from "@/lib/nav-badges";
 
 type Item = {
   id: string;
@@ -133,10 +134,11 @@ export function NotificationsBell() {
     try {
       const res = await fetch("/api/notifications/feed", { cache: "no-store" });
       if (!res.ok) return;
-      const data: { build?: string | null; unreadCount: number; items: Item[]; opsSound?: boolean; opsNotifications?: boolean; userSound?: boolean; canConfigure?: boolean } = await res.json();
+      const data: { build?: string | null; unreadCount: number; badges?: Record<string, number>; items: Item[]; opsSound?: boolean; opsNotifications?: boolean; userSound?: boolean; canConfigure?: boolean } = await res.json();
       if (data.build && process.env.NEXT_PUBLIC_BUILD_ID && data.build !== process.env.NEXT_PUBLIC_BUILD_ID) markStale();
       setPrefs({ sound: data.opsSound !== false, userSound: data.userSound !== false, notifications: data.opsNotifications !== false, canConfigure: Boolean(data.canConfigure) });
       setUnread(data.unreadCount);
+      publishNavBadges(data.badges ?? {});
       setItems(data.items);
 
       const newest = data.items[0];

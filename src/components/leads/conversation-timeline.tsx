@@ -47,7 +47,7 @@ const TYPE_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   SYSTEM: Info,
 };
 
-export function ConversationTimeline({ leadId, entries }: { leadId: string; entries: Entry[] }) {
+export function ConversationTimeline({ leadId, entries, canAudio = false }: { leadId: string; entries: Entry[]; canAudio?: boolean }) {
   const [body, setBody] = useState("");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -99,13 +99,12 @@ export function ConversationTimeline({ leadId, entries }: { leadId: string; entr
                   <Icon className="size-3.5" />
                 </div>
                 <div className="min-w-0 flex-1 rounded-lg rounded-tl-none border border-border bg-card p-2.5">
-                  {e.type === "VOICE" && e.audioUrl ? (
+                  {e.type === "VOICE" && e.audioUrl && canAudio ? (
                     <audio controls src={e.audioUrl} className="h-9 w-full max-w-xs" />
                   ) : (
                     <p className="whitespace-pre-wrap break-words text-sm text-foreground">{e.body}</p>
                   )}
-                  {/* Call recordings from the telephony provider (call-trigger webhook) play right under the call entry. */}
-                  {e.type === "CALL" && e.audioUrl ? <audio controls preload="none" src={e.audioUrl} className="mt-1.5 h-9 w-full max-w-xs" /> : null}
+                  {/* Call recordings live in the Admin-only Audio Audit panel, never inline in the timeline. */}
                   <p className="mt-1 text-[11px] text-muted-foreground">
                     {e.author?.name ? `${e.author.name} · ` : ""}
                     {formatDateTime(e.createdAt)}
@@ -132,7 +131,7 @@ export function ConversationTimeline({ leadId, entries }: { leadId: string; entr
           className="resize-none"
         />
         <div className="flex items-center gap-2">
-          <VoiceRecorder leadId={leadId} />
+          {canAudio && <VoiceRecorder leadId={leadId} />}
           <CallLogDialog leadId={leadId} />
           <Button type="button" onClick={sendNote} disabled={pending || !body.trim()} className="ml-auto">
             {pending ? <Loader2 className="animate-spin" /> : <Send className="size-4" />}

@@ -46,10 +46,10 @@ test.after(async () => {
   try { rmSync(dir, { recursive: true, force: true }); } catch { /* temp */ }
 });
 
-test("permission: Admin, Accounts and Operations may edit billing; Supervisor and Staff may not", async () => {
-  assert.deepEqual(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR", "STAFF"].map(canEditBilling), [true, true, true, false, false]);
+test("permission: only Admin and Accounts may edit billing (Operations removed 2026-10-31); Supervisor and Staff may not", async () => {
+  assert.deepEqual(["ADMIN", "ACCOUNTS", "OPERATIONS", "SUPERVISOR", "STAFF"].map(canEditBilling), [true, true, false, false, false]);
   const job = await makeJob();
-  for (const role of ["SUPERVISOR", "STAFF"]) {
+  for (const role of ["OPERATIONS", "SUPERVISOR", "STAFF"]) {
     session = who(role);
     const r = await billing.updateJobBilling(job.id, { discountMode: "FLAT", discountValue: 100, gstEnabled: false });
     assert.equal(r.success, false, role);

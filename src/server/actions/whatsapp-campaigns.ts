@@ -11,6 +11,7 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { isServiceOffer, serviceOfferRecipient } from "@/lib/whatsapp-service-offers";
 import { getLivePricing } from "@/server/pricing";
 import { WHATSAPP_TEST_NUMBERS, getWhatsAppMarketingAudience } from "@/server/whatsapp-audience";
+import { getAdminSession } from "@/lib/require-admin";
 
 // Admin-only WhatsApp campaigns from the Marketing dashboard. Every message is
 // an approved template (never free text), every send is audit-logged, and:
@@ -26,10 +27,7 @@ const MAX_PER_SEND = 300;
 const FESTIVALS = ["Navratri", "Dussehra", "Diwali"] as const;
 const PAGE = "/profit/marketing";
 
-async function requireAdmin() {
-  const s = await getSession();
-  return s?.role === "ADMIN" ? s : null;
-}
+const requireAdmin = getAdminSession;
 
 async function audit(action: string, summary: string, s: { name: string; email: string }) {
   await db.auditLog

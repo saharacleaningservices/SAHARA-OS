@@ -1,16 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { cancelPendingWhatsApp, previewPendingWhatsApp } from "@/lib/whatsapp";
+import { requireAdminResult } from "@/lib/require-admin";
 
 
-async function requireAdmin() {
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Admin only" as const, session: null };
-  return { error: null, session };
-}
+const requireAdmin = () => requireAdminResult("Admin only");
 
 /** Counts of pending WhatsApp messages by category. Read-only. */
 export async function previewStaleWhatsApp() {

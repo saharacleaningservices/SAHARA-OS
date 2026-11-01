@@ -26,6 +26,7 @@ import { scopeSnapshot } from "@/lib/service-scope";
 import { publicPaymentState, resolvePublicEstimate } from "@/lib/booking-payment";
 import { linkCustomerAndSite } from "@/server/customer-db";
 import { copyLeadToSheet } from "@/server/lead-sheet";
+import { last10 as normalizeLast10 } from "@/lib/phone";
 
 /** Machine-readable reason added to every refusal (additive: the existing forms only read `error`). */
 export type PublicBookingErrorCode = "VALIDATION" | "HONEYPOT" | "THROTTLED" | "SLOT_FULL" | "PACKAGE_UNAVAILABLE" | "FESTIVAL_DATE_REQUIRED";
@@ -188,7 +189,7 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
   // the same service date (a repeat submission). A different service, or the
   // same service on another date, is a new enquiry with its own Lead ID —
   // linked to the same customer record below.
-  const last10 = data.mobile.replace(/\D/g, "").slice(-10);
+  const last10 = normalizeLast10(data.mobile);
   const reqDay = data.serviceDate ? data.serviceDate.slice(0, 10) : null;
   const existingOpen = last10.length === 10
     ? ((await db.lead.findMany({

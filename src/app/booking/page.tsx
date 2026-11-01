@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, breadcrumbBookingJsonLd, Faqs } from "@/components/public/landing-kit";
 import { nearMeFaqs } from "@/lib/seo-schema";
+import { BookingLinkPing } from "@/components/public/booking-link-ping";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -71,9 +72,11 @@ const CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { 
 export default async function BookingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ quote?: string; service?: string; ref?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
+  searchParams: Promise<{ quote?: string; service?: string; ref?: string; bl?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
 }) {
-  const { quote: quoteToken, service, ref, name, customer, mobile, phone } = await searchParams;
+  const { quote: quoteToken, service, ref, bl, name, customer, mobile, phone } = await searchParams;
+  // Staff-sent personalised link (?bl=<token>): prefill from the link record, ping it as opened, tie the submission to it.
+  const link = bl && /^[a-f0-9]{8,64}$/.test(bl) ? await db.bookingLink.findUnique({ where: { token: bl }, select: { customerName: true, customerMobile: true } }).catch(() => null) : null;
   const [settings, quote, pricing, galleryItems] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing(), getFeaturedGallery(12).catch(() => [])]);
   const festivalEyebrow = campaignFestivalNames(pricing.festivals, todayIST());
   // Real Google reviews the owner entered in Settings → Featured Reviews; none configured → no slider (never an invented testimonial).
@@ -115,12 +118,14 @@ export default async function BookingPage({
         {/* Drag / touch Before–After transformation slider inside the booking flow (owner 2026-10-25). */}
         {!quote && galleryItems.length > 0 && <BeforeAfterGallery items={galleryItems} />}
         <section id="book" className="scroll-mt-20">
+          {link && <BookingLinkPing token={bl} />}
           <BookingWizard
             quote={quote}
             defaultCategory={CATEGORY[service ?? ""]}
             hidePicker={!quote}
             referralCode={ref}
-            prefill={{ name: name ?? customer, mobile: mobile ?? phone }}
+            prefill={{ name: link?.customerName || name || customer, mobile: link?.customerMobile ? link.customerMobile.replace(/\D/g, "").slice(-10) : mobile ?? phone }}
+            bookingLinkToken={link ? bl : undefined}
             pricing={pricing}
             paymentDetails={paymentDetailsFrom(settings)}
           />

@@ -3,9 +3,9 @@
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
 import { hashPassword } from "@/lib/auth";
 import { createUserSchema, type CreateUserFormValues } from "@/lib/validation";
+import { getAdminSession } from "@/lib/require-admin";
 
 // Admin-only User Management — create accounts, change role, activate /
 // deactivate, and reset a forgotten password. Reuses the existing auth
@@ -21,11 +21,7 @@ function generateTempPassword(length = 10): string {
   return out;
 }
 
-async function requireAdminSession() {
-  const session = await getSession();
-  if (!session || session.role !== "ADMIN") return null;
-  return session;
-}
+const requireAdminSession = getAdminSession;
 
 export async function listUsers() {
   const session = await requireAdminSession();

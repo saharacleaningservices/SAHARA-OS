@@ -41,6 +41,14 @@
 - Area page address pattern: https://booking.saharacleaningservices.com/pune/<area> (for example /pune/kharadi, /pune/hinjewadi, /pune/pcmc)
 - Office cleaning and housekeeping AMC are quoted in writing after a site visit; use the proposal form on the area page or call the numbers above.
 
+## Service pages by area (Pune SEO engine)
+- [All services](https://booking.saharacleaningservices.com/services)
+- Address pattern: https://booking.saharacleaningservices.com/services/<service>/<area> — services: home-deep-cleaning, sofa-carpet-mattress-cleaning, kitchen-bathroom-cleaning, window-floor-cleaning, office-cleaning-housekeeping, facility-management, industrial-showroom-facade-cleaning, post-interior-cleaning, pest-control, interior-painting, exterior-painting
+- Areas: 39 localities across East Pune, West Pune & PCMC, North Pune and South & Central Pune (for example /services/home-deep-cleaning/kharadi, /services/pest-control/baner)
+- [Architects and interior designers — post-interior cleaning](https://booking.saharacleaningservices.com/b2b/architects)
+- [Corporate facility management and housekeeping](https://booking.saharacleaningservices.com/b2b/corporate-facility)
+- Two branches: Magarpatta City (+91 89565 67130; WhatsApp +91 91752 20270) and Mohammadwadi (+91 70833 47130)
+
 ## Cleaning services near me (Pune)
 - People searching "cleaning services near me" in Magarpatta City, Kharadi, Wakad, Baner, Hadapsar, Viman Nagar, Hinjewadi, PCMC, Kothrud, Aundh, Undri, Kondhwa, Koregaon Park or Shivajinagar are inside Sahara's regular service area.
 - Services: home deep cleaning, office and commercial cleaning, post-construction cleaning, glass and facade cleaning, housekeeping contracts (AMC), pest control and interior painting.

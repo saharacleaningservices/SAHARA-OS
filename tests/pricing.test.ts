@@ -1107,8 +1107,9 @@ test("CRM roles: Admin all; Accounts = money + customer billing, no profit / sec
   // Admin
   for (const s of ["profit", "settings", "admin", "payments", "dashboard"]) assert.ok(canAccess("ADMIN", s), `ADMIN ${s}`);
   // Accounts (Shoyab Kazi): finance, billing, payment verification — never profit or security
-  for (const s of ["payments", "expenses", "invoices", "quotations", "customers", "revenue", "reports"]) assert.ok(canAccess("ACCOUNTS", s), `ACCOUNTS ${s}`);
+  for (const s of ["payments", "expenses", "invoices", "quotations", "customers", "vehicles", "staff"]) assert.ok(canAccess("ACCOUNTS", s), `ACCOUNTS ${s}`);
   assert.ok(!canAccess("ACCOUNTS", "profit"), "ACCOUNTS has no Profit page");
+  assert.ok(!canAccess("ACCOUNTS", "revenue") && !canAccess("ACCOUNTS", "reports"), "no P&L / export center (2026-10-31)");
   assert.equal(p.canViewFinancials("ACCOUNTS"), false);
   assert.equal(p.canManageSecurity("ACCOUNTS"), false);
   assert.equal(p.canSeeCustomerContact("ACCOUNTS"), true);
@@ -1144,7 +1145,7 @@ test("Customer WhatsApp links all route to the primary WABA number 7083347130 (o
   const root = path.join(__dirname, "..");
   const read = (f: string) => readFileSync(path.join(root, f), "utf8");
   assert.match(read("src/lib/marketing-content.ts"), /whatsapp:\s*"7083347130"/);
-  for (const f of ["src/components/public/public-booking-form.tsx", "src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx", "src/app/gallery/page.tsx"]) {
+  for (const f of ["src/components/public/booking-wizard.tsx", "src/components/public/landing-kit.tsx", "src/components/public/campaign-kit.tsx", "src/app/gallery/page.tsx"]) {
     assert.doesNotMatch(read(f), /wa\.me\/918956567130|WHATSAPP_NUMBER = "8956567130"|waLink\(waText, n\)/, f);
   }
 });

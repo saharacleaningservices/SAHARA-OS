@@ -126,9 +126,12 @@ test("call-recording: 401 without token; closed after the expiry date; stores on
   const files = readdirSync(path.join(process.env.UPLOADS_DIR!, "call-recordings"));
   assert.equal(files.length, 1);
   assert.match(files[0], /^[0-9a-f]{24}\.m4a$/);
-  const entry = await db.timelineEntry.findFirstOrThrow({ where: { type: "CALL", audioUrl: { not: null } } });
+  const entry = await db.callRecording.findFirstOrThrow({});
   assert.equal(entry.audioUrl, `/uploads/call-recordings/${files[0]}`);
-  assert.match(entry.body ?? "", /Call recording · 2m 14s · Francis/);
+  assert.equal(entry.duration, 134);
+  const note = await db.timelineEntry.findFirstOrThrow({ where: { type: "CALL", body: { startsWith: "Call recording" } } });
+  assert.equal(note.audioUrl, null, "timeline carries no audio — Admin audit only");
+  assert.match(note.body ?? "", /Call recording · 2m 14s · Francis/);
 
   const again = await (await recPost({ caller: "9000000101", externalId: "Francis:6:9000000101" })).json();
   assert.equal(again.reason, "duplicate");
@@ -151,7 +154,7 @@ test("call-recording: bad type 415, missing file 400, bad caller 400; the folder
   assert.equal((await recPost({ caller: "9000000101" }, new File(["x"], "evil.exe", { type: "application/octet-stream" }))).status, 415);
   assert.equal((await recPost({ caller: "9000000101" }, null)).status, 400);
   assert.equal((await recPost({ caller: "123" })).status, 400);
-  assert.match(await (await import("node:fs/promises")).readFile("src/app/uploads/[...path]/route.ts", "utf8"), /"call-recordings": OFFICE/);
+  assert.match(await (await import("node:fs/promises")).readFile("src/app/uploads/[...path]/route.ts", "utf8"), /"call-recordings": \["ADMIN"\]/);
 });
 
 test.after(async () => {
