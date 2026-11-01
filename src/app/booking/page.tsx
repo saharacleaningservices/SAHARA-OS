@@ -1,6 +1,7 @@
 import { paymentDetailsFrom } from "@/lib/booking-payment";
 import { customerNumberFor } from "@/server/customer-db";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, breadcrumbBookingJsonLd, Faqs } from "@/components/public/landing-kit";
@@ -74,7 +75,14 @@ export default async function BookingPage({
 }: {
   searchParams: Promise<{ quote?: string; service?: string; ref?: string; bl?: string; name?: string; mobile?: string; phone?: string; customer?: string }>;
 }) {
-  const { quote: quoteToken, service, ref, bl, name, customer, mobile, phone } = await searchParams;
+  const sp = await searchParams;
+  const { quote: quoteToken, service, ref, bl, name, customer, mobile, phone } = sp;
+  // The main website now carries the whole booking flow (owner 2026-11-01). Plain /booking visits go to "/#book" (query kept);
+  // only a quotation link (?quote=) keeps this focused view.
+  if (!quoteToken) {
+    const qs = new URLSearchParams(Object.entries(sp).filter(([, v]) => typeof v === "string") as [string, string][]).toString();
+    redirect(`/${qs ? `?${qs}` : ""}#book`);
+  }
   // Staff-sent personalised link (?bl=<token>): prefill from the link record, ping it as opened, tie the submission to it.
   const link = bl && /^[a-f0-9]{8,64}$/.test(bl) ? await db.bookingLink.findUnique({ where: { token: bl }, select: { customerName: true, customerMobile: true } }).catch(() => null) : null;
   const [settings, quote, pricing, galleryItems] = await Promise.all([getCompanySettings(), loadQuote(quoteToken), getPublicPricing(), getFeaturedGallery(12).catch(() => [])]);

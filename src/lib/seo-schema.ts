@@ -66,7 +66,7 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
     slogan: "Serving Pune Since 2012",
     description:
       "Home deep cleaning, sofa and kitchen cleaning, office and commercial cleaning, housekeeping and facility management (AMC), pest control (termite, cockroach, bed bug) and interior painting across Pune and Pimpri-Chinchwad (PCMC). Trained in-house staff; serving Pune since 2012.",
-    url: "https://www.saharacleaningservices.com",
+    url: SCHEMA_SITE,
     logo: `${SCHEMA_SITE}/brand/sahara-logo.png`,
     image: `${SCHEMA_SITE}/marketing/hero-home.webp`,
     telephone: CONTACT.call.map((n) => `+91${n}`),

@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/site-origin";
 import { getPublicPricing } from "@/server/pricing";
 import { activeCampaign, todayIST, unitPriceFor } from "@/lib/pricing-master";
 import descriptions from "@/lib/catalog-descriptions.json";
@@ -13,7 +14,7 @@ import descriptions from "@/lib/catalog-descriptions.json";
 
 export const dynamic = "force-dynamic";
 
-const BASE = "https://booking.saharacleaningservices.com";
+const BASE = SITE_ORIGIN;
 const UTM = "?utm_source=whatsapp&utm_medium=catalog&utm_campaign=sahara_catalog";
 const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
 

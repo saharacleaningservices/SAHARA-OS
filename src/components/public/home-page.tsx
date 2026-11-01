@@ -6,12 +6,17 @@ import { CategoryHero, CategoryBar } from "@/components/public/category-landing"
 import { HomeAbout } from "@/components/public/home-about";
 import { BranchCards } from "@/components/public/branch-cards";
 import { ClientCarousel } from "@/components/ui/client-carousel";
-import { FestivalZoneEffects } from "@/components/public/festival-announcement";
 import { CLIENT_LOGOS } from "@/lib/client-logos";
 import { NAV_MEGA } from "@/config/nav-menu";
 import { SERVICE_CATEGORIES, VERTICALS, ZONES, LOCALITIES } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
+import { FunnelCards, CompactPriceSelector } from "@/components/public/landing-kit";
+import { BookingWizard } from "@/components/public/booking-wizard";
+import { getPublicPricing } from "@/server/pricing";
+import { paymentDetailsFrom } from "@/lib/booking-payment";
+import { BookingLinkPing } from "@/components/public/booking-link-ping";
+import { db } from "@/lib/db";
 
 const WA = "Hi Sahara, I'd like a quote for a service in Pune.";
 export const HOME_FAQS = [
@@ -22,14 +27,20 @@ export const HOME_FAQS = [
 
 /**
  * Public homepage of the standalone Next.js website (owner 2026-11-01: zero WordPress). Served at "/" on the public hosts.
- * Sections: festive hero → About (2-column) → service showcase (Residential 4 pillars / Commercial 5 pillars) → logo marquee →
+ * Sections: hero → 4-card service grid → BHK / package picker → booking form → About → service showcase (Residential 4 pillars / Commercial 5 pillars) → logo marquee →
  * every service hub → branches → FAQ. Layout model: BOXED (max-w-6xl) throughout; full-bleed only for the hero background.
  */
-export async function HomePage() {
+const CATEGORY: Record<string, "HOME" | "COMMERCIAL" | "PEST" | "PAINTING"> = { home: "HOME", commercial: "COMMERCIAL", pest: "PEST", painting: "PAINTING" };
+export type HomeSearchParams = { service?: string; ref?: string; bl?: string; name?: string; mobile?: string; phone?: string; customer?: string };
+
+export async function HomePage({ params = {} }: { params?: HomeSearchParams }) {
+  const { service, ref, bl, name, customer, mobile, phone } = params;
+  const link = bl && /^[a-f0-9]{8,64}$/.test(bl) ? await db.bookingLink.findUnique({ where: { token: bl }, select: { customerName: true, customerMobile: true } }).catch(() => null) : null;
+  const pricing = await getPublicPricing();
   const settings = await getCompanySettings().catch(() => null);
   const reviewUrl = settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL;
   return (
-    <LandingShell logoUrl={settings?.logoUrl} waText={WA} bookHref="/booking" jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), faqJsonLd(HOME_FAQS)]} mobileBar={<CategoryBar waText={WA} cta="Book Now" href="/booking" />}>
+    <LandingShell logoUrl={settings?.logoUrl} waText={WA} bookHref="#book" jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), faqJsonLd(HOME_FAQS)]} mobileBar={<CategoryBar waText={WA} cta="Book Now" href="#book" />}>
       <CategoryHero
         image="/marketing/hero-home.webp"
         alt="Sahara Cleaning Services crew deep cleaning a Pune home"
@@ -38,13 +49,29 @@ export async function HomePage() {
         points={["Trained in-house staff — no sub-contractors", "Written quote before work starts", "Magarpatta City & Mohammadwadi branches", "Serving Pune since 2012"]}
         waText={WA}
         cta="Book Now"
-        ctaHref="/booking"
+        ctaHref="#book"
       />
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-6 sm:py-10">
+        {/* Original 4-card service grid + BHK / package picker + booking form, inside the main site (owner 2026-11-01). Header, hero and footer stay. */}
+        <FunnelCards />
+        <CompactPriceSelector />
+        <section id="book" className="scroll-mt-20">
+          {link && <BookingLinkPing token={bl} />}
+          <BookingWizard
+            quote={null}
+            defaultCategory={CATEGORY[service ?? ""]}
+            hidePicker
+            referralCode={ref}
+            prefill={{ name: link?.customerName || name || customer, mobile: link?.customerMobile ? link.customerMobile.replace(/\D/g, "").slice(-10) : mobile ?? phone }}
+            bookingLinkToken={link ? bl : undefined}
+            pricing={pricing}
+            paymentDetails={paymentDetailsFrom(settings ?? ({} as never))}
+          />
+        </section>
+
         <HomeAbout reviewUrl={reviewUrl} rating={settings?.googleRating || undefined} />
 
         <section aria-labelledby="showcase-title" className="relative overflow-hidden rounded-3xl">
-          <FestivalZoneEffects zone="middle" />
           <h2 id="showcase-title" className="relative text-2xl font-extrabold text-[#0a2540] sm:text-3xl">Our services</h2>
           <div className="relative mt-4 grid gap-5 lg:grid-cols-2">
             {NAV_MEGA.map((m) => (

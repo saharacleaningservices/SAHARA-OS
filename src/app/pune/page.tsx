@@ -19,7 +19,7 @@ const WA = "Hi Sahara, I need a quote for a service in Pune.";
 const FAQS = [
   { q: "Which parts of Pune do you serve?", a: "East Pune (Magarpatta, Hadapsar, Kharadi, Viman Nagar, Wagholi, Undri, NIBM Road, Kondhwa, Koregaon Park, Kalyani Nagar), West Pune (Baner, Wakad, Hinjewadi, Aundh), Kothrud and Pimpri-Chinchwad (PCMC)." },
   { q: "Which services do you offer?", a: "Home deep cleaning, commercial and office cleaning, pest control, interior and exterior painting, and facility management with housekeeping AMC." },
-  { q: "How do I get a quote?", a: "Book online at booking.saharacleaningservices.com/booking or call or WhatsApp 7083347130 / 8956567130." },
+  { q: "How do I get a quote?", a: "Book online at saharacleaningservices.com or call or WhatsApp 7083347130 / 8956567130." },
 ];
 
 export default async function PuneHubPage() {

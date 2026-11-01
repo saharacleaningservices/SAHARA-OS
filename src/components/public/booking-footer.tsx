@@ -29,7 +29,7 @@ export async function BookingFooter() {
             </p>
             <div className="flex flex-col gap-1 text-[13px]">
               <a href={`mailto:${CONTACT.email}`} className="inline-flex min-h-9 items-center gap-1.5 break-all hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
-              <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1.5 break-all hover:text-white"><Globe className="size-3.5 shrink-0" />www.saharacleaningservices.com</a>
+              <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1.5 break-all hover:text-white"><Globe className="size-3.5 shrink-0" />saharacleaningservices.com</a>
             </div>
           </div>
           <MapOnTap title="Sahara Cleaning Services on Google Maps" embedSrc={`https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&output=embed`} mapsUrl={GOOGLE_MAPS_URL} address={CONTACT.address} />

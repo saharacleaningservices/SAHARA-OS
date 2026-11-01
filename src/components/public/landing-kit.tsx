@@ -1,3 +1,4 @@
+import { MegaMenuHeader } from "@/components/public/mega-menu";
 import Link from "next/link";
 import { socialProfileUrls } from "@/lib/social-links";
 import { FooterSocial } from "@/components/public/footer-social";
@@ -108,21 +109,7 @@ export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, foot
       {jsonLd.map((j, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }} />
       ))}
-      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2">
-          <Link href="/" aria-label="Sahara Cleaning Services — home"><CompanyLogo logoUrl={logoUrl} className="h-[40px] w-auto max-w-[160px]" /></Link>
-          <div className="flex items-center gap-2">
-            {CONTACT.call.map((n) => (
-              <span key={n} className="hidden items-center gap-1 rounded-xl border border-primary/40 py-1 pl-3 pr-1 text-xs font-semibold text-primary md:flex">
-                {n}
-                <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="rounded-lg p-1.5 hover:bg-primary/10"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${waNumber ?? CONTACT.whatsapp}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
-              </span>
-            ))}
-            <Link href={bookHref} className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>
-          </div>
-        </div>
-      </header>
+      <MegaMenuHeader logo={<CompanyLogo logoUrl={logoUrl} className="h-[40px] w-auto max-w-[160px]" />} bookHref={bookHref} />
       {children}
       <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
       {footer ?? (
@@ -154,7 +141,7 @@ export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, foot
               <li><Link href="/booking#book" className="font-semibold text-amber-400">Book Online</Link></li>
             </ul>
             <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
-            <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Globe className="size-3.5 shrink-0" />www.saharacleaningservices.com</a>
+            <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Globe className="size-3.5 shrink-0" />saharacleaningservices.com</a>
           </section>
           {/* Block 3 — Trust, legal */}
           <section aria-labelledby="ft-trust" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">

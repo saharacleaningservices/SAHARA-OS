@@ -6,14 +6,14 @@ import { CONTACT } from "@/lib/marketing-content";
 /**
  * Public header with the Residential / Commercial mega-menus (owner 2026-11-01). Server component, no JavaScript:
  *   desktop (lg+) — hover or keyboard focus opens a full-width panel of pillars; each pillar is a card with its short list,
- *   mobile — a hamburger <details> opens an accordion (one <details> per menu), so it works without scripts and stays light.
+ *   mobile — a hamburger <details> opens one flat panel (both menus fully listed, no nested accordions), so it works without scripts and stays light.
  * Layout model: BOXED — panels use max-w-6xl so columns line up on every screen.
  */
 export function MegaMenuHeader({ logo, bookHref = "/booking" }: { logo?: React.ReactNode; bookHref?: string }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2">
-        <Link href="/services" aria-label="Sahara Cleaning Services — all services" className="shrink-0">{logo ?? <span className="text-base font-extrabold text-[#0a2540]">Sahara Cleaning</span>}</Link>
+        <Link href="/" aria-label="Sahara Cleaning Services — home" className="shrink-0">{logo ?? <span className="text-base font-extrabold text-[#0a2540]">Sahara Cleaning</span>}</Link>
 
         <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
           {NAV_MEGA.map((m) => (
@@ -49,9 +49,9 @@ export function MegaMenuHeader({ logo, bookHref = "/booking" }: { logo?: React.R
             <summary aria-label="Open menu" className="flex size-10 cursor-pointer list-none items-center justify-center rounded-xl border border-border text-[#0a2540] [&::-webkit-details-marker]:hidden"><Menu className="size-5" /></summary>
             <div className="fixed inset-x-0 top-[57px] max-h-[calc(100vh-57px)] overflow-y-auto border-b border-border bg-white p-3 shadow-xl">
               {NAV_MEGA.map((m) => (
-                <details key={m.id} className="rounded-xl border border-border bg-white open:bg-[#eef4fb] [&+details]:mt-2">
-                  <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-extrabold text-[#0a2540] [&::-webkit-details-marker]:hidden">{m.label}<ChevronDown className="size-4" aria-hidden /></summary>
-                  <div className="space-y-3 px-4 pb-4">
+                <div key={m.id} className="rounded-xl border border-border bg-[#eef4fb] [&+div]:mt-2">
+                  <p className="px-4 pt-3 text-sm font-extrabold text-[#0a2540]">{m.label}</p>
+                  <div className="space-y-3 px-4 pb-4 pt-2">
                     {m.pillars.map((p) => (
                       <section key={p.title}>
                         <Link href={p.href} className="text-sm font-bold text-primary">{p.title}</Link>
@@ -61,7 +61,7 @@ export function MegaMenuHeader({ logo, bookHref = "/booking" }: { logo?: React.R
                       </section>
                     ))}
                   </div>
-                </details>
+                </div>
               ))}
               <div className="mt-2 grid grid-cols-2 gap-2 text-center text-sm font-bold">
                 <Link href="/offers" className="rounded-xl border border-border py-3 text-[#0a2540]">Offers</Link>

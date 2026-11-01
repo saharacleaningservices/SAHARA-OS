@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from "@/lib/site-origin";
 import { SCHEMA_SITE, BUSINESS_GEO, breadcrumbJsonLd } from "@/lib/seo-schema";
 import { CONTACT, GOOGLE_MAPS_URL } from "@/lib/marketing-content";
 import { COMPANY } from "@/lib/constants";
@@ -31,7 +32,7 @@ export function organizationJsonLd(sameAs: string[] = []) {
     "@type": "Organization",
     "@id": ORG_ID,
     name: "Sahara Cleaning Services",
-    url: "https://www.saharacleaningservices.com",
+    url: SITE_ORIGIN,
     logo: `${SCHEMA_SITE}/brand/sahara-logo.png`,
     foundingDate: "2012",
     email: CONTACT.email,
@@ -114,7 +115,7 @@ export function seoServiceJsonLd(c: ServiceCategory, l: Locality, path: string) 
 
 export function seoBreadcrumb(c: ServiceCategory, l: Locality, path: string) {
   return breadcrumbJsonLd([
-    { name: "Home", path: "/booking" },
+    { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
     { name: c.name, path: `/services/${c.slug}` },
     { name: `${c.short} in ${l.name}`, path },
