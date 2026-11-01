@@ -36,8 +36,11 @@ test("festival components: reduced-motion safe, no layout shift, no prices or sl
   assert.match(ann, /fixed inset-x-0/);
   assert.match(ann, /backdrop-blur/);
   assert.doesNotMatch(ann, /₹|% off|slots left|only \d/i);
-  // UI rollback 2026-11-01: the public shell shows no festival banner, mega-menu or effects.
-  assert.doesNotMatch(readFileSync("src/components/public/landing-kit.tsx", "utf8"), /FestivalAnnouncement|MegaMenuHeader|FestivalZoneEffects/);
+  // 2026-11-01 (final): standard mega-menu header, no festival banner or effects in the public shell.
+  const kit = readFileSync("src/components/public/landing-kit.tsx", "utf8");
+  assert.doesNotMatch(kit, /FestivalAnnouncement|FestivalZoneEffects/);
+  assert.match(kit, /<MegaMenuHeader/);
+  assert.doesNotMatch(readFileSync("src/components/public/mega-menu.tsx", "utf8"), /<details key=/, "no nested accordions in the mobile menu");
 });
 
 test("mega-menu: 4 residential + 5 commercial pillars, every link on an existing route, no waterproofing / wallpaper", () => {
