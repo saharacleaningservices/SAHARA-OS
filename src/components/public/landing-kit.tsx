@@ -99,7 +99,7 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
 }
 
 /** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). */
-export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
+export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; /** Branch WhatsApp line (10 digits) for the header buttons. */ waNumber?: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
   return (
     <div className="theme-navy min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
@@ -115,7 +115,7 @@ export function LandingShell({ logoUrl, waText, jsonLd, children, footer, mobile
               <span key={n} className="hidden items-center gap-1 rounded-xl border border-primary/40 py-1 pl-3 pr-1 text-xs font-semibold text-primary md:flex">
                 {n}
                 <a href={`tel:+91${n}`} aria-label={`Call ${n}`} className="rounded-lg p-1.5 hover:bg-primary/10"><Phone className="size-3.5" /></a>
-                <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${CONTACT.whatsapp}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
+                <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${waNumber ?? CONTACT.whatsapp}`} className="rounded-lg p-1.5 text-success hover:bg-success/10"><MessageCircle className="size-3.5" /></a>
               </span>
             ))}
             <Link href={bookHref} className="relative rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shadow-[0_0_0_0_rgba(37,99,235,0.45)] motion-safe:animate-[sahara-glow_2.6s_ease-in-out_infinite]">Book Now</Link>

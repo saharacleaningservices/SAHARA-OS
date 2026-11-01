@@ -124,7 +124,7 @@ export function CampaignBar({ label, price, mrp, priceNote, cta = "Lock Slot (Pa
 // landing page stays linked underneath ("Prices & details") for internal SEO linking.
 const FOOTER_COLUMNS: { title: string; href: string; info?: string; items: string[] }[] = [
   { title: "Home Cleaning", href: "/booking?service=home#book", info: "/home-deep-cleaning-pune", items: ["Full Home Deep Cleaning", "Post-Interior Cleaning", "Move-In / Move-Out", "Sofa & Carpet", "Kitchen & Bathroom"] },
-  { title: "Painting Services", href: "/booking?service=painting#book", info: "/interior-painting-pune", items: ["Interior Painting", "Exterior Painting", "Waterproofing", "Rental Repaint", "Texture Painting"] },
+  { title: "Painting Services", href: "/booking?service=painting#book", info: "/interior-painting-pune", items: ["Interior Painting", "Exterior Painting", "Society & Commercial Painting", "Rental Repaint", "Texture Painting"] },
   { title: "Pest Control", href: "/booking?service=pest#book", info: "/pest-control-pune", items: ["Cockroach Control", "Bed Bugs", "Termite Drill-Fill", "Rodent Control", "AMC Plans"] },
   { title: "Commercial Cleaning", href: "/booking?service=commercial#book", info: "/commercial-cleaning-pune", items: ["Office Deep Cleaning", "Glass Partition Cleaning", "Floor Scrubbing", "Restaurant / Shop Cleaning"] },
   { title: "Facility Management", href: "/housekeeping-services", items: ["Corporate Housekeeping", "Society Housekeeping", "Security Guard Services", "Manpower Augmentation"] },

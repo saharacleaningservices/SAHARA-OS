@@ -11,8 +11,8 @@ import { CategoryLeadForm } from "@/components/public/category-lead-form";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Painting Services in Pune – Interior, Exterior, Waterproofing, Epoxy | Sahara",
-  description: "Interior and exterior painting, waterproofing and epoxy flooring across Pune & PCMC. Book a free site inspection and get a measurement-based quote.",
+  title: "Painting Services in Pune – Interior, Exterior, Society & Commercial | Sahara",
+  description: "Interior and exterior painting for homes, offices and societies across Pune & PCMC. Book a free site inspection and get a measurement-based quote.",
   alternates: { canonical: `${BASE_URL}/interior-painting-pune` },
   robots: { index: false, follow: true },
 };
@@ -21,10 +21,10 @@ const WA = "Hi Sahara, I'd like to book a free site inspection for painting.";
 const FAQS = [
   { q: "Is the site inspection free?", a: "Yes. We visit, inspect the surfaces, measure the area and share a written quote." },
   { q: "How is painting priced?", a: "Painting is quoted after measurement, based on the paint you choose, surface condition and number of coats." },
-  { q: "Do you do waterproofing and epoxy flooring?", a: "Yes. Waterproofing and epoxy flooring are scoped at the site inspection, and the quote is shared after it." },
+  { q: "Do you paint housing societies and commercial buildings?", a: "Yes. Society and commercial painting is scoped at the site inspection, and the quote is shared after it." },
   { q: "Which paints do you use?", a: "Asian Paints range — from distemper and tractor emulsion to Premium Emulsion, Royale and texture finishes." },
 ];
-const TYPES = ["Interior Painting", "Exterior Painting", "Waterproofing", "Epoxy Flooring", "Not sure — need advice"];
+const TYPES = ["Interior Painting", "Exterior Painting", "Society / Commercial Painting", "Not sure — need advice"];
 
 export default async function PaintingServicesPage() {
   const settings = await getCompanySettings();
@@ -40,7 +40,7 @@ export default async function PaintingServicesPage() {
         image="/marketing/service-painting.webp"
         alt="Sahara painting team painting an interior wall in Pune"
         title="Painting Services in Pune"
-        subtitle="Interior and exterior painting, waterproofing and epoxy flooring for homes and commercial spaces."
+        subtitle="Interior, exterior, society and commercial painting for homes and commercial spaces."
         points={["Free site inspection and measurement", "Asian Paints range", "Surface preparation, putty and primer where needed", "Homes, offices, shops and societies"]}
         waText={WA}
         badge="Homes & Commercial"
@@ -61,12 +61,12 @@ export default async function PaintingServicesPage() {
           schedule
         />
         <ServiceTiles
-          heading="What we paint and protect"
+          heading="What we paint"
           tiles={[
             { title: "Interior Painting", text: "Walls and ceilings with proper preparation, putty, primer and finishing coats." },
             { title: "Exterior Painting", text: "Weather-resistant exterior finishes for homes, buildings and societies." },
-            { title: "Waterproofing", text: "Terrace, bathroom and wall seepage treatment scoped at the inspection." },
-            { title: "Epoxy Flooring", text: "Durable epoxy floor finishes for parking, workshops and commercial areas." },
+            { title: "Society Painting", text: "Whole-building exterior and common-area painting for housing societies, scheduled with the committee." },
+            { title: "Commercial Painting", text: "Offices, showrooms and shops painted with a schedule that keeps disruption low." },
           ]}
         />
         <Panel title="Paint options"><BulletList items={PAINT_OPTIONS} /></Panel>

@@ -67,7 +67,7 @@ test("menu tap from a new number creates ONE lead tagged with the chosen service
 });
 
 test("a later tap on a still-NEW lead re-tags the service and does not create a second lead; status/slots rows leave it alone", async () => {
-  assert.equal((await post(listTap("919811100001", "wamid.TAP2", "bot_painting", "Painting & Waterproofing"))).status, 200);
+  assert.equal((await post(listTap("919811100001", "wamid.TAP2", "bot_painting", "Painting Services"))).status, 200);
   let leads = await leadsFor("9811100001");
   assert.equal(leads.length, 1);
   assert.equal(leads[0].service, "INTERIOR_PAINTING");

@@ -9,13 +9,15 @@ import { waLink, CONTACT } from "@/lib/marketing-content";
 // AttributionCapture (UTM / gclid / fbclid → localStorage) and the Meta Pixel + GA tags.
 
 
-export function CategoryHero({ title, subtitle, image, alt, points, waText, badge, cta = "Get Free Quote", ctaHref = "#enquiry" }: {
+export function CategoryHero({ title, subtitle, image, alt, points, waText, waNumber, badge, cta = "Get Free Quote", ctaHref = "#enquiry" }: {
   title: string;
   subtitle: string;
   image: string;
   alt: string;
   points: string[];
   waText: string;
+  /** Branch WhatsApp line (10 digits); defaults to the booking-site line. */
+  waNumber?: string;
   badge?: string;
   cta?: string;
   ctaHref?: string;
@@ -35,7 +37,7 @@ export function CategoryHero({ title, subtitle, image, alt, points, waText, badg
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <a href={ctaHref} className="sahara-shimmer min-h-11 rounded-full bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-[#0a2540]">{cta}</a>
           <a href={`tel:+91${CONTACT.call[0]}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-primary"><Phone className="size-4" /> {CONTACT.call[0]}</a>
-          <a href={waLink(waText)} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-success px-4 py-2.5 text-sm font-bold"><MessageCircle className="size-4" /> WhatsApp</a>
+          <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-success px-4 py-2.5 text-sm font-bold"><MessageCircle className="size-4" /> WhatsApp</a>
         </div>
       </div>
     </section>
@@ -84,20 +86,20 @@ export function BulletList({ items }: { items: string[] }) {
 }
 
 /** Desktop floating WhatsApp button (mobile uses CategoryBar below). */
-export function StickyWhatsApp({ waText }: { waText: string }) {
+export function StickyWhatsApp({ waText, waNumber }: { waText: string; waNumber?: string }) {
   return (
-    <a href={waLink(waText)} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" className="fixed bottom-5 right-5 z-50 hidden min-h-12 items-center gap-2 rounded-full bg-success px-5 text-sm font-bold text-white shadow-lg sm:inline-flex">
+    <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" className="fixed bottom-5 right-5 z-50 hidden min-h-12 items-center gap-2 rounded-full bg-success px-5 text-sm font-bold text-white shadow-lg sm:inline-flex">
       <MessageCircle className="size-5" /> WhatsApp us
     </a>
   );
 }
 
 /** Mobile sticky bar: Call · WhatsApp · primary CTA (scrolls to the enquiry form). */
-export function CategoryBar({ waText, cta, href = "#enquiry" }: { waText: string; cta: string; href?: string }) {
+export function CategoryBar({ waText, waNumber, cta, href = "#enquiry" }: { waText: string; waNumber?: string; cta: string; href?: string }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-border bg-white text-center text-xs font-bold sm:hidden">
       <a href={`tel:+91${CONTACT.call[0]}`} className="flex items-center justify-center gap-1 py-3 text-primary"><Phone className="size-3.5" /> Call</a>
-      <a href={waLink(waText)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
+      <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
       <a href={href} className="flex items-center justify-center bg-primary py-3 text-white">{cta}</a>
     </div>
   );

@@ -20,7 +20,7 @@ export type BotRow = { id: string; title: string; description: string };
 export const BOT_ROWS: BotRow[] = [
   { id: "bot_home", title: "Deep Cleaning & Offers", description: "1–3 BHK packages, combos from ₹1,899, sofa & kitchen" },
   { id: "bot_pest", title: "Pest Control", description: "Cockroach & ant ₹999 · Bed bug ₹1,199 · Termite on inspection" },
-  { id: "bot_painting", title: "Painting & Waterproofing", description: "Interior painting, damp & leakage repair — free inspection" },
+  { id: "bot_painting", title: "Painting Services", description: "Interior & exterior painting — free site inspection" },
   { id: "bot_status", title: "Booking / Crew Status", description: "Check your booking date, slot and crew status" },
 ];
 /** Menu row → CRM service (ServiceType) used to tag the lead when a customer taps it. Rows not listed (status/slots) don't change the service. */
@@ -57,7 +57,7 @@ export function botReply(rowId: string): string | null {
     case "bot_pest":
       return `🪳 *Pest Control*\nCockroach & ant control from ₹999 · Bed bug treatment from ₹1,199 · Termite, rodent & mosquito control after a free inspection.\n\nPick a date and slot here:\n${link("pest", "pest_control")}`;
     case "bot_painting":
-      return `🎨 *Interior Painting & Waterproofing*\nDust-free interior painting, damp and leakage patchwork and waterproofing. Every job starts with a free site inspection and a written quote.\n\nBook your free inspection here:\n${link("painting", "painting_waterproofing")}`;
+      return `🎨 *Interior & Exterior Painting*\nDust-free interior painting and weather-resistant exterior painting for homes, offices and societies. Every job starts with a free site inspection and a written quote.\n\nBook your free inspection here:\n${link("painting", "painting")}`;
     case "bot_status":
       return `📋 *Booking / Crew Status*\nWe couldn't find an upcoming booking for this number. If you booked from another number, reply with your booking ID or name and our team will update you.\n\nNew booking: ${link(undefined, "status_new")}`;
     case "bot_sofa":
