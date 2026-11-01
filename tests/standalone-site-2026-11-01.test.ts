@@ -25,14 +25,16 @@ test("no page that reads the database is prerendered at build time (Coolify's Do
 
 test("standalone homepage: '/' renders the public homepage on the website hosts, CRM elsewhere", () => {
   const page = readFileSync("src/app/page.tsx", "utf8");
-  assert.match(page, /<HomePage params=\{sp\} \/>/);
+  assert.match(page, /<HomePage \/>/);
+  assert.match(page, /redirect\(`\/booking\/checkout\?/);
   assert.match(page, /redirect\("\/dashboard"\)/);
   assert.match(page, /MAIN_HOST/);
   const mw = readFileSync("src/middleware.ts", "utf8");
   assert.match(mw, /if \(pathname === "\/"\) return NextResponse\.next\(\);/);
   assert.doesNotMatch(mw, /url\.pathname = "\/booking";/, "the booking host no longer bounces / to /booking");
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  for (const part of ["FunnelCards", "CompactPriceSelector", "BookingWizard", 'id="book"', "HomeAbout", "ClientCarousel", "NAV_MEGA", "BranchCards", "CategoryHero"]) assert.match(home, new RegExp(part));
+  for (const part of ["FunnelCards checkoutBase", "CompactPriceSelector checkoutBase", "HomeAbout", "ReviewsCarousel", "ClientCarousel", "NAV_MEGA", "BranchCards", "CategoryHero", "Faqs"]) assert.match(home, new RegExp(part));
+  assert.doesNotMatch(home, /BookingWizard|id="book"/, "the homepage never holds the booking form");
   assert.doesNotMatch(home, /cognito|<iframe|FestivalZoneEffects/i);
 });
 
@@ -40,4 +42,15 @@ test("sitemap includes the homepage", async () => {
   const { SITEMAP_PATHS } = await import("../src/app/sitemap");
   assert.ok(SITEMAP_PATHS.includes("/"));
   assert.ok(SITEMAP_PATHS.includes("/contact"));
+});
+
+test("streamlined checkout: /booking/checkout holds the booking form with the BHK + package pre-filled, noindex", () => {
+  const page = readFileSync("src/app/booking/checkout/page.tsx", "utf8");
+  assert.match(page, /<BookingWizard/);
+  assert.match(page, /preset=\{preset\}/);
+  assert.match(page, /index: false/);
+  assert.match(page, /export const dynamic = "force-dynamic"/);
+  const sel = readFileSync("src/components/public/price-selector.tsx", "utf8");
+  assert.match(sel, /checkoutBase/);
+  assert.match(readFileSync("src/app/booking/page.tsx", "utf8"), /\/booking\/checkout\?/);
 });
