@@ -36,7 +36,8 @@ test("festival components: reduced-motion safe, no layout shift, no prices or sl
   assert.match(ann, /fixed inset-x-0/);
   assert.match(ann, /backdrop-blur/);
   assert.doesNotMatch(ann, /₹|% off|slots left|only \d/i);
-  assert.match(readFileSync("src/components/public/landing-kit.tsx", "utf8"), /<FestivalAnnouncement \/>/);
+  // UI rollback 2026-11-01: the public shell shows no festival banner, mega-menu or effects.
+  assert.doesNotMatch(readFileSync("src/components/public/landing-kit.tsx", "utf8"), /FestivalAnnouncement|MegaMenuHeader|FestivalZoneEffects/);
 });
 
 test("mega-menu: 4 residential + 5 commercial pillars, every link on an existing route, no waterproofing / wallpaper", () => {
@@ -85,14 +86,10 @@ test("GMB Book online: ReserveAction with the fixed UTM links; Mohammadwadi carr
   assert.ok((mag.potentialAction as { "@type": string; target?: { urlTemplate: string } }[]).some((a) => a["@type"] === "ReserveAction" && a.target?.urlTemplate === BRANCHES.magarpatta.bookOnlineUrl));
 });
 
-test("booking form: price-mode toggle, agreed rate never auto-confirms, no dead grey button", () => {
+test("booking form (UI rollback 2026-11-01): original flow only, no verbal-rate / agreed-rate mode", () => {
   const w = readFileSync("src/components/public/booking-wizard.tsx", "utf8");
-  assert.match(w, /Standard Package Rate/);
-  assert.match(w, /Agreed Rate on Verbal Call \/ Inspection/);
-  assert.match(w, /Submit Inquiry/);
-  assert.match(w, /Proceed to Select Slot/);
-  assert.doesNotMatch(w, /disabled=\{!ready \|\| pending\}/);
-  assert.match(readFileSync("src/server/public-booking-core.ts", "utf8"), /agreedRate/);
+  assert.doesNotMatch(w, /Agreed Rate on Verbal Call|Standard Package Rate|rateMode/);
+  assert.match(w, /Tap a service above to see its packages and book/);
 });
 
 test("contact page: native form to /api/leads/submit, no Cognito iframe, branch cards with directions", () => {
