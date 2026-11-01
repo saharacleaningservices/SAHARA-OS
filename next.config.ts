@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { LEGACY_REDIRECTS } from "./src/lib/legacy-redirects";
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -20,8 +21,9 @@ const STATIC_IMAGE_CACHE = "public, max-age=86400, stale-while-revalidate=604800
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD_ID: BUILD_ID },
   // Short legal URL some links and ad forms use. 308 = permanent, method-preserving.
+  // Legacy WordPress / sahara-web URLs -> Sahara OS routes are true 301s (see src/lib/legacy-redirects.ts).
   async redirects() {
-    return [{ source: "/privacy", destination: "/privacy-policy", permanent: true }];
+    return [{ source: "/privacy", destination: "/privacy-policy", permanent: true }, ...LEGACY_REDIRECTS];
   },
   async headers() {
     return [
