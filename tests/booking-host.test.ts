@@ -18,10 +18,15 @@ test.before(async () => {
 const hit = (host: string, path: string) => middleware(new NextRequest(`https://${host}${path}`, { headers: { host } }));
 const location = (r: Response) => (r.headers.get("location") ? new URL(r.headers.get("location")!).pathname : null);
 
-test("booking.*: home page goes straight to /booking in ONE redirect (not / → /book → /booking)", async () => {
+test("booking.*: '/' renders the standalone homepage (owner 2026-11-01, zero WordPress) — no redirect, no rewrite", async () => {
   const r = await hit("booking.example.test", "/");
-  assert.ok([307, 308].includes(r.status));
-  assert.equal(location(r), "/booking");
+  assert.equal(location(r), null);
+  assert.equal(r.headers.get("x-middleware-rewrite"), null);
+});
+
+test("crm.*: '/' still sends a signed-out visitor to the login page", async () => {
+  const r = await hit("crm.example.test", "/");
+  assert.equal(location(r), "/login");
 });
 
 const rewriteTo = (r: Response) => (r.headers.get("x-middleware-rewrite") ? new URL(r.headers.get("x-middleware-rewrite")!).pathname : null);

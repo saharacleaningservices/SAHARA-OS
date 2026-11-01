@@ -9,6 +9,10 @@ import {
   LEGACY_REDIRECT_ENABLED,
 } from "@/lib/site-urls";
 
+// Public website hosts: the booking subdomain, plus the main domain once its DNS points at this app instead of WordPress
+// (inert until then — no request with those Host headers reaches this server).
+const PUBLIC_SITE_HOSTS = new Set([PUBLIC_BOOKING_HOST, "www.saharacleaningservices.com", "saharacleaningservices.com"].filter(Boolean));
+
 // Paths that are safe (and meant) to serve on the public booking.* domain —
 // a subset of PUBLIC_PATHS below plus the static/branding routes this
 // middleware already always lets through. Everything else must never be
@@ -137,16 +141,11 @@ export async function middleware(request: NextRequest) {
   if (
     PUBLIC_BOOKING_HOST &&
     PUBLIC_BOOKING_HOST !== INTERNAL_CRM_HOST &&
-    host === PUBLIC_BOOKING_HOST &&
+    PUBLIC_SITE_HOSTS.has(host) &&
     !isStaticAssetPath(pathname)
   ) {
-    if (pathname === "/") {
-      const url = request.nextUrl.clone();
-      // Straight to /booking (the /book page only redirects there) — one redirect instead of two.
-      url.pathname = "/booking";
-      url.search = "";
-      return NextResponse.redirect(url);
-    }
+    // Standalone Next.js website (owner 2026-11-01, zero WordPress): "/" renders the public homepage (src/app/page.tsx).
+    if (pathname === "/") return NextResponse.next();
     if (!BOOKING_HOST_ALLOWED_PREFIXES.some((p) => pathname.startsWith(p))) {
       // CRM and unknown paths never render here — and they get a true 404 (Next's not-found page), not a redirect
       // to /booking, so search engines don't index soft-404s. Rewrites don't re-enter middleware.

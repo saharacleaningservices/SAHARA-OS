@@ -13,11 +13,9 @@ import { h1, localIntro, nearbyLocalities, pageFaqs, seoDescription, seoTitle, s
 
 // Programmatic local-SEO landing page: /services/<category>/<location>  (11 services × 39 localities).
 // Built on first request, then cached for a day (ISR) — fast TTFB for Google Ads Quality Score without a build-time DB.
-export const revalidate = 86400;
-export const dynamicParams = true;
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request like every other public page: the Docker build has no database, so nothing that reads
+// Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ category: string; location: string }> };
 

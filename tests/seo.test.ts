@@ -32,7 +32,7 @@ const SEO_HUBS = ["/services", "/contact", ...SERVICE_CATEGORIES.map((c) => `/se
 const PROGRAMMATIC_SAMPLE = PROGRAMMATIC.filter((_, i) => i % 37 === 0);
 const CORE = ["/booking", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
 const INDEXABLE = [...CORE, ...SEO_HUBS, ...PROGRAMMATIC_SAMPLE];
-const SITEMAP_ALL = [...CORE, ...SEO_HUBS, ...PROGRAMMATIC];
+const SITEMAP_ALL = ["/", ...CORE, ...SEO_HUBS, ...PROGRAMMATIC];
 const LANDING = ["/landing/home-deep-cleaning-pune", "/landing/interior-painting-pune", "/landing/office-commercial-cleaning-pune", "/landing/pest-control-services-pune"];
 // Public pages that must keep answering 200 but are not meant for the sitemap.
 const OTHER_PUBLIC = ["/privacy-policy", "/terms"];

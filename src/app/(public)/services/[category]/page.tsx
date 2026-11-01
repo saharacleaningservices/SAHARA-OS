@@ -8,11 +8,9 @@ import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, ZONES, categoryBySlug, seoPa
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 
-export const revalidate = 86400;
-export const dynamicParams = true;
-export function generateStaticParams() {
-  return [];
-}
+// Rendered per request like every other public page: the Docker build has no database, so nothing that reads
+// Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
+export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ category: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
