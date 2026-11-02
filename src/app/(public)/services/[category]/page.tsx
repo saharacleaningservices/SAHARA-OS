@@ -105,7 +105,7 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
       jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), catalogServiceJsonLd(s), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: cat.label, path: categoryPath(s.category) }, { name: s.name, path: servicePath(s.slug) }]), faqJsonLd(s.faqs)]}
       mobileBar={<CategoryBar waText={WA} cta={inspection ? "Get Quote" : "Book Now"} href="#book" />}
     >
-      <CategoryHero image={s.image} alt={s.imageAlt} title={`${s.name} in Pune`} subtitle={s.intro} points={s.includes.slice(0, 4)} waText={WA} badge={cat.label} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
+      <CategoryHero image={s.image} alt={s.imageAlt} title={`${s.name} in Pune`} subtitle={s.heroIntro ?? s.intro} points={s.heroPoints ?? s.includes.slice(0, 3)} waText={WA} badge={cat.label} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
         <ServicePricing service={s} />

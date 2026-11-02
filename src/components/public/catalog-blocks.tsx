@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Building2, CalendarCheck, ClipboardCheck, FileText, Home, MapPin, MapPinned, Phone, Sparkles, Star, Truck } from "lucide-react";
 import { img } from "@/config/image-registry";
-import { CATALOG_CATEGORIES, INSPECTION_STEPS, categoryPath, excludesFor, servicesIn, servicePath, type CatalogService } from "@/config/service-catalog";
+import { CATALOG_CATEGORIES, INSPECTION_STEPS, catalogServiceBySlug, categoryPath, excludesFor, servicesIn, servicePath, type CatalogService } from "@/config/service-catalog";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
 import { liveCombos, livePkgs, PREMIUM_SCOPE, PLATINUM_SCOPE, PREMIUM_EXCLUDED, PLATINUM_EXCLUDED } from "@/lib/marketing-content";
@@ -83,6 +83,12 @@ export function InspectionFlow({ service, title = "Price after a free site inspe
   );
 }
 
+/** Unfurnished tab scope (same lines as the Unfurnished Home Cleaning page). */
+const UNFURNISHED_SCOPE = {
+  included: catalogServiceBySlug("unfurnished-home-cleaning")?.includes ?? [],
+  excluded: ["Furniture, sofa or mattress cleaning (nothing to clean in an empty flat)", "Inaccessible or unsafe heights", "Old permanent stains (no guarantee of full removal)"],
+};
+
 /**
  * The rate calculator for a landing page (owner R&D directive 2026-11-02):
  *   bhk  → PackageCalculator (property × occasion → Premium / Platinum with included / excluded),
@@ -101,7 +107,9 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
         rows={rows.map((r) => ({ bhk: r.bhk, premium: r.premium, platinum: r.platinum, premiumId: pricing.items.find((i) => i.group === "PREMIUM" && i.bhk === r.bhk)?.contentId, platinumId: pricing.items.find((i) => i.group === "PLATINUM" && i.bhk === r.bhk)?.contentId }))}
         scope={{ Premium: { included: PREMIUM_SCOPE, excluded: PREMIUM_EXCLUDED }, Platinum: { included: PLATINUM_SCOPE, excluded: PLATINUM_EXCLUDED } }}
         note={festivalPriceNote(campaign)}
-        defaultOccasion={service.slug === "move-in-move-out-cleaning" ? "Move-in / Move-out" : "Regular"}
+        defaultOccasion={service.slug === "move-in-move-out-cleaning" ? "Unfurnished" : "Regular"}
+        unfurnished={pricing.items.filter((i) => i.group === "UNFURNISHED" && i.price != null && i.bhk).map((i) => ({ bhk: i.bhk!, price: i.price!, id: i.contentId }))}
+        unfurnishedScope={UNFURNISHED_SCOPE}
       />
     );
   }
@@ -301,14 +309,24 @@ export function GoogleRatingBadge({ reviewUrl, rating = TRUST.rating, compact = 
  * client names as clean wordmark tiles. Pure CSS loop (GPU transform), paused on hover, off for reduced-motion visitors.
  */
 export function ClientMarquee() {
-  if (CLIENT_LOGOS.length > 0) return <ClientCarousel logos={CLIENT_LOGOS} title="Trusted by" />;
+  // Owner 2026-11-03: one unified strip — each client shows its transparent PNG logo (public/clients, made by
+  // scripts/convert-client-logos.py) as soon as it is added to CLIENT_LOGOS; until then its name tile.
+  const logoFor = (n: string) => CLIENT_LOGOS.find((l) => l.name.toLowerCase() === n.toLowerCase());
   const row = (hidden: boolean) => (
     <ul className="flex shrink-0 items-center gap-3 pr-3" aria-hidden={hidden || undefined}>
-      {CLIENT_NAMES.map((n) => (
-        <li key={`${hidden}-${n}`} className="flex h-14 min-w-[150px] items-center justify-center rounded-2xl bg-white px-5 shadow-sm ring-1 ring-[#0a2540]/5">
-          <span className="whitespace-nowrap text-[15px] font-black uppercase tracking-wide text-[#0a2540]/70">{n}</span>
-        </li>
-      ))}
+      {CLIENT_NAMES.map((n) => {
+        const logo = logoFor(n);
+        return (
+          <li key={`${hidden}-${n}`} className="flex h-14 min-w-[150px] items-center justify-center rounded-2xl bg-white px-5 shadow-sm ring-1 ring-[#0a2540]/5">
+            {logo ? (
+              // eslint-disable-next-line @next/next/no-img-element -- tiny static PNGs; next/image adds nothing here
+              <img src={logo.src} alt={hidden ? "" : n} loading="lazy" decoding="async" className="h-9 w-auto max-w-[140px] object-contain" />
+            ) : (
+              <span className="whitespace-nowrap text-[15px] font-black uppercase tracking-wide text-[#0a2540]/70">{n}</span>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
   return (

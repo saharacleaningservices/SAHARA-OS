@@ -161,7 +161,8 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
     if (!slot) return setError("Please choose a time slot.");
     if (!locality) return setError("Please choose your area.");
     if (area.length < 3) return setError("Please enter your flat / society / building or a landmark.");
-    if (booking && pin.length !== 6) return setError("Please enter your 6-digit PIN code.");
+    // PIN code is optional (owner 2026-11-03): the area alone completes a booking; a PIN, when given, must be 6 digits.
+    if (pin.length > 0 && pin.length !== 6) return setError("PIN code should be 6 digits — or leave it blank.");
     if (gap > 0) return setError(`${ZONE_B_MOV_MESSAGE} Add ${inr(gap)} more.`);
     const company = String(f.get("company") ?? "").trim();
     const propType = String(f.get("propType") ?? "");
@@ -177,7 +178,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
           name, mobile, website: String(f.get("website") ?? ""),
           area: (locName || area).slice(0, 100) || (gps ? "GPS location" : ""),
           address: where.slice(0, 400),
-          pinCode: pin,
+          pinCode: pin.length === 6 ? pin : "",
           mapLink: mapsUrl,
           serviceCategory: intent!.category,
           serviceVariant: intent!.service.slice(0, 120),
@@ -279,7 +280,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
                   ))}
                   <option value="other">Other area</option>
                 </select>
-                <input name="pincode" value={pincode} onChange={(e) => setPincode(normalizePincode(e.target.value))} inputMode="numeric" autoComplete="postal-code" maxLength={6} required={booking} placeholder={booking ? "PIN code *" : "PIN code"} aria-label="PIN code" className={input} />
+                <input name="pincode" value={pincode} onChange={(e) => setPincode(normalizePincode(e.target.value))} inputMode="numeric" autoComplete="postal-code" maxLength={6} placeholder="PIN (optional)" aria-label="PIN code (optional)" className={input} />
                 </div>
                 <input name="area" autoComplete="street-address" required placeholder="Flat / society / building / landmark *" className={input} />
                 <button type="button" onClick={locate} disabled={gpsState === "locating"} className={`inline-flex items-center gap-1 text-xs font-bold ${gps ? "text-emerald-700" : "text-primary"}`}>

@@ -85,10 +85,10 @@ test("image registry: new clean photos exist, mapped to their services, none tex
     assert.ok(existsSync(path.join("public", v.src)), `${k} → ${v.src} missing`);
     assert.ok(!TEXT_BAKED_PATTERNS.some((re) => re.test(v.src)), `${k} is text-baked`);
   }
-  assert.equal(IMAGE_REGISTRY["full-home"].src, "/marketing/services/full-home-crew.webp");
+  assert.equal(IMAGE_REGISTRY["full-home"].src, "/marketing/services/full-home-card.webp");
   assert.equal(IMAGE_REGISTRY.bathroom.src, "/marketing/services/bathroom-scrub.webp");
   assert.equal(IMAGE_REGISTRY.kitchen.src, "/marketing/services/kitchen-chimney.webp");
-  assert.equal(IMAGE_REGISTRY.express.src, "/marketing/services/express-cleaning.webp");
+  assert.equal(IMAGE_REGISTRY.express.src, "/marketing/services/express-card.webp");
   assert.equal(IMAGE_REGISTRY.pest.src, "/marketing/service-pest-control.webp");
   assert.equal(IMAGE_REGISTRY.painting.src, "/marketing/service-painting.webp");
   const svc = (slug: string) => CATALOG_SERVICES.find((s) => s.slug === slug)!.image;

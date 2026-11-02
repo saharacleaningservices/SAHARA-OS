@@ -40,7 +40,7 @@ export function BookingChangeRequest({ token, bar = false }: { token: string; ba
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
       <div className="max-h-[92dvh] w-full max-w-md space-y-3 overflow-y-auto rounded-t-3xl bg-white p-5 text-[#0a2540] shadow-xl sm:rounded-3xl">
         <div className="flex items-center justify-between">
           <p className="text-base font-extrabold">{title}</p>

@@ -16,7 +16,7 @@ export const PRIMARY_WHATSAPP = BRANCHES.magarpatta.whatsapp;
 
 export function MegaMenuHeader({ logo }: { logo?: React.ReactNode }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-white">
+    <header className="sticky top-0 z-[55] border-b border-border bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4">
         <Link href="/" aria-label="Sahara Cleaning Services — home" className="shrink-0">{logo ?? <span className="text-base font-extrabold text-[#0a2540]">Sahara Cleaning</span>}</Link>
         <div className="flex items-center gap-2">

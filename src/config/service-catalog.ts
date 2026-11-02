@@ -23,6 +23,10 @@ export type CatalogService = {
   /** One factual sentence for the page hero and meta description. */
   intro: string;
   includes: string[];
+  /** Short hero bullets (owner 2026-11-03: keep the hero above the fold on phones). Defaults to the first three includes. */
+  heroPoints?: string[];
+  /** Short hero sub-line; defaults to intro. */
+  heroIntro?: string;
   /** What is NOT part of the job (falls back to the category default in excludesFor()). */
   excludes?: string[];
   pricing: { mode: PricingMode; contentIds?: string[] };
@@ -81,6 +85,7 @@ export const CATALOG_SERVICES: CatalogService[] = [
   {
     slug: "pest-control", category: "residential", name: "Pest Control", blurb: "Cockroach, termite, bed bug, ant and rodent",
     intro: "Flat-rate treatment for cockroaches, ants, bed bugs, rodents, termites and mosquitoes in 1–4 BHK homes, by trained technicians.",
+    heroIntro: "Flat-rate treatment for 1–4 BHK homes.", heroPoints: ["Cockroach, ant & bed bug", "Termite & rodent", "Follow-up where applicable"],
     includes: ["Inspection of kitchen, bathrooms and drains", "Gel baiting in cracks and crevices", "Anti-termite treatment of affected woodwork", "Bed-bug treatment of beds and furniture", "Aftercare advice and follow-up visit where applicable"],
     pricing: { mode: "pest" }, image: img("pest").src, imageAlt: img("pest").alt,
     gallery: "Pest Control", seoCategory: "pest-control", faqs: [{ q: "How is pest control priced?", a: "Flat rates by home size (1–4 BHK) for each treatment, shown on this page. Villas, bungalows and commercial premises are quoted after a free inspection." }, { q: "Is the treatment safe for children and pets?", a: "The technician explains the precautions before starting and tells you when rooms can be used again." }],
@@ -88,6 +93,7 @@ export const CATALOG_SERVICES: CatalogService[] = [
   {
     slug: "interior-painting", category: "residential", name: "Interior Painting", blurb: "Asian Paints range — free site inspection first",
     intro: "Interior painting with Asian Paints emulsions, putty and texture finishes, with furniture covered and the site cleaned afterwards.",
+    heroIntro: "Asian Paints finishes with furniture covered and clean-up after.", heroPoints: ["Free site inspection", "Putty, primer + 2 coats", "Post-painting cleaning"],
     includes: ["Free site inspection and measurement", "Furniture and floor covering", "Putty, primer and two coats", "Asian Paints Tractor, Premium, Royale and Royale Lustre", "Post-painting cleaning"],
     pricing: { mode: "inspection" }, image: img("painting").src, imageAlt: img("painting").alt,
     gallery: "Interior Painting", seoCategory: "interior-painting", faqs: [VISIT],
@@ -110,6 +116,7 @@ export const CATALOG_SERVICES: CatalogService[] = [
   {
     slug: "sofa-upholstery-shampooing", category: "individual", name: "Sofa & Upholstery Shampooing", blurb: "Extraction shampooing of fabric sofas and chairs",
     intro: "Shampooing and wet extraction of fabric sofas, dining chairs and upholstery to lift stains, dust and odour.",
+    heroIntro: "Shampoo and extraction for fabric sofas and chairs.", heroPoints: ["Stain pre-treatment", "Machine wet extraction", "Fast-dry finish"],
     includes: ["Dry vacuuming", "Shampoo pre-treatment of stains", "Machine wet extraction", "Fast-dry finish", "Mattress cleaning available as an add-on"],
     pricing: { mode: "from", contentIds: ["SCS-09", "SCS-11"] }, image: img("sofa").src, imageAlt: img("sofa").alt,
     gallery: "Sofa & Carpet", seoCategory: "sofa-carpet-mattress-cleaning", faqs: [{ q: "How long does the sofa take to dry?", a: "Usually a few hours with ventilation; the technician advises on the day." }],

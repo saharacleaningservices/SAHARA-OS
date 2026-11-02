@@ -22,11 +22,16 @@ const TYPES: PropType[] = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Bungalow / Vill
  * Post-Construction) → Premium and Platinum tiers with What's included / excluded. 1–3 BHK carry fixed rates; 4 BHK+, villas and
  * post-construction keep the owner's policy of a price after a free site inspection, with the same tier scope shown.
  */
-export function PackageCalculator({ service, rows, scope, note, defaultOccasion = "Regular" }: { service: string; rows: HomeRow[]; scope: { Premium: TierScope; Platinum: TierScope }; note: string; defaultOccasion?: "Regular" | "Move-in / Move-out" | "Post-Construction" }) {
+// Occasion tabs (owner 2026-11-03): Regular · Unfurnished (fixed 1/2/3 BHK rates) · Post-Interior Cleaning (free inspection).
+export const OCCASIONS = ["Regular", "Unfurnished", "Post-Interior Cleaning"] as const;
+export type Occasion = (typeof OCCASIONS)[number];
+
+export function PackageCalculator({ service, rows, scope, note, defaultOccasion = "Regular", unfurnished = [], unfurnishedScope }: { service: string; rows: HomeRow[]; scope: { Premium: TierScope; Platinum: TierScope }; note: string; defaultOccasion?: Occasion; unfurnished?: UnfurnishedRow[]; unfurnishedScope?: TierScope }) {
   const [type, setType] = useState<PropType>("2 BHK");
-  const [occasion, setOccasion] = useState(defaultOccasion);
+  const [occasion, setOccasion] = useState<Occasion>(defaultOccasion);
   const row = rows.find((r) => r.bhk === type);
-  const inspection = occasion === "Post-Construction" || !row;
+  const inspection = occasion === "Post-Interior Cleaning" || !row;
+  const uf = unfurnished.find((r) => r.bhk === type);
   const label = occasion === "Regular" ? service : `${service} · ${occasion}`;
   return (
     <section id="book" aria-labelledby="calc-title" className="scroll-mt-24 rounded-3xl bg-white p-4 shadow-sm sm:p-6">
@@ -36,10 +41,28 @@ export function PackageCalculator({ service, rows, scope, note, defaultOccasion 
         {TYPES.map((t) => <button key={t} type="button" aria-pressed={type === t} onClick={() => setType(t)} className={chip(type === t)}>{t}</button>)}
       </div>
       <p className="mt-3 text-xs font-bold uppercase tracking-wide text-[#0a2540]/55">Occasion</p>
-      <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="group" aria-label="Occasion">
-        {(["Regular", "Move-in / Move-out", "Post-Construction"] as const).map((o) => <button key={o} type="button" aria-pressed={occasion === o} onClick={() => setOccasion(o)} className={chip(occasion === o)}>{o}</button>)}
+      <div className="mt-1.5 flex flex-wrap gap-2 pb-1" role="group" aria-label="Occasion">
+        {OCCASIONS.map((o) => <button key={o} type="button" aria-pressed={occasion === o} onClick={() => setOccasion(o)} className={chip(occasion === o)}>{o}</button>)}
       </div>
 
+      {occasion === "Unfurnished" ? (
+        <div className="mt-4" aria-live="polite">
+          <article className="flex flex-col rounded-2xl border border-[#0a2540]/10 bg-[#eef4fb] p-4">
+            <p className="text-sm font-extrabold uppercase tracking-wide text-primary">Unfurnished</p>
+            <p className="text-xs font-semibold text-[#0a2540]/60">{type} · empty flat, no furniture</p>
+            <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{uf ? inr(uf.price) : <span className="text-lg">Price after free site inspection</span>}</p>
+            {unfurnishedScope && (
+              <>
+                <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-emerald-700">Included</p>
+                <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/85">{unfurnishedScope.included.map((i) => <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}</ul>
+                <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-red-700">Not included</p>
+                <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/70">{unfurnishedScope.excluded.map((i) => <li key={i} className="flex gap-1.5"><X className="mt-0.5 size-4 shrink-0 text-red-500" />{i}</li>)}</ul>
+              </>
+            )}
+            <button type="button" onClick={() => openLead(uf ? { service: "Unfurnished Home Cleaning", pkg: `${type} Unfurnished`, price: uf.price, category: "HOME_DEEP_CLEANING", items: [{ contentId: uf.id, qty: 1 }], propertyType: type, packageName: "Unfurnished Deep Cleaning" } : { service: "Unfurnished Home Cleaning", pkg: type, inspection: true })} className="mt-4 min-h-12 rounded-xl bg-primary text-sm font-bold text-white">{uf ? `Book Unfurnished · ${inr(uf.price)}` : "Book Free Inspection"}</button>
+          </article>
+        </div>
+      ) : (
       <div className="mt-4 grid gap-3 md:grid-cols-2" aria-live="polite">
         {(["Premium", "Platinum"] as const).map((tier) => {
           const price = inspection ? null : tier === "Premium" ? row?.premium ?? null : row?.platinum ?? null;
@@ -62,6 +85,7 @@ export function PackageCalculator({ service, rows, scope, note, defaultOccasion 
           );
         })}
       </div>
+      )}
       <p className="mt-3 text-[11px] leading-snug text-[#0a2540]/60">{note}</p>
     </section>
   );

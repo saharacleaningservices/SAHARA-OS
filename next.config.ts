@@ -15,7 +15,7 @@ const securityHeaders = [
 // can tell (via /api/notifications/feed) that a newer deployment exists and reload itself — see notifications-bell.tsx.
 const BUILD_ID = (process.env.SOURCE_COMMIT || "").slice(0, 12) || String(Date.now());
 
-const STATIC_IMAGE_DIRS = ["brand", "marketing", "logo"] as const;
+const STATIC_IMAGE_DIRS = ["brand", "marketing", "logo", "clients"] as const;
 const STATIC_IMAGE_CACHE = "public, max-age=86400, stale-while-revalidate=604800";
 
 // External image CDN (Phase 2): with NEXT_PUBLIC_IMAGE_CDN=imagekit|cloudinary + NEXT_PUBLIC_IMAGE_CDN_BASE set at build time,
