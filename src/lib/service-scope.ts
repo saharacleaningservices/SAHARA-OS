@@ -135,6 +135,11 @@ export const SMALL_SERVICE_SCOPE: Record<string, SmallServiceScope> = {
     excludes: ["Exterior glass that cannot be reached safely from inside the home or a safe balcony", "Grill or net removal and re-fitting", "Repair of broken glass, seals or tracks"],
     prep: ["Curtains and blinds moved aside", "Safe access to the window"],
   },
+  "SCS-34": {
+    includes: ["Balcony floor scrubbed and mopped", "Railings, grills and ledges wiped", "Drain outlet and wall tiles cleaned"],
+    excludes: ["Exterior walls or glass that cannot be reached safely", "Plant pots, furniture or heavy items moved", "Bird-netting installation or repair"],
+    prep: ["Balcony cleared of loose items", "Water outlet available"],
+  },
   "SCS-31": {
     includes: ["Vacuuming and cleaning of curtains according to fabric", "Handling and re-hanging by our team where agreed"],
     excludes: ["Guaranteed removal of old stains or fading", "Shrinkage or colour-run risk on delicate or unlabelled fabrics"],

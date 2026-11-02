@@ -11,7 +11,7 @@ test("catalog: 4 categories with the owner's service list, unique slugs", () => 
   const slugs = CATALOG_SERVICES.map((s) => s.slug);
   assert.equal(new Set(slugs).size, slugs.length, "duplicate catalog slug");
   for (const s of slugs) assert.match(s, /^[a-z0-9-]+$/);
-  for (const name of ["Full House Deep Cleaning", "Unfurnished Home Cleaning", "Move-in / Move-out Cleaning", "Post-Interior Cleaning", "Pest Control", "Interior Painting", "Kitchen Deep Cleaning", "Bathroom Scrubbing", "Sofa & Upholstery Shampooing", "Carpet Cleaning", "Balcony & Window Scrubbing", "Office Cleaning", "Showroom Cleaning", "Warehouse Cleaning", "Facade & Glass Cleaning", "Commercial Kitchen / Restaurant Cleaning", "Post-Construction Cleaning", "Commercial AMC & Facility Management", "Packers & Movers", "Rent Agreement & Police Verification", "Property Snagging / Home Inspection"]) {
+  for (const name of ["Full House Deep Cleaning", "Unfurnished Home Cleaning", "Move-in / Move-out Cleaning", "Post-Interior Cleaning", "Pest Control", "Interior Painting", "Kitchen Deep Cleaning", "Bathroom Scrubbing", "Sofa & Upholstery Shampooing", "Carpet Cleaning", "Window Cleaning", "Balcony Cleaning", "Office Cleaning", "Showroom Cleaning", "Warehouse Cleaning", "Facade & Glass Cleaning", "Commercial Kitchen / Restaurant Cleaning", "Post-Construction Cleaning", "Commercial AMC & Facility Management", "Packers & Movers", "Rent Agreement & Police Verification", "Property Snagging / Home Inspection"]) {
     assert.ok(CATALOG_SERVICES.some((s) => s.name === name), `missing ${name}`);
   }
 });
@@ -29,8 +29,10 @@ test("catalog pricing: fixed only where the pricing master has a rate; B2B, pain
 });
 
 test("lead modal: name, mobile, required date, GPS + area fallback, notes; dynamic CTA; returns a Lead ID; alerts in the background", () => {
-  const m = readFileSync("src/components/public/bhk-price-cards.tsx", "utf8");
-  for (const f of ['name="name"', 'name="mobile"', 'name="date"', 'name="slot"', 'name="area"', 'name="notes"', "navigator.geolocation", "📍 Use Current Location", "leadId", "Confirm Your Booking", "Request Inspection / Submit Inquiry", "Please choose your preferred date.", "Please choose a time slot.", "visualViewport", "Morning (9 AM–12 PM)", "Afternoon (12 PM–3 PM)", "Evening (3 PM–6 PM)"]) assert.ok(m.includes(f), f);
+  const m = readFileSync("src/components/public/quick-booking-modal.tsx", "utf8");
+  for (const f of ['name="name"', 'name="mobile"', 'name="area"', 'name="notes"', "navigator.geolocation", "📍 Use Current Location", "leadId", "Confirm Your Booking", "Request Inspection / Submit Inquiry", "Please choose your preferred date.", "Please choose a time slot.", "visualViewport", "getDateAvailability(14)", "getSlotAvailability(date)", "publicBookLead(", "Available", "Filling Fast", "Fully Booked", "Booking Confirmed!", "Chat on WhatsApp for Instant Updates"]) assert.ok(m.includes(f), f);
+  // Never tell a customer a slot is confirmed unless the CRM auto-confirmed it into a Job.
+  assert.match(m, /ok\.status === "CONFIRMED" \? "confirmed" : "received"/);
   const api = readFileSync("src/app/api/leads/submit/route.ts", "utf8");
   assert.match(api, /leadId/);
   assert.match(api, /void sendEmail\(/, "management e-mail never blocks the response");
@@ -43,9 +45,9 @@ test("header (app-like): logo left, pulsing Call Now / WhatsApp Us, sidebar hamb
   assert.doesNotMatch(h, /<details key=/, "no nested accordions in the mobile menu");
 });
 
-test("homepage order: hero → Google rating → client marquee → About → 4 cards → combo swiper → branches; cards open landing pages", () => {
+test("homepage exact order: hero → slogan + Google badge → About → client marquee → 4 cards → combos → zone grid → branches", () => {
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  const order = ["<HomeHeroSlider", "<GoogleRatingBadge", "<ClientMarquee", 'id="about-title"', "<HomeServiceCards", "<ComboSwiper", "<BranchDetails"].map((x) => home.indexOf(x));
+  const order = ["<HomeHeroSlider", "Pune&apos;s #1 Trusted Home Service Partner", "<GoogleRatingBadge", 'id="about-title"', "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper", "<ZoneGrid", "<BranchDetails"].map((x) => home.indexOf(x));
   for (const i of order) assert.ok(i > 0);
   assert.deepEqual([...order].sort((x, y) => x - y), order, "sections in the owner's order");
   for (const gone of ["<HomeBhkPriceCards", "<InspectionFlow", "<CategoryGrid", "Relocation", "<Faqs"]) assert.ok(!home.includes(gone), `${gone} is off the homepage`);
@@ -53,8 +55,23 @@ test("homepage order: hero → Google rating → client marquee → About → 4 
   assert.match(slider, /snap-x snap-mandatory/, "native touch swipe");
   assert.doesNotMatch(slider, /<h1|<h2|<p\b/, "hero slides carry no overlay text");
   const blocks = readFileSync("src/components/public/catalog-blocks.tsx", "utf8");
-  const cards = blocks.slice(blocks.indexOf("export async function HomeServiceCards"));
+  const cards = blocks.slice(blocks.indexOf("export function HomeServiceCards"), blocks.indexOf("export function ZoneGrid"));
   for (const f of ['servicePath("home-deep-cleaning")', 'categoryPath("individual")', 'servicePath("interior-painting")', 'servicePath("pest-control")', "<Link href={c.href}"]) assert.ok(cards.includes(f), f);
+  assert.doesNotMatch(cards, /From ₹|inr\(/, "no price tags on the homepage cards");
+  const grid = blocks.slice(blocks.indexOf("export function ZoneGrid"));
+  assert.doesNotMatch(grid, /pins/, "zone grid shows no PIN codes");
+});
+
+test("inner pages: no GST blocks; window ₹300 per window; balcony split out", async () => {
+  const blocks = readFileSync("src/components/public/catalog-blocks.tsx", "utf8");
+  const calc = readFileSync("src/components/public/rate-calculators.tsx", "utf8");
+  for (const src of [blocks, calc, readFileSync("src/config/service-catalog.ts", "utf8")]) assert.doesNotMatch(src, /GST &amp; terms|18% GST|PUBLIC_GST_NOTE/);
+  const { PRICING_MASTER } = await import("../src/lib/pricing-master");
+  const win = PRICING_MASTER.find((p) => p.contentId === "SCS-30")!;
+  assert.equal(win.price, 300); assert.equal(win.unit, "per window");
+  assert.ok(PRICING_MASTER.some((p) => p.name === "Balcony Cleaning"));
+  assert.ok(catalogServiceBySlug("window-cleaning") && catalogServiceBySlug("balcony-cleaning"));
+  assert.match(calc, /Choose a treatment/, "pest: visual treatment cards before rates");
 });
 
 test("clients: official list, BHEL removed", async () => {

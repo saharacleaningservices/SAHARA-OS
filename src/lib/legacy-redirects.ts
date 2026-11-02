@@ -69,6 +69,8 @@ export const SEGMENT_TO_SERVICE: Record<string, string> = {
 
 // One-off legacy pages.
 export const PAGE_MAP: Record<string, string> = {
+  // 2026-11-02: "Balcony & Window Scrubbing" split into its own Window and Balcony pages.
+  "/services/balcony-window-cleaning": "/services/window-cleaning",
   "/deep-cleaning-services": "/services/home-deep-cleaning",
   "/house-deep-cleaning": "/services/home-deep-cleaning",
   "/intensive-deep-cleaning": "/services/home-deep-cleaning",

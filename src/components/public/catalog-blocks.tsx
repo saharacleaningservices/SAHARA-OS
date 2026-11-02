@@ -11,7 +11,7 @@ import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { LeadButton } from "@/components/public/lead-button";
 import { buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
 import { PackageCalculator, PestCalculator, QtyCalculator, type QtyItem } from "@/components/public/rate-calculators";
-import { PEST_BHK_RATES, PEST_BHK_SIZES, PUBLIC_GST_NOTE, activeCampaign, todayIST, type PriceItem } from "@/lib/pricing-master";
+import { PEST_BHK_RATES, PEST_BHK_SIZES, activeCampaign, todayIST, type PriceItem } from "@/lib/pricing-master";
 import { BRANCHES, LOCALITIES, ZONES, seoPagePath, type ZoneKey } from "@/config/pune-seo-matrix";
 import { FcGoogle } from "react-icons/fc";
 import { TRUST } from "@/lib/booking-target";
@@ -82,29 +82,6 @@ export function InspectionFlow({ service, title = "Price after a free site inspe
   );
 }
 
-/** "Starting from" rate cards for quantity-priced individual services, read live from the pricing master. */
-export async function FromPriceCards({ service }: { service: CatalogService }) {
-  const pricing = await getPublicPricing();
-  const items = (service.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id)).filter((i): i is NonNullable<typeof i> => !!i);
-  if (items.length === 0) return <InspectionFlow service={service.name} title="Price confirmed before booking" />;
-  return (
-    <section id="book" aria-labelledby="from-title" className="scroll-mt-28 rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-      <h2 id="from-title" className="text-xl font-extrabold text-[#0a2540]">Transparent rates</h2>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        {items.map((i) => (
-          <article key={i.contentId} className="flex flex-col rounded-2xl border border-[#0a2540]/10 bg-[#eef4fb] p-4">
-            <p className="font-extrabold text-[#0a2540]">{i.name}</p>
-            <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{i.price != null ? inr(i.price) : <span className="text-lg">{i.priceNote ?? "Price confirmed before booking"}</span>}{i.price != null && i.unit && <span className="ml-1 text-sm font-semibold text-[#0a2540]/60">{i.unit}</span>}</p>
-            {(i.rule || i.scope) && <p className="mt-1 text-xs text-[#0a2540]/65">{[i.rule, i.scope].filter(Boolean).join(" · ")}</p>}
-            <LeadButton intent={{ service: service.name, pkg: i.name, price: i.price != null && i.minQty ? i.price * i.minQty : i.price }} className="mt-4 min-h-12 rounded-xl bg-primary text-sm font-bold text-white sm:mt-auto">Book Now</LeadButton>
-          </article>
-        ))}
-      </div>
-      <p className="mt-2 text-[11px] text-[#0a2540]/60">Rates include GST-billed service by our in-house crew. Minimum quantities apply as shown.</p>
-    </section>
-  );
-}
-
 /**
  * The rate calculator for a landing page (owner R&D directive 2026-11-02):
  *   bhk  → PackageCalculator (property × occasion → Premium / Platinum with included / excluded),
@@ -120,9 +97,9 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
     return (
       <PackageCalculator
         service={service.name}
-        rows={rows.map((r) => ({ bhk: r.bhk, premium: r.premium, platinum: r.platinum }))}
+        rows={rows.map((r) => ({ bhk: r.bhk, premium: r.premium, platinum: r.platinum, premiumId: pricing.items.find((i) => i.group === "PREMIUM" && i.bhk === r.bhk)?.contentId, platinumId: pricing.items.find((i) => i.group === "PLATINUM" && i.bhk === r.bhk)?.contentId }))}
         scope={{ Premium: { included: PREMIUM_SCOPE, excluded: PREMIUM_EXCLUDED }, Platinum: { included: PLATINUM_SCOPE, excluded: PLATINUM_EXCLUDED } }}
-        note={`${festivalPriceNote(campaign)} ${PUBLIC_GST_NOTE}`}
+        note={festivalPriceNote(campaign)}
         defaultOccasion={service.slug === "move-in-move-out-cleaning" ? "Move-in / Move-out" : "Regular"}
       />
     );
@@ -130,11 +107,13 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
   if (service.pricing.mode === "from") {
     const items = (service.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id)).filter((i): i is NonNullable<typeof i> => !!i);
     if (items.length === 0) return <InspectionFlow service={service.name} title="Price confirmed before booking" />;
-    return <QtyCalculator service={service.name} items={items.map(toQty)} note={PUBLIC_GST_NOTE} />;
+    return <QtyCalculator service={service.name} items={items.map(toQty)} note="Minimum quantities apply as shown." />;
   }
-  if (service.pricing.mode === "pest") return <PestCalculator rows={PEST_BHK_RATES} sizes={PEST_BHK_SIZES} note={`Flat rates for apartments. ${PUBLIC_GST_NOTE}`} />;
+  if (service.pricing.mode === "pest") return <PestCalculator rows={PEST_BHK_RATES.map((r, n) => ({ ...r, image: PEST_IMAGES[n % PEST_IMAGES.length] }))} sizes={PEST_BHK_SIZES} note="Flat rates for apartments." />;
   return <InspectionFlow service={service.name} />;
 }
+
+const PEST_IMAGES = ["/marketing/service-pest-control.webp", "/marketing/hero-pest-3.webp", "/marketing/catalog/pest.jpg", "/marketing/hero-pest-2.webp", "/marketing/hero-pest.webp"];
 
 const toQty = (i: PriceItem): QtyItem => ({ id: i.contentId, name: i.name, price: i.price, unit: i.unit, minQty: i.minQty, rule: [i.rule, i.scope].filter(Boolean).join(" · ") || undefined, priceNote: i.priceNote });
 
@@ -143,16 +122,16 @@ export async function IndividualRates() {
   const pricing = await getPublicPricing();
   const items = servicesIn("individual").flatMap((s) => (s.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id))).filter((i): i is NonNullable<typeof i> => !!i);
   const unique = items.filter((i, n) => items.findIndex((x) => x.contentId === i.contentId) === n);
-  return <QtyCalculator service="Individual Services" items={unique.map(toQty)} note={PUBLIC_GST_NOTE} heading="Individual service rates" />;
+  return <QtyCalculator service="Individual Services" items={unique.map(toQty)} note="Minimum quantities apply as shown." heading="Individual service rates" />;
 }
 
-/** Full scope of work: included · not included · GST & terms. */
+/** Full scope of work: what's included · not included (owner 2026-11-02: no GST blocks on inner pages). */
 export function ScopeOfWork({ service }: { service: CatalogService }) {
   const home = service.pricing.mode === "bhk";
   return (
     <section aria-labelledby="sow-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
       <h2 id="sow-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Scope of work</h2>
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl bg-emerald-50 p-4">
           <p className="text-sm font-extrabold text-emerald-800">What&apos;s included</p>
           <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/85">{(home ? PREMIUM_SCOPE : service.includes).map((i) => <li key={i} className="flex gap-1.5"><span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-emerald-600" />{i}</li>)}</ul>
@@ -162,25 +141,17 @@ export function ScopeOfWork({ service }: { service: CatalogService }) {
           <p className="text-sm font-extrabold text-red-800">Not included</p>
           <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/80">{(home ? PREMIUM_EXCLUDED : excludesFor(service)).map((i) => <li key={i} className="flex gap-1.5"><span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-red-500" />{i}</li>)}</ul>
         </div>
-        <div className="rounded-2xl bg-[#eef4fb] p-4">
-          <p className="text-sm font-extrabold text-[#0a2540]">GST &amp; terms</p>
-          <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/80">
-            <li>{PUBLIC_GST_NOTE}</li>
-            <li>Water and electricity are provided by the customer.</li>
-            <li>Additional work outside this scope is quoted before it starts.</li>
-            <li><Link href="/scope-of-work" className="font-bold text-primary">Full scope of work &amp; terms →</Link></li>
-          </ul>
-        </div>
       </div>
+      <Link href="/scope-of-work" className="mt-3 inline-block text-sm font-bold text-primary">Full scope of work →</Link>
     </section>
   );
 }
 
 /** Category landing page body: every service in the category as a card (rate badge → its own landing page). */
-export async function CategoryServiceCards({ id }: { id: CatalogService["category"] }) {
+export async function CategoryServiceCards({ id, anchor }: { id: CatalogService["category"]; /** Render as the page's #book target. */ anchor?: boolean }) {
   const pricing = await getPublicPricing();
   return (
-    <section aria-labelledby="cat-svc-title">
+    <section id={anchor ? "book" : undefined} aria-labelledby="cat-svc-title" className="scroll-mt-24">
       <h2 id="cat-svc-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Choose a service</h2>
       <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {servicesIn(id).map((s) => {
@@ -281,7 +252,7 @@ export function PartnersMarquee() {
  */
 export async function ComboSwiper() {
   const pricing = await getPublicPricing();
-  const combos = liveCombos(pricing.items).filter((c) => !/add-on only/i.test(c.note));
+  const combos = pricing.items.filter((i) => i.group === "COMBO" && !i.addOnOnly && i.price != null).map((i) => ({ id: i.contentId, name: i.name, price: i.price!, note: i.rule ?? "" }));
   if (combos.length === 0) return null;
   return (
     <section aria-labelledby="combo-title">
@@ -296,7 +267,7 @@ export async function ComboSwiper() {
             <p className="mt-0.5 font-extrabold leading-snug text-[#0a2540]">{c.name}</p>
             <p className="mt-1 text-2xl font-extrabold text-[#0a2540]">{inr(c.price)}</p>
             {c.note && <p className="mt-1 text-xs text-[#0a2540]/65">{c.note}</p>}
-            <LeadButton intent={{ service: "Combo Package", pkg: c.name, price: c.price }} className="mt-3 min-h-11 rounded-xl bg-primary text-sm font-bold text-white sm:mt-auto">Book Combo</LeadButton>
+            <LeadButton intent={{ service: "Combo Package", pkg: c.name, price: c.price, category: "INDIVIDUAL_CLEANING", items: [{ contentId: c.id, qty: 1 }], packageName: c.name }} className="mt-3 min-h-11 rounded-xl bg-primary text-sm font-bold text-white sm:mt-auto">Book Combo</LeadButton>
           </li>
         ))}
       </ul>
@@ -305,9 +276,9 @@ export async function ComboSwiper() {
 }
 
 /** Official Google rating badge, directly under the hero (owner 2026-11-02). */
-export function GoogleRatingBadge({ reviewUrl, rating = TRUST.rating }: { reviewUrl: string; rating?: string }) {
+export function GoogleRatingBadge({ reviewUrl, rating = TRUST.rating, compact = false }: { reviewUrl: string; rating?: string; compact?: boolean }) {
   return (
-    <a href={reviewUrl} target="_blank" rel="noopener noreferrer" aria-label={`${TRUST.siteReviewLabel} Google reviews, rated ${rating} out of 5`} className="mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-md ring-1 ring-[#0a2540]/5">
+    <a href={reviewUrl} target="_blank" rel="noopener noreferrer" aria-label={`${TRUST.siteReviewLabel} Google reviews, rated ${rating} out of 5`} className={compact ? "mx-auto inline-flex items-center gap-2.5 rounded-full bg-[#f5f8fd] px-4 py-2 ring-1 ring-[#0a2540]/10" : "mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-md ring-1 ring-[#0a2540]/5"}>
       <FcGoogle className="size-8 shrink-0" aria-hidden />
       <span className="flex flex-col leading-tight">
         <span className="flex items-center gap-1 text-lg font-extrabold text-[#0a2540]">{rating}<span className="flex" aria-hidden>{[0, 1, 2, 3, 4].map((n) => <Star key={n} className="size-4 fill-amber-400 text-amber-400" />)}</span></span>
@@ -402,17 +373,12 @@ export function ZoneAccordion({ seoSlug, service }: { /** pune-seo-matrix catego
 }
 
 /** Homepage "4 main visual cards" — each one opens its dedicated landing page (owner 2026-11-02). Server-rendered links, no JS. */
-export async function HomeServiceCards() {
-  const pricing = await getPublicPricing();
-  const homeFrom = pricing.items.find((i) => i.group === "PREMIUM" && i.bhk === "1 BHK")?.price;
-  // "From" = the smallest bookable order (unit rate × minimum quantity), never a per-unit rate that cannot be booked alone.
-  const minOrder = (id: string) => { const i = pricing.items.find((x) => x.contentId === id); return i?.price != null ? i.price * Math.max(1, i.minQty ?? 1) : Infinity; };
-  const indivFrom = Math.min(...servicesIn("individual").flatMap((s) => (s.pricing.contentIds ?? []).map(minOrder)));
+export function HomeServiceCards() {
   const cards = [
-    { href: servicePath("home-deep-cleaning"), title: "Full House Deep Cleaning", sub: "1–4 BHK, villas, move-in/out, post-construction", tag: homeFrom ? `From ${inr(homeFrom)}` : "Fixed BHK rates", img: "/marketing/hero-home.webp", alt: "Sahara technician deep cleaning a Pune apartment" },
-    { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", tag: Number.isFinite(indivFrom) ? `From ${inr(indivFrom)}` : "Fixed rates", img: "/marketing/carousel-equipment.webp", alt: "Sahara technician shampooing a sofa" },
-    { href: servicePath("interior-painting"), title: "Interior Painting", sub: "Free site inspection & written quote", tag: "Free inspection", img: "/marketing/service-painting.webp", alt: "Sahara painters rolling a living-room wall" },
-    { href: servicePath("pest-control"), title: "Pest Control", sub: "Cockroach, bed bug, rodent, termite, mosquito", tag: `From ${inr(PEST_BHK_RATES[0].rates["1 BHK"])}`, img: "/marketing/service-pest-control.webp", alt: "Sahara pest control technician treating a kitchen" },
+    { href: servicePath("home-deep-cleaning"), title: "Full House Deep Cleaning", sub: "1–4 BHK, villas, move-in/out, post-construction", img: "/marketing/hero-home.webp", alt: "Sahara technician deep cleaning a Pune apartment" },
+    { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", img: "/marketing/carousel-equipment.webp", alt: "Sahara technician shampooing a sofa" },
+    { href: servicePath("interior-painting"), title: "Interior Painting", sub: "Free site inspection & written quote", img: "/marketing/service-painting.webp", alt: "Sahara painters rolling a living-room wall" },
+    { href: servicePath("pest-control"), title: "Pest Control", sub: "Cockroach, bed bug, rodent, termite, mosquito", img: "/marketing/service-pest-control.webp", alt: "Sahara pest control technician treating a kitchen" },
   ];
   return (
     <section id="services" aria-labelledby="svc-title" className="scroll-mt-20">
@@ -423,17 +389,36 @@ export async function HomeServiceCards() {
             <Link href={c.href} className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-[#0a2540]/5 transition hover:-translate-y-0.5 hover:shadow-lg">
               <span className="relative block aspect-[4/3] w-full">
                 <Image src={c.img} alt={c.alt} fill sizes="(min-width:1024px) 25vw, 50vw" loading="lazy" className="object-cover transition duration-500 group-hover:scale-105" />
-                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-extrabold text-primary shadow-sm">{c.tag}</span>
               </span>
               <span className="flex flex-1 flex-col p-3 sm:p-4">
                 <span className="text-[15px] font-extrabold leading-snug text-[#0a2540] sm:text-lg">{c.title}</span>
                 <span className="mt-0.5 hidden text-sm text-[#0a2540]/65 sm:block">{c.sub}</span>
-                <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm font-bold text-primary">View rates<ArrowRight className="size-4 transition group-hover:translate-x-0.5" /></span>
+                <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm font-bold text-primary">Explore<ArrowRight className="size-4 transition group-hover:translate-x-0.5" /></span>
               </span>
             </Link>
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/** Homepage zonal local-SEO grid (owner 2026-11-02): the four Pune zones with their localities — no PIN codes. */
+export function ZoneGrid() {
+  const zones = Object.keys(ZONES) as ZoneKey[];
+  return (
+    <section aria-labelledby="zone-grid-title">
+      <h2 id="zone-grid-title" className="text-2xl font-extrabold text-[#0a2540] sm:text-3xl">Serving all of Pune</h2>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {zones.map((z) => (
+          <div key={z} className="rounded-3xl bg-white p-4 shadow-sm">
+            <h3 className="flex items-center gap-1.5 text-base font-extrabold text-[#0a2540]"><MapPin className="size-4 text-primary" aria-hidden />{ZONES[z].label}</h3>
+            <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[13px]">
+              {LOCALITIES.filter((l) => l.zone === z).map((l) => <li key={l.slug}><Link href={seoPagePath("home-deep-cleaning", l.slug)} className="text-[#0a2540]/75 hover:text-primary">{l.name}</Link></li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

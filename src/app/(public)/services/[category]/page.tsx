@@ -8,7 +8,7 @@ import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/con
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { catalogCategory, catalogCategoryBySlug, catalogServiceBySlug, categoryPath, servicePath, servicesIn, type CatalogCategory, type CatalogService } from "@/config/service-catalog";
-import { CategoryServiceCards, ComboSwiper, IndividualRates, InspectionFlow, ScopeOfWork, ServicePricing, ZoneAccordion } from "@/components/public/catalog-blocks";
+import { CategoryServiceCards, ComboSwiper, InspectionFlow, ScopeOfWork, ServicePricing, ZoneAccordion } from "@/components/public/catalog-blocks";
 import { TRUST } from "@/lib/booking-target";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (svc) {
     const url = `${BASE_URL}${servicePath(svc.slug)}`;
     const title = `${svc.name} in Pune | ${svc.pricing.mode === "inspection" ? "Free Site Inspection" : "Fixed Rates"} | Sahara`;
-    const description = `${svc.intro} Pune & PCMC · in-house trained staff · GST invoice · ${TRUST.rating}★ Google.`.slice(0, 300);
+    const description = `${svc.intro} Pune & PCMC · in-house trained staff · ${TRUST.rating}★ Google.`.slice(0, 300);
     return { title, description, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "website", url, title, description, siteName: "Sahara Cleaning Services", locale: "en_IN", images: [`${BASE_URL}${svc.image}`] } };
   }
   const cp = catalogCategoryBySlug(slug);
@@ -89,7 +89,7 @@ function catalogServiceJsonLd(s: CatalogService) {
 
 /**
  * Service landing page (owner R&D directive 2026-11-02): clean hero → interactive rate calculator → full scope of work
- * (included / excluded / GST) → 4-zone area table → FAQ, with an instant-booking bar on mobile. Layout model: BOXED.
+ * (included / excluded) → 4-zone area table → FAQ, with an instant-booking bar on mobile. Layout model: BOXED.
  */
 async function CatalogServicePage({ s }: { s: CatalogService }) {
   const settings = await getCompanySettings();
@@ -142,8 +142,7 @@ async function CatalogCategoryPage({ c }: { c: CatalogCategory }) {
     >
       <CategoryHero image={c.image} alt={c.label} title={`${c.label} in Pune`} subtitle={c.blurb} points={servicesIn(c.id).slice(0, 4).map((x) => x.name)} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-        <CategoryServiceCards id={c.id} />
-        {c.id === "individual" && <IndividualRates />}
+        <CategoryServiceCards id={c.id} anchor={c.id === "individual"} />
         {c.id === "individual" && <ComboSwiper />}
         {inspection && <InspectionFlow service={c.label} />}
         {c.id === "residential" && <InspectionFlow service="Residential — custom / larger home" title="Villa, bungalow or custom job? Get a free inspection" />}

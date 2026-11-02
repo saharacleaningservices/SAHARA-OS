@@ -45,7 +45,6 @@ export const CATALOG_CATEGORIES: CatalogCategory[] = [
 const HOME_FAQ_TIME = { q: "How long does it take?", a: "A typical 2 BHK is finished in one day by a small crew; larger homes take longer. The team lead confirms the schedule when you book." };
 const BRING = { q: "Do I need to arrange equipment or chemicals?", a: "No. Sahara brings the machines, tools and chemicals. Please keep water and power available." };
 const VISIT = { q: "How is the price decided?", a: "A Sahara supervisor visits the site, measures the scope and sends a written quotation. The visit is free and carries no obligation." };
-const GST = { q: "Do you provide a GST invoice?", a: "Yes. Every job is billed on a GST invoice from Sahara Cleaning Services." };
 
 export const CATALOG_SERVICES: CatalogService[] = [
   // ── Residential ─────────────────────────────────────────────────────────
@@ -89,7 +88,7 @@ export const CATALOG_SERVICES: CatalogService[] = [
     intro: "Interior painting with Asian Paints emulsions, putty and texture finishes, with furniture covered and the site cleaned afterwards.",
     includes: ["Free site inspection and measurement", "Furniture and floor covering", "Putty, primer and two coats", "Asian Paints Tractor, Premium, Royale and Royale Lustre", "Post-painting cleaning"],
     pricing: { mode: "inspection" }, image: "/marketing/service-painting.webp", imageAlt: "Sahara painters rolling a living-room wall in Pune",
-    gallery: "Interior Painting", seoCategory: "interior-painting", faqs: [VISIT, GST],
+    gallery: "Interior Painting", seoCategory: "interior-painting", faqs: [VISIT],
   },
   // ── Individual ──────────────────────────────────────────────────────────
   {
@@ -121,11 +120,18 @@ export const CATALOG_SERVICES: CatalogService[] = [
     gallery: "Sofa & Carpet", seoCategory: "sofa-carpet-mattress-cleaning", faqs: [{ q: "How is carpet cleaning priced?", a: "By size and material. The price is confirmed before booking." }],
   },
   {
-    slug: "balcony-window-cleaning", category: "individual", name: "Balcony & Window Scrubbing", blurb: "Glass, grills, channels and balcony floors",
-    intro: "Cleaning of window glass, grills and sliding channels, and scrubbing of balcony floors and railings.",
-    includes: ["Window glass inside and outside where reachable", "Grill and frame cleaning", "Sliding-channel vacuuming", "Balcony floor scrubbing", "Railing wipe-down"],
-    pricing: { mode: "from", contentIds: ["SCS-30"] }, image: "/marketing/carousel-result.webp", imageAlt: "Clean balcony and windows after Sahara service",
+    slug: "window-cleaning", category: "individual", name: "Window Cleaning", blurb: "Glass, grills and sliding channels — per window",
+    intro: "Cleaning of window glass, frames, grills and sliding channels, charged per window.",
+    includes: ["Window glass inside and outside where reachable", "Frame and grill cleaning", "Sliding-channel vacuuming", "Hard-water spot removal", "Mesh / net wipe-down"],
+    pricing: { mode: "from", contentIds: ["SCS-30"] }, image: "/marketing/carousel-result.webp", imageAlt: "Clean windows after Sahara service",
     gallery: "Home Deep Cleaning", seoCategory: "window-floor-cleaning", faqs: [{ q: "Do you clean high-rise exterior glass?", a: "Exterior glass that needs rope access is a commercial façade job and is quoted after a site visit." }],
+  },
+  {
+    slug: "balcony-cleaning", category: "individual", name: "Balcony Cleaning", blurb: "Floor scrubbing, railings and grills",
+    intro: "Scrubbing of balcony floors and drains with railing, grill and ledge cleaning.",
+    includes: ["Floor machine / manual scrubbing", "Drain outlet cleaning", "Railing and grill wipe-down", "Ledge and wall-tile cleaning", "Cobweb removal"],
+    pricing: { mode: "from", contentIds: ["SCS-34"] }, image: "/marketing/hero-home.webp", imageAlt: "Balcony cleaning by Sahara",
+    gallery: "Home Deep Cleaning", seoCategory: "window-floor-cleaning", faqs: [{ q: "How is balcony cleaning priced?", a: "By balcony size and condition; the price is confirmed before booking." }],
   },
   // ── Commercial (B2B) — always on inspection ───────────────────────────────
   {
@@ -133,49 +139,49 @@ export const CATALOG_SERVICES: CatalogService[] = [
     intro: "Deep cleaning and daily housekeeping of offices, IT floors, pantries and washrooms, scheduled around working hours.",
     includes: ["Workstation, cabin and conference-room cleaning", "Carpet vacuuming and shampooing", "Pantry and washroom deep cleaning", "Glass partitions and doors", "Night or weekend shifts available"],
     pricing: { mode: "inspection" }, image: "/marketing/hero-commercial-v2.webp", imageAlt: "Sahara team cleaning a Pune office",
-    gallery: "Commercial Cleaning", seoCategory: "office-cleaning-housekeeping", faqs: [VISIT, GST],
+    gallery: "Commercial Cleaning", seoCategory: "office-cleaning-housekeeping", faqs: [VISIT],
   },
   {
     slug: "showroom-cleaning", category: "commercial", name: "Showroom Cleaning", blurb: "Display floors, glass and fixtures before opening hours",
     intro: "Cleaning of retail showrooms — display glass, flooring, fixtures and back-of-house — before or after trading hours.",
     includes: ["Display glass and mirror polishing", "Floor scrubbing and polishing", "Fixture and signage dusting", "Trial rooms and washrooms", "Early-morning slots"],
     pricing: { mode: "inspection" }, image: "/marketing/hero-commercial.webp", imageAlt: "Commercial floor being cleaned by Sahara",
-    gallery: "Commercial Cleaning", seoCategory: "industrial-showroom-facade-cleaning", faqs: [VISIT, GST],
+    gallery: "Commercial Cleaning", seoCategory: "industrial-showroom-facade-cleaning", faqs: [VISIT],
   },
   {
     slug: "warehouse-cleaning", category: "commercial", name: "Warehouse Cleaning", blurb: "Large floors, racks and loading bays",
     intro: "Mechanised cleaning of warehouse floors, racking, loading bays and amenities for logistics and industrial units.",
     includes: ["Ride-on or walk-behind floor scrubbing", "Rack and high-level dusting", "Loading bay degreasing", "Washroom and canteen cleaning", "Shift-wise crew planning"],
     pricing: { mode: "inspection" }, image: "/marketing/hero-commercial.webp", imageAlt: "Warehouse floor cleaning",
-    gallery: "Commercial Cleaning", seoCategory: "industrial-showroom-facade-cleaning", faqs: [VISIT, GST],
+    gallery: "Commercial Cleaning", seoCategory: "industrial-showroom-facade-cleaning", faqs: [VISIT],
   },
   {
     slug: "facade-glass-cleaning", category: "commercial", name: "Facade & Glass Cleaning", blurb: "Exterior glass and cladding for buildings",
     intro: "Cleaning of exterior glass and façade cladding on commercial and residential buildings, planned after a safety survey.",
     includes: ["Site and access safety survey", "Exterior glass and ACP cladding", "Hard-water stain removal", "Safety-equipped crew", "Society and commercial buildings"],
     pricing: { mode: "inspection" }, image: "/marketing/hero-commercial-v2.webp", imageAlt: "Commercial building glass cleaning",
-    gallery: "Commercial Cleaning", seoCategory: "industrial-showroom-facade-cleaning", faqs: [VISIT, GST],
+    gallery: "Commercial Cleaning", seoCategory: "industrial-showroom-facade-cleaning", faqs: [VISIT],
   },
   {
     slug: "restaurant-kitchen-cleaning", category: "commercial", name: "Commercial Kitchen / Restaurant Cleaning", blurb: "Degreasing of kitchens, dining areas and drains",
     intro: "Heavy degreasing of commercial kitchens plus dining-area, washroom and drain cleaning for restaurants, cafés and cloud kitchens.",
     includes: ["Hood, wall and equipment degreasing", "Floor and drain scrubbing", "Dining area and washrooms", "Night-shift scheduling", "Pest control add-on available"],
     pricing: { mode: "inspection" }, image: "/marketing/catalog/home-cleaning.jpg", imageAlt: "Kitchen degreasing by Sahara",
-    gallery: "Commercial Cleaning", seoCategory: "office-cleaning-housekeeping", faqs: [VISIT, GST],
+    gallery: "Commercial Cleaning", seoCategory: "office-cleaning-housekeeping", faqs: [VISIT],
   },
   {
     slug: "post-construction-cleaning", category: "commercial", name: "Post-Construction Cleaning", blurb: "Handover cleaning for builders and architects",
     intro: "Builder-handover cleaning of new offices, flats and commercial units — construction dust, cement, paint and adhesive removal.",
     includes: ["Debris and fine-dust removal", "Cement, paint and adhesive residue", "Glass, frames and fittings", "Floor scrubbing and polishing", "Multi-unit and tower projects"],
     pricing: { mode: "inspection" }, image: "/marketing/carousel-team.webp", imageAlt: "Sahara crew on a post-construction clean",
-    gallery: "Commercial Cleaning", seoCategory: "post-interior-cleaning", faqs: [VISIT, GST],
+    gallery: "Commercial Cleaning", seoCategory: "post-interior-cleaning", faqs: [VISIT],
   },
   {
     slug: "facility-management", category: "commercial", name: "Commercial AMC & Facility Management", blurb: "Housekeeping staff, pantry and soft services on contract",
     intro: "Annual contracts for housekeeping staff, pantry support and soft services in offices, societies, hospitals and showrooms.",
-    includes: ["Trained, uniformed housekeeping staff", "Supervisor and attendance tracking", "Consumables plan on request", "Periodic deep cleaning in the AMC", "Single GST invoice each month"],
+    includes: ["Trained, uniformed housekeeping staff", "Supervisor and attendance tracking", "Consumables plan on request", "Periodic deep cleaning in the AMC", "One consolidated invoice each month"],
     pricing: { mode: "inspection" }, image: "/marketing/hero-commercial-v2.webp", imageAlt: "Sahara housekeeping team in an office",
-    gallery: "Commercial Cleaning", seoCategory: "facility-management", faqs: [VISIT, GST],
+    gallery: "Commercial Cleaning", seoCategory: "facility-management", faqs: [VISIT],
   },
   // ── Relocation & Property — quoted per job ───────────────────────────────
   {
@@ -210,7 +216,7 @@ export const catalogCategory = (id: CatalogCategoryId) => CATALOG_CATEGORIES.fin
 export const INSPECTION_STEPS = [
   { title: "Request", body: "Send your requirement in 30 seconds — or call / WhatsApp either branch." },
   { title: "Site visit", body: "A Sahara supervisor visits at your chosen time to measure the scope. Free, no obligation." },
-  { title: "Written quote", body: "You receive a written quotation with scope, manpower, timeline and GST." },
+  { title: "Written quote", body: "You receive a written quotation with scope, manpower and timeline." },
   { title: "Work & handover", body: "Our in-house crew completes the job; you check it before handover and pay as agreed." },
 ] as const;
 
