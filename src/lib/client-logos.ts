@@ -14,7 +14,7 @@ export const CLIENT_LOGOS: ClientLogo[] = [
   { name: "National Insurance", src: "/clients/national-insurance.png" },
   { name: "Panther Nails", src: "/clients/panther-nails.png" },
   { name: "Gagan Developers", src: "/clients/gagan-developers.png" },
-  { name: "Padam Interiors", src: "/clients/padam-interiors.png" },
+  { name: "Padams Interiors", src: "/clients/padam-interiors.png" },
   { name: "Studio XP", src: "/clients/studio-xp.png" },
   { name: "Manav Group", src: "/clients/manav-group.png" },
   { name: "Hawa Valves", src: "/clients/hawa-valves.png" },
@@ -25,4 +25,4 @@ export const CLIENT_LOGOS: ClientLogo[] = [
  * Official client list for the homepage "Trusted by" marquee (owner 2026-11-02, final; BHEL removed). Shown as wordmark tiles until
  * each client's own logo file is added to CLIENT_LOGOS above — logos are used only as supplied by / approved by that client.
  */
-export const CLIENT_NAMES = ["Renom Technologies", "Eaton Technologies", "BMW", "Clover Hills", "ABIL", "National Insurance", "Panther Nails", "Gagan Developers", "Leisure Town", "Padam Interiors", "Studio XP", "Manav Group", "Hawa Valves", "Famic Technologies"] as const;
+export const CLIENT_NAMES = ["Renom Technologies", "Eaton Technologies", "BMW", "Clover Hills", "ABIL", "National Insurance", "Panther Nails", "Gagan Developers", "Leisure Town", "Padams Interiors", "Studio XP", "Manav Group", "Hawa Valves", "Famic Technologies"] as const;

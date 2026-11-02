@@ -1,7 +1,7 @@
 // Owner master task 2026-10-26: compact crew card, review funnel path route, /booking footer cleanup + sliders. Run: npm run test:overhaul
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const read = (f: string) => readFileSync(f, "utf8");
 
@@ -48,7 +48,9 @@ test("client logos: empty list renders nothing (no invented clients); reviews co
   const { ClientLogosSlider } = await import("../src/components/public/client-logos-slider");
   assert.equal(ClientLogosSlider({ logos: [] }), null);
   assert.ok(read("src/components/public/client-logos-slider.tsx").includes("if (logos.length === 0) return null;"));
-  assert.equal(read("src/lib/client-logos.ts").match(/CLIENT_LOGOS: ClientLogo\[\] = \[\]/)?.length, 1, "no clients are shipped until the owner adds real ones");
+  // Owner supplied 13 real logos on 2026-11-03 (converted to transparent PNG-24); every listed logo must have its file on disk.
+  const { CLIENT_LOGOS } = await import("../src/lib/client-logos");
+  assert.ok(CLIENT_LOGOS.length > 0 && CLIENT_LOGOS.every((l) => existsSync(`public${l.src}`)), "only real, existing client logo files are listed");
   assert.ok(read("src/app/booking/page.tsx").includes("settings.featuredReviews"));
 });
 

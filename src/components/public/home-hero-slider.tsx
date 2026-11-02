@@ -68,11 +68,11 @@ export function HomeHeroSlider({ photos }: { photos: HeroPhoto[] }) {
         onPointerUp={() => setTimeout(() => setHold(false), 3000)}
         onMouseEnter={() => setHold(true)}
         onMouseLeave={() => setHold(false)}
-        className="flex aspect-[16/10] w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:aspect-[16/7] lg:aspect-[21/8] [&::-webkit-scrollbar]:hidden"
+        className="flex aspect-[16/10] w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:aspect-[16/7] lg:aspect-[21/8] lg:max-h-[min(500px,50vh)] [&::-webkit-scrollbar]:hidden"
       >
         {photos.map((p, n) => (
           <div key={p.src} className="relative h-full w-full shrink-0 snap-center snap-always" aria-roledescription="slide" aria-label={`${n + 1} of ${photos.length}`}>
-            <Image src={p.src} alt={p.alt} fill priority={n === 0} loading={n === 0 ? undefined : "lazy"} sizes="100vw" quality={72} draggable={false} className="select-none object-cover" style={{ objectPosition: p.position ?? "50% 45%" }} />
+            <Image src={p.src} alt={p.alt} fill priority={n === 0} loading={n === 0 ? undefined : "lazy"} sizes="100vw" quality={72} draggable={false} className="select-none object-cover object-center lg:object-[50%_22%]" style={p.position ? { objectPosition: p.position } : undefined} />
           </div>
         ))}
       </div>

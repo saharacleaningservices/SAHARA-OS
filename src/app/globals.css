@@ -188,6 +188,12 @@
   content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
   animation: sahara-wave 1.8s ease-out infinite; will-change: transform, opacity;
 }
+.sahara-fab { position: relative; }
+.sahara-fab::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 9999px; background: rgba(11, 94, 215, 0.5); pointer-events: none; animation: sahara-fab-ring 2s ease-out infinite; will-change: transform, opacity; }
+@keyframes sahara-fab-ring { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.55); opacity: 0; } }
+/* Expansion banner: opacity-only pulse (compositor). */
+@keyframes sahara-fade-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.sahara-fade-pulse { animation: sahara-fade-pulse 2.4s ease-in-out infinite; }
 .sahara-wave-call::after { background: rgba(11, 94, 215, 0.5); }
 .sahara-wave-wa::after { background: rgba(37, 211, 102, 0.55); animation-delay: 0.9s; }
 
@@ -197,7 +203,7 @@
 .sahara-marquee:hover { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sahara-pulse, .sahara-wave-call::after, .sahara-wave-wa::after, .sahara-marquee { animation: none; }
+  .sahara-pulse, .sahara-wave-call::after, .sahara-wave-wa::after, .sahara-fab::after, .sahara-fade-pulse, .sahara-marquee { animation: none; }
 }
 
 /* Signature pad canvas */
