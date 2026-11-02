@@ -5,7 +5,26 @@ import { useEffect, useRef, useState } from "react";
 
 export type HeroPhoto = { src: string; alt: string; position?: string };
 
-const ROTATE_MS = 4500;
+// Owner 2026-11-03: 2.5 s per slide, 300 ms slide animation.
+const ROTATE_MS = 2500;
+const SLIDE_MS = 300;
+
+/** Scroll the track to slide n over SLIDE_MS (ease-out) — native smooth scrolling has no fixed duration. */
+function slideTo(el: HTMLDivElement, n: number, ms = SLIDE_MS) {
+  const from = el.scrollLeft;
+  const to = n * el.clientWidth;
+  if (ms <= 0 || from === to || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { el.scrollLeft = to; return; }
+  const snap = el.style.scrollSnapType;
+  el.style.scrollSnapType = "none"; // snap would fight the frame-by-frame scroll
+  const t0 = performance.now();
+  const step = (t: number) => {
+    const k = Math.min(1, (t - t0) / ms);
+    el.scrollLeft = from + (to - from) * (1 - (1 - k) ** 3);
+    if (k < 1) requestAnimationFrame(step);
+    else el.style.scrollSnapType = snap;
+  };
+  requestAnimationFrame(step);
+}
 
 /**
  * Text-free homepage photo slider (owner 2026-11-02). Native CSS scroll-snap track: touch swipe is handled by the browser's
@@ -34,12 +53,12 @@ export function HomeHeroSlider({ photos }: { photos: HeroPhoto[] }) {
       const el = track.current;
       if (!el || document.hidden) return;
       const next = (Math.round(el.scrollLeft / el.clientWidth) + 1) % photos.length;
-      el.scrollTo({ left: next * el.clientWidth, behavior: next === 0 ? "auto" : "smooth" });
+      slideTo(el, next, next === 0 ? 0 : SLIDE_MS); // wrap to the first photo instantly
     }, ROTATE_MS);
     return () => clearInterval(id);
   }, [hold, photos.length]);
 
-  const go = (n: number) => track.current?.scrollTo({ left: n * track.current.clientWidth, behavior: "smooth" });
+  const go = (n: number) => { if (track.current) slideTo(track.current, n); };
 
   return (
     <section aria-roledescription="carousel" aria-label="Sahara at work" className="relative w-full bg-[#0a2540]">
@@ -49,7 +68,7 @@ export function HomeHeroSlider({ photos }: { photos: HeroPhoto[] }) {
         onPointerUp={() => setTimeout(() => setHold(false), 3000)}
         onMouseEnter={() => setHold(true)}
         onMouseLeave={() => setHold(false)}
-        className="flex aspect-[4/3] w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:aspect-[16/7] lg:aspect-[21/8] [&::-webkit-scrollbar]:hidden"
+        className="flex aspect-[16/10] w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:aspect-[16/7] lg:aspect-[21/8] [&::-webkit-scrollbar]:hidden"
       >
         {photos.map((p, n) => (
           <div key={p.src} className="relative h-full w-full shrink-0 snap-center snap-always" aria-roledescription="slide" aria-label={`${n + 1} of ${photos.length}`}>

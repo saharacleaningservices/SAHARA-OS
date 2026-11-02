@@ -25,16 +25,16 @@ export function CategoryHero({ title, subtitle, image, alt, points, waText, waNu
   return (
     <section className="relative isolate overflow-hidden bg-[#0a2540] text-white">
       <img src={image} alt={alt} className="absolute inset-0 -z-10 size-full object-cover opacity-30" fetchPriority="high" />
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:py-10">
         {badge && <p className="inline-block rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold text-[#0a2540]">{badge}</p>}
-        <h1 className="mt-2 text-[26px] font-extrabold leading-tight sm:text-4xl">{title}</h1>
-        <p className="mt-1.5 max-w-2xl text-sm text-white/85 sm:text-base">{subtitle}</p>
-        <ul className="mt-3 grid gap-1.5 text-sm text-white/90 sm:grid-cols-2">
+        <h1 className="mt-2 text-2xl font-extrabold leading-tight sm:text-4xl">{title}</h1>
+        <p className="mt-1 line-clamp-2 max-w-2xl text-sm text-white/85 sm:mt-1.5 sm:line-clamp-none sm:text-base">{subtitle}</p>
+        <ul className="mt-2 grid gap-1 text-sm text-white/90 sm:mt-3 sm:grid-cols-2 sm:gap-1.5">
           {points.map((p) => (
             <li key={p} className="flex items-start gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-300" />{p}</li>
           ))}
         </ul>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-4">
           <a href={ctaHref} className="sahara-shimmer min-h-11 rounded-full bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-[#0a2540]">{cta}</a>
           <a href={`tel:+91${CONTACT.call[0]}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-primary"><Phone className="size-4" /> Call Now</a>
           <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-success px-4 py-2.5 text-sm font-bold"><MessageCircle className="size-4" /> WhatsApp</a>

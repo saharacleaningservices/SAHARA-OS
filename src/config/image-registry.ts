@@ -9,12 +9,12 @@ export type RegistryImage = { src: string; alt: string };
 
 export const IMAGE_REGISTRY = {
   // Owner final sprint 2026-11-02: clean photos cropped from the Sahara service creatives (no prices, headlines or phone numbers).
-  "full-home": { src: "/marketing/services/full-home-crew.webp", alt: "Sahara crew scrubbing the floor, vacuuming the sofa and wiping windows during full house deep cleaning" },
+  "full-home": { src: "/marketing/services/full-home-card.webp", alt: "Sahara crew scrubbing the floor, vacuuming the sofa and wiping windows during full house deep cleaning" },
   /** High-resolution wide shot kept for the full-width homepage hero (the cropped crew photo is card-sized). */
   "hero-home": { src: "/marketing/hero-home.webp", alt: "Sahara technician running a floor scrubber during full home deep cleaning" },
   kitchen: { src: "/marketing/services/kitchen-chimney.webp", alt: "Sahara cleaner degreasing a kitchen chimney above the hob" },
   bathroom: { src: "/marketing/services/bathroom-scrub.webp", alt: "Sahara cleaner scrubbing a WC and fittings during bathroom deep cleaning" },
-  express: { src: "/marketing/services/express-cleaning.webp", alt: "Sahara cleaner wiping a living-room table during express cleaning" },
+  express: { src: "/marketing/services/express-card.webp", alt: "Sahara cleaner wiping a living-room table during express cleaning" },
   sofa: { src: "/marketing/services/sofa-shampoo.webp", alt: "Sahara team shampooing and extracting a fabric sofa" },
   mattress: { src: "/marketing/services/mattress-steam.webp", alt: "Sahara technician steam-cleaning a mattress" },
   window: { src: "/marketing/services/window-glass.webp", alt: "Sahara cleaner squeegeeing high-rise window glass" },

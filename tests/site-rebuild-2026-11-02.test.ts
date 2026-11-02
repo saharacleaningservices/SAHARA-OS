@@ -76,7 +76,7 @@ test("inner pages: no GST blocks; window ₹300 per window; balcony split out", 
 
 test("clients: official list, BHEL removed", async () => {
   const { CLIENT_NAMES } = await import("../src/lib/client-logos");
-  assert.deepEqual([...CLIENT_NAMES], ["Renom Technologies", "Eaton Technologies", "Clover Hills", "ABIL", "Leisure Town", "Panthernails", "Padam Interiors", "Studio XP"]);
+  assert.deepEqual([...CLIENT_NAMES], ["Renom Technologies", "Eaton Technologies", "BMW", "Clover Hills", "ABIL", "National Insurance", "Panther Nails", "Gagan Developers", "Leisure Town", "Padam Interiors", "Studio XP", "Manav Group", "Hawa Valves", "Famic Technologies"]);
   assert.ok(!(CLIENT_NAMES as readonly string[]).some((n) => /bhel/i.test(n)));
 });
 
@@ -98,7 +98,7 @@ test("landing pages: calculator, scope (included / excluded / GST), zone table f
   for (const f of ["<ServicePricing", "<ScopeOfWork", "<ZoneAccordion", 'href="#book"']) assert.ok(svc.includes(f), f);
   assert.match(page, /catalogCategoryBySlug\(slug\)/);
   const calc = readFileSync("src/components/public/rate-calculators.tsx", "utf8");
-  for (const f of ["export function PackageCalculator", "export function QtyCalculator", "export function PestCalculator", "Bungalow / Villa", "Move-in / Move-out", "Post-Construction", "Not included"]) assert.ok(calc.includes(f), f);
+  for (const f of ["export function PackageCalculator", "export function QtyCalculator", "export function PestCalculator", "Bungalow / Villa", "Unfurnished", "Post-Interior Cleaning", "Not included"]) assert.ok(calc.includes(f), f);
 });
 
 test("sidebar + footer: no Our Work / Areas links; Blog + Contact; footer = 4 category columns, no branch blocks or rating card", () => {

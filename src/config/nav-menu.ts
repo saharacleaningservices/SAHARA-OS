@@ -6,13 +6,24 @@ import { CATALOG_CATEGORIES, CATALOG_SERVICES, servicesIn, servicePath, type Cat
 export type NavLeaf = { label: string; href: string; blurb: string; pricing: PricingMode };
 export type NavMega = { id: CatalogCategoryId; label: string; short: string; blurb: string; /** Category landing page. */ href: string; items: NavLeaf[] };
 
+/** Service pages kept live (and in the sitemap) but left out of the menus (owner 2026-11-03: Move-in / Move-out). */
+export const NAV_HIDDEN: ReadonlySet<string> = new Set(["move-in-move-out-cleaning"]);
+
+/** Extra menu links that are not catalog service pages (owner 2026-11-03: Housekeeping Services under Commercial). */
+const NAV_EXTRA: Partial<Record<CatalogCategoryId, NavLeaf[]>> = {
+  commercial: [{ label: "Housekeeping Services", href: "/housekeeping-services", blurb: "Trained housekeeping staff on daily, weekly or AMC contract", pricing: "inspection" }],
+};
+
 export const NAV_MEGA: NavMega[] = CATALOG_CATEGORIES.map((c) => ({
   id: c.id,
   label: c.label,
   short: c.short,
   href: `/services/${c.slug}`,
   blurb: c.blurb,
-  items: servicesIn(c.id).map((s) => ({ label: s.name, href: servicePath(s.slug), blurb: s.blurb, pricing: s.pricing.mode })),
+  items: [
+    ...servicesIn(c.id).filter((s) => !NAV_HIDDEN.has(s.slug)).map((s) => ({ label: s.name, href: servicePath(s.slug), blurb: s.blurb, pricing: s.pricing.mode })),
+    ...(NAV_EXTRA[c.id] ?? []),
+  ],
 }));
 
 /** All distinct hrefs the menu can emit — used by tests to prove no menu link points at a missing route. */
