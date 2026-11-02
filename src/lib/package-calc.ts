@@ -41,6 +41,7 @@ export const percentDiscount = (subtotal: number, pct: number) => r2((Math.max(0
 
 /** Category groups shown in the calculator (base home packages are chosen separately). */
 export const SERVICE_GROUPS: { group: PriceGroup; label: string }[] = [
+  { group: "UNFURNISHED", label: "Unfurnished flat" },
   { group: "CUSTOMISED", label: "Customized services" },
   { group: "COMBO", label: "Combo / add-ons" },
   { group: "PEST", label: "Pest control" },

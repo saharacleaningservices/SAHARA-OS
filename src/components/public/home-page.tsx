@@ -12,7 +12,8 @@ const WA = "Hi Sahara, I'd like a quote for a service in Pune.";
 
 const PHOTOS: HeroPhoto[] = [
   // Clean, text-free hero photos from the central image registry (src/config/image-registry.ts).
-  img("full-home"),
+  img("hero-home"),
+  img("bathroom"),
   { ...img("commercial"), position: "36% 30%" },
   img("painting"),
   img("pest"),

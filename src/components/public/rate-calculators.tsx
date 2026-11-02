@@ -159,3 +159,30 @@ export function PestCalculator({ rows, sizes, note }: { rows: PestRow[]; sizes: 
     </section>
   );
 }
+
+export type UnfurnishedRow = { bhk: string; price: number; id: string };
+
+/**
+ * Unfurnished flat deep cleaning (owner benchmark rates 2026-11-02): 1 / 2 / 3 BHK fixed prices, 4 BHK+ on free inspection.
+ * Booking goes through the same quick-booking modal (HOME_DEEP_CLEANING, server re-priced from the item id).
+ */
+export function UnfurnishedCalculator({ rows }: { rows: UnfurnishedRow[] }) {
+  return (
+    <section aria-labelledby="uf-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+      <h2 id="uf-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Unfurnished flat rates</h2>
+      <p className="mt-1 text-sm text-[#0a2540]/70">Empty flats only — every surface reachable, so it costs less than a furnished deep clean.</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        {rows.map((r) => (
+          <div key={r.id} className="flex flex-col rounded-2xl bg-[#f5f8fd] p-4 ring-1 ring-[#0a2540]/10">
+            <p className="text-sm font-bold text-[#0a2540]/70">{r.bhk} Unfurnished</p>
+            <p className="mt-1 text-2xl font-extrabold text-[#0a2540]">{inr(r.price)}</p>
+            <button type="button" onClick={() => openLead({ service: "Unfurnished Home Cleaning", pkg: `${r.bhk} Unfurnished`, price: r.price, category: "HOME_DEEP_CLEANING", items: [{ contentId: r.id, qty: 1 }], propertyType: r.bhk, packageName: "Unfurnished Deep Cleaning" })} className="mt-3 min-h-12 rounded-xl bg-primary text-sm font-bold text-white">
+              Book {r.bhk} · {inr(r.price)}
+            </button>
+          </div>
+        ))}
+      </div>
+      <button type="button" onClick={() => openLead({ service: "Unfurnished Home Cleaning", pkg: "4 BHK+ / Villa", inspection: true })} className="mt-3 text-sm font-bold text-primary">4 BHK or larger? Book a free site inspection →</button>
+    </section>
+  );
+}

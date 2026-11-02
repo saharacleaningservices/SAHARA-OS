@@ -132,7 +132,7 @@ export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, foot
 /**
  * Site footer — final (owner 2026-11-02): no branch blocks or rating cards (branch details sit on the homepage above it).
  * Four primary category columns (heading → category landing page, then its key services), one social row (Facebook, Instagram,
- * YouTube, LinkedIn when its link is saved in Settings, WhatsApp), legal links and a single GSTIN line.
+ * YouTube, LinkedIn when its link is saved in Settings, Google review link — owner 2026-11-02 replaced WhatsApp), legal links and a single GSTIN line.
  */
 export function SiteFooter() {
   return (
@@ -159,12 +159,11 @@ export function SiteFooter() {
               <a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-1 hover:text-white"><Mail className="size-3.5" />{CONTACT.email}</a>
               <Link href="/contact" className="hover:text-white">Contact</Link>
               <Link href="/track" className="hover:text-white">Track Booking</Link>
-              <Link href="/scope-of-work" className="hover:text-white">Scope of Work</Link>
               <Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link>
               <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
             </p>
           </div>
-          <FooterSocial withWhatsApp />
+          <FooterSocial withGoogleReview />
         </section>
       </div>
       <div className="border-t border-white/10">

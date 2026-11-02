@@ -8,13 +8,25 @@
 export type RegistryImage = { src: string; alt: string };
 
 export const IMAGE_REGISTRY = {
-  "full-home": { src: "/marketing/hero-home.webp", alt: "Sahara technician running a floor scrubber during full home deep cleaning" },
-  kitchen: { src: "/marketing/services/kitchen-art.webp", alt: "Spotless kitchen counter, sink and cabinets after deep cleaning" },
-  bathroom: { src: "/marketing/services/bathroom-art.webp", alt: "Sparkling bathroom tiles, WC, basin and shower after scrubbing" },
-  sofa: { src: "/marketing/carousel-equipment.webp", alt: "Sahara technician shampooing a fabric sofa with an extraction machine" },
+  // Owner final sprint 2026-11-02: clean photos cropped from the Sahara service creatives (no prices, headlines or phone numbers).
+  "full-home": { src: "/marketing/services/full-home-crew.webp", alt: "Sahara crew scrubbing the floor, vacuuming the sofa and wiping windows during full house deep cleaning" },
+  /** High-resolution wide shot kept for the full-width homepage hero (the cropped crew photo is card-sized). */
+  "hero-home": { src: "/marketing/hero-home.webp", alt: "Sahara technician running a floor scrubber during full home deep cleaning" },
+  kitchen: { src: "/marketing/services/kitchen-chimney.webp", alt: "Sahara cleaner degreasing a kitchen chimney above the hob" },
+  bathroom: { src: "/marketing/services/bathroom-scrub.webp", alt: "Sahara cleaner scrubbing a WC and fittings during bathroom deep cleaning" },
+  express: { src: "/marketing/services/express-cleaning.webp", alt: "Sahara cleaner wiping a living-room table during express cleaning" },
+  sofa: { src: "/marketing/services/sofa-shampoo.webp", alt: "Sahara team shampooing and extracting a fabric sofa" },
+  mattress: { src: "/marketing/services/mattress-steam.webp", alt: "Sahara technician steam-cleaning a mattress" },
+  window: { src: "/marketing/services/window-glass.webp", alt: "Sahara cleaner squeegeeing high-rise window glass" },
+  "post-construction": { src: "/marketing/services/post-construction.webp", alt: "Sahara crew clearing debris and dust after construction work" },
+  housekeeping: { src: "/marketing/services/housekeeping.webp", alt: "Sahara housekeeper running a floor scrubber in a corporate lobby" },
+  restaurant: { src: "/marketing/services/restaurant-cleaning.webp", alt: "Sahara cleaner sanitising restaurant dining tables" },
+  hospital: { src: "/marketing/services/hospital-cleaning.webp", alt: "Sahara housekeeper mopping a hospital corridor" },
+  parking: { src: "/marketing/services/parking-jet-wash.webp", alt: "Sahara cleaner jet-washing a basement parking floor" },
+  "kitchen-wipe": { src: "/marketing/services/kitchen-wipe.webp", alt: "Sahara cleaner wiping a kitchen hob and platform" },
   pest: { src: "/marketing/service-pest-control.webp", alt: "Sahara pest control technician treating kitchen cabinet edges" },
   painting: { src: "/marketing/service-painting.webp", alt: "Sahara painters rolling and taping a living-room wall" },
-  office: { src: "/brand/hero/office-cleaning.jpg", alt: "Sahara housekeeper mopping a corporate office floor" },
+  office: { src: "/marketing/services/office-team.webp", alt: "Sahara team vacuuming, mopping and wiping desks in an office" },
   carpet: { src: "/marketing/hero-commercial.webp", alt: "Carpet being vacuumed by the Sahara team" },
   commercial: { src: "/marketing/hero-commercial-v2.webp", alt: "Sahara team in Royal Blue uniforms cleaning commercial premises" },
   "clean-room": { src: "/marketing/carousel-result.webp", alt: "Freshly cleaned living room with glass windows" },

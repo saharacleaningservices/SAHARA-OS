@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { CalendarCheck, CheckCircle2, Clock, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { OPEN_EVENT, type LeadIntent } from "@/components/public/bhk-price-cards";
-import { trackLead } from "@/components/public/marketing-tags";
+import { trackFunnel, trackLead, trackSchedule } from "@/components/public/marketing-tags";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
 import { publicBookLead } from "@/server/actions/public-booking";
 import { getQuickAddOns } from "@/server/actions/public-addons";
 import { LOCALITIES, ZONES, type ZoneKey } from "@/config/pune-seo-matrix";
-import { EXTRA_AREAS, MOQ_VALUE, moqFor, suggestAddOns, type AddOn } from "@/lib/zonal-moq";
+import { CHECKOUT_CHIP_IDS, EXTRA_AREAS, MOQ_VALUE, ZONE_B_MOV_MESSAGE, moqFor, normalizePincode, upgradeBundle, type AddOn } from "@/lib/zonal-moq";
 
 /**
  * Quick booking modal — 10-second flow with live CRM slots (owner 2026-11-02, final).
@@ -56,9 +56,12 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   const [gpsState, setGpsState] = useState<"idle" | "locating" | "denied">("idle");
   const [vh, setVh] = useState<number | null>(null);
   const [locality, setLocality] = useState("");
+  const [pincode, setPincode] = useState("");
   const [pool, setPool] = useState<AddOn[]>([]);
   const [extras, setExtras] = useState<AddOn[]>([]);
   const first = useRef<HTMLInputElement>(null);
+  const doneId = useRef("");
+  const doneConfirmed = useRef(false);
 
   useEffect(() => {
     const on = (e: Event) => {
@@ -68,6 +71,8 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
       setDone(null);
       setSlot("");
       setExtras([]);
+      const d = (e as CustomEvent<LeadIntent>).detail;
+      trackFunnel("start_booking", { service: d?.category ?? d?.service, package: d?.pkg });
     };
     window.addEventListener(OPEN_EVENT, on);
     return () => window.removeEventListener(OPEN_EVENT, on);
@@ -114,14 +119,23 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   const dayStatus = days?.find((d) => d.date === date)?.status ?? "AVAILABLE";
   const slotBadge = (s: SlotInfo) => (!s.available ? BADGE.FULL : dayStatus === "FILLING" ? BADGE.FILLING : BADGE.AVAILABLE);
   const slotText = date ? `${dayLabel(date).wd}, ${dayLabel(date).dm}${slot ? ` · ${slot}` : ""}` : "";
-  // Zonal minimum order (lib/zonal-moq.ts): only the individual-services / combo basket is gated.
-  const moqApplies = booking && intent.category === "INDIVIDUAL_CLEANING";
-  const moq = moqApplies ? moqFor({ locality, gps }, WEST_PCMC).moq : 0;
+  // Zonal minimum order value (lib/zonal-moq.ts, final sprint 2026-11-02): every priced non-pest basket below ₹3,999 in
+  // Zone B (PIN code or area) is blocked until it reaches the minimum — the server enforces the same rule.
+  const priced = booking && (intent.price ?? 0) > 0;
+  const moqApplies = priced && intent.category !== "PEST_CONTROL";
+  const pin = normalizePincode(pincode);
+  const moq = moqApplies ? moqFor({ locality, pincode: pin.length === 6 ? pin : "", gps }, WEST_PCMC).moq : 0;
   const extrasTotal = extras.reduce((t, x) => t + x.price * x.minQty, 0);
   const subtotal = (intent.price ?? 0) + extrasTotal;
-  const gap = moq > 0 && locality ? Math.max(0, moq - subtotal) : 0;
-  const suggestions = gap > 0 ? suggestAddOns(gap, pool, [...(intent.items ?? []).map((i) => i.contentId), ...extras.map((x) => x.contentId)]) : [];
-  const areaName = LOCALITIES.find((l) => l.slug === locality)?.name ?? EXTRA_AREAS.find((x) => x.slug === locality)?.name ?? (locality === "other" ? "your area" : "");
+  const gap = moq > 0 ? Math.max(0, moq - subtotal) : 0;
+  const inBasket = [...(intent.items ?? []).map((i) => i.contentId), ...extras.map((x) => x.contentId)];
+  // 1-click checkout chips: Fridge ₹499 · Chimney ₹699 · Pest Control Shot ₹899 · Balcony ₹499 (live prices from the pool).
+  const chips = CHECKOUT_CHIP_IDS.map((id) => pool.find((a) => a.contentId === id)).filter((a): a is AddOn => !!a && !(intent.category === "PEST_CONTROL" && a.contentId === "SCS-36") && !(intent.items ?? []).some((i) => i.contentId === a.contentId));
+  const upgrade = gap > 0 ? (upgradeBundle(gap, chips, inBasket).length ? upgradeBundle(gap, chips, inBasket) : upgradeBundle(gap, pool, inBasket)) : [];
+  const toggleExtra = (a: AddOn) => {
+    if (!extras.some((x) => x.contentId === a.contentId)) trackFunnel("select_addon", { service: intent.category, item: a.name, value: a.price * a.minQty });
+    setExtras((cur) => (cur.some((x) => x.contentId === a.contentId) ? cur.filter((x) => x.contentId !== a.contentId) : [...cur, a]));
+  };
 
   function locate() {
     if (!("geolocation" in navigator)) return setGpsState("denied");
@@ -147,7 +161,8 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
     if (!slot) return setError("Please choose a time slot.");
     if (!locality) return setError("Please choose your area.");
     if (area.length < 3) return setError("Please enter your flat / society / building or a landmark.");
-    if (gap > 0) return setError(`Minimum order in ${areaName || "your area"} is ₹${MOQ_VALUE.toLocaleString("en-IN")} — add ₹${gap.toLocaleString("en-IN")} more.`);
+    if (booking && pin.length !== 6) return setError("Please enter your 6-digit PIN code.");
+    if (gap > 0) return setError(`${ZONE_B_MOV_MESSAGE} Add ${inr(gap)} more.`);
     const company = String(f.get("company") ?? "").trim();
     const propType = String(f.get("propType") ?? "");
     const sqft = String(f.get("sqft") ?? "").replace(/\D/g, "").slice(0, 7);
@@ -162,6 +177,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
           name, mobile, website: String(f.get("website") ?? ""),
           area: (locName || area).slice(0, 100) || (gps ? "GPS location" : ""),
           address: where.slice(0, 400),
+          pinCode: pin,
           mapLink: mapsUrl,
           serviceCategory: intent!.category,
           serviceVariant: intent!.service.slice(0, 120),
@@ -177,7 +193,9 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
         });
         if ("error" in r && r.error) { setState("idle"); return setError(r.error); }
         const ok = r as { leadNumber?: string; status?: "CONFIRMED" | "PENDING"; jobNumber?: string };
-        setDone({ kind: ok.status === "CONFIRMED" ? "confirmed" : "received", id: (ok.status === "CONFIRMED" ? ok.jobNumber : ok.leadNumber) || ok.leadNumber || "", slotText, price: subtotal || null });
+        doneId.current = (ok.status === "CONFIRMED" ? ok.jobNumber : ok.leadNumber) || ok.leadNumber || "";
+        doneConfirmed.current = ok.status === "CONFIRMED";
+        setDone({ kind: ok.status === "CONFIRMED" ? "confirmed" : "received", id: doneId.current, slotText, price: subtotal || null });
       } else {
         const p = getAttributionPayload();
         const t = p.first ?? p.latest ?? null;
@@ -185,7 +203,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name, mobile, website: String(f.get("website") ?? ""), service: intent!.service, location: where,
+            name, mobile, website: String(f.get("website") ?? ""), service: intent!.service, location: [where, pin.length === 6 && `PIN ${pin}`].filter(Boolean).join(" · "),
             source: intent!.b2b ? "Website B2B site audit" : "",
             preferredDate: date, preferredSlot: slot,
             message: [intent!.b2b ? `B2B free site audit — ${label}` : `Website inquiry — ${label}`, intent!.b2b && `Company: ${company}`, intent!.b2b && propType && `Property: ${propType}`, intent!.b2b && sqft && `Approx. area: ${sqft} sq ft`, `Preferred visit ${slotText}`, mapsUrl && `Location ${mapsUrl} (±${gps!.acc} m)`, notes && `Notes: ${notes}`].filter(Boolean).join(" · "),
@@ -195,10 +213,15 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
         });
         const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; leadId?: string };
         if (!res.ok || !j.ok) { setState("idle"); return setError(j.error || "Couldn't send. Please call or WhatsApp us."); }
-        setDone({ kind: "inquiry", id: j.leadId ?? "", slotText, price: null });
+        doneId.current = j.leadId ?? "";
+        doneConfirmed.current = false;
+        setDone({ kind: "inquiry", id: doneId.current, slotText, price: null });
       }
       setState("idle");
-      trackLead({ category: intent!.category ?? intent!.service, variant: intent!.pkg, mobile, value: booking ? intent!.price ?? undefined : undefined });
+      // Every booking/inquiry: GTM dataLayer + GA4 generate_lead + Ads conversion + Meta Lead (Pixel & CAPI, one event id).
+      trackLead({ category: intent!.category ?? intent!.service, variant: intent!.pkg, mobile, value: booking ? subtotal || undefined : undefined, id: doneId.current, kind: booking ? "booking" : "inquiry", confirmed: doneConfirmed.current });
+      if (!booking) trackSchedule({ category: intent!.service, mobile });
+      trackFunnel(booking ? "booking_confirmation" : "schedule_inspection", { service: intent!.category ?? intent!.service, value: booking ? subtotal || undefined : undefined });
     } catch {
       setState("idle");
       setError("No connection. Please try again, or call us.");
@@ -245,6 +268,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
               <fieldset className="min-w-0 space-y-2 rounded-3xl bg-white p-3 shadow-sm">
                 <legend className="sr-only">Address</legend>
                 <p className="flex items-center gap-1.5 text-sm font-bold"><MapPin className="size-4 text-primary" />Full address</p>
+                <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
                 <select name="locality" value={locality} onChange={(e) => setLocality(e.target.value)} aria-label="Area" required className={input}>
                   <option value="">Choose your area *</option>
                   {(Object.keys(ZONES) as ZoneKey[]).map((z) => (
@@ -255,6 +279,8 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
                   ))}
                   <option value="other">Other area</option>
                 </select>
+                <input name="pincode" value={pincode} onChange={(e) => setPincode(normalizePincode(e.target.value))} inputMode="numeric" autoComplete="postal-code" maxLength={6} required={booking} placeholder={booking ? "PIN code *" : "PIN code"} aria-label="PIN code" className={input} />
+                </div>
                 <input name="area" autoComplete="street-address" required placeholder="Flat / society / building / landmark *" className={input} />
                 <button type="button" onClick={locate} disabled={gpsState === "locating"} className={`inline-flex items-center gap-1 text-xs font-bold ${gps ? "text-emerald-700" : "text-primary"}`}>
                   {gps ? `📍 Location added (±${gps.acc} m)` : gpsState === "locating" ? "Locating…" : "📍 Use current location (optional)"}
@@ -308,29 +334,42 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
                 )}
               </fieldset>
 
-              {moqApplies && locality && (
-                <div className={`rounded-3xl p-3 ${gap > 0 ? "bg-amber-50 ring-1 ring-amber-200" : "bg-emerald-50 ring-1 ring-emerald-200"}`} aria-live="polite">
-                  <div className="flex items-center justify-between gap-2 text-sm">
+              {priced && (
+                <div className={`rounded-3xl p-3 ${gap > 0 ? "bg-amber-50 ring-1 ring-amber-200" : "bg-white shadow-sm"}`} aria-live="polite">
+                  {chips.length > 0 && (
+                    <>
+                      <p className="text-sm font-bold">Add to this visit <span className="font-normal text-[#0a2540]/55">(1 tap)</span></p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {chips.map((a) => {
+                          const on = extras.some((x) => x.contentId === a.contentId);
+                          return (
+                            <button key={a.contentId} type="button" aria-pressed={on} onClick={() => toggleExtra(a)} className={`min-h-10 rounded-full border-2 px-3 text-xs font-extrabold transition ${on ? "border-primary bg-primary text-white" : "border-[#0a2540]/10 bg-white text-[#0a2540] hover:border-primary/50"}`}>
+                              {on ? "✓ " : "+ "}{a.name.replace(" (add-on)", "").replace(" Cleaning", "")} {inr(a.price * a.minQty)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                  {extras.filter((x) => !chips.some((c) => c.contentId === x.contentId)).length > 0 && (
+                    <ul className="mt-2 space-y-1 text-xs">
+                      {extras.filter((x) => !chips.some((c) => c.contentId === x.contentId)).map((x) => <li key={x.contentId} className="flex items-center justify-between gap-2"><span>+ {x.name}{x.minQty > 1 ? ` ×${x.minQty}` : ""} · {inr(x.price * x.minQty)}</span><button type="button" onClick={() => toggleExtra(x)} className="font-bold text-red-600">Remove</button></li>)}
+                    </ul>
+                  )}
+                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#0a2540]/10 pt-2 text-sm">
                     <span className="font-bold">Order total</span>
                     <span className="text-lg font-extrabold">{inr(subtotal)}</span>
                   </div>
-                  {extras.length > 0 && (
-                    <ul className="mt-1 space-y-1 text-xs">
-                      {extras.map((x) => <li key={x.contentId} className="flex items-center justify-between gap-2"><span>+ {x.name}</span><button type="button" onClick={() => setExtras(extras.filter((e) => e.contentId !== x.contentId))} className="font-bold text-red-600">Remove</button></li>)}
-                    </ul>
-                  )}
                   {gap > 0 ? (
-                    <>
-                      <p className="mt-1 text-xs font-semibold text-amber-800">Minimum order in {areaName || "your area"} is {inr(MOQ_VALUE)} — add {inr(gap)} more. One tap:</p>
-                      <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-                        {suggestions.map((a) => (
-                          <button key={a.contentId} type="button" onClick={() => setExtras([...extras, a])} className="flex min-w-[150px] shrink-0 flex-col rounded-2xl bg-white p-2.5 text-left shadow-sm ring-1 ring-amber-200 hover:ring-primary">
-                            <span className="text-xs font-extrabold leading-snug">{a.name}{a.minQty > 1 ? ` ×${a.minQty}` : ""}</span>
-                            <span className="mt-1 text-sm font-extrabold text-primary">+ {inr(a.price * a.minQty)}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </>
+                    <div role="alert" className="mt-2">
+                      <p className="text-xs font-bold text-amber-900">{ZONE_B_MOV_MESSAGE}</p>
+                      <p className="mt-0.5 text-xs text-amber-800">Add {inr(gap)} more to book.</p>
+                      {upgrade.length > 0 && (
+                        <button type="button" onClick={() => setExtras((cur) => [...cur, ...upgrade.filter((u) => !cur.some((x) => x.contentId === u.contentId))])} className="mt-2 min-h-12 w-full rounded-2xl bg-amber-400 px-3 text-sm font-extrabold text-[#0a2540] shadow-sm hover:bg-amber-300">
+                          Add Add-on / Upgrade to {inr(MOQ_VALUE)} Combo
+                        </button>
+                      )}
+                    </div>
                   ) : (
                     moq > 0 && <p className="mt-1 text-xs font-semibold text-emerald-700">Minimum order reached ✓</p>
                   )}

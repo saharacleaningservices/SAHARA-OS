@@ -11,8 +11,8 @@ import { ClientCarousel } from "@/components/ui/client-carousel";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { LeadButton } from "@/components/public/lead-button";
 import { buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
-import { PackageCalculator, PestCalculator, QtyCalculator, type QtyItem } from "@/components/public/rate-calculators";
-import { PEST_BHK_RATES, PEST_BHK_SIZES, activeCampaign, todayIST, type PriceItem } from "@/lib/pricing-master";
+import { PackageCalculator, PestCalculator, QtyCalculator, UnfurnishedCalculator, type QtyItem } from "@/components/public/rate-calculators";
+import { PEST_BHK_RATES, PEST_BHK_SIZES, activeCampaign, comboSavings, todayIST, type PriceItem } from "@/lib/pricing-master";
 import { BRANCHES, LOCALITIES, ZONES, seoPagePath, type ZoneKey } from "@/config/pune-seo-matrix";
 import { FcGoogle } from "react-icons/fc";
 import { TRUST } from "@/lib/booking-target";
@@ -105,6 +105,11 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
       />
     );
   }
+  if (service.pricing.mode === "unfurnished") {
+    const rows = pricing.items.filter((i) => i.group === "UNFURNISHED" && i.price != null && i.bhk).map((i) => ({ bhk: i.bhk!, price: i.price!, id: i.contentId }));
+    if (rows.length === 0) return <InspectionFlow service={service.name} />;
+    return <UnfurnishedCalculator rows={rows} />;
+  }
   if (service.pricing.mode === "from") {
     const items = (service.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id)).filter((i): i is NonNullable<typeof i> => !!i);
     if (items.length === 0) return <InspectionFlow service={service.name} title="Price confirmed before booking" />;
@@ -159,7 +164,7 @@ export async function CategoryServiceCards({ id, anchor }: { id: CatalogService[
         {servicesIn(id).map((s) => {
           const orders = (s.pricing.contentIds ?? []).map((cid) => pricing.items.find((i) => i.contentId === cid)).filter((i) => i?.price != null).map((i) => i!.price! * Math.max(1, i!.minQty ?? 1));
           const first = orders.length ? Math.min(...orders) : null;
-          const badge = s.pricing.mode === "inspection" ? "Free site inspection" : s.pricing.mode === "pest" ? `From ${inr(PEST_BHK_RATES[0].rates["1 BHK"])}` : s.pricing.mode === "bhk" ? "Fixed BHK rates" : first != null ? `From ${inr(first)}` : "Price on confirmation";
+          const badge = s.pricing.mode === "inspection" ? "Free site inspection" : s.pricing.mode === "pest" ? `From ${inr(PEST_BHK_RATES[0].rates["1 BHK"])}` : s.pricing.mode === "bhk" ? "Fixed BHK rates" : s.pricing.mode === "unfurnished" ? "Fixed BHK rates" : first != null ? `From ${inr(first)}` : "Price on confirmation";
           return (
             <li key={s.slug}>
               <Link href={servicePath(s.slug)} className="group flex h-full overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-[#0a2540]/5 hover:ring-2 hover:ring-primary">
@@ -261,7 +266,7 @@ export async function ComboSwiper() {
     <section aria-labelledby="combo-title">
       <div className="flex items-end justify-between gap-2">
         <h2 id="combo-title" className="text-2xl font-extrabold text-[#0a2540] sm:text-3xl">Combo packages</h2>
-        <p className="text-xs font-semibold text-[#0a2540]/55">Swipe →</p>
+        <p className="text-xs font-semibold text-[#0a2540]/70">Swipe →</p>
       </div>
       <ul className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {combos.map((c) => (
@@ -308,7 +313,7 @@ export function ClientMarquee() {
   );
   return (
     <section aria-label="Trusted by" className="overflow-hidden">
-      <p className="text-center text-[11px] font-bold uppercase tracking-widest text-[#0a2540]/50">Trusted by</p>
+      <p className="text-center text-[11px] font-bold uppercase tracking-widest text-[#0a2540]/70">Trusted by</p>
       <div className="mt-2 flex w-max sahara-marquee py-1">{row(false)}{row(true)}</div>
     </section>
   );
@@ -357,12 +362,11 @@ export function ZoneAccordion({ seoSlug, service }: { /** pune-seo-matrix catego
                 <span className="text-primary transition group-open:rotate-90">›</span>
               </summary>
               <table className="w-full text-left text-sm">
-                <thead className="sr-only"><tr><th>Area</th><th>PIN</th></tr></thead>
+                <thead className="sr-only"><tr><th>Area</th></tr></thead>
                 <tbody>
                   {locs.map((l) => (
                     <tr key={l.slug} className="border-t border-[#0a2540]/5">
                       <td className="px-4 py-2">{seoSlug ? <Link href={seoPagePath(seoSlug, l.slug)} className="font-semibold text-primary hover:underline">{service} in {l.name}</Link> : <span className="font-semibold text-[#0a2540]">{service} in {l.name}</span>}</td>
-                      <td className="px-4 py-2 text-right text-xs text-[#0a2540]/55">{l.pins.join(", ")}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -379,7 +383,7 @@ export function ZoneAccordion({ seoSlug, service }: { /** pune-seo-matrix catego
 export function HomeServiceCards() {
   const cards = [
     { href: servicePath("home-deep-cleaning"), title: "Full House Deep Cleaning", sub: "1–4 BHK, villas, move-in/out, post-construction", img: img("full-home").src, alt: img("full-home").alt },
-    { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", img: img("sofa").src, alt: img("sofa").alt },
+    { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", img: img("express").src, alt: img("express").alt },
     { href: servicePath("interior-painting"), title: "Interior Painting", sub: "Free site inspection & written quote", img: img("painting").src, alt: img("painting").alt },
     { href: servicePath("pest-control"), title: "Pest Control", sub: "Cockroach, bed bug, rodent, termite, mosquito", img: img("pest").src, alt: img("pest").alt },
   ];
@@ -417,8 +421,37 @@ export function ZoneGrid() {
           <div key={z} className="rounded-3xl bg-white p-4 shadow-sm">
             <h3 className="flex items-center gap-1.5 text-base font-extrabold text-[#0a2540]"><MapPin className="size-4 text-primary" aria-hidden />{ZONES[z].label}</h3>
             <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[13px]">
-              {LOCALITIES.filter((l) => l.zone === z).map((l) => <li key={l.slug}><Link href={seoPagePath("home-deep-cleaning", l.slug)} className="text-[#0a2540]/75 hover:text-primary">{l.name}</Link></li>)}
+              {LOCALITIES.filter((l) => l.zone === z).map((l) => <li key={l.slug}><Link href={seoPagePath("home-deep-cleaning", l.slug)} className="inline-block py-1.5 text-[#0a2540]/80 hover:text-primary">{l.name}</Link></li>)}
             </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Dynamic up-sell banner (final sprint 2026-11-02): single service vs combo package, computed from live prices. A combo is only
+ * shown when it really costs less than booking the same items separately — no invented savings.
+ */
+export async function ComboUpsell({ contentIds }: { contentIds?: string[] }) {
+  const pricing = await getPublicPricing();
+  const deals = comboSavings(pricing.items, contentIds ?? []).slice(0, 2);
+  if (deals.length === 0) return null;
+  return (
+    <section aria-labelledby="upsell-title" className="rounded-3xl bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm ring-1 ring-amber-200 sm:p-6">
+      <h2 id="upsell-title" className="text-lg font-extrabold text-[#0a2540] sm:text-xl">Save with a combo</h2>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        {deals.map((d) => (
+          <div key={d.combo.contentId} className="flex flex-col rounded-2xl bg-white p-4 shadow-sm">
+            <p className="font-extrabold text-[#0a2540]">{d.combo.name}</p>
+            <p className="mt-1 text-xs text-[#0a2540]/65">{d.parts.join(" · ")}</p>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center text-sm">
+              <div className="rounded-xl bg-[#f5f8fd] p-2"><p className="text-[11px] font-bold uppercase text-[#0a2540]/50">Booked separately</p><p className="font-extrabold text-[#0a2540]/60 line-through">{inr(d.separate)}</p></div>
+              <div className="rounded-xl bg-emerald-50 p-2"><p className="text-[11px] font-bold uppercase text-emerald-700">Combo</p><p className="font-extrabold text-emerald-800">{inr(d.combo.price!)}</p></div>
+            </div>
+            <p className="mt-2 text-xs font-bold text-emerald-700">You save {inr(d.saving)}</p>
+            <LeadButton intent={{ service: d.combo.name, pkg: "Combo", price: d.combo.price!, category: "INDIVIDUAL_CLEANING", items: [{ contentId: d.combo.contentId, qty: 1 }], packageName: d.combo.name }} className="mt-3 min-h-12 rounded-xl bg-primary text-sm font-bold text-white">Book combo · {inr(d.combo.price!)}</LeadButton>
           </div>
         ))}
       </div>

@@ -180,19 +180,16 @@
 .sahara-pulse {
   animation: sahara-pulse-ring 1.6s infinite;
 }
-/* Wave pulse for the header "Call Now" / "WhatsApp Us" buttons (rebuild 2026-11-02). Box-shadow only: no layout shift. */
-@keyframes sahara-wave-call {
-  0% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0.55), 0 0 0 0 rgba(11, 94, 215, 0.35); }
-  70% { box-shadow: 0 0 0 10px rgba(11, 94, 215, 0), 0 0 0 18px rgba(11, 94, 215, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0), 0 0 0 0 rgba(11, 94, 215, 0); }
+/* Wave pulse for the header "Call Now" / "WhatsApp Us" buttons (rebuild 2026-11-02). Performance pass (final sprint): the ring is a
+   pseudo-element animated with transform + opacity only, so it runs on the compositor — no per-frame repaint, no layout. */
+@keyframes sahara-wave { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.18, 1.6); opacity: 0; } }
+.sahara-wave-call, .sahara-wave-wa { position: relative; }
+.sahara-wave-call::after, .sahara-wave-wa::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  animation: sahara-wave 1.8s ease-out infinite; will-change: transform, opacity;
 }
-@keyframes sahara-wave-wa {
-  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6), 0 0 0 0 rgba(37, 211, 102, 0.35); }
-  70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0), 0 0 0 18px rgba(37, 211, 102, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0), 0 0 0 0 rgba(37, 211, 102, 0); }
-}
-.sahara-wave-call { animation: sahara-wave-call 1.8s ease-out infinite; }
-.sahara-wave-wa { animation: sahara-wave-wa 1.8s ease-out infinite; animation-delay: 0.9s; }
+.sahara-wave-call::after { background: rgba(11, 94, 215, 0.5); }
+.sahara-wave-wa::after { background: rgba(37, 211, 102, 0.55); animation-delay: 0.9s; }
 
 /* Client logo marquee + hero slider (rebuild 2026-11-02). */
 @keyframes sahara-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -200,7 +197,7 @@
 .sahara-marquee:hover { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: reduce) {
-  .sahara-pulse, .sahara-wave-call, .sahara-wave-wa, .sahara-marquee { animation: none; }
+  .sahara-pulse, .sahara-wave-call::after, .sahara-wave-wa::after, .sahara-marquee { animation: none; }
 }
 
 /* Signature pad canvas */

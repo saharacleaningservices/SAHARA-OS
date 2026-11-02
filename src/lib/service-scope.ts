@@ -140,6 +140,16 @@ export const SMALL_SERVICE_SCOPE: Record<string, SmallServiceScope> = {
     excludes: ["Exterior walls or glass that cannot be reached safely", "Plant pots, furniture or heavy items moved", "Bird-netting installation or repair"],
     prep: ["Balcony cleared of loose items", "Water outlet available"],
   },
+  "SCS-35": {
+    includes: ["Chimney filters removed, soaked and degreased", "Hood, body and visible duct opening wiped", "Filters refitted after cleaning"],
+    excludes: ["Motor, wiring or duct repair", "Duct cleaning beyond the reachable opening", "Replacement of damaged filters or parts"],
+    prep: ["Chimney switched off and cooled", "Hob area cleared"],
+  },
+  "SCS-36": {
+    includes: ["General gel and spray treatment for cockroaches and ants in the kitchen and bathrooms", "Low-odour products suited to occupied homes"],
+    excludes: ["Termite, bed bug or rodent treatment", "Treatment of areas not cleared for access", "Booking on its own — added only with a cleaning service"],
+    prep: ["Food and utensils covered or put away", "Children and pets kept away from treated areas while it dries"],
+  },
   "SCS-31": {
     includes: ["Vacuuming and cleaning of curtains according to fabric", "Handling and re-hanging by our team where agreed"],
     excludes: ["Guaranteed removal of old stains or fading", "Shrinkage or colour-run risk on delicate or unlabelled fabrics"],

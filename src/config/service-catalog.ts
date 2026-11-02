@@ -12,7 +12,7 @@
 import { img } from "@/config/image-registry";
 
 export type CatalogCategoryId = "residential" | "individual" | "commercial" | "relocation";
-export type PricingMode = "bhk" | "from" | "pest" | "inspection";
+export type PricingMode = "bhk" | "from" | "pest" | "inspection" | "unfurnished";
 
 export type CatalogService = {
   slug: string;
@@ -39,8 +39,8 @@ export type CatalogCategory = { id: CatalogCategoryId; slug: string; label: stri
 
 export const CATALOG_CATEGORIES: CatalogCategory[] = [
   { id: "residential", slug: "residential-services", label: "Residential Services", short: "Residential", blurb: "Full-home deep cleaning, pest control and painting for flats, villas and bungalows", image: img("full-home").src },
-  { id: "individual", slug: "individual-services", label: "Individual Services", short: "Individual", blurb: "Only the room or item you need — kitchen, bathroom, sofa, carpet, windows", image: img("sofa").src },
-  { id: "commercial", slug: "commercial-services", label: "Commercial Services (B2B)", short: "Commercial", blurb: "Offices, showrooms, warehouses, restaurants, façades and facility-management AMCs", image: img("office").src },
+  { id: "individual", slug: "individual-services", label: "Individual Services", short: "Individual", blurb: "Only the room or item you need — kitchen, bathroom, sofa, carpet, windows", image: img("express").src },
+  { id: "commercial", slug: "commercial-services", label: "Commercial Services (B2B)", short: "Commercial", blurb: "Offices, showrooms, warehouses, restaurants, façades and facility-management AMCs", image: img("housekeeping").src },
   { id: "relocation", slug: "relocation-property-services", label: "Relocation & Property Services", short: "Relocation & Property", blurb: "Packers & movers, rent agreements with police verification, and property snagging", image: img("team").src },
 ];
 
@@ -58,10 +58,10 @@ export const CATALOG_SERVICES: CatalogService[] = [
     gallery: "Home Deep Cleaning", seoCategory: "home-deep-cleaning", faqs: [HOME_FAQ_TIME, BRING, { q: "What is the difference between Premium and Platinum?", a: "Both cover the full home. Platinum adds wall wet cleaning; Premium includes wall and ceiling dry dusting." }],
   },
   {
-    slug: "unfurnished-home-cleaning", category: "residential", name: "Unfurnished Home Cleaning", blurb: "Empty flats before you move furniture in",
+    slug: "unfurnished-home-cleaning", category: "residential", name: "Unfurnished Home Cleaning", blurb: "Empty flats — fixed 1 / 2 / 3 BHK rates",
     intro: "Deep cleaning of empty flats and villas — every surface is reachable, so the crew finishes faster and more thoroughly.",
     includes: ["Paint, cement and dust marks removed from floors", "Kitchen and bathroom descaling", "Wardrobe and cabinet interiors", "Windows, grills and sliding channels", "Balcony and utility area scrubbing"],
-    pricing: { mode: "bhk" }, image: img("clean-room").src, imageAlt: img("clean-room").alt,
+    pricing: { mode: "unfurnished" }, image: img("clean-room").src, imageAlt: img("clean-room").alt,
     gallery: "Home Deep Cleaning", seoCategory: "home-deep-cleaning", faqs: [HOME_FAQ_TIME, BRING],
   },
   {
@@ -125,14 +125,14 @@ export const CATALOG_SERVICES: CatalogService[] = [
     slug: "window-cleaning", category: "individual", name: "Window Cleaning", blurb: "Glass, grills and sliding channels — per window",
     intro: "Cleaning of window glass, frames, grills and sliding channels, charged per window.",
     includes: ["Window glass inside and outside where reachable", "Frame and grill cleaning", "Sliding-channel vacuuming", "Hard-water spot removal", "Mesh / net wipe-down"],
-    pricing: { mode: "from", contentIds: ["SCS-30"] }, image: img("clean-room").src, imageAlt: img("clean-room").alt,
+    pricing: { mode: "from", contentIds: ["SCS-30"] }, image: img("window").src, imageAlt: img("window").alt,
     gallery: "Home Deep Cleaning", seoCategory: "window-floor-cleaning", faqs: [{ q: "Do you clean high-rise exterior glass?", a: "Exterior glass that needs rope access is a commercial façade job and is quoted after a site visit." }],
   },
   {
     slug: "balcony-cleaning", category: "individual", name: "Balcony Cleaning", blurb: "Floor scrubbing, railings and grills",
     intro: "Scrubbing of balcony floors and drains with railing, grill and ledge cleaning.",
     includes: ["Floor machine / manual scrubbing", "Drain outlet cleaning", "Railing and grill wipe-down", "Ledge and wall-tile cleaning", "Cobweb removal"],
-    pricing: { mode: "from", contentIds: ["SCS-34"] }, image: img("full-home").src, imageAlt: img("full-home").alt,
+    pricing: { mode: "from", contentIds: ["SCS-34"] }, image: img("clean-room").src, imageAlt: img("clean-room").alt,
     gallery: "Home Deep Cleaning", seoCategory: "window-floor-cleaning", faqs: [{ q: "How is balcony cleaning priced?", a: "By balcony size and condition; the price is confirmed before booking." }],
   },
   // ── Commercial (B2B) — always on inspection ───────────────────────────────
@@ -154,7 +154,7 @@ export const CATALOG_SERVICES: CatalogService[] = [
     slug: "warehouse-cleaning", category: "commercial", name: "Warehouse Cleaning", blurb: "Large floors, racks and loading bays",
     intro: "Mechanised cleaning of warehouse floors, racking, loading bays and amenities for logistics and industrial units.",
     includes: ["Ride-on or walk-behind floor scrubbing", "Rack and high-level dusting", "Loading bay degreasing", "Washroom and canteen cleaning", "Shift-wise crew planning"],
-    pricing: { mode: "inspection" }, image: img("commercial").src, imageAlt: img("commercial").alt,
+    pricing: { mode: "inspection" }, image: img("parking").src, imageAlt: img("parking").alt,
     gallery: "Commercial Cleaning", seoCategory: "industrial-showroom-facade-cleaning", faqs: [VISIT],
   },
   {
@@ -168,21 +168,21 @@ export const CATALOG_SERVICES: CatalogService[] = [
     slug: "restaurant-kitchen-cleaning", category: "commercial", name: "Commercial Kitchen / Restaurant Cleaning", blurb: "Degreasing of kitchens, dining areas and drains",
     intro: "Heavy degreasing of commercial kitchens plus dining-area, washroom and drain cleaning for restaurants, cafés and cloud kitchens.",
     includes: ["Hood, wall and equipment degreasing", "Floor and drain scrubbing", "Dining area and washrooms", "Night-shift scheduling", "Pest control add-on available"],
-    pricing: { mode: "inspection" }, image: img("kitchen").src, imageAlt: img("kitchen").alt,
+    pricing: { mode: "inspection" }, image: img("restaurant").src, imageAlt: img("restaurant").alt,
     gallery: "Commercial Cleaning", seoCategory: "office-cleaning-housekeeping", faqs: [VISIT],
   },
   {
     slug: "post-construction-cleaning", category: "commercial", name: "Post-Construction Cleaning", blurb: "Handover cleaning for builders and architects",
     intro: "Builder-handover cleaning of new offices, flats and commercial units — construction dust, cement, paint and adhesive removal.",
     includes: ["Debris and fine-dust removal", "Cement, paint and adhesive residue", "Glass, frames and fittings", "Floor scrubbing and polishing", "Multi-unit and tower projects"],
-    pricing: { mode: "inspection" }, image: img("team").src, imageAlt: img("team").alt,
+    pricing: { mode: "inspection" }, image: img("post-construction").src, imageAlt: img("post-construction").alt,
     gallery: "Commercial Cleaning", seoCategory: "post-interior-cleaning", faqs: [VISIT],
   },
   {
     slug: "facility-management", category: "commercial", name: "Commercial AMC & Facility Management", blurb: "Housekeeping staff, pantry and soft services on contract",
     intro: "Annual contracts for housekeeping staff, pantry support and soft services in offices, societies, hospitals and showrooms.",
     includes: ["Trained, uniformed housekeeping staff", "Supervisor and attendance tracking", "Consumables plan on request", "Periodic deep cleaning in the AMC", "One consolidated invoice each month"],
-    pricing: { mode: "inspection" }, image: img("commercial").src, imageAlt: img("commercial").alt,
+    pricing: { mode: "inspection" }, image: img("housekeeping").src, imageAlt: img("housekeeping").alt,
     gallery: "Commercial Cleaning", seoCategory: "facility-management", faqs: [VISIT],
   },
   // ── Relocation & Property — quoted per job ───────────────────────────────

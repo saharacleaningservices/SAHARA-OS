@@ -52,23 +52,26 @@ function sendServerEvent(eventName: "Lead" | "Schedule", eventId: string, d: { c
 }
 
 /** Fire once after a successful booking/lead form submission. */
-export function trackLead(details: { category?: string; variant?: string; mobile?: string; /** Booking total in INR when the customer picked a priced package. */ value?: number }) {
+export function trackLead(details: { category?: string; variant?: string; mobile?: string; /** Booking total in INR when the customer picked a priced package. */ value?: number; /** CRM lead / job number — dedupes the Ads conversion. */ id?: string; /** booking = priced slot booking, inquiry = inspection / quote request. */ kind?: "booking" | "inquiry"; /** true when the CRM auto-confirmed the slot. */ confirmed?: boolean }) {
   // Owner-protected / internal numbers never reach any ad or analytics platform.
   if (isProtectedNumber(details.mobile)) return;
-  // GTM-style event for every lead form (owner 2026-10-25): GA4 / Meta tags configured on `lead_form_submit` see all of them.
-  if (typeof window !== "undefined") {
-    const w = window as unknown as { dataLayer?: unknown[] };
-    (w.dataLayer = w.dataLayer || []).push({ event: "lead_form_submit", service_category: details.category, service_variant: details.variant, page_path: window.location.pathname });
-  }
   // One shared id: the browser Pixel and the server (Conversions API) both send it, so Meta counts the lead once.
   const eventId = newEventId();
   const money = details.value && details.value > 0 ? { value: details.value, currency: "INR" } : {};
+  // GTM-style event for every lead form (owner 2026-10-25): GA4 / Meta tags configured on `lead_form_submit` see all of them.
+  if (typeof window !== "undefined") {
+    const w = window as unknown as { dataLayer?: unknown[] };
+    // GTM readiness (final sprint 2026-11-02): value, currency, transaction_id and event_id ride on the same push, so a GTM
+    // Google Ads conversion / GA4 / Meta tag can read them as Data Layer Variables without code changes.
+    (w.dataLayer = w.dataLayer || []).push({ event: "lead_form_submit", service_category: details.category, service_variant: details.variant, lead_type: details.kind ?? "lead", value: details.value && details.value > 0 ? details.value : undefined, currency: "INR", transaction_id: details.id || undefined, event_id: eventId, page_path: window.location.pathname });
+    if (details.confirmed) w.dataLayer.push({ event: "booking_confirmed", service_category: details.category, value: details.value, currency: "INR", transaction_id: details.id || undefined });
+  }
   fbq()?.("track", "Lead", { content_name: details.variant, content_category: details.category, ...money }, { eventID: eventId });
   sendServerEvent("Lead", eventId, details);
   const g = gtag();
   if (!g) return;
-  g("event", "generate_lead", { service_category: details.category, service_variant: details.variant, ...money });
-  if (ADS && ADS_LEAD_LABEL) g("event", "conversion", { send_to: `${ADS}/${ADS_LEAD_LABEL}`, ...money });
+  g("event", "generate_lead", { service_category: details.category, service_variant: details.variant, lead_type: details.kind, ...money, ...(details.id ? { transaction_id: details.id } : {}) });
+  if (ADS && ADS_LEAD_LABEL) g("event", "conversion", { send_to: `${ADS}/${ADS_LEAD_LABEL}`, ...money, ...(details.id ? { transaction_id: details.id } : {}) });
   // LinkedIn: one conversion per lead (only when the Insight Tag and a conversion id are configured).
   if (LI_CONVERSION && typeof window !== "undefined") (window as unknown as { lintrk?: (a: string, b: unknown) => void }).lintrk?.("track", { conversion_id: Number(LI_CONVERSION) });
 }
@@ -110,6 +113,9 @@ export function MarketingTags({ withPixel = false }: { withPixel?: boolean } = {
   const ids = [GA4, ADS].filter(Boolean) as string[];
   return (
     <>
+      {/* Early connections for the tag hosts actually in use (React hoists these into <head>). */}
+      {(GTM || ids.length > 0) && <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />}
+      {pixel && <link rel="dns-prefetch" href="https://connect.facebook.net" />}
       {GTM && (
         <Script id="sahara-gtm" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM}');`}
@@ -121,7 +127,7 @@ export function MarketingTags({ withPixel = false }: { withPixel?: boolean } = {
         </Script>
       )}
       {linkedin && (
-        <Script id="sahara-linkedin-insight" strategy="afterInteractive">
+        <Script id="sahara-linkedin-insight" strategy="lazyOnload">
           {`window._linkedin_data_partner_ids=window._linkedin_data_partner_ids||[];window._linkedin_data_partner_ids.push('${linkedin}');(function(l){if(!l){window.lintrk=function(a,b){window.lintrk.q.push([a,b])};window.lintrk.q=[]}var s=document.getElementsByTagName('script')[0];var b=document.createElement('script');b.type='text/javascript';b.async=true;b.src='https://snap.licdn.com/li.lms-analytics/insight.min.js';s.parentNode.insertBefore(b,s);})(window.lintrk);`}
         </Script>
       )}

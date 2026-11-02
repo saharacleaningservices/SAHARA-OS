@@ -111,8 +111,10 @@ test("sidebar + footer: no Our Work / Areas links; Blog + Contact; footer = 4 ca
   assert.match(footer, /md:grid-cols-4/);
   assert.doesNotMatch(footer, /Branch|streetAddress|TRUST\.rating|Google Maps/);
   assert.equal(footer.split("COMPANY.gstin").length - 1, 1, "GSTIN once");
-  assert.match(footer, /<FooterSocial withWhatsApp \/>/);
-  assert.match(readFileSync("src/components/public/footer-social.tsx", "utf8"), /FaWhatsapp/);
+  // Final sprint 2026-11-02: Google review link replaces the WhatsApp icon; Scope of Work link removed.
+  assert.match(footer, /<FooterSocial withGoogleReview \/>/);
+  assert.doesNotMatch(footer, /scope-of-work/);
+  assert.match(readFileSync("src/components/public/footer-social.tsx", "utf8"), /https:\/\/g\.page\/r\/CYJ9szEiGaN4EBE\/review/);
   assert.match(readFileSync("src/config/pune-seo-matrix.ts", "utf8"), /streetAddress: "Anand Nagar, Tarwade Vasti, Hadapsar"/);
 });
 

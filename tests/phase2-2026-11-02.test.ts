@@ -21,9 +21,9 @@ test("zonal MOQ: a GPS fix near a branch waives it; a Zone B area always keeps i
   assert.ok(distanceKm({ lat: 18.5082, lng: 73.9298 }, { lat: 18.591, lng: 73.738 }) > 15);
 });
 
-test("pest control is excluded from the minimum order (only the INDIVIDUAL_CLEANING basket is gated)", () => {
+test("pest control is excluded from the minimum order (final sprint: every other priced basket is gated)", () => {
   const m = readFileSync("src/components/public/quick-booking-modal.tsx", "utf8");
-  assert.match(m, /const moqApplies = booking && intent\.category === "INDIVIDUAL_CLEANING";/);
+  assert.match(m, /const moqApplies = priced && intent\.category !== "PEST_CONTROL";/);
 });
 
 test("add-on suggestions close the gap first, skip items already in the basket", () => {
@@ -72,7 +72,7 @@ test("order tracker: Job ID + mobile → hashed 4-digit OTP, generic answer, sin
 
 test("booking modal: locality picker, zonal MOQ with 1-tap add-ons, B2B site-audit fields", () => {
   const m = readFileSync("src/components/public/quick-booking-modal.tsx", "utf8");
-  for (const f of ["moqFor({ locality, gps }, WEST_PCMC)", "suggestAddOns(", "getQuickAddOns()", 'name="locality"', 'name="company"', 'name="propType"', 'name="sqft"', "Free Site Audit Request", "disabled={state === \"sending\" || gap > 0}"]) assert.ok(m.includes(f), f);
+  for (const f of ["moqFor({ locality, pincode: pin.length === 6 ? pin : \"\", gps }, WEST_PCMC)", "upgradeBundle(", "getQuickAddOns()", 'name="locality"', 'name="company"', 'name="propType"', 'name="sqft"', "Free Site Audit Request", "disabled={state === \"sending\" || gap > 0}"]) assert.ok(m.includes(f), f);
   // Field order: Name → Mobile → Full address (area + mandatory flat/society/landmark, GPS optional) → date → slot.
   const order = ['name="name"', 'name="mobile"', 'name="locality"', 'name="area"', "<MonthCalendar", 'aria-label="Time slot"'].map((x) => m.indexOf(x));
   assert.deepEqual([...order].sort((x, y) => x - y), order, "form fields in the owner's order");
@@ -101,5 +101,5 @@ test("image registry: every path exists, the seven core services are distinct, n
   const { CATALOG_SERVICES } = await import("../src/config/service-catalog");
   for (const s of CATALOG_SERVICES) assert.ok(!TEXT_BAKED_PATTERNS.some((re) => re.test(s.image)), `${s.slug} uses a text-baked graphic`);
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  assert.match(home, /img\("full-home"\)/, "hero slides come from the registry");
+  assert.match(home, /img\("hero-home"\)/, "hero slides come from the registry");
 });

@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ category: string; location: string }> };
 
 const HERO: Record<string, string> = {
-  residential: "/marketing/hero-home.webp",
+  residential: "/marketing/services/full-home-crew.webp",
   commercial: "/marketing/hero-commercial-v2.webp",
   "post-interior": "/marketing/hero-commercial-v2.webp",
   pest: "/marketing/hero-pest.webp",
@@ -79,7 +79,7 @@ export default async function SeoLocationPage({ params }: Props) {
         image={HERO[c.vertical]}
         alt={`Sahara crew providing ${c.keyword} in ${l.name}, Pune`}
         title={h1(c, l)}
-        subtitle={`For ${l.premises} in ${l.name} (${l.pins[0]}).`}
+        subtitle={`For ${l.premises} in ${l.name}, Pune.`}
         points={["Trained in-house staff in uniform", "Written quote or scope before work", `Served from our ${branch.locality} branch`, "Pune & PCMC since 2012 · GST invoice"]}
         waText={WA}
         waNumber={branch.whatsapp}

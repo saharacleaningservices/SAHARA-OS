@@ -62,7 +62,7 @@ export function mohammadwadiBranchJsonLd() {
   const b = BRANCHES.mohammadwadi;
   return {
     "@context": "https://schema.org",
-    "@type": ["LocalBusiness", "HomeAndConstructionBusiness"],
+    "@type": ["LocalBusiness", "ProfessionalService", "HomeAndConstructionBusiness"],
     "@id": MOHAMMADWADI_ID,
     name: b.name,
     alternateName: b.gmbName,
