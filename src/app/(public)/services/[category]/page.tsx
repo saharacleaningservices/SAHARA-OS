@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Faqs, Terms, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/category-landing";
-import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, ZONES, categoryBySlug, seoPagePath, type ZoneKey } from "@/config/pune-seo-matrix";
+import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { CATALOG_SERVICES, catalogCategory, catalogServiceBySlug, servicePath, servicesIn, type CatalogService } from "@/config/service-catalog";
-import { ServicePricing, WorkGallery, InspectionFlow, PartnersMarquee } from "@/components/public/catalog-blocks";
+import { ServicePricing, WorkGallery, InspectionFlow, ClientMarquee, ZoneAccordion } from "@/components/public/catalog-blocks";
 import { LeadButton } from "@/components/public/lead-button";
 import { TRUST } from "@/lib/booking-target";
 
@@ -43,19 +43,11 @@ export default async function CategoryHub({ params }: Props) {
   const settings = await getCompanySettings();
   const WA = `Hi Sahara, I need ${c.name} in Pune.`;
   const faqs = [{ q: `Where do you offer ${c.keyword} in Pune?`, a: `Across ${LOCALITIES.length} localities in East, West, North and South & Central Pune and PCMC. Pick your area below.` }];
-  const zones = Object.keys(ZONES) as ZoneKey[];
   return (
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/booking" }, { name: "Services", path: "/services" }, { name: c.name, path: `/services/${c.slug}` }]), faqJsonLd(faqs)]} bookHref="/booking" mobileBar={<CategoryBar waText={WA} cta="Get Quote" href="/booking" />}>
       <CategoryHero image="/marketing/hero-home.webp" alt={`${c.name} in Pune`} title={`${c.name} in Pune`} subtitle={c.intro} points={c.includes.slice(0, 4)} waText={WA} badge={VERTICALS[c.vertical].label} cta="Book Now" ctaHref="/booking" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-5">
-        {zones.map((z) => (
-          <section key={z} className="rounded-2xl bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold">{c.short} in {ZONES[z].label}</h2>
-            <p className="mt-2 flex flex-wrap gap-2 text-sm">
-              {LOCALITIES.filter((l) => l.zone === z).map((l) => <Link key={l.slug} href={seoPagePath(c.slug, l.slug)} className="rounded-full bg-[#eef3fb] px-3 py-1 font-medium text-primary">{l.name}</Link>)}
-            </p>
-          </section>
-        ))}
+        <ZoneAccordion seoSlug={c.slug} service={c.short} />
         <section className="rounded-2xl bg-white p-5 text-sm shadow-sm">
           <h2 className="text-lg font-bold">Other services</h2>
           <p className="mt-2 flex flex-wrap gap-2">{SERVICE_CATEGORIES.filter((s) => s.slug !== c.slug).map((s) => <Link key={s.slug} href={`/services/${s.slug}`} className="rounded-full border px-3 py-1 font-medium">{s.short}</Link>)}</p>
@@ -95,7 +87,6 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
   const inspection = s.pricing.mode === "inspection";
   const seo = s.seoCategory ? categoryBySlug(s.seoCategory) : undefined;
   const siblings = servicesIn(s.category).filter((x) => x.slug !== s.slug);
-  const zones = Object.keys(ZONES) as ZoneKey[];
   return (
     <LandingShell
       logoUrl={settings.logoUrl}
@@ -122,21 +113,14 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
         </section>
         {!inspection && s.category !== "residential" && <InspectionFlow service={`${s.name} — larger / custom job`} title="Larger or custom job? Get it inspected" />}
         <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[{ src: s.image, alt: s.imageAlt }, ...CATALOG_SERVICES.filter((x) => x.category === s.category && x.image !== s.image).slice(0, 3).map((x) => ({ src: x.image, alt: x.imageAlt }))].filter((f, n, a) => a.findIndex((y) => y.src === f.src) === n)} />
-        {seo && zones.map((z) => (
-          <section key={z} className="rounded-2xl bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold">{s.name} in {ZONES[z].label}</h2>
-            <p className="mt-2 flex flex-wrap gap-2 text-sm">
-              {LOCALITIES.filter((l) => l.zone === z).map((l) => <Link key={l.slug} href={seoPagePath(seo.slug, l.slug)} className="rounded-full bg-[#eef3fb] px-3 py-1 font-medium text-primary">{l.name}</Link>)}
-            </p>
-          </section>
-        ))}
+        {seo && <ZoneAccordion seoSlug={seo.slug} service={s.name} />}
         {siblings.length > 0 && (
           <section className="rounded-2xl bg-white p-5 text-sm shadow-sm">
             <h2 className="text-lg font-bold">More {cat.label.replace(" (B2B)", "")}</h2>
             <p className="mt-2 flex flex-wrap gap-2">{siblings.map((x) => <Link key={x.slug} href={servicePath(x.slug)} className="rounded-full border px-3 py-1 font-medium hover:border-primary hover:text-primary">{x.name}</Link>)}</p>
           </section>
         )}
-        <PartnersMarquee />
+        <ClientMarquee />
         <Faqs faqs={s.faqs} compact />
         <Terms />
       </main>

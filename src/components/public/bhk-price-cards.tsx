@@ -135,6 +135,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
     const notes = String(f.get("notes") ?? "").trim();
     if (name.length < 2) return setError("Please enter your name.");
     if (!/^[6-9]\d{9}$/.test(mobile)) return setError("Please enter a valid 10-digit mobile number.");
+    if (!date) return setError("Please choose your preferred date.");
     if (!gps && area.length < 2) return setError("Tap “Use current location” or type your area / society.");
     const p = getAttributionPayload();
     const t = p.first ?? p.latest ?? null;
@@ -192,7 +193,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
           <form onSubmit={submit} className="mt-3 space-y-3" noValidate>
             <label className="block text-sm font-semibold">Name<input ref={first} name="name" autoComplete="name" required className={input} /></label>
             <label className="block text-sm font-semibold">Mobile number<input name="mobile" type="tel" inputMode="numeric" autoComplete="tel" maxLength={14} required placeholder="10-digit mobile" className={input} /></label>
-            <label className="block text-sm font-semibold">{intent.inspection ? "Preferred visit date" : "Preferred date"}<input name="date" type="date" min={today} className={input} /></label>
+            <label className="block text-sm font-semibold">{intent.inspection ? "Preferred visit date" : "Preferred date"}<input name="date" type="date" min={today} required className={input} /></label>
             <div>
               <p className="text-sm font-semibold">Location</p>
               <button type="button" onClick={locate} disabled={gpsState === "locating"} className={`mt-1 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold ${gps ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-300" : "bg-[#eef4fb] text-primary ring-1 ring-primary/30"}`}>
@@ -201,10 +202,10 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
               {gpsState === "denied" && <p className="mt-1 text-xs text-amber-700">Location unavailable — please type your area below.</p>}
               <input name="area" autoComplete="address-level2" placeholder={gps ? "Society / landmark (optional)" : "Area, society or landmark"} className={input} />
             </div>
-            <label className="block text-sm font-semibold">Notes <span className="font-normal text-[#0a2540]/50">(optional)</span><textarea name="notes" rows={2} maxLength={500} placeholder="Size, special requests, best time to call" className={`${input} py-2`} /></label>
+            <label className="block text-sm font-semibold">Special notes / scope <span className="font-normal text-[#0a2540]/50">(optional)</span><textarea name="notes" rows={2} maxLength={500} placeholder="Size, special requests, best time to call" className={`${input} py-2`} /></label>
             <input name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
             {error && <p className="text-sm font-semibold text-red-600" role="alert">{error}</p>}
-            <button type="submit" disabled={state === "sending"} className="min-h-12 w-full rounded-xl bg-primary text-base font-bold text-white disabled:opacity-60">{state === "sending" ? "Sending…" : intent.inspection ? "Request Site Inspection" : "Request Booking"}</button>
+            <button type="submit" disabled={state === "sending"} className="min-h-12 w-full rounded-xl bg-primary text-base font-bold text-white disabled:opacity-60">{state === "sending" ? "Sending…" : intent.inspection ? "Request Inspection / Submit Inquiry" : "Confirm Your Booking"}</button>
             <p className="flex items-center justify-center gap-1 text-center text-xs text-[#0a2540]/60"><Phone className="size-3" /> We call back to confirm · Pay after service available</p>
           </form>
         )}

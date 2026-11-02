@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Building2, CalendarCheck, ClipboardCheck, FileText, Home, MapPinned, Sparkles, Truck } from "lucide-react";
+import { ArrowRight, Building2, CalendarCheck, ClipboardCheck, FileText, Home, MapPin, MapPinned, Phone, Sparkles, Star, Truck } from "lucide-react";
 import { CATALOG_CATEGORIES, INSPECTION_STEPS, servicesIn, servicePath, type CatalogService } from "@/config/service-catalog";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -10,6 +10,10 @@ import { ClientCarousel } from "@/components/ui/client-carousel";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { LeadButton } from "@/components/public/lead-button";
 import { HomeBhkPriceCards } from "@/components/public/landing-kit";
+import { BRANCHES, LOCALITIES, ZONES, seoPagePath, type ZoneKey } from "@/config/pune-seo-matrix";
+import { FcGoogle } from "react-icons/fc";
+import { TRUST } from "@/lib/booking-target";
+import { CLIENT_NAMES } from "@/lib/client-logos";
 
 // Server building blocks for the rebuilt public site (2026-11-02). All prices come from the live pricing master; nothing
 // here invents a price, a client or a review. Layout model: BOXED (max-w-6xl) cards with rounded corners throughout.
@@ -172,6 +176,126 @@ export function PartnersMarquee() {
     <section aria-labelledby="partners-title" className="overflow-hidden rounded-3xl bg-white p-5 shadow-sm">
       <h2 id="partners-title" className="text-center text-lg font-extrabold text-[#0a2540]">Trusted Corporate & Society Partners</h2>
       <div className="mt-3 flex w-max sahara-marquee">{row(false)}{row(true)}</div>
+    </section>
+  );
+}
+
+/**
+ * Horizontal combo swiper (owner 2026-11-02): all combo packages in one right-to-left, touch-swipeable row (CSS scroll-snap, no JS),
+ * so combos never add vertical page length.
+ */
+export async function ComboSwiper() {
+  const pricing = await getPublicPricing();
+  const combos = liveCombos(pricing.items).filter((c) => !/add-on only/i.test(c.note));
+  if (combos.length === 0) return null;
+  return (
+    <section aria-labelledby="combo-title">
+      <div className="flex items-end justify-between gap-2">
+        <h2 id="combo-title" className="text-2xl font-extrabold text-[#0a2540] sm:text-3xl">Combo packages</h2>
+        <p className="text-xs font-semibold text-[#0a2540]/55">Swipe →</p>
+      </div>
+      <ul className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {combos.map((c) => (
+          <li key={c.name} className="flex w-[78%] shrink-0 snap-start flex-col rounded-3xl bg-white p-4 shadow-sm ring-1 ring-[#0a2540]/5 sm:w-[44%] lg:w-[31%]">
+            <p className="text-[11px] font-extrabold uppercase tracking-wide text-primary">Combo</p>
+            <p className="mt-0.5 font-extrabold leading-snug text-[#0a2540]">{c.name}</p>
+            <p className="mt-1 text-2xl font-extrabold text-[#0a2540]">{inr(c.price)}</p>
+            {c.note && <p className="mt-1 text-xs text-[#0a2540]/65">{c.note}</p>}
+            <LeadButton intent={{ service: "Combo Package", pkg: c.name, price: c.price }} className="mt-3 min-h-11 rounded-xl bg-primary text-sm font-bold text-white sm:mt-auto">Book Combo</LeadButton>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Official Google rating badge, directly under the hero (owner 2026-11-02). */
+export function GoogleRatingBadge({ reviewUrl, rating = TRUST.rating }: { reviewUrl: string; rating?: string }) {
+  return (
+    <a href={reviewUrl} target="_blank" rel="noopener noreferrer" aria-label={`${TRUST.siteReviewLabel} Google reviews, rated ${rating} out of 5`} className="mx-auto flex w-full max-w-md items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-md ring-1 ring-[#0a2540]/5">
+      <FcGoogle className="size-8 shrink-0" aria-hidden />
+      <span className="flex flex-col leading-tight">
+        <span className="flex items-center gap-1 text-lg font-extrabold text-[#0a2540]">{rating}<span className="flex" aria-hidden>{[0, 1, 2, 3, 4].map((n) => <Star key={n} className="size-4 fill-amber-400 text-amber-400" />)}</span></span>
+        <span className="text-xs font-semibold text-[#0a2540]/65">{TRUST.siteReviewLabel} Google Reviews</span>
+      </span>
+    </a>
+  );
+}
+
+/** Verified-client marquee: logo files when added (CLIENT_LOGOS), otherwise the approved client names as wordmarks. */
+export function ClientMarquee() {
+  if (CLIENT_LOGOS.length > 0) return <ClientCarousel logos={CLIENT_LOGOS} title="Trusted by" />;
+  const base = Array.from({ length: 3 }, () => CLIENT_NAMES).flat();
+  const row = (hidden: boolean) => (
+    <ul className="flex shrink-0 items-center gap-10 pr-10" aria-hidden={hidden || undefined}>
+      {base.map((n, i) => <li key={`${hidden}-${i}`} className="whitespace-nowrap text-lg font-black uppercase tracking-wide text-[#0a2540]/55">{n}</li>)}
+    </ul>
+  );
+  return (
+    <section aria-label="Trusted by" className="overflow-hidden">
+      <p className="text-center text-[11px] font-bold uppercase tracking-widest text-[#0a2540]/50">Trusted by</p>
+      <div className="mt-2 flex w-max sahara-marquee">{row(false)}{row(true)}</div>
+    </section>
+  );
+}
+
+/** Clean branch details (owner 2026-11-02): address and tap-to-call only — no map / review buttons. */
+export function BranchDetails() {
+  const list = [
+    { name: "Magarpatta Branch", address: "Opposite South Gate, Magarpatta City, Hadapsar, Pune - 411028", phones: [BRANCHES.magarpatta.phone] },
+    { name: "Mohammadwadi Branch", address: `${BRANCHES.mohammadwadi.streetAddress}, Pune - ${BRANCHES.mohammadwadi.postalCode}`, phones: [BRANCHES.mohammadwadi.phone, ...BRANCHES.mohammadwadi.altPhones] },
+  ];
+  return (
+    <section aria-labelledby="branches-title">
+      <h2 id="branches-title" className="text-2xl font-extrabold text-[#0a2540] sm:text-3xl">Our branches</h2>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        {list.map((b) => (
+          <article key={b.name} className="rounded-3xl bg-white p-5 shadow-sm">
+            <h3 className="text-lg font-extrabold text-[#0a2540]">{b.name}</h3>
+            <p className="mt-1 flex gap-1.5 text-sm text-[#0a2540]/75"><MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />{b.address}</p>
+            <p className="mt-3 flex flex-wrap gap-2">
+              {b.phones.map((n) => <a key={n} href={`tel:+91${n}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-primary/40 px-3 text-sm font-bold text-primary"><Phone className="size-3.5" />+91-{n}</a>)}
+            </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Service-area zonal table (owner 2026-11-02): replaces the scattered area tag lists on /services/<slug> pages with one collapsible
+ * section per Pune zone. Every locality link stays in the HTML (<details> content is crawlable), so local-SEO internal links are kept.
+ */
+export function ZoneAccordion({ seoSlug, service }: { seoSlug: string; service: string }) {
+  const zones = Object.keys(ZONES) as ZoneKey[];
+  return (
+    <section aria-labelledby="zones-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+      <h2 id="zones-title" className="text-xl font-extrabold text-[#0a2540]">{service} across Pune</h2>
+      <div className="mt-3 divide-y divide-[#0a2540]/10 rounded-2xl ring-1 ring-[#0a2540]/10">
+        {zones.map((z, n) => {
+          const locs = LOCALITIES.filter((l) => l.zone === z);
+          return (
+            <details key={z} open={n === 0} className="group">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-extrabold text-[#0a2540] [&::-webkit-details-marker]:hidden">
+                <span>{ZONES[z].label} <span className="ml-1 font-semibold text-[#0a2540]/50">({locs.length} areas)</span></span>
+                <span className="text-primary transition group-open:rotate-90">›</span>
+              </summary>
+              <table className="w-full text-left text-sm">
+                <thead className="sr-only"><tr><th>Area</th><th>PIN</th></tr></thead>
+                <tbody>
+                  {locs.map((l) => (
+                    <tr key={l.slug} className="border-t border-[#0a2540]/5">
+                      <td className="px-4 py-2"><Link href={seoPagePath(seoSlug, l.slug)} className="font-semibold text-primary hover:underline">{service} in {l.name}</Link></td>
+                      <td className="px-4 py-2 text-right text-xs text-[#0a2540]/55">{l.pins.join(", ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          );
+        })}
+      </div>
     </section>
   );
 }
