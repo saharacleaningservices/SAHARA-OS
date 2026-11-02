@@ -3,6 +3,7 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { PUNE_AREAS } from "@/lib/pune-areas";
 import { PROGRAMMATIC_PAGES, SERVICE_CATEGORIES } from "@/config/pune-seo-matrix";
 import { CATALOG_CATEGORIES, CATALOG_SERVICES, servicePath } from "@/config/service-catalog";
+import { getAllPosts } from "@/lib/blog";
 
 // Public, canonical pages only (same paths as each page's canonical URL).
 // Indexable package pages: 1–3 BHK × Premium/Platinum (4 BHK+ is inspection-only — no page).
@@ -24,8 +25,16 @@ export const dynamic = "force-dynamic";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  return SITEMAP_PATHS.map((p) => {
+  const pages: MetadataRoute.Sitemap = SITEMAP_PATHS.map((p) => {
     const programmatic = p.startsWith("/services/") && p.split("/").length === 4;
     return { url: `${PUBLIC_BOOKING_URL}${p}`, lastModified: now, changeFrequency: programmatic ? "monthly" : "weekly", priority: p === "/" ? 1 : programmatic ? 0.6 : p.startsWith("/b2b") || p.startsWith("/services") ? 0.8 : 0.7 };
   });
+  // Blog (2026-11-03): /blog and each article are listed only once at least one post exists in content/blog.
+  const posts = getAllPosts();
+  if (!posts.length) return pages;
+  return [
+    ...pages,
+    { url: `${PUBLIC_BOOKING_URL}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
+    ...posts.map((p) => ({ url: `${PUBLIC_BOOKING_URL}/blog/${p.slug}`, lastModified: p.date ? new Date(p.date) : now, changeFrequency: "monthly" as const, priority: 0.7 })),
+  ];
 }
