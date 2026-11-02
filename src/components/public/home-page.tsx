@@ -49,11 +49,11 @@ export async function HomePage() {
         </section>
 
         <ExpansionBanner />
-        {/* Real before / after cards (Claude Desktop handoff, owner 2026-11-03): between the expansion banner and Trusted by. */}
-        <div className="overflow-hidden rounded-3xl shadow-sm"><BeforeAfterSection /></div>
         <ClientMarquee />
         <HomeServiceCards />
         <ComboSwiper />
+        {/* Real before / after results carousel (owner 2026-11-03): directly below Our Services / Combo packages. */}
+        <BeforeAfterSection />
         <ZoneGrid />
         <BranchDetails />
       </main>

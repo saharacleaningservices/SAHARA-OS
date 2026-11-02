@@ -61,7 +61,7 @@ test("About Us: no locality names; Pune & PCMC, 25+ years, 8,000+ clients; 4 sta
 
 test("homepage order: About → Expansion banner → Real work → Trusted by → services; text-only banner; no YouTube", () => {
   const h = read("src/components/public/home-page.tsx");
-  const order = ["<AboutStats", "<ExpansionBanner", "<BeforeAfterSection", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper"].map((x) => h.indexOf(x));
+  const order = ["<AboutStats", "<ExpansionBanner", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper", "<BeforeAfterSection"].map((x) => h.indexOf(x));
   assert.ok(order.every((n) => n > 0), "all sections present");
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   const sec = read("src/components/public/home-sections.tsx");
