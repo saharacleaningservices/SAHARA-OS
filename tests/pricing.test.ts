@@ -431,7 +431,7 @@ test("staff app (real DB): own job shows NO money at all (no amount, paid, balan
     const bookDay = new Date(Date.now() + 5.5 * 3600_000 + 3 * 86400_000).toISOString().slice(0, 10);
     const bookBase = { name: "Small Job Test", area: "Baner", address: "1 Test Rd", timeSlot: "", attribution: {} };
     const small: [string, string, { contentId: string; qty: number }[], number][] = [
-      ["9100000001", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-30", qty: 1 }], 299], // 1 window
+      ["9100000001", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-30", qty: 1 }], 300], // 1 window (₹300 per window, owner 2026-11-02)
       ["9100000002", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-09", qty: 5 }], 1245], // sofa 5 seats
       ["9100000003", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-09", qty: 5 }, { contentId: "SCS-10", qty: 2 }], 2443], // sofa + 2 bathrooms
       ["9100000004", "COMBO_PACKAGE", [{ contentId: "SCS-26", qty: 1 }], 3499], // Kitchen + 2 Bathroom + Fridge

@@ -1,4 +1,5 @@
 import test from "node:test";
+import { CATALOG_SERVICES } from "../src/config/service-catalog";
 import assert from "node:assert/strict";
 import {
   AREA_SLUGS,
@@ -40,6 +41,7 @@ const validDest = (d: string) => {
   const m = d.match(/^\/services\/([^/]+)(?:\/([^/]+))?$/);
   if (!m) return false;
   const [, svc, area] = m;
+  if (!area && CATALOG_SERVICES.some((c) => c.slug === svc)) return true; // service catalog landing page (2026-11-02)
   return (SERVICE_SLUGS as readonly string[]).includes(svc) && (!area || (AREA_SLUGS as readonly string[]).includes(area));
 };
 

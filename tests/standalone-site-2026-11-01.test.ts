@@ -53,8 +53,10 @@ test("homepage BHK price cards: instant Premium/Platinum cards with inclusions, 
   assert.match(c, /useState<\(typeof SIZES\)\[number\]>\("2 BHK"\)/, "2 BHK preselected: cards always rendered, no layout shift");
   assert.match(c, /"1 BHK", "2 BHK", "3 BHK", "4 BHK\+"/);
   assert.match(c, /inclusions\[tier\]/);
-  assert.match(c, /\/api\/leads\/submit/);
-  for (const field of ['name="name"', 'name="mobile"', 'name="date"', 'name="website"']) assert.ok(c.includes(field), field);
-  assert.doesNotMatch(c, /BookingWizard|location\.href\s*=|router\.push/, "no wizard, no navigation");
+  // The shared booking modal lives in quick-booking-modal.tsx since 2026-11-02 (live CRM slots).
+  const modal = readFileSync("src/components/public/quick-booking-modal.tsx", "utf8");
+  assert.match(modal, /\/api\/leads\/submit/);
+  for (const field of ['name="name"', 'name="mobile"', 'name="website"']) assert.ok(modal.includes(field), field);
+  assert.doesNotMatch(c + modal, /BookingWizard|location\.href\s*=|router\.push/, "no wizard, no navigation");
   assert.match(readFileSync("src/components/public/service-cards.tsx", "utf8"), /openLead\(/);
 });

@@ -13,7 +13,7 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const chip = (on: boolean) => `min-h-11 whitespace-nowrap rounded-xl px-3 text-sm font-bold transition ${on ? "bg-primary text-white shadow" : "bg-white text-[#0a2540] ring-1 ring-[#0a2540]/15 hover:ring-primary"}`;
 
 export type TierScope = { included: string[]; excluded: string[] };
-export type HomeRow = { bhk: string; premium: number | null; platinum: number | null };
+export type HomeRow = { bhk: string; premium: number | null; platinum: number | null; premiumId?: string; platinumId?: string };
 type PropType = "1 BHK" | "2 BHK" | "3 BHK" | "4 BHK+" | "Bungalow / Villa";
 const TYPES: PropType[] = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Bungalow / Villa"];
 
@@ -57,7 +57,7 @@ export function PackageCalculator({ service, rows, scope, note, defaultOccasion 
               <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/85">{scope[tier].included.map((i) => <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}</ul>
               <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-red-700">Not included</p>
               <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/70">{scope[tier].excluded.map((i) => <li key={i} className="flex gap-1.5"><X className="mt-0.5 size-4 shrink-0 text-red-500" />{i}</li>)}</ul>
-              <button type="button" onClick={() => openLead({ service: label, pkg: `${type} ${tier}`, price, inspection: price == null })} className="mt-4 min-h-12 rounded-xl bg-primary text-sm font-bold text-white md:mt-auto">{price != null ? `Book ${tier} · ${inr(price)}` : "Book Free Inspection"}</button>
+              <button type="button" onClick={() => { const id = tier === "Premium" ? row?.premiumId : row?.platinumId; openLead(price != null && id ? { service: label, pkg: `${type} ${tier}`, price, category: "HOME_DEEP_CLEANING", items: [{ contentId: id, qty: 1 }], propertyType: type, packageName: `${tier}${occasion === "Regular" ? "" : ` · ${occasion}`}` } : { service: label, pkg: `${type} ${tier}`, inspection: true }); }} className="mt-4 min-h-12 rounded-xl bg-primary text-sm font-bold text-white md:mt-auto">{price != null ? `Book ${tier} · ${inr(price)}` : "Book Free Inspection"}</button>
             </article>
           );
         })}
@@ -98,7 +98,7 @@ export function QtyCalculator({ service, items, note, heading = "Calculate your 
               </div>
               <div className="mt-3 flex items-center justify-between gap-3">
                 <p className="text-2xl font-extrabold text-[#0a2540]">{total != null ? inr(total) : ""}</p>
-                <button type="button" onClick={() => openLead({ service: i.name.startsWith(service) ? i.name : `${service} — ${i.name}`, pkg: i.unit && total != null ? `${q} × ${i.unit.replace(/^per /, "")}` : undefined, price: total })} className="min-h-11 rounded-xl bg-primary px-5 text-sm font-bold text-white">Book Now</button>
+                <button type="button" onClick={() => openLead(total != null ? { service: i.name.startsWith(service) ? i.name : `${service} — ${i.name}`, pkg: i.unit ? `${q} × ${i.unit.replace(/^per /, "")}` : undefined, price: total, category: "INDIVIDUAL_CLEANING", items: [{ contentId: i.id, qty: q }], packageName: i.name } : { service: i.name.startsWith(service) ? i.name : `${service} — ${i.name}` })} className="min-h-11 rounded-xl bg-primary px-5 text-sm font-bold text-white">Book Now</button>
               </div>
             </li>
           );
@@ -109,29 +109,51 @@ export function QtyCalculator({ service, items, note, heading = "Calculate your 
   );
 }
 
-export type PestRow = { name: string; note: string; rates: Record<string, number> };
+export type PestRow = { name: string; note: string; rates: Record<string, number>; image: string };
 
-/** Pest control: pick 1–4 BHK → flat rate for every treatment; villas / commercial go to inspection. */
+/**
+ * Pest control (owner 2026-11-02): visual treatment cards first; tapping one reveals its flat 1–4 BHK rates and Book button.
+ * Villas / commercial premises go to a free inspection.
+ */
 export function PestCalculator({ rows, sizes, note }: { rows: PestRow[]; sizes: readonly string[]; note: string }) {
+  const [pick, setPick] = useState<string | null>(null);
   const [size, setSize] = useState<string>(sizes[1] ?? sizes[0]);
+  const row = rows.find((r) => r.name === pick);
   return (
     <section id="book" aria-labelledby="pest-title" className="scroll-mt-24 rounded-3xl bg-white p-4 shadow-sm sm:p-6">
-      <h2 id="pest-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Flat rates by home size</h2>
-      <div className="mt-3 flex gap-2" role="group" aria-label="Home size">
-        {sizes.map((s) => <button key={s} type="button" aria-pressed={size === s} onClick={() => setSize(s)} className={`${chip(size === s)} flex-1`}>{s}</button>)}
-      </div>
-      <ul className="mt-3 grid gap-3 sm:grid-cols-2" aria-live="polite">
-        {rows.map((r) => (
-          <li key={r.name} className="flex flex-col rounded-2xl bg-[#eef4fb] p-4">
-            <p className="font-extrabold text-[#0a2540]">{r.name}</p>
-            <p className="mt-0.5 text-xs text-[#0a2540]/65">{r.note}</p>
-            <div className="mt-3 flex items-center justify-between gap-3 sm:mt-auto sm:pt-3">
-              <p className="text-2xl font-extrabold text-[#0a2540]">{inr(r.rates[size])}<span className="ml-1 text-xs font-semibold text-[#0a2540]/55">{size}</span></p>
-              <button type="button" onClick={() => openLead({ service: `Pest Control — ${r.name}`, pkg: size, price: r.rates[size] })} className="min-h-11 rounded-xl bg-primary px-5 text-sm font-bold text-white">Book Now</button>
-            </div>
-          </li>
-        ))}
+      <h2 id="pest-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Choose a treatment</h2>
+      <ul className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-5">
+        {rows.map((r) => {
+          const on = r.name === pick;
+          return (
+            <li key={r.name}>
+              <button type="button" aria-pressed={on} onClick={() => setPick(on ? null : r.name)} className={`group flex h-full w-full flex-col overflow-hidden rounded-2xl text-left ring-2 transition ${on ? "ring-primary shadow-lg" : "ring-transparent bg-[#eef4fb] hover:ring-primary/40"}`}>
+                <span className="relative block aspect-[4/3] w-full overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={r.image} alt={r.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                </span>
+                <span className={`flex flex-1 flex-col p-3 ${on ? "bg-primary text-white" : ""}`}>
+                  <span className="text-sm font-extrabold leading-snug">{r.name}</span>
+                  <span className={`mt-1 text-xs font-bold ${on ? "text-white/85" : "text-primary"}`}>{on ? "Selected ✓" : "View rates"}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
       </ul>
+      {row && (
+        <div className="mt-4 rounded-2xl bg-[#eef4fb] p-4" aria-live="polite">
+          <p className="font-extrabold text-[#0a2540]">{row.name}</p>
+          <p className="text-xs text-[#0a2540]/65">{row.note}</p>
+          <div className="mt-3 flex gap-2" role="group" aria-label="Home size">
+            {sizes.map((s) => <button key={s} type="button" aria-pressed={size === s} onClick={() => setSize(s)} className={`${chip(size === s)} flex-1`}>{s}</button>)}
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="text-3xl font-extrabold text-[#0a2540]">{inr(row.rates[size])}<span className="ml-1 text-xs font-semibold text-[#0a2540]/55">{size}</span></p>
+            <button type="button" onClick={() => openLead({ service: `Pest Control — ${row.name}`, pkg: size, price: row.rates[size], category: "PEST_CONTROL", propertyType: size, packageName: row.name })} className="min-h-12 rounded-xl bg-primary px-6 text-sm font-bold text-white">Book Now</button>
+          </div>
+        </div>
+      )}
       <button type="button" onClick={() => openLead({ service: "Pest Control", pkg: "Villa / bungalow / commercial", inspection: true })} className="mt-3 w-full rounded-xl border-2 border-dashed border-primary/40 py-3 text-sm font-bold text-primary">Villa, bungalow or commercial premises? Book a free inspection</button>
       <p className="mt-3 text-[11px] leading-snug text-[#0a2540]/60">{note}</p>
     </section>
