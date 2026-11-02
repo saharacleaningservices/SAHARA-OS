@@ -4,7 +4,7 @@ import { useState } from "react";
 import { KeyRound, Search } from "lucide-react";
 import { checkTrackCode, sendTrackCode } from "@/server/actions/order-track";
 
-/** /track form: Job ID + mobile → 6-digit WhatsApp code → opens the booking page. */
+/** /track form: Job ID + mobile → 4-digit WhatsApp code → opens the booking page. */
 export function TrackForm() {
   const [step, setStep] = useState<"ask" | "code">("ask");
   const [jobNumber, setJobNumber] = useState("");
@@ -44,9 +44,9 @@ export function TrackForm() {
       ) : (
         <form onSubmit={verify} className="space-y-3" noValidate>
           <p className="rounded-2xl bg-[#eef4fb] p-3 text-sm">{msg}</p>
-          <label className="block text-sm font-bold">6-digit code<input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder="••••••" className={`${input} text-center text-2xl tracking-[0.5em]`} /></label>
+          <label className="block text-sm font-bold">4-digit code<input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 4))} inputMode="numeric" autoComplete="one-time-code" maxLength={4} placeholder="••••" className={`${input} text-center text-2xl tracking-[0.5em]`} /></label>
           {err && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700" role="alert">{err}</p>}
-          <button disabled={busy || code.length !== 6} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-base font-extrabold text-white disabled:opacity-60"><KeyRound className="size-5" />{busy ? "Checking…" : "Track my order"}</button>
+          <button disabled={busy || code.length !== 4} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-base font-extrabold text-white disabled:opacity-60"><KeyRound className="size-5" />{busy ? "Checking…" : "Track my order"}</button>
           <button type="button" onClick={() => { setStep("ask"); setCode(""); setErr(""); }} className="w-full text-sm font-bold text-primary">Change details / resend code</button>
         </form>
       )}

@@ -30,7 +30,7 @@ test("catalog pricing: fixed only where the pricing master has a rate; B2B, pain
 
 test("lead modal: name, mobile, required date, GPS + area fallback, notes; dynamic CTA; returns a Lead ID; alerts in the background", () => {
   const m = readFileSync("src/components/public/quick-booking-modal.tsx", "utf8");
-  for (const f of ['name="name"', 'name="mobile"', 'name="area"', 'name="notes"', "navigator.geolocation", "📍 Use Current Location", "leadId", "Confirm Your Booking", "Request Inspection / Submit Inquiry", "Please choose your preferred date.", "Please choose a time slot.", "visualViewport", "getDateAvailability(14)", "getSlotAvailability(date)", "publicBookLead(", "Available", "Filling Fast", "Fully Booked", "Booking Confirmed!", "Chat on WhatsApp for Instant Updates"]) assert.ok(m.includes(f), f);
+  for (const f of ['name="name"', 'name="mobile"', 'name="area"', 'name="notes"', "navigator.geolocation", "📍 Use current location (optional)", "leadId", "Confirm Your Booking", "Request Inspection / Submit Inquiry", "Please choose your preferred date.", "Please choose a time slot.", "visualViewport", "getDateAvailability(30)", "getSlotAvailability(date)", "publicBookLead(", "Available", "Filling Fast", "Fully Booked", "Your Booking Has Been Confirmed!", "Chat on WhatsApp for Instant Updates"]) assert.ok(m.includes(f), f);
   // Never tell a customer a slot is confirmed unless the CRM auto-confirmed it into a Job.
   assert.match(m, /ok\.status === "CONFIRMED" \? "confirmed" : "received"/);
   const api = readFileSync("src/app/api/leads/submit/route.ts", "utf8");

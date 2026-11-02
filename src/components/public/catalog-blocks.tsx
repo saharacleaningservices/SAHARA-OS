@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Building2, CalendarCheck, ClipboardCheck, FileText, Home, MapPin, MapPinned, Phone, Sparkles, Star, Truck } from "lucide-react";
+import { img } from "@/config/image-registry";
 import { CATALOG_CATEGORIES, INSPECTION_STEPS, categoryPath, excludesFor, servicesIn, servicePath, type CatalogService } from "@/config/service-catalog";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
@@ -113,7 +114,8 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
   return <InspectionFlow service={service.name} b2b={service.category === "commercial"} />;
 }
 
-const PEST_IMAGES = ["/marketing/service-pest-control.webp", "/marketing/hero-pest-3.webp", "/marketing/catalog/pest.jpg", "/marketing/hero-pest-2.webp", "/marketing/hero-pest.webp"];
+// Pest treatment cards, in PEST_BHK_RATES order: cockroach & ant, bed bug, rodent, termite, mosquito (image registry).
+const PEST_IMAGES = [img("pest").src, img("pest-backpack").src, img("pest-rodent").src, img("pest-termite").src, img("pest-drain").src];
 
 const toQty = (i: PriceItem): QtyItem => ({ id: i.contentId, name: i.name, price: i.price, unit: i.unit, minQty: i.minQty, rule: [i.rule, i.scope].filter(Boolean).join(" · ") || undefined, priceNote: i.priceNote });
 
@@ -376,10 +378,10 @@ export function ZoneAccordion({ seoSlug, service }: { /** pune-seo-matrix catego
 /** Homepage "4 main visual cards" — each one opens its dedicated landing page (owner 2026-11-02). Server-rendered links, no JS. */
 export function HomeServiceCards() {
   const cards = [
-    { href: servicePath("home-deep-cleaning"), title: "Full House Deep Cleaning", sub: "1–4 BHK, villas, move-in/out, post-construction", img: "/marketing/hero-home.webp", alt: "Sahara technician deep cleaning a Pune apartment" },
-    { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", img: "/marketing/carousel-equipment.webp", alt: "Sahara technician shampooing a sofa" },
-    { href: servicePath("interior-painting"), title: "Interior Painting", sub: "Free site inspection & written quote", img: "/marketing/service-painting.webp", alt: "Sahara painters rolling a living-room wall" },
-    { href: servicePath("pest-control"), title: "Pest Control", sub: "Cockroach, bed bug, rodent, termite, mosquito", img: "/marketing/service-pest-control.webp", alt: "Sahara pest control technician treating a kitchen" },
+    { href: servicePath("home-deep-cleaning"), title: "Full House Deep Cleaning", sub: "1–4 BHK, villas, move-in/out, post-construction", img: img("full-home").src, alt: img("full-home").alt },
+    { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", img: img("sofa").src, alt: img("sofa").alt },
+    { href: servicePath("interior-painting"), title: "Interior Painting", sub: "Free site inspection & written quote", img: img("painting").src, alt: img("painting").alt },
+    { href: servicePath("pest-control"), title: "Pest Control", sub: "Cockroach, bed bug, rodent, termite, mosquito", img: img("pest").src, alt: img("pest").alt },
   ];
   return (
     <section id="services" aria-labelledby="svc-title" className="scroll-mt-20">

@@ -12,7 +12,7 @@ async function ip(): Promise<string | null> {
   }
 }
 
-/** Public: send a 6-digit WhatsApp code for a Job ID + mobile (generic answer, rate-limited). */
+/** Public: send a 4-digit WhatsApp code for a Job ID + mobile (generic answer, rate-limited). */
 export async function sendTrackCode(jobNumber: string, mobile: string) {
   return requestTrackCode({ jobNumber: String(jobNumber ?? "").slice(0, 40), mobile: String(mobile ?? "").slice(0, 20) }, await ip());
 }

@@ -1,23 +1,29 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { MOQ_VALUE, NO_MOQ_LOCALITIES, distanceKm, moqFor, suggestAddOns } from "../src/lib/zonal-moq";
+import { EXTRA_AREAS, MOQ_VALUE, NO_MOQ_LOCALITIES, distanceKm, moqFor, suggestAddOns } from "../src/lib/zonal-moq";
 import { cdnImageUrl } from "../src/lib/image-loader";
 import { signBody, verifySignature } from "../src/lib/webhook-signature";
 import { LOCALITIES } from "../src/config/pune-seo-matrix";
 
-test("zonal MOQ: East & nearby localities have no minimum; West / Central / unknown need ₹3,999", () => {
+test("zonal MOQ: Zone A (16 East / central areas) free; Zone B (West, Kothrud–Warje–Sinhagad–Narhe, PCMC) ₹3,999; others free", () => {
   assert.equal(MOQ_VALUE, 3999);
-  for (const s of ["magarpatta", "hadapsar", "kharadi", "undri", "nibm", "mohammadwadi", "phursungi"]) assert.equal(moqFor({ locality: s }).moq, 0, s);
-  for (const s of ["hinjewadi", "wakad", "baner", "balewadi", "pashan", "kothrud", "aundh", "other"]) assert.equal(moqFor({ locality: s }).moq, 3999, s);
-  assert.equal(moqFor({}).reason, "no-area");
-  for (const s of NO_MOQ_LOCALITIES) assert.ok(LOCALITIES.some((l) => l.slug === s), `${s} is a real locality slug`);
+  const WEST = LOCALITIES.filter((l) => l.zone === "west-pcmc").map((l) => l.slug);
+  for (const s of ["magarpatta", "hadapsar", "kharadi", "undri", "nibm", "wanowrie", "mohammadwadi", "phursungi", "handewadi", "viman-nagar", "camp", "kalyani-nagar", "koregaon-park", "kondhwa", "dhankawadi", "balaji-nagar"]) assert.equal(moqFor({ locality: s }, WEST).moq, 0, s);
+  for (const s of ["hinjewadi", "baner", "wakad", "pashan", "aundh", "bavdhan", "kothrud", "warje", "sinhagad-road", "narhe", "pimpri", "chinchwad", "nigdi", "bhosari"]) assert.equal(moqFor({ locality: s }, WEST).moq, 3999, s);
+  for (const s of ["yerwada", "katraj", "shivajinagar", "manjri", "other"]) assert.equal(moqFor({ locality: s }, WEST).moq, 0, `${s} is not a restricted area`);
+  for (const s of NO_MOQ_LOCALITIES) assert.ok(LOCALITIES.some((l) => l.slug === s) || EXTRA_AREAS.some((x) => x.slug === s), `${s} is selectable in the area picker`);
 });
 
-test("zonal MOQ: a GPS fix near either branch waives the minimum; Hinjewadi GPS does not", () => {
-  assert.equal(moqFor({ gps: { lat: 18.515, lng: 73.935 } }).moq, 0); // Magarpatta area
-  assert.equal(moqFor({ gps: { lat: 18.591, lng: 73.738 } }).moq, 3999); // Hinjewadi
+test("zonal MOQ: a GPS fix near a branch waives it; a Zone B area always keeps it", () => {
+  assert.equal(moqFor({ gps: { lat: 18.515, lng: 73.935 }, locality: "other" }).moq, 0);
+  assert.equal(moqFor({ gps: { lat: 18.515, lng: 73.935 }, locality: "hinjewadi" }).moq, 3999);
   assert.ok(distanceKm({ lat: 18.5082, lng: 73.9298 }, { lat: 18.591, lng: 73.738 }) > 15);
+});
+
+test("pest control is excluded from the minimum order (only the INDIVIDUAL_CLEANING basket is gated)", () => {
+  const m = readFileSync("src/components/public/quick-booking-modal.tsx", "utf8");
+  assert.match(m, /const moqApplies = booking && intent\.category === "INDIVIDUAL_CLEANING";/);
 });
 
 test("add-on suggestions close the gap first, skip items already in the basket", () => {
@@ -57,20 +63,43 @@ test("CRM webhook: HMAC signature required; JOB_COMPLETED queues the review afte
   for (const f of ["src/server/actions/jobs.ts", "src/server/actions/payments.ts"]) assert.doesNotMatch(readFileSync(f, "utf8"), /sendReviewIfDue\(/, `${f} queues reviews instead of sending immediately`);
 });
 
-test("order tracker: Job ID + mobile → hashed 6-digit OTP, generic answer, single use, limited tries", () => {
+test("order tracker: Job ID + mobile → hashed 4-digit OTP, generic answer, single use, limited tries", () => {
   const t = readFileSync("src/server/order-track.ts", "utf8");
-  for (const f of ["randomInt(0, 1_000_000)", "timingSafeEqual", "MAX_TRIES = 5", "TTL_MS = 10 * 60_000", "consumedAt: new Date()", "rateLimit(`track:ip:", "GENERIC"]) assert.ok(t.includes(f), f);
+  for (const f of ["OTP_LENGTH = 4", "randomInt(0, 10 ** OTP_LENGTH)", "timingSafeEqual", "MAX_TRIES = 5", "TTL_MS = 10 * 60_000", "consumedAt: new Date()", "rateLimit(`track:ip:", "GENERIC"]) assert.ok(t.includes(f), f);
   assert.doesNotMatch(t, /codePlain:/, "the code is never stored in plain text");
   assert.match(readFileSync("src/middleware.ts", "utf8"), /"\/track"/);
 });
 
 test("booking modal: locality picker, zonal MOQ with 1-tap add-ons, B2B site-audit fields", () => {
   const m = readFileSync("src/components/public/quick-booking-modal.tsx", "utf8");
-  for (const f of ["moqFor({ locality, gps })", "suggestAddOns(", "getQuickAddOns()", 'name="locality"', 'name="company"', 'name="propType"', 'name="sqft"', "Free Site Audit Request", "disabled={state === \"sending\" || gap > 0}"]) assert.ok(m.includes(f), f);
+  for (const f of ["moqFor({ locality, gps }, WEST_PCMC)", "suggestAddOns(", "getQuickAddOns()", 'name="locality"', 'name="company"', 'name="propType"', 'name="sqft"', "Free Site Audit Request", "disabled={state === \"sending\" || gap > 0}"]) assert.ok(m.includes(f), f);
+  // Field order: Name → Mobile → Full address (area + mandatory flat/society/landmark, GPS optional) → date → slot.
+  const order = ['name="name"', 'name="mobile"', 'name="locality"', 'name="area"', "<MonthCalendar", 'aria-label="Time slot"'].map((x) => m.indexOf(x));
+  assert.deepEqual([...order].sort((x, y) => x - y), order, "form fields in the owner's order");
+  assert.match(m, /name="area" autoComplete="street-address" required/);
+  assert.match(m, /Use current location \(optional\)/);
+  assert.match(m, /getDateAvailability\(30\)/, "30-day calendar");
+  assert.match(m, /"Your Booking Has Been Confirmed!"/);
+  assert.doesNotMatch(m, /Your slot is reserved/);
 });
 
 test("before/after slider: pointer drag + keyboard, clip-path (no layout shift)", () => {
   const s = readFileSync("src/components/public/before-after-slider.tsx", "utf8");
   for (const f of ["onPointerDown", "setPointerCapture", 'role="slider"', "ArrowLeft", "clipPath"]) assert.ok(s.includes(f), f);
   assert.match(readFileSync("src/components/public/before-after-gallery.tsx", "utf8"), /<BeforeAfterSlider/);
+});
+
+test("image registry: every path exists, the seven core services are distinct, nothing text-baked is used", async () => {
+  const { existsSync } = await import("node:fs");
+  const { IMAGE_REGISTRY, CORE_SERVICE_IMAGE_KEYS, TEXT_BAKED_PATTERNS } = await import("../src/config/image-registry");
+  for (const [k, v] of Object.entries(IMAGE_REGISTRY)) {
+    assert.ok(existsSync(`public${v.src}`), `${k}: ${v.src} missing`);
+    assert.ok(!TEXT_BAKED_PATTERNS.some((re) => re.test(v.src)), `${k} uses a text-baked graphic`);
+  }
+  const core = CORE_SERVICE_IMAGE_KEYS.map((k) => IMAGE_REGISTRY[k].src);
+  assert.equal(new Set(core).size, core.length, "core services share an image");
+  const { CATALOG_SERVICES } = await import("../src/config/service-catalog");
+  for (const s of CATALOG_SERVICES) assert.ok(!TEXT_BAKED_PATTERNS.some((re) => re.test(s.image)), `${s.slug} uses a text-baked graphic`);
+  const home = readFileSync("src/components/public/home-page.tsx", "utf8");
+  assert.match(home, /img\("full-home"\)/, "hero slides come from the registry");
 });
