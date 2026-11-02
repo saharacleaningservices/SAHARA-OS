@@ -6,7 +6,7 @@ export type ClientLogo = { name: string; src: string };
 export const CLIENT_LOGOS: ClientLogo[] = [];
 
 /**
- * Verified corporate clients the owner approved for the homepage marquee (2026-11-02). Shown as text wordmarks until each client's
- * logo file is added to CLIENT_LOGOS above (logos only with that client's permission).
+ * Official client list for the homepage "Trusted by" marquee (owner 2026-11-02, final; BHEL removed). Shown as wordmark tiles until
+ * each client's own logo file is added to CLIENT_LOGOS above — logos are used only as supplied by / approved by that client.
  */
-export const CLIENT_NAMES = ["RENOM Technologies", "Clover Hills", "BHEL", "Eaton Technologies"] as const;
+export const CLIENT_NAMES = ["Renom Technologies", "Eaton Technologies", "Clover Hills", "ABIL", "Leisure Town", "Panthernails", "Padam Interiors", "Studio XP"] as const;

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { PUNE_AREAS } from "@/lib/pune-areas";
 import { PROGRAMMATIC_PAGES, SERVICE_CATEGORIES } from "@/config/pune-seo-matrix";
-import { CATALOG_SERVICES, servicePath } from "@/config/service-catalog";
+import { CATALOG_CATEGORIES, CATALOG_SERVICES, servicePath } from "@/config/service-catalog";
 
 // Public, canonical pages only (same paths as each page's canonical URL).
 // Indexable package pages: 1–3 BHK × Premium/Platinum (4 BHK+ is inspection-only — no page).
@@ -15,7 +15,7 @@ export const SEO_HUB_PATHS = ["/services", "/contact", ...SERVICE_CATEGORIES.map
 export const PROGRAMMATIC_PATHS = PROGRAMMATIC_PAGES.map((p) => `/services/${p.category}/${p.location}`);
 
 // Service catalog pages (rebuild 2026-11-02). Slugs shared with a SEO hub above are de-duplicated.
-export const CATALOG_PATHS = CATALOG_SERVICES.map((s) => servicePath(s.slug)).filter((p) => !SEO_HUB_PATHS.includes(p));
+export const CATALOG_PATHS = [...CATALOG_CATEGORIES.map((c) => `/services/${c.slug}`), ...CATALOG_SERVICES.map((s) => servicePath(s.slug))].filter((p) => !SEO_HUB_PATHS.includes(p));
 
 export const SITEMAP_PATHS = [...CORE, "/scope-of-work", ...SEO_HUB_PATHS, ...CATALOG_PATHS, ...PROGRAMMATIC_PATHS];
 

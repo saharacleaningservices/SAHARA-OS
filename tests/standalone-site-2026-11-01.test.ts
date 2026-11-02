@@ -35,7 +35,7 @@ test("standalone homepage: '/' renders the public homepage on the website hosts,
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
   // Rebuild 2026-11-02: hero slider → 4-category grid → BHK cards → combos → inspection flow → work gallery → trust → areas → FAQ.
   // App-like homepage (owner 2026-11-02): order and purges are asserted in tests/site-rebuild-2026-11-02.test.ts.
-  for (const part of ["<HomeHeroSlider", "<GoogleRatingBadge", "<ClientMarquee", "<HomeServiceDrill", "<ComboSwiper", "<BranchDetails"]) assert.match(home, new RegExp(part));
+  for (const part of ["<HomeHeroSlider", "<GoogleRatingBadge", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper", "<BranchDetails"]) assert.match(home, new RegExp(part));
   // The lead modal is mounted once per page by LandingShell, so every Book button on every page opens it.
   assert.match(readFileSync("src/components/public/landing-kit.tsx", "utf8"), /<LeadModal /);
   assert.doesNotMatch(home, /BookingWizard|id="book"|checkout/, "the homepage never holds the booking form or routes to a checkout");

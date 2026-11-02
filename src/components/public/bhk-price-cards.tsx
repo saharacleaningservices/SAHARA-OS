@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, CheckCircle2, LocateFixed, MessageCircle, Phone, X } from "lucide-react";
+import { Check, CheckCircle2, MessageCircle, Phone, X } from "lucide-react";
 import { trackLead } from "@/components/public/marketing-tags";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import type { HomeRow } from "@/components/public/price-selector";
@@ -16,6 +16,7 @@ import type { HomeRow } from "@/components/public/price-selector";
 const OPEN_EVENT = "sahara:open-lead";
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const SIZES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+"] as const;
+export const TIME_SLOTS = ["Morning (9 AM–12 PM)", "Afternoon (12 PM–3 PM)", "Evening (3 PM–6 PM)"] as const;
 
 export type LeadIntent = { service: string; pkg?: string; price?: number | null; /** On-inspection service: the modal asks for a site visit instead of a slot. */ inspection?: boolean };
 
@@ -88,8 +89,19 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   const [leadId, setLeadId] = useState("");
   const [gps, setGps] = useState<{ lat: number; lng: number; acc: number } | null>(null);
   const [gpsState, setGpsState] = useState<"idle" | "locating" | "denied">("idle");
+  const [vh, setVh] = useState<number | null>(null);
   const first = useRef<HTMLInputElement>(null);
   const today = new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
+
+  // Keep the sheet inside the visible area when the mobile keyboard opens (visualViewport shrinks; 100dvh does not on iOS).
+  useEffect(() => {
+    if (!intent || typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const on = () => setVh(Math.round(vv.height));
+    on();
+    vv.addEventListener("resize", on);
+    return () => vv.removeEventListener("resize", on);
+  }, [intent]);
 
   useEffect(() => {
     const on = (e: Event) => {
@@ -131,11 +143,13 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
     const name = String(f.get("name") ?? "").trim();
     const mobile = String(f.get("mobile") ?? "").replace(/\D/g, "").slice(-10);
     const date = String(f.get("date") ?? "");
+    const slot = String(f.get("slot") ?? "");
     const area = String(f.get("area") ?? "").trim();
     const notes = String(f.get("notes") ?? "").trim();
     if (name.length < 2) return setError("Please enter your name.");
     if (!/^[6-9]\d{9}$/.test(mobile)) return setError("Please enter a valid 10-digit mobile number.");
     if (!date) return setError("Please choose your preferred date.");
+    if (!slot) return setError("Please choose a time slot.");
     if (!gps && area.length < 2) return setError("Tap “Use current location” or type your area / society.");
     const p = getAttributionPayload();
     const t = p.first ?? p.latest ?? null;
@@ -150,9 +164,10 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
           service: intent!.service,
           location: [area, gps && `GPS ${gps.lat},${gps.lng}`].filter(Boolean).join(" · "),
           preferredDate: date,
+          preferredSlot: slot,
           message: [
             `Website lead — ${label}${intent!.price ? ` (${inr(intent!.price)})` : ""}`,
-            date && `Preferred date ${date}`,
+            date && `Preferred date ${date}${slot ? `, ${slot}` : ""}`,
             mapsUrl && `Location ${mapsUrl} (±${gps!.acc} m)`,
             notes && `Notes: ${notes}`,
           ].filter(Boolean).join(" · "),
@@ -173,8 +188,8 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
 
   const input = "mt-1 min-h-12 w-full rounded-xl border border-[#0a2540]/15 bg-white px-3 text-base text-[#0a2540] outline-none focus:border-primary";
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-[#0a2540]/60 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="lead-title" onClick={(e) => e.target === e.currentTarget && setIntent(null)}>
-      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white p-5 text-[#0a2540] shadow-2xl sm:rounded-3xl">
+    <div className="fixed inset-x-0 top-0 z-[70] flex h-[100dvh] items-end justify-center bg-[#0a2540]/60 p-0 sm:items-center sm:p-4" style={vh ? { height: vh } : undefined} role="dialog" aria-modal="true" aria-labelledby="lead-title" onClick={(e) => e.target === e.currentTarget && setIntent(null)}>
+      <div className="max-h-full w-full max-w-md overflow-y-auto overscroll-contain rounded-t-3xl bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 text-[#0a2540] shadow-2xl sm:max-h-[92vh] sm:rounded-3xl">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 id="lead-title" className="text-lg font-extrabold">{state === "done" ? "Request received" : intent.inspection ? "Request site inspection / quote" : "Book your slot"}</h2>
@@ -190,19 +205,30 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
             <a href={`https://wa.me/91${waNumber}?text=${encodeURIComponent(`Hi Sahara, I just requested ${label} on the website${leadId ? ` (ID ${leadId})` : ""}.`)}`} target="_blank" rel="noreferrer" className="mt-4 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-[#25D366] px-4 text-sm font-bold text-white"><MessageCircle className="size-4" /> Chat on WhatsApp</a>
           </div>
         ) : (
-          <form onSubmit={submit} className="mt-3 space-y-3" noValidate>
+          <form onSubmit={submit} onFocus={(e) => { const t = e.target as HTMLElement; if (/INPUT|SELECT|TEXTAREA/.test(t.tagName)) setTimeout(() => t.scrollIntoView({ block: "center", behavior: "smooth" }), 280); }} className="mt-3 space-y-3" noValidate>
             <label className="block text-sm font-semibold">Name<input ref={first} name="name" autoComplete="name" required className={input} /></label>
             <label className="block text-sm font-semibold">Mobile number<input name="mobile" type="tel" inputMode="numeric" autoComplete="tel" maxLength={14} required placeholder="10-digit mobile" className={input} /></label>
-            <label className="block text-sm font-semibold">{intent.inspection ? "Preferred visit date" : "Preferred date"}<input name="date" type="date" min={today} required className={input} /></label>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="block text-sm font-semibold">{intent.inspection ? "Visit date" : "Date"}<input name="date" type="date" min={today} required className={input} /></label>
+              <label className="block text-sm font-semibold">Time slot
+                <select name="slot" required defaultValue="" className={input}>
+                  <option value="" disabled>Choose</option>
+                  {TIME_SLOTS.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </label>
+            </div>
             <div>
               <p className="text-sm font-semibold">Location</p>
-              <button type="button" onClick={locate} disabled={gpsState === "locating"} className={`mt-1 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold ${gps ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-300" : "bg-[#eef4fb] text-primary ring-1 ring-primary/30"}`}>
-                <LocateFixed className="size-4" />{gps ? `Location captured (±${gps.acc} m)` : gpsState === "locating" ? "Locating…" : "Use current location"}
-              </button>
-              {gpsState === "denied" && <p className="mt-1 text-xs text-amber-700">Location unavailable — please type your area below.</p>}
-              <input name="area" autoComplete="address-level2" placeholder={gps ? "Society / landmark (optional)" : "Area, society or landmark"} className={input} />
+              <div className="mt-1 flex gap-2">
+                <input name="area" autoComplete="address-level2" placeholder={gps ? "Society / landmark (optional)" : "Area, society or landmark"} className={`${input.replace("mt-1 ", "")} min-w-0 flex-1`} />
+                <button type="button" onClick={locate} disabled={gpsState === "locating"} aria-label="Use current location" className={`flex min-h-12 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-bold ${gps ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-300" : "bg-[#eef4fb] text-primary ring-1 ring-primary/30"}`}>
+                  {gps ? "📍 Located" : gpsState === "locating" ? "Locating…" : "📍 Use Current Location"}
+                </button>
+              </div>
+              {gps && <p className="mt-1 text-xs text-emerald-700">Location captured (±{gps.acc} m)</p>}
+              {gpsState === "denied" && <p className="mt-1 text-xs text-amber-700">Location unavailable — please type your area.</p>}
             </div>
-            <label className="block text-sm font-semibold">Special notes / scope <span className="font-normal text-[#0a2540]/50">(optional)</span><textarea name="notes" rows={2} maxLength={500} placeholder="Size, special requests, best time to call" className={`${input} py-2`} /></label>
+            <label className="block text-sm font-semibold">Special notes / scope <span className="font-normal text-[#0a2540]/50">(optional)</span><textarea name="notes" rows={1} maxLength={500} placeholder="Size, special requests, best time to call" className={`${input} py-2`} /></label>
             <input name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
             {error && <p className="text-sm font-semibold text-red-600" role="alert">{error}</p>}
             <button type="submit" disabled={state === "sending"} className="min-h-12 w-full rounded-xl bg-primary text-base font-bold text-white disabled:opacity-60">{state === "sending" ? "Sending…" : intent.inspection ? "Request Inspection / Submit Inquiry" : "Confirm Your Booking"}</button>
