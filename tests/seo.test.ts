@@ -18,7 +18,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { PUNE_AREAS } from "../src/lib/pune-areas";
 import { PROGRAMMATIC_PAGES, SERVICE_CATEGORIES } from "../src/config/pune-seo-matrix";
-import { CATALOG_SERVICES } from "../src/config/service-catalog";
+import { CATALOG_CATEGORIES, CATALOG_SERVICES } from "../src/config/service-catalog";
 
 const BOOKING = "https://saharacleaningservices.com";
 const CRM = "https://crm.saharacleaningservices.com";
@@ -34,7 +34,7 @@ const PROGRAMMATIC_SAMPLE = PROGRAMMATIC.filter((_, i) => i % 37 === 0);
 // /booking now 307s to the homepage (PR #97/#98, 2026-11-01) — "/" is the indexable booking surface.
 const CORE = ["/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
 // Service catalog pages (rebuild 2026-11-02) not already covered by a SEO hub slug, plus the Scope of Work policy.
-const CATALOG = CATALOG_SERVICES.map((s) => `/services/${s.slug}`).filter((p) => !SEO_HUBS.includes(p));
+const CATALOG = [...CATALOG_CATEGORIES.map((c) => `/services/${c.slug}`), ...CATALOG_SERVICES.map((s) => `/services/${s.slug}`)].filter((p) => !SEO_HUBS.includes(p));
 const INDEXABLE = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC_SAMPLE];
 const SITEMAP_ALL = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC];
 const LANDING = ["/landing/home-deep-cleaning-pune", "/landing/interior-painting-pune", "/landing/office-commercial-cleaning-pune", "/landing/pest-control-services-pune"];

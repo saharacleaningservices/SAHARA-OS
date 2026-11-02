@@ -1,15 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Building2, CalendarCheck, ClipboardCheck, FileText, Home, MapPin, MapPinned, Phone, Sparkles, Star, Truck } from "lucide-react";
-import { CATALOG_CATEGORIES, INSPECTION_STEPS, servicesIn, servicePath, type CatalogService } from "@/config/service-catalog";
+import { CATALOG_CATEGORIES, INSPECTION_STEPS, categoryPath, excludesFor, servicesIn, servicePath, type CatalogService } from "@/config/service-catalog";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
-import { liveCombos } from "@/lib/marketing-content";
+import { liveCombos, livePkgs, PREMIUM_SCOPE, PLATINUM_SCOPE, PREMIUM_EXCLUDED, PLATINUM_EXCLUDED } from "@/lib/marketing-content";
 import { CLIENT_LOGOS } from "@/lib/client-logos";
 import { ClientCarousel } from "@/components/ui/client-carousel";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
 import { LeadButton } from "@/components/public/lead-button";
-import { HomeBhkPriceCards } from "@/components/public/landing-kit";
+import { buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
+import { PackageCalculator, PestCalculator, QtyCalculator, type QtyItem } from "@/components/public/rate-calculators";
+import { PEST_BHK_RATES, PEST_BHK_SIZES, PUBLIC_GST_NOTE, activeCampaign, todayIST, type PriceItem } from "@/lib/pricing-master";
 import { BRANCHES, LOCALITIES, ZONES, seoPagePath, type ZoneKey } from "@/config/pune-seo-matrix";
 import { FcGoogle } from "react-icons/fc";
 import { TRUST } from "@/lib/booking-target";
@@ -38,7 +40,7 @@ export function CategoryGrid() {
                 <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wide text-primary"><Icon className="size-3.5" />{c.short}</span>
               </div>
               <div className="flex flex-1 flex-col p-4">
-                <h3 className="text-lg font-extrabold text-[#0a2540]">{c.label}</h3>
+                <h3 className="text-lg font-extrabold text-[#0a2540]"><Link href={categoryPath(c.id)} className="hover:text-primary">{c.label}</Link></h3>
                 <p className="mt-0.5 text-sm text-[#0a2540]/65">{c.blurb}</p>
                 <ul className="mt-3 space-y-1">
                   {items.map((s) => (
@@ -103,11 +105,104 @@ export async function FromPriceCards({ service }: { service: CatalogService }) {
   );
 }
 
-/** The price block for a service page: BHK cards, starting rates or the inspection flow. */
+/**
+ * The rate calculator for a landing page (owner R&D directive 2026-11-02):
+ *   bhk  → PackageCalculator (property × occasion → Premium / Platinum with included / excluded),
+ *   from → QtyCalculator (unit rate × quantity = live total),
+ *   pest → PestCalculator (1–4 BHK flat rates per treatment),
+ *   inspection → the free-inspection flow.
+ */
 export async function ServicePricing({ service }: { service: CatalogService }) {
-  if (service.pricing.mode === "bhk") return <div id="book" className="scroll-mt-28"><HomeBhkPriceCards /></div>;
-  if (service.pricing.mode === "from") return <FromPriceCards service={service} />;
+  const pricing = await getPublicPricing();
+  if (service.pricing.mode === "bhk") {
+    const campaign = activeCampaign(pricing.festivals, todayIST());
+    const rows = buildHomeRows(livePkgs(pricing.items, "PREMIUM", campaign?.current), livePkgs(pricing.items, "PLATINUM", campaign?.current));
+    return (
+      <PackageCalculator
+        service={service.name}
+        rows={rows.map((r) => ({ bhk: r.bhk, premium: r.premium, platinum: r.platinum }))}
+        scope={{ Premium: { included: PREMIUM_SCOPE, excluded: PREMIUM_EXCLUDED }, Platinum: { included: PLATINUM_SCOPE, excluded: PLATINUM_EXCLUDED } }}
+        note={`${festivalPriceNote(campaign)} ${PUBLIC_GST_NOTE}`}
+        defaultOccasion={service.slug === "move-in-move-out-cleaning" ? "Move-in / Move-out" : "Regular"}
+      />
+    );
+  }
+  if (service.pricing.mode === "from") {
+    const items = (service.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id)).filter((i): i is NonNullable<typeof i> => !!i);
+    if (items.length === 0) return <InspectionFlow service={service.name} title="Price confirmed before booking" />;
+    return <QtyCalculator service={service.name} items={items.map(toQty)} note={PUBLIC_GST_NOTE} />;
+  }
+  if (service.pricing.mode === "pest") return <PestCalculator rows={PEST_BHK_RATES} sizes={PEST_BHK_SIZES} note={`Flat rates for apartments. ${PUBLIC_GST_NOTE}`} />;
   return <InspectionFlow service={service.name} />;
+}
+
+const toQty = (i: PriceItem): QtyItem => ({ id: i.contentId, name: i.name, price: i.price, unit: i.unit, minQty: i.minQty, rule: [i.rule, i.scope].filter(Boolean).join(" · ") || undefined, priceNote: i.priceNote });
+
+/** Every individual-service rate in one calculator — for the Individual Services category page. */
+export async function IndividualRates() {
+  const pricing = await getPublicPricing();
+  const items = servicesIn("individual").flatMap((s) => (s.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id))).filter((i): i is NonNullable<typeof i> => !!i);
+  const unique = items.filter((i, n) => items.findIndex((x) => x.contentId === i.contentId) === n);
+  return <QtyCalculator service="Individual Services" items={unique.map(toQty)} note={PUBLIC_GST_NOTE} heading="Individual service rates" />;
+}
+
+/** Full scope of work: included · not included · GST & terms. */
+export function ScopeOfWork({ service }: { service: CatalogService }) {
+  const home = service.pricing.mode === "bhk";
+  return (
+    <section aria-labelledby="sow-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
+      <h2 id="sow-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Scope of work</h2>
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl bg-emerald-50 p-4">
+          <p className="text-sm font-extrabold text-emerald-800">What&apos;s included</p>
+          <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/85">{(home ? PREMIUM_SCOPE : service.includes).map((i) => <li key={i} className="flex gap-1.5"><span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-emerald-600" />{i}</li>)}</ul>
+          {home && <p className="mt-2 text-xs font-semibold text-emerald-800">Platinum adds wall wet cleaning.</p>}
+        </div>
+        <div className="rounded-2xl bg-red-50 p-4">
+          <p className="text-sm font-extrabold text-red-800">Not included</p>
+          <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/80">{(home ? PREMIUM_EXCLUDED : excludesFor(service)).map((i) => <li key={i} className="flex gap-1.5"><span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-red-500" />{i}</li>)}</ul>
+        </div>
+        <div className="rounded-2xl bg-[#eef4fb] p-4">
+          <p className="text-sm font-extrabold text-[#0a2540]">GST &amp; terms</p>
+          <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/80">
+            <li>{PUBLIC_GST_NOTE}</li>
+            <li>Water and electricity are provided by the customer.</li>
+            <li>Additional work outside this scope is quoted before it starts.</li>
+            <li><Link href="/scope-of-work" className="font-bold text-primary">Full scope of work &amp; terms →</Link></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Category landing page body: every service in the category as a card (rate badge → its own landing page). */
+export async function CategoryServiceCards({ id }: { id: CatalogService["category"] }) {
+  const pricing = await getPublicPricing();
+  return (
+    <section aria-labelledby="cat-svc-title">
+      <h2 id="cat-svc-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Choose a service</h2>
+      <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {servicesIn(id).map((s) => {
+          const orders = (s.pricing.contentIds ?? []).map((cid) => pricing.items.find((i) => i.contentId === cid)).filter((i) => i?.price != null).map((i) => i!.price! * Math.max(1, i!.minQty ?? 1));
+          const first = orders.length ? Math.min(...orders) : null;
+          const badge = s.pricing.mode === "inspection" ? "Free site inspection" : s.pricing.mode === "pest" ? `From ${inr(PEST_BHK_RATES[0].rates["1 BHK"])}` : s.pricing.mode === "bhk" ? "Fixed BHK rates" : first != null ? `From ${inr(first)}` : "Price on confirmation";
+          return (
+            <li key={s.slug}>
+              <Link href={servicePath(s.slug)} className="group flex h-full overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-[#0a2540]/5 hover:ring-2 hover:ring-primary">
+                <span className="relative block w-28 shrink-0 sm:w-32"><Image src={s.image} alt={s.imageAlt} fill sizes="128px" loading="lazy" className="object-cover" /></span>
+                <span className="flex min-w-0 flex-col p-3.5">
+                  <span className="font-extrabold leading-snug text-[#0a2540]">{s.name}</span>
+                  <span className="mt-0.5 line-clamp-2 text-xs text-[#0a2540]/65">{s.blurb}</span>
+                  <span className={`mt-2 w-fit rounded-full px-2 py-0.5 text-[11px] font-extrabold ${s.pricing.mode === "inspection" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>{badge}</span>
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
 }
 
 /** Combo packages from the pricing master (owner-approved 2026-11-02). */
@@ -222,19 +317,25 @@ export function GoogleRatingBadge({ reviewUrl, rating = TRUST.rating }: { review
   );
 }
 
-/** Verified-client marquee: logo files when added (CLIENT_LOGOS), otherwise the approved client names as wordmarks. */
+/**
+ * "Trusted by" client marquee under the Google rating: the clients' own logo files once added (CLIENT_LOGOS), otherwise the official
+ * client names as clean wordmark tiles. Pure CSS loop (GPU transform), paused on hover, off for reduced-motion visitors.
+ */
 export function ClientMarquee() {
   if (CLIENT_LOGOS.length > 0) return <ClientCarousel logos={CLIENT_LOGOS} title="Trusted by" />;
-  const base = Array.from({ length: 3 }, () => CLIENT_NAMES).flat();
   const row = (hidden: boolean) => (
-    <ul className="flex shrink-0 items-center gap-10 pr-10" aria-hidden={hidden || undefined}>
-      {base.map((n, i) => <li key={`${hidden}-${i}`} className="whitespace-nowrap text-lg font-black uppercase tracking-wide text-[#0a2540]/55">{n}</li>)}
+    <ul className="flex shrink-0 items-center gap-3 pr-3" aria-hidden={hidden || undefined}>
+      {CLIENT_NAMES.map((n) => (
+        <li key={`${hidden}-${n}`} className="flex h-14 min-w-[150px] items-center justify-center rounded-2xl bg-white px-5 shadow-sm ring-1 ring-[#0a2540]/5">
+          <span className="whitespace-nowrap text-[15px] font-black uppercase tracking-wide text-[#0a2540]/70">{n}</span>
+        </li>
+      ))}
     </ul>
   );
   return (
     <section aria-label="Trusted by" className="overflow-hidden">
       <p className="text-center text-[11px] font-bold uppercase tracking-widest text-[#0a2540]/50">Trusted by</p>
-      <div className="mt-2 flex w-max sahara-marquee">{row(false)}{row(true)}</div>
+      <div className="mt-2 flex w-max sahara-marquee py-1">{row(false)}{row(true)}</div>
     </section>
   );
 }
@@ -267,7 +368,7 @@ export function BranchDetails() {
  * Service-area zonal table (owner 2026-11-02): replaces the scattered area tag lists on /services/<slug> pages with one collapsible
  * section per Pune zone. Every locality link stays in the HTML (<details> content is crawlable), so local-SEO internal links are kept.
  */
-export function ZoneAccordion({ seoSlug, service }: { seoSlug: string; service: string }) {
+export function ZoneAccordion({ seoSlug, service }: { /** pune-seo-matrix category with area pages; omitted → area names without links. */ seoSlug?: string; service: string }) {
   const zones = Object.keys(ZONES) as ZoneKey[];
   return (
     <section aria-labelledby="zones-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
@@ -286,7 +387,7 @@ export function ZoneAccordion({ seoSlug, service }: { seoSlug: string; service: 
                 <tbody>
                   {locs.map((l) => (
                     <tr key={l.slug} className="border-t border-[#0a2540]/5">
-                      <td className="px-4 py-2"><Link href={seoPagePath(seoSlug, l.slug)} className="font-semibold text-primary hover:underline">{service} in {l.name}</Link></td>
+                      <td className="px-4 py-2">{seoSlug ? <Link href={seoPagePath(seoSlug, l.slug)} className="font-semibold text-primary hover:underline">{service} in {l.name}</Link> : <span className="font-semibold text-[#0a2540]">{service} in {l.name}</span>}</td>
                       <td className="px-4 py-2 text-right text-xs text-[#0a2540]/55">{l.pins.join(", ")}</td>
                     </tr>
                   ))}
@@ -296,6 +397,43 @@ export function ZoneAccordion({ seoSlug, service }: { seoSlug: string; service: 
           );
         })}
       </div>
+    </section>
+  );
+}
+
+/** Homepage "4 main visual cards" — each one opens its dedicated landing page (owner 2026-11-02). Server-rendered links, no JS. */
+export async function HomeServiceCards() {
+  const pricing = await getPublicPricing();
+  const homeFrom = pricing.items.find((i) => i.group === "PREMIUM" && i.bhk === "1 BHK")?.price;
+  // "From" = the smallest bookable order (unit rate × minimum quantity), never a per-unit rate that cannot be booked alone.
+  const minOrder = (id: string) => { const i = pricing.items.find((x) => x.contentId === id); return i?.price != null ? i.price * Math.max(1, i.minQty ?? 1) : Infinity; };
+  const indivFrom = Math.min(...servicesIn("individual").flatMap((s) => (s.pricing.contentIds ?? []).map(minOrder)));
+  const cards = [
+    { href: servicePath("home-deep-cleaning"), title: "Full House Deep Cleaning", sub: "1–4 BHK, villas, move-in/out, post-construction", tag: homeFrom ? `From ${inr(homeFrom)}` : "Fixed BHK rates", img: "/marketing/hero-home.webp", alt: "Sahara technician deep cleaning a Pune apartment" },
+    { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", tag: Number.isFinite(indivFrom) ? `From ${inr(indivFrom)}` : "Fixed rates", img: "/marketing/carousel-equipment.webp", alt: "Sahara technician shampooing a sofa" },
+    { href: servicePath("interior-painting"), title: "Interior Painting", sub: "Free site inspection & written quote", tag: "Free inspection", img: "/marketing/service-painting.webp", alt: "Sahara painters rolling a living-room wall" },
+    { href: servicePath("pest-control"), title: "Pest Control", sub: "Cockroach, bed bug, rodent, termite, mosquito", tag: `From ${inr(PEST_BHK_RATES[0].rates["1 BHK"])}`, img: "/marketing/service-pest-control.webp", alt: "Sahara pest control technician treating a kitchen" },
+  ];
+  return (
+    <section id="services" aria-labelledby="svc-title" className="scroll-mt-20">
+      <h2 id="svc-title" className="text-2xl font-extrabold text-[#0a2540] sm:text-3xl">Our services</h2>
+      <ul className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {cards.map((c) => (
+          <li key={c.href}>
+            <Link href={c.href} className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-[#0a2540]/5 transition hover:-translate-y-0.5 hover:shadow-lg">
+              <span className="relative block aspect-[4/3] w-full">
+                <Image src={c.img} alt={c.alt} fill sizes="(min-width:1024px) 25vw, 50vw" loading="lazy" className="object-cover transition duration-500 group-hover:scale-105" />
+                <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-extrabold text-primary shadow-sm">{c.tag}</span>
+              </span>
+              <span className="flex flex-1 flex-col p-3 sm:p-4">
+                <span className="text-[15px] font-extrabold leading-snug text-[#0a2540] sm:text-lg">{c.title}</span>
+                <span className="mt-0.5 hidden text-sm text-[#0a2540]/65 sm:block">{c.sub}</span>
+                <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm font-bold text-primary">View rates<ArrowRight className="size-4 transition group-hover:translate-x-0.5" /></span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

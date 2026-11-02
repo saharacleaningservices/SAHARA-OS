@@ -267,14 +267,22 @@ export const BOOKING_TERMS = [
 ];
 
 /**
- * Public pest-control starting rates (owner-stated, Oct 2026: standard flat treatments booked with a slot, no forced inspection).
- * Shown on the homepage Pest Control sheet as "from" prices; the exact rate for the home size is confirmed on the booking call.
- * null = price confirmed before booking. Kept separate from PRICING_MASTER so CRM quotations keep their inspection flow.
+ * Public pest-control flat rates by home size (owner R&D directive 2026-11-02). The 1 BHK column is the owner-stated Oct 2026
+ * starting price for each treatment (Cockroach & Ant ₹999, Bed Bug ₹1,199, Rodent ₹1,499, Termite ₹2,499); the 2–4 BHK steps and
+ * the mosquito row are set from Pune market rates (UrbanCompany / NoBroker / Housejoy ranges, Nov 2026) at Sahara's premium
+ * position. Edit here to change the website rates. Kept separate from PRICING_MASTER so CRM quotations keep their own flow.
  */
-export const PEST_STARTING_RATES: { name: string; from: number | null; note: string }[] = [
-  { name: "Cockroach & Ant Control", from: 999, note: "Gel baiting + targeted spray" },
-  { name: "Bed Bug Control", from: 1199, note: "Beds, sofas and furniture" },
-  { name: "Rodent Control", from: 1499, note: "Baiting stations and entry-point sealing advice" },
-  { name: "Termite Control", from: 2499, note: "Affected woodwork and frames" },
-  { name: "Mosquito Control", from: null, note: "Fogging / larvicide for homes and societies" },
+export const PEST_BHK_SIZES = ["1 BHK", "2 BHK", "3 BHK", "4 BHK"] as const;
+export type PestBhk = (typeof PEST_BHK_SIZES)[number];
+export const PEST_BHK_RATES: { name: string; note: string; rates: Record<PestBhk, number> }[] = [
+  { name: "Cockroach & Ant Control", note: "Odourless gel baiting + targeted spray in kitchen, bathrooms and drains", rates: { "1 BHK": 999, "2 BHK": 1199, "3 BHK": 1399, "4 BHK": 1699 } },
+  { name: "Bed Bug Control", note: "Beds, sofas, mattresses and furniture joints", rates: { "1 BHK": 1199, "2 BHK": 1499, "3 BHK": 1799, "4 BHK": 2199 } },
+  { name: "Rodent Control", note: "Bait stations, glue boards and entry-point sealing advice", rates: { "1 BHK": 1499, "2 BHK": 1699, "3 BHK": 1899, "4 BHK": 2199 } },
+  { name: "Termite Control", note: "Targeted anti-termite treatment of affected woodwork and frames", rates: { "1 BHK": 2499, "2 BHK": 2999, "3 BHK": 3499, "4 BHK": 3999 } },
+  { name: "Mosquito Control", note: "Indoor residual spray + outdoor fogging of balcony and garden", rates: { "1 BHK": 1199, "2 BHK": 1399, "3 BHK": 1599, "4 BHK": 1899 } },
 ];
+/** "From" price per treatment (the 1 BHK rate). */
+export const PEST_STARTING_RATES = PEST_BHK_RATES.map((p) => ({ name: p.name, from: p.rates["1 BHK"] as number | null, note: p.note }));
+
+/** GST wording shown on every public rate card (matches src/lib/invoice-tax.ts: GST off for home bookings, 18% for business). */
+export const PUBLIC_GST_NOTE = "Home (residential) rates shown are final — no GST is added. Business bookings that need a GST invoice: 18% GST (CGST 9% + SGST 9%) is added to the quoted value.";

@@ -7,9 +7,8 @@ import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/c
 import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
-import { CATALOG_SERVICES, catalogCategory, catalogServiceBySlug, servicePath, servicesIn, type CatalogService } from "@/config/service-catalog";
-import { ServicePricing, WorkGallery, InspectionFlow, ClientMarquee, ZoneAccordion } from "@/components/public/catalog-blocks";
-import { LeadButton } from "@/components/public/lead-button";
+import { catalogCategory, catalogCategoryBySlug, catalogServiceBySlug, categoryPath, servicePath, servicesIn, type CatalogCategory, type CatalogService } from "@/config/service-catalog";
+import { CategoryServiceCards, ComboSwiper, IndividualRates, InspectionFlow, ScopeOfWork, ServicePricing, ZoneAccordion } from "@/components/public/catalog-blocks";
 import { TRUST } from "@/lib/booking-target";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
@@ -26,6 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = `${svc.intro} Pune & PCMC · in-house trained staff · GST invoice · ${TRUST.rating}★ Google.`.slice(0, 300);
     return { title, description, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "website", url, title, description, siteName: "Sahara Cleaning Services", locale: "en_IN", images: [`${BASE_URL}${svc.image}`] } };
   }
+  const cp = catalogCategoryBySlug(slug);
+  if (cp) {
+    const url = `${BASE_URL}${categoryPath(cp.id)}`;
+    const title = `${cp.label} in Pune | Rates & Booking | Sahara`;
+    const description = `${cp.blurb}. Pune & PCMC · in-house trained staff · ${TRUST.rating}★ Google.`;
+    return { title, description, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "website", url, title, description, siteName: "Sahara Cleaning Services", locale: "en_IN" } };
+  }
   const c = categoryBySlug(slug);
   if (!c) return {};
   const url = `${BASE_URL}/services/${c.slug}`;
@@ -38,6 +44,8 @@ export default async function CategoryHub({ params }: Props) {
   const slug = (await params).category;
   const svc = catalogServiceBySlug(slug);
   if (svc) return <CatalogServicePage s={svc} />;
+  const catPage = catalogCategoryBySlug(slug);
+  if (catPage) return <CatalogCategoryPage c={catPage} />;
   const c = categoryBySlug(slug);
   if (!c) notFound();
   const settings = await getCompanySettings();
@@ -79,7 +87,10 @@ function catalogServiceJsonLd(s: CatalogService) {
   };
 }
 
-/** One page per catalog service (rebuild 2026-11-02): hero, price block (BHK / rates / inspection), scope, work gallery, areas, FAQ. */
+/**
+ * Service landing page (owner R&D directive 2026-11-02): clean hero → interactive rate calculator → full scope of work
+ * (included / excluded / GST) → 4-zone area table → FAQ, with an instant-booking bar on mobile. Layout model: BOXED.
+ */
 async function CatalogServicePage({ s }: { s: CatalogService }) {
   const settings = await getCompanySettings();
   const cat = catalogCategory(s.category);
@@ -91,38 +102,53 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
     <LandingShell
       logoUrl={settings.logoUrl}
       waText={WA}
-      jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), catalogServiceJsonLd(s), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Services", path: "/services" }, { name: s.name, path: servicePath(s.slug) }]), faqJsonLd(s.faqs)]}
+      jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), catalogServiceJsonLd(s), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: cat.label, path: categoryPath(s.category) }, { name: s.name, path: servicePath(s.slug) }]), faqJsonLd(s.faqs)]}
       mobileBar={<CategoryBar waText={WA} cta={inspection ? "Get Quote" : "Book Now"} href="#book" />}
     >
-      <CategoryHero image={s.image} alt={s.imageAlt} title={`${s.name} in Pune`} subtitle={s.intro} points={s.includes.slice(0, 4)} waText={WA} badge={cat.label} cta={inspection ? "Request Site Inspection" : "Book Now"} ctaHref="#book" />
+      <CategoryHero image={s.image} alt={s.imageAlt} title={`${s.name} in Pune`} subtitle={s.intro} points={s.includes.slice(0, 4)} waText={WA} badge={cat.label} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
-        <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href="/services" className="hover:text-primary">Services</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
+        <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
         <ServicePricing service={s} />
-        <section className="grid gap-4 rounded-3xl bg-white p-5 shadow-sm sm:p-6 lg:grid-cols-[2fr_1fr]">
-          <div>
-            <h2 className="text-xl font-extrabold">What&apos;s included</h2>
-            <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-              {s.includes.map((i) => <li key={i} className="rounded-xl bg-[#eef4fb] px-3 py-2 font-medium">{i}</li>)}
-            </ul>
-          </div>
-          <div className="rounded-2xl bg-[#0a2540] p-4 text-white">
-            <p className="text-sm font-extrabold">{inspection ? "Not sure of the scope?" : "Ready to book?"}</p>
-            <p className="mt-1 text-sm text-white/75">{inspection ? "Book a free site visit — written quote, no obligation." : "Share your date and location — you get a request ID instantly."}</p>
-            <LeadButton intent={{ service: s.name, inspection }} className="mt-3 min-h-11 w-full rounded-xl bg-amber-400 text-sm font-extrabold text-[#0a2540]">{inspection ? "Request Site Inspection" : "Book Now"}</LeadButton>
-          </div>
-        </section>
-        {!inspection && s.category !== "residential" && <InspectionFlow service={`${s.name} — larger / custom job`} title="Larger or custom job? Get it inspected" />}
-        <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[{ src: s.image, alt: s.imageAlt }, ...CATALOG_SERVICES.filter((x) => x.category === s.category && x.image !== s.image).slice(0, 3).map((x) => ({ src: x.image, alt: x.imageAlt }))].filter((f, n, a) => a.findIndex((y) => y.src === f.src) === n)} />
-        {seo && <ZoneAccordion seoSlug={seo.slug} service={s.name} />}
+        <ScopeOfWork service={s} />
+        <ZoneAccordion seoSlug={seo?.slug} service={s.name} />
         {siblings.length > 0 && (
           <section className="rounded-2xl bg-white p-5 text-sm shadow-sm">
-            <h2 className="text-lg font-bold">More {cat.label.replace(" (B2B)", "")}</h2>
+            <h2 className="text-lg font-bold">More {cat.short} services</h2>
             <p className="mt-2 flex flex-wrap gap-2">{siblings.map((x) => <Link key={x.slug} href={servicePath(x.slug)} className="rounded-full border px-3 py-1 font-medium hover:border-primary hover:text-primary">{x.name}</Link>)}</p>
           </section>
         )}
-        <ClientMarquee />
         <Faqs faqs={s.faqs} compact />
-        <Terms />
+      </main>
+      <StickyWhatsApp waText={WA} />
+    </LandingShell>
+  );
+}
+
+/** Category landing page (/services/residential-services etc.): every service in the category, plus its rates where useful. */
+async function CatalogCategoryPage({ c }: { c: CatalogCategory }) {
+  const settings = await getCompanySettings();
+  const WA = `Hi Sahara, I need ${c.label} in Pune.`;
+  const inspection = c.id === "commercial" || c.id === "relocation";
+  const faqs = [
+    { q: `Which ${c.label.toLowerCase()} do you offer in Pune?`, a: servicesIn(c.id).map((x) => x.name).join(", ") + "." },
+    { q: "How are these services priced?", a: inspection ? "After a free site inspection, with a written quotation." : "Fixed rates where the job is standard (shown on each service page); larger or custom jobs after a free site inspection." },
+  ];
+  return (
+    <LandingShell
+      logoUrl={settings.logoUrl}
+      waText={WA}
+      jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: c.label, path: categoryPath(c.id) }]), faqJsonLd(faqs)]}
+      mobileBar={<CategoryBar waText={WA} cta={inspection ? "Get Quote" : "Book Now"} href="#book" />}
+    >
+      <CategoryHero image={c.image} alt={c.label} title={`${c.label} in Pune`} subtitle={c.blurb} points={servicesIn(c.id).slice(0, 4).map((x) => x.name)} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
+      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
+        <CategoryServiceCards id={c.id} />
+        {c.id === "individual" && <IndividualRates />}
+        {c.id === "individual" && <ComboSwiper />}
+        {inspection && <InspectionFlow service={c.label} />}
+        {c.id === "residential" && <InspectionFlow service="Residential — custom / larger home" title="Villa, bungalow or custom job? Get a free inspection" />}
+        <ZoneAccordion service={c.label} />
+        <Faqs faqs={faqs} compact />
       </main>
       <StickyWhatsApp waText={WA} />
     </LandingShell>

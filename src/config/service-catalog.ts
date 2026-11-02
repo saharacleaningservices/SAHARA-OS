@@ -4,12 +4,13 @@
 // Pricing rule: no price is written here. A service is either
 //   "bhk"        → fixed 1/2/3 BHK Premium & Platinum rate cards read live from the pricing master (4 BHK & villas: on inspection),
 //   "from"       → a "starting from" rate read live from the pricing master by contentId,
+//   "pest"       → flat 1–4 BHK rate table per treatment (src/lib/pricing-master.ts PEST_BHK_RATES),
 //   "inspection" → no price on the page; "Request Site Inspection / Quote" with the 4-step inspection explainer.
 // Where a catalog slug equals a pune-seo-matrix category slug the page also lists every area page for it, so no ranking URL
 // changes. `seoCategory` points a catalog service at the matrix category whose area pages it should link to.
 
 export type CatalogCategoryId = "residential" | "individual" | "commercial" | "relocation";
-export type PricingMode = "bhk" | "from" | "inspection";
+export type PricingMode = "bhk" | "from" | "pest" | "inspection";
 
 export type CatalogService = {
   slug: string;
@@ -20,6 +21,8 @@ export type CatalogService = {
   /** One factual sentence for the page hero and meta description. */
   intro: string;
   includes: string[];
+  /** What is NOT part of the job (falls back to the category default in excludesFor()). */
+  excludes?: string[];
   pricing: { mode: PricingMode; contentIds?: string[] };
   image: string;
   imageAlt: string;
@@ -30,13 +33,13 @@ export type CatalogService = {
   faqs: { q: string; a: string }[];
 };
 
-export type CatalogCategory = { id: CatalogCategoryId; label: string; short: string; blurb: string; image: string };
+export type CatalogCategory = { id: CatalogCategoryId; slug: string; label: string; short: string; blurb: string; image: string };
 
 export const CATALOG_CATEGORIES: CatalogCategory[] = [
-  { id: "residential", label: "Residential Services", short: "Residential", blurb: "Full-home deep cleaning, pest control and painting for flats, villas and bungalows", image: "/marketing/hero-home.webp" },
-  { id: "individual", label: "Individual Services", short: "Individual", blurb: "Only the room or item you need — kitchen, bathroom, sofa, carpet, windows", image: "/marketing/carousel-equipment.webp" },
-  { id: "commercial", label: "Commercial Services (B2B)", short: "Commercial", blurb: "Offices, showrooms, warehouses, restaurants, façades and facility-management AMCs", image: "/marketing/hero-commercial-v2.webp" },
-  { id: "relocation", label: "Relocation & Property Services", short: "Relocation & Property", blurb: "Packers & movers, rent agreements with police verification, and property snagging", image: "/marketing/carousel-result.webp" },
+  { id: "residential", slug: "residential-services", label: "Residential Services", short: "Residential", blurb: "Full-home deep cleaning, pest control and painting for flats, villas and bungalows", image: "/marketing/hero-home.webp" },
+  { id: "individual", slug: "individual-services", label: "Individual Services", short: "Individual", blurb: "Only the room or item you need — kitchen, bathroom, sofa, carpet, windows", image: "/marketing/carousel-equipment.webp" },
+  { id: "commercial", slug: "commercial-services", label: "Commercial Services (B2B)", short: "Commercial", blurb: "Offices, showrooms, warehouses, restaurants, façades and facility-management AMCs", image: "/marketing/hero-commercial-v2.webp" },
+  { id: "relocation", slug: "relocation-property-services", label: "Relocation & Property Services", short: "Relocation & Property", blurb: "Packers & movers, rent agreements with police verification, and property snagging", image: "/marketing/carousel-result.webp" },
 ];
 
 const HOME_FAQ_TIME = { q: "How long does it take?", a: "A typical 2 BHK is finished in one day by a small crew; larger homes take longer. The team lead confirms the schedule when you book." };
@@ -76,10 +79,10 @@ export const CATALOG_SERVICES: CatalogService[] = [
   },
   {
     slug: "pest-control", category: "residential", name: "Pest Control", blurb: "Cockroach, termite, bed bug, ant and rodent",
-    intro: "Targeted treatment for cockroaches, termites, bed bugs, ants and rodents, delivered by trained technicians after inspection.",
+    intro: "Flat-rate treatment for cockroaches, ants, bed bugs, rodents, termites and mosquitoes in 1–4 BHK homes, by trained technicians.",
     includes: ["Inspection of kitchen, bathrooms and drains", "Gel baiting in cracks and crevices", "Anti-termite treatment of affected woodwork", "Bed-bug treatment of beds and furniture", "Aftercare advice and follow-up visit where applicable"],
-    pricing: { mode: "inspection" }, image: "/marketing/service-pest-control.webp", imageAlt: "Sahara pest control technician treating kitchen cabinet edges",
-    gallery: "Pest Control", seoCategory: "pest-control", faqs: [VISIT, { q: "Is the treatment safe for children and pets?", a: "The technician explains the precautions before starting and tells you when rooms can be used again." }],
+    pricing: { mode: "pest" }, image: "/marketing/service-pest-control.webp", imageAlt: "Sahara pest control technician treating kitchen cabinet edges",
+    gallery: "Pest Control", seoCategory: "pest-control", faqs: [{ q: "How is pest control priced?", a: "Flat rates by home size (1–4 BHK) for each treatment, shown on this page. Villas, bungalows and commercial premises are quoted after a free inspection." }, { q: "Is the treatment safe for children and pets?", a: "The technician explains the precautions before starting and tells you when rooms can be used again." }],
   },
   {
     slug: "interior-painting", category: "residential", name: "Interior Painting", blurb: "Asian Paints range — free site inspection first",
@@ -210,3 +213,15 @@ export const INSPECTION_STEPS = [
   { title: "Written quote", body: "You receive a written quotation with scope, manpower, timeline and GST." },
   { title: "Work & handover", body: "Our in-house crew completes the job; you check it before handover and pay as agreed." },
 ] as const;
+
+/** Category landing page path, e.g. /services/individual-services. */
+export const categoryPath = (id: CatalogCategoryId) => `/services/${catalogCategory(id).slug}`;
+export const catalogCategoryBySlug = (slug: string) => CATALOG_CATEGORIES.find((c) => c.slug === slug);
+
+const DEFAULT_EXCLUDES: Record<CatalogCategoryId, string[]> = {
+  residential: ["Moving heavy furniture or appliances", "Inaccessible or unsafe heights", "Old permanent stains (no guarantee of full removal)", "Water and electricity (provided by the customer)"],
+  individual: ["Areas outside the booked item / room", "Moving heavy furniture", "Old permanent stains (no guarantee of full removal)", "Water and electricity (provided by the customer)"],
+  commercial: ["Work outside the written quotation", "Civil, plumbing or electrical repairs", "Consumables unless listed in the quote", "Rope-access work without a safety survey"],
+  relocation: ["Government stamp duty and registration fees", "Items not listed in the survey", "Repairs to furniture or property", "Storage beyond the agreed date"],
+};
+export const excludesFor = (s: CatalogService) => s.excludes ?? DEFAULT_EXCLUDES[s.category];

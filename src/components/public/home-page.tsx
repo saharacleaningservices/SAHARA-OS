@@ -1,18 +1,12 @@
 import Link from "next/link";
 import { BadgeCheck, CalendarClock, ReceiptText, ShieldCheck } from "lucide-react";
 import { getCompanySettings } from "@/server/settings";
-import { getPublicPricing } from "@/server/pricing";
-import { LandingShell, businessJsonLd, buildHomeRows } from "@/components/public/landing-kit";
+import { LandingShell, businessJsonLd } from "@/components/public/landing-kit";
 import { HomeHeroSlider, type HeroPhoto } from "@/components/public/home-hero-slider";
-import { HomeServiceDrill, type DrillRate } from "@/components/public/home-service-drill";
-import { BranchDetails, ClientMarquee, ComboSwiper, GoogleRatingBadge } from "@/components/public/catalog-blocks";
-import { CATALOG_SERVICES, servicePath } from "@/config/service-catalog";
+import { BranchDetails, ClientMarquee, ComboSwiper, GoogleRatingBadge, HomeServiceCards } from "@/components/public/catalog-blocks";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
 import { TRUST } from "@/lib/booking-target";
-import { livePkgs } from "@/lib/marketing-content";
-import { PEST_STARTING_RATES, activeCampaign, todayIST } from "@/lib/pricing-master";
-import { homeHighlights } from "@/lib/service-scope";
 
 const WA = "Hi Sahara, I'd like a quote for a service in Pune.";
 
@@ -25,20 +19,13 @@ const PHOTOS: HeroPhoto[] = [
 
 /**
  * Public homepage — app-like, zero clutter (owner 2026-11-02). Order is fixed by the owner:
- * text-free hero slider → Google 4.9★ badge → verified-client marquee → About → 4 visual service cards (drill-down sheets) →
+ * text-free hero slider → Google 4.9★ badge → client marquee → About → 4 visual service cards (each opens its landing page) →
  * horizontal combo swiper → branch details → footer. No price cards, inspection block or relocation section on the front view
  * (relocation lives in the sidebar menu). Layout model: BOXED (max-w-6xl); the hero is the only full-bleed element.
  */
 export async function HomePage() {
-  const [settings, pricing] = await Promise.all([getCompanySettings().catch(() => null), getPublicPricing()]);
+  const settings = await getCompanySettings().catch(() => null);
   const reviewUrl = settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL;
-  const campaign = activeCampaign(pricing.festivals, todayIST());
-  const rows = buildHomeRows(livePkgs(pricing.items, "PREMIUM", campaign?.current), livePkgs(pricing.items, "PLATINUM", campaign?.current));
-  const individual: DrillRate[] = CATALOG_SERVICES.filter((s) => s.category === "individual").flatMap((s) => {
-    const item = pricing.items.find((i) => i.contentId === s.pricing.contentIds?.[0]);
-    return item ? [{ name: s.name, price: item.price, unit: item.unit, rule: item.rule, href: servicePath(s.slug) }] : [];
-  });
-  const pest: DrillRate[] = PEST_STARTING_RATES.map((p) => ({ name: p.name, price: p.from, rule: p.note }));
   const years = Math.max(1, new Date().getFullYear() - TRUST.since);
 
   return (
@@ -67,7 +54,7 @@ export async function HomePage() {
           <Link href="/scope-of-work" className="mt-3 inline-block text-sm font-bold text-primary">What&apos;s included in each service →</Link>
         </section>
 
-        <HomeServiceDrill rows={rows} individual={individual} pest={pest} inclusions={{ Premium: homeHighlights("Premium"), Platinum: homeHighlights("Platinum") }} />
+        <HomeServiceCards />
         <ComboSwiper />
         <BranchDetails />
       </main>

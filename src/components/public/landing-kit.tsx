@@ -130,57 +130,44 @@ export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, foot
 }
 
 /**
- * Site footer — clean (owner 2026-11-02): compact branch text with tap-to-call, the four service categories, one social row
- * (Facebook, Instagram, YouTube, LinkedIn when set, WhatsApp) and the legal links. GSTIN appears once; no rating card, no map
- * buttons, no area tag cloud (areas live on /pune and each service page's zonal table).
+ * Site footer — final (owner 2026-11-02): no branch blocks or rating cards (branch details sit on the homepage above it).
+ * Four primary category columns (heading → category landing page, then its key services), one social row (Facebook, Instagram,
+ * YouTube, LinkedIn when its link is saved in Settings, WhatsApp), legal links and a single GSTIN line.
  */
 export function SiteFooter() {
-  const branches = [
-    { name: "Magarpatta Branch", address: "Opposite South Gate, Magarpatta City, Hadapsar, Pune - 411028", phones: [BRANCHES.magarpatta.phone] },
-    { name: "Mohammadwadi Branch", address: `${BRANCHES.mohammadwadi.streetAddress}, Pune - ${BRANCHES.mohammadwadi.postalCode}`, phones: [BRANCHES.mohammadwadi.phone, ...BRANCHES.mohammadwadi.altPhones] },
-  ];
   return (
     <footer className="mt-6 bg-[#0a2540] text-white/80">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 text-sm md:grid-cols-[1.1fr_1.6fr_1fr]">
-        <section aria-labelledby="ft-branches" className="space-y-4">
-          <h2 id="ft-branches" className="text-base font-extrabold text-white">Sahara Cleaning Services</h2>
-          {branches.map((b) => (
-            <div key={b.name}>
-              <p className="font-bold text-white">{b.name}</p>
-              <address className="mt-0.5 not-italic text-[13px] text-white/70">{b.address}</address>
-              <p className="mt-1 flex flex-wrap gap-x-3 text-[13px] font-semibold">{b.phones.map((n) => <a key={n} href={`tel:+91${n}`} className="text-white hover:text-amber-300">+91-{n}</a>)}</p>
-            </div>
-          ))}
-          <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-1.5 break-all text-[13px] text-white/80 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
-        </section>
+      <div className="mx-auto max-w-6xl px-4 py-8 text-sm">
         <section aria-labelledby="ft-services">
-          <h2 id="ft-services" className="text-base font-extrabold text-white">Services</h2>
-          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4">
+          <h2 id="ft-services" className="sr-only">Services</h2>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4">
             {NAV_MEGA.map((m) => (
               <div key={m.id}>
-                <p className="text-[11px] font-extrabold uppercase tracking-wide text-amber-300">{m.short}</p>
-                <ul className="mt-1.5 space-y-1 text-[13px]">
-                  {m.items.map((i) => <li key={i.href}><Link href={i.href} className="hover:text-white">{i.label}</Link></li>)}
+                <Link href={m.href} className="text-sm font-extrabold text-white hover:text-amber-300">{m.label.replace(" (B2B)", "")}</Link>
+                <ul className="mt-2 space-y-1.5 text-[13px]">
+                  {m.items.slice(0, 4).map((i) => <li key={i.href}><Link href={i.href} className="hover:text-white">{i.label}</Link></li>)}
+                  {m.items.length > 4 && <li><Link href={m.href} className="font-semibold text-amber-300 hover:text-white">All {m.short} →</Link></li>}
                 </ul>
               </div>
             ))}
           </div>
         </section>
-        <section aria-labelledby="ft-trust" className="space-y-3">
-          <h2 id="ft-trust" className="text-base font-extrabold text-white">Serving Pune Since 2012</h2>
+        <section aria-labelledby="ft-trust" className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 id="ft-trust" className="text-base font-extrabold text-white">Serving Pune Since 2012</h2>
+            <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px]">
+              <a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-1 hover:text-white"><Mail className="size-3.5" />{CONTACT.email}</a>
+              <Link href="/contact" className="hover:text-white">Contact</Link>
+              <Link href="/scope-of-work" className="hover:text-white">Scope of Work</Link>
+              <Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link>
+              <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
+            </p>
+          </div>
           <FooterSocial withWhatsApp />
-          <ul className="space-y-1 text-[13px]">
-            <li><Link href="/scope-of-work" className="hover:text-white">Scope of Work</Link></li>
-            <li><Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link></li>
-            <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
-            <li><Link href="/gallery" className="hover:text-white">Our Work</Link></li>
-            <li><Link href="/pune" className="hover:text-white">Areas We Serve</Link></li>
-          </ul>
-          <p className="text-[12px] text-white/60">GSTIN {COMPANY.gstin}</p>
         </section>
       </div>
       <div className="border-t border-white/10">
-        <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© {new Date().getFullYear()} Sahara Cleaning Services, Pune · <a href={WEBSITE_URL} className="hover:text-white">saharacleaningservices.com</a></p>
+        <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© {new Date().getFullYear()} Sahara Cleaning Services, Pune · GSTIN {COMPANY.gstin} · <a href={WEBSITE_URL} className="hover:text-white">saharacleaningservices.com</a></p>
       </div>
     </footer>
   );

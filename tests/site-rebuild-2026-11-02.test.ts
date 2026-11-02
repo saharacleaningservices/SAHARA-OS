@@ -18,18 +18,19 @@ test("catalog: 4 categories with the owner's service list, unique slugs", () => 
 
 test("catalog pricing: fixed only where the pricing master has a rate; B2B, painting, post-construction and relocation on inspection", () => {
   for (const s of CATALOG_SERVICES) {
-    if (s.category === "commercial" || s.category === "relocation" || /paint|post-|pest/.test(s.slug)) assert.equal(s.pricing.mode, "inspection", s.slug);
+    if (s.category === "commercial" || s.category === "relocation" || /paint|post-/.test(s.slug)) assert.equal(s.pricing.mode, "inspection", s.slug);
     for (const id of s.pricing.contentIds ?? []) assert.ok(PRICING_MASTER.some((p) => p.contentId === id), `${s.slug}: unknown price id ${id}`);
     if (s.seoCategory) assert.ok(SERVICE_CATEGORIES.some((c) => c.slug === s.seoCategory), `${s.slug}: unknown seo category`);
   }
   assert.equal(catalogServiceBySlug("home-deep-cleaning")?.pricing.mode, "bhk");
+  assert.equal(catalogServiceBySlug("pest-control")?.pricing.mode, "pest");
   // No price is ever hard-coded in the catalog.
   assert.doesNotMatch(readFileSync("src/config/service-catalog.ts", "utf8"), /₹\s?\d/);
 });
 
 test("lead modal: name, mobile, required date, GPS + area fallback, notes; dynamic CTA; returns a Lead ID; alerts in the background", () => {
   const m = readFileSync("src/components/public/bhk-price-cards.tsx", "utf8");
-  for (const f of ['name="name"', 'name="mobile"', 'name="date"', 'name="area"', 'name="notes"', "navigator.geolocation", "Use current location", "leadId", "Confirm Your Booking", "Request Inspection / Submit Inquiry", "Please choose your preferred date."]) assert.ok(m.includes(f), f);
+  for (const f of ['name="name"', 'name="mobile"', 'name="date"', 'name="slot"', 'name="area"', 'name="notes"', "navigator.geolocation", "📍 Use Current Location", "leadId", "Confirm Your Booking", "Request Inspection / Submit Inquiry", "Please choose your preferred date.", "Please choose a time slot.", "visualViewport", "Morning (9 AM–12 PM)", "Afternoon (12 PM–3 PM)", "Evening (3 PM–6 PM)"]) assert.ok(m.includes(f), f);
   const api = readFileSync("src/app/api/leads/submit/route.ts", "utf8");
   assert.match(api, /leadId/);
   assert.match(api, /void sendEmail\(/, "management e-mail never blocks the response");
@@ -42,29 +43,60 @@ test("header (app-like): logo left, pulsing Call Now / WhatsApp Us, sidebar hamb
   assert.doesNotMatch(h, /<details key=/, "no nested accordions in the mobile menu");
 });
 
-test("homepage order: hero → Google rating → client marquee → About → 4 cards → combo swiper → branches; no price cards / inspection / relocation", () => {
+test("homepage order: hero → Google rating → client marquee → About → 4 cards → combo swiper → branches; cards open landing pages", () => {
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  const order = ["<HomeHeroSlider", "<GoogleRatingBadge", "<ClientMarquee", 'id="about-title"', "<HomeServiceDrill", "<ComboSwiper", "<BranchDetails"].map((x) => home.indexOf(x));
+  const order = ["<HomeHeroSlider", "<GoogleRatingBadge", "<ClientMarquee", 'id="about-title"', "<HomeServiceCards", "<ComboSwiper", "<BranchDetails"].map((x) => home.indexOf(x));
   for (const i of order) assert.ok(i > 0);
   assert.deepEqual([...order].sort((x, y) => x - y), order, "sections in the owner's order");
   for (const gone of ["<HomeBhkPriceCards", "<InspectionFlow", "<CategoryGrid", "Relocation", "<Faqs"]) assert.ok(!home.includes(gone), `${gone} is off the homepage`);
   const slider = readFileSync("src/components/public/home-hero-slider.tsx", "utf8");
   assert.match(slider, /snap-x snap-mandatory/, "native touch swipe");
   assert.doesNotMatch(slider, /<h1|<h2|<p\b/, "hero slides carry no overlay text");
-  const drill = readFileSync("src/components/public/home-service-drill.tsx", "utf8");
-  for (const f of ["1 BHK", "4 BHK", "Bungalow / Villa", "Move-in / Move-out", "Post-Construction", "Interior Painting", "Pest Control"]) assert.ok(drill.includes(f), f);
+  const blocks = readFileSync("src/components/public/catalog-blocks.tsx", "utf8");
+  const cards = blocks.slice(blocks.indexOf("export async function HomeServiceCards"));
+  for (const f of ['servicePath("home-deep-cleaning")', 'categoryPath("individual")', 'servicePath("interior-painting")', 'servicePath("pest-control")', "<Link href={c.href}"]) assert.ok(cards.includes(f), f);
 });
 
-test("branches + footer: new Mohammadwadi address, no map buttons, single GSTIN, WhatsApp in socials", () => {
-  const blocks = readFileSync("src/components/public/catalog-blocks.tsx", "utf8");
+test("clients: official list, BHEL removed", async () => {
+  const { CLIENT_NAMES } = await import("../src/lib/client-logos");
+  assert.deepEqual([...CLIENT_NAMES], ["Renom Technologies", "Eaton Technologies", "Clover Hills", "ABIL", "Leisure Town", "Panthernails", "Padam Interiors", "Studio XP"]);
+  assert.ok(!(CLIENT_NAMES as readonly string[]).some((n) => /bhel/i.test(n)));
+});
+
+test("pest control: flat 1–4 BHK rates for all five treatments; 1 BHK = owner-stated starting price", async () => {
+  const { PEST_BHK_RATES, PEST_BHK_SIZES } = await import("../src/lib/pricing-master");
+  assert.deepEqual([...PEST_BHK_SIZES], ["1 BHK", "2 BHK", "3 BHK", "4 BHK"]);
+  assert.deepEqual(PEST_BHK_RATES.map((r) => r.name), ["Cockroach & Ant Control", "Bed Bug Control", "Rodent Control", "Termite Control", "Mosquito Control"]);
+  const first = Object.fromEntries(PEST_BHK_RATES.map((r) => [r.name, r.rates["1 BHK"]]));
+  assert.equal(first["Cockroach & Ant Control"], 999);
+  assert.equal(first["Bed Bug Control"], 1199);
+  assert.equal(first["Rodent Control"], 1499);
+  assert.equal(first["Termite Control"], 2499);
+  for (const r of PEST_BHK_RATES) for (let i = 1; i < PEST_BHK_SIZES.length; i++) assert.ok(r.rates[PEST_BHK_SIZES[i]] >= r.rates[PEST_BHK_SIZES[i - 1]], `${r.name} rises with home size`);
+});
+
+test("landing pages: calculator, scope (included / excluded / GST), zone table for every service; category pages exist", () => {
+  const page = readFileSync("src/app/(public)/services/[category]/page.tsx", "utf8");
+  const svc = page.slice(page.indexOf("async function CatalogServicePage"), page.indexOf("async function CatalogCategoryPage"));
+  for (const f of ["<ServicePricing", "<ScopeOfWork", "<ZoneAccordion", 'href="#book"']) assert.ok(svc.includes(f), f);
+  assert.match(page, /catalogCategoryBySlug\(slug\)/);
+  const calc = readFileSync("src/components/public/rate-calculators.tsx", "utf8");
+  for (const f of ["export function PackageCalculator", "export function QtyCalculator", "export function PestCalculator", "Bungalow / Villa", "Move-in / Move-out", "Post-Construction", "Not included"]) assert.ok(calc.includes(f), f);
+});
+
+test("sidebar + footer: no Our Work / Areas links; Blog + Contact; footer = 4 category columns, no branch blocks or rating card", () => {
+  const side = readFileSync("src/components/public/sidebar-menu.tsx", "utf8");
+  assert.doesNotMatch(side, /Our Work|Areas We Serve/);
+  assert.match(side, /href="\/blog"/);
+  assert.match(side, /href="\/contact"/);
   const kit = readFileSync("src/components/public/landing-kit.tsx", "utf8");
   const footer = kit.slice(kit.indexOf("export function SiteFooter"), kit.indexOf("Mobile bottom bar for /booking"));
-  assert.match(readFileSync("src/config/pune-seo-matrix.ts", "utf8"), /streetAddress: "Anand Nagar, Tarwade Vasti, Hadapsar"/);
-  for (const src of [footer, blocks.slice(blocks.indexOf("export function BranchDetails"))]) assert.doesNotMatch(src.slice(0, 3000), /Google Maps|maps\.google|FaGoogle/);
+  assert.match(footer, /md:grid-cols-4/);
+  assert.doesNotMatch(footer, /Branch|streetAddress|TRUST\.rating|Google Maps/);
   assert.equal(footer.split("COMPANY.gstin").length - 1, 1, "GSTIN once");
-  assert.doesNotMatch(footer, /TRUST\.rating/, "no duplicate rating card");
   assert.match(footer, /<FooterSocial withWhatsApp \/>/);
   assert.match(readFileSync("src/components/public/footer-social.tsx", "utf8"), /FaWhatsapp/);
+  assert.match(readFileSync("src/config/pune-seo-matrix.ts", "utf8"), /streetAddress: "Anand Nagar, Tarwade Vasti, Hadapsar"/);
 });
 
 test("service pages: zonal accordion instead of scattered area tags", () => {

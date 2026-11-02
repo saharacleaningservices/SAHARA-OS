@@ -36,7 +36,7 @@ export function CategoryHero({ title, subtitle, image, alt, points, waText, waNu
         </ul>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <a href={ctaHref} className="sahara-shimmer min-h-11 rounded-full bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-[#0a2540]">{cta}</a>
-          <a href={`tel:+91${CONTACT.call[0]}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-primary"><Phone className="size-4" /> {CONTACT.call[0]}</a>
+          <a href={`tel:+91${CONTACT.call[0]}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-primary"><Phone className="size-4" /> Call Now</a>
           <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-success px-4 py-2.5 text-sm font-bold"><MessageCircle className="size-4" /> WhatsApp</a>
         </div>
       </div>
