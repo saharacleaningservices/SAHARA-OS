@@ -20,16 +20,17 @@ export const PUNE_AREAS: PuneArea[] = [
   { slug: "viman-nagar", name: "Viman Nagar", cluster: "east", premises: "offices, retail and apartment buildings" },
   { slug: "wagholi", name: "Wagholi", cluster: "east", premises: "new housing societies, warehouses and commercial units" },
   { slug: "undri", name: "Undri", cluster: "east", premises: "residential societies and bungalow communities" },
+  { slug: "mohammadwadi", name: "Mohammadwadi", cluster: "east", premises: "apartment societies, bungalows and local commercial premises near our Mohammadwadi branch" },
   { slug: "nibm", name: "NIBM Road", cluster: "east", premises: "apartment societies, bungalows and small offices" },
   { slug: "kondhwa", name: "Kondhwa", cluster: "east", premises: "residential societies and commercial premises" },
   { slug: "koregaon-park", name: "Koregaon Park", cluster: "east", premises: "apartments, offices, restaurants and boutique premises" },
   { slug: "kalyani-nagar", name: "Kalyani Nagar", cluster: "east", premises: "offices, apartments and retail" },
   { slug: "baner", name: "Baner", cluster: "west", premises: "apartment societies, offices and showrooms" },
   { slug: "wakad", name: "Wakad", cluster: "west", premises: "high-rise societies and IT-corridor offices" },
-  { slug: "hinjewadi", name: "Hinjewadi", cluster: "west", premises: "IT parks, corporate offices and apartment societies" },
+  { slug: "hinjewadi", name: "Hinjewadi", cluster: "west", premises: "IT parks across Hinjewadi Phase 1, 2 and 3, corporate offices and apartment societies" },
   { slug: "aundh", name: "Aundh", cluster: "west", premises: "apartments, bungalows and offices" },
   { slug: "kothrud", name: "Kothrud", cluster: "central", premises: "apartments, bungalows, clinics and offices" },
-  { slug: "pcmc", name: "Pimpri-Chinchwad (PCMC)", cluster: "pcmc", premises: "factories, warehouses, offices and residential complexes" },
+  { slug: "pcmc", name: "Pimpri-Chinchwad (PCMC)", cluster: "pcmc", premises: "factories and warehouses in the Bhosari, Chinchwad and Talawade MIDC industrial belts, offices and residential complexes" },
 ];
 
 export const areaBySlug = (slug: string) => PUNE_AREAS.find((a) => a.slug === slug);

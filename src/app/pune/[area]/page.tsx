@@ -8,6 +8,7 @@ import { areaServiceJsonLd, breadcrumbJsonLd } from "@/lib/seo-schema";
 import { LandingShell, Faqs, Terms, AreasBadge, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { CategoryHero, CategoryBar, ServiceTiles, StickyWhatsApp } from "@/components/public/category-landing";
 import { CategoryLeadForm } from "@/components/public/category-lead-form";
+import { CategoryGrid } from "@/components/public/catalog-blocks";
 
 // Area landing page: one per Pune sub-market. The high-intent offer (office cleaning, housekeeping / facility-management AMC) is
 // the proposal form; every page links to all five service pages. Content is area-specific (premises, FAQ) — facts only, no prices.
@@ -74,6 +75,21 @@ export default async function AreaPage({ params }: Props) {
             ))}
           </ul>
         </section>
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <h2 className="text-xl font-bold">Who we work with in {area.name}</h2>
+          <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-5">
+            {[
+              { t: "Housing societies", d: "Common-area housekeeping AMC, tank and façade cleaning, pest control", href: "/services/facility-management" },
+              { t: "IT parks & offices", d: "Daily housekeeping, office deep cleaning and pantry staff", href: "/services/office-cleaning-housekeeping" },
+              { t: "Architects & builders", d: "Post-interior and post-construction handover cleaning", href: "/services/post-construction-cleaning" },
+              { t: "Restaurants", d: "Commercial kitchen degreasing and pest control", href: "/services/restaurant-kitchen-cleaning" },
+              { t: "Homes", d: "Fixed-rate 1/2/3 BHK deep cleaning", href: "/services/home-deep-cleaning" },
+            ].map((x) => (
+              <li key={x.t}><Link href={x.href} className="block h-full rounded-xl bg-[#eef3fb] p-3 hover:ring-2 hover:ring-primary"><span className="font-bold text-[#0a2540]">{x.t}</span><span className="mt-1 block text-[#0a2540]/70">{x.d}</span></Link></li>
+            ))}
+          </ul>
+        </section>
+        <CategoryGrid />
         <CategoryLeadForm
           service="HOUSEKEEPING"
           serviceLabel="Housekeeping AMC / Office cleaning"

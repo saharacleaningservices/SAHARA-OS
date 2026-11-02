@@ -19,6 +19,9 @@ const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
 const ADS = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 const ADS_LEAD_LABEL = process.env.NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL;
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+// Google Tag Manager container from Sahara's own account (rebuild 2026-11-02). Optional — GA4 / Ads / Pixel above work without it;
+// set it only if those tags are NOT also configured inside the container, or conversions double-count.
+const GTM = process.env.NEXT_PUBLIC_GTM_ID && /^GTM-[A-Z0-9]{4,10}$/.test(process.env.NEXT_PUBLIC_GTM_ID) ? process.env.NEXT_PUBLIC_GTM_ID : null;
 const LI_PARTNER = process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID; // LinkedIn Insight Tag partner id (numeric)
 const LI_CONVERSION = process.env.NEXT_PUBLIC_LINKEDIN_CONVERSION_ID; // optional: LinkedIn conversion rule id for a lead
 
@@ -103,10 +106,15 @@ export function MarketingTags({ withPixel = false }: { withPixel?: boolean } = {
 
   const pixel = withPixel && PIXEL;
   const linkedin = LI_PARTNER && /^\d{4,12}$/.test(LI_PARTNER) ? LI_PARTNER : null;
-  if (!GA4 && !ADS && !pixel && !linkedin) return null;
+  if (!GA4 && !ADS && !pixel && !linkedin && !GTM) return null;
   const ids = [GA4, ADS].filter(Boolean) as string[];
   return (
     <>
+      {GTM && (
+        <Script id="sahara-gtm" strategy="afterInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM}');`}
+        </Script>
+      )}
       {pixel && (
         <Script id="sahara-meta-pixel" strategy="afterInteractive">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL}');fbq('track','PageView');`}

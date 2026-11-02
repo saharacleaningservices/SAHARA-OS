@@ -33,7 +33,10 @@ test("standalone homepage: '/' renders the public homepage on the website hosts,
   assert.match(mw, /if \(pathname === "\/"\) return NextResponse\.next\(\);/);
   assert.doesNotMatch(mw, /url\.pathname = "\/booking";/, "the booking host no longer bounces / to /booking");
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  for (const part of ["<FunnelCards leadMode />", "<HomeBhkPriceCards />", "<LeadModal", "HomeAbout", "ReviewsCarousel", "ClientCarousel", "NAV_MEGA", "BranchCards", "CategoryHero", "Faqs"]) assert.match(home, new RegExp(part));
+  // Rebuild 2026-11-02: hero slider → 4-category grid → BHK cards → combos → inspection flow → work gallery → trust → areas → FAQ.
+  for (const part of ["<HomeHeroSlider", "<CategoryGrid />", "<HomeBhkPriceCards />", "<ComboPackages />", "<InspectionFlow", "<WorkGallery", "HomeAbout", "ReviewsCarousel", "<PartnersMarquee />", "BranchCards", "Faqs"]) assert.match(home, new RegExp(part));
+  // The lead modal is mounted once per page by LandingShell, so every Book button on every page opens it.
+  assert.match(readFileSync("src/components/public/landing-kit.tsx", "utf8"), /<LeadModal /);
   assert.doesNotMatch(home, /BookingWizard|id="book"|checkout/, "the homepage never holds the booking form or routes to a checkout");
   assert.doesNotMatch(home, /cognito|<iframe|FestivalZoneEffects/i);
 });
