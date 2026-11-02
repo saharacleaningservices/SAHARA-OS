@@ -43,13 +43,13 @@ test("festival components: reduced-motion safe, no layout shift, no prices or sl
   assert.doesNotMatch(readFileSync("src/components/public/mega-menu.tsx", "utf8"), /<details key=/, "no nested accordions in the mobile menu");
 });
 
-test("mega-menu: 4 residential + 5 commercial pillars, every link on an existing route, no waterproofing / wallpaper", () => {
-  const [res, com] = NAV_MEGA;
-  assert.equal(res.pillars.length, 4);
-  assert.equal(com.pillars.length, 5);
-  assert.deepEqual(res.pillars.map((p) => p.title), ["Home Deep Cleaning", "Individual Cleaning Services", "Pest Control", "Painting Services"]);
-  assert.deepEqual(com.pillars.map((p) => p.title), ["Commercial Deep Cleaning", "Housekeeping Services & AMC", "Commercial Pest Control", "Commercial Painting", "Facility Management Solutions"]);
+test("mega-menu: 4 categories (Residential, Individual, Commercial B2B, Relocation & Property), every link on an existing route", () => {
+  assert.deepEqual(NAV_MEGA.map((m) => m.id), ["residential", "individual", "commercial", "relocation"]);
+  assert.deepEqual(NAV_MEGA.map((m) => m.label), ["Residential Services", "Individual Services", "Commercial Services (B2B)", "Relocation & Property Services"]);
+  for (const m of NAV_MEGA) assert.ok(m.items.length >= 3, `${m.id} has services`);
   for (const h of NAV_HREFS) assert.ok(isKnownNavHref(h), `unknown menu link ${h}`);
+  // Commercial and relocation are always on inspection; no fixed price is ever shown for them.
+  for (const m of NAV_MEGA.filter((x) => x.id === "commercial" || x.id === "relocation")) for (const i of m.items) assert.equal(i.pricing, "inspection", i.label);
   assert.ok(SERVICE_CATEGORIES.length >= 6);
   assert.doesNotMatch(JSON.stringify(NAV_MEGA), /waterproof|wallpaper/i);
 });

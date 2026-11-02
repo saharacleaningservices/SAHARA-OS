@@ -18,6 +18,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { PUNE_AREAS } from "../src/lib/pune-areas";
 import { PROGRAMMATIC_PAGES, SERVICE_CATEGORIES } from "../src/config/pune-seo-matrix";
+import { CATALOG_SERVICES } from "../src/config/service-catalog";
 
 const BOOKING = "https://saharacleaningservices.com";
 const CRM = "https://crm.saharacleaningservices.com";
@@ -30,9 +31,12 @@ const PROGRAMMATIC = PROGRAMMATIC_PAGES.map((p) => `/services/${p.category}/${p.
 const SEO_HUBS = ["/services", "/contact", ...SERVICE_CATEGORIES.map((c) => `/services/${c.slug}`), "/b2b/architects", "/b2b/corporate-facility"];
 // Programmatic pages are sampled in the per-page checks below (all of them are checked for the sitemap and by tests/pune-seo-matrix.test.ts).
 const PROGRAMMATIC_SAMPLE = PROGRAMMATIC.filter((_, i) => i % 37 === 0);
-const CORE = ["/booking", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
-const INDEXABLE = [...CORE, ...SEO_HUBS, ...PROGRAMMATIC_SAMPLE];
-const SITEMAP_ALL = ["/", ...CORE, ...SEO_HUBS, ...PROGRAMMATIC];
+// /booking now 307s to the homepage (PR #97/#98, 2026-11-01) — "/" is the indexable booking surface.
+const CORE = ["/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
+// Service catalog pages (rebuild 2026-11-02) not already covered by a SEO hub slug, plus the Scope of Work policy.
+const CATALOG = CATALOG_SERVICES.map((s) => `/services/${s.slug}`).filter((p) => !SEO_HUBS.includes(p));
+const INDEXABLE = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC_SAMPLE];
+const SITEMAP_ALL = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC];
 const LANDING = ["/landing/home-deep-cleaning-pune", "/landing/interior-painting-pune", "/landing/office-commercial-cleaning-pune", "/landing/pest-control-services-pune"];
 // Public pages that must keep answering 200 but are not meant for the sitemap.
 const OTHER_PUBLIC = ["/privacy-policy", "/terms"];

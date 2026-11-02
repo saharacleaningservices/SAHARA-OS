@@ -1,9 +1,12 @@
 import { MegaMenuHeader } from "@/components/public/mega-menu";
+import { LeadButton } from "@/components/public/lead-button";
+import { NAV_MEGA } from "@/config/nav-menu";
+import { BRANCHES } from "@/config/pune-seo-matrix";
 import Link from "next/link";
 import { socialProfileUrls } from "@/lib/social-links";
 import { FooterSocial } from "@/components/public/footer-social";
 import type { ReactNode } from "react";
-import { Phone, MapPin, Check, X, MessageCircle, Mail, Globe, Star, CalendarCheck } from "lucide-react";
+import { Phone, MapPin, Check, X, MessageCircle, Mail, Star, CalendarCheck } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
 import { CompanyLogo } from "@/components/shared/company-logo";
 import { AreasMapBlock } from "@/components/public/areas-map-block";
@@ -14,10 +17,10 @@ import { BookingWizard } from "@/components/public/booking-wizard";
 import { ServiceCards } from "@/components/public/service-cards";
 import { LandingHeroCarousel, type CarouselImage } from "@/components/public/landing-hero-carousel";
 import type { HomeRow } from "@/components/public/price-selector";
-import { waLink, CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
+import { waLink, CONTACT, EQUIPMENT, TERMS, WEBSITE_URL, GOOGLE_MAPS_URL, inr, livePkgs, reviewCountLabel, type Pkg } from "@/lib/marketing-content";
 import { buildBusinessJsonLd } from "@/lib/seo-schema";
 import { PriceSelector } from "@/components/public/price-selector";
-import { BhkPriceCards } from "@/components/public/bhk-price-cards";
+import { BhkPriceCards, LeadModal } from "@/components/public/bhk-price-cards";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
 import { SERVICE_AREA_NOTICE, activeCampaign, todayIST } from "@/lib/pricing-master";
 import { festivalUrgency } from "@/lib/festival-urgency";
@@ -101,8 +104,9 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
   return { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
 }
 
-/** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). */
-export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, footer, mobileBar, bookHref = "/booking?service=home#book" }: { logoUrl?: string | null; waText: string; /** Branch WhatsApp line (10 digits) for the header buttons. */ waNumber?: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
+/** footer / mobileBar: campaign landing pages pass their own (components/public/campaign-kit.tsx). `bookHref` is accepted for
+ * older call sites; since the 2026-11-02 rebuild every "Book" button opens the shared lead modal mounted here instead. */
+export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, footer, mobileBar }: { logoUrl?: string | null; waText: string; /** Branch WhatsApp line (10 digits) for the header buttons. */ waNumber?: string; jsonLd: object[]; children: ReactNode; footer?: ReactNode; mobileBar?: ReactNode; bookHref?: string }) {
   return (
     <div className="theme-navy min-h-screen bg-[#eef4fb] pb-16 text-[#0a2540] sm:pb-0">
       <AttributionCapture />
@@ -110,71 +114,79 @@ export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, foot
       {jsonLd.map((j, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(j) }} />
       ))}
-      <MegaMenuHeader logo={<CompanyLogo logoUrl={logoUrl} className="h-[40px] w-auto max-w-[160px]" />} bookHref={bookHref} />
+      <MegaMenuHeader logo={<CompanyLogo logoUrl={logoUrl} className="h-[40px] w-auto max-w-[160px]" />} />
       {children}
-      <style>{`@keyframes sahara-glow{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 7px rgba(37,99,235,0)}}`}</style>
-      {footer ?? (
-      <footer className="mt-6 bg-[#0a2540] text-white/80">
-        <div className="mx-auto grid max-w-6xl gap-5 px-4 py-6 text-sm sm:py-8 md:grid-cols-3">
-          {/* Block 1 — Location */}
-          <section aria-labelledby="ft-location" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-            <h2 id="ft-location" className="text-base font-extrabold text-white">Visit us</h2>
-            <address className="flex gap-1.5 not-italic text-white/85"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{CONTACT.address}</address>
-            <iframe
-              title="Sahara Cleaning Services on Google Maps"
-              src="https://www.google.com/maps?q=Opposite+South+Gate,+Magarpatta+City,+Hadapsar,+Pune+411028&output=embed"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="h-44 w-full rounded-xl border-0 bg-white/10"
-            />
-            <p className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-semibold text-white">
-              {CONTACT.call.map((n) => <a key={n} href={`tel:+91${n}`} className="hover:text-amber-300">+91 {n.slice(0, 5)} {n.slice(5)}</a>)}
-            </p>
-          </section>
-          {/* Block 2 — Service directory, email, social */}
-          <section aria-labelledby="ft-services" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-            <h2 id="ft-services" className="text-base font-extrabold text-white">Our services</h2>
-            <ul className="space-y-1.5 text-[13px]">
-              {/* Booking intent → straight into the booking wizard with the service pre-selected (owner 2026-10-26). */}
-              {FOOTER_SERVICE_LINKS.map((l) => (
-                <li key={l.href}><Link href={l.href} className="hover:text-white">{l.label}</Link></li>
-              ))}
-              <li><Link href="/booking#book" className="font-semibold text-amber-400">Book Online</Link></li>
-            </ul>
-            <a href={`mailto:${CONTACT.email}`} className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
-            <a href={WEBSITE_URL} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center gap-1.5 break-all text-white/85 hover:text-white"><Globe className="size-3.5 shrink-0" />saharacleaningservices.com</a>
-          </section>
-          {/* Block 3 — Trust, legal */}
-          <section aria-labelledby="ft-trust" className="space-y-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-            <h2 id="ft-trust" className="text-base font-extrabold text-white">Serving Pune Since 2012</h2>
-            <ul className="flex flex-wrap gap-1.5 text-[11px] font-semibold">
-              {["In-house verified staff", "Transparent pricing", "Pay after service"].map((b) => (
-                <li key={b} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-white"><Check className="size-3 text-emerald-300" aria-hidden />{b}</li>
-              ))}
-            </ul>
-            <div className="space-y-1 rounded-xl bg-white/5 px-3 py-2 text-[13px]">
-              <p>GSTIN: <span className="font-semibold text-white">{COMPANY.gstin}</span></p>
-              <p className="flex flex-wrap items-center gap-x-2"><Link href="/privacy-policy" className="inline-flex min-h-11 items-center underline hover:text-white">Privacy Policy</Link><span aria-hidden>·</span><Link href="/terms" className="inline-flex min-h-11 items-center underline hover:text-white">Terms &amp; Conditions</Link></p>
-            </div>
-            <FooterSocial />
-            <Link href="/gallery" className="block text-[13px] hover:text-white">Our work — gallery</Link>
-          </section>
-        </div>
-        <div className="border-t border-white/10"><AreasMapBlock dark /></div>
-        <div className="border-t border-white/10">
-          <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© Sahara Cleaning Services</p>
-        </div>
-      </footer>
-      )}
-      {/* Mobile bottom bar — one primary number only. */}
+      {footer ?? <SiteFooter />}
+      {/* Mobile bottom bar — call, WhatsApp, book. */}
       {mobileBar ?? (
       <div className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-border bg-white text-center text-xs font-bold sm:hidden">
-        <a href={`tel:+91${CONTACT.call[0]}`} className="flex items-center justify-center gap-1 py-3 text-primary"><Phone className="size-3.5" /> Call</a>
-        <a href={waLink(waText)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
-        <Link href="/booking?service=home#book" className="bg-primary py-3 text-white">Book Now</Link>
+        <a href={`tel:+91${BRANCHES.magarpatta.phone}`} className="flex items-center justify-center gap-1 py-3 text-primary"><Phone className="size-3.5" /> Call</a>
+        <a href={waLink(waText, waNumber ?? BRANCHES.magarpatta.whatsapp)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1 bg-success py-3 text-white"><MessageCircle className="size-3.5" /> WhatsApp</a>
+        <LeadButton intent={{ service: "General enquiry" }} className="bg-primary py-3 text-white">Book Now</LeadButton>
       </div>
       )}
+      <LeadModal waNumber={waNumber ?? BRANCHES.magarpatta.whatsapp} />
     </div>
+  );
+}
+
+/** Site footer (rebuild 2026-11-02): both branches with Google Maps links, the 4 service categories, socials, legal and trust. */
+export function SiteFooter() {
+  const branches = [
+    { b: BRANCHES.magarpatta, calls: [BRANCHES.magarpatta.phone], maps: GOOGLE_MAPS_URL },
+    { b: BRANCHES.mohammadwadi, calls: [BRANCHES.mohammadwadi.phone, ...BRANCHES.mohammadwadi.altPhones], maps: BRANCHES.mohammadwadi.mapsUrl ?? GOOGLE_MAPS_URL },
+  ];
+  const fmt = (n: string) => `+91 ${n.slice(0, 5)} ${n.slice(5)}`;
+  return (
+    <footer className="mt-6 bg-[#0a2540] text-white/80">
+      <div className="mx-auto grid max-w-6xl gap-5 px-4 py-8 text-sm lg:grid-cols-[1.3fr_1.4fr_1fr]">
+        <section aria-labelledby="ft-branches" className="space-y-3">
+          <h2 id="ft-branches" className="text-base font-extrabold text-white">Our branches</h2>
+          {branches.map(({ b, calls, maps }) => (
+            <div key={b.key} className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
+              <p className="font-extrabold text-white">{b.key === "magarpatta" ? "Magarpatta Branch" : "Mohammadwadi Branch"}</p>
+              <address className="mt-1 flex gap-1.5 not-italic text-[13px] text-white/75"><MapPin className="mt-0.5 size-4 shrink-0 text-amber-400" />{b.streetAddress}, Pune {b.postalCode}</address>
+              <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[13px] font-semibold text-white">
+                {calls.map((n) => <a key={n} href={`tel:+91${n}`} className="inline-flex items-center gap-1 hover:text-amber-300"><Phone className="size-3.5" />{fmt(n)}</a>)}
+                {b.key === "magarpatta" && <a href={waLink("Hi Sahara, I'd like a quote.", b.whatsapp)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#4ade80] hover:text-amber-300"><MessageCircle className="size-3.5" />WhatsApp {fmt(b.whatsapp)}</a>}
+              </p>
+              <a href={maps} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-white/10 px-3 text-[12px] font-bold text-white hover:bg-white hover:text-[#0a2540]"><FaGoogle className="size-3.5" />Google Maps & reviews</a>
+            </div>
+          ))}
+        </section>
+        <section aria-labelledby="ft-services" className="space-y-3">
+          <h2 id="ft-services" className="text-base font-extrabold text-white">Services</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {NAV_MEGA.map((m) => (
+              <div key={m.id}>
+                <p className="text-[12px] font-extrabold uppercase tracking-wide text-amber-300">{m.label.replace(" (B2B)", "")}</p>
+                <ul className="mt-1.5 space-y-1 text-[13px]">
+                  {m.items.map((i) => <li key={i.href}><Link href={i.href} className="hover:text-white">{i.label}</Link></li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section aria-labelledby="ft-trust" className="space-y-3">
+          <h2 id="ft-trust" className="text-base font-extrabold text-white">Serving Pune since 2012</h2>
+          <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-white hover:bg-white/15"><Star className="size-4 fill-amber-300 text-amber-300" aria-hidden /><span className="font-extrabold">{TRUST.rating}★ Google</span><span className="text-[12px] text-white/70">{TRUST.siteReviewLabel} reviews</span></a>
+          <p className="rounded-xl bg-white/10 px-3 py-2 text-[13px]">GSTIN <span className="font-semibold text-white">{COMPANY.gstin}</span></p>
+          <a href={`mailto:${CONTACT.email}`} className="flex min-h-9 items-center gap-1.5 break-all text-[13px] text-white/85 hover:text-white"><Mail className="size-3.5 shrink-0" />{CONTACT.email}</a>
+          <FooterSocial />
+          <ul className="space-y-1 text-[13px]">
+            <li><Link href="/scope-of-work" className="hover:text-white">Scope of Work</Link></li>
+            <li><Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link></li>
+            <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+            <li><Link href="/gallery" className="hover:text-white">Our work — gallery</Link></li>
+            <li><Link href="/pune" className="hover:text-white">Areas we serve</Link></li>
+          </ul>
+        </section>
+      </div>
+      <div className="border-t border-white/10"><AreasMapBlock dark /></div>
+      <div className="border-t border-white/10">
+        <p className="mx-auto max-w-6xl px-4 py-3 text-center text-[11px] text-white/50">© {new Date().getFullYear()} Sahara Cleaning Services, Pune · <a href={WEBSITE_URL} className="hover:text-white">saharacleaningservices.com</a></p>
+      </div>
+    </footer>
   );
 }
 

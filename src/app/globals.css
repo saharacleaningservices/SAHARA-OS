@@ -180,8 +180,27 @@
 .sahara-pulse {
   animation: sahara-pulse-ring 1.6s infinite;
 }
+/* Wave pulse for the header "Call Now" / "WhatsApp Us" buttons (rebuild 2026-11-02). Box-shadow only: no layout shift. */
+@keyframes sahara-wave-call {
+  0% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0.55), 0 0 0 0 rgba(11, 94, 215, 0.35); }
+  70% { box-shadow: 0 0 0 10px rgba(11, 94, 215, 0), 0 0 0 18px rgba(11, 94, 215, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(11, 94, 215, 0), 0 0 0 0 rgba(11, 94, 215, 0); }
+}
+@keyframes sahara-wave-wa {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6), 0 0 0 0 rgba(37, 211, 102, 0.35); }
+  70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0), 0 0 0 18px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0), 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+.sahara-wave-call { animation: sahara-wave-call 1.8s ease-out infinite; }
+.sahara-wave-wa { animation: sahara-wave-wa 1.8s ease-out infinite; animation-delay: 0.9s; }
+
+/* Client logo marquee + hero slider (rebuild 2026-11-02). */
+@keyframes sahara-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.sahara-marquee { animation: sahara-marquee 40s linear infinite; }
+.sahara-marquee:hover { animation-play-state: paused; }
+
 @media (prefers-reduced-motion: reduce) {
-  .sahara-pulse { animation: none; }
+  .sahara-pulse, .sahara-wave-call, .sahara-wave-wa, .sahara-marquee { animation: none; }
 }
 
 /* Signature pad canvas */
