@@ -29,15 +29,22 @@ test("public site serves /images/ (before/after photos from Claude Desktop need 
   assert.match(read("src/middleware.ts"), /pathname\.startsWith\("\/images\/"\)/);
 });
 
-test("before/after handoff: component + 16 WebP cards shipped, placed between the expansion banner and Trusted by", () => {
+test("before/after: 16 WebP cards in one carousel (swipe, arrows, dots, 4 s autoplay), placed below Our Services / Combo packages", () => {
   const { readdirSync } = require("node:fs") as typeof import("node:fs");
   const files = readdirSync("public/images/before-after").filter((f: string) => f.endsWith(".webp"));
   assert.equal(files.length, 16);
   const comp = read("src/components/BeforeAfterSection.tsx");
   for (const f of files) assert.ok(comp.includes(`"${f.replace(/\.webp$/, "")}"`), `${f} is used by the component`);
-  assert.match(comp, /width=\{265\}\s+height=\{265\}/, "fixed card size → no layout shift");
+  assert.match(comp, /width=\{265\} height=\{265\}/, "fixed card size → no layout shift");
+  assert.match(comp, /h-\[265px\] w-\[265px\] shrink-0 snap-start/, "one swipeable row of fixed-size cards");
+  assert.match(comp, /const AUTOPLAY_MS = 4000;/);
+  assert.match(comp, /aria-label="Previous result"/);
+  assert.match(comp, /aria-label="Next result"/);
+  assert.match(comp, /aria-label=\{`Show result \$\{n \+ 1\}`\}/, "pagination dots");
+  assert.match(comp, /new IntersectionObserver/, "autoplay only while on screen");
+  assert.doesNotMatch(comp, /sahara-ba__grid|flex-wrap:wrap/, "no stacked grids any more");
   const home = read("src/components/public/home-page.tsx");
-  const order = ["<ExpansionBanner", "<BeforeAfterSection", "<ClientMarquee"].map((x) => home.indexOf(x));
+  const order = ["<HomeServiceCards", "<ComboSwiper", "<BeforeAfterSection", "<ZoneGrid"].map((x) => home.indexOf(x));
   assert.ok(order.every((n) => n > 0));
   assert.deepEqual([...order].sort((a, b) => a - b), order);
 });
