@@ -8,7 +8,7 @@ import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/con
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { catalogCategory, catalogCategoryBySlug, catalogServiceBySlug, categoryPath, servicePath, servicesIn, type CatalogCategory, type CatalogService } from "@/config/service-catalog";
-import { CategoryServiceCards, ComboSwiper, InspectionFlow, ScopeOfWork, ServicePricing, ZoneAccordion } from "@/components/public/catalog-blocks";
+import { CategoryServiceCards, ComboSwiper, InspectionFlow, ScopeOfWork, ServicePricing, WorkGallery, ZoneAccordion, ComboUpsell } from "@/components/public/catalog-blocks";
 import { TRUST } from "@/lib/booking-target";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
@@ -109,7 +109,9 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
         <ServicePricing service={s} />
+        {s.category === "individual" && <ComboUpsell contentIds={s.pricing.contentIds} />}
         <ScopeOfWork service={s} />
+        <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[]} onlyReal />
         <ZoneAccordion seoSlug={seo?.slug} service={s.name} />
         {siblings.length > 0 && (
           <section className="rounded-2xl bg-white p-5 text-sm shadow-sm">
@@ -143,8 +145,9 @@ async function CatalogCategoryPage({ c }: { c: CatalogCategory }) {
       <CategoryHero image={c.image} alt={c.label} title={`${c.label} in Pune`} subtitle={c.blurb} points={servicesIn(c.id).slice(0, 4).map((x) => x.name)} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <CategoryServiceCards id={c.id} anchor={c.id === "individual"} />
+        {c.id === "individual" && <ComboUpsell />}
         {c.id === "individual" && <ComboSwiper />}
-        {inspection && <InspectionFlow service={c.label} />}
+        {inspection && <InspectionFlow service={c.label} b2b={c.id === "commercial"} title={c.id === "commercial" ? "Free site audit for your premises" : undefined} />}
         {c.id === "residential" && <InspectionFlow service="Residential — custom / larger home" title="Villa, bungalow or custom job? Get a free inspection" />}
         <ZoneAccordion service={c.label} />
         <Faqs faqs={faqs} compact />

@@ -418,8 +418,8 @@ test("staff app (real DB): own job shows NO money at all (no amount, paid, balan
     await db.lead.create({ data: { leadNumber: `LD-${yr}-0050`, name: "T", mobile: "9000000003", area: "x", service: "HOME_DEEP_CLEANING", source: "WEBSITE" } });
     assert.equal(await generateLeadNumber(), `LD-${yr}-0051`, "lead number never collides with an existing one");
 
-    // ── No ₹3,999 minimum (owner decision 2026-10-10): real public bookings below ₹3,999 go through
-    // at their exact pricing-master totals; the other validation rules still hold.
+    // ── Zone A / unrestricted areas (owner decision 2026-10-10, kept): bookings below ₹3,999 go through at their exact
+    // pricing-master totals. Zone B (West Pune / PCMC, owner final sprint 2026-11-02) is checked separately below.
     const { publicBookLead } = await import("../src/server/actions/public-booking");
     const book = async (v: Record<string, unknown>) => {
       try { return (await publicBookLead(v)) as { error?: string } | undefined; } catch (e) {
@@ -429,7 +429,7 @@ test("staff app (real DB): own job shows NO money at all (no amount, paid, balan
       }
     };
     const bookDay = new Date(Date.now() + 5.5 * 3600_000 + 3 * 86400_000).toISOString().slice(0, 10);
-    const bookBase = { name: "Small Job Test", area: "Baner", address: "1 Test Rd", timeSlot: "", attribution: {} };
+    const bookBase = { name: "Small Job Test", area: "Hadapsar", pinCode: "411028", address: "1 Test Rd", timeSlot: "", attribution: {} };
     const small: [string, string, { contentId: string; qty: number }[], number][] = [
       ["9100000001", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-30", qty: 1 }], 300], // 1 window (₹300 per window, owner 2026-11-02)
       ["9100000002", "INDIVIDUAL_CLEANING", [{ contentId: "SCS-09", qty: 5 }], 1245], // sofa 5 seats
@@ -443,6 +443,12 @@ test("staff app (real DB): own job shows NO money at all (no amount, paid, balan
       const lead = await db.lead.findFirst({ where: { mobile }, select: { quoteAmount: true } });
       assert.equal(lead?.quoteAmount, total, `stored ₹${lead?.quoteAmount}, expected the exact ₹${total} (never raised to a minimum)`);
     }
+    // Zone B: a ₹300 basket is refused with the owner's message (server-side, not just in the modal); ₹3,999 goes through.
+    const zoneB = { ...bookBase, area: "Baner", pinCode: "411045" };
+    const refused = await book({ ...zoneB, mobile: "9100000011", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-30", qty: 1 }] });
+    assert.equal(refused?.error, "Zone B (West Pune/PCMC) requires a Minimum Order Value of ₹3,999.");
+    const okB = await book({ ...zoneB, mobile: "9100000012", serviceCategory: "COMBO_PACKAGE", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-27", qty: 1 }] });
+    assert.ok(!okB?.error, `Zone B ₹3,999 booking rejected: ${okB?.error}`);
     // Below the item's own minimum quantity → priced at the minimum quantity (sofa 2 seats → 5 seats), not refused.
     await book({ ...bookBase, mobile: "9100000006", serviceCategory: "INDIVIDUAL_CLEANING", serviceDate: bookDay, selectedItems: [{ contentId: "SCS-09", qty: 2 }] });
     assert.equal((await db.lead.findFirst({ where: { mobile: "9100000006" }, select: { quoteAmount: true } }))?.quoteAmount, 1245);

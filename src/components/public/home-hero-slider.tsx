@@ -53,7 +53,7 @@ export function HomeHeroSlider({ photos }: { photos: HeroPhoto[] }) {
       >
         {photos.map((p, n) => (
           <div key={p.src} className="relative h-full w-full shrink-0 snap-center snap-always" aria-roledescription="slide" aria-label={`${n + 1} of ${photos.length}`}>
-            <Image src={p.src} alt={p.alt} fill priority={n === 0} loading={n === 0 ? undefined : "lazy"} sizes="100vw" quality={80} draggable={false} className="select-none object-cover" style={{ objectPosition: p.position ?? "50% 45%" }} />
+            <Image src={p.src} alt={p.alt} fill priority={n === 0} loading={n === 0 ? undefined : "lazy"} sizes="100vw" quality={72} draggable={false} className="select-none object-cover" style={{ objectPosition: p.position ?? "50% 45%" }} />
           </div>
         ))}
       </div>

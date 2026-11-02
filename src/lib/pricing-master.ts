@@ -13,7 +13,7 @@
 // There is NO minimum booking value in the transparent booking flow.
 // ─────────────────────────────────────────────────────────────────────────
 
-export type PriceGroup = "PREMIUM" | "PLATINUM" | "CUSTOMISED" | "COMBO" | "PAINTING" | "PEST" | "COMMERCIAL";
+export type PriceGroup = "PREMIUM" | "PLATINUM" | "UNFURNISHED" | "CUSTOMISED" | "COMBO" | "PAINTING" | "PEST" | "COMMERCIAL";
 
 export type PriceItem = {
   contentId: string;
@@ -91,6 +91,12 @@ export const PRICING_MASTER: PriceItem[] = [
   home("Platinum", 3, 8499, 7999, "SCS-07"),
   home("Platinum", 4, undefined, null, "SCS-08"), // 4 BHK+: price on inspection (owner 2026-10-09) — no fixed price
 
+  // Unfurnished Flat Deep Cleaning (owner benchmark rates 2026-11-02): 1 BHK ₹3,199 · 2 BHK ₹3,899 · 3 BHK ₹4,599.
+  // No 4 BHK unfurnished rate — 4 BHK and larger stay on free site inspection.
+  { contentId: "SCS-UF-1", group: "UNFURNISHED", name: "1BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 3199, bhk: "1 BHK", rule: "Empty flat — no furniture" },
+  { contentId: "SCS-UF-2", group: "UNFURNISHED", name: "2BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 3899, bhk: "2 BHK", rule: "Empty flat — no furniture" },
+  { contentId: "SCS-UF-3", group: "UNFURNISHED", name: "3BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 4599, bhk: "3 BHK", rule: "Empty flat — no furniture" },
+
   // Home Cleaning — Customised Cleaning (quantity based)
   { contentId: "SCS-09", group: "CUSTOMISED", name: "Sofa Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Sofa Cleaning", price: 249, unit: "per seat", minQty: 5, rule: "Minimum 5 seats" },
   { contentId: "SCS-10", group: "CUSTOMISED", name: "Bathroom Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Bathroom Cleaning", price: 599, unit: "per bathroom", minQty: 2, rule: "Minimum 2 bathrooms" },
@@ -99,10 +105,13 @@ export const PRICING_MASTER: PriceItem[] = [
   { contentId: "SCS-11", group: "CUSTOMISED", name: "Mattress Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Mattress Cleaning", price: 699, unit: "per mattress", minQty: 2, rule: "Minimum 2 mattresses" },
   // Owner 2026-11-02: window cleaning ₹300 per window; balcony cleaning split out as its own service (price confirmed before booking).
   { contentId: "SCS-30", group: "CUSTOMISED", name: "Window Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Window Cleaning", price: 300, unit: "per window", minQty: 1 },
-  { contentId: "SCS-34", group: "CUSTOMISED", name: "Balcony Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Balcony Cleaning", price: null, unit: "per balcony", minQty: 1, priceNote: ON_CONFIRMATION, scope: "Floor scrubbing, railing and grill wipe-down" },
+  { contentId: "SCS-34", group: "CUSTOMISED", name: "Balcony Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Balcony Cleaning", price: 499, unit: "per balcony", minQty: 1, scope: "Floor scrubbing, railing and grill wipe-down" },
   // No approved NEW price yet — shown as "price confirmed before booking" (no legacy price used).
   { contentId: "SCS-31", group: "CUSTOMISED", name: "Curtain Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Curtain Cleaning", price: null, unit: "per curtain", minQty: 1, priceNote: ON_CONFIRMATION, scope: "Includes curtain dry cleaning" },
-  { contentId: "SCS-32", group: "CUSTOMISED", name: "Fridge Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: null, unit: "per fridge", minQty: 1, priceNote: ON_CONFIRMATION },
+  { contentId: "SCS-32", group: "CUSTOMISED", name: "Fridge Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: 499, unit: "per fridge", minQty: 1 },
+  // Checkout add-on chips (owner 2026-11-02): Fridge ₹499 · Chimney ₹699 · Pest Control Shot ₹899 · Balcony ₹499.
+  { contentId: "SCS-35", group: "CUSTOMISED", name: "Chimney Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Chimney Cleaning", price: 699, unit: "per chimney", minQty: 1, scope: "Filters, hood and body degreased" },
+  { contentId: "SCS-36", group: "CUSTOMISED", name: "Pest Control Shot (add-on)", category: "PEST_CONTROL", variant: "General Pest Shot", price: 899, unit: "per home", minQty: 1, addOnOnly: true, rule: "Add-on only — general cockroach & ant spray with a cleaning booking" },
   { contentId: "SCS-13", group: "CUSTOMISED", name: "Carpet Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Carpet Cleaning", price: null, unit: "per carpet", minQty: 1, priceNote: ON_CONFIRMATION },
 
   // Combo packages (approved catalogue prices)
@@ -145,6 +154,7 @@ export const PRICING_MASTER: PriceItem[] = [
 export const PRICE_GROUP_LABEL: Record<PriceGroup, string> = {
   PREMIUM: "Premium Home Deep Cleaning",
   PLATINUM: "Platinum Home Deep Cleaning",
+  UNFURNISHED: "Unfurnished Flat Deep Cleaning",
   CUSTOMISED: "Customised Cleaning",
   COMBO: "Combo Packages",
   PAINTING: "Interior Painting",
@@ -288,3 +298,36 @@ export const PEST_STARTING_RATES = PEST_BHK_RATES.map((p) => ({ name: p.name, fr
 
 /** GST wording shown on every public rate card (matches src/lib/invoice-tax.ts: GST off for home bookings, 18% for business). */
 export const PUBLIC_GST_NOTE = "Home (residential) rates shown are final — no GST is added. Business bookings that need a GST invoice: 18% GST (CGST 9% + SGST 9%) is added to the quoted value.";
+
+/**
+ * What each combo contains, as individual catalogue items (owner rules on the combo cards). Used by the single-vs-combo
+ * upsell banner, which only shows a combo when its price is genuinely lower than booking the same items one by one.
+ */
+export const COMBO_PARTS: Record<string, { contentId: string; qty: number }[]> = {
+  "SCS-26": [{ contentId: "SCS-12", qty: 1 }, { contentId: "SCS-10", qty: 2 }, { contentId: "SCS-32", qty: 1 }],
+  "SCS-27": [{ contentId: "SCS-12", qty: 1 }, { contentId: "SCS-10", qty: 3 }],
+  "SCS-29": [{ contentId: "SCS-09", qty: 5 }, { contentId: "SCS-11", qty: 2 }, { contentId: "SCS-13", qty: 1 }],
+};
+
+export type ComboSaving = { combo: PriceItem; separate: number; saving: number; parts: string[] };
+
+/** Combos containing any of `ids` that cost less than their parts bought separately (every part must have a live price). */
+export function comboSavings(items: PriceItem[], ids: string[] = []): ComboSaving[] {
+  const byId = new Map(items.map((i) => [i.contentId, i]));
+  const out: ComboSaving[] = [];
+  for (const [comboId, parts] of Object.entries(COMBO_PARTS)) {
+    const combo = byId.get(comboId);
+    if (!combo || combo.price == null) continue;
+    if (ids.length && !parts.some((p) => ids.includes(p.contentId))) continue;
+    let separate = 0;
+    let complete = true;
+    for (const p of parts) {
+      const it = byId.get(p.contentId);
+      if (!it || it.price == null) { complete = false; break; }
+      separate += it.price * Math.max(p.qty, it.minQty ?? 1);
+    }
+    if (!complete || separate <= combo.price) continue;
+    out.push({ combo, separate, saving: separate - combo.price, parts: parts.map((p) => `${p.qty > 1 ? `${p.qty} × ` : ""}${byId.get(p.contentId)!.variant}`) });
+  }
+  return out.sort((a, b) => b.saving - a.saving);
+}

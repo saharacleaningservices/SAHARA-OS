@@ -18,8 +18,15 @@ const BUILD_ID = (process.env.SOURCE_COMMIT || "").slice(0, 12) || String(Date.n
 const STATIC_IMAGE_DIRS = ["brand", "marketing", "logo"] as const;
 const STATIC_IMAGE_CACHE = "public, max-age=86400, stale-while-revalidate=604800";
 
+// External image CDN (Phase 2): with NEXT_PUBLIC_IMAGE_CDN=imagekit|cloudinary + NEXT_PUBLIC_IMAGE_CDN_BASE set at build time,
+// next/image URLs point at the CDN (src/lib/image-loader.ts, WebP/AVIF from the edge) and the VPS does no resizing. Unset → built-in optimiser (WebP, 30-day cache).
+const IMAGE_CDN = /^(imagekit|cloudinary)$/.test(process.env.NEXT_PUBLIC_IMAGE_CDN ?? "") && !!process.env.NEXT_PUBLIC_IMAGE_CDN_BASE;
+
 const nextConfig: NextConfig = {
   env: { NEXT_PUBLIC_BUILD_ID: BUILD_ID },
+  images: IMAGE_CDN
+    ? { loader: "custom", loaderFile: "./src/lib/image-loader.ts" }
+    : { formats: ["image/webp"], minimumCacheTTL: 60 * 60 * 24 * 30 }, // AVIF via the CDN only: encoding it on the VPS is CPU-heavy
   // Short legal URL some links and ad forms use. 308 = permanent, method-preserving.
   // Legacy WordPress / sahara-web URLs -> Sahara OS routes are true 301s (see src/lib/legacy-redirects.ts).
   async redirects() {

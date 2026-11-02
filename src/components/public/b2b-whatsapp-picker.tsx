@@ -23,7 +23,7 @@ export function B2bWhatsAppPicker({ vertical, verticalLabel, localities, intro }
       <p className="mt-1 text-xs text-[#0a2540]/70">Pick the site area — we pre-fill the area, service and the branch that covers it.</p>
       <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
         <select className={field} value={slug} onChange={(e) => setSlug(e.target.value)} aria-label="Site area">
-          {localities.map((x) => <option key={x.slug} value={x.slug}>{x.name} ({x.pin})</option>)}
+          {localities.map((x) => <option key={x.slug} value={x.slug}>{x.name}</option>)}
         </select>
         <input className={field} value={site} onChange={(e) => setSite(e.target.value.slice(0, 60))} placeholder="Project / building name (optional)" aria-label="Project or building name" />
       </div>

@@ -23,13 +23,17 @@ import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
 import { getPublicPricing } from "@/server/pricing";
 import { FESTIVAL_PACKAGE_IDS, INSPECTION_ONLY_IDS, activeCampaign, festivalForDate, needsInspection, todayIST, unitPriceFor } from "@/lib/pricing-master";
 import { scopeSnapshot } from "@/lib/service-scope";
+import { ZONE_B_MOV_MESSAGE, minimumOrderFor } from "@/lib/zonal-moq";
+import { LOCALITIES } from "@/config/pune-seo-matrix";
 import { publicPaymentState, resolvePublicEstimate } from "@/lib/booking-payment";
 import { linkCustomerAndSite } from "@/server/customer-db";
 import { copyLeadToSheet } from "@/server/lead-sheet";
 import { last10 as normalizeLast10 } from "@/lib/phone";
 
 /** Machine-readable reason added to every refusal (additive: the existing forms only read `error`). */
-export type PublicBookingErrorCode = "VALIDATION" | "HONEYPOT" | "THROTTLED" | "SLOT_FULL" | "PACKAGE_UNAVAILABLE" | "FESTIVAL_DATE_REQUIRED";
+export type PublicBookingErrorCode = "VALIDATION" | "HONEYPOT" | "THROTTLED" | "SLOT_FULL" | "PACKAGE_UNAVAILABLE" | "FESTIVAL_DATE_REQUIRED" | "MIN_ORDER";
+
+const WEST_PCMC_SLUGS = LOCALITIES.filter((l) => l.zone === "west-pcmc").map((l) => l.slug);
 
 const ONLINE_SOURCES = ["WEBSITE", "GMB", "FACEBOOK", "INSTAGRAM", "META", "GOOGLE"] as const;
 
@@ -249,6 +253,8 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
       .map((s) => ({ s, item: pricing.items.find((p) => p.contentId === s.contentId) }))
       .filter((x): x is { s: { contentId: string; qty: number }; item: NonNullable<typeof x.item> } => !!x.item);
     if (picked.length !== data.selectedItems.length) return { error: "A selected package is no longer available — please refresh the page.", code: "PACKAGE_UNAVAILABLE" as PublicBookingErrorCode };
+    // Add-on-only items (e.g. the ₹899 pest shot) are never booked on their own.
+    if (picked.every(({ item }) => item.addOnOnly)) return { error: "Add-ons are booked together with a cleaning service — please add a main service.", code: "VALIDATION" as PublicBookingErrorCode };
     // Festival campaign running: Premium/Platinum home packages are bookable only for festival service dates.
     // Pricing follows the service DATE, so a query parameter or edited form cannot select regular prices.
     const campaign = activeCampaign(pricing.festivals, todayIST());
@@ -279,6 +285,10 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
       priceType = null;
       festivalName = null;
     }
+    // Zone B (West Pune / PCMC) minimum order value — enforced here as well as in the booking modal, so an edited form or
+    // an older page cannot book a small basket there. Pest control is excluded (lib/zonal-moq.ts).
+    const minOrder = minimumOrderFor({ serviceCategory: data.serviceCategory, pincode: data.pinCode, locality: data.area }, WEST_PCMC_SLUGS);
+    if (minOrder > 0 && estimated != null && estimated < minOrder) return { error: ZONE_B_MOV_MESSAGE, code: "MIN_ORDER" as PublicBookingErrorCode };
     scopeOfWork = scopeSnapshot({
       packageName: data.packageName,
       serviceVariant: data.serviceVariant,

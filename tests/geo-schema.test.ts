@@ -8,7 +8,7 @@ import { CONTACT } from "../src/lib/marketing-content";
 
 test("business JSON-LD: NAP from the single CONTACT source, geo, map, services, slogan", () => {
   const j = buildBusinessJsonLd({ sameAs: ["https://example.test/profile"] });
-  assert.equal(j["@type"], "HomeAndConstructionBusiness");
+  assert.deepEqual(j["@type"], ["LocalBusiness", "ProfessionalService", "HomeAndConstructionBusiness"]);
   assert.equal(j.name, "Sahara Cleaning Services");
   assert.deepEqual(j.telephone, CONTACT.call.map((n) => `+91${n}`));
   assert.ok(j.telephone.includes("+917083347130"));

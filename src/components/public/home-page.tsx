@@ -2,6 +2,7 @@ import { BadgeCheck, CalendarClock, ShieldCheck } from "lucide-react";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, businessJsonLd } from "@/components/public/landing-kit";
 import { HomeHeroSlider, type HeroPhoto } from "@/components/public/home-hero-slider";
+import { img } from "@/config/image-registry";
 import { BranchDetails, ClientMarquee, ComboSwiper, GoogleRatingBadge, HomeServiceCards, ZoneGrid } from "@/components/public/catalog-blocks";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
@@ -10,10 +11,12 @@ import { TRUST } from "@/lib/booking-target";
 const WA = "Hi Sahara, I'd like a quote for a service in Pune.";
 
 const PHOTOS: HeroPhoto[] = [
-  { src: "/marketing/hero-home.webp", alt: "Sahara technician running a floor scrubber during home deep cleaning in Pune" },
-  { src: "/marketing/hero-commercial-v2.webp", alt: "Sahara team in Royal Blue uniforms cleaning a Pune office", position: "36% 30%" },
-  { src: "/marketing/service-painting.webp", alt: "Sahara painters rolling a living-room wall during interior painting" },
-  { src: "/marketing/service-pest-control.webp", alt: "Sahara pest control technician treating kitchen cabinet edges" },
+  // Clean, text-free hero photos from the central image registry (src/config/image-registry.ts).
+  img("hero-home"),
+  img("bathroom"),
+  { ...img("commercial"), position: "36% 30%" },
+  img("painting"),
+  img("pest"),
 ];
 
 /**

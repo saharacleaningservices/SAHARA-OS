@@ -8,7 +8,7 @@ import { generateInvoiceNumber } from "@/lib/id-generators";
 import { addPaymentTimeline } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { notify } from "@/server/notify";
-import { sendReviewIfDue } from "@/server/job-review";
+import { enqueueReviewRequest } from "@/server/job-queue-handlers";
 
 /**
  * None of these actions had ANY role check at all before the 2026-09-21
@@ -124,7 +124,7 @@ export async function markPaymentPaid(paymentId: string) {
     data: { status: "PAID", paidAmount: payment.amount, paidDate: new Date() },
   });
   // Payment collected → thank-you + Google review request (once per job, only when nothing else is due).
-  if (payment.jobId) void sendReviewIfDue(payment.jobId).catch(() => {});
+  if (payment.jobId) void enqueueReviewRequest(payment.jobId); // queued 2 h review request (Phase 2)
 
   await addPaymentTimeline(
     payment.leadId,
@@ -178,7 +178,7 @@ export async function recordCollection(
       recordedById: session?.sub ?? payment.recordedById,
     },
   });
-  if (fullyPaid && payment.jobId) void sendReviewIfDue(payment.jobId).catch(() => {});
+  if (fullyPaid && payment.jobId) void enqueueReviewRequest(payment.jobId); // queued 2 h review request (Phase 2)
 
   await addPaymentTimeline(
     payment.leadId,

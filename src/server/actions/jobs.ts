@@ -14,11 +14,10 @@ import { generateJobNumber, generateCertificateNumber, generateInvoiceNumber } f
 import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
-import { enqueueJobCompletedNotice, enqueueServiceStartedNotice, enqueueTeamDispatch } from "@/server/job-queue-handlers";
+import { enqueueJobCompletedNotice, enqueueReviewRequest, enqueueServiceStartedNotice, enqueueTeamDispatch } from "@/server/job-queue-handlers";
 import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
-import { sendReviewIfDue } from "@/server/job-review";
 import { cleanFix, locationNote, type GeoFix } from "@/lib/geo";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 import { headers } from "next/headers";
@@ -471,7 +470,7 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
     await freezeJobTeam(jobId).catch(() => {});
     // Final invoice is generated + stored automatically on completion (any completion path).
     await createFinalInvoice(jobId, actorId).catch((e) => console.error("[invoice] auto-generate failed:", e));
-    void sendReviewIfDue(job.id).catch(() => {}); // background — sends once, and only when nothing is left to collect
+    void enqueueReviewRequest(job.id); // queued: sent REVIEW_DELAY_MINUTES (default 2 h) later, once, only when nothing is left to collect
     void enqueueJobCompletedNotice(job.id); // Pay Balance link — a no-op until sahara_job_completed_v1 is approved and switched on
   }
   if (status === "CANCELLED") {
@@ -621,7 +620,7 @@ export async function completeJobWithCertificate(jobId: string, location?: unkno
 
   // Review request — sent once, right after completion (shared helper also
   // covers the plain "Mark Completed" status-button path in updateJobStatus).
-  void sendReviewIfDue(job.id).catch(() => {}); // background — sends once, and only when nothing is left to collect
+  void enqueueReviewRequest(job.id); // queued: sent REVIEW_DELAY_MINUTES (default 2 h) later, once, only when nothing is left to collect
   void enqueueJobCompletedNotice(job.id);
 
   await db.activityLog.create({

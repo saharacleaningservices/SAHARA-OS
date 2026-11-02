@@ -60,7 +60,8 @@ export const SCHEMA_SERVICES = [
 export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: string[]; extra?: Record<string, unknown> } = {}) {
   return {
     "@context": "https://schema.org",
-    "@type": "HomeAndConstructionBusiness",
+    // LocalBusiness + ProfessionalService + HomeAndConstructionBusiness (final sprint 2026-11-02) — all LocalBusiness subtypes.
+    "@type": ["LocalBusiness", "ProfessionalService", "HomeAndConstructionBusiness"],
     "@id": `${SCHEMA_SITE}/#business`,
     name: "Sahara Cleaning Services",
     slogan: "Serving Pune Since 2012",
@@ -84,6 +85,8 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
       addressCountry: "IN",
     },
     geo: { "@type": "GeoCoordinates", ...BUSINESS_GEO },
+    // The second Google Business Profile (Mohammadwadi, Hadapsar 411060) — full node in lib/seo-graph.ts.
+    department: { "@id": `${SCHEMA_SITE}/#branch-mohammadwadi` },
     hasMap: GOOGLE_MAPS_URL,
     areaServed: [
       { "@type": "City", name: "Pune" },

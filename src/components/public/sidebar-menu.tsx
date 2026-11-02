@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, BookOpen, ChevronDown, Menu, MessageSquare, X } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Menu, MessageSquare, PackageSearch, X } from "lucide-react";
 import type { NavMega } from "@/config/nav-menu";
 
 /**
@@ -59,6 +59,7 @@ export function SidebarMenu({ groups }: { groups: NavMega[] }) {
             })}
           </ul>
           <div className="mt-4 space-y-1 border-t border-border pt-4">
+            <Link href="/track" onClick={close} tabIndex={tab} className="flex min-h-12 items-center gap-3 rounded-2xl px-3 text-base font-extrabold text-[#0a2540] hover:bg-[#eef4fb]"><PackageSearch className="size-5 text-primary" />Track Booking</Link>
             <Link href="/blog" onClick={close} tabIndex={tab} className="flex min-h-12 items-center gap-3 rounded-2xl px-3 text-base font-extrabold text-[#0a2540] hover:bg-[#eef4fb]"><BookOpen className="size-5 text-primary" />Blog</Link>
             <Link href="/contact" onClick={close} tabIndex={tab} className="flex min-h-12 items-center gap-3 rounded-2xl px-3 text-base font-extrabold text-[#0a2540] hover:bg-[#eef4fb]"><MessageSquare className="size-5 text-primary" />Contact</Link>
           </div>

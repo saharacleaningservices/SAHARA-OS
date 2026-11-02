@@ -9,6 +9,7 @@ import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-temp
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { customerPaymentStatus, ensureJobToken } from "@/server/booking-messages";
 import { ensureShortCode, shortUrl } from "@/server/short-links";
+import { sendReviewIfDue } from "@/server/job-review";
 import { enqueueJob, pruneFinishedJobs, runDueJobs } from "@/server/job-queue";
 
 /** Crew dispatch for a job, in the background. One unfinished dispatch per job at a time. */
@@ -21,6 +22,15 @@ export const enqueueJobCompletedNotice = (jobId: string) => enqueueJob("JOB_COMP
 export const enqueueQuotationNotice = (quotationId: string) => enqueueJob("QUOTATION_NOTICE", { quotationId }, { dedupeKey: `quotation:${quotationId}` });
 
 /** "Work started" customer message, in the background. Once per job. */
+/**
+ * Google-review request, sent REVIEW_DELAY_MINUTES (default 120) after a job completes or is fully paid (Phase 2, 2026-11-02),
+ * so the customer has had time to check the work. sendReviewIfDue() still asks only once per job and only when nothing is due.
+ */
+export const reviewDelayMs = (env: Record<string, string | undefined> = process.env) => {
+  const m = Number(env.REVIEW_DELAY_MINUTES);
+  return (Number.isFinite(m) && m >= 0 && m <= 7 * 24 * 60 ? m : 120) * 60_000;
+};
+export const enqueueReviewRequest = (jobId: string) => enqueueJob("REVIEW_REQUEST", { jobId }, { dedupeKey: `review:${jobId}`, delayMs: reviewDelayMs() });
 export const enqueueServiceStartedNotice = (jobId: string) => enqueueJob("SERVICE_STARTED_NOTICE", { jobId }, { dedupeKey: `started:${jobId}` });
 
 /**
@@ -169,5 +179,6 @@ export const runQueueSweep = async () => {
     JOB_COMPLETED_NOTICE: async (p) => void (await sendJobCompletedNotice(String(p.jobId))),
     QUOTATION_NOTICE: async (p) => sendQuotationNotice(String(p.quotationId)),
     SERVICE_STARTED_NOTICE: async (p) => sendServiceStartedNotice(String(p.jobId)),
+    REVIEW_REQUEST: async (p) => sendReviewIfDue(String(p.jobId)),
   });
 };

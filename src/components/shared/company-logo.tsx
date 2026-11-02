@@ -15,11 +15,13 @@ import { cn } from "@/lib/utils";
  * - Dark mode: sits on a small white chip so the blue / grey artwork stays readable.
  */
 export const BRAND_PNG = "/brand/sahara-logo@2x.png";
+/** Performance pass (2026-11-02): 360 px palette PNG of the same artwork (about half the bytes) is the first choice on screen; PNGs stay as fallbacks. */
+export const BRAND_HEADER = "/brand/sahara-logo-360.png";
 export const BRAND_PNG_SMALL = "/brand/sahara-logo.png";
 export const BRAND_SVG = "/brand/sahara-logo.svg";
 const LAST_RESORT = "/uploads/logo/sahara-logo.svg";
 export const DEFAULT_LOGO_URL = BRAND_PNG;
-const FALLBACKS = [BRAND_PNG, BRAND_PNG_SMALL, BRAND_SVG, LAST_RESORT];
+const FALLBACKS = [BRAND_HEADER, BRAND_PNG, BRAND_PNG_SMALL, BRAND_SVG, LAST_RESORT];
 
 export function CompanyLogo({
   logoUrl,
@@ -32,10 +34,10 @@ export function CompanyLogo({
   alt?: string;
   showTm?: boolean;
 }) {
-  const [src, setSrc] = useState(logoUrl || BRAND_PNG);
+  const [src, setSrc] = useState(logoUrl || BRAND_HEADER);
 
   useEffect(() => {
-    setSrc(logoUrl || BRAND_PNG);
+    setSrc(logoUrl || BRAND_HEADER);
   }, [logoUrl]);
 
   function handleError() {
@@ -55,6 +57,8 @@ export function CompanyLogo({
       alt={alt}
       onError={handleError}
       decoding="async"
+      width={360}
+      height={152}
       className={cn("h-8 w-auto object-contain", !className?.includes("invert") && "dark:rounded-md dark:bg-white dark:px-1", className)}
     />
   );
