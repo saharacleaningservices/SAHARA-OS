@@ -26,6 +26,8 @@ export type LeadIntent = {
   items?: { contentId: string; qty: number }[];
   propertyType?: string;
   packageName?: string;
+  /** B2B inspection-first funnel (offices, societies, IT parks, facility management): asks for company, property type and area. */
+  b2b?: boolean;
 };
 
 /** Opens the lead form from anywhere on the page (service cards, price cards). */

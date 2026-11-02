@@ -47,7 +47,7 @@ export function CategoryGrid() {
                     <li key={s.slug}><Link href={servicePath(s.slug)} className="group flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm font-semibold text-[#0a2540] hover:bg-[#eef4fb] hover:text-primary">{s.name}<ArrowRight className="size-3.5 shrink-0 opacity-40 transition group-hover:translate-x-0.5 group-hover:opacity-100" /></Link></li>
                   ))}
                 </ul>
-                <LeadButton intent={{ service: c.label, inspection: c.id === "commercial" || c.id === "relocation" }} className="mt-auto min-h-11 rounded-xl bg-primary text-sm font-bold text-white">{c.id === "commercial" || c.id === "relocation" ? "Request Site Inspection" : "Book Now"}</LeadButton>
+                <LeadButton intent={{ service: c.label, inspection: c.id === "commercial" || c.id === "relocation", b2b: c.id === "commercial" }} className="mt-auto min-h-11 rounded-xl bg-primary text-sm font-bold text-white">{c.id === "commercial" || c.id === "relocation" ? "Request Site Inspection" : "Book Now"}</LeadButton>
               </div>
             </article>
           );
@@ -60,7 +60,7 @@ export function CategoryGrid() {
 const STEP_ICON = [ClipboardCheck, MapPinned, FileText, CalendarCheck];
 
 /** "Request Site Inspection / Quote" block with the 4-step explainer — used for every on-inspection service. */
-export function InspectionFlow({ service, title = "Price after a free site inspection" }: { service: string; title?: string }) {
+export function InspectionFlow({ service, title = "Price after a free site inspection", b2b = false }: { service: string; title?: string; /** B2B funnel: the request becomes a free site audit (company, property, area). */ b2b?: boolean }) {
   return (
     <section id="book" aria-labelledby="insp-title" className="scroll-mt-28 rounded-3xl bg-[#0a2540] p-5 text-white sm:p-7">
       <p className="text-xs font-extrabold uppercase tracking-wide text-amber-300">On-inspection pricing</p>
@@ -77,7 +77,7 @@ export function InspectionFlow({ service, title = "Price after a free site inspe
           );
         })}
       </ol>
-      <LeadButton intent={{ service, inspection: true }} className="mt-5 min-h-12 rounded-xl bg-amber-400 px-6 text-sm font-extrabold text-[#0a2540] hover:bg-amber-300">Request Site Inspection / Quote</LeadButton>
+      <LeadButton intent={{ service, inspection: true, b2b }} className="mt-5 min-h-12 rounded-xl bg-amber-400 px-6 text-sm font-extrabold text-[#0a2540] hover:bg-amber-300">{b2b ? "Request Free Site Audit" : "Request Site Inspection / Quote"}</LeadButton>
     </section>
   );
 }
@@ -110,7 +110,7 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
     return <QtyCalculator service={service.name} items={items.map(toQty)} note="Minimum quantities apply as shown." />;
   }
   if (service.pricing.mode === "pest") return <PestCalculator rows={PEST_BHK_RATES.map((r, n) => ({ ...r, image: PEST_IMAGES[n % PEST_IMAGES.length] }))} sizes={PEST_BHK_SIZES} note="Flat rates for apartments." />;
-  return <InspectionFlow service={service.name} />;
+  return <InspectionFlow service={service.name} b2b={service.category === "commercial"} />;
 }
 
 const PEST_IMAGES = ["/marketing/service-pest-control.webp", "/marketing/hero-pest-3.webp", "/marketing/catalog/pest.jpg", "/marketing/hero-pest-2.webp", "/marketing/hero-pest.webp"];
@@ -203,8 +203,9 @@ export async function ComboPackages() {
  * Before/after showcase. Real job photos from the CRM gallery (Settings → Gallery, featured items) filtered by the service's
  * gallery category; until the owner uploads pairs for a category, the service's own work photos are shown instead.
  */
-export async function WorkGallery({ category, fallback, title = "Before & after — our work" }: { category?: string; fallback: { src: string; alt: string }[]; title?: string }) {
+export async function WorkGallery({ category, fallback, title = "Before & after — our work", onlyReal = false }: { category?: string; fallback: { src: string; alt: string }[]; title?: string; /** Render nothing until real gallery items exist. */ onlyReal?: boolean }) {
   const items = await getFeaturedGallery(12, category);
+  if (onlyReal && items.length === 0) return null;
   return (
     <section aria-labelledby="work-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-2">

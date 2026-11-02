@@ -158,6 +158,7 @@ export function SiteFooter() {
             <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px]">
               <a href={`mailto:${CONTACT.email}`} className="inline-flex items-center gap-1 hover:text-white"><Mail className="size-3.5" />{CONTACT.email}</a>
               <Link href="/contact" className="hover:text-white">Contact</Link>
+              <Link href="/track" className="hover:text-white">Track Booking</Link>
               <Link href="/scope-of-work" className="hover:text-white">Scope of Work</Link>
               <Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link>
               <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>

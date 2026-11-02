@@ -7,6 +7,9 @@ import { trackLead } from "@/components/public/marketing-tags";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
 import { publicBookLead } from "@/server/actions/public-booking";
+import { getQuickAddOns } from "@/server/actions/public-addons";
+import { LOCALITIES, ZONES, type ZoneKey } from "@/config/pune-seo-matrix";
+import { MOQ_VALUE, moqFor, suggestAddOns, type AddOn } from "@/lib/zonal-moq";
 
 /**
  * Quick booking modal — 10-second flow with live CRM slots (owner 2026-11-02, final).
@@ -51,6 +54,9 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   const [gps, setGps] = useState<{ lat: number; lng: number; acc: number } | null>(null);
   const [gpsState, setGpsState] = useState<"idle" | "locating" | "denied">("idle");
   const [vh, setVh] = useState<number | null>(null);
+  const [locality, setLocality] = useState("");
+  const [pool, setPool] = useState<AddOn[]>([]);
+  const [extras, setExtras] = useState<AddOn[]>([]);
   const first = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -60,6 +66,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
       setError("");
       setDone(null);
       setSlot("");
+      setExtras([]);
     };
     window.addEventListener(OPEN_EVENT, on);
     return () => window.removeEventListener(OPEN_EVENT, on);
@@ -78,6 +85,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
     onVv();
     vv?.addEventListener("resize", onVv);
     let alive = true;
+    getQuickAddOns().then((a) => alive && setPool(a)).catch(() => {});
     getDateAvailability(14)
       .then((d) => {
         if (!alive) return;
@@ -105,6 +113,14 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   const dayStatus = days?.find((d) => d.date === date)?.status ?? "AVAILABLE";
   const slotBadge = (s: SlotInfo) => (!s.available ? BADGE.FULL : dayStatus === "FILLING" ? BADGE.FILLING : BADGE.AVAILABLE);
   const slotText = date ? `${dayLabel(date).wd}, ${dayLabel(date).dm}${slot ? ` · ${slot}` : ""}` : "";
+  // Zonal minimum order (lib/zonal-moq.ts): only the individual-services / combo basket is gated.
+  const moqApplies = booking && intent.category === "INDIVIDUAL_CLEANING";
+  const moq = moqApplies ? moqFor({ locality, gps }).moq : 0;
+  const extrasTotal = extras.reduce((t, x) => t + x.price * x.minQty, 0);
+  const subtotal = (intent.price ?? 0) + extrasTotal;
+  const gap = moq > 0 && (locality || gps) ? Math.max(0, moq - subtotal) : 0;
+  const suggestions = gap > 0 ? suggestAddOns(gap, pool, [...(intent.items ?? []).map((i) => i.contentId), ...extras.map((x) => x.contentId)]) : [];
+  const areaName = LOCALITIES.find((l) => l.slug === locality)?.name ?? (locality === "other" ? "your area" : "");
 
   function locate() {
     if (!("geolocation" in navigator)) return setGpsState("denied");
@@ -128,32 +144,38 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
     if (!/^[6-9]\d{9}$/.test(mobile)) return setError("Please enter a valid 10-digit mobile number.");
     if (!date) return setError("Please choose your preferred date.");
     if (!slot) return setError("Please choose a time slot.");
-    if (!gps && area.length < 2) return setError("Tap “Use Current Location” or type your area / society.");
+    if (!locality && !gps) return setError("Choose your area or tap “Use Current Location”.");
+    if (gap > 0) return setError(`Minimum order in ${areaName || "your area"} is ₹${MOQ_VALUE.toLocaleString("en-IN")} — add ₹${gap.toLocaleString("en-IN")} more.`);
+    const company = String(f.get("company") ?? "").trim();
+    const propType = String(f.get("propType") ?? "");
+    const sqft = String(f.get("sqft") ?? "").replace(/\D/g, "").slice(0, 7);
+    if (intent!.b2b && company.length < 2) return setError("Please enter your company / society name.");
     const mapsUrl = gps ? `https://maps.google.com/?q=${gps.lat},${gps.lng}` : "";
-    const where = [area, gps && `GPS ${gps.lat},${gps.lng}`].filter(Boolean).join(" · ");
+    const locName = LOCALITIES.find((l) => l.slug === locality)?.name ?? "";
+    const where = [area, locName, gps && `GPS ${gps.lat},${gps.lng}`].filter(Boolean).join(" · ");
     setState("sending");
     try {
       if (booking) {
         const r = await publicBookLead({
           name, mobile, website: String(f.get("website") ?? ""),
-          area: area.slice(0, 100) || (gps ? "GPS location" : ""),
+          area: (locName || area).slice(0, 100) || (gps ? "GPS location" : ""),
           address: where.slice(0, 400),
           mapLink: mapsUrl,
           serviceCategory: intent!.category,
           serviceVariant: intent!.service.slice(0, 120),
           propertyType: intent!.propertyType ?? "",
-          packageName: intent!.packageName ?? intent!.pkg ?? "",
-          selectedItems: intent!.items ?? [],
-          estimatedAmount: intent!.price ?? undefined,
+          packageName: `${intent!.packageName ?? intent!.pkg ?? ""}${extras.length ? ` + ${extras.map((x) => x.name).join(" + ")}` : ""}`.slice(0, 120),
+          selectedItems: [...(intent!.items ?? []), ...extras.map((x) => ({ contentId: x.contentId, qty: x.minQty }))],
+          estimatedAmount: subtotal || undefined,
           serviceDate: date,
           timeSlot: slot,
-          notes: [`Website quick booking — ${label}${intent!.price ? ` · shown price ${inr(intent!.price)}` : ""}`, notes && `Customer notes: ${notes}`].filter(Boolean).join("\n").slice(0, 2000),
+          notes: [`Website quick booking — ${label}${extras.length ? ` + ${extras.map((x) => x.name).join(" + ")}` : ""}${subtotal ? ` · shown total ${inr(subtotal)}` : ""}`, notes && `Customer notes: ${notes}`].filter(Boolean).join("\n").slice(0, 2000),
           source: "",
           attribution: getAttributionPayload(),
         });
         if ("error" in r && r.error) { setState("idle"); return setError(r.error); }
         const ok = r as { leadNumber?: string; status?: "CONFIRMED" | "PENDING"; jobNumber?: string };
-        setDone({ kind: ok.status === "CONFIRMED" ? "confirmed" : "received", id: (ok.status === "CONFIRMED" ? ok.jobNumber : ok.leadNumber) || ok.leadNumber || "", slotText, price: intent!.price ?? null });
+        setDone({ kind: ok.status === "CONFIRMED" ? "confirmed" : "received", id: (ok.status === "CONFIRMED" ? ok.jobNumber : ok.leadNumber) || ok.leadNumber || "", slotText, price: subtotal || null });
       } else {
         const p = getAttributionPayload();
         const t = p.first ?? p.latest ?? null;
@@ -162,8 +184,9 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name, mobile, website: String(f.get("website") ?? ""), service: intent!.service, location: where,
+            source: intent!.b2b ? "Website B2B site audit" : "",
             preferredDate: date, preferredSlot: slot,
-            message: [`Website inquiry — ${label}`, `Preferred visit ${slotText}`, mapsUrl && `Location ${mapsUrl} (±${gps!.acc} m)`, notes && `Notes: ${notes}`].filter(Boolean).join(" · "),
+            message: [intent!.b2b ? `B2B free site audit — ${label}` : `Website inquiry — ${label}`, intent!.b2b && `Company: ${company}`, intent!.b2b && propType && `Property: ${propType}`, intent!.b2b && sqft && `Approx. area: ${sqft} sq ft`, `Preferred visit ${slotText}`, mapsUrl && `Location ${mapsUrl} (±${gps!.acc} m)`, notes && `Notes: ${notes}`].filter(Boolean).join(" · "),
             utm_source: t?.source ?? "", utm_medium: t?.medium ?? "", utm_campaign: t?.campaign ?? "",
             landing_page_url: t?.landingPageUrl ?? window.location.href.slice(0, 500),
           }),
@@ -181,7 +204,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   }
 
   const input = "min-h-12 w-full rounded-2xl border-2 border-[#0a2540]/10 bg-white px-3.5 text-base text-[#0a2540] outline-none transition focus:border-primary";
-  const title = done ? (done.kind === "confirmed" ? "Booking Confirmed!" : done.kind === "received" ? "Booking Received!" : "Inquiry Received!") : intent.inspection || !intent.category ? "Request Inspection / Inquiry" : "Book in 10 seconds";
+  const title = done ? (done.kind === "confirmed" ? "Booking Confirmed!" : done.kind === "received" ? "Booking Received!" : "Inquiry Received!") : intent.b2b ? "Free Site Audit Request" : intent.inspection || !intent.category ? "Request Inspection / Inquiry" : "Book in 10 seconds";
 
   return (
     <div className="fixed inset-x-0 top-0 z-[70] flex h-[100dvh] items-end justify-center bg-[#0a2540]/60 sm:items-center sm:p-4" style={vh ? { height: vh } : undefined} role="dialog" aria-modal="true" aria-labelledby="lead-title" onClick={(e) => e.target === e.currentTarget && setIntent(null)}>
@@ -207,6 +230,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
               <p className="mt-3 text-sm font-semibold text-[#0a2540]/80">
                 {done.kind === "confirmed" ? "Your slot is reserved. Our crew details will follow on WhatsApp." : done.kind === "received" ? "Your slot request is in our system — our team confirms it shortly on a call / WhatsApp." : "Our supervisor will call you to fix the site visit."}
               </p>
+              {done.kind === "confirmed" && <p className="mt-2 text-xs text-[#0a2540]/60">Track it anytime at <a href="/track" className="font-bold text-primary">saharacleaningservices.com/track</a></p>}
               <a href={`https://wa.me/91${waNumber}?text=${encodeURIComponent(`Hi Sahara, my ${done.kind === "confirmed" ? "booking" : "request"} ${done.id} — ${label}${done.slotText ? `, ${done.slotText}` : ""}.`)}`} target="_blank" rel="noreferrer" className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] text-sm font-extrabold text-white shadow-md"><MessageCircle className="size-5" /> Chat on WhatsApp for Instant Updates</a>
             </div>
           ) : (
@@ -257,21 +281,73 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
                 )}
               </fieldset>
 
+              {intent.b2b && (
+                <div className="space-y-2 rounded-3xl bg-white p-3 shadow-sm">
+                  <label className="block text-sm font-bold">Company / society name<input name="company" autoComplete="organization" required className={`${input} mt-1`} /></label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="block text-sm font-bold">Property
+                      <select name="propType" defaultValue="Office / IT park" className={`${input} mt-1`}>
+                        {["Office / IT park", "Housing society", "Showroom / retail", "Warehouse / industrial", "Hospital / hotel", "Other"].map((o) => <option key={o}>{o}</option>)}
+                      </select>
+                    </label>
+                    <label className="block text-sm font-bold">Area (sq ft)<input name="sqft" inputMode="numeric" placeholder="Approx." className={`${input} mt-1`} /></label>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <p className="flex items-center gap-1.5 text-sm font-bold"><MapPin className="size-4 text-primary" />Location</p>
                 <div className="mt-1.5 flex gap-2">
-                  <input name="area" autoComplete="address-level2" placeholder={gps ? "Society / landmark (optional)" : "Area, society or landmark"} className={`${input} min-w-0 flex-1`} />
+                  <select name="locality" value={locality} onChange={(e) => setLocality(e.target.value)} aria-label="Your area" className={`${input} min-w-0 flex-1`}>
+                    <option value="">Choose your area</option>
+                    {(Object.keys(ZONES) as ZoneKey[]).map((z) => (
+                      <optgroup key={z} label={ZONES[z].label}>
+                        {LOCALITIES.filter((l) => l.zone === z).map((l) => <option key={l.slug} value={l.slug}>{l.name}</option>)}
+                      </optgroup>
+                    ))}
+                    <option value="other">Other area</option>
+                  </select>
                   <button type="button" onClick={locate} disabled={gpsState === "locating"} aria-label="Use current location" className={`flex min-h-12 shrink-0 items-center rounded-2xl px-3 text-xs font-extrabold ${gps ? "bg-emerald-100 text-emerald-700" : "bg-primary/10 text-primary"}`}>
                     {gps ? "📍 Located" : gpsState === "locating" ? "Locating…" : "📍 Use Current Location"}
                   </button>
                 </div>
+                <input name="area" autoComplete="street-address" placeholder="Society / building / landmark (optional)" className={`${input} mt-2`} />
                 {gps && <p className="mt-1 text-xs text-emerald-700">Location captured (±{gps.acc} m)</p>}
-                {gpsState === "denied" && <p className="mt-1 text-xs text-amber-700">Location unavailable — please type your area.</p>}
+                {gpsState === "denied" && <p className="mt-1 text-xs text-amber-700">Location unavailable — please choose your area.</p>}
               </div>
+
+              {moqApplies && (locality || gps) && (
+                <div className={`rounded-3xl p-3 ${gap > 0 ? "bg-amber-50 ring-1 ring-amber-200" : "bg-emerald-50 ring-1 ring-emerald-200"}`} aria-live="polite">
+                  <div className="flex items-center justify-between gap-2 text-sm">
+                    <span className="font-bold">Order total</span>
+                    <span className="text-lg font-extrabold">{inr(subtotal)}</span>
+                  </div>
+                  {extras.length > 0 && (
+                    <ul className="mt-1 space-y-1 text-xs">
+                      {extras.map((x) => <li key={x.contentId} className="flex items-center justify-between gap-2"><span>+ {x.name}</span><button type="button" onClick={() => setExtras(extras.filter((e) => e.contentId !== x.contentId))} className="font-bold text-red-600">Remove</button></li>)}
+                    </ul>
+                  )}
+                  {gap > 0 ? (
+                    <>
+                      <p className="mt-1 text-xs font-semibold text-amber-800">Minimum order in {areaName || "your area"} is {inr(MOQ_VALUE)} — add {inr(gap)} more. One tap:</p>
+                      <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+                        {suggestions.map((a) => (
+                          <button key={a.contentId} type="button" onClick={() => setExtras([...extras, a])} className="flex min-w-[150px] shrink-0 flex-col rounded-2xl bg-white p-2.5 text-left shadow-sm ring-1 ring-amber-200 hover:ring-primary">
+                            <span className="text-xs font-extrabold leading-snug">{a.name}{a.minQty > 1 ? ` ×${a.minQty}` : ""}</span>
+                            <span className="mt-1 text-sm font-extrabold text-primary">+ {inr(a.price * a.minQty)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    moq > 0 && <p className="mt-1 text-xs font-semibold text-emerald-700">Minimum order reached ✓</p>
+                  )}
+                </div>
+              )}
               <label className="block text-sm font-bold">Special notes <span className="font-normal text-[#0a2540]/50">(optional)</span><input name="notes" maxLength={500} placeholder="Size, special requests, best time to call" className={`${input} mt-1`} /></label>
               <input name="website" tabIndex={-1} autoComplete="off" aria-hidden className="hidden" />
               {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700" role="alert">{error}</p>}
-              <button type="submit" disabled={state === "sending"} className="min-h-14 w-full rounded-2xl bg-gradient-to-r from-[#0b5ed7] to-[#0a2540] text-base font-extrabold text-white shadow-lg disabled:opacity-60">{state === "sending" ? "Sending…" : booking ? "Confirm Your Booking" : "Request Inspection / Submit Inquiry"}</button>
+              <button type="submit" disabled={state === "sending" || gap > 0} className="min-h-14 w-full rounded-2xl bg-gradient-to-r from-[#0b5ed7] to-[#0a2540] text-base font-extrabold text-white shadow-lg disabled:opacity-60">{state === "sending" ? "Sending…" : booking ? "Confirm Your Booking" : "Request Inspection / Submit Inquiry"}</button>
               <p className="flex items-center justify-center gap-1 text-center text-xs text-[#0a2540]/60"><Phone className="size-3" /> Pay after service available</p>
             </form>
           )}
