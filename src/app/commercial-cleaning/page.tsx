@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getCompanySettings } from "@/server/settings";
 import { CONTACT, OFFICE_SCOPE } from "@/lib/marketing-content";
 import { LandingShell, Faqs, Terms, AreasBadge, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
+import { PartnersMarquee } from "@/components/public/catalog-blocks";
 import { CategoryHero, CategoryBar, ServiceTiles, Panel, BulletList, StickyWhatsApp } from "@/components/public/category-landing";
 import { CategoryLeadForm } from "@/components/public/category-lead-form";
 
@@ -72,6 +73,7 @@ export default async function CommercialCleaningLanding() {
           ]}
         />
         <Panel title="What office cleaning covers"><BulletList items={OFFICE_SCOPE} /></Panel>
+        <PartnersMarquee />
         <AreasBadge />
         <Faqs faqs={FAQS} compact />
         <Terms />

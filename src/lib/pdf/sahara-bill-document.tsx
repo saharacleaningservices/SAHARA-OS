@@ -8,7 +8,9 @@ import { BrandFooter, FONT, PaymentBlock, SignatoryBox, formatPhoneIN, hasPaymen
 // left, totals + amount in words + signatory on the right, payment QR).
 // Rendered on demand — nothing is stored on the server.
 
-export const SLOGAN = "Your Trusted Home Service Partner";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
+
+export const SLOGAN = BRAND_TAGLINE; // owner 2026-11-03: "Your Trust. Our Expertise. Your Satisfaction."
 export const CORE_SERVICES = ["Home Deep Cleaning", "Commercial Cleaning", "Interior Painting", "Pest Control", "Housekeeping & AMC"];
 
 const GOLD = "#9db0dc"; // frame / rule lines — soft royal blue (was gold), matching the blue invoice

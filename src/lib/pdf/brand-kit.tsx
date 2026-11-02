@@ -1,4 +1,5 @@
 import path from "node:path";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { Circle, Font, Image, Link, Path, Polygon, Rect, Svg, Text, View } from "@react-pdf/renderer";
 
 /**
@@ -175,6 +176,7 @@ export function BrandFooter(p: BrandFooterProps) {
   return (
     <View wrap={false}>
       <View style={{ backgroundColor: p.light ? soft : accent, borderTopWidth: p.light ? 1 : 0, borderTopColor: accent, paddingVertical: z(6), paddingHorizontal: z(8) }}>
+        <Text style={{ color: p.light ? accent : "#ffffff", fontFamily: FONT.bold, fontSize: z(8.2), textAlign: "center", marginBottom: z(2) }}>{BRAND_TAGLINE}</Text>
         <Text style={{ color: p.light ? accent : "#ffffff", fontFamily: FONT.bold, fontSize: z(7.6), textAlign: "center", letterSpacing: 0.3 }}>{FOOTER_CATEGORIES.join("   •   ")}</Text>
       </View>
       <View style={{ backgroundColor: soft, paddingVertical: z(5), paddingHorizontal: z(8) }}>

@@ -2,6 +2,7 @@
 // transparent client-logo pipeline.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { BRAND_TAGLINE } from "../src/lib/brand-tagline";
 import { existsSync, readFileSync } from "node:fs";
 import { NAV_MEGA } from "../src/config/nav-menu";
 import { CATALOG_SERVICES } from "../src/config/service-catalog";
@@ -31,7 +32,8 @@ test("service heroes: compact on mobile; Sofa, Painting and Pest Control carry s
 });
 
 test("homepage headline (owner 2026-11-03, replaces the #1 tagline): Your Trust. Our Expertise. Your Satisfaction.", () => {
-  assert.match(read("src/components/public/home-page.tsx"), /<h1[^>]*>Your Trust\. Our Expertise\. Your Satisfaction\.<\/h1>/);
+  assert.match(read("src/components/public/home-page.tsx"), /<h1[^>]*>\{BRAND_TAGLINE\}<\/h1>/);
+  assert.equal(BRAND_TAGLINE, "Your Trust. Our Expertise. Your Satisfaction.");
 });
 
 test("Full House and Individual cards use the re-cropped 4:3 photos", () => {

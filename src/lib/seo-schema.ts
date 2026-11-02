@@ -2,6 +2,7 @@ import { CONTACT, GOOGLE_MAPS_URL } from "@/lib/marketing-content";
 import { PUNE_AREAS } from "@/lib/pune-areas";
 import { COMPANY } from "@/lib/constants";
 import { CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { SITE_ORIGIN } from "@/lib/site-origin";
 
 // Structured data (schema.org JSON-LD) for the public booking site. One builder, used by businessJsonLd()
@@ -64,7 +65,7 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
     "@type": ["LocalBusiness", "ProfessionalService", "HomeAndConstructionBusiness"],
     "@id": `${SCHEMA_SITE}/#business`,
     name: "Sahara Cleaning Services",
-    slogan: "Serving Pune Since 2012",
+    slogan: BRAND_TAGLINE, // owner 2026-11-03
     description:
       "Home deep cleaning, sofa and kitchen cleaning, office and commercial cleaning, housekeeping and facility management (AMC), pest control (termite, cockroach, bed bug) and interior painting across Pune and Pimpri-Chinchwad (PCMC). Trained in-house staff; serving Pune since 2012.",
     url: SCHEMA_SITE,

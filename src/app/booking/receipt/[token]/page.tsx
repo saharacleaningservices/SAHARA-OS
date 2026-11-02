@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
@@ -50,6 +51,7 @@ export default async function Page({ params }: { params: Promise<{ token: string
           <div className="flex justify-between"><span className="text-muted-foreground">Total received</span><span className="font-bold">{formatINR(pmt.paid)}</span></div>
           <div className="flex justify-between"><span className="text-muted-foreground">Balance due</span><span className="font-bold">{formatINR(pmt.due)}</span></div>
         </div>
+        <p className="text-center text-sm font-bold text-foreground">{BRAND_TAGLINE}</p>
         <p className="text-center text-xs text-muted-foreground">Thank you for choosing Sahara Cleaning Services. Helpline: 7083347130 / 8956567130</p>
       </div>
     </main>

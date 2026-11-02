@@ -48,7 +48,7 @@ test("header (app-like, 2026-11-03): logo left, sidebar hamburger, NO Call Now /
 
 test("homepage exact order: hero → headline + Google badge → About → expansion banner → real work → client marquee → 4 cards → combos → zone grid → branches", () => {
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  const order = ["<HomeHeroSlider", "Your Trust. Our Expertise. Your Satisfaction.", "<GoogleRatingBadge", 'id="about-title"', "<ExpansionBanner", "<RealWorkShowcase", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper", "<ZoneGrid", "<BranchDetails"].map((x) => home.indexOf(x));
+  const order = ["<HomeHeroSlider", "{BRAND_TAGLINE}", "<GoogleRatingBadge", 'id="about-title"', "<ExpansionBanner", "<BeforeAfterSection", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper", "<ZoneGrid", "<BranchDetails"].map((x) => home.indexOf(x));
   for (const i of order) assert.ok(i > 0);
   assert.deepEqual([...order].sort((x, y) => x - y), order, "sections in the owner's order");
   for (const gone of ["<HomeBhkPriceCards", "<InspectionFlow", "<CategoryGrid", "Relocation", "<Faqs"]) assert.ok(!home.includes(gone), `${gone} is off the homepage`);
