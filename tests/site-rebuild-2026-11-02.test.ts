@@ -38,16 +38,17 @@ test("lead modal: name, mobile, required date, GPS + area fallback, notes; dynam
   assert.match(api, /void sendEmail\(/, "management e-mail never blocks the response");
 });
 
-test("header (app-like): logo left, pulsing Call Now / WhatsApp Us, sidebar hamburger; no printed phone numbers", () => {
+test("header (app-like, 2026-11-03): logo left, sidebar hamburger, NO Call Now / WhatsApp Us buttons; no printed phone numbers", () => {
   const h = readFileSync("src/components/public/mega-menu.tsx", "utf8");
-  for (const f of ["sahara-wave-call", "sahara-wave-wa", "Call Now", "WhatsApp Us", "<SidebarMenu"]) assert.ok(h.includes(f), f);
+  assert.ok(h.includes("<SidebarMenu"));
+  assert.doesNotMatch(h.replace(/\/\*[\s\S]*?\*\//g, ""), /Call Now|WhatsApp Us|sahara-wave/);
   assert.doesNotMatch(h, /\{fmt\(|\+91 \$\{|\d{5} \d{5}/, "no visible phone numbers in the header");
   assert.doesNotMatch(h, /<details key=/, "no nested accordions in the mobile menu");
 });
 
-test("homepage exact order: hero → slogan + Google badge → About → client marquee → 4 cards → combos → zone grid → branches", () => {
+test("homepage exact order: hero → headline + Google badge → About → expansion banner → real work → client marquee → 4 cards → combos → zone grid → branches", () => {
   const home = readFileSync("src/components/public/home-page.tsx", "utf8");
-  const order = ["<HomeHeroSlider", "Pune&apos;s #1 Trusted Home Service Partner", "<GoogleRatingBadge", 'id="about-title"', "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper", "<ZoneGrid", "<BranchDetails"].map((x) => home.indexOf(x));
+  const order = ["<HomeHeroSlider", "Your Trust. Our Expertise. Your Satisfaction.", "<GoogleRatingBadge", 'id="about-title"', "<ExpansionBanner", "<RealWorkShowcase", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper", "<ZoneGrid", "<BranchDetails"].map((x) => home.indexOf(x));
   for (const i of order) assert.ok(i > 0);
   assert.deepEqual([...order].sort((x, y) => x - y), order, "sections in the owner's order");
   for (const gone of ["<HomeBhkPriceCards", "<InspectionFlow", "<CategoryGrid", "Relocation", "<Faqs"]) assert.ok(!home.includes(gone), `${gone} is off the homepage`);
@@ -76,7 +77,7 @@ test("inner pages: no GST blocks; window ₹300 per window; balcony split out", 
 
 test("clients: official list, BHEL removed", async () => {
   const { CLIENT_NAMES } = await import("../src/lib/client-logos");
-  assert.deepEqual([...CLIENT_NAMES], ["Renom Technologies", "Eaton Technologies", "BMW", "Clover Hills", "ABIL", "National Insurance", "Panther Nails", "Gagan Developers", "Leisure Town", "Padam Interiors", "Studio XP", "Manav Group", "Hawa Valves", "Famic Technologies"]);
+  assert.deepEqual([...CLIENT_NAMES], ["Renom Technologies", "Eaton Technologies", "BMW", "Clover Hills", "ABIL", "National Insurance", "Panther Nails", "Gagan Developers", "Leisure Town", "Padams Interiors", "Studio XP", "Manav Group", "Hawa Valves", "Famic Technologies"]);
   assert.ok(!(CLIENT_NAMES as readonly string[]).some((n) => /bhel/i.test(n)));
 });
 

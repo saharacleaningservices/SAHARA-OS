@@ -30,8 +30,8 @@ test("service heroes: compact on mobile; Sofa, Painting and Pest Control carry s
   assert.match(hero, /line-clamp-2/);
 });
 
-test("tagline is exactly \"Pune's #1 Trusted Home Service Partner\"", () => {
-  assert.match(read("src/components/public/home-page.tsx"), /<h1[^>]*>Pune&apos;s #1 Trusted Home Service Partner<\/h1>/);
+test("homepage headline (owner 2026-11-03, replaces the #1 tagline): Your Trust. Our Expertise. Your Satisfaction.", () => {
+  assert.match(read("src/components/public/home-page.tsx"), /<h1[^>]*>Your Trust\. Our Expertise\. Your Satisfaction\.<\/h1>/);
 });
 
 test("Full House and Individual cards use the re-cropped 4:3 photos", () => {

@@ -1,4 +1,6 @@
 import { MegaMenuHeader } from "@/components/public/mega-menu";
+import { FloatingContact } from "@/components/public/floating-contact";
+import { FAB_WA_TEXT, PRIMARY_CALL, PRIMARY_WHATSAPP } from "@/lib/contact-lines";
 import { LeadButton } from "@/components/public/lead-button";
 import { NAV_MEGA } from "@/config/nav-menu";
 import { BRANCHES } from "@/config/pune-seo-matrix";
@@ -124,6 +126,7 @@ export function LandingShell({ logoUrl, waText, waNumber, jsonLd, children, foot
         <LeadButton intent={{ service: "General enquiry" }} className="bg-primary py-3 text-white">Book Now</LeadButton>
       </div>
       )}
+      <FloatingContact callNumber={PRIMARY_CALL} waNumber={waNumber ?? PRIMARY_WHATSAPP} waText={FAB_WA_TEXT} />
       <LeadModal waNumber={waNumber ?? BRANCHES.magarpatta.whatsapp} />
     </div>
   );

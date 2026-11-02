@@ -85,13 +85,9 @@ export function BulletList({ items }: { items: string[] }) {
   );
 }
 
-/** Desktop floating WhatsApp button (mobile uses CategoryBar below). */
-export function StickyWhatsApp({ waText, waNumber }: { waText: string; waNumber?: string }) {
-  return (
-    <a href={waLink(waText, waNumber)} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" className="fixed bottom-5 right-5 z-50 hidden min-h-12 items-center gap-2 rounded-full bg-success px-5 text-sm font-bold text-white shadow-lg sm:inline-flex">
-      <MessageCircle className="size-5" /> WhatsApp us
-    </a>
-  );
+/** Kept for the page layouts that mount it; the single floating contact button (floating-contact.tsx, mounted by LandingShell) replaced it 2026-11-03. */
+export function StickyWhatsApp(_props: { waText: string; waNumber?: string }) {
+  return null;
 }
 
 /** Mobile sticky bar: Call · WhatsApp · primary CTA (scrolls to the enquiry form). */
