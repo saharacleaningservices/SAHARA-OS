@@ -265,3 +265,16 @@ export const BOOKING_TERMS = [
   "Final service scope is confirmed at booking.",
   "Festival slots are subject to team availability.",
 ];
+
+/**
+ * Public pest-control starting rates (owner-stated, Oct 2026: standard flat treatments booked with a slot, no forced inspection).
+ * Shown on the homepage Pest Control sheet as "from" prices; the exact rate for the home size is confirmed on the booking call.
+ * null = price confirmed before booking. Kept separate from PRICING_MASTER so CRM quotations keep their inspection flow.
+ */
+export const PEST_STARTING_RATES: { name: string; from: number | null; note: string }[] = [
+  { name: "Cockroach & Ant Control", from: 999, note: "Gel baiting + targeted spray" },
+  { name: "Bed Bug Control", from: 1199, note: "Beds, sofas and furniture" },
+  { name: "Rodent Control", from: 1499, note: "Baiting stations and entry-point sealing advice" },
+  { name: "Termite Control", from: 2499, note: "Affected woodwork and frames" },
+  { name: "Mosquito Control", from: null, note: "Fogging / larvicide for homes and societies" },
+];
