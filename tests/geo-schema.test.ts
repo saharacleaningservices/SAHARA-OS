@@ -14,7 +14,7 @@ test("business JSON-LD: NAP from the single CONTACT source, geo, map, services, 
   assert.ok(j.telephone.includes("+917083347130"));
   assert.equal(j.address.addressLocality, "Pune");
   assert.equal(j.foundingDate, "2012");
-  assert.equal(j.slogan, "Serving Pune Since 2012");
+  assert.equal(j.slogan, "Your Trust. Our Expertise. Your Satisfaction.");
   assert.deepEqual({ latitude: j.geo.latitude, longitude: j.geo.longitude }, BUSINESS_GEO);
   assert.match(j.hasMap, /google\.com\/maps/);
   assert.equal(j.hasOfferCatalog.itemListElement.length, SCHEMA_SERVICES.length);

@@ -1,4 +1,5 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { COMPANY } from "../constants";
 
 import { INVOICE_LEGAL_TERMS } from "../invoice-terms";
@@ -51,7 +52,7 @@ export function invoiceTitle(t: { gstPercent?: number | null; gstAmount?: number
   return (t.gstAmount ?? 0) > 0 || (t.gstPercent ?? 0) > 0 ? "TAX INVOICE" : "INVOICE";
 }
 
-export const INVOICE_TAGLINE = "Your Trusted Home Service Partner";
+export const INVOICE_TAGLINE = BRAND_TAGLINE;
 
 const rs = inr; // "₹7,000", Latin digits always
 const num = fmtNum;

@@ -2,6 +2,7 @@
 // About + stats grid, expansion banner, real-work showcase, Padams Interiors, logos on every slider. YouTube stays out.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { BRAND_TAGLINE } from "../src/lib/brand-tagline";
 import { readFileSync } from "node:fs";
 import { ABOUT_STATS, SHOWCASE_CATEGORIES } from "../src/components/public/home-sections";
 import { CLIENT_LOGOS, CLIENT_NAMES } from "../src/lib/client-logos";
@@ -22,7 +23,8 @@ test("trust card: vertical padding cut ~35% (20px → 13px) and tighter rating s
   const h = read("src/components/public/home-page.tsx");
   assert.match(h, /px-4 py-\[13px\] text-center shadow-md/);
   assert.match(h, /<div className="mt-2"><GoogleRatingBadge/);
-  assert.match(h, /<h1 id="slogan"[^>]*>Your Trust\. Our Expertise\. Your Satisfaction\.<\/h1>/);
+  assert.match(h, /<h1 id="slogan"[^>]*>\{BRAND_TAGLINE\}<\/h1>/);
+  assert.equal(BRAND_TAGLINE, "Your Trust. Our Expertise. Your Satisfaction.");
   assert.doesNotMatch(h, /#1 Trusted Home Service Partner/);
 });
 
@@ -59,7 +61,7 @@ test("About Us: no locality names; Pune & PCMC, 25+ years, 8,000+ clients; 4 sta
 
 test("homepage order: About → Expansion banner → Real work → Trusted by → services; text-only banner; no YouTube", () => {
   const h = read("src/components/public/home-page.tsx");
-  const order = ["<AboutStats", "<ExpansionBanner", "<RealWorkShowcase", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper"].map((x) => h.indexOf(x));
+  const order = ["<AboutStats", "<ExpansionBanner", "<BeforeAfterSection", "<ClientMarquee", "<HomeServiceCards", "<ComboSwiper"].map((x) => h.indexOf(x));
   assert.ok(order.every((n) => n > 0), "all sections present");
   assert.deepEqual([...order].sort((a, b) => a - b), order);
   const sec = read("src/components/public/home-sections.tsx");

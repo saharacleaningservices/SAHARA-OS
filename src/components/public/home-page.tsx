@@ -1,4 +1,5 @@
-import { AboutStats, ExpansionBanner, RealWorkShowcase } from "@/components/public/home-sections";
+import { AboutStats, ExpansionBanner } from "@/components/public/home-sections";
+import BeforeAfterSection from "@/components/BeforeAfterSection";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, businessJsonLd } from "@/components/public/landing-kit";
 import { HomeHeroSlider, type HeroPhoto } from "@/components/public/home-hero-slider";
@@ -6,6 +7,7 @@ import { img } from "@/config/image-registry";
 import { BranchDetails, ClientMarquee, ComboSwiper, GoogleRatingBadge, HomeServiceCards, ZoneGrid } from "@/components/public/catalog-blocks";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { TRUST } from "@/lib/booking-target";
 
 const WA = "Hi Sahara, I'd like a quote for a service in Pune.";
@@ -35,7 +37,7 @@ export async function HomePage() {
       <HomeHeroSlider photos={PHOTOS} />
       <main className="mx-auto max-w-6xl space-y-8 px-4 pb-8 sm:space-y-10">
         <section aria-labelledby="slogan" className="relative z-10 -mt-6 rounded-3xl bg-white px-4 py-[13px] text-center shadow-md sm:px-8">
-          <h1 id="slogan" className="text-2xl font-extrabold leading-tight text-[#0a2540] sm:text-3xl">Your Trust. Our Expertise. Your Satisfaction.</h1>
+          <h1 id="slogan" className="text-2xl font-extrabold leading-tight text-[#0a2540] sm:text-3xl">{BRAND_TAGLINE}</h1>
           <div className="mt-2"><GoogleRatingBadge reviewUrl={reviewUrl} rating={settings?.googleRating || TRUST.rating} compact /></div>
         </section>
 
@@ -47,7 +49,8 @@ export async function HomePage() {
         </section>
 
         <ExpansionBanner />
-        <RealWorkShowcase />
+        {/* Real before / after cards (Claude Desktop handoff, owner 2026-11-03): between the expansion banner and Trusted by. */}
+        <div className="overflow-hidden rounded-3xl shadow-sm"><BeforeAfterSection /></div>
         <ClientMarquee />
         <HomeServiceCards />
         <ComboSwiper />

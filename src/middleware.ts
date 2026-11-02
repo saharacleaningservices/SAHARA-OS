@@ -115,6 +115,7 @@ function isStaticAssetPath(pathname: string): boolean {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/uploads") ||
     pathname.startsWith("/brand") ||
+    pathname.startsWith("/images/") || // before/after photos (owner 2026-11-03)
     pathname.startsWith("/clients/") || // client logo PNGs for the "Trusted by" strip (owner 2026-11-03)
     pathname === "/favicon.ico" ||
     pathname === "/sw.js" ||

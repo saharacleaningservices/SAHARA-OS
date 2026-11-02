@@ -1,4 +1,5 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 
 // One simple A4 layout for Proforma Invoice, Credit Note, Delivery Challan and Purchase Voucher (Sahara gold / navy frame).
 // Delivery challans show quantities only — no rates or totals.
@@ -126,6 +127,7 @@ export function VoucherDocument(p: VoucherDocumentProps) {
             <Text style={s.small}>{p.hasMoney ? (t.isGst ? "Tax invoice details as per GST rules." : "No GST charged.") : "Goods / service delivered as listed above."}</Text>
             <Text style={s.small}>Authorised signatory</Text>
           </View>
+          <Text style={[s.small, { textAlign: "center", marginTop: 6 }]}>{BRAND_TAGLINE}</Text>
         </View>
       </Page>
     </Document>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { PUBLIC_BOOKING_HOST, INTERNAL_CRM_HOST } from "@/lib/site-urls";
@@ -12,7 +13,8 @@ export const dynamic = "force-dynamic";
 
 const PUBLIC_HOSTS = new Set([PUBLIC_BOOKING_HOST, `www.${MAIN_HOST}`, MAIN_HOST].filter(Boolean));
 const TITLE = "Sahara Cleaning Services Pune — Home & Office Deep Cleaning, Pest Control, Painting";
-const DESC = "Pune's trusted cleaning team since 2012: home deep cleaning, office housekeeping & facility management, post-interior cleaning, pest control and painting across Pune & PCMC. Book online or call.";
+const DESC = `${BRAND_TAGLINE} Home deep cleaning, office housekeeping, pest control and painting across Pune & PCMC since 2012. Book online or call.`;
+const OG_TITLE = `Sahara Cleaning Services Pune — ${BRAND_TAGLINE}`;
 
 async function isPublicHost() {
   const host = (await headers()).get("host")?.split(":")[0] ?? "";
@@ -21,7 +23,7 @@ async function isPublicHost() {
 
 export async function generateMetadata(): Promise<Metadata> {
   if (!(await isPublicHost())) return {};
-  return { title: TITLE, description: DESC, alternates: { canonical: `${SITE_ORIGIN}/` }, robots: { index: true, follow: true }, openGraph: { type: "website", url: `${SITE_ORIGIN}/`, title: TITLE, description: DESC, siteName: "Sahara Cleaning Services", locale: "en_IN", images: [`${SITE_ORIGIN}/marketing/hero-home.webp`] } };
+  return { title: TITLE, description: DESC, alternates: { canonical: `${SITE_ORIGIN}/` }, robots: { index: true, follow: true }, openGraph: { type: "website", url: `${SITE_ORIGIN}/`, title: OG_TITLE, description: DESC, siteName: "Sahara Cleaning Services", locale: "en_IN", images: [`${SITE_ORIGIN}/marketing/hero-home.webp`] }, twitter: { card: "summary_large_image", title: OG_TITLE, description: DESC, images: [`${SITE_ORIGIN}/marketing/hero-home.webp`] } };
 }
 
 type RootSearchParams = Parameters<typeof BookingPage>[0]["searchParams"];

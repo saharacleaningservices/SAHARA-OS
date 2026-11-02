@@ -8,7 +8,7 @@ import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/con
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { catalogCategory, catalogCategoryBySlug, catalogServiceBySlug, categoryPath, servicePath, servicesIn, type CatalogCategory, type CatalogService } from "@/config/service-catalog";
-import { CategoryServiceCards, ComboSwiper, InspectionFlow, ScopeOfWork, ServicePricing, WorkGallery, ZoneAccordion, ComboUpsell } from "@/components/public/catalog-blocks";
+import { CategoryServiceCards, ComboSwiper, InspectionFlow, ScopeOfWork, ServicePricing, WorkGallery, ZoneAccordion, ComboUpsell, PartnersMarquee } from "@/components/public/catalog-blocks";
 import { TRUST } from "@/lib/booking-target";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
@@ -145,6 +145,7 @@ async function CatalogCategoryPage({ c }: { c: CatalogCategory }) {
       <CategoryHero image={c.image} alt={c.label} title={`${c.label} in Pune`} subtitle={c.blurb} points={servicesIn(c.id).slice(0, 4).map((x) => x.name)} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <CategoryServiceCards id={c.id} anchor={c.id === "individual"} />
+        {c.id === "commercial" && <PartnersMarquee />}
         {c.id === "individual" && <ComboUpsell />}
         {c.id === "individual" && <ComboSwiper />}
         {inspection && <InspectionFlow service={c.label} b2b={c.id === "commercial"} title={c.id === "commercial" ? "Free site audit for your premises" : undefined} />}
