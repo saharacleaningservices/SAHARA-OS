@@ -169,6 +169,11 @@ function cleanCore(input, removed, hint) {
     if (s === before) break;
   }
   // Nothing but digits / punctuation left is not a name.
+  // Phone-book placeholders ("Unsaved Contact - 98…", "Unknown") and single letters ("Mr. U") are not names.
+  if (/^(unsaved contact|unknown|no name|new contact|test)$/i.test(s) || s.replace(/[^a-z\u0900-\u097f]/gi, "").length < 2) {
+    if (s) removed.push(s);
+    s = "";
+  }
   // A part that is only a place ("Rahatni", "Pune") is not a name.
   if (s && s.split(" ").every((w) => LOCALITIES.has(w.toLowerCase().replace(/\./g, "")) || PLACE_SUFFIX.has(w.toLowerCase()))) {
     removed.push(s);

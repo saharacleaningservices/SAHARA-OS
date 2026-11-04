@@ -58,7 +58,7 @@ test("party names: prefixes, role words and location tags stripped; firm names k
   assert.equal(c("ABC PVT LTD"), "ABC PVT LTD", "upper-case company names keep their case");
   assert.equal(cleanPartyName("Sunil Broker").suggestedType, "BROKER");
   assert.equal(cleanPartyName("Padams Interiors").suggestedType, "INTERIOR_DESIGNER");
-  for (const empty of ["cus", "Mr.", "9876543210", "  ,Rahatni"]) assert.equal(c(empty), "", `${empty} → exception log`);
+  for (const empty of ["cus", "Mr.", "9876543210", "  ,Rahatni", "Unsaved Contact - 9146220798", "Unsaved Contact - +2349029009904 | Pune", "Mr. U", "Cus Baner"]) assert.equal(c(empty), "", `${empty} → exception log`);
 });
 
 test("source tags: full SRC list without the retired Mamurdi tag; old free-text values stay visible", () => {
