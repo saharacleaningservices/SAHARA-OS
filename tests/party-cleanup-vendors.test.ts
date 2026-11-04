@@ -139,3 +139,10 @@ test("clean-party-names script: dry run writes nothing; --apply backs up, cleans
   run("--rollback", path.join(reports, "rollback.json"));
   assert.deepEqual(names(), before);
 });
+
+test("Parties and Vendor Operations use the fluid (full-width) layout; other pages stay boxed", async () => {
+  const { isFluidPath } = await import("../src/components/layout/content-width");
+  assert.ok(isFluidPath("/customers") && isFluidPath("/vendors") && isFluidPath("/customers/abc"));
+  assert.ok(!isFluidPath("/dashboard") && !isFluidPath("/leads") && !isFluidPath("/customersx"));
+  assert.ok(readFileSync("src/components/layout/app-shell.tsx", "utf8").includes("<ContentWidth>{children}</ContentWidth>"));
+});
