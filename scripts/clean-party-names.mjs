@@ -94,8 +94,25 @@ const customers = db
   .prepare(`SELECT "id", "name", "mobile", "contactType", "customerNumber", "source" FROM "Customer" ORDER BY "createdAt"`)
   .all();
 
+// Fallback for names that clean to nothing ("Cus", "Customer", a bare number): the name typed on the
+// same mobile's latest enquiry or job, cleaned the same way.
+const key10 = (m) => String(m ?? "").replace(/\D/g, "").slice(-10);
+const fallbackName = new Map();
+const tableHas = (t, c) => !!db.prepare(`SELECT 1 FROM pragma_table_info('${t}') WHERE name = ?`).get(c);
+const addFallback = (rows, source) => {
+  for (const r of rows) {
+    const k = key10(r.m);
+    if (k.length !== 10 || fallbackName.has(k)) continue;
+    const n = cleanPartyName(r.n).name;
+    if (n) fallbackName.set(k, { name: n, source });
+  }
+};
+if (tableHas("Lead", "mobile")) addFallback(db.prepare(`SELECT "name" AS n, "mobile" AS m FROM "Lead" ORDER BY "createdAt" DESC`).all(), "latest enquiry");
+if (tableHas("Job", "customerMobile")) addFallback(db.prepare(`SELECT "customerName" AS n, "customerMobile" AS m FROM "Job" ORDER BY "createdAt" DESC`).all(), "latest job");
+
 const changes = [];
 const exceptions = [];
+const recovered = [];
 const phoneReview = [];
 let unchanged = 0;
 const typeSuggestions = { BROKER: 0, ARCHITECT: 0, INTERIOR_DESIGNER: 0 };
@@ -103,6 +120,15 @@ const RETIRED_TAGS = ["SRC-GMB-MAMURDI"];
 
 for (const c of customers) {
   const r = cleanPartyName(c.name);
+  if (!r.name) {
+    const fb = fallbackName.get(key10(c.mobile));
+    if (fb) {
+      r.name = fb.name;
+      r.changed = fb.name !== c.name.trim();
+      r.removed.push(`(name taken from ${fb.source})`);
+      recovered.push([c.id, c.customerNumber ?? "", c.mobile, c.name, fb.name, fb.source]);
+    }
+  }
   const phone = phoneNote(c.mobile);
   if (phone.issue) phoneReview.push([c.id, c.customerNumber ?? "", c.name, c.mobile, phone.issue]);
   if (!r.name) {
@@ -130,6 +156,7 @@ writeFileSync(
   path.join(outDir, "exceptions.json"),
   JSON.stringify(exceptions.map(([id, customerNumber, mobile, mobileE164, currentName, removed, reason]) => ({ id, customerNumber, mobile, mobileE164, currentName, removed, reason })), null, 2),
 );
+writeCsv(path.join(outDir, "recovered-names.csv"), ["id", "customerNumber", "mobile", "currentName", "newName", "takenFrom"], recovered);
 writeCsv(path.join(outDir, "phone-review.csv"), ["id", "customerNumber", "name", "storedMobile", "issue"], phoneReview);
 
 const nameChanges = changes.filter((x) => x.r.changed).length;
@@ -141,6 +168,7 @@ const summary = {
   namesToClean: nameChanges,
   unchanged,
   emptyAfterCleaning: exceptions.length,
+  recoveredFromEnquiryOrJob: recovered.length,
   contactTypeSuggestions: typeSuggestions,
   contactTypesWillBeSet: APPLY_TYPES,
   retiredSourceTagsToClear: tagPurges,
@@ -154,7 +182,8 @@ console.table({
   "Total parties": customers.length,
   "Names to clean": nameChanges,
   "Already clean": unchanged,
-  "Empty after cleaning (exceptions)": exceptions.length,
+  "Empty → name from enquiry/job": recovered.length,
+  "Still empty (exceptions)": exceptions.length,
   "Type → Broker": typeSuggestions.BROKER,
   "Type → Architect": typeSuggestions.ARCHITECT,
   "Type → Interior Designer": typeSuggestions.INTERIOR_DESIGNER,
