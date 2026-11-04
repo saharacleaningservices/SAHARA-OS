@@ -42,6 +42,15 @@ test("party names: prefixes, role words and location tags stripped; firm names k
   assert.equal(c("Shree Ganesh Traders"), "Ganesh Traders");
   assert.equal(c("M/s Sai Enterprises"), "Sai Enterprises");
   assert.equal(c("Kiran Architect - Baner"), "Kiran");
+  // Production patterns (dry run 2026-11-04): prefix before the comma, area without a comma, repeated name.
+  assert.equal(c("Cus, Shreyash Nimbalkar, Keshav Nagar"), "Shreyash Nimbalkar");
+  assert.equal(c("Cus , Akshay Sahani Hadapsar"), "Akshay Sahani");
+  assert.equal(c("Cus , Sunil Bansode M.wadi"), "Sunil Bansode");
+  assert.equal(c("Cust, Dr Neha Surana Dr Neha Surana"), "Neha Surana");
+  assert.equal(c("Cus Ravi Lal Mahadev Nagar"), "Ravi Lal");
+  assert.equal(c("Mehta Viman Nagar Pune"), "Mehta");
+  assert.equal(c("Joy Hotel Kharadi"), "Joy Hotel Kharadi", "company names keep their place word");
+  assert.equal(c("Ravi Nagar"), "Ravi Nagar", "a two-word name is never cut to one word by the place rule");
   assert.equal(c("rahul sharma ji"), "Rahul Sharma");
   assert.equal(c("Mrinal Sen"), "Mrinal Sen", "'Mr' inside a word is not a prefix");
   assert.equal(c("Shreeya Kulkarni"), "Shreeya Kulkarni");
@@ -96,7 +105,10 @@ test("clean-party-names script: dry run writes nothing; --apply backs up, cleans
   ins.run("a", "Cus Rahul, Rahatni", "9876543210", null);
   ins.run("b", "Sunil Broker", "9822012345", "SRC-GMB-MAMURDI");
   ins.run("c", "cus", "9000000001", null);
+  ins.run("e", "Customer", "9000000002", null);
   ins.run("d", "John Smith", "1401180112", null);
+  db.exec(`CREATE TABLE "Lead" ("id" TEXT PRIMARY KEY, "name" TEXT, "mobile" TEXT, "createdAt" DATETIME DEFAULT CURRENT_TIMESTAMP)`);
+  db.prepare(`INSERT INTO "Lead" VALUES ('l1', 'Mr. Kunal Joshi, Baner', '+91 90000 00002', CURRENT_TIMESTAMP)`).run();
   db.close();
   const run = (...a: string[]) => execFileSync("node", ["scripts/clean-party-names.mjs", ...a], { env: { ...process.env, DATABASE_URL: `file:${dbFile}` }, encoding: "utf8" });
   const names = () => {
@@ -116,6 +128,7 @@ test("clean-party-names script: dry run writes nothing; --apply backs up, cleans
   assert.equal(after[0].name, "Rahul");
   assert.deepEqual([after[1].name, after[1].contactType, after[1].source], ["Sunil", "BROKER", null]);
   assert.equal(after[2].name, "cus", "empty result never saved");
+  assert.equal(after.find((r) => r.id === "e")!.name, "Kunal Joshi", "empty name recovered from the same mobile's enquiry");
   assert.equal(readdirSync(path.join(dir, "backups")).filter((f) => f.endsWith(".db")).length, 1);
   const runDir = readdirSync(path.join(dir, "party-cleanup")).sort().pop()!;
   const reports = path.join(dir, "party-cleanup", runDir);
