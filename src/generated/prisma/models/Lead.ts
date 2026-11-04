@@ -59,6 +59,7 @@ export type LeadMinAggregateOutputType = {
   intakeKey: string | null
   receivedOnNumber: string | null
   sourceLine: string | null
+  sourceTag: string | null
   followUpDate: Date | null
   serviceDate: Date | null
   timeSlot: string | null
@@ -133,6 +134,7 @@ export type LeadMaxAggregateOutputType = {
   intakeKey: string | null
   receivedOnNumber: string | null
   sourceLine: string | null
+  sourceTag: string | null
   followUpDate: Date | null
   serviceDate: Date | null
   timeSlot: string | null
@@ -207,6 +209,7 @@ export type LeadCountAggregateOutputType = {
   intakeKey: number
   receivedOnNumber: number
   sourceLine: number
+  sourceTag: number
   followUpDate: number
   serviceDate: number
   timeSlot: number
@@ -297,6 +300,7 @@ export type LeadMinAggregateInputType = {
   intakeKey?: true
   receivedOnNumber?: true
   sourceLine?: true
+  sourceTag?: true
   followUpDate?: true
   serviceDate?: true
   timeSlot?: true
@@ -371,6 +375,7 @@ export type LeadMaxAggregateInputType = {
   intakeKey?: true
   receivedOnNumber?: true
   sourceLine?: true
+  sourceTag?: true
   followUpDate?: true
   serviceDate?: true
   timeSlot?: true
@@ -445,6 +450,7 @@ export type LeadCountAggregateInputType = {
   intakeKey?: true
   receivedOnNumber?: true
   sourceLine?: true
+  sourceTag?: true
   followUpDate?: true
   serviceDate?: true
   timeSlot?: true
@@ -606,6 +612,7 @@ export type LeadGroupByOutputType = {
   intakeKey: string | null
   receivedOnNumber: string | null
   sourceLine: string
+  sourceTag: string | null
   followUpDate: Date | null
   serviceDate: Date | null
   timeSlot: string | null
@@ -703,6 +710,7 @@ export type LeadWhereInput = {
   intakeKey?: Prisma.StringNullableFilter<"Lead"> | string | null
   receivedOnNumber?: Prisma.StringNullableFilter<"Lead"> | string | null
   sourceLine?: Prisma.StringFilter<"Lead"> | string
+  sourceTag?: Prisma.StringNullableFilter<"Lead"> | string | null
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -788,6 +796,7 @@ export type LeadOrderByWithRelationInput = {
   intakeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedOnNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLine?: Prisma.SortOrder
+  sourceTag?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
   timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -876,6 +885,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   stage?: Prisma.EnumLeadStageFilter<"Lead"> | $Enums.LeadStage
   receivedOnNumber?: Prisma.StringNullableFilter<"Lead"> | string | null
   sourceLine?: Prisma.StringFilter<"Lead"> | string
+  sourceTag?: Prisma.StringNullableFilter<"Lead"> | string | null
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -961,6 +971,7 @@ export type LeadOrderByWithAggregationInput = {
   intakeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedOnNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLine?: Prisma.SortOrder
+  sourceTag?: Prisma.SortOrderInput | Prisma.SortOrder
   followUpDate?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceDate?: Prisma.SortOrderInput | Prisma.SortOrder
   timeSlot?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -1043,6 +1054,7 @@ export type LeadScalarWhereWithAggregatesInput = {
   intakeKey?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   receivedOnNumber?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   sourceLine?: Prisma.StringWithAggregatesFilter<"Lead"> | string
+  sourceTag?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   followUpDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -1117,6 +1129,7 @@ export type LeadCreateInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -1199,6 +1212,7 @@ export type LeadUncheckedCreateInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -1281,6 +1295,7 @@ export type LeadUpdateInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1363,6 +1378,7 @@ export type LeadUncheckedUpdateInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1445,6 +1461,7 @@ export type LeadCreateManyInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -1519,6 +1536,7 @@ export type LeadUpdateManyMutationInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1590,6 +1608,7 @@ export type LeadUncheckedUpdateManyInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1674,6 +1693,7 @@ export type LeadCountOrderByAggregateInput = {
   intakeKey?: Prisma.SortOrder
   receivedOnNumber?: Prisma.SortOrder
   sourceLine?: Prisma.SortOrder
+  sourceTag?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   timeSlot?: Prisma.SortOrder
@@ -1755,6 +1775,7 @@ export type LeadMaxOrderByAggregateInput = {
   intakeKey?: Prisma.SortOrder
   receivedOnNumber?: Prisma.SortOrder
   sourceLine?: Prisma.SortOrder
+  sourceTag?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   timeSlot?: Prisma.SortOrder
@@ -1829,6 +1850,7 @@ export type LeadMinOrderByAggregateInput = {
   intakeKey?: Prisma.SortOrder
   receivedOnNumber?: Prisma.SortOrder
   sourceLine?: Prisma.SortOrder
+  sourceTag?: Prisma.SortOrder
   followUpDate?: Prisma.SortOrder
   serviceDate?: Prisma.SortOrder
   timeSlot?: Prisma.SortOrder
@@ -2190,6 +2212,7 @@ export type LeadCreateWithoutCreatedByInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2271,6 +2294,7 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2361,6 +2385,7 @@ export type LeadCreateWithoutAssignedToInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2442,6 +2467,7 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2551,6 +2577,7 @@ export type LeadScalarWhereInput = {
   intakeKey?: Prisma.StringNullableFilter<"Lead"> | string | null
   receivedOnNumber?: Prisma.StringNullableFilter<"Lead"> | string | null
   sourceLine?: Prisma.StringFilter<"Lead"> | string
+  sourceTag?: Prisma.StringNullableFilter<"Lead"> | string | null
   followUpDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   serviceDate?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   timeSlot?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -2641,6 +2668,7 @@ export type LeadCreateWithoutAssignedStaffInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2722,6 +2750,7 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2828,6 +2857,7 @@ export type LeadCreateWithoutQuotationsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -2909,6 +2939,7 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3006,6 +3037,7 @@ export type LeadUpdateWithoutQuotationsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3087,6 +3119,7 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3168,6 +3201,7 @@ export type LeadCreateWithoutFollowUpsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3249,6 +3283,7 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3346,6 +3381,7 @@ export type LeadUpdateWithoutFollowUpsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3427,6 +3463,7 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3508,6 +3545,7 @@ export type LeadCreateWithoutTimelineInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3589,6 +3627,7 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3686,6 +3725,7 @@ export type LeadUpdateWithoutTimelineInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3767,6 +3807,7 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3848,6 +3889,7 @@ export type LeadCreateWithoutJobsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -3929,6 +3971,7 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4026,6 +4069,7 @@ export type LeadUpdateWithoutJobsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4107,6 +4151,7 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4188,6 +4233,7 @@ export type LeadCreateWithoutPaymentsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4269,6 +4315,7 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4366,6 +4413,7 @@ export type LeadUpdateWithoutPaymentsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4447,6 +4495,7 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4528,6 +4577,7 @@ export type LeadCreateWithoutActivityLogsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4609,6 +4659,7 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4706,6 +4757,7 @@ export type LeadUpdateWithoutActivityLogsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4787,6 +4839,7 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4868,6 +4921,7 @@ export type LeadCreateWithoutAmcContractsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -4949,6 +5003,7 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5046,6 +5101,7 @@ export type LeadUpdateWithoutAmcContractsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5127,6 +5183,7 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5208,6 +5265,7 @@ export type LeadCreateWithoutCallRecordingsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5289,6 +5347,7 @@ export type LeadUncheckedCreateWithoutCallRecordingsInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5386,6 +5445,7 @@ export type LeadUpdateWithoutCallRecordingsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5467,6 +5527,7 @@ export type LeadUncheckedUpdateWithoutCallRecordingsInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5548,6 +5609,7 @@ export type LeadCreateManyCreatedByInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5621,6 +5683,7 @@ export type LeadCreateManyAssignedToInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -5694,6 +5757,7 @@ export type LeadUpdateWithoutCreatedByInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5775,6 +5839,7 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5856,6 +5921,7 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5929,6 +5995,7 @@ export type LeadUpdateWithoutAssignedToInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6010,6 +6077,7 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6091,6 +6159,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6164,6 +6233,7 @@ export type LeadCreateManyAssignedStaffInput = {
   intakeKey?: string | null
   receivedOnNumber?: string | null
   sourceLine?: string
+  sourceTag?: string | null
   followUpDate?: Date | string | null
   serviceDate?: Date | string | null
   timeSlot?: string | null
@@ -6237,6 +6307,7 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6318,6 +6389,7 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6399,6 +6471,7 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   intakeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receivedOnNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLine?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceTag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   followUpDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   serviceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   timeSlot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6566,6 +6639,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   intakeKey?: boolean
   receivedOnNumber?: boolean
   sourceLine?: boolean
+  sourceTag?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6652,6 +6726,7 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   intakeKey?: boolean
   receivedOnNumber?: boolean
   sourceLine?: boolean
+  sourceTag?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6729,6 +6804,7 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   intakeKey?: boolean
   receivedOnNumber?: boolean
   sourceLine?: boolean
+  sourceTag?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6806,6 +6882,7 @@ export type LeadSelectScalar = {
   intakeKey?: boolean
   receivedOnNumber?: boolean
   sourceLine?: boolean
+  sourceTag?: boolean
   followUpDate?: boolean
   serviceDate?: boolean
   timeSlot?: boolean
@@ -6861,7 +6938,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "intakeKey" | "receivedOnNumber" | "sourceLine" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "siteId" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "alternateMobile" | "whatsapp" | "email" | "address" | "area" | "pinCode" | "addOnServices" | "service" | "source" | "quoteAmount" | "stage" | "intakeKey" | "receivedOnNumber" | "sourceLine" | "sourceTag" | "followUpDate" | "serviceDate" | "timeSlot" | "teamNumber" | "notes" | "serviceCategory" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "assignedStaffIds" | "advanceAmount" | "paymentMode" | "paymentStatus" | "mapLink" | "siteId" | "referralCode" | "acquisitionChannel" | "acquisitionCampaign" | "utmSource" | "utmMedium" | "utmCampaign" | "utmTerm" | "utmContent" | "gclid" | "fbclid" | "landingPage" | "landingPageUrl" | "firstTouchSource" | "firstTouchMedium" | "firstTouchCampaign" | "firstTouchAt" | "latestTouchSource" | "latestTouchMedium" | "latestTouchCampaign" | "latestTouchAt" | "formSubmittedAt" | "marketingConsent" | "paymentPreference" | "marketingConsentAt" | "priceType" | "festivalName" | "scopeOfWork" | "serviceItems" | "discountAmount" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   callRecordings?: boolean | Prisma.Lead$callRecordingsArgs<ExtArgs>
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
@@ -6921,6 +6998,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     intakeKey: string | null
     receivedOnNumber: string | null
     sourceLine: string
+    sourceTag: string | null
     followUpDate: Date | null
     serviceDate: Date | null
     timeSlot: string | null
@@ -7426,6 +7504,7 @@ export interface LeadFieldRefs {
   readonly intakeKey: Prisma.FieldRef<"Lead", 'String'>
   readonly receivedOnNumber: Prisma.FieldRef<"Lead", 'String'>
   readonly sourceLine: Prisma.FieldRef<"Lead", 'String'>
+  readonly sourceTag: Prisma.FieldRef<"Lead", 'String'>
   readonly followUpDate: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly serviceDate: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly timeSlot: Prisma.FieldRef<"Lead", 'String'>

@@ -394,3 +394,13 @@ export type Voucher = Prisma.VoucherModel
  * 
  */
 export type CallRecording = Prisma.CallRecordingModel
+/**
+ * Model Vendor
+ * 
+ */
+export type Vendor = Prisma.VendorModel
+/**
+ * Model VendorPayout
+ * 
+ */
+export type VendorPayout = Prisma.VendorPayoutModel

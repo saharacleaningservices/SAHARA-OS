@@ -31,6 +31,7 @@ import {
     Send,
     Settings,
     BarChart3,
+    Handshake,
     type LucideIcon,
 } from "lucide-react";
 
@@ -64,7 +65,7 @@ const GROUP_BY_HREF: Record<string, NavGroupKey> = {
   "/dashboard": "dashboards",
   "/leads": "sales", "/customers": "sales", "/leads/price-list": "sales", "/service-catalog": "sales",
   "/jobs": "operations", "/jobs/dispatch": "operations", "/jobs/slots": "operations", "/staff": "operations", "/attendance": "operations", "/vehicles": "operations",
-  "/amc": "operations", "/jobs?service=HOUSEKEEPING": "operations", "/jobs?service=PEST_CONTROL": "operations", "/jobs?service=INTERIOR_PAINTING": "operations",
+  "/amc": "operations", "/vendors": "operations", "/jobs?service=HOUSEKEEPING": "operations", "/jobs?service=PEST_CONTROL": "operations", "/jobs?service=INTERIOR_PAINTING": "operations",
   "/sales": "finance", "/quotations": "finance", "/invoices": "finance", "/payments": "finance",
   "/vouchers/proforma-invoice": "finance", "/vouchers/credit-note": "finance", "/vouchers/delivery-challan": "finance",
   "/expenses": "finance", "/vouchers/purchase-voucher": "finance",
@@ -89,6 +90,9 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   { label: "Housekeeping", href: "/jobs?service=HOUSEKEEPING", section: "service-housekeeping", icon: Home, cluster: "Specialized Services" },
   { label: "Pest Control", href: "/jobs?service=PEST_CONTROL", section: "service-pest-control", icon: Bug, cluster: "Specialized Services" },
   { label: "Interior Painting", href: "/jobs?service=INTERIOR_PAINTING", section: "service-interior-painting", icon: PaintRoller, cluster: "Specialized Services" },
+  // Vendor Operations (owner 2026-11-04): registry, 20–25 % commission, payouts → VENDOR_PAYMENT expenses.
+  // Folded into Specialized Services so Operations keeps its 5 owner-agreed entries.
+  { label: "Vendor Operations", href: "/vendors", section: "vendors", icon: Handshake, cluster: "Specialized Services" },
   // ── Finance & Billing: Sales Vouchers, Purchases, Khata Book Import (+ reports and profit folded into one entry)
   // Sales Dashboard (owner 2026-10-25): first in Finance & Billing, not folded — total business, pending, paid, de-duplication.
   { label: "Sales Dashboard", href: "/sales", section: "revenue", icon: BarChart3 },

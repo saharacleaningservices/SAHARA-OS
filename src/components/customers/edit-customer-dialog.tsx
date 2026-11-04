@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { upsertCustomerProfile } from "@/server/actions/customer-actions";
+import { activeSourceTag, sourceTagChoices } from "@/lib/source-tags";
 
 type CustomerProfile = {
   name: string;
@@ -46,7 +47,7 @@ export function EditCustomerDialog({
   const [address, setAddress] = useState(initial?.address ?? "");
   const [area, setArea] = useState(initial?.area ?? "");
   const [outstandingBalance, setOutstandingBalance] = useState(String(initial?.outstandingBalance ?? 0));
-  const [source, setSource] = useState(initial?.source ?? "");
+  const [source, setSource] = useState(activeSourceTag(initial?.source) ?? "");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -109,8 +110,11 @@ export function EditCustomerDialog({
               <Input type="number" inputMode="decimal" value={outstandingBalance} onChange={(e) => setOutstandingBalance(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <Label>Source</Label>
-              <Input value={source} onChange={(e) => setSource(e.target.value)} />
+              <Label>Source Tag</Label>
+              <select value={source} onChange={(e) => setSource(e.target.value)} className="h-9 w-full rounded-md border bg-background px-2 text-sm" aria-label="Source tag">
+                <option value="">— Not tagged —</option>
+                {sourceTagChoices(initial?.source).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
             </div>
           </div>
         </div>

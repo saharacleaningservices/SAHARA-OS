@@ -8,6 +8,8 @@ import { sendSMS } from "@/lib/sms";
 import { sendWhatsAppMany } from "@/lib/whatsapp";
 import { addTimelineEntry } from "@/server/timeline";
 import { filterToMarketingOptIn } from "@/server/whatsapp-audience";
+import { normalizeMobile } from "@/server/customer-db";
+import { activeSourceTag } from "@/lib/source-tags";
 
 /**
  * Quick customer search for the Customer Actions top bar. Unrestricted
@@ -183,8 +185,8 @@ export async function upsertCustomerProfile(
   const session = await getSession();
   if (!session || !canManageCustomers(session.role)) return { error: "Not authorized" };
 
-  const digits = mobile.replace(/\D/g, "").slice(-10);
-  if (digits.length !== 10) return { error: "Invalid mobile number" };
+  const digits = normalizeMobile(mobile);
+  if (!digits) return { error: "Invalid mobile number" };
   const name = data.name.trim();
   if (!name) return { error: "Name is required" };
 
@@ -194,7 +196,7 @@ export async function upsertCustomerProfile(
     address: data.address?.trim() || null,
     area: data.area?.trim() || null,
     outstandingBalance: Number.isFinite(data.outstandingBalance) ? (data.outstandingBalance as number) : 0,
-    source: data.source?.trim() || null,
+    source: activeSourceTag(data.source),
   };
 
   await db.customer.upsert({

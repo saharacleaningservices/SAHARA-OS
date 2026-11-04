@@ -118,7 +118,9 @@ export const ModelName = {
   OutboxJob: 'OutboxJob',
   ReminderLog: 'ReminderLog',
   Voucher: 'Voucher',
-  CallRecording: 'CallRecording'
+  CallRecording: 'CallRecording',
+  Vendor: 'Vendor',
+  VendorPayout: 'VendorPayout'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -354,6 +356,7 @@ export const LeadScalarFieldEnum = {
   intakeKey: 'intakeKey',
   receivedOnNumber: 'receivedOnNumber',
   sourceLine: 'sourceLine',
+  sourceTag: 'sourceTag',
   followUpDate: 'followUpDate',
   serviceDate: 'serviceDate',
   timeSlot: 'timeSlot',
@@ -1491,6 +1494,41 @@ export const CallRecordingScalarFieldEnum = {
 } as const
 
 export type CallRecordingScalarFieldEnum = (typeof CallRecordingScalarFieldEnum)[keyof typeof CallRecordingScalarFieldEnum]
+
+
+export const VendorScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  services: 'services',
+  commissionPct: 'commissionPct',
+  notes: 'notes',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VendorScalarFieldEnum = (typeof VendorScalarFieldEnum)[keyof typeof VendorScalarFieldEnum]
+
+
+export const VendorPayoutScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  service: 'service',
+  jobRef: 'jobRef',
+  grossAmount: 'grossAmount',
+  commissionPct: 'commissionPct',
+  saharaShare: 'saharaShare',
+  vendorShare: 'vendorShare',
+  paidDate: 'paidDate',
+  mode: 'mode',
+  expenseId: 'expenseId',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type VendorPayoutScalarFieldEnum = (typeof VendorPayoutScalarFieldEnum)[keyof typeof VendorPayoutScalarFieldEnum]
 
 
 export const SortOrder = {

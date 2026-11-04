@@ -1,7 +1,7 @@
 "use server";
 
 // Bulk CSV import for Leads and Staff. Mirrors createLead/createStaff's
-import { createWithCustomerNumber } from "@/server/customer-db";
+import { createWithCustomerNumber, normalizeMobile } from "@/server/customer-db";
 // write logic (see src/server/actions/leads.ts and staff.ts) but processes
 // rows sequentially in one transaction-free loop — so LD-/SCS- numbering
 // stays correctly sequential — and revalidates paths once at the end
@@ -15,6 +15,7 @@ import { getSession } from "@/lib/session";
 import { leadSchema, staffSchema } from "@/lib/validation";
 import type { CustomerImportRow } from "@/lib/csv-import";
 import { deriveArea } from "@/lib/utils";
+import { cleanPartyName } from "@/lib/party-name.mjs";
 import { generateLeadNumber, generateEmployeeCode } from "@/lib/id-generators";
 import { canExportCustomers } from "@/lib/permissions";
 
@@ -173,12 +174,15 @@ export async function importCustomers(rows: CustomerImportRow[]): Promise<Import
   for (let i = 0; i < rows.length; i++) {
     const rowNum = i + 1;
     const r = rows[i];
-    const mobile = (r.mobile || "").replace(/[^\d]/g, "").slice(-10);
-    if (mobile.length !== 10) {
+    // Indian → 10 digits; international keeps its country code (never cut to 10).
+    const mobile = normalizeMobile(r.mobile) ?? "";
+    if (!mobile) {
       results.push({ row: rowNum, status: "invalid", message: `Invalid mobile "${r.mobile ?? ""}"` });
       continue;
     }
 
+    // Party names are stored clean (owner standard 2026-11-04): no "Cus"/"Mr" prefixes or ", Area" tags.
+    const cleanName = cleanPartyName(r.name).name || r.name;
     const existing = await db.customer.findUnique({ where: { mobile } });
     const lastDate = r.lastServiceDate ? new Date(r.lastServiceDate) : null;
 
@@ -190,7 +194,7 @@ export async function importCustomers(rows: CustomerImportRow[]): Promise<Import
       await db.customer.update({
         where: { id: existing.id },
         data: {
-          name: existing.name && existing.name !== "Customer" ? existing.name : r.name,
+          name: existing.name && existing.name !== "Customer" ? existing.name : cleanName,
           alternateMobile: existing.alternateMobile ?? r.alternateMobile ?? null,
           address: existing.address ?? r.address ?? null,
           area: existing.area ?? r.area ?? null,
@@ -211,7 +215,7 @@ export async function importCustomers(rows: CustomerImportRow[]): Promise<Import
 
     await createWithCustomerNumber((customerNumber) => ({
         customerNumber,
-        name: r.name,
+        name: cleanName,
         mobile,
         alternateMobile: r.alternateMobile ?? null,
         address: r.address ?? null,

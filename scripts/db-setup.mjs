@@ -2009,3 +2009,49 @@ db.close();
   console.log("Multi-number tracking + CallRecording migration complete.");
   mDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Lead source tags + Vendor Operations (2026-11-04, additive + idempotent).
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const vDb = new Database(dbPath);
+  const leadCols = vDb.prepare(`PRAGMA table_info("Lead")`).all().map((c) => c.name);
+  if (!leadCols.includes("sourceTag")) vDb.exec(`ALTER TABLE "Lead" ADD COLUMN "sourceTag" TEXT`);
+  vDb.exec(`
+    CREATE TABLE IF NOT EXISTS "Vendor" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "name" TEXT NOT NULL,
+      "phone" TEXT NOT NULL,
+      "services" TEXT,
+      "commissionPct" REAL NOT NULL DEFAULT 20,
+      "notes" TEXT,
+      "active" BOOLEAN NOT NULL DEFAULT true,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "Vendor_phone_key" ON "Vendor"("phone");
+    CREATE INDEX IF NOT EXISTS "Vendor_active_idx" ON "Vendor"("active");
+    CREATE TABLE IF NOT EXISTS "VendorPayout" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "vendorId" TEXT NOT NULL,
+      "service" TEXT,
+      "jobRef" TEXT,
+      "grossAmount" REAL NOT NULL,
+      "commissionPct" REAL NOT NULL,
+      "saharaShare" REAL NOT NULL,
+      "vendorShare" REAL NOT NULL,
+      "paidDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "mode" TEXT,
+      "expenseId" TEXT,
+      "notes" TEXT,
+      "createdById" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "VendorPayout_vendorId_fkey" FOREIGN KEY ("vendorId") REFERENCES "Vendor" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS "VendorPayout_expenseId_key" ON "VendorPayout"("expenseId");
+    CREATE INDEX IF NOT EXISTS "VendorPayout_vendorId_idx" ON "VendorPayout"("vendorId");
+    CREATE INDEX IF NOT EXISTS "VendorPayout_paidDate_idx" ON "VendorPayout"("paidDate");
+  `);
+  console.log("Source tags + Vendor Operations migration complete.");
+  vDb.close();
+}
