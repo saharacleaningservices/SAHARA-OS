@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { AppLock } from "@/components/auth/app-lock";
 import { SidebarNav } from "./sidebar-nav";
 import { Topbar } from "./topbar";
+import { ContentWidth } from "./content-width";
 import { CustomerActionsBar } from "./customer-actions-bar";
 import { OperationsActionsBar } from "./operations-actions-bar";
 import { Toaster } from "@/components/ui/sonner";
@@ -27,7 +28,7 @@ export function AppShell({
         <Topbar name={name} role={role} logoUrl={logoUrl} />
         {canAccess(role, "customers") ? <CustomerActionsBar /> : role === "OPERATIONS" ? <OperationsActionsBar /> : null}
         <main className="flex-1 px-4 py-6 pb-24 sm:px-6 lg:py-8">
-          <div className="mx-auto max-w-7xl">{children}</div>
+          <ContentWidth>{children}</ContentWidth>
         </main>
       </div>
       <Toaster position="top-right" richColors />
