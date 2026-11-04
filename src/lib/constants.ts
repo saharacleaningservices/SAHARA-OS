@@ -681,6 +681,7 @@ export const ROLE_NAV_ACCESS: Record<string, string[]> = {
           "amc",
           "payments",
           "expenses",
+          "vendors", // Vendor Operations — commission + payouts (owner 2026-11-04)
           "quotations",
           "invoices",
           "vouchers", // Proforma / Credit Note / Delivery Challan / Purchase vouchers — owner 2026-10-23

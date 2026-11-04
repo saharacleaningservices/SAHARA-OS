@@ -225,6 +225,10 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
                       {lead.acquisitionCampaign ? ` · ${lead.acquisitionCampaign}` : ""}
                     </p>
                   </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Source tag</p>
+                    <p className="font-medium text-foreground">{lead.sourceTag ?? "Not tagged"}</p>
+                  </div>
                   <div className="col-span-2 sm:col-span-3">
                     <p className="text-xs text-muted-foreground">WhatsApp marketing consent</p>
                     <MarketingConsentControl

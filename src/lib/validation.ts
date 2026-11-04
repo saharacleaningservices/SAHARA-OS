@@ -102,6 +102,8 @@ export const leadSchema = z.object({
   // Marketing attribution for leads entered by hand (set once, on create).
   acquisitionChannel: z.string().max(60).optional().or(z.literal("")),
   acquisitionCampaign: z.string().max(120).optional().or(z.literal("")),
+  // SRC-… source tag (lib/source-tags.ts) — owner CRM standard 2026-11-04.
+  sourceTag: z.string().max(40).optional().or(z.literal("")),
 });
 
 export type LeadFormValues = z.infer<typeof leadSchema>;

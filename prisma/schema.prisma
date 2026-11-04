@@ -503,6 +503,7 @@ model Lead {
   intakeKey       String?   @unique // automatic-intake idempotency key, e.g. "WA:<mobile>:<IST day>" — one WhatsApp lead per customer per day
   receivedOnNumber String? // business number (last 10 digits) the customer messaged / called — multi-number tracking
   sourceLine      String    @default("Main") // Main | Shoyab-GMB | Francis-Direct | Main-API — see lib/source-line.ts
+  sourceTag       String? // SRC-… attribution tag (lib/source-tags.ts) — free text, no enum (2026-11-04)
   callRecordings  CallRecording[]
   followUpDate    DateTime?
   serviceDate     DateTime? // customer-requested service date (from the booking form) — distinct from followUpDate
@@ -1943,4 +1944,48 @@ model CallRecording {
   createdAt  DateTime @default(now())
 
   @@index([leadId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Vendor Operations (owner 2026-11-04): partner vendors who execute jobs under
+// the Sahara brand. Sahara keeps commissionPct (20–25 %, default 20) of the job
+// value; the vendor's share is paid out and booked as an Expense with category
+// VENDOR_PAYMENT (expenseId), so profit / expense reports pick it up unchanged.
+// Additive tables — created by scripts/db-setup.mjs (CREATE TABLE IF NOT EXISTS).
+// ─────────────────────────────────────────────────────────────────────────
+
+model Vendor {
+  id            String         @id @default(cuid())
+  name          String
+  phone         String         @unique // phone key (lib/phone.ts): 10 digits India, full digits international
+  services      String? // JSON array of service packages the vendor executes
+  commissionPct Float          @default(20) // Sahara's share of the job value, 20–25
+  notes         String?
+  active        Boolean        @default(true)
+  payouts       VendorPayout[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([active])
+}
+
+model VendorPayout {
+  id            String   @id @default(cuid())
+  vendorId      String
+  vendor        Vendor   @relation(fields: [vendorId], references: [id])
+  service       String?
+  jobRef        String? // job number / site, free text
+  grossAmount   Float // job value billed to the customer
+  commissionPct Float
+  saharaShare   Float
+  vendorShare   Float // amount paid to the vendor (= the Expense amount)
+  paidDate      DateTime @default(now())
+  mode          String? // UPI | BANK | CASH
+  expenseId     String?  @unique // Expense row, category VENDOR_PAYMENT
+  notes         String?
+  createdById   String?
+  createdAt     DateTime @default(now())
+
+  @@index([vendorId])
+  @@index([paidDate])
 }

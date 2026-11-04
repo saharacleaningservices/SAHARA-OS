@@ -459,7 +459,9 @@ export const ModelName = {
   OutboxJob: 'OutboxJob',
   ReminderLog: 'ReminderLog',
   Voucher: 'Voucher',
-  CallRecording: 'CallRecording'
+  CallRecording: 'CallRecording',
+  Vendor: 'Vendor',
+  VendorPayout: 'VendorPayout'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -475,7 +477,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob" | "reminderLog" | "voucher" | "callRecording"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob" | "reminderLog" | "voucher" | "callRecording" | "vendor" | "vendorPayout"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5659,6 +5661,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Vendor: {
+      payload: Prisma.$VendorPayload<ExtArgs>
+      fields: Prisma.VendorFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VendorFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VendorFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>
+        }
+        findFirst: {
+          args: Prisma.VendorFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VendorFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>
+        }
+        findMany: {
+          args: Prisma.VendorFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>[]
+        }
+        create: {
+          args: Prisma.VendorCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>
+        }
+        createMany: {
+          args: Prisma.VendorCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VendorCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>[]
+        }
+        delete: {
+          args: Prisma.VendorDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>
+        }
+        update: {
+          args: Prisma.VendorUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>
+        }
+        deleteMany: {
+          args: Prisma.VendorDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VendorUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VendorUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>[]
+        }
+        upsert: {
+          args: Prisma.VendorUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayload>
+        }
+        aggregate: {
+          args: Prisma.VendorAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVendor>
+        }
+        groupBy: {
+          args: Prisma.VendorGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VendorGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VendorCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VendorCountAggregateOutputType> | number
+        }
+      }
+    }
+    VendorPayout: {
+      payload: Prisma.$VendorPayoutPayload<ExtArgs>
+      fields: Prisma.VendorPayoutFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VendorPayoutFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VendorPayoutFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>
+        }
+        findFirst: {
+          args: Prisma.VendorPayoutFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VendorPayoutFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>
+        }
+        findMany: {
+          args: Prisma.VendorPayoutFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>[]
+        }
+        create: {
+          args: Prisma.VendorPayoutCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>
+        }
+        createMany: {
+          args: Prisma.VendorPayoutCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VendorPayoutCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>[]
+        }
+        delete: {
+          args: Prisma.VendorPayoutDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>
+        }
+        update: {
+          args: Prisma.VendorPayoutUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>
+        }
+        deleteMany: {
+          args: Prisma.VendorPayoutDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VendorPayoutUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VendorPayoutUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>[]
+        }
+        upsert: {
+          args: Prisma.VendorPayoutUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VendorPayoutPayload>
+        }
+        aggregate: {
+          args: Prisma.VendorPayoutAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVendorPayout>
+        }
+        groupBy: {
+          args: Prisma.VendorPayoutGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VendorPayoutGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VendorPayoutCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VendorPayoutCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -5915,6 +6065,7 @@ export const LeadScalarFieldEnum = {
   intakeKey: 'intakeKey',
   receivedOnNumber: 'receivedOnNumber',
   sourceLine: 'sourceLine',
+  sourceTag: 'sourceTag',
   followUpDate: 'followUpDate',
   serviceDate: 'serviceDate',
   timeSlot: 'timeSlot',
@@ -7054,6 +7205,41 @@ export const CallRecordingScalarFieldEnum = {
 export type CallRecordingScalarFieldEnum = (typeof CallRecordingScalarFieldEnum)[keyof typeof CallRecordingScalarFieldEnum]
 
 
+export const VendorScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  phone: 'phone',
+  services: 'services',
+  commissionPct: 'commissionPct',
+  notes: 'notes',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VendorScalarFieldEnum = (typeof VendorScalarFieldEnum)[keyof typeof VendorScalarFieldEnum]
+
+
+export const VendorPayoutScalarFieldEnum = {
+  id: 'id',
+  vendorId: 'vendorId',
+  service: 'service',
+  jobRef: 'jobRef',
+  grossAmount: 'grossAmount',
+  commissionPct: 'commissionPct',
+  saharaShare: 'saharaShare',
+  vendorShare: 'vendorShare',
+  paidDate: 'paidDate',
+  mode: 'mode',
+  expenseId: 'expenseId',
+  notes: 'notes',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type VendorPayoutScalarFieldEnum = (typeof VendorPayoutScalarFieldEnum)[keyof typeof VendorPayoutScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -7435,6 +7621,8 @@ export type GlobalOmitConfig = {
   reminderLog?: Prisma.ReminderLogOmit
   voucher?: Prisma.VoucherOmit
   callRecording?: Prisma.CallRecordingOmit
+  vendor?: Prisma.VendorOmit
+  vendorPayout?: Prisma.VendorPayoutOmit
 }
 
 /* Types for Logging */

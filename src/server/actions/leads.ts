@@ -1,5 +1,6 @@
 "use server";
 
+import { activeSourceTag } from "@/lib/source-tags";
 import { originSnapshot } from "@/lib/lead-origin";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
@@ -233,7 +234,7 @@ export async function createLead(values: unknown, opts: { allowDuplicate?: boole
     contactType: data.contactType || null,
     isRepeat: data.isRepeat ?? null,
     siteId: data.siteId || null,
-    source: data.source,
+    source: activeSourceTag(data.sourceTag) ?? data.source,
   });
   const leadNumber = await generateLeadNumber();
   const lead = await db.lead.create({
@@ -251,6 +252,7 @@ export async function createLead(values: unknown, opts: { allowDuplicate?: boole
       addOnServices: data.addOnServices?.length ? JSON.stringify(data.addOnServices) : null,
       service: data.service,
       source: data.source,
+      sourceTag: activeSourceTag(data.sourceTag),
       quoteAmount: pkg && "quoteAmount" in pkg ? pkg.quoteAmount : (data.quoteAmount ?? null),
       followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
       serviceDate: data.serviceDate ? new Date(data.serviceDate) : null,
@@ -491,6 +493,7 @@ export async function updateLead(id: string, values: unknown, scheduleBase?: { s
       }),
       ...(data.service && { service: data.service }),
       ...(data.source && { source: data.source }),
+      ...(data.sourceTag !== undefined && { sourceTag: activeSourceTag(data.sourceTag) }),
       ...(data.quoteAmount !== undefined && !keptPkg && !(pkg && "quoteAmount" in pkg) && { quoteAmount: data.quoteAmount }),
       // Festival/regular label follows the edited price (createLead already stores it).
       ...(data.priceType !== undefined && !keptPkg && {

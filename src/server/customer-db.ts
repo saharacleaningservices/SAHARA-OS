@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { Prisma } from "@/generated/prisma/client";
 import { generateCustomerNumber } from "@/lib/id-generators";
+import { normalizePhone } from "@/lib/phone";
 
 // One customer database for every intake (public booking, New Lead, manual
 // CRM): a contact per normalized mobile number (Customer.mobile is unique) and
@@ -11,10 +12,12 @@ import { generateCustomerNumber } from "@/lib/id-generators";
 import { CONTACT_TYPES, CONTACT_TYPE_LABEL, isContactType, type ContactType } from "@/lib/contact-category";
 export { CONTACT_TYPES, CONTACT_TYPE_LABEL, isContactType, type ContactType };
 
-/** Last 10 digits — the duplicate key used everywhere for a mobile number. */
+/** The duplicate key used everywhere for a mobile number: 10 digits for Indian
+ * numbers, full digits with country code for international ones (never truncated). */
 export function normalizeMobile(mobile: string | null | undefined): string | null {
-  const d = (mobile ?? "").replace(/\D/g, "").slice(-10);
-  return d.length === 10 ? d : null;
+  const n = normalizePhone(mobile);
+  if (!n) return null;
+  return n.international || n.key.length === 10 ? n.key : null;
 }
 
 /** A short area name — not a fallback PIN code, dash or a whole address line. */

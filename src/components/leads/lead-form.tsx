@@ -1,5 +1,6 @@
 "use client";
 
+import { sourceTagChoices } from "@/lib/source-tags";
 import { useEffect, useRef, useState } from "react";
 import { CONTACT_TYPE_LABEL, categoryChoices } from "@/lib/contact-category";
 import { useRouter } from "next/navigation";
@@ -176,6 +177,7 @@ export function LeadForm({
       pinCode: "",
       service: "HOME_DEEP_CLEANING",
       source: "CALL",
+      sourceTag: "",
       followUpDate: "",
       serviceDate: "",
       timeSlot: "",
@@ -569,6 +571,18 @@ export function LeadForm({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sourceTag">Source Tag</Label>
+            <select
+              id="sourceTag"
+              value={watch("sourceTag") || ""}
+              onChange={(e) => setValue("sourceTag", e.target.value, { shouldDirty: true })}
+              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+            >
+              <option value="">— Not tagged —</option>
+              {sourceTagChoices(defaultValues?.sourceTag).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
           </div>
           {!leadId && (
             <>

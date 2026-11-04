@@ -4,17 +4,18 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { CATEGORY_OPTIONS, CONTACT_TYPE_LABEL, categoryChoices, categoryLabel, isContactType } from "../src/lib/contact-category";
 
-test("six owner categories with owner wording; unknown/empty falls back to Direct Customer", () => {
-  assert.deepEqual(CATEGORY_OPTIONS.map((c) => CONTACT_TYPE_LABEL[c]), ["Direct Customer", "Broker", "Interior Designer", "Vendor", "AMC Client", "Commercial / B2B Partner"]);
+test("owner categories with owner wording (Architect pickable since 2026-11-04); unknown/empty falls back to Direct Customer", () => {
+  assert.deepEqual(CATEGORY_OPTIONS.map((c) => CONTACT_TYPE_LABEL[c]), ["Direct Customer", "Broker", "Architect", "Interior Designer", "Vendor", "AMC Client", "Commercial / B2B Partner"]);
   assert.equal(categoryLabel(null), "Direct Customer");
   assert.equal(categoryLabel("nonsense"), "Direct Customer");
   assert.ok(isContactType("VENDOR") && isContactType("AMC_CLIENT") && !isContactType("CUVS"));
 });
 
-test("legacy Architect / Society values stay readable and only appear in the picker for records that have them", () => {
+test("Architect is always pickable; legacy Society stays readable and only appears for records that have it", () => {
   assert.equal(categoryLabel("ARCHITECT"), "Architect");
-  assert.ok(!categoryChoices("CUSTOMER").includes("ARCHITECT" as never));
-  assert.ok(categoryChoices("ARCHITECT").includes("ARCHITECT" as never));
+  assert.ok(categoryChoices("CUSTOMER").includes("ARCHITECT" as never));
+  assert.ok(!categoryChoices("CUSTOMER").includes("SOCIETY" as never));
+  assert.ok(categoryChoices("SOCIETY").includes("SOCIETY" as never));
 });
 
 test("history API: lazy route, staff blocked, Operations by in-scope job only and without money/mobile", () => {
