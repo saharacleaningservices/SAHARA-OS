@@ -1,0 +1,68 @@
+{
+  "@context": "https://schema.org",
+  "@type": [
+    "LocalBusiness",
+    "HomeAndConstructionBusiness"
+  ],
+  "@id": "https://saharacleaningservices.com/#branch-mohammadwadi",
+  "name": "Sahara Cleaning Services — Mohammadwadi",
+  "alternateName": "Sahara Cleaning Services (Mohammadwadi)",
+  "url": "https://saharacleaningservices.com/cleaning-services-mohammadwadi-411060",
+  "telephone": "+918956567130",
+  "foundingDate": "2012",
+  "parentOrganization": {
+    "@id": "https://saharacleaningservices.com/#organization"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Shop No. 4, Royal Complex, NIBM-Mohammadwadi Road, Opp. Undri Junction",
+    "addressLocality": "Pune",
+    "addressRegion": "Maharashtra",
+    "postalCode": "411060",
+    "addressCountry": "IN"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 18.469,
+    "longitude": 73.91
+  },
+  "areaServed": [
+    {
+      "@type": "GeoCircle",
+      "name": "Mohammadwadi / Undri / NIBM Road",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 18.469,
+        "longitude": 73.91
+      },
+      "geoRadius": 5000
+    },
+    {
+      "@type": "GeoCircle",
+      "name": "Kondhwa / Wanowrie / Katraj",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 18.475,
+        "longitude": 73.885
+      },
+      "geoRadius": 6000
+    },
+    {
+      "@type": "GeoCircle",
+      "name": "Hadapsar / Magarpatta / Amanora",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 18.509,
+        "longitude": 73.926
+      },
+      "geoRadius": 6000
+    }
+  ],
+  "potentialAction": {
+    "@type": "ReserveAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://saharacleaningservices.com/booking"
+    }
+  }
+}

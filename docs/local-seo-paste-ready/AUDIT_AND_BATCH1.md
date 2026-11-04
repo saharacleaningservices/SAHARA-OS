@@ -1,0 +1,257 @@
+# Content audit checklist + Batch 1 rollout (2026-11-04)
+
+Domain: `https://saharacleaningservices.com`. Nothing here is deployed. The public site code is outside this repo.
+
+## A. Content comparison checklist (run once per legacy page; sign off before its 301 goes live)
+
+Old = `/pune/{slug}`; New = `/cleaning-services-{slug}-{pin}` (file in `pages/`).
+Capture the old page first (print to PDF or save HTML) so nothing is lost after the redirect.
+
+### A1. Page-level (all 14)
+| # | Check | Old | New | Action if missing on New |
+|---|---|---|---|---|
+| 1 | `<title>` keywords the old page ranked for (see Search Console top queries) | | | Fold the keyword into the new title (≤60 chars) |
+| 2 | Meta description | | | Rewrite to include the top 2 queries |
+| 3 | H1 and H2 headings | | | Keep the old H2 topics that earn impressions |
+| 4 | Word count: New ≥ Old, no thinner | | | Port sections until New is at least as full |
+| 5 | Canonical = itself; no canonical to `/pune/` | | | Fix |
+| 6 | Indexable (no `noindex`), returns 200 | | | Fix |
+| 7 | Internal links in the body, count and anchors | | | Re-link the same targets (service pages, `/booking`) |
+| 8 | Inbound internal links (nav, footer, other pages) point to the New URL | | | Update links; do not rely on the redirect |
+| 9 | Images: file names, alt text, count | | | Re-use the same images with alt text including locality |
+| 10 | JSON-LD present and valid (WebPage, BreadcrumbList, Service, FAQPage) | | | Paste the block from the file |
+| 11 | Page speed (mobile LCP not worse than Old) | | | Compress images |
+
+### A2. Local elements to port (the "zero loss" list)
+| Element | What to check on the old page | Where it goes on the new page |
+|---|---|---|
+| Neighbourhood landmarks and roads | Landmarks, societies, roads, IT parks named | The intro paragraph and "Also serving nearby" |
+| Society / project names | Any society mentioned (must be real; no implied endorsement) | A "Societies we serve" list only if CRM-backed (≥3 completed jobs) |
+| Locality-specific FAQs | Questions beyond the 4 generated ones | Add to the FAQ block and the FAQPage JSON-LD (keep both in sync) |
+| Pricing notes | Any ₹ figure or "starting from" text | **Remove the figure**; replace with a link to `https://saharacleaningservices.com/booking` (owner rule: no hard-coded prices) |
+| Photos | Real before/after and crew photos | Keep the files; re-use the same URLs or redirect the old image URLs |
+| Testimonials / reviews | Customer quotes (with permission) | Same quote text; rating markup only if it mirrors real Google reviews |
+| Contact block | Phone and address | Exactly: 89565 67130; Shop No. 4, Royal Complex, NIBM-Mohammadwadi Road, Opp. Undri Junction, Pune, Maharashtra 411060 |
+| Service links | Links to `/services/...` | Same targets |
+| Opening hours / service hours | Any hours text | Match Google Business Profile |
+| Embedded map / directions | Map embed or link | Re-embed |
+
+### A3. Per-page tracker
+| Old URL | New URL | Top old queries (90 d) | Content parity ✓ | Links updated ✓ | Redirect tested ✓ |
+|---|---|---|---|---|---|
+| /pune/mohammadwadi | /cleaning-services-mohammadwadi-411060 | | | | |
+| /pune/undri | /cleaning-services-undri-411060 | | | | |
+| /pune/nibm | /cleaning-services-nibm-road-411048 | | | | |
+| /pune/kondhwa | /cleaning-services-kondhwa-411048 | | | | |
+| /pune/hadapsar | /cleaning-services-hadapsar-411028 | | | | |
+| /pune/magarpatta | /cleaning-services-magarpatta-411028 | | | | |
+| /pune/kharadi | /cleaning-services-kharadi-411014 | | | | |
+| /pune/viman-nagar | /cleaning-services-viman-nagar-411014 | | | | |
+| /pune/wagholi | /cleaning-services-wagholi-412207 | | | | |
+| /pune/baner | /cleaning-services-baner-411045 | | | | |
+| /pune/wakad | /cleaning-services-wakad-411057 | | | | |
+| /pune/hinjewadi | /cleaning-services-hinjewadi-411057 | | | | |
+| /pune/aundh | /cleaning-services-aundh-411007 | | | | |
+| /pune/kothrud | /cleaning-services-kothrud-411038 | | | | |
+
+### A4. Quick command-line checks (replace the slug; run after deploy)
+```bash
+# one hop, permanent, lands on 200
+curl -sIL -o /dev/null -w "%{http_code} hops=%{num_redirects} -> %{url_effective}\n" https://saharacleaningservices.com/pune/mohammadwadi
+# variants must also resolve in one hop
+curl -sIL -o /dev/null -w "%{num_redirects}\n" http://www.saharacleaningservices.com/pune/mohammadwadi/
+# canonical and noindex on the new page
+curl -s https://saharacleaningservices.com/cleaning-services-mohammadwadi-411060 | grep -oiE '<link rel="canonical"[^>]*>|<meta name="robots"[^>]*>'
+```
+
+## B. sitemap.xml and robots.txt
+
+- **sitemap.xml** (`sitemap.xml` in this folder): the live sitemap (499 URLs) with the 14 legacy `/pune/` URLs removed and the 22 new pages added = 507 URLs, no duplicates. `/pune/koregaon-park`, `/pune/kalyani-nagar` and `/pune/pcmc` stay. `sitemap_new_22_entries.xml` holds only the new `<url>` entries.
+- The live sitemap is **generated by the site code** (lastmod = build time), so the maintainer should add the 22 paths to that generator and remove the 14 old ones, rather than uploading a static file that the next build overwrites. Ship the sitemap change in the same release as the redirects.
+- **robots.txt:** no change needed. The live file already allows everything except `/api/`, `/j/`, `/my`, `/login`, `/uploads/` and points to the sitemap. Do not block `/pune/` or the new pages. Do not add `Disallow` for the old URLs: Google must crawl them to see the redirect.
+- Do **not** keep old `/pune/` URLs in the sitemap after the redirect (Search Console flags "redirected URL in sitemap").
+
+### Canonical and schema validation rules (every new page)
+1. `<link rel="canonical" href="https://saharacleaningservices.com/cleaning-services-{slug}-{pin}">` exactly, no trailing slash, no query string, https non-www.
+2. One H1 only; title ≤60 chars; meta ≤155 chars; both unique across the 22 pages.
+3. JSON-LD: exactly one `<script type="application/ld+json">` per page, valid JSON. `Service.provider` = `{"@id":"https://saharacleaningservices.com/#business"}`; never create a second LocalBusiness. No `price`, `priceRange` or `offers.price`.
+4. `FAQPage` questions and answers must be visible on the page (identical text). No `aggregateRating`/`review` unless it mirrors real visible Google reviews.
+5. NAP identical to Google Business Profile: phone `+918956567130`, address as in A2.
+6. Validate in Google's Rich Results Test (FAQ, breadcrumb) and validator.schema.org. Zero errors required; warnings reviewed.
+7. Every new page is linked from at least one crawlable page (zone hub or "Also serving nearby"), so it isn't an orphan.
+
+## C. Batch 1 rollout (first 7 localities)
+
+**Scope:** the first 7 of the 14 overlapping localities, those closest to the Mohammadwadi anchor.
+Batch 1: Mohammadwadi, Undri, NIBM Road, Kondhwa, Hadapsar, Magarpatta, Kharadi.
+Batch 2 (one week later, only if Batch 1 is clean): Viman Nagar, Wagholi, Baner, Wakad, Hinjewadi, Aundh, Kothrud.
+The 8 net-new pages (Amanora, Bavdhan, Wanowrie, Katraj, Deccan, Erandwane, Shivajinagar, Camp) have no old URL to lose; they can ship any time.
+
+### C1. Before deploy (T-7 to T-0)
+1. Export Search Console baseline for each of the 7 old URLs: last 90 days, queries and pages, clicks, impressions, CTR, position. Save as a dated CSV.
+2. Note Google Business Profile website clicks for the same period.
+3. Complete section A for the 7 pages (all rows ticked).
+4. Fix the Mohammadwadi branch schema (`schema_branch_mohammadwadi.jsonld`); change its `url` to `/cleaning-services-mohammadwadi-411060`.
+5. Update internal links, the GBP website link, ad final URLs and WhatsApp templates that use the 7 old URLs.
+6. Staging check: Rich Results Test on all 7, redirect test (A4), sitemap diff (7 removed, 7 added).
+
+### C2. Deploy day (T0), in one release
+1. Publish the 7 pages.
+2. Add the 7 redirects (rows with `batch=1` in `redirects_301.csv`).
+3. Update the sitemap: remove the 7 old URLs, add the 7 new ones.
+4. Verify with A4 on all 7. Spot-check one URL on mobile.
+5. In Search Console: URL Inspection → *Request indexing* for the 7 new URLs (max about 10 per day); resubmit `sitemap.xml`.
+
+### C3. Search Console tracking setup
+| Setting | Value |
+|---|---|
+| Property | Domain property `saharacleaningservices.com` (covers www/http) |
+| Report | Performance → Search results |
+| Metrics | Clicks, Impressions, CTR, Average position |
+| Dimensions | Page, then Query |
+| Filter: old | Page · URL contains · `/pune/mohammadwadi` (repeat per slug, or regex `/pune/(mohammadwadi\|undri\|nibm\|kondhwa\|hadapsar\|magarpatta\|kharadi)$`) |
+| Filter: new | Page · Custom (regex) · `/cleaning-services-(mohammadwadi\|undri\|nibm-road\|kondhwa\|hadapsar\|magarpatta\|kharadi)-` |
+| Date ranges | Compare last 28 days vs previous 28 days; also a custom range from T0 |
+| Country / device | India; check Mobile separately |
+| Indexing | Indexing → Pages: watch "Page with redirect" (old URLs, expected) and "Crawled/Discovered – currently not indexed" (new URLs, a problem if it persists) |
+| Also | URL Inspection per new URL: *Google-selected canonical* must equal the user-declared canonical |
+
+Optional API request body (Search Analytics API) for a combined view of the 7 localities:
+```json
+{
+  "startDate": "2026-08-06",
+  "endDate": "2026-11-03",
+  "dimensions": ["page", "query"],
+  "dimensionFilterGroups": [{
+    "groupType": "and",
+    "filters": [{
+      "dimension": "page",
+      "operator": "includingRegex",
+      "expression": "/(pune/(mohammadwadi|undri|nibm|kondhwa|hadapsar|magarpatta|kharadi)$|cleaning-services-(mohammadwadi|undri|nibm-road|kondhwa|hadapsar|magarpatta|kharadi)-)"
+    }]
+  }],
+  "rowLimit": 5000
+}
+```
+(Adjust `startDate`/`endDate` to the baseline window you export.)
+
+### C4. Monitoring schedule and thresholds
+Combine old + new URL clicks/impressions as one series per locality; compare to the baseline's daily average.
+
+| Checkpoint | What to check | Pass | Act if |
+|---|---|---|---|
+| T+1 | New URLs return 200; redirects one hop; sitemap accepted; no crawl errors | all 7 OK | Any 404/redirect chain: fix same day |
+| T+3 | URL Inspection: new URLs "URL is on Google" or queued; Google-selected canonical correct | ≥5 of 7 indexed | Re-request indexing; check canonical, `noindex`, robots |
+| T+7 | Impressions (old+new) vs baseline | ≥80% of baseline | Compare content to the old page; port missing sections |
+| T+14 | Average position per top-10 query | within ±3 positions of baseline | Strengthen on-page match for the dropped query |
+| T+28 | Clicks and impressions (old+new) vs baseline | ≥90%, trending up | If <70% for a page, restore its missing content; consider reverting that single redirect |
+
+**Go / no-go for Batch 2:** at T+14, all 7 new URLs indexed, combined impressions ≥80% of baseline, no unexplained canonical or coverage errors, GBP website clicks not down >20%. Otherwise fix first.
+
+**Rollback (per page):** remove that row from the redirect list, restore the old page (keep its content), point the new page's canonical to the old URL until resolved, resubmit the sitemap.
+
+### C5. Society pages
+Run `society_query.sql` against the **production** database (read-only, Prisma/SQLite). A society page is created only for rows it returns with `completed_jobs >= 3`. The query ignores soft-deleted and demo jobs, and outputs no customer data. Matching is by text fragments of `Job.address`, so check spelling variants (the query already includes a few) and extend the VALUES list if the CRM spells a society differently.
+
+
+---
+
+## D. Batch 1 cross-verification findings (checked live on 2026-11-04)
+
+Method: fetched the 7 live `/pune/{slug}` pages and compared them with the generated pages.
+
+**What the old pages really contain**
+- All 7 are the **same template** (about 930–945 words, only the locality name changes): 4 FAQs in FAQPage JSON-LD, 6 images, no ₹ figures.
+- **No locality landmarks anywhere**, and no locality-specific photos. Images are shared stock (logo, `hero-commercial-v2.webp`, 4 service cards). Only the hero `alt` is localised ("Sahara cleaning crew in Royal Blue uniform serving {Locality}, Pune").
+- The copy is **B2B / contract-heavy**: "Who we work with" (housing societies, IT parks and offices, architects and builders, restaurants, homes), "High-value contracts" (office deep cleaning, housekeeping AMC, facility management, housekeeping + pest control; "pricing quoted after a site visit, in writing"), and an AMC/office-quote enquiry form.
+- Old meta description names **both phones** (70833 47130 and 89565 67130).
+- Old canonical is self-referencing; old pages link to `/contact`, `/services/facility-management`, `/services/office-cleaning-housekeeping`, `/services/post-construction-cleaning`, `/services/restaurant-kitchen-cleaning`, `/services/unfurnished-home-cleaning` and the `/services/...` pages.
+- The old Mohammadwadi page says it "sits in East Pune"; Mohammadwadi is in South Pune. Fix on the new page.
+
+**Gap in the generated pages (must fix before redirecting):** they cover home services and a 4-question FAQ but have **no** housekeeping AMC, facility management, office-quote/proposal, "Who we work with" or "High-value contracts" content, no `/contact`, `/services/facility-management` or `/services/restaurant-kitchen-cleaning` links, and no localised hero image alt. Queries like "housekeeping AMC {locality}" currently rank on the old pages and would lose their target.
+
+### D1. Landmarks (Batch 1)
+The old pages carry none, so there is nothing to port; the landmarks below come from the generated pages and must each be **checked on a map and against the CRM** before publishing.
+
+| Locality | PIN | Landmark text on new page | Verify |
+|---|---|---|---|
+| Mohammadwadi | 411060 | NIBM–Mohammadwadi Road, Undri Junction | Both exist at that location; shop is Opp. Undri Junction |
+| Undri | 411060 | Undri Junction, Undri–Pisoli Road | Road name and junction |
+| NIBM Road | 411048 | NIBM Road, Kondhwa Khurd | Kondhwa Khurd placement |
+| Kondhwa | 411048 | Katraj–Kondhwa Road, Kondhwa Budruk | Road name |
+| Hadapsar | 411028 | Solapur Road, Seasons Mall, industrial belt | Mall name and position |
+| Magarpatta | 411028 | Magarpatta City township, Cybercity | Spelling and usage |
+| Kharadi | 411014 | EON IT Park, World Trade Center, Kharadi bypass | Names and positions |
+
+Add only landmarks where Sahara has actually worked (CRM addresses), not generic map facts.
+
+### D2. FAQs to carry over (each page)
+1. Do you provide cleaning services in {Locality}? (keep; both old and new have it)
+2. Which services are available in {Locality}? (keep; old answer lists commercial, painting, facility management with AMC; new answer must too)
+3. **How do I get a housekeeping AMC or office cleaning quote in {Locality}?** (old only; **add**: site visit, scope agreed, written proposal)
+4. How do I book? (keep; confirm bookings are confirmed by the office)
+5. New from the generated page: price question (links to `/booking`). Keep.
+6. Phone numbers in answers: decide whether to keep both numbers in text; the schema/NAP uses 89565 67130 only.
+Keep the FAQ text and FAQPage JSON-LD identical.
+
+### D3. Photos to cross-verify
+| Item | Old page | Action |
+|---|---|---|
+| `/marketing/hero-commercial-v2.webp` with alt "...serving {Locality}, Pune" | yes | Re-use the same file and localised alt on the new page |
+| Service card images (`full-home-card`, `express-card`, `housekeeping`, `carousel-team`) | yes | Re-use for the four service blocks |
+| `/brand/sahara-logo-360.png` | yes | Keep |
+| Locality-specific real photos | none | Add at least one real photo per locality (crew at work in that area, with permission) |
+| Image alt text, sizes, loading | n/a | Compare Largest Contentful Paint, no regression |
+
+### D4. Pre-redirect fixes to the 7 new pages (to do before the 301s go live)
+1. Add "Who we work with" and "High-value contracts" sections (housing societies, IT parks and offices, architects and builders, restaurants, homes; office deep cleaning, housekeeping AMC, facility management, housekeeping + pest control; "pricing quoted after a site visit, in writing" with no figures).
+2. Add the AMC/office-quote FAQ and its JSON-LD entry.
+3. Add links to `/contact`, `/services/facility-management`, `/services/office-cleaning-housekeeping`, `/services/restaurant-kitchen-cleaning`.
+4. Include the old pages' top ranking terms in title and H1 ("Cleaning, Housekeeping & Pest Control in {Locality}, Pune {pin}" style) once Search Console shows the top queries.
+5. Re-use the localised hero image and alt.
+6. Bring word count to at least the old ~930 words.
+7. Fix "East Pune" wording for Mohammadwadi/Undri/NIBM/Kondhwa (South Pune).
+
+### D5. Status of D4 (updated 2026-11-04)
+Applied to all 22 generated pages in `pages/`:
+1. "Who we work with" and "High-value contracts" sections added (pricing quoted after a site visit, in writing; no figures).
+2. AMC/office-quote FAQ added; 5 FAQs on each page, identical in the page text and the FAQPage JSON-LD (checked by script).
+3. Links added to `/contact`, `/services/facility-management`, `/services/restaurant-kitchen-cleaning`, `/services/commercial-services`, `/services/residential-services`, `/services/individual-services`, `/services/unfurnished-home-cleaning`, `/services/relocation-property-services` and others; all linked URLs return 200 on the live site.
+4. Title/H1 follow the old keyword pattern ("Cleaning, Housekeeping & Pest Control in {Locality}, Pune {pin}"); meta now mentions housekeeping AMC. Replace with Search Console top queries after the baseline export (D4 item 4).
+5. Localised hero image (`hero-commercial-v2.webp`, alt "...serving {Locality}, Pune") and the four service-card images re-used from the old pages.
+6. Visible text is 789+ words per page (old pages measure about 930 including header/footer text, so roughly comparable).
+7. "East Pune" error not carried over: the zone now comes from the locality (Mohammadwadi, Undri, NIBM Road, Kondhwa say South Pune).
+Also: `schema_branch_mohammadwadi.jsonld` `url` now points to `/cleaning-services-mohammadwadi-411060`. Titles are up to 66 characters (a few long locality names), similar to the old titles.
+Still open: one real photo per locality; landmark and phone-number decisions (D1, D2); the page-by-page tracker in A3.
+
+---
+
+## E. Filled comparison tracker (automated check run 2026-11-04)
+
+Method: fetched each live `/pune/{slug}` page and compared it with the generated file by script: visible words, h2/h3 headings (locality name masked), internal links, `/marketing/` images. After the fixes in D5 and the link/heading additions below, the result is the same for all 14 pages.
+
+| Old URL | New URL | Batch | Old HTTP | Words old → new | Headings | Internal links | Images | Top old queries (90 d) | Redirect tested |
+|---|---|---|---|---|---|---|---|---|---|
+| /pune/mohammadwadi | /cleaning-services-mohammadwadi-411060 | 1 | 200 | 940 → 845 | ✓ | ✓ (except /track) | ✓ | needs Search Console | after deploy |
+| /pune/undri | /cleaning-services-undri-411060 | 1 | 200 | 928 → 845 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/nibm | /cleaning-services-nibm-road-411048 | 1 | 200 | 940 → 857 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/kondhwa | /cleaning-services-kondhwa-411048 | 1 | 200 | 928 → 845 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/hadapsar | /cleaning-services-hadapsar-411028 | 1 | 200 | 930 → 853 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/magarpatta | /cleaning-services-magarpatta-411028 | 1 | 200 | 938 → 861 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/kharadi | /cleaning-services-kharadi-411014 | 1 | 200 | 934 → 853 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/viman-nagar | /cleaning-services-viman-nagar-411014 | 2 | 200 | 938 → 861 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/wagholi | /cleaning-services-wagholi-412207 | 2 | 200 | 932 → 847 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/baner | /cleaning-services-baner-411045 | 2 | 200 | 916 → 852 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/wakad | /cleaning-services-wakad-411057 | 2 | 200 | 916 → 850 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/hinjewadi | /cleaning-services-hinjewadi-411057 | 2 | 200 | 934 → 848 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/aundh | /cleaning-services-aundh-411007 | 2 | 200 | 914 → 844 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+| /pune/kothrud | /cleaning-services-kothrud-411038 | 2 | 200 | 901 → 850 | ✓ | ✓ | ✓ | needs Search Console | after deploy |
+
+What the script found and what was done:
+- **Contract headings:** Office Deep Cleaning, Housekeeping AMC, Facility Management and Housekeeping + Pest Control were `h3` headings on the old pages but list items on the new ones. They are now `h3` headings.
+- **Missing internal links:** the old pages linked to about 15 more URLs (`/commercial-cleaning-pune`, `/pest-control-pune`, `/interior-painting-pune`, `/housekeeping-services`, and `/services/` pages for sofa upholstery shampooing, carpet, window, balcony, façade and glass, showroom, warehouse, packers and movers, rent agreement and police verification, property snagging inspection) and `/pune`. All now appear on the new pages ("More services in {Locality}", the contract sections and "All Pune areas"), and every target returns 200.
+- **Not carried over, on purpose:** the site header/footer items (`/track`, the "Services" and "Serving Pune Since 2012" headings) are site-wide chrome, not page content; "Also serving nearby in East Pune" (wrong zone for the south localities) is replaced by "Also serving nearby".
+- **Word count:** the remaining gap of about 50–95 words is the old pages' header/footer text, which is counted on the old side.
+- **Images:** every `/marketing/` image on the old pages is also on the new ones.
+- **Not checkable here:** top queries and impressions (needs the Search Console export), redirect behaviour (nothing deployed), and the real per-locality photo.
+- **Internal links to update at deploy:** the `/pune` hub and any page listing the 14 old URLs link to the old addresses; update them to the new URLs so crawlers don't depend on the redirects.
