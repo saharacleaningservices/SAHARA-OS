@@ -548,3 +548,6 @@ All in `docs/local-seo-paste-ready/`:
 - Batch 1 pages updated 2026-11-04: B2B/AMC content, 5 FAQs, hero/service images, and links added to all 22 pages; see AUDIT_AND_BATCH1.md section D5.
 
 - Final asset set 2026-11-04: society_query.sql (read-only: sqlite3 -readonly + PRAGMA query_only), redirects_batch1.csv, redirects_nextjs.js exporting { batch1, batch2 }, verify_redirects_batch1.sh, search_console_batch1.md.
+
+
+> **Decision 2026-11-04 (owner): Mohammadwadi address = the Google Maps listing text, "Anand Nagar, Tarwade Vasti, Hadapsar, Pune, Maharashtra 411060"** (geo 18.4754638, 73.924633, Plus Code FWGF+5V). It replaces "Shop No. 4, Royal Complex…" above everywhere: pages, branch schema and GBP. Rating stays per listing: Mohammadwadi 4.8 / 234, Magarpatta 4.9 / 1,830. Live implementation: SAHARA-OS PR 114.

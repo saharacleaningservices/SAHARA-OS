@@ -255,3 +255,6 @@ What the script found and what was done:
 - **Images:** every `/marketing/` image on the old pages is also on the new ones.
 - **Not checkable here:** top queries and impressions (needs the Search Console export), redirect behaviour (nothing deployed), and the real per-locality photo.
 - **Internal links to update at deploy:** the `/pune` hub and any page listing the 14 old URLs link to the old addresses; update them to the new URLs so crawlers don't depend on the redirects.
+
+
+> **Decision 2026-11-04 (owner): Mohammadwadi address = the Google Maps listing text, "Anand Nagar, Tarwade Vasti, Hadapsar, Pune, Maharashtra 411060"** (geo 18.4754638, 73.924633, Plus Code FWGF+5V). It replaces "Shop No. 4, Royal Complex…" above everywhere: pages, branch schema and GBP. Rating stays per listing: Mohammadwadi 4.8 / 234, Magarpatta 4.9 / 1,830. Live implementation: SAHARA-OS PR 114.

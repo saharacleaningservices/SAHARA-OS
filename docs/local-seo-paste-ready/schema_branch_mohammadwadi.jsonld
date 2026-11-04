@@ -15,7 +15,7 @@
   },
   "address": {
     "@type": "PostalAddress",
-    "streetAddress": "Shop No. 4, Royal Complex, NIBM-Mohammadwadi Road, Opp. Undri Junction",
+    "streetAddress": "Anand Nagar, Tarwade Vasti, Hadapsar",
     "addressLocality": "Pune",
     "addressRegion": "Maharashtra",
     "postalCode": "411060",
@@ -23,8 +23,8 @@
   },
   "geo": {
     "@type": "GeoCoordinates",
-    "latitude": 18.469,
-    "longitude": 73.91
+    "latitude": 18.4754638,
+    "longitude": 73.924633
   },
   "areaServed": [
     {
@@ -32,8 +32,8 @@
       "name": "Mohammadwadi / Undri / NIBM Road",
       "geoMidpoint": {
         "@type": "GeoCoordinates",
-        "latitude": 18.469,
-        "longitude": 73.91
+        "latitude": 18.4754638,
+        "longitude": 73.924633
       },
       "geoRadius": 5000
     },
@@ -64,5 +64,6 @@
       "@type": "EntryPoint",
       "urlTemplate": "https://saharacleaningservices.com/booking"
     }
-  }
+  },
+  "hasMap": "https://www.google.com/maps/place/Sahara+Cleaning+Services+in+Pune/@18.4754638,73.924633,17z/data=!3m1!4b1!4m6!3m5!1s0x3bc2eb84538b59cd:0xbcd9dadf0443ecba!8m2!3d18.4754638!4d73.924633"
 }
