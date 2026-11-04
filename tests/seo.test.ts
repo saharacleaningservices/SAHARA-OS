@@ -13,7 +13,7 @@ import assert from "node:assert/strict";
 import http from "node:http";
 import net from "node:net";
 import { execFileSync, spawn, type ChildProcess } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { PUNE_AREAS } from "../src/lib/pune-areas";
@@ -35,8 +35,17 @@ const PROGRAMMATIC_SAMPLE = PROGRAMMATIC.filter((_, i) => i % 37 === 0);
 const CORE = ["/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
 // Service catalog pages (rebuild 2026-11-02) not already covered by a SEO hub slug, plus the Scope of Work policy.
 const CATALOG = [...CATALOG_CATEGORIES.map((c) => `/services/${c.slug}`), ...CATALOG_SERVICES.map((s) => `/services/${s.slug}`)].filter((p) => !SEO_HUBS.includes(p));
-const INDEXABLE = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC_SAMPLE];
-const SITEMAP_ALL = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC];
+// Blog (PR #108): /blog and one URL per markdown post in content/blog — listed once at least one post exists.
+const BLOG_POSTS = (() => {
+  try {
+    return readdirSync("content/blog").filter((f) => f.endsWith(".md")).map((f) => `/blog/${f.replace(/\.md$/, "")}`);
+  } catch {
+    return [];
+  }
+})();
+const BLOG = BLOG_POSTS.length ? ["/blog", ...BLOG_POSTS] : [];
+const INDEXABLE = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC_SAMPLE, ...BLOG];
+const SITEMAP_ALL = ["/", ...CORE, "/scope-of-work", ...SEO_HUBS, ...CATALOG, ...PROGRAMMATIC, ...BLOG];
 const LANDING = ["/landing/home-deep-cleaning-pune", "/landing/interior-painting-pune", "/landing/office-commercial-cleaning-pune", "/landing/pest-control-services-pune"];
 // Public pages that must keep answering 200 but are not meant for the sitemap.
 const OTHER_PUBLIC = ["/privacy-policy", "/terms"];

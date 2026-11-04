@@ -10,13 +10,21 @@ export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
 
+/** Search titles stay ≤ 70 chars where possible: full brand suffix for short titles, "| Sahara" for long ones. */
+function blogTitle(t: string): string {
+  const full = `${t} | Sahara Cleaning Services`;
+  if (full.length <= 70) return full;
+  const short = `${t} | Sahara`;
+  return short.length <= 90 ? short : `${t.slice(0, 80).trimEnd()}… | Sahara`;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) return { title: "Article not found | Sahara Cleaning Services", robots: { index: false, follow: false } };
   const url = `${BASE_URL}/blog/${post.slug}`;
   return {
-    title: `${post.title} | Sahara Cleaning Services`,
+    title: blogTitle(post.title),
     description: post.excerpt,
     keywords: post.keywords,
     authors: [{ name: post.author }],
