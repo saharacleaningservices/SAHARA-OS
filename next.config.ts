@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { LEGACY_REDIRECTS } from "./src/lib/legacy-redirects";
+import { PINCODE_REDIRECTS } from "./src/lib/pincode-redirects";
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -30,7 +31,8 @@ const nextConfig: NextConfig = {
   // Short legal URL some links and ad forms use. 308 = permanent, method-preserving.
   // Legacy WordPress / sahara-web URLs -> Sahara OS routes are true 301s (see src/lib/legacy-redirects.ts).
   async redirects() {
-    return [{ source: "/privacy", destination: "/privacy-policy", permanent: true }, ...LEGACY_REDIRECTS];
+    // Local SEO Batch 1 (owner 2026-11-04): /pune/<area> -> /cleaning-services-<area>-<pincode>, one 308 hop.
+    return [{ source: "/privacy", destination: "/privacy-policy", permanent: true }, ...PINCODE_REDIRECTS, ...LEGACY_REDIRECTS];
   },
   async headers() {
     return [
