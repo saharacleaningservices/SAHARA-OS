@@ -146,7 +146,9 @@ export async function varianceCheck(parties: SyncParty[]) {
       const byKey = await db.mybillbookInvoice.findUnique({ where: { invoiceKey: key }, select });
       const bySerial = v.sn ? await db.mybillbookInvoice.findMany({ where: { invoiceNo: v.sn, dataset: ds }, select }) : [];
       // The voucher's own row wins; otherwise the single serial match.
-      const row = byKey ?? (bySerial.length === 1 ? bySerial[0] : bySerial[0] ?? null);
+      // A cancelled ₹0 stub left under the same serial must not hide the live row.
+      const live = bySerial.filter((r) => r.status !== "Cancelled");
+      const row = byKey && byKey.status !== "Cancelled" ? byKey : live.length ? live[0] : byKey ?? bySerial[0] ?? null;
       if (!row) continue;
       rows += 1;
       const mPaid = n(v.tot) - n(v.rem);
