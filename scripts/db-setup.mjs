@@ -12,7 +12,7 @@
 import { randomUUID } from "node:crypto";
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
-import { readFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -24,18 +24,17 @@ import path from "node:path";
   const log = console.log.bind(console);
   const stamp = () => `[${new Date().toISOString().slice(11, 19)}Z +${((Date.now() - t0) / 1000).toFixed(1)}s]`;
   console.log = (...a) => log(stamp(), ...a);
-  let traced = 0;
-  const head = (sql) => String(sql).replace(/\s+/g, " ").trim().slice(0, 90);
-  const trace = (kind, sql) => {
-    traced += 1;
-    if (traced <= 1500 || traced % 100 === 0) log(stamp(), `[sql:${kind}#${traced}]`, head(sql));
-  };
+  const head = (sql) => String(sql).replace(/\s+/g, " ").trim().slice(0, 120);
+  let n = 0;
+  // The statement about to run goes to a small file; scripts/render-start.mjs prints it every 15 s while db-setup is
+  // still running, so a blocked statement is visible without flooding the 100-line container log Coolify shows.
   const timed = (kind, sql, fn) => {
-    trace(kind, sql);
+    n += 1;
+    try { writeFileSync("/tmp/sahara-db-setup-current", `#${n} ${kind} ${head(sql)}`); } catch {}
     const s = Date.now();
     try { return fn(); } finally {
       const ms = Date.now() - s;
-      if (ms > 1000) log(stamp(), `[sql:SLOW ${ms}ms]`, head(sql));
+      if (ms > 1000) log(stamp(), `[sql:SLOW ${ms}ms #${n}]`, head(sql));
     }
   };
   const origExec = Database.prototype.exec;
