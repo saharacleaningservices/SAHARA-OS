@@ -203,7 +203,7 @@ export default async function MyMoneyPage({ searchParams }: { searchParams: Prom
               [t("loanPaid"), money.loan.paid],
               [t("loanRemaining"), money.loan.remaining],
             ].map(([l, v], i) => (
-              <div key={i} className={cn("rounded-2xl p-2", i === 2 ? "bg-indigo-600 text-white" : "bg-white/70 text-indigo-950 dark:bg-indigo-900/40 dark:text-indigo-100")}>
+              <div key={i} className={cn("rounded-2xl p-2", i === 2 ? "bg-[#DC2626] text-white" : "bg-white/70 text-indigo-950 dark:bg-indigo-900/40 dark:text-indigo-100")}>
                 <div className="text-[11px] font-semibold leading-tight">{l}</div>
                 <div className="text-lg font-extrabold tabular-nums">{inr(v as number)}</div>
               </div>

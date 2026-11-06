@@ -7,6 +7,8 @@ import { BookOpen, Clock4, CreditCard, History, Loader2, PencilLine } from "luci
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CORRECTABLE_LABEL, CORRECTABLE_TYPES, correctableTypeOf, previewCorrection, type CorrectableType } from "@/lib/money-correction";
 import { maskTail } from "@/lib/utils";
 import { correctStaffEntry, createOvertime, decideOvertime, deleteOvertime, recordStaffTransaction, saveStaffPaymentDetails, updateOvertime } from "@/server/actions/staff-money";
 
@@ -64,10 +66,10 @@ const KIND_LABEL: Record<string, string> = {
 };
 const sel = "mt-0.5 h-9 w-full rounded-md border bg-background px-2 text-sm";
 
-type Fix = { table: "ledger" | "loan"; id: string; label: string; oldAmount: number; oldDate: string; amount: string; date: string; note: string; reason: string; cancel: boolean };
+type Fix = { table: "ledger" | "loan"; id: string; label: string; oldAmount: number; oldDate: string; amount: string; date: string; note: string; reason: string; cancel: boolean; fromType: CorrectableType | null; type: CorrectableType | null };
 
 /**
- * Money Khata — ONE Khata per employee: Summary, Ledger, Add entry, Overtime,
+ * Payroll Summary (formerly "Money Khata") — ONE Khata per employee: Summary, Ledger, Add entry, Overtime,
  * Payment details, Audit history. Add / correct only for Super Admin and
  * Accounts (server enforced); corrections never edit or delete the original.
  */
@@ -82,6 +84,7 @@ export function StaffKhataCard({
   details,
   audit,
   canManage,
+  periodLabel = "Payroll Summary",
 }: {
   staffId: string;
   summary: Summary;
@@ -93,6 +96,8 @@ export function StaffKhataCard({
   details: PayDetails;
   audit: AuditRow[];
   canManage: boolean;
+  /** "Payroll Summary - October 2026" — follows the month selected on the staff page. */
+  periodLabel?: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -139,8 +144,10 @@ export function StaffKhataCard({
   }
 
   const [fix, setFix] = useState<Fix | null>(null);
-  const openFix = (table: Fix["table"], id: string, label: string, amount: number, date: Date) =>
-    setFix({ table, id, label, oldAmount: amount, oldDate: ymd(date), amount: String(amount), date: ymd(date), note: "", reason: "", cancel: false });
+  const openFix = (table: Fix["table"], id: string, label: string, amount: number, date: Date, kind: string) => {
+    const t = correctableTypeOf(kind);
+    setFix({ table, id, label, oldAmount: amount, oldDate: ymd(date), amount: String(amount), date: ymd(date), note: "", reason: "", cancel: false, fromType: t, type: t });
+  };
   const saveFix = () =>
     fix &&
     run(
@@ -148,12 +155,21 @@ export function StaffKhataCard({
         correctStaffEntry({
           table: fix.table,
           id: fix.id,
-          next: fix.cancel ? null : { amount: Number(fix.amount), date: fix.date, note: fix.note || undefined },
+          next: fix.cancel ? null : { amount: Number(fix.amount), date: fix.date, note: fix.note || undefined, type: fix.type && fix.type !== fix.fromType ? fix.type : undefined },
           reason: fix.reason,
         }),
       "Correction saved",
       () => setFix(null),
     );
+
+  // Live preview: Salary Due / Loan Outstanding as they will be after this correction (updates while typing).
+  const fixPreview = fix && fix.fromType
+    ? previewCorrection(
+        { salaryDue: summary.salaryDue, loanRemaining: loan.remaining },
+        { type: fix.fromType, amount: fix.oldAmount },
+        fix.cancel ? null : { type: fix.type ?? fix.fromType, amount: Number(fix.amount) > 0 ? Number(fix.amount) : fix.oldAmount },
+      )
+    : null;
 
   const [ot, setOt] = useState({ date: today(), otHours: "", regularHours: "8", otRate: "", reason: "" });
   // Edit / delete one overtime record (owner 2026-10-22) — reason required, logged in Audit History.
@@ -204,11 +220,11 @@ export function StaffKhataCard({
       <CardHeader className="pb-2">
         <CardTitle className="flex flex-wrap items-center justify-between gap-2 text-base">
           <span className="flex items-center gap-2">
-            <BookOpen className="size-4 text-primary" /> Money Khata
+            <BookOpen className="size-4 text-primary" /> {periodLabel}
           </span>
           <span className={`text-sm ${summary.salaryDue >= 0 ? "text-success" : "text-destructive"}`}>
             {summary.salaryDue >= 0 ? "Salary due (we give)" : "Advance (we get)"} {inr(summary.salaryDue)}
-            {loan.remaining ? <span className="ml-2 text-indigo-700 dark:text-indigo-300">· Loan {inr(loan.remaining)}</span> : null}
+            {loan.remaining ? <span className="ml-2 font-bold text-[#DC2626]">· Loan {inr(loan.remaining)}</span> : null}
           </span>
         </CardTitle>
         {/* Always-visible summary: the six numbers checked first. */}
@@ -219,7 +235,7 @@ export function StaffKhataCard({
             ["Advance", summary.advance, ""],
             ["Deductions", summary.deductions, ""],
             [summary.salaryDue >= 0 ? "Salary due" : "Adv. outstanding", Math.abs(summary.salaryDue), summary.salaryDue >= 0 ? "text-success" : "text-destructive"],
-            ["Loan", loan.remaining, loan.remaining ? "text-indigo-700 dark:text-indigo-300" : ""],
+            ["Loan outstanding", loan.remaining, loan.remaining ? "font-extrabold text-[#DC2626]" : ""],
           ] as [string, number, string][]).map(([k, v, tone]) => (
             <div key={k} className="rounded-md border px-1 py-1.5">
               <p className="truncate text-[10px] font-normal uppercase tracking-wide text-muted-foreground">{k}</p>
@@ -261,7 +277,7 @@ export function StaffKhataCard({
               <Row label="Opening loan" value={loan.opening} />
               <Row label="Loan given" value={loan.given} sign="+" />
               <Row label="Loan recovery" value={loan.recovered} sign="−" />
-              <Row label="Loan remaining" value={loan.remaining} strong />
+              <div className={loan.remaining ? "font-bold text-[#DC2626]" : ""}><Row label="Loan remaining" value={loan.remaining} strong /></div>
               <p className="pt-2 text-[11px] text-muted-foreground">Salary payments never reduce the loan. A loan recovery reduces only the loan.</p>
             </div>
           </div>
@@ -333,43 +349,76 @@ export function StaffKhataCard({
 
         {tab === "ledger" && (
           <>
-            {fix && (
-              <div className="grid gap-2 rounded-lg border border-primary/40 bg-primary/5 p-3 sm:grid-cols-4">
-                <p className="text-xs font-semibold sm:col-span-4">
-                  Correct: {fix.label} · old {inr(fix.oldAmount)} on {new Date(fix.oldDate).toLocaleDateString("en-IN")}
-                </p>
-                <label className="flex items-center gap-1.5 text-xs sm:col-span-4">
-                  <input type="checkbox" checked={fix.cancel} onChange={(e) => setFix({ ...fix, cancel: e.target.checked })} /> Cancel this entry (no new amount)
-                </label>
-                {!fix.cancel && (
+            <Dialog open={!!fix} onOpenChange={(o) => !o && setFix(null)}>
+              <DialogContent className="max-w-md">
+                {fix && (
                   <>
-                    <label className="text-xs">
-                      New amount ₹
-                      <Input inputMode="decimal" value={fix.amount} onChange={(e) => setFix({ ...fix, amount: e.target.value })} className="mt-0.5 h-9" />
-                    </label>
-                    <label className="text-xs">
-                      New date
-                      <Input type="date" value={fix.date} onChange={(e) => setFix({ ...fix, date: e.target.value })} className="mt-0.5 h-9" />
-                    </label>
-                    <label className="text-xs sm:col-span-2">
-                      New note (optional)
-                      <Input value={fix.note} onChange={(e) => setFix({ ...fix, note: e.target.value })} className="mt-0.5 h-9" />
-                    </label>
+                    <DialogHeader>
+                      <DialogTitle>Edit / Correct entry</DialogTitle>
+                      <DialogDescription>
+                        {fix.label} · old {inr(fix.oldAmount)} on {new Date(fix.oldDate).toLocaleDateString("en-IN")}. The old row stays in the ledger; a correction row and the new entry are added and logged in Audit history.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <label className="flex items-center gap-1.5 text-xs sm:col-span-2">
+                        <input type="checkbox" checked={fix.cancel} onChange={(e) => setFix({ ...fix, cancel: e.target.checked })} /> Cancel this entry (no new amount)
+                      </label>
+                      {!fix.cancel && (
+                        <>
+                          {fix.fromType && (
+                            <label className="text-xs sm:col-span-2">
+                              Entry type
+                              <select value={fix.type ?? fix.fromType} onChange={(e) => setFix({ ...fix, type: e.target.value as CorrectableType })} className={sel}>
+                                {CORRECTABLE_TYPES.map((t) => (
+                                  <option key={t} value={t}>{CORRECTABLE_LABEL[t]}</option>
+                                ))}
+                              </select>
+                            </label>
+                          )}
+                          <label className="text-xs">
+                            New amount ₹
+                            <Input inputMode="decimal" value={fix.amount} onChange={(e) => setFix({ ...fix, amount: e.target.value })} className="mt-0.5 h-9" />
+                          </label>
+                          <label className="text-xs">
+                            New date
+                            <Input type="date" value={fix.date} onChange={(e) => setFix({ ...fix, date: e.target.value })} className="mt-0.5 h-9" />
+                          </label>
+                          <label className="text-xs sm:col-span-2">
+                            New note (optional)
+                            <Input value={fix.note} onChange={(e) => setFix({ ...fix, note: e.target.value })} className="mt-0.5 h-9" />
+                          </label>
+                        </>
+                      )}
+                      <label className="text-xs sm:col-span-2">
+                        Reason (required)
+                        <Input value={fix.reason} onChange={(e) => setFix({ ...fix, reason: e.target.value })} className="mt-0.5 h-9" />
+                      </label>
+                    </div>
+                    {fixPreview && (
+                      <div className="grid grid-cols-2 gap-2 rounded-lg border bg-muted/40 p-2 text-center text-xs" aria-live="polite">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{fixPreview.salaryDue >= 0 ? "Salary due after" : "Advance outstanding after"}</p>
+                          <p className="text-base font-bold tabular-nums">{inr(fixPreview.salaryDue)}</p>
+                          {fixPreview.salaryDueChange !== 0 && <p className="text-[10px] text-muted-foreground">{fixPreview.salaryDueChange > 0 ? "+" : "−"}{inr(fixPreview.salaryDueChange)}</p>}
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Loan outstanding after</p>
+                          <p className={`text-base font-bold tabular-nums ${fixPreview.loanRemaining > 0 ? "text-[#DC2626]" : ""}`}>{inr(fixPreview.loanRemaining)}</p>
+                          {fixPreview.loanChange !== 0 && <p className="text-[10px] text-muted-foreground">{fixPreview.loanChange > 0 ? "+" : "−"}{inr(fixPreview.loanChange)}</p>}
+                        </div>
+                        {fixPreview.loanNegative && <p className="col-span-2 font-semibold text-destructive">Recoveries would be more than the loan given — not allowed.</p>}
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2">
+                      <Button size="sm" variant="ghost" onClick={() => setFix(null)}>Close</Button>
+                      <Button size="sm" onClick={saveFix} disabled={pending || !fix.reason.trim() || (!fix.cancel && !(Number(fix.amount) > 0)) || !!fixPreview?.loanNegative}>
+                        {pending && <Loader2 className="size-4 animate-spin" />} Save correction
+                      </Button>
+                    </div>
                   </>
                 )}
-                <label className="text-xs sm:col-span-3">
-                  Reason (required)
-                  <Input value={fix.reason} onChange={(e) => setFix({ ...fix, reason: e.target.value })} className="mt-0.5 h-9" />
-                </label>
-                <div className="flex items-end gap-2">
-                  <Button size="sm" onClick={saveFix} disabled={pending || !fix.reason.trim() || (!fix.cancel && !(Number(fix.amount) > 0))}>
-                    Save correction
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setFix(null)}>Close</Button>
-                </div>
-                <p className="text-[11px] text-muted-foreground sm:col-span-4">The old entry stays in the ledger; a correction row and the new entry are added and recorded in Audit history.</p>
-              </div>
-            )}
+              </DialogContent>
+            </Dialog>
             <div className="overflow-x-auto rounded-lg border">
               <table className="w-full text-xs">
                 <thead className="bg-muted/60 text-muted-foreground">
@@ -397,8 +446,8 @@ export function StaffKhataCard({
                       {canManage && (
                         <td className="px-2 py-1.5 text-right">
                           {l.id && l.kind !== "REVERSAL" && !l.reversed ? (
-                            <button type="button" className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-primary" disabled={pending} onClick={() => openFix("ledger", l.id!, KIND_LABEL[l.kind] ?? l.kind, l.credit || l.debit, l.date)}>
-                              <PencilLine className="size-3.5" /> Correct
+                            <button type="button" className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-primary" disabled={pending} onClick={() => openFix("ledger", l.id!, KIND_LABEL[l.kind] ?? l.kind, l.credit || l.debit, l.date, l.kind)}>
+                              <PencilLine className="size-3.5" /> Edit / Correct
                             </button>
                           ) : null}
                         </td>
@@ -431,13 +480,13 @@ export function StaffKhataCard({
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      <span className={`font-semibold ${e.signedAmount > 0 ? "text-indigo-700 dark:text-indigo-300" : "text-success"}`}>
+                      <span className={`font-semibold ${e.signedAmount > 0 ? "font-bold text-[#DC2626]" : "text-success"}`}>
                         {e.signedAmount > 0 ? "+" : "−"}
                         {inr(e.amount)}
                       </span>
                       {canManage && e.kind !== "LOAN_CORRECTION" && !e.reversed && (
-                        <button type="button" className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-primary" disabled={pending} onClick={() => openFix("loan", e.id, KIND_LABEL[e.kind] ?? e.kind, e.amount, e.date)}>
-                          <PencilLine className="size-3.5" /> Correct
+                        <button type="button" className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-primary" disabled={pending} onClick={() => openFix("loan", e.id, KIND_LABEL[e.kind] ?? e.kind, e.amount, e.date, e.kind)}>
+                          <PencilLine className="size-3.5" /> Edit / Correct
                         </button>
                       )}
                     </div>
