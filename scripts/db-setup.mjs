@@ -16,12 +16,34 @@ import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-// Boot diagnostics (2026-11-06): prefix every log line with the seconds since db-setup started, so a slow or blocked
-// migration step is visible in the Coolify container logs.
+// Boot diagnostics (2026-11-06): prefix every log line with wall-clock UTC time and seconds since db-setup started,
+// and trace each SQL statement before it runs, so the exact statement that blocks on boot is the last line in the
+// Coolify container log. Statements slower than 1 s are also reported with their duration.
 {
   const t0 = Date.now();
   const log = console.log.bind(console);
-  console.log = (...a) => log(`[+${((Date.now() - t0) / 1000).toFixed(1)}s]`, ...a);
+  const stamp = () => `[${new Date().toISOString().slice(11, 19)}Z +${((Date.now() - t0) / 1000).toFixed(1)}s]`;
+  console.log = (...a) => log(stamp(), ...a);
+  let traced = 0;
+  const head = (sql) => String(sql).replace(/\s+/g, " ").trim().slice(0, 90);
+  const trace = (kind, sql) => {
+    traced += 1;
+    if (traced <= 1500 || traced % 100 === 0) log(stamp(), `[sql:${kind}#${traced}]`, head(sql));
+  };
+  const timed = (kind, sql, fn) => {
+    trace(kind, sql);
+    const s = Date.now();
+    try { return fn(); } finally {
+      const ms = Date.now() - s;
+      if (ms > 1000) log(stamp(), `[sql:SLOW ${ms}ms]`, head(sql));
+    }
+  };
+  const origExec = Database.prototype.exec;
+  Database.prototype.exec = function (sql) { return timed("exec", sql, () => origExec.call(this, sql)); };
+  const origPrepare = Database.prototype.prepare;
+  Database.prototype.prepare = function (sql) { return timed("prep", sql, () => origPrepare.call(this, sql)); };
+  const origPragma = Database.prototype.pragma;
+  Database.prototype.pragma = function (src, opts) { return timed("pragma", src, () => origPragma.call(this, src, opts)); };
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -46,14 +68,14 @@ if (!existsSync(migrationPath)) {
 }
 
 const sql = readFileSync(migrationPath, "utf-8");
-const db = new Database(dbPath);
+const db = new Database(dbPath, { timeout: 30000 });
 db.pragma("foreign_keys = ON");
 // WAL: readers no longer block the writer (and vice versa) during peak traffic. The mode is stored in the database file, so setting it
-// on every boot is cheap and idempotent. busy_timeout makes a contended write wait (up to 10 s) instead of failing with SQLITE_BUSY.
+// on every boot is cheap and idempotent. busy_timeout makes a contended write wait (up to 30 s) instead of failing with SQLITE_BUSY.
 // Backups use VACUUM INTO (consistent under WAL) and the restore route removes stale -wal/-shm files.
 try {
   db.pragma("journal_mode = WAL");
-  db.pragma("busy_timeout = 10000");
+  db.pragma("busy_timeout = 30000");
 } catch (e) {
   console.warn(`Could not enable WAL mode (${e instanceof Error ? e.message : e}) — continuing in the default journal mode.`);
 }
@@ -1190,7 +1212,7 @@ db.close();
 // point in the script.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const ownerDb = new Database(dbPath);
+  const ownerDb = new Database(dbPath, { timeout: 30000 });
   ownerDb.pragma("foreign_keys = ON");
   ownerDb.exec(`
     CREATE TABLE IF NOT EXISTS "BusinessTarget" (
@@ -1214,7 +1236,7 @@ db.close();
 // is already closed by this point in the script.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const qiDb = new Database(dbPath);
+  const qiDb = new Database(dbPath, { timeout: 30000 });
   qiDb.pragma("foreign_keys = ON");
 
   function addCol(table, column, ddl) {
@@ -1267,7 +1289,7 @@ db.close();
 // calendar/records and the month/year Export Center stay fast at 100+ staff.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const spDb = new Database(dbPath);
+  const spDb = new Database(dbPath, { timeout: 30000 });
   spDb.pragma("foreign_keys = ON");
 
   function addCol(table, column, ddl) {
@@ -1326,7 +1348,7 @@ db.close();
 // Festival dates are date-only (stored as UTC midnight of the calendar date).
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const prDb = new Database(dbPath);
+  const prDb = new Database(dbPath, { timeout: 30000 });
   prDb.pragma("foreign_keys = ON");
 
   function addCol(table, column, ddl) {
@@ -1481,7 +1503,7 @@ db.close();
 // Staff money ledgers + Khata Book import log (2026-10-05, additive only).
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const lgDb = new Database(dbPath);
+  const lgDb = new Database(dbPath, { timeout: 30000 });
   lgDb.pragma("foreign_keys = ON");
   const cols = lgDb.prepare(`PRAGMA table_info("Staff")`).all().map((c) => c.name);
   if (!cols.includes("ledgerCutoverAt")) lgDb.exec(`ALTER TABLE "Staff" ADD COLUMN "ledgerCutoverAt" DATETIME`);
@@ -1556,7 +1578,7 @@ db.close();
 // announcement recipients + read receipts.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const fDb = new Database(dbPath);
+  const fDb = new Database(dbPath, { timeout: 30000 });
   fDb.pragma("foreign_keys = ON");
   const addCol = (table, column, ddl) => {
     const cols = fDb.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name);
@@ -1614,7 +1636,7 @@ db.close();
 
 // Multi-service package (Package Calculator) — additive columns on Lead + Job.
 {
-  const pDb = new Database(dbPath);
+  const pDb = new Database(dbPath, { timeout: 30000 });
   const cols = (t) => pDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
   for (const t of ["Lead", "Job"]) {
     const have = cols(t);
@@ -1627,7 +1649,7 @@ db.close();
 
 // Money Khata corrections — additive columns on the loan ledger (Old → New → Reason audit).
 {
-  const kDb = new Database(dbPath);
+  const kDb = new Database(dbPath, { timeout: 30000 });
   const have = kDb.prepare(`PRAGMA table_info("StaffLoanEntry")`).all().map((c) => c.name);
   if (have.length) {
     if (!have.includes("reversalOfId")) kDb.exec(`ALTER TABLE "StaffLoanEntry" ADD COLUMN "reversalOfId" TEXT`);
@@ -1640,7 +1662,7 @@ db.close();
 // WhatsApp intake idempotency — additive nullable unique column on Lead.
 // Existing leads keep NULL (SQLite allows many NULLs under a unique index).
 {
-  const wDb = new Database(dbPath);
+  const wDb = new Database(dbPath, { timeout: 30000 });
   const have = wDb.prepare(`PRAGMA table_info("Lead")`).all().map((c) => c.name);
   if (!have.includes("intakeKey")) wDb.exec(`ALTER TABLE "Lead" ADD COLUMN "intakeKey" TEXT`);
   wDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Lead_intakeKey_key" ON "Lead"("intakeKey")`);
@@ -1653,7 +1675,7 @@ db.close();
 // BookingSlotControl in prisma/schema.prisma.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const sDb = new Database(dbPath);
+  const sDb = new Database(dbPath, { timeout: 30000 });
   sDb.exec(`
     CREATE TABLE IF NOT EXISTS "BookingSlotControl" (
       "id" TEXT NOT NULL PRIMARY KEY,
@@ -1676,7 +1698,7 @@ db.close();
 // an optional siteId on Lead and Job. Existing rows are never modified.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const cDb = new Database(dbPath);
+  const cDb = new Database(dbPath, { timeout: 30000 });
   const cols = (t) => cDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
   const add = (t, col, ddl) => { if (!cols(t).includes(col)) cDb.exec(`ALTER TABLE "${t}" ADD COLUMN ${ddl}`); };
   add("Customer", "email", `"email" TEXT`);
@@ -1712,7 +1734,7 @@ db.close();
 // no existing row is modified.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const oDb = new Database(dbPath);
+  const oDb = new Database(dbPath, { timeout: 30000 });
   const cols = (t) => oDb.prepare(`PRAGMA table_info("${t}")`).all().map((c) => c.name);
   if (!cols("User").includes("sessionVersion")) oDb.exec(`ALTER TABLE "User" ADD COLUMN "sessionVersion" INTEGER NOT NULL DEFAULT 0`);
   oDb.exec(`
@@ -1944,7 +1966,7 @@ db.close();
 // highest number already issued — re-running never renumbers anyone.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const kDb = new Database(dbPath);
+  const kDb = new Database(dbPath, { timeout: 30000 });
   const kCols = kDb.prepare(`PRAGMA table_info("Customer")`).all().map((c) => c.name);
   if (!kCols.includes("customerNumber")) kDb.exec(`ALTER TABLE "Customer" ADD COLUMN "customerNumber" TEXT`);
   kDb.exec(`CREATE UNIQUE INDEX IF NOT EXISTS "Customer_customerNumber_key" ON "Customer"("customerNumber")`);
@@ -1991,7 +2013,7 @@ db.close();
 // Public keys only; cascades with the user.
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const wDb = new Database(dbPath);
+  const wDb = new Database(dbPath, { timeout: 30000 });
   wDb.exec(`
     CREATE TABLE IF NOT EXISTS "WebAuthnCredential" (
       "id" TEXT NOT NULL PRIMARY KEY,
@@ -2015,7 +2037,7 @@ db.close();
 // Multi-number WhatsApp tracking + Admin call-audio audit (2026-11-01, additive + idempotent).
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const mDb = new Database(dbPath);
+  const mDb = new Database(dbPath, { timeout: 30000 });
   const have = mDb.prepare(`PRAGMA table_info("Lead")`).all().map((c) => c.name);
   if (!have.includes("receivedOnNumber")) mDb.exec(`ALTER TABLE "Lead" ADD COLUMN "receivedOnNumber" TEXT`);
   if (!have.includes("sourceLine")) mDb.exec(`ALTER TABLE "Lead" ADD COLUMN "sourceLine" TEXT NOT NULL DEFAULT 'Main'`);
@@ -2046,7 +2068,7 @@ db.close();
 // Lead source tags + Vendor Operations (2026-11-04, additive + idempotent).
 // ─────────────────────────────────────────────────────────────────────────
 {
-  const vDb = new Database(dbPath);
+  const vDb = new Database(dbPath, { timeout: 30000 });
   const leadCols = vDb.prepare(`PRAGMA table_info("Lead")`).all().map((c) => c.name);
   if (!leadCols.includes("sourceTag")) vDb.exec(`ALTER TABLE "Lead" ADD COLUMN "sourceTag" TEXT`);
   vDb.exec(`
