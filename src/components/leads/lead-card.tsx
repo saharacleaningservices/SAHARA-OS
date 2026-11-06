@@ -10,6 +10,7 @@ import { SERVICE_LABELS, LEAD_SOURCE_LABELS } from "@/lib/constants";
 import { formatINR, formatDate, dayBucket, DAY_BUCKET_META } from "@/lib/utils";
 import { LeadResponseTimer } from "@/components/leads/lead-response-timer";
 import { isLeadResponseOverdue } from "@/lib/lead-response";
+import { showOverdue } from "@/lib/lead-overdue";
 import { Badge } from "@/components/ui/badge";
 
 type LeadCardData = {
@@ -29,13 +30,14 @@ type LeadCardData = {
   assignedStaff?: { name: string } | null;
   assignedStaffNames?: string[];
   createdAt?: Date | string;
+  paymentPaid?: boolean;
 };
 
 export function LeadCard({ lead }: { lead: LeadCardData }) {
   const isJob = lead.stage === "JOB_SCHEDULED" || lead.stage === "COMPLETED";
   const smart = isJob ? lead.serviceDate ?? null : lead.followUpDate;
   const bucket = dayBucket(smart);
-  const meta = bucket === "OVERDUE" || bucket === "TODAY" || bucket === "TOMORROW" ? DAY_BUCKET_META[bucket] : null;
+  const meta = (bucket === "OVERDUE" && showOverdue(lead.stage, lead.paymentPaid)) || bucket === "TODAY" || bucket === "TOMORROW" ? DAY_BUCKET_META[bucket] : null;
   const isTodayJob = bucket === "TODAY" && lead.stage === "JOB_SCHEDULED";
   const crew = lead.assignedStaffNames?.length
     ? lead.assignedStaffNames

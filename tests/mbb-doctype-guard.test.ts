@@ -13,6 +13,7 @@ const SALES_READERS = [
   "src/server/actions/customer-actions.ts",
   "src/server/customer-quick-history.ts",
   "src/server/lifecycle-reminders.ts",
+  "src/server/customers.ts",
 ];
 
 test("every MyBillBook read in sales / receivable code filters docType SALES_INVOICE", () => {

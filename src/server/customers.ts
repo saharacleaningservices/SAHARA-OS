@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { normalizeMobile } from "@/server/customer-db";
+import { CUSTOMER_SEGMENTS, matchesSegment, type CustomerSegment } from "@/lib/customer-segment";
 
 export type CustomerRow = {
   /** Normalized 10-digit mobile — the one key per contact. */
@@ -22,6 +23,8 @@ export type CustomerRow = {
   siteText: string;
   /** Raw spellings of this mobile found across records — >1 = possible duplicate to review. */
   variants: number;
+  /** Billing book: B2B = GST (secondary MyBillBook profile), B2C = Non-GST retail, BOTH = has bills in both. */
+  segment?: string | null;
 };
 
 /** One row per contact (normalized mobile) across Leads, Jobs, Payments and
@@ -43,7 +46,7 @@ export async function getCustomersList(): Promise<CustomerRow[]> {
     db.customer.findMany({
       select: {
         mobile: true, name: true, area: true, outstandingBalance: true, lastServiceDate: true, source: true, createdAt: true,
-        importBatchId: true, contactType: true, customerNumber: true, isRepeat: true, alternateMobile: true,
+        importBatchId: true, contactType: true, customerNumber: true, isRepeat: true, alternateMobile: true, segment: true,
         sites: { select: { label: true, address: true, area: true } },
       },
     }),
@@ -93,6 +96,7 @@ export async function getCustomersList(): Promise<CustomerRow[]> {
     row.isRepeat = row.isRepeat || c.isRepeat;
     row.alternateMobile = c.alternateMobile ?? row.alternateMobile;
     row.siteCount = c.sites.length;
+    row.segment = c.segment ?? row.segment ?? null;
     row.siteText = c.sites.map((s) => `${s.label ?? ""} ${s.address} ${s.area ?? ""}`).join(" ").toLowerCase();
   }
 
@@ -103,7 +107,8 @@ export async function getCustomersList(): Promise<CustomerRow[]> {
 
 export const CUSTOMER_FILTERS = ["ALL", "CUSTOMER", "REPEAT", "BROKER", "INTERIOR_DESIGNER", "VENDOR", "AMC_CLIENT", "CORPORATE", "ARCHITECT", "SOCIETY", "ACTIVE", "INACTIVE", "DUPLICATES"] as const;
 export type CustomerFilter = (typeof CUSTOMER_FILTERS)[number];
-export type CustomerFilters = { q?: string; filter?: string; page?: number; pageSize?: number };
+export type CustomerFilters = { q?: string; filter?: string; page?: number; pageSize?: number; seg?: string };
+
 
 const ACTIVE_DAYS = 180;
 
@@ -126,14 +131,17 @@ export async function getCustomersPage(f: CustomerFilters) {
   const digits = q.replace(/\D/g, "");
   const filter = CUSTOMER_FILTERS.includes((f.filter ?? "ALL") as CustomerFilter) ? (f.filter ?? "ALL") : "ALL";
   const activeSince = Date.now() - ACTIVE_DAYS * 86400000;
+  const seg = CUSTOMER_SEGMENTS.includes((f.seg ?? "ALL") as CustomerSegment) ? (f.seg ?? "ALL") : "ALL";
+  const segCounts = Object.fromEntries(CUSTOMER_SEGMENTS.map((k) => [k, all.filter((c) => matchesSegment(c.segment, k)).length])) as Record<CustomerSegment, number>;
+  const inSeg = seg === "ALL" ? all : all.filter((c) => matchesSegment(c.segment, seg));
 
   const searched = q
-    ? all.filter((c) =>
+    ? inSeg.filter((c) =>
         `${c.name} ${c.area ?? ""} ${c.customerNumber ?? ""}`.toLowerCase().includes(q) ||
         c.siteText.includes(q) ||
         (digits.length >= 3 && (c.mobile.includes(digits) || (c.alternateMobile ?? "").replace(/\D/g, "").includes(digits))),
       )
-    : all;
+    : inSeg;
 
   const counts = Object.fromEntries(CUSTOMER_FILTERS.map((k) => [k, searched.filter((c) => matchesFilter(c, k, activeSince)).length])) as Record<CustomerFilter, number>;
   const filtered = searched.filter((c) => matchesFilter(c, filter, activeSince));
@@ -150,7 +158,31 @@ export async function getCustomersPage(f: CustomerFilters) {
     page,
     totalPages,
     filter,
+    seg,
+    segCounts,
   };
+}
+
+/**
+ * Receivables by billing book, from the MyBillBook sales invoices synced into the CRM (unpaid remaining):
+ * B2B = GST profile, B2C = Non-GST retail profile. Amounts in rupees.
+ */
+export async function getSegmentReceivables() {
+  const rows = await db.mybillbookInvoice.groupBy({
+    by: ["dataset"],
+    where: { docType: "SALES_INVOICE", status: { not: "Paid" }, remaining: { gt: 0 } },
+    _sum: { remaining: true },
+    _count: { _all: true },
+  });
+  const pick = (ds: string) => {
+    const r = rows.find((x) => x.dataset === ds);
+    const sum = (r?._sum ?? {}) as { remaining?: number | null };
+    const cnt = (r?._count ?? {}) as { _all?: number };
+    return { amount: sum.remaining ?? 0, count: cnt._all ?? 0 };
+  };
+  const b2b = pick("GST");
+  const b2c = pick("B2C");
+  return { b2b, b2c, total: { amount: b2b.amount + b2c.amount, count: b2b.count + b2c.count } };
 }
 
 /** Every lead, job, payment, photo and review tied to a mobile number (any

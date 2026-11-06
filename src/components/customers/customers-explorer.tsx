@@ -194,7 +194,7 @@ export function CustomersExplorer({
       ) : (
         <>
           {/* Desktop table */}
-          <div className={`hidden overflow-hidden rounded-xl border bg-card lg:block ${navigating ? "opacity-60" : ""}`}>
+          <div className={`hidden overflow-x-auto rounded-xl border bg-card md:block ${navigating ? "opacity-60" : ""}`}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -255,7 +255,7 @@ export function CustomersExplorer({
           </div>
 
           {/* Mobile cards */}
-          <ul className={`space-y-2 lg:hidden ${navigating ? "opacity-60" : ""}`}>
+          <ul className={`space-y-2 md:hidden ${navigating ? "opacity-60" : ""}`}>
             {rows.map((c) => (
               <li key={c.mobile} className="rounded-xl border bg-card p-3">
                 <div className="flex items-start gap-2">

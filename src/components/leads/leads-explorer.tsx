@@ -1,6 +1,7 @@
 "use client";
 
 import { LeadOriginBadge } from "@/components/leads/lead-origin-badge";
+import { showOverdue } from "@/lib/lead-overdue";
 import { SourceLineBadge } from "@/components/leads/source-line-badge";
 import { useEffect, useMemo, useState } from "react";
 import { CustomerHistoryButton } from "@/components/customers/customer-history-drawer";
@@ -53,6 +54,7 @@ type Lead = {
   assignedStaff?: { name: string } | null;
   assignedTo?: { name: string } | null;
   assignedStaffNames?: string[];
+  paymentPaid?: boolean;
 };
 
 const PAGE_SIZE = 10;
@@ -70,7 +72,7 @@ function DateCell({ lead }: { lead: Lead }) {
   const { date, kind } = smartDate(lead);
   if (!date) return <span className="text-muted-foreground">—</span>;
   const bucket = dayBucket(date);
-  const meta = bucket === "OVERDUE" || bucket === "TODAY" || bucket === "TOMORROW" ? DAY_BUCKET_META[bucket] : null;
+  const meta = (bucket === "OVERDUE" && showOverdue(lead.stage, lead.paymentPaid)) || bucket === "TODAY" || bucket === "TOMORROW" ? DAY_BUCKET_META[bucket] : null;
   const isTodayJob = bucket === "TODAY" && (lead.stage === "JOB_SCHEDULED");
   return (
     <div className="flex flex-col gap-1">
@@ -124,7 +126,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
       if (dueParam) {
         const b = dayBucket(smartDate(lead).date);
         if (dueParam === "today" && b !== "TODAY") return false;
-        if (dueParam === "overdue" && b !== "OVERDUE") return false;
+        if (dueParam === "overdue" && (b !== "OVERDUE" || !showOverdue(lead.stage, lead.paymentPaid))) return false;
       }
       return true;
     });
@@ -249,7 +251,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
             {/* Desktop/tablet: compact table, no unnecessary horizontal
                 scroll. Service+Source folded into one column (one fewer
                 column) so every important field fits on a 1366px screen. */}
-            <div className="hidden sm:block">
+            <div className="hidden overflow-x-auto md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -328,7 +330,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
 
             {/* Mobile: reuse the same LeadCard used by the Pipeline view
                 instead of a wide table — one card component either way. */}
-            <div className="space-y-2.5 sm:hidden">
+            <div className="space-y-2.5 md:hidden">
               {pageItems.map((lead) => (
                 <LeadCard key={lead.id} lead={lead} />
               ))}
