@@ -129,20 +129,38 @@ export async function syncParties(parties: SyncParty[], opts: { dryRun: boolean;
   return t;
 }
 
-/** Zero-variance check on the synced history: what MyBillBook says is paid / remaining, versus what the CRM now holds, for the vouchers just synced. */
+/**
+ * Zero-variance check on the synced history: what MyBillBook says is paid / remaining, versus what the CRM now holds,
+ * for the sales invoices of these parties. Every mismatch lists all CRM rows that could stand for that invoice (same
+ * voucher key, or same serial in the same book), so duplicates and cross-book serial clashes are visible.
+ */
 export async function varianceCheck(parties: SyncParty[]) {
   let mbbPaid = 0, crmPaid = 0, rows = 0;
+  const mismatches: { mobile: string; sn: string | null; book: string; mbb: { tot: number; rem: number }; crm: { key: string; no: string; dataset: string; amount: number; remaining: number; status: string; customerId: string | null }[] }[] = [];
   for (const p of parties) {
     for (const v of p.vouchers) {
       if (v.type !== "sales_invoice") continue;
       const ds = datasetOf(v.src);
-      const row = (v.sn ? await db.mybillbookInvoice.findFirst({ where: { invoiceNo: v.sn, dataset: ds }, select: { amount: true, remaining: true, customerId: true } }) : null)
-        ?? await db.mybillbookInvoice.findUnique({ where: { invoiceKey: `mbbv:${ds}:${v.id}` }, select: { amount: true, remaining: true, customerId: true } });
+      const key = `mbbv:${ds}:${v.id}`;
+      const select = { invoiceKey: true, invoiceNo: true, dataset: true, amount: true, remaining: true, status: true, customerId: true } as const;
+      const byKey = await db.mybillbookInvoice.findUnique({ where: { invoiceKey: key }, select });
+      const bySerial = v.sn ? await db.mybillbookInvoice.findMany({ where: { invoiceNo: v.sn, dataset: ds }, select }) : [];
+      // The voucher's own row wins; otherwise the single serial match.
+      const row = byKey ?? (bySerial.length === 1 ? bySerial[0] : bySerial[0] ?? null);
       if (!row) continue;
       rows += 1;
-      mbbPaid += n(v.tot) - n(v.rem);
-      crmPaid += row.amount - row.remaining;
+      const mPaid = n(v.tot) - n(v.rem);
+      const cPaid = row.amount - row.remaining;
+      mbbPaid += mPaid;
+      crmPaid += cPaid;
+      if (Math.abs(mPaid - cPaid) > 0.005 && mismatches.length < 25) {
+        const all = new Map([...(byKey ? [byKey] : []), ...bySerial].map((r) => [r.invoiceKey, r]));
+        mismatches.push({
+          mobile: p.mobile, sn: v.sn, book: ds, mbb: { tot: n(v.tot), rem: n(v.rem) },
+          crm: [...all.values()].map((r) => ({ key: r.invoiceKey.slice(0, 60), no: r.invoiceNo, dataset: r.dataset, amount: r.amount, remaining: r.remaining, status: r.status, customerId: r.customerId })),
+        });
+      }
     }
   }
-  return { rows, mbbPaid: Math.round(mbbPaid * 100) / 100, crmPaid: Math.round(crmPaid * 100) / 100, variance: Math.round((mbbPaid - crmPaid) * 100) / 100 };
+  return { rows, mbbPaid: Math.round(mbbPaid * 100) / 100, crmPaid: Math.round(crmPaid * 100) / 100, variance: Math.round((mbbPaid - crmPaid) * 100) / 100, mismatches };
 }
