@@ -26,7 +26,7 @@ async function salesLines(fy: string): Promise<Line[]> {
   const { from, to } = fyRange(fy);
   const [crm, mbb] = await Promise.all([
     db.invoice.findMany({ where: { createdAt: { gte: from, lt: to }, status: { not: "CANCELLED" } }, orderBy: { createdAt: "asc" } }),
-    db.mybillbookInvoice.findMany({ where: { invoiceDate: { gte: from, lt: to } }, orderBy: { invoiceDate: "asc" }, include: { customer: { select: { name: true, mobile: true } } } }),
+    db.mybillbookInvoice.findMany({ where: { docType: "SALES_INVOICE", invoiceDate: { gte: from, lt: to } }, orderBy: { invoiceDate: "asc" }, include: { customer: { select: { name: true, mobile: true } } } }),
   ]);
   const lines: Line[] = crm.map((i) => ({
     date: i.createdAt,

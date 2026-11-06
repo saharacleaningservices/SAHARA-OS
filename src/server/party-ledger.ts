@@ -14,7 +14,7 @@ export async function getPartyLedger(mobileRaw: string) {
   const [invoices, payments, mbb, credit] = await Promise.all([
     db.invoice.findMany({ where: { customerMobile: { contains: tail }, status: { not: "CANCELLED" } }, select: { id: true, invoiceNumber: true, jobId: true, createdAt: true, totalAmount: true, lineItems: true, customerMobile: true, customerName: true } }),
     db.payment.findMany({ where: { clientMobile: { contains: tail }, deletedAt: null, paidAmount: { gt: 0 } }, select: { invoiceNumber: true, paidAmount: true, paidDate: true, dueDate: true, mode: true, clientMobile: true, clientName: true } }),
-    master ? db.mybillbookInvoice.findMany({ where: { customerId: master.id }, select: { invoiceNo: true, invoiceDate: true, amount: true, remaining: true, jobId: true, serviceName: true, detailJson: true } }) : Promise.resolve([]),
+    master ? db.mybillbookInvoice.findMany({ where: { customerId: master.id, docType: "SALES_INVOICE" }, select: { invoiceNo: true, invoiceDate: true, amount: true, remaining: true, jobId: true, serviceName: true, detailJson: true } }) : Promise.resolve([]),
     master ? db.voucher.findMany({ where: { customerId: master.id, type: "CREDIT_NOTE", status: "ISSUED" }, select: { number: true, voucherDate: true, totalAmount: true, refNumber: true } }) : Promise.resolve([]),
   ]);
 

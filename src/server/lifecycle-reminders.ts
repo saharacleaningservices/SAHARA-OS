@@ -34,7 +34,7 @@ export async function collectRebook(now = new Date()): Promise<RebookCandidate[]
   const horizon = new Date(now.getTime() - 13 * 31 * 24 * 3600 * 1000);
   const [jobs, history] = await Promise.all([
     db.job.findMany({ where: { deletedAt: null, status: "COMPLETED", service: "HOME_DEEP_CLEANING", scheduledDate: { gte: horizon, lte: now } }, select: { customerMobile: true, scheduledDate: true } }),
-    db.mybillbookInvoice.findMany({ where: { customerId: { not: null }, invoiceDate: { gte: horizon, lte: now } }, select: { customerId: true, invoiceDate: true, serviceName: true, customer: { select: { mobile: true } } } }),
+    db.mybillbookInvoice.findMany({ where: { docType: "SALES_INVOICE", customerId: { not: null }, invoiceDate: { gte: horizon, lte: now } }, select: { customerId: true, invoiceDate: true, serviceName: true, customer: { select: { mobile: true } } } }),
   ]);
   const last = new Map<string, { date: Date; service: string }>(); // by 10-digit mobile
   const note = (mobile: string | null | undefined, date: Date, service: string) => {
@@ -76,7 +76,7 @@ export async function collectRebook(now = new Date()): Promise<RebookCandidate[]
 /** Overdue unpaid GST / corporate invoices (from the MyBillBook history) whose next follow-up (1–3) is due. */
 export async function collectPayments(now = new Date()): Promise<PaymentCandidate[]> {
   const rows = await db.mybillbookInvoice.findMany({
-    where: { remaining: { gt: 0 }, OR: [{ gstin: { not: null } }, { dataset: "GST" }, { customer: { contactType: "CORPORATE" } }] },
+    where: { docType: "SALES_INVOICE", remaining: { gt: 0 }, OR: [{ gstin: { not: null } }, { dataset: "GST" }, { customer: { contactType: "CORPORATE" } }] },
     select: { invoiceKey: true, invoiceNo: true, invoiceDate: true, dueDate: true, remaining: true, contactName: true, partyMobile: true, customerId: true, customer: { select: { name: true, mobile: true } } },
   });
   if (!rows.length) return [];

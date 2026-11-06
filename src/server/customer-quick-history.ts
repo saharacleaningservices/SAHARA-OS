@@ -45,7 +45,7 @@ export async function getCustomerQuickHistory(mobileInput: string | null | undef
     db.job.findFirst({ where: { customerMobile: { contains: key.slice(-4) }, deletedAt: null }, orderBy: { scheduledDate: "desc" }, select: { customerName: true, customerMobile: true, address: true, area: true } }),
   ]);
   const mbb = await db.mybillbookInvoice.findMany({
-    where: { OR: [...(customer ? [{ customerId: customer.id }] : []), { partyMobile: key }] },
+    where: { docType: "SALES_INVOICE", OR: [...(customer ? [{ customerId: customer.id }] : []), { partyMobile: key }] },
     orderBy: { invoiceDate: "desc" },
     take: 200,
     select: { invoiceNo: true, invoiceDate: true, amount: true, remaining: true, serviceName: true, partyAddress: true, contactName: true },

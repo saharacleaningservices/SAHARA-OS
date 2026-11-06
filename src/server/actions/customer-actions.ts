@@ -286,7 +286,7 @@ async function recentServicesFor(
   for (const p of payments) if (p.jobId && p.status === "PAID") paidByJob.set(p.jobId, (paidByJob.get(p.jobId) ?? 0) + p.paidAmount);
   const rows: RecentService[] = jobs.map((j) => ({ date: j.scheduledDate, service: SERVICE_LABELS[j.service as keyof typeof SERVICE_LABELS] ?? j.service, paid: showMoney ? (paidByJob.get(j.id) ?? 0) : null, source: "CRM" as const }));
   if (customerId) {
-    const past = await db.mybillbookInvoice.findMany({ where: { customerId, jobId: null }, orderBy: { invoiceDate: "desc" }, take: 3, select: { invoiceDate: true, serviceName: true, amount: true, remaining: true } });
+    const past = await db.mybillbookInvoice.findMany({ where: { customerId, jobId: null, docType: "SALES_INVOICE" }, orderBy: { invoiceDate: "desc" }, take: 3, select: { invoiceDate: true, serviceName: true, amount: true, remaining: true } });
     for (const r of past) rows.push({ date: r.invoiceDate, service: r.serviceName ?? "Service (MyBillBook invoice)", paid: showMoney ? Math.max(0, r.amount - r.remaining) : null, source: "MYBILLBOOK" });
   }
   return rows.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 3);
@@ -295,6 +295,6 @@ async function recentServicesFor(
 /** What the customer has paid on past MyBillBook invoices (billed less balance). */
 async function mybillbookPaidFor(customerId: string | null): Promise<number> {
   if (!customerId) return 0;
-  const a = await db.mybillbookInvoice.aggregate({ where: { customerId }, _sum: { amount: true, remaining: true } });
+  const a = await db.mybillbookInvoice.aggregate({ where: { customerId, docType: "SALES_INVOICE" }, _sum: { amount: true, remaining: true } });
   return Math.max(0, (a._sum.amount ?? 0) - (a._sum.remaining ?? 0));
 }
