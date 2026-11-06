@@ -13,10 +13,10 @@
 // the disk file already present and does nothing here — from then on the
 // disk (not the git checkout) is the single source of truth, and it is
 // never touched again by a deploy.
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { existsSync, mkdirSync, copyFileSync } from "node:fs";
+import { existsSync, mkdirSync, copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { checkEnv } from "./env-check.mjs";
 import Database from "better-sqlite3";
 
@@ -29,6 +29,17 @@ function run(cmd, args) {
     process.exit(result.status ?? 1);
   }
 }
+
+// Boot timeline (2026-11-06): number each boot of this container (the /tmp counter survives container restarts) and
+// stamp each phase, so a restart loop and a hang look different in the Coolify log.
+const bootNo = (() => {
+  let n = 1;
+  try { n = Number(readFileSync("/tmp/sahara-boot-count", "utf8")) + 1 || 1; } catch {}
+  try { writeFileSync("/tmp/sahara-boot-count", String(n)); } catch {}
+  return n;
+})();
+const boot = (msg) => console.log(`[boot #${bootNo} ${new Date().toISOString().slice(11, 19)}Z] ${msg}`);
+boot("render-start begin");
 
 // 0a. Fail fast on a missing essential variable; only warn about the rest (see scripts/env-check.mjs).
 {
@@ -64,8 +75,24 @@ if (isExternalPath && !existsSync(dbPath) && existsSync(committedDbPath)) {
   console.log(`Using existing persistent database at ${dbPath} (not touched by this deploy).`);
 }
 
-// 1. Make sure tables exist (no-ops if they already do).
-run("node", ["scripts/db-setup.mjs"]);
+// 1. Make sure tables exist (no-ops if they already do). Run asynchronously with a watchdog that prints the statement
+// db-setup is on every 15 s, so a blocked migration names itself in the log.
+boot("db-setup begin");
+await new Promise((resolve) => {
+  const started = Date.now();
+  const child = spawn("node", ["scripts/db-setup.mjs"], { cwd: root, stdio: "inherit", env: process.env });
+  const watchdog = setInterval(() => {
+    let current = "?";
+    try { current = readFileSync("/tmp/sahara-db-setup-current", "utf8"); } catch {}
+    boot(`db-setup still running after ${Math.round((Date.now() - started) / 1000)}s — on: ${current}`);
+  }, 15000);
+  child.on("exit", (code, signal) => {
+    clearInterval(watchdog);
+    boot(`db-setup exit code=${code} signal=${signal ?? "-"} after ${Math.round((Date.now() - started) / 1000)}s`);
+    if (code !== 0) process.exit(code ?? 1);
+    resolve();
+  });
+});
 
 // 2. Seed only if the database has no users yet (first boot on a fresh disk).
 const db = new Database(dbPath);
@@ -80,4 +107,5 @@ if (userCount === 0) {
 }
 
 // 3. Start the production server on Render's assigned port.
+boot("next start begin");
 run("npx", ["next", "start", "-p", process.env.PORT || "3000"]);
