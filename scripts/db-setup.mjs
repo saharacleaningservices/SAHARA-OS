@@ -1861,7 +1861,7 @@ db.close();
   addCol("MybillbookInvoice", "docType", `TEXT NOT NULL DEFAULT 'SALES_INVOICE'`);
   addCol("Customer", "segment", "TEXT");
   addCol("Customer", "gstin", "TEXT");
-  db.exec(`
+  oDb.exec(`
     CREATE TABLE IF NOT EXISTS "MybillbookReviewItem" (
       "id" TEXT NOT NULL PRIMARY KEY,
       "kind" TEXT NOT NULL,
