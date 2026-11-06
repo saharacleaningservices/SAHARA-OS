@@ -418,6 +418,9 @@ model Customer {
   // Assigned on create; existing rows are backfilled in creation order by scripts/db-setup.mjs.
   customerNumber     String?   @unique
   isRepeat           Boolean   @default(false)
+  // MyBillBook book (owner 2026-11-06): B2C = retail (non-GST) book, B2B = corporate (GST) book, BOTH = in both books.
+  segment            String? // B2C | B2B | BOTH
+  gstin              String?
   sites              CustomerSite[]
   mybillbookInvoices MybillbookInvoice[]
   createdAt          DateTime  @default(now())
@@ -1570,6 +1573,7 @@ model MybillbookInvoice {
   partyAddress    String?
   dueDate         DateTime? // payment due date from the report; blank → invoice date + credit days
   dataset         String    @default("B2C") // B2C | GST — which MyBillBook book the report came from (owner 2026-10-23)
+  docType         String    @default("SALES_INVOICE") // SALES_INVOICE | QUOTATION | PROFORMA | PAYMENT_IN | EXPENSE | CREDIT_NOTE | OTHER (full-history sync 2026-11-06)
   gstin           String? // customer GSTIN when the report or invoice carries one
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -1988,4 +1992,27 @@ model VendorPayout {
 
   @@index([vendorId])
   @@index([paidDate])
+}
+
+// Manual Review Queue for the MyBillBook full-history sync (owner 2026-11-06). Anything that is not a perfect mobile + name match
+// waits here — history is NEVER auto-attached on a conflict. Resolved by the Super Admin.
+model MybillbookReviewItem {
+  id            String   @id @default(cuid())
+  kind          String // NAME_CONFLICT | PARTIAL_MATCH | MULTI_PARTY | NEW_MULTI_PARTY | NO_MOBILE | INVALID_MOBILE
+  mobile        String?
+  dataset       String // B2C | GST | BOTH
+  crmCustomerId String?
+  crmName       String?
+  mbbNames      String // JSON string[] of MyBillBook party names
+  txnCount      Int      @default(0)
+  detailJson    String? // JSON: the parties + their vouchers, so the item can be resolved later without MyBillBook
+  status        String   @default("OPEN") // OPEN | RESOLVED | IGNORED
+  resolvedNote  String?
+  importBatchId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([kind])
+  @@index([mobile])
 }
