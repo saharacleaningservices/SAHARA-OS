@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Search, Loader2, Users, ClipboardList, UserCog, IndianRupee, Truck, History, MapPin, X, ArrowRight } from "lucide-react";
 import { runGlobalSearch } from "@/server/actions/search";
 import type { SearchResult } from "@/server/search";
@@ -89,6 +90,7 @@ export function GlobalSearch() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [history, setHistory] = useState<HistoryState | null>(null);
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
   const boxRef = useRef<HTMLDivElement>(null);
   const historyReq = useRef(0);
 
@@ -146,6 +148,16 @@ export function GlobalSearch() {
 
   const close = () => setOpen(false);
 
+  // Enter opens the staff member's page straight away when exactly one staff result matches (owner 2026-11-06);
+  // otherwise it opens the first result.
+  function onEnter() {
+    const staff = results.filter((r) => r.type === "Staff");
+    const target = staff.length === 1 ? staff[0] : results[0];
+    if (!target) return;
+    close();
+    router.push(target.href);
+  }
+
   return (
     <div ref={boxRef} className="relative w-full max-w-xs">
       <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -153,6 +165,7 @@ export function GlobalSearch() {
         value={query}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setOpen(true)}
+        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onEnter(); } }}
         placeholder="Search name, mobile, job, invoice…"
         aria-label="Search customers, jobs, staff and invoices"
         className="h-9 w-full rounded-md border border-input bg-card pl-8 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
