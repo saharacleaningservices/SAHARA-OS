@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { spellingVariants, staffSearchTokens } from "@/lib/staff-search";
 
 export type SearchResult = {
   type: "Lead" | "Job" | "Staff" | "Payment" | "Vehicle" | "Customer";
@@ -43,8 +44,9 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
       select: { id: true, customerName: true, customerMobile: true, jobNumber: true, area: true },
     }),
     db.staff.findMany({
-      where: { deletedAt: null, OR: [{ name: { contains: q } }, { mobile: { contains: q } }, { employeeCode: { contains: q } }] },
-      take: 6,
+      // Every word of the query must match the name (any known spelling), the mobile or the employee code.
+      where: { deletedAt: null, AND: staffSearchTokens(q).map((t) => ({ OR: [...spellingVariants(t).map((v) => ({ name: { contains: v } })), { mobile: { contains: t } }, { employeeCode: { contains: t } }] })) },
+      take: 8,
       select: { id: true, name: true, employeeCode: true, designation: true },
     }),
     db.payment.findMany({
