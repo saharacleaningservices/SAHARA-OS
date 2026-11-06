@@ -182,3 +182,10 @@ export function slugify(text: string): string {
 export function maskTail(v?: string | null): string {
   return v ? `${"X".repeat(Math.max(0, v.length - 4))}${v.slice(-4)}` : "";
 }
+
+/** ₹ in Lakhs for summary cards: 1,35,300 → "₹1.35 L"; under 1 lakh shows the exact rupee amount. */
+export function formatLakhs(amount: number | null | undefined): string {
+  const v = amount ?? 0;
+  if (Math.abs(v) < 100000) return formatINR(v);
+  return `₹${(v / 100000).toFixed(2)} L`;
+}

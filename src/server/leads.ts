@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { isLeadPaid } from "@/lib/lead-overdue";
 import { startOfDay, endOfDay, addDays } from "date-fns";
 import type { SessionPayload } from "@/lib/session";
 
@@ -90,7 +91,7 @@ export async function getLeadsPageStats() {
       where: { deletedAt: null, status: { notIn: ["CANCELLED", "COMPLETED"] }, scheduledDate: { gte: todayStart, lte: todayEnd } },
     }),
     db.followUp.count({ where: { isDone: false, dueDate: { gte: todayStart, lte: todayEnd }, lead: { deletedAt: null } } }),
-    db.followUp.count({ where: { isDone: false, dueDate: { lt: todayStart }, lead: { deletedAt: null } } }),
+    db.followUp.count({ where: { isDone: false, dueDate: { lt: todayStart }, lead: { deletedAt: null, stage: { not: "COMPLETED" }, NOT: { payments: { some: { deletedAt: null }, every: { OR: [{ status: "PAID" }, { deletedAt: { not: null } }] } } } } } }),
     db.payment.aggregate({ where: { deletedAt: null, paidDate: { gte: todayStart, lte: todayEnd } }, _sum: { paidAmount: true } }),
   ]);
 
@@ -113,6 +114,7 @@ export async function getAllLeadsForList(session?: SessionPayload) {
       assignedStaff: { select: { name: true } },
       assignedTo: { select: { name: true } },
       _count: { select: { jobs: true } },
+      payments: { where: { deletedAt: null }, select: { status: true } },
     },
   });
 
@@ -140,8 +142,10 @@ export async function getAllLeadsForList(session?: SessionPayload) {
       ids = [];
     }
     const names = ids.map((id) => nameById.get(id)).filter(Boolean) as string[];
+    const { payments, ...rest } = l;
     return {
-      ...l,
+      ...rest,
+      paymentPaid: isLeadPaid(payments),
       assignedStaffNames: names.length ? names : l.assignedStaff?.name ? [l.assignedStaff.name] : [],
     };
   });
