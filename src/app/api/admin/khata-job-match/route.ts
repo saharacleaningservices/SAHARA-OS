@@ -7,8 +7,8 @@ import { matchJobs, type KhataSiteRow } from "@/lib/khata-job-match";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Khatabook parties never assigned by this matcher: settled (Ameer / Amir Sheikh, owner 2026-11-06) and non-field books.
-const NEVER = new Set(["amir shaikh", "ameer sheikh", "amir sheikh", "sahara on duty", "shoyab kazi"]);
+// Khatabook parties never assigned by this matcher: non-field books. Ameer / Amir Sheikh re-included by the owner (2026-11-06 23:42 IST).
+const NEVER = new Set(["sahara on duty", "shoyab kazi"]);
 const IST_MS = 5.5 * 3600 * 1000;
 const istDay = (d: Date) => new Date(d.getTime() + IST_MS).toISOString().slice(0, 10);
 
