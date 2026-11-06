@@ -21,7 +21,7 @@ export const EMPLOYEE_ID_MASTER: EmployeeIdEntry[] = [
   { code: "SCS-0006", name: "Amir Sheikh", staffId: "cmu42vs5o001115o266ywwax2", khataName: "Amir Shaikh" },
   { code: "SCS-0007", name: "Ibrahim Sheikh", staffId: "cmu42y2i0001315o2nmqtzva5", khataName: "Ibrahim" },
   { code: "SCS-0008", name: "Moses D'Souza", staffId: "cmu430eih001515o2lxnaxq3v", khataName: "Mosek Uncle" },
-  { code: "SCS-0009", name: "Amin Patil", staffId: "cmu431qm7001715o2lhp4bike", khataName: "Amin Pathan" },
+  { code: "SCS-0009", name: "Ameen Pathan", staffId: "cmu431qm7001715o2lhp4bike", khataName: "Amin Pathan" }, // owner 2026-11-06: daily wager ₹650/day
   { code: "SCS-0010", name: "Bobby Waghmare", staffId: "cmu432hmg001915o2khcalsg6", khataName: "Bobby" },
   { code: "SCS-0011", name: "Aayesha Sheikh", staffId: "cmu435j8a001e15o2lho0druf", khataName: "Aayesha Shaikh" },
   { code: "SCS-0012", name: "Shamma Sheikh", staffId: "cmu436s2k001g15o2t2ts1cr8", khataName: "Shamma Shaikh" },

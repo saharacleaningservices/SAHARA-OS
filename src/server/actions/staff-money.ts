@@ -10,6 +10,7 @@
 // - Auto Fare exists only for Kaleem (SCS-0004) — refused for anyone else.
 // - Balance is always computed from transactions (server/staff-balance.ts).
 
+import { perDayRate } from "@/lib/pay-rate";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -473,10 +474,10 @@ const otSchema = z.object({
   reason: z.string().trim().max(300).optional(),
 });
 
-/** Default OT rate per hour = day wage ÷ regular hours (monthly: monthly ÷ 30). Editable per record. */
+/** Default OT rate per hour = day wage ÷ regular hours (monthly: monthly ÷ days in this month). Editable per record. */
 async function defaultOtRate(staffId: string, regularHours: number) {
   const s = await db.staff.findUnique({ where: { id: staffId }, select: { dailyWage: true, monthlySalary: true, salaryType: true } });
-  const day = s?.salaryType === "MONTHLY" && s.monthlySalary ? s.monthlySalary / 30 : (s?.dailyWage ?? 0);
+  const day = perDayRate(s);
   return regularHours > 0 ? Math.round((day / regularHours) * 100) / 100 : 0;
 }
 

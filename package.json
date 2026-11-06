@@ -10,7 +10,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts tests/*.test.mts",
-    "test:ci": "tsx --test tests/db-setup-boot.test.ts tests/settings-controls.test.ts tests/gstr1.test.ts tests/sac.test.ts tests/customer-segment.test.ts tests/lead-overdue.test.ts tests/mbb-doctype-guard.test.ts tests/slot-matrix.test.ts tests/savings.test.ts tests/festival-urgency.test.ts tests/service-scope-small.test.ts tests/job-geo.test.ts tests/review-trigger.test.ts tests/rebooking.test.ts tests/team-alerts.test.ts tests/auto-confirm.test.ts tests/party-cleanup-vendors.test.ts tests/contact-category.test.ts tests/payroll-summary-2026-11-06.test.ts",
+    "test:ci": "tsx --test tests/db-setup-boot.test.ts tests/pay-rate.test.ts tests/settings-controls.test.ts tests/gstr1.test.ts tests/sac.test.ts tests/customer-segment.test.ts tests/lead-overdue.test.ts tests/mbb-doctype-guard.test.ts tests/slot-matrix.test.ts tests/savings.test.ts tests/festival-urgency.test.ts tests/service-scope-small.test.ts tests/job-geo.test.ts tests/review-trigger.test.ts tests/rebooking.test.ts tests/team-alerts.test.ts tests/auto-confirm.test.ts tests/party-cleanup-vendors.test.ts tests/contact-category.test.ts tests/payroll-summary-2026-11-06.test.ts",
     "test:cognito": "tsx --test tests/email-lead.test.ts tests/cognito-script.test.ts",
     "test:cognitowebhook": "tsx --test tests/cognito-webhook.test.ts",
     "test:bookingconfirm": "tsx --test tests/booking-confirmation.test.ts",

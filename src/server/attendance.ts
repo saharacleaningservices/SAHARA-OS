@@ -1,3 +1,4 @@
+import { daysInMonthIst, perDayRate } from "@/lib/pay-rate";
 import { dedupeByIstDay, isoOf, istDayKey, istDaysInMonth, istMonthRange, istWeekday } from "@/lib/ist-days";
 import { db } from "@/lib/db";
 import { COMPANY } from "@/lib/constants";
@@ -36,17 +37,17 @@ const WAGE_FACTOR: Record<AttendanceCode, number> = {
   WEEKLY_OFF: 0,
 };
 
-/** A staff member's effective per-day wage (daily wage, or 1/30 of monthly). */
-export function dailyWageFor(staff: { salaryType: string; dailyWage: number | null; monthlySalary: number | null }): number {
-  if (staff.salaryType === "DAILY") return staff.dailyWage ?? 0;
-  return staff.monthlySalary ? staff.monthlySalary / 30 : 0;
+/** A staff member's per-day wage on `date`: daily wage, or monthly ÷ days in that month (src/lib/pay-rate.ts). */
+export function dailyWageFor(staff: { salaryType: string; dailyWage: number | null; monthlySalary: number | null }, date: Date = new Date()): number {
+  return perDayRate(staff, date);
 }
 
 export function wageForDayValue(
   staff: { salaryType: string; dailyWage: number | null; monthlySalary: number | null },
   status: AttendanceCode,
+  date: Date = new Date(),
 ): number {
-  return Math.round(dailyWageFor(staff) * WAGE_FACTOR[status] * 100) / 100;
+  return Math.round(dailyWageFor(staff, date) * WAGE_FACTOR[status] * 100) / 100;
 }
 
 /**
@@ -179,7 +180,7 @@ export async function setAttendanceForDate(input: {
   const existing = await db.attendance.findUnique({
     where: { staffId_date: { staffId: input.staffId, date } },
   });
-  const wageForDay = wageForDayValue(staff, input.status);
+  const wageForDay = wageForDayValue(staff, input.status, date);
 
   if (existing) {
     if (existing.status === input.status) return { success: true as const, unchanged: true as const };
@@ -386,7 +387,7 @@ export async function getTodayAttendanceSummary() {
  */
 export function computeEarned(
   staff: { salaryType: string; monthlySalary: number | null } | null,
-  attendance: { status: string; wageForDay: number | null }[],
+  attendance: { status: string; wageForDay: number | null; date?: Date }[],
 ) {
   const fullDays = attendance.filter((a) => a.status === "PRESENT").length;
   const halfDays = attendance.filter((a) => a.status === "HALF_DAY").length;
@@ -396,8 +397,11 @@ export function computeEarned(
   // Prefer the per-day wage stored on each row (set for both wage types now);
   // fall back to prorating the monthly salary for legacy rows with no wage.
   const wageRowsTotal = attendance.reduce((sum, a) => sum + (a.wageForDay ?? 0), 0);
+  // Legacy rows with no stored wage: monthly ÷ days of each row's own month (30 when the row has no date).
   const monthlyProrated =
-    staff?.salaryType === "MONTHLY" && staff.monthlySalary ? (staff.monthlySalary / 30) * payableDays : 0;
+    staff?.salaryType === "MONTHLY" && staff.monthlySalary
+      ? attendance.reduce((t, a) => t + (a.status === "PRESENT" ? 1 : a.status === "HALF_DAY" ? 0.5 : 0) * (staff.monthlySalary! / (a.date ? daysInMonthIst(a.date) : 30)), 0)
+      : 0;
   const earned =
     wageRowsTotal > 0 ? wageRowsTotal : staff?.salaryType === "MONTHLY" ? monthlyProrated : 0;
   return { fullDays, halfDays, payableDays, presentDays, earned };

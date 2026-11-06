@@ -1,5 +1,6 @@
 "use server";
 
+import { perDayRate } from "@/lib/pay-rate";
 import { revalidatePath } from "next/cache";
 import { startOfDay } from "date-fns";
 import { db } from "@/lib/db";
@@ -165,7 +166,7 @@ export async function markAttendance(
   if (!staff) return { error: "Staff not found", success: false as const };
 
   const today = startOfDay(new Date());
-  const dailyRate = staff.salaryType === "DAILY" ? staff.dailyWage ?? 0 : (staff.monthlySalary ?? 0) / 30;
+  const dailyRate = perDayRate(staff, today);
   const wageForDay = status === "ABSENT" ? 0 : status === "HALF_DAY" ? dailyRate / 2 : dailyRate;
 
   await db.attendance.upsert({
