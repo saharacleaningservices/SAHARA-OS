@@ -1,3 +1,4 @@
+import { daysInMonthIst } from "@/lib/pay-rate";
 import { db } from "@/lib/db";
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
 import { COMPANY } from "@/lib/constants";
@@ -41,7 +42,7 @@ export async function getMonthlyBusinessReport(forDate: Date = subMonths(new Dat
         monthlySalary: true,
         attendance: {
           where: { date: { gte: start, lte: end } },
-          select: { status: true, wageForDay: true },
+          select: { status: true, wageForDay: true, date: true },
         },
       },
     }),
@@ -52,8 +53,10 @@ export async function getMonthlyBusinessReport(forDate: Date = subMonths(new Dat
     if (staff.salaryType === "DAILY") {
       employeeSalaries += staff.attendance.reduce((sum, a) => sum + (a.wageForDay ?? 0), 0);
     } else if (staff.monthlySalary) {
+      // Monthly ÷ days of that calendar month (owner rule 2026-11-06).
       const presentDays = staff.attendance.filter((a) => a.status === "PRESENT" || a.status === "HALF_DAY").length;
-      employeeSalaries += (staff.monthlySalary / 30) * presentDays;
+      const ref = staff.attendance[0]?.date ?? new Date();
+      employeeSalaries += (staff.monthlySalary / daysInMonthIst(ref)) * presentDays;
     }
   }
 
