@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { CalendarCheck, CalendarClock, CalendarRange, ClipboardList, HardHat, History, Route, ShieldCheck, TrendingUp, Truck, UserCheck } from "lucide-react";
+import { CalendarClock, CalendarRange, ClipboardList, HardHat, History, ShieldCheck, TrendingUp, Truck, UserCheck } from "lucide-react";
 import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { getLeadToBookingConversion } from "@/server/dashboard-extras";
 import { getOperationsHome } from "@/server/owner-command-center";
@@ -131,7 +131,6 @@ export async function getOperationsDashboardSections({ name, userId, newLeads }:
 
   // Operations tab (owner 2026-10-22): today's / tomorrow's jobs first, then dispatch, slots and quick quote one tap away,
   // then lead-to-booking conversion. Counts only — no revenue, profit or expense figure is built here.
-  const action = "flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3 text-sm font-medium shadow-sm hover:border-primary/40";
   const operations = (
     <>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -140,10 +139,9 @@ export async function getOperationsDashboardSections({ name, userId, newLeads }:
         <ExpandableCard trigger={tile(<History className="size-5" />, "bg-muted text-muted-foreground", "Yesterday's Jobs", yesterday.totalJobs, "Tap for the full list")}>{dayBody(yesterday, "yesterday")}</ExpandableCard>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        <Link href="/jobs/dispatch" className={action}><Route className="size-4 text-primary" /> Team Dispatch</Link>
-        <Link href="/jobs/slots" className={action}><CalendarCheck className="size-4 text-primary" /> Slot Availability</Link>
-        <div className="col-span-2 sm:col-span-1 [&>button]:min-h-11 [&>button]:w-full [&>button]:justify-center">
+      {/* Team Dispatch / Slot Availability live in the top bar (Task 2) and the dispatch grid above — no duplicate links here. */}
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="[&>button]:min-h-11 [&>button]:w-full [&>button]:justify-center">
           <PackageCalculatorButton variant="button" label="Quick Quote" />
         </div>
       </div>

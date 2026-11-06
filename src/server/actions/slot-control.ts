@@ -12,6 +12,7 @@ import { getSession } from "@/lib/session";
 import { logAudit } from "@/server/audit";
 import { TIME_SLOTS } from "@/lib/constants";
 import { computeSlotAvailability } from "@/server/slot-capacity";
+import { monthMatrixDates, slotIndexOf } from "@/lib/slot-matrix";
 
 const SLOT_ROLES = new Set(["ADMIN", "OPERATIONS", "ACCOUNTS"]);
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -53,6 +54,37 @@ export async function getSlotBoard(days = 21) {
       updatedByName: day?.updatedByName ?? null,
     };
   });
+}
+
+/**
+ * Month matrix for CRM → Jobs → Slot Availability: the 35 dates (Mon–Sun × 5 weeks from this week's Monday), the
+ * live board for today onward, and every non-cancelled job of those dates grouped into its 2-hour window.
+ */
+export async function getSlotMonth() {
+  if (!(await requireSlotManager())) return null;
+  const todayIst = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const dates = monthMatrixDates(todayIst);
+  const ahead = dates.filter((d) => d >= todayIst).length;
+  const board = (await getSlotBoard(ahead)) ?? [];
+  const from = new Date(`${dates[0]}T00:00:00+05:30`);
+  const to = new Date(new Date(`${dates[dates.length - 1]}T00:00:00+05:30`).getTime() + 86400000);
+  const rows = await db.job.findMany({
+    where: { deletedAt: null, isDemo: false, status: { not: "CANCELLED" }, scheduledDate: { gte: from, lt: to } },
+    orderBy: [{ scheduledDate: "asc" }, { scheduledTime: "asc" }],
+    select: { id: true, scheduledDate: true, scheduledTime: true, customerName: true, area: true, service: true, teamNumber: true, status: true },
+  });
+  const jobs = rows.map((j) => ({
+    id: j.id,
+    date: j.scheduledDate.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
+    time: j.scheduledTime,
+    slot: slotIndexOf(j.scheduledTime),
+    customerName: j.customerName,
+    area: j.area,
+    service: String(j.service),
+    teamNumber: j.teamNumber,
+    status: String(j.status),
+  }));
+  return { today: todayIst, dates, board, jobs };
 }
 
 const daySchema = z.object({

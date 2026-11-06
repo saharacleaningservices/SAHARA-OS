@@ -49,6 +49,7 @@ import { QuickPhoneLead } from "@/components/dashboard/quick-phone-lead";
 import { OwnerQuickInquiry } from "@/components/dashboard/owner-quick-inquiry";
 import { OwnerInquiryTracker } from "@/components/dashboard/owner-inquiry-tracker";
 import { RoleViewToggle, dashboardViewFor } from "@/components/dashboard/role-view-toggle";
+import { TodayDispatchCard } from "@/components/dashboard/today-dispatch-card";
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ as?: string }> }) {
   const session = await requireUser();
@@ -71,7 +72,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       userId: session.sub,
       newLeads: newLeads ? <NewLeadsCard rows={newLeads.rows} newCount={newLeads.newCount} /> : null,
     });
-    return <TabbedDashboard role="OPERATIONS" hero={<>{toggle}{s.hero}</>} inquiries={s.inquiries} operations={s.operations} />;
+    return <TabbedDashboard role="OPERATIONS" hero={<>{toggle}{s.hero}</>} inquiries={s.inquiries} operations={<div className="space-y-4"><TodayDispatchCard />{s.operations}</div>} />;
   }
 
   if (session.role === "ADMIN" || session.role === "ACCOUNTS") {
@@ -107,7 +108,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         role={asRole}
         hero={<>{toggle}{s.hero}</>}
         inquiries={s.inquiries}
-        operations={s.operations}
+        operations={<div className="space-y-4"><TodayDispatchCard />{s.operations}</div>}
         finance={s.finance}
       />
     );
