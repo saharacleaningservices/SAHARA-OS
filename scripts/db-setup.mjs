@@ -16,6 +16,14 @@ import { readFileSync, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+// Boot diagnostics (2026-11-06): prefix every log line with the seconds since db-setup started, so a slow or blocked
+// migration step is visible in the Coolify container logs.
+{
+  const t0 = Date.now();
+  const log = console.log.bind(console);
+  console.log = (...a) => log(`[+${((Date.now() - t0) / 1000).toFixed(1)}s]`, ...a);
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 
