@@ -92,7 +92,7 @@ export async function collectAndPay() {
       where: { status: { in: ["ISSUED", "PARTIALLY_PAID"] } },
       select: { totalAmount: true, job: { select: { payments: { where: { deletedAt: null }, select: { paidAmount: true } } } }, payment: { select: { paidAmount: true, deletedAt: true } } },
     }),
-    db.mybillbookInvoice.aggregate({ where: { remaining: { gt: 0 } }, _sum: { remaining: true }, _count: { _all: true } }),
+    db.mybillbookInvoice.aggregate({ where: { docType: "SALES_INVOICE", remaining: { gt: 0 } }, _sum: { remaining: true }, _count: { _all: true } }),
     db.voucher.findMany({ where: { type: "PURCHASE", status: "ISSUED" }, select: { totalAmount: true, paidAmount: true } }),
     db.voucher.aggregate({ where: { type: "CREDIT_NOTE", status: "ISSUED" }, _sum: { totalAmount: true }, _count: { _all: true } }),
   ]);

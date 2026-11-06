@@ -63,7 +63,7 @@ export async function getSalesDashboard(): Promise<SalesDashboard> {
         payment: { select: { paidAmount: true, deletedAt: true } },
       },
     }),
-    db.mybillbookInvoice.findMany({ select: { invoiceNo: true, contactName: true, invoiceDate: true, amount: true, remaining: true, customer: { select: { mobile: true } } } }),
+    db.mybillbookInvoice.findMany({ where: { docType: "SALES_INVOICE" }, select: { invoiceNo: true, contactName: true, invoiceDate: true, amount: true, remaining: true, customer: { select: { mobile: true } } } }),
     collectAndPay(),
     getCustomersPage({ pageSize: 1 }),
     db.mybillbookInvoice.count({ where: { matchStatus: "REVIEW" } }),
