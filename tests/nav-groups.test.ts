@@ -37,8 +37,9 @@ test("OPERATIONS (Francis): field-only — no money, profit, user or audit pages
 
 test("ACCOUNTS (Shoyab): finance yes, revenue/reports no (owner 2026-10-31); profit, user management, audit log, device/security approvals no", () => {
   const hrefs = itemsFor("ACCOUNTS").map((i) => i.href);
-  for (const ok of ["/payments", "/expenses", "/quotations", "/invoices", "/customers", "/vehicles", "/staff"]) assert.ok(hrefs.includes(ok), `ACCOUNTS should get ${ok}`);
-  for (const banned of ["/revenue", "/reports", "/reports/export-center", "/profit", "/profit/marketing", "/admin/users", "/admin/audit-log", "/admin/device-approvals", "/admin/security-approvals"]) {
+  // Task 5 (owner 2026-11-06): Payment In is reached inside "Sales Invoices & Payment In" (/invoices).
+  for (const ok of ["/expenses", "/quotations", "/invoices", "/customers", "/vehicles", "/staff"]) assert.ok(hrefs.includes(ok), `ACCOUNTS should get ${ok}`);
+  for (const banned of ["/revenue", "/reports", "/reports/gstr1", "/reports/export-center", "/profit", "/profit/marketing", "/admin/users", "/admin/audit-log", "/admin/device-approvals", "/admin/security-approvals"]) {
     assert.ok(!hrefs.includes(banned), `ACCOUNTS must not get ${banned}`);
   }
 });
@@ -48,4 +49,11 @@ test("the Dashboard link is always reachable (Dashboards & Reports group) for ev
     const g = groupsFor(role).find((x) => x.items.some((i) => i.href === "/dashboard"));
     assert.equal(g?.key, "dashboards", role);
   }
+});
+
+test("Finance & Billing has exactly the six Task 5 entries, in order (owner 2026-11-06)", () => {
+  assert.deepEqual(
+    NAV_ITEMS.filter((i) => i.group === "finance").map((i) => i.label),
+    ["Quotation / Estimate", "Sales Invoices & Payment In", "Proforma Invoices", "Credit Notes", "Purchases & Expenses", "GSTR-1 & Financial Reports"],
+  );
 });

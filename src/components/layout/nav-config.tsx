@@ -6,7 +6,6 @@ import {
     UserCog,
     IndianRupee,
     Receipt,
-    TrendingUp,
     FileText,
     Sparkles,
     Truck,
@@ -15,7 +14,6 @@ import {
     ScrollText,
     ShieldCheck,
     CalendarCheck,
-    Wallet,
     MessageCircle,
     Smartphone,
     ShieldAlert,
@@ -30,7 +28,6 @@ import {
     Calculator,
     Send,
     Settings,
-    BarChart3,
     Handshake,
     type LucideIcon,
 } from "lucide-react";
@@ -66,10 +63,8 @@ const GROUP_BY_HREF: Record<string, NavGroupKey> = {
   "/leads": "sales", "/customers": "sales", "/leads/price-list": "sales", "/service-catalog": "sales",
   "/jobs": "operations", "/jobs/dispatch": "operations", "/jobs/slots": "operations", "/staff": "operations", "/attendance": "operations", "/vehicles": "operations",
   "/amc": "operations", "/vendors": "operations", "/jobs?service=HOUSEKEEPING": "operations", "/jobs?service=PEST_CONTROL": "operations", "/jobs?service=INTERIOR_PAINTING": "operations",
-  "/sales": "finance", "/quotations": "finance", "/invoices": "finance", "/payments": "finance",
-  "/vouchers/proforma-invoice": "finance", "/vouchers/credit-note": "finance", "/vouchers/delivery-challan": "finance",
-  "/expenses": "finance", "/vouchers/purchase-voucher": "finance",
-  "/revenue": "finance", "/profit": "finance", "/profit/marketing": "finance", "/reports": "finance", "/reports/export-center": "finance",
+  "/quotations": "finance", "/invoices": "finance", "/vouchers/proforma-invoice": "finance", "/vouchers/credit-note": "finance",
+  "/expenses": "finance", "/reports/gstr1": "finance",
 };
 
 const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
@@ -93,23 +88,16 @@ const RAW_NAV_ITEMS: Omit<NavItem, "group">[] = [
   // Vendor Operations (owner 2026-11-04): registry, 20–25 % commission, payouts → VENDOR_PAYMENT expenses.
   // Folded into Specialized Services so Operations keeps its 5 owner-agreed entries.
   { label: "Vendor Operations", href: "/vendors", section: "vendors", icon: Handshake, cluster: "Specialized Services" },
-  // ── Finance & Billing: Sales Vouchers, Purchases, Khata Book Import (+ reports and profit folded into one entry)
-  // Sales Dashboard (owner 2026-10-25): first in Finance & Billing, not folded — total business, pending, paid, de-duplication.
-  { label: "Sales Dashboard", href: "/sales", section: "revenue", icon: BarChart3 },
-  { label: "Quotation / Estimate", href: "/quotations", section: "quotations", icon: FileSignature, cluster: "Sales Vouchers" },
-  { label: "Sales Invoices", href: "/invoices", section: "invoices", icon: FileStack, cluster: "Sales Vouchers" },
-  { label: "Payment In", href: "/payments", section: "payments", icon: IndianRupee, cluster: "Sales Vouchers" },
-  { label: "Proforma Invoice", href: "/vouchers/proforma-invoice", section: "vouchers", icon: FileText, cluster: "Sales Vouchers" },
-  { label: "Credit Note", href: "/vouchers/credit-note", section: "vouchers", icon: FileText, cluster: "Sales Vouchers" },
-  { label: "Delivery Challan", href: "/vouchers/delivery-challan", section: "vouchers", icon: Truck, cluster: "Sales Vouchers" },
-  { label: "Purchases & Expenses", href: "/expenses", section: "expenses", icon: Receipt, cluster: "Purchases" },
-  { label: "Purchase Vouchers", href: "/vouchers/purchase-voucher", section: "vouchers", icon: FileStack, cluster: "Purchases" },
-  { label: "Revenue Dashboard", href: "/revenue", section: "revenue", icon: Wallet, cluster: "Reports & Profit" },
-  { label: "Profit Dashboard", href: "/profit", section: "profit", icon: TrendingUp, cluster: "Reports & Profit" },
-  { label: "Marketing Dashboard", href: "/profit/marketing", section: "profit", icon: TrendingUp, cluster: "Reports & Profit" },
-  { label: "Reports", href: "/reports", section: "reports", icon: FileText, cluster: "Reports & Profit" },
-  { label: "Export Center", href: "/reports/export-center", section: "reports", icon: FileSpreadsheet, cluster: "Reports & Profit" },
-  // ── Settings & Admin: User Management, Message Logs, Lifecycle Reminders, Settings (+ the rest of the admin tools)
+  // ── Finance & Billing (owner 2026-11-06, Task 5): exactly six entries. Payment In lives inside Sales Invoices;
+  // Sales / Revenue / Profit / Marketing dashboards, Export Center, Delivery Challan and Purchase Vouchers stay
+  // reachable from the dashboard modules and from inside these pages (URLs unchanged).
+  { label: "Quotation / Estimate", href: "/quotations", section: "quotations", icon: FileSignature },
+  { label: "Sales Invoices & Payment In", href: "/invoices", section: "invoices", icon: FileStack },
+  { label: "Proforma Invoices", href: "/vouchers/proforma-invoice", section: "vouchers", icon: FileText },
+  { label: "Credit Notes", href: "/vouchers/credit-note", section: "vouchers", icon: FileText },
+  { label: "Purchases & Expenses", href: "/expenses", section: "expenses", icon: Receipt },
+  { label: "GSTR-1 & Financial Reports", href: "/reports/gstr1", section: "reports", icon: FileSpreadsheet },
+  // ── Settings & Admin
   { label: "User Management", href: "/admin/users", section: "users", icon: Users2 },
   { label: "Message Log", href: "/admin/whatsapp-log", section: "whatsapp-log", icon: MessageCircle },
   { label: "Lifecycle Reminders", href: "/admin/lifecycle-reminders", section: "lifecycle-reminders", icon: Send },
