@@ -49,10 +49,10 @@ export default async function StaffDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ year?: string; month?: string }>;
+  searchParams: Promise<{ year?: string; month?: string; edit?: string }>;
 }) {
   const { id } = await params;
-  const { year: yStr, month: mStr } = await searchParams;
+  const { year: yStr, month: mStr, edit } = await searchParams;
   const session = await requireUser();
   const staff = await getStaffDetail(id);
   if (!staff) notFound();
@@ -162,6 +162,7 @@ export default async function StaffDetailPage({
             {showSalary && (
               <NewStaffDialog
                 staffId={staff.id}
+                defaultOpen={edit === "1"}
                 defaultValues={{
                   name: staff.name,
                   mobile: staff.mobile,

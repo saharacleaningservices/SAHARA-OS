@@ -342,7 +342,7 @@ export function StaffKhataCard({
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground sm:col-span-3">
-              {f.type === "LOAN_RECOVERY" ? "Loan recovery reduces only the loan — it does not change Salary due." : f.type === "SALARY" ? "Salary paid reduces Salary due only — it never reduces the loan." : "One Khata, one ledger: every entry is audit-logged and the worker gets an alert."}
+              {f.type === "LOAN_RECOVERY" ? "Loan recovery reduces only the loan — it does not change Salary due." : f.type === "SALARY" ? "Salary paid reduces Salary due only — it never reduces the loan." : "One payroll ledger: every entry is audit-logged and the worker gets an alert."}
             </p>
           </div>
         )}
@@ -524,7 +524,7 @@ export function StaffKhataCard({
                 </Button>
               </div>
             )}
-            <p className="text-[11px] text-muted-foreground">Auto rate = day wage ÷ regular hours. Overtime counts in the Khata only after approval.</p>
+            <p className="text-[11px] text-muted-foreground">Auto rate = day wage ÷ regular hours. Overtime counts in the Payroll Summary only after approval.</p>
             <ul className="divide-y rounded-lg border">
               {overtime.map((o) => (
                 <li key={o.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 text-xs">

@@ -11,7 +11,6 @@ import { randomInt } from "node:crypto";
 import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 import { notify } from "@/server/notify";
-import { sendWhatsApp } from "@/lib/whatsapp";
 import { sendEmail } from "@/lib/email";
 import { COMPANY } from "@/lib/constants";
 
@@ -115,14 +114,7 @@ export async function requestPasswordOtp(opts: {
   // configured number/email regardless of what's on the ADMIN user's own
   // profile. Both queue immediately and only actually send once WhatsApp/
   // email credentials exist (neither does in this deployment today).
-  await sendWhatsApp({
-    kind: "OTHER",
-    toNumber: COMPANY.phones[0],
-    toName: "Owner",
-    body: notifyBody,
-    relatedType: "SecurityOtp",
-    relatedId: otp.id,
-  }).catch(() => {});
+  // Owner WhatsApp copy removed (Task 6, 2026-11-06): security alerts go to the bell only; the email copy stays.
   await sendEmail({
     kind: opts.purpose === "PASSWORD_RESET" ? "PASSWORD_OTP" : "OTHER",
     toEmail: COMPANY.email,
@@ -255,14 +247,7 @@ export async function requestLoginIdOtp(opts: { targetUserId: string; targetUser
     meta: { otpId: otp.id, targetUserEmail: opts.targetUserEmail },
   });
 
-  await sendWhatsApp({
-    kind: "OTHER",
-    toNumber: COMPANY.phones[0],
-    toName: "Owner",
-    body: notifyBody,
-    relatedType: "SecurityOtp",
-    relatedId: otp.id,
-  }).catch(() => {});
+  // Owner WhatsApp copy removed (Task 6, 2026-11-06): security alerts go to the bell only; the email copy stays.
   await sendEmail({
     kind: "LOGIN_ID_RECOVERY",
     toEmail: COMPANY.email,

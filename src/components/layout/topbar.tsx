@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { SidebarNav } from "./sidebar-nav";
 import { CompanyLogo } from "@/components/shared/company-logo";
-import { NAV_ITEMS } from "./nav-config";
+import { NAV_ITEMS, SETTINGS_PAGES } from "./nav-config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +39,7 @@ export function Topbar({
   const router = useRouter();
   const pathname = usePathname();
   const lang = useCrmLang();
-  const pageLabel = crmT(lang, NAV_ITEMS.find((item) => pathname === item.href || pathname.startsWith(item.href + "/"))?.label ?? "Sahara OS");
+  const pageLabel = crmT(lang, [...NAV_ITEMS, ...SETTINGS_PAGES].find((item) => pathname === item.href || pathname.startsWith(item.href + "/"))?.label ?? "Sahara OS");
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });

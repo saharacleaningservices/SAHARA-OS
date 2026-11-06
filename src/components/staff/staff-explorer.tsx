@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { SearchInput } from "@/components/shared/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -124,9 +125,16 @@ export function StaffExplorer({ staff, canViewSalary = false }: { staff: StaffRo
                     </TableCell>
                   )}
                   <TableCell>
-                    <Link href={`/staff/${s.id}`} className="font-medium text-foreground hover:underline">
-                      {s.name}
-                    </Link>
+                    <span className="flex items-center gap-1.5">
+                      <Link href={`/staff/${s.id}`} className="font-medium text-foreground hover:underline">
+                        {s.name}
+                      </Link>
+                      {canViewSalary && (
+                        <Link href={`/staff/${s.id}?edit=1`} title={`Edit ${s.name}`} aria-label={`Edit ${s.name}`} className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
+                          <Pencil className="size-3.5" />
+                        </Link>
+                      )}
+                    </span>
                     <p className="text-xs text-muted-foreground">{s.employeeCode}</p>
                   </TableCell>
                   <TableCell className="text-sm">{s.designation}</TableCell>
