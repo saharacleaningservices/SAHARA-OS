@@ -18,6 +18,7 @@ import { getSession } from "@/lib/session";
 import { canManageStaffFinancials } from "@/lib/permissions";
 import { notifyStaff } from "@/server/staff-notify";
 import { autoFareAllowed } from "@/lib/staff-money-rules";
+import { CORRECTABLE_TYPES, correctableTypeOf, type CorrectableType } from "@/lib/money-correction";
 
 const MODES = ["CASH", "UPI", "GOOGLE_PAY", "BANK_TRANSFER", "OTHER"] as const;
 // LOAN / LOAN_RECOVERY go to the separate loan ledger; the rest to the salary ledger.
@@ -165,12 +166,85 @@ export async function recordStaffTransaction(values: unknown) {
 }
 
 const correctionSchema = z.object({
+  // Optional: switch the entry type (Salary paid ⇄ Advance ⇄ Loan given ⇄ Loan recovery) while correcting.
+  type: z.enum(CORRECTABLE_TYPES).optional(),
   amount: z.number().positive().max(10_000_000),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   note: z.string().trim().max(300).optional(),
 });
 const ymd = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 const atNoon = (d: string) => new Date(`${d}T12:00:00+05:30`);
+
+async function currentType(table: "ledger" | "loan", id: string): Promise<CorrectableType | null> {
+  const kind = table === "ledger" ? (await db.staffLedgerEntry.findUnique({ where: { id }, select: { kind: true } }))?.kind : (await db.staffLoanEntry.findUnique({ where: { id }, select: { kind: true } }))?.kind;
+  return kind ? correctableTypeOf(kind) : null;
+}
+
+const TYPE_LABEL: Record<CorrectableType, string> = { SALARY: "Salary paid", ADVANCE: "Advance", LOAN: "Loan given", LOAN_RECOVERY: "Loan recovery" };
+
+/**
+ * Correct an entry AND change its type — the original row (salary ledger OR loan ledger) is reversed, never edited,
+ * and the new row is written to the ledger that the NEW type belongs to (Loan given / Loan recovery → loan ledger;
+ * Salary paid / Advance → salary ledger). Salary Due and Loan Remaining are recomputed from the ledgers by the single
+ * Khata engine, so they update everywhere (CRM, Staff App, payslip) at once.
+ */
+async function changeEntryType(
+  session: { name: string; email: string },
+  table: "ledger" | "loan",
+  id: string,
+  from: CorrectableType,
+  next: z.infer<typeof correctionSchema> & { type: CorrectableType },
+  reason: string,
+) {
+  const src =
+    table === "ledger"
+      ? await db.staffLedgerEntry.findUnique({ where: { id }, include: { staff: { select: { employeeCode: true, name: true } } } })
+      : await db.staffLoanEntry.findUnique({ where: { id }, include: { staff: { select: { employeeCode: true, name: true } } } });
+  if (!src || src.deletedAt) return { error: "Entry not found" };
+  if (table === "ledger" ? await db.staffLedgerEntry.findFirst({ where: { reversalOfId: id, deletedAt: null } }) : await db.staffLoanEntry.findFirst({ where: { reversalOfId: id, deletedAt: null } })) {
+    return { error: "This entry was already corrected — correct the new entry instead." };
+  }
+  const toLoan = next.type === "LOAN" || next.type === "LOAN_RECOVERY";
+  const when = atNoon(next.date);
+  const text = next.note || src.description || TYPE_LABEL[next.type];
+
+  // Loan can never go negative: simulate the loan ledger after removing the old row and adding the new one.
+  const loanSum = await db.staffLoanEntry.aggregate({ where: { staffId: src.staffId, deletedAt: null }, _sum: { signedAmount: true } });
+  const removed = table === "loan" ? (src as { signedAmount: number }).signedAmount : 0;
+  const added = next.type === "LOAN" ? next.amount : next.type === "LOAN_RECOVERY" ? -next.amount : 0;
+  if ((loanSum._sum.signedAmount ?? 0) - removed + added < -0.001) return { error: "After this correction the loan recoveries would be more than the loan given." };
+
+  const result = await db.$transaction(async (tx) => {
+    // 1) reverse the original in its own ledger
+    const rev =
+      table === "ledger"
+        ? await tx.staffLedgerEntry.create({
+            data: { staffId: src.staffId, date: src.date, kind: "REVERSAL", amount: src.amount, signedAmount: -(src as { signedAmount: number }).signedAmount, description: `Correction of ${src.description ?? from} (${src.date.toLocaleDateString("en-IN")})`, reversalOfId: id, reason, source: "MANUAL", createdByName: session.name },
+          })
+        : await tx.staffLoanEntry.create({
+            data: { staffId: src.staffId, date: src.date, kind: "LOAN_CORRECTION", amount: src.amount, signedAmount: -(src as { signedAmount: number }).signedAmount, description: `Correction of ${src.description ?? from} (${src.date.toLocaleDateString("en-IN")})`, reversalOfId: id, reason, source: "MANUAL", createdByName: session.name },
+          });
+    // 2) write the corrected entry in the ledger its NEW type belongs to
+    const fresh = toLoan
+      ? await tx.staffLoanEntry.create({
+          data: { staffId: src.staffId, date: when, kind: next.type === "LOAN" ? "LOAN_GIVEN" : "LOAN_REPAID", amount: next.amount, signedAmount: next.type === "LOAN" ? next.amount : -next.amount, fromSalary: false, description: text, reason: `Corrected entry (${TYPE_LABEL[from]} → ${TYPE_LABEL[next.type]}) — ${reason}`, source: "MANUAL", createdByName: session.name },
+        })
+      : await tx.staffLedgerEntry.create({
+          data: { staffId: src.staffId, date: when, kind: next.type === "SALARY" ? "SALARY_PAID" : "ADVANCE", amount: next.amount, signedAmount: -next.amount, description: text, paymentMode: table === "ledger" ? (src as { paymentMode: string | null }).paymentMode : null, reason: `Corrected entry (${TYPE_LABEL[from]} → ${TYPE_LABEL[next.type]}) — ${reason}`, source: "MANUAL", createdByName: session.name },
+        });
+    return { rev, fresh };
+  });
+  await auditCorrection(session, src.staffId, src.staff, {
+    table,
+    kind: `${TYPE_LABEL[from]} → ${TYPE_LABEL[next.type]}`,
+    old: { amount: src.amount, date: ymd(src.date), text: src.description },
+    next,
+    reason,
+    ids: { original: id, reversal: result.rev.id, corrected: result.fresh.id },
+  });
+  refresh(src.staffId);
+  return { ok: true as const };
+}
 
 /**
  * Correct one Khata entry (salary ledger or loan ledger). The original row is
@@ -188,6 +262,12 @@ export async function correctStaffEntry(input: { table: "ledger" | "loan"; id: s
     const p = correctionSchema.safeParse(input.next);
     if (!p.success) return { error: p.error.issues[0]?.message ?? "Invalid corrected entry" };
     next = p.data;
+  }
+
+  // Entry-type switch (e.g. a "Salary paid" that was really a "Loan given") → handled separately.
+  if (next?.type) {
+    const cur = await currentType(input.table, input.id);
+    if (cur && cur !== next.type) return changeEntryType(session, input.table, input.id, cur, { ...next, type: next.type }, reason);
   }
 
   if (input.table === "ledger") {

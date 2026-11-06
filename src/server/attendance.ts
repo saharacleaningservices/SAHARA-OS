@@ -2,6 +2,7 @@ import { dedupeByIstDay, isoOf, istDayKey, istDaysInMonth, istMonthRange, istWee
 import { db } from "@/lib/db";
 import { COMPANY } from "@/lib/constants";
 import { sendWhatsApp } from "@/lib/whatsapp";
+import { sortStaffByPriority } from "@/lib/staff-priority";
 import { dailyAttendanceSummaryMessage } from "@/lib/whatsapp-templates";
 
 function todayRange() {
@@ -539,7 +540,8 @@ export async function getMonthlyLedgerForAllStaff(year: number, month: number) {
       };
     }),
   );
-  return rows;
+  // Custom priority order (owner 2026-11-06), not alphabetical.
+  return sortStaffByPriority(rows);
 }
 
 export async function sendDailyAttendanceSummary() {
