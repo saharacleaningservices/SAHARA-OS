@@ -55,6 +55,22 @@ export async function syncParties(parties: SyncParty[], opts: { dryRun: boolean;
 
     if (decision === "PROTECTED") continue;
     if (decision !== "CREATE_AND_ATTACH" && decision !== "ATTACH") {
+      // Review-queue party: never attach or create anything, but keep invoices the CRM already holds in step with
+      // MyBillBook (Paid / remaining), matched by serial or voucher key only — so the ledger has zero variance while
+      // the party itself waits for a human decision.
+      for (const v of p.vouchers) {
+        const ds = datasetOf(v.src);
+        const doc = docTypeOf(v.type);
+        const old = (doc === "SALES_INVOICE" && v.sn ? existingBySerial.get(`${ds}|${v.sn}`) : undefined) ?? existingByKey.get(`mbbv:${ds}:${v.id}`);
+        if (!old) continue;
+        const rem = n(v.rem);
+        const amount = n(v.tot) || n(v.amt);
+        const status = statusOf(doc, rem);
+        if (old.status === status && Math.abs(old.remaining - rem) <= 0.005 && Math.abs(old.amount - amount) <= 0.005) { t.invoicesUnchanged += 1; continue; }
+        t.invoicesUpdated += 1;
+        if (old.status !== "Paid" && status === "Paid") t.invoicesClosedPaid += 1;
+        if (!opts.dryRun) await db.mybillbookInvoice.update({ where: { id: old.id }, data: { status, remaining: rem, amount, importBatchId: opts.batchId } });
+      }
       t.reviewItemsCreated += 1;
       if (opts.dryRun) continue;
       const already = await db.mybillbookReviewItem.findFirst({ where: { mobile: mobile ?? p.mobile, kind: decision, status: "OPEN" }, select: { id: true } });
