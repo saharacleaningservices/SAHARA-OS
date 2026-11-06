@@ -1829,6 +1829,30 @@ db.close();
   addCol("User", "soundEnabled", "BOOLEAN NOT NULL DEFAULT true");
   addCol("User", "notificationsEnabled", "BOOLEAN NOT NULL DEFAULT true");
   // MyBillBook invoice detail read from the shared link (2026-10-23, additive).
+  addCol("MybillbookInvoice", "docType", `TEXT NOT NULL DEFAULT 'SALES_INVOICE'`);
+  addCol("Customer", "segment", "TEXT");
+  addCol("Customer", "gstin", "TEXT");
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS "MybillbookReviewItem" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "kind" TEXT NOT NULL,
+      "mobile" TEXT,
+      "dataset" TEXT NOT NULL,
+      "crmCustomerId" TEXT,
+      "crmName" TEXT,
+      "mbbNames" TEXT NOT NULL,
+      "txnCount" INTEGER NOT NULL DEFAULT 0,
+      "detailJson" TEXT,
+      "status" TEXT NOT NULL DEFAULT 'OPEN',
+      "resolvedNote" TEXT,
+      "importBatchId" TEXT,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "MybillbookReviewItem_status_idx" ON "MybillbookReviewItem"("status");
+    CREATE INDEX IF NOT EXISTS "MybillbookReviewItem_kind_idx" ON "MybillbookReviewItem"("kind");
+    CREATE INDEX IF NOT EXISTS "MybillbookReviewItem_mobile_idx" ON "MybillbookReviewItem"("mobile");
+  `);
   addCol("MybillbookInvoice", "detailStatus", `TEXT NOT NULL DEFAULT 'PENDING'`);
   addCol("MybillbookInvoice", "detailJson", "TEXT");
   addCol("MybillbookInvoice", "detailFetchedAt", "DATETIME");
