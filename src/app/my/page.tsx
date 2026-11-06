@@ -252,7 +252,7 @@ function MoneyCard({ icon, emoji, label, sub, value, tone }: { icon: React.React
 
 function LoanStep({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className={cn("rounded-2xl p-2", strong ? "bg-indigo-600 text-white" : "bg-white/70 text-indigo-950 dark:bg-indigo-900/40 dark:text-indigo-100")}>
+    <div className={cn("rounded-2xl p-2", strong ? "bg-[#DC2626] text-white" : "bg-white/70 text-indigo-950 dark:bg-indigo-900/40 dark:text-indigo-100")}>
       <div className="text-[11px] font-semibold leading-tight">{label}</div>
       <div className={cn("font-extrabold tabular-nums", strong ? "text-xl" : "text-base")}>{value}</div>
     </div>

@@ -20,6 +20,7 @@ import { StaffPhotoUploader } from "@/components/staff/staff-photo-uploader";
 import { getStaffMoney, getStaffMoneyYear } from "@/server/staff-balance";
 import { getStaffMoneyAdmin, getStaffMoneyAudit } from "@/server/actions/staff-money";
 import { StaffKhataCard } from "@/components/staff/staff-khata-card";
+import { payrollSummaryTitle } from "@/lib/payroll-period";
 import { canViewSalary, canManageStaffFinancials, canManageAttendance } from "@/lib/permissions";
 import { getMonthMatrix } from "@/server/attendance";
 import { StaffAppAccessCard } from "@/components/staff/staff-app-access-card";
@@ -48,10 +49,10 @@ export default async function StaffDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ year?: string; month?: string }>;
+  searchParams: Promise<{ year?: string; month?: string; edit?: string }>;
 }) {
   const { id } = await params;
-  const { year: yStr, month: mStr } = await searchParams;
+  const { year: yStr, month: mStr, edit } = await searchParams;
   const session = await requireUser();
   const staff = await getStaffDetail(id);
   if (!staff) notFound();
@@ -161,6 +162,7 @@ export default async function StaffDetailPage({
             {showSalary && (
               <NewStaffDialog
                 staffId={staff.id}
+                defaultOpen={edit === "1"}
                 defaultValues={{
                   name: staff.name,
                   mobile: staff.mobile,
@@ -207,7 +209,7 @@ export default async function StaffDetailPage({
         ))}
       </div>
 
-      {/* Money Khata — Super Admin / Accounts only (summary + Summary · Ledger · Add Entry · Overtime · Payment · Audit) */}
+      {/* Payroll Summary (was Money Khata) — Super Admin / Accounts only (summary + Summary · Ledger · Add Entry · Overtime · Payment · Audit) */}
       {money && moneyYear && (
         <StaffKhataCard
           staffId={staff.id}
@@ -220,6 +222,7 @@ export default async function StaffDetailPage({
           details={{ bankName: staff.bankName, bankAccountName: staff.bankAccountName, bankAccount: staff.bankAccount, bankIfsc: staff.bankIfsc, upiId: staff.upiId, gpayNumber: staff.gpayNumber }}
           audit={moneyAudit}
           canManage={canFin}
+          periodLabel={payrollSummaryTitle(calYear, calMonth)}
         />
       )}
 

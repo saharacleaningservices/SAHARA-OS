@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { ChevronDown, Megaphone, MessageCircle, Star } from "lucide-react";
-import { NAV_ITEMS } from "@/components/layout/nav-config";
+import { NAV_ITEMS, sectionOfHref } from "@/components/layout/nav-config";
 import { PackageCalculatorButton } from "@/components/layout/package-calculator-dialog";
 import { canAccess } from "@/lib/constants";
 
@@ -59,7 +59,7 @@ export function DashboardModules({ role }: { role: string }) {
     items: g.items.flatMap((it): ("calculator" | { href: string; label: string; Icon?: LucideIcon })[] => {
       if (it === "calculator") return [it];
       const nav = byHref.get(it.href);
-      const section = it.section ?? nav?.section;
+      const section = it.section ?? nav?.section ?? sectionOfHref(it.href);
       if (!section || !canAccess(role, section)) return [];
       return [{ href: it.href, label: it.label, Icon: it.icon ?? nav?.icon }];
     }),

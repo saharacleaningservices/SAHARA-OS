@@ -86,6 +86,13 @@ export const KIND_ROLES: Record<NotifKind, Role[]> = {
 };
 
 const CRITICAL_KINDS = new Set<NotifKind>(["DEVICE_LOGIN", "PASSWORD_OTP", "APPROVAL_REQUEST", "LOGIN_ATTEMPT", "LOGIN_ID_RECOVERY"]);
+/**
+ * Security alerts (owner 2026-11-06, Task 6): bell only — no WhatsApp copy to the owner and a silent device push.
+ * They are still always delivered in-app (never muted) and every action stays in the Audit Log.
+ */
+export const SECURITY_KINDS: ReadonlySet<NotifKind> = CRITICAL_KINDS;
+/** Whether a notification also goes to the owner's WhatsApp. Security kinds never do. */
+export const whatsappCopyFor = (kind: NotifKind, whatsappToAdmin?: boolean) => !SECURITY_KINDS.has(kind) && Boolean(whatsappToAdmin);
 
 export type NotifyInput = {
   kind: NotifKind;
@@ -109,7 +116,7 @@ export type NotifyInput = {
 export async function notify(input: NotifyInput): Promise<void> {
   try {
     const roles = KIND_ROLES[input.kind] ?? ["ADMIN"];
-    const critical = CRITICAL_KINDS.has(input.kind) || Boolean(input.critical);
+    const critical = !SECURITY_KINDS.has(input.kind) && Boolean(input.critical); // security alerts: silent push
 
     const recipients = await db.user.findMany({
       where: {
@@ -149,7 +156,7 @@ export async function notify(input: NotifyInput): Promise<void> {
     // app runs as a long-lived Node server, so these still complete.
     const background = async () => {
       await Promise.all([push(full, { title: input.title, body: input.body ?? null }), push(masked, { title: maskPhones(input.title) ?? "", body: maskPhones(input.body) ?? null })]);
-      if (input.whatsappToAdmin || CRITICAL_KINDS.has(input.kind)) {
+      if (whatsappCopyFor(input.kind, input.whatsappToAdmin)) {
         const admin = await db.user.findFirst({
           where: { role: "ADMIN", isActive: true },
           orderBy: { createdAt: "asc" },

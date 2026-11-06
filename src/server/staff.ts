@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { startOfDay, subDays } from "date-fns";
+import { sortStaffByPriority } from "@/lib/staff-priority";
 
 export async function getStaffForAssignment() {
   return db.staff.findMany({
@@ -23,7 +24,8 @@ export async function getAllStaffForList() {
       _count: { select: { jobAssignments: true } },
     },
   });
-  return staff;
+  // Custom priority order (owner 2026-11-06): named staff first, daily wagers after — not alphabetical.
+  return sortStaffByPriority(staff);
 }
 
 export async function getStaffDetail(id: string) {

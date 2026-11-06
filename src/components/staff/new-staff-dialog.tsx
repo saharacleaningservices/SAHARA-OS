@@ -29,12 +29,15 @@ export function NewStaffDialog({
   staffId,
   defaultValues,
   trigger,
+  defaultOpen = false,
 }: {
   staffId?: string;
   defaultValues?: Partial<StaffFormValues>;
   trigger?: React.ReactNode;
+  /** Open straight away — the pencil on the staff list links to /staff/[id]?edit=1 (Task 6, one-click edit). */
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 

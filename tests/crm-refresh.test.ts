@@ -7,7 +7,7 @@ import { dashboardViewFor } from "../src/components/dashboard/role-view-toggle";
 import { conversionRate } from "../src/server/dashboard-extras";
 import { funnelWidths, stepRates } from "../src/components/marketing/conversion-funnel";
 import { formatCompactINR } from "../src/lib/utils";
-import { NAV_GROUPS, NAV_ITEMS } from "../src/components/layout/nav-config";
+import { NAV_GROUPS, NAV_ITEMS, SETTINGS_PAGES } from "../src/components/layout/nav-config";
 import { canAccess, JOB_STATUSES } from "../src/lib/constants";
 import { JOB_DISPLAY_LABELS, JOB_DISPLAY_STATUSES, cleanCustomerName, jobDisplayLabel, jobDisplayStatus, jobMatchesStatusFilter, storedStatusesFor } from "../src/lib/job-display";
 
@@ -110,10 +110,12 @@ test("the four sidebar sections hold exactly what the owner listed (2026-10-23);
   assert.deepEqual(labels("sales"), ["Leads / CRM", "Parties"]); // owner 2026-10-24: Quick Quote Generator left the menu (the page still works)
   assert.deepEqual(labels("operations"), ["Jobs", "AMC Contracts"]);
   for (const gone of ["Quick Quote Generator", "Payment Link Sender", "Khata Book Import"]) assert.ok(!NAV_ITEMS.some((i) => i.label === gone), `${gone} left the menu (owner 2026-10-24)`);
-  assert.ok(["User Management", "Message Log", "Lifecycle Reminders", "Settings"].every((l) => labels("admin").includes(l)));
+  // Task 6 (owner 2026-11-06): Settings & Admin = Sahara WhatsApp Inbox + Settings & Controls; the rest is on the hub.
+  assert.deepEqual(labels("admin"), ["Sahara WhatsApp Inbox", "Settings & Controls"]);
     assert.equal(NAV_ITEMS.some((i) => i.href === "/admin/gallery"), false);
   assert.ok(!NAV_GROUPS.some((g) => (g.key as string) === "tools"));
-  for (const href of ["/assistant", "/admin/whatsapp-inbox", "/admin/announcements"]) assert.ok(NAV_ITEMS.some((i) => i.href === href), `${href} is still in the menu`);
+  assert.ok(NAV_ITEMS.some((i) => i.href === "/admin/whatsapp-inbox"), "WhatsApp Inbox is still in the menu");
+  for (const href of ["/assistant", "/admin/announcements"]) assert.ok(SETTINGS_PAGES.some((p) => p.href === href), `${href} is reachable from Settings & Controls`);
 });
 
 test("Payment Link Sender (no longer in the menu) is still a money page: Admin and Accounts only", () => {
