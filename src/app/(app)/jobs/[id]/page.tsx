@@ -29,6 +29,8 @@ import { PUBLIC_BOOKING_URL } from "@/lib/site-urls";
 import { ensureJobToken } from "@/server/booking-messages";
 import { compactServiceLines } from "@/lib/service-scope";
 import { documentShareMessage } from "@/lib/whatsapp-templates";
+import { normalizeMobile } from "@/server/customer-db";
+import { gstDefaultFor, sacFor } from "@/lib/sac";
 
 /** One compact row: label left, value right (stacks only when the value is long). */
 function Row({ label, children }: { label: string; children: ReactNode }) {
@@ -58,6 +60,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
     redirect("/jobs");
   }
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS";
+  // Task 5: B2B party (GST book / GSTIN on file) → billing card pre-selects 18% GST until it is applied.
+  const partyMobile = normalizeMobile(job.customerMobile);
+  const party = partyMobile ? await db.customer.findUnique({ where: { mobile: partyMobile }, select: { segment: true, gstin: true } }).catch(() => null) : null;
+  const suggestB2b = !job.gstEnabled && gstDefaultFor(party) ? { gstin: party?.gstin ?? null } : null;
   // Customer phone + click-to-call: Super Admin + Accounts only (owner rule
   // 2026-10-08 — Operations sees the job, address and Maps, never the number).
   const canSeeCustomerContact = canSeeContact(session.role);
@@ -284,6 +290,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               customerGstin={job.customerGstin}
               advance={advance}
               completed={completed}
+              sac={sacFor(job.service)}
+              suggestB2b={suggestB2b}
             />
           )}
 

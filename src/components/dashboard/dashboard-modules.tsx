@@ -26,7 +26,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
   },
   {
     title: "Finance",
-    items: [{ href: "/expenses", label: "Expenses" }, { href: "/payments", label: "Payments" }, { href: "/profit", label: "Profit Dashboard" }, { href: "/admin/khata-import", label: "Khata Book" }],
+    items: [{ href: "/expenses", label: "Expenses" }, { href: "/payments", label: "Payments", section: "payments" }, { href: "/profit", label: "Profit Dashboard", section: "profit" }, { href: "/admin/khata-import", label: "Khata Book" }],
   },
   {
     title: "Marketing",
@@ -35,14 +35,14 @@ const GROUPS: { title: string; items: Item[] }[] = [
       // Marketing campaigns live on Customers (Super Admin only, opt-in audiences).
       { href: "/customers", label: "Marketing Customer Alerts", icon: Megaphone, section: "profit" },
       { href: "/admin/whatsapp-log", label: "Message Logs" },
-      { href: "/profit/marketing", label: "Marketing Dashboard" },
+      { href: "/profit/marketing", label: "Marketing Dashboard", section: "profit" },
     ],
   },
   {
     title: "Admin & Tools",
     items: [
       { href: "/settings/pricing", label: "Pricing & Packages" },
-      { href: "/reports/export-center", label: "Export Center" },
+      { href: "/reports/export-center", label: "Export Center", section: "reports" },
       { href: "/admin/announcements", label: "Announcements" },
       { href: "/assistant", label: "AI Assistant" },
       { href: "/admin/trash", label: "Trash" },

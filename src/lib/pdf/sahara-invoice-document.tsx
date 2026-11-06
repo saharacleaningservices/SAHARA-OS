@@ -45,6 +45,8 @@ export type InvoiceDocumentProps = {
   terms?: string[];
   /** Bank details + UPI QR for the balance due (null once fully paid). */
   payment?: PaymentBlockProps | null;
+  /** SAC of the billed service (src/lib/sac.ts); defaults to the company SAC. */
+  sac?: string | null;
 };
 
 /** GST charged (> 0) → "TAX INVOICE"; non-GST / 0% → plain "INVOICE" (never "Tax Invoice" without tax). */
@@ -146,7 +148,7 @@ export function SaharaInvoiceDocument(p: InvoiceDocumentProps) {
               <Text style={s.tag}>{INVOICE_TAGLINE}</Text>
             </View>
             <View style={s.headRight}>
-              <Text style={s.gst}>GSTIN: {p.company.gstin}  |  SAC: {COMPANY.sac}</Text>
+              <Text style={s.gst}>GSTIN: {p.company.gstin}  |  SAC: {p.sac || COMPANY.sac}</Text>
               <Text style={s.badge}>{title}</Text>
               <Text style={s.copy}>ORIGINAL FOR RECIPIENT</Text>
               <Text style={s.mob}>{phones}</Text>

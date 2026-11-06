@@ -23,6 +23,10 @@ type Props = {
   advance: number;
   /** A completed job: the discount is a post-service adjustment (customer paid less than billed). */
   completed?: boolean;
+  /** SAC of this job's service (src/lib/sac.ts). */
+  sac?: string;
+  /** B2B party with GST not yet applied: pre-select 18% and this GSTIN (owner still confirms with Save). */
+  suggestB2b?: { gstin: string | null } | null;
 };
 
 /** Discount (flat ₹ / %) + optional 18% GST (CGST 9% + SGST 9%) for one booking — Admin, Accounts and Operations. */
@@ -31,8 +35,8 @@ export function JobBillingCard(p: Props) {
   const [pending, start] = useTransition();
   const [mode, setMode] = useState<"FLAT" | "PERCENT">(p.discountMode === "PERCENT" ? "PERCENT" : "FLAT");
   const [value, setValue] = useState(p.discountValue != null ? String(p.discountValue) : p.discountAmount ? String(p.discountAmount) : "");
-  const [gst, setGst] = useState(p.gstEnabled);
-  const [gstin, setGstin] = useState(p.customerGstin ?? "");
+  const [gst, setGst] = useState(p.gstEnabled || !!p.suggestB2b);
+  const [gstin, setGstin] = useState(p.customerGstin ?? p.suggestB2b?.gstin ?? "");
   const num = Number(value) || 0;
   const t = useMemo(
     () => rebillJob({ jobValue: p.jobValue, gstAmount: p.gstAmount, discountAmount: p.discountAmount }, { discount: num > 0 ? { mode, value: num } : null, gstEnabled: gst, advancePaid: p.advance }),
@@ -50,6 +54,10 @@ export function JobBillingCard(p: Props) {
   return (
     <div className="mt-3 space-y-2 rounded-lg border p-2.5 text-sm">
       <p className="flex items-center gap-1.5 font-semibold"><Percent className="size-3.5" /> {p.completed ? "Billing: post-service adjustment & GST" : "Billing: discount & GST"}</p>
+      {p.sac && <p className="text-xs text-muted-foreground">SAC {p.sac}{gst ? " · GST 18% = CGST 9% + SGST 9%" : ""}</p>}
+      {p.suggestB2b && !p.gstEnabled && (
+        <p className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 text-xs text-sky-900">B2B party: 18% GST pre-selected{p.suggestB2b.gstin ? " with the GSTIN on file" : " — add the GSTIN"}. Press Save to apply.</p>
+      )}
       {p.completed && <p className="text-xs text-muted-foreground">Billed too much (reduced scope, goodwill)? Enter the adjustment as a flat ₹ discount — the total, the balance and the invoice update, and the invoice link can be resent.</p>}
       <div className="grid grid-cols-[auto_1fr] items-end gap-2">
         <div>

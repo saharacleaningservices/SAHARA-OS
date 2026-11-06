@@ -5,6 +5,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { db } from "@/lib/db";
 import { SaharaBillDocument } from "@/lib/pdf/sahara-bill-document";
 import { SaharaInvoiceDocument } from "@/lib/pdf/sahara-invoice-document";
+import { sacFor } from "@/lib/sac";
 import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, documentTotal, rupeesInWords } from "@/lib/document-scope";
 import { MSMED_NOTE, quotationWhatsAppLink, resolveQuotationTerms } from "@/lib/quotation-template";
@@ -130,6 +131,7 @@ export async function renderInvoicePdf(invoiceId: string): Promise<PdfFile | nul
       // Payment block only while money is still due (bank left, UPI QR for the exact balance right).
       payment: balance > 0 ? { bank: chrome.bank, upiId: chrome.upiId, qrDataUrl: chrome.qrDataUrl, amount: chrome.qrAmount } : null,
       scope: scopeLines,
+      sac: sacFor(invoice.job?.service ?? services[0]?.name ?? null),
     }),
   );
   return { buffer, filename: `${invoice.invoiceNumber}.pdf` };
