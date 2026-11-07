@@ -17,6 +17,7 @@ import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { PUNE_AREAS } from "../src/lib/pune-areas";
+import { PINCODE_BATCH1, PINCODE_PATHS } from "../src/lib/pincode-pages";
 import { PROGRAMMATIC_PAGES, SERVICE_CATEGORIES } from "../src/config/pune-seo-matrix";
 import { CATALOG_CATEGORIES, CATALOG_SERVICES } from "../src/config/service-catalog";
 
@@ -32,7 +33,7 @@ const SEO_HUBS = ["/services", "/contact", ...SERVICE_CATEGORIES.map((c) => `/se
 // Programmatic pages are sampled in the per-page checks below (all of them are checked for the sitemap and by tests/pune-seo-matrix.test.ts).
 const PROGRAMMATIC_SAMPLE = PROGRAMMATIC.filter((_, i) => i % 37 === 0);
 // /booking now 307s to the homepage (PR #97/#98, 2026-11-01) — "/" is the indexable booking surface.
-const CORE = ["/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
+const CORE = ["/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.filter((a) => !PINCODE_BATCH1[a.slug]).map((a) => `/pune/${a.slug}`), ...PINCODE_PATHS];
 // Service catalog pages (rebuild 2026-11-02) not already covered by a SEO hub slug, plus the Scope of Work policy.
 const CATALOG = [...CATALOG_CATEGORIES.map((c) => `/services/${c.slug}`), ...CATALOG_SERVICES.map((s) => `/services/${s.slug}`)].filter((p) => !SEO_HUBS.includes(p));
 // Blog (PR #108): /blog and one URL per markdown post in content/blog — listed once at least one post exists.
