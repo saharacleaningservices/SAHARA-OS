@@ -1,3 +1,4 @@
+import { syncJobCrewAttendance } from "@/server/job-attendance";
 import { revalidatePath } from "next/cache";
 import type { Lead } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
@@ -105,6 +106,7 @@ export async function confirmLeadIntoJob(lead: Lead, data: ConfirmBookingFormVal
                 href: `/jobs/${job.id}`,
         });
     await notifyCrewAssigned(job.id, [...new Set(leadStaffIds)]);
+    await syncJobCrewAttendance(job.id).catch((e) => console.error("[job-attendance] sync failed:", e)); // attendance (and so the Khata ledger) follows the crew
   }
 
   // Payments — attach any advance the customer already paid to the job, and
