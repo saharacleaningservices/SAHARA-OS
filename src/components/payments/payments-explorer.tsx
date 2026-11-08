@@ -342,7 +342,7 @@ return (
 })}
 </div>
 <div className="overflow-x-auto max-sm:hidden">
-<Table>
+<Table fit>
 <TableHeader>
 <TableRow>
 <TableHead className="w-8 px-2">
@@ -357,15 +357,15 @@ checked
 }
 />
 </TableHead>
-<TableHead className="px-2">Customer</TableHead>
-<TableHead className="px-2">Job ID</TableHead>
-<TableHead className="px-2">Service</TableHead>
-<TableHead className="px-2">Quote</TableHead>
-<TableHead className="px-2">Advance</TableHead>
-<TableHead className="px-2">Balance</TableHead>
-<TableHead className="px-2">Due Date</TableHead>
-<TableHead className="px-2">Status</TableHead>
-<TableHead className="px-2 text-right">Actions</TableHead>
+<TableHead className="px-2 lg:w-[19%]">Customer</TableHead>
+<TableHead className="px-2 lg:w-[10%]">Job ID</TableHead>
+<TableHead className="px-2 lg:w-[15%]">Service</TableHead>
+<TableHead className="px-2 lg:w-[9%]">Quote</TableHead>
+<TableHead className="px-2 lg:w-[9%]">Advance</TableHead>
+<TableHead className="px-2 lg:w-[9%]">Balance</TableHead>
+<TableHead className="px-2 lg:w-[11%]">Due Date</TableHead>
+<TableHead className="px-2 lg:w-[10%]">Status</TableHead>
+<TableHead className="px-2 text-right lg:w-[8%] lg:min-w-[120px]">Actions</TableHead>
 </TableRow>
 </TableHeader>
 <TableBody>

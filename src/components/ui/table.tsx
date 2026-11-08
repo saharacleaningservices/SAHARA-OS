@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * scrolling either one moves the other via scrollLeft, guarded by a ref so
  * the two onScroll handlers don't ping-pong each other.
  */
-function Table({ className, children, ...props }: React.ComponentProps<"table">) {
+function Table({ className, children, fit, ...props }: React.ComponentProps<"table"> & { fit?: boolean }) {
   const topRef = React.useRef<HTMLDivElement>(null);
   const bottomRef = React.useRef<HTMLDivElement>(null);
   const tableRef = React.useRef<HTMLTableElement>(null);
@@ -50,12 +50,16 @@ function Table({ className, children, ...props }: React.ComponentProps<"table">)
   return (
     <div className="w-full overflow-hidden rounded-lg border border-border">
       {scrollWidth > 0 && (
-        <div ref={topRef} onScroll={onTopScroll} className="hidden overflow-x-auto overflow-y-hidden sm:block" style={{ height: 10 }}>
+        <div ref={topRef} onScroll={onTopScroll} className={cn("hidden overflow-x-auto overflow-y-hidden sm:block", fit && "lg:hidden")} style={{ height: 10 }}>
           <div style={{ width: scrollWidth, height: 1 }} />
         </div>
       )}
-      <div ref={bottomRef} onScroll={onBottomScroll} className="relative w-full overflow-x-auto">
-        <table ref={tableRef} className={cn("w-full caption-bottom text-[13px]", className)} {...props}>
+      <div ref={bottomRef} onScroll={onBottomScroll} className={cn("relative w-full overflow-x-auto", fit && "lg:overflow-x-hidden")}>
+        <table ref={tableRef} className={cn(
+            "w-full caption-bottom text-[13px]",
+            fit && "lg:table-fixed lg:[&_td]:overflow-hidden lg:[&_td]:text-ellipsis lg:[&_th]:overflow-hidden lg:[&_th]:text-ellipsis",
+            className
+          )} {...props}>
           {children}
         </table>
       </div>
@@ -88,7 +92,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "h-9 px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap",
+        "h-9 px-2 text-left align-middle text-[11px] font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap",
         className
       )}
       {...props}
@@ -97,7 +101,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 }
 
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
-  return <td className={cn("px-3 py-2 align-middle whitespace-nowrap", className)} {...props} />;
+  return <td className={cn("px-2 py-2 align-middle whitespace-nowrap", className)} {...props} />;
 }
 
 function TableCaption({ className, ...props }: React.ComponentProps<"caption">) {

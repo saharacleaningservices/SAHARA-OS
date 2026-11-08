@@ -76,10 +76,10 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
         <EmptyState title="No expenses found" description="Try adjusting your search or filters." />
       ) : (
         <>
-          <Table>
+          <Table fit>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-8">
+                <TableHead className="w-9 lg:w-9">
                   <Checkbox
                     checked={pageItems.length > 0 && pageItems.every((e) => selected.includes(e.id))}
                     onCheckedChange={(checked) =>
@@ -91,12 +91,12 @@ export function ExpensesExplorer({ expenses }: { expenses: Expense[] }) {
                     }
                   />
                 </TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Paid To</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="lg:w-[28%]">Description</TableHead>
+                <TableHead className="lg:w-[17%]">Category</TableHead>
+                <TableHead className="lg:w-[17%]">Paid To</TableHead>
+                <TableHead className="lg:w-[14%]">Date</TableHead>
+                <TableHead className="text-right lg:w-[14%]">Amount</TableHead>
+                <TableHead className="text-right lg:w-[10%] lg:min-w-[96px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
