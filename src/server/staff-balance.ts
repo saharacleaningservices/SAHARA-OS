@@ -267,6 +267,18 @@ export async function getStaffMoney(staffId: string, now = new Date()) {
   };
 }
 
+/**
+ * Salary Due and loan remaining as they stood at `asOf` (exclusive): only entries dated before `asOf` count.
+ * Used to compare month-end closings with Khatabook history. Read-only.
+ */
+export async function getStaffBalanceAsOf(staffId: string, asOf: Date) {
+  const all = await loadAll(staffId);
+  if (!all) return null;
+  const salaryDue = r2(total(all.entries.filter((e) => e.date < asOf)));
+  const loan = loanSummary(all.loanEntries.filter((l) => l.date < asOf));
+  return { staffId, salaryDue, loanRemaining: loan.remaining };
+}
+
 /** One India-time month from the same engine — salary slips, attendance messages, monthly reports. */
 export async function getStaffMoneyMonth(staffId: string, year: number, month: number) {
   const all = await loadAll(staffId);
