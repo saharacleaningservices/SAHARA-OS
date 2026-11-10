@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getCompanySettings } from "@/server/settings";
 import { CONTACT } from "@/lib/marketing-content";
 import { AREA_SERVICES, CLUSTERS, PUNE_AREAS, areaBySlug } from "@/lib/pune-areas";
+import { areaPath } from "@/lib/pincode-pages";
 import { areaServiceJsonLd, breadcrumbJsonLd } from "@/lib/seo-schema";
 import { LandingShell, Faqs, Terms, AreasBadge, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { CategoryHero, CategoryBar, ServiceTiles, StickyWhatsApp } from "@/components/public/category-landing";
@@ -118,7 +119,7 @@ export default async function AreaPage({ params }: Props) {
           <section className="rounded-2xl bg-white p-5 shadow-sm">
             <h2 className="text-lg font-bold">Also serving nearby in {cluster.label}</h2>
             <p className="mt-2 flex flex-wrap gap-2 text-sm">
-              {others.map((a) => <Link key={a.slug} href={`/pune/${a.slug}`} className="rounded-full bg-[#eef3fb] px-3 py-1 font-medium text-primary">{a.name}</Link>)}
+              {others.map((a) => <Link key={a.slug} href={areaPath(a.slug)} className="rounded-full bg-[#eef3fb] px-3 py-1 font-medium text-primary">{a.name}</Link>)}
               <Link href="/pune" className="rounded-full border px-3 py-1 font-medium">All Pune areas</Link>
             </p>
           </section>

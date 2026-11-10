@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCompanySettings } from "@/server/settings";
 import { AREA_SERVICES, CLUSTERS, PUNE_AREAS, type AreaCluster } from "@/lib/pune-areas";
+import { areaPath } from "@/lib/pincode-pages";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { LandingShell, Faqs, Terms, AreasBadge, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/category-landing";
@@ -61,7 +62,7 @@ export default async function PuneHubPage() {
             <h2 className="text-xl font-bold">{g.label}</h2>
             <p className="mt-1 text-sm text-[#0a2540]/75">Typical premises: {g.focus}.</p>
             <p className="mt-3 flex flex-wrap gap-2 text-sm">
-              {g.areas.map((a) => <Link key={a.slug} href={`/pune/${a.slug}`} className="rounded-full bg-[#eef3fb] px-3 py-1 font-medium text-primary">{a.name}</Link>)}
+              {g.areas.map((a) => <Link key={a.slug} href={areaPath(a.slug)} className="rounded-full bg-[#eef3fb] px-3 py-1 font-medium text-primary">{a.name}</Link>)}
             </p>
           </section>
         ))}

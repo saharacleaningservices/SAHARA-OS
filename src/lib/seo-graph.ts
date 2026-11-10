@@ -66,7 +66,7 @@ export function mohammadwadiBranchJsonLd() {
     "@id": MOHAMMADWADI_ID,
     name: b.name,
     alternateName: b.gmbName,
-    url: `${SCHEMA_SITE}/pune/mohammadwadi`,
+    url: `${SCHEMA_SITE}/cleaning-services-mohammadwadi-411060`,
     telephone: [b.phone, ...b.altPhones].map(tel),
     contactPoint: [b.phone, ...b.altPhones].map((n) => ({ "@type": "ContactPoint", telephone: tel(n), contactType: "customer service", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] })),
     email: CONTACT.email,
