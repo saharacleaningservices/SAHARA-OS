@@ -19,6 +19,8 @@ import { SERVICE_LABELS } from "@/lib/constants";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { sendBookingChangeNotice, sendBookingConfirmation } from "@/server/booking-messages";
 import { cleanFix, locationNote, type GeoFix } from "@/lib/geo";
+import { reverseJobAttendanceForJob, reverseJobCrewAttendance, syncJobCrewAttendance } from "@/server/job-attendance";
+import { istDayKey } from "@/lib/ist-days";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 import { headers } from "next/headers";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -114,6 +116,7 @@ export async function createJob(values: unknown) {
       href: `/jobs/${job.id}`,
     });
     await notifyCrewAssigned(job.id, data.staffIds);
+    await syncJobCrewAttendance(job.id).catch((e) => console.error("[job-attendance] sync failed:", e));
   }
 
   if (data.leadId) {
@@ -212,6 +215,15 @@ export async function updateJob(id: string, values: unknown) {
         href: `/jobs/${id}`,
       });
     }
+  }
+
+  // Attendance follows the crew and the date: undo the old day for anyone removed / moved, then log the new crew.
+  if (before) {
+    const dateMoved = !!d.scheduledDate && istDayKey(new Date(d.scheduledDate)) !== istDayKey(before.scheduledDate);
+    const removedIds = crewChanged ? prevIds.filter((s) => !nextIds.includes(s)) : [];
+    const reverseIds = dateMoved ? prevIds : removedIds;
+    if (reverseIds.length) await reverseJobCrewAttendance({ staffIds: reverseIds, day: istDayKey(before.scheduledDate), reason: dateMoved ? "Job rescheduled" : "Removed from job crew" }).catch(() => {});
+    if (crewChanged || dateMoved) await syncJobCrewAttendance(id).catch((e) => console.error("[job-attendance] sync failed:", e));
   }
 
   const moved =
@@ -464,6 +476,10 @@ async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId
   await db.activityLog.create({
     data: { jobId, actorId: session?.sub, action: `Status changed to ${status.replaceAll("_", " ")}${fix === undefined ? "" : locationNote(fix === "none" ? null : fix)}` },
   });
+
+  // Attendance (and so the Khata ledger) follows the job: logged when work starts/finishes, undone on cancel/postpone.
+  if (status === "ON_THE_WAY" || status === "STARTED" || status === "COMPLETED" || status === "REACTIVATED") await syncJobCrewAttendance(jobId).catch((e) => console.error("[job-attendance] sync failed:", e));
+  if (status === "CANCELLED" || status === "POSTPONED") await reverseJobAttendanceForJob(jobId, `Job ${status.toLowerCase()}`).catch(() => {});
 
   if (status === "STARTED") void enqueueServiceStartedNotice(jobId); // "Work started" message — a no-op until its template is approved and switched on
   if (status === "COMPLETED") {

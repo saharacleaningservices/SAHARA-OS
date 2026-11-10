@@ -55,7 +55,7 @@ export function wageForDayValue(
  * `todayRange()` convention. An ISO "YYYY-MM-DD" string is read as calendar
  * parts (never UTC-parsed) so the stored day is server-timezone-independent.
  */
-function dayKey(input: string | Date): Date {
+export function dayKey(input: string | Date): Date {
   if (typeof input === "string") {
     const [y, m, d] = input.slice(0, 10).split("-").map(Number);
     const x = new Date(y, (m ?? 1) - 1, d ?? 1);
@@ -166,6 +166,10 @@ export async function setAttendanceForDate(input: {
   date: string | Date;
   status: AttendanceCode;
   actorName: string;
+  /** Defaults to MANUAL. Job-assignment auto-logging passes JOB_ASSIGN. */
+  method?: string;
+  /** Leave an already-marked day untouched (returns { skipped: true }). */
+  onlyIfUnmarked?: boolean;
 }) {
   const date = dayKey(input.date);
   const year = date.getFullYear();
@@ -182,6 +186,7 @@ export async function setAttendanceForDate(input: {
   });
   const wageForDay = wageForDayValue(staff, input.status, date);
 
+  if (existing && input.onlyIfUnmarked) return { success: true as const, skipped: true as const };
   if (existing) {
     if (existing.status === input.status) return { success: true as const, unchanged: true as const };
     await db.attendance.update({
@@ -195,7 +200,7 @@ export async function setAttendanceForDate(input: {
         date,
         status: input.status,
         wageForDay,
-        method: "MANUAL",
+        method: input.method ?? "MANUAL",
         markedByName: input.actorName,
       },
     });
