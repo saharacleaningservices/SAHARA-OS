@@ -85,7 +85,7 @@ export function StaffExplorer({ staff, canViewSalary = false }: { staff: StaffRo
         <EmptyState title="No staff found" description="Try adjusting your search or filters." />
       ) : (
         <>
-          <Table>
+          <Table fit>
             <TableHeader>
               <TableRow>
                 {canViewSalary && (
@@ -102,13 +102,13 @@ export function StaffExplorer({ staff, canViewSalary = false }: { staff: StaffRo
                     />
                   </TableHead>
                 )}
-                <TableHead>Staff</TableHead>
-                <TableHead>Designation</TableHead>
-                {canViewSalary && <TableHead>Wage</TableHead>}
-                <TableHead>Availability</TableHead>
-                <TableHead>Current Job</TableHead>
-                <TableHead>Today</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="lg:w-[24%]">Staff</TableHead>
+                <TableHead className="lg:w-[14%]">Designation</TableHead>
+                {canViewSalary && <TableHead className="lg:w-[10%]">Wage</TableHead>}
+                <TableHead className="lg:w-[14%]">Availability</TableHead>
+                <TableHead className="lg:w-[17%]">Current Job</TableHead>
+                <TableHead className="lg:w-[10%]">Today</TableHead>
+                <TableHead className="text-right lg:w-[160px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

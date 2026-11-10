@@ -163,11 +163,11 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
               every important field fits without scrolling on a 1366px-wide
               screen. */}
           <div className="hidden sm:block">
-            <Table>
+            <Table fit>
               <TableHeader>
                 <TableRow>
                   {canManage && (
-                    <TableHead className="w-8">
+                    <TableHead className="w-9 lg:w-9">
                       <Checkbox
                         checked={pageItems.length > 0 && pageItems.every((j) => selected.includes(j.id))}
                         onCheckedChange={(checked) =>
@@ -180,13 +180,13 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                       />
                     </TableHead>
                   )}
-                  <TableHead>Job</TableHead>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Schedule</TableHead>
-                  <TableHead>Team</TableHead>
-                  {showMoney && <TableHead className="text-right">Job Amount</TableHead>}
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="lg:w-[26%]">Job</TableHead>
+                  <TableHead className="lg:w-[17%]">Service</TableHead>
+                  <TableHead className="lg:w-[14%]">Schedule</TableHead>
+                  <TableHead className="lg:w-[17%]">Team</TableHead>
+                  {showMoney && <TableHead className="text-right lg:w-[10%]">Job Amount</TableHead>}
+                  <TableHead className="lg:w-[16%]">Status</TableHead>
+                  <TableHead className="text-right lg:w-[184px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -210,20 +210,20 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                         </TableCell>
                       )}
                       <TableCell>
-                        <span className="flex items-center gap-1">
-                          <Link href={`/jobs/${job.id}`} className="font-medium text-foreground hover:underline">
+                        <span className="flex min-w-0 items-center gap-1">
+                          <Link href={`/jobs/${job.id}`} title={cleanCustomerName(job.customerName)} className="truncate font-medium text-foreground hover:underline">
                             {cleanCustomerName(job.customerName)}
                           </Link>
                           <CustomerHistoryButton jobId={job.id} name={cleanCustomerName(job.customerName)} />
                         </span>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="truncate text-xs text-muted-foreground" title={`${job.jobNumber} · ${job.area}`}>
                           {job.jobNumber}{job.lead ? ` · ${job.lead.leadNumber}` : ""}{job.customerNumber ? ` · ${job.customerNumber}` : ""} · {job.area}
                         </p>
                       </TableCell>
                       <TableCell className="text-sm">
                         {SERVICE_LABELS[job.service]}
                         {(job.serviceVariant || job.packageName) && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="truncate text-xs text-muted-foreground">
                             {[job.serviceVariant, job.packageName].filter(Boolean).join(" · ")}
                           </p>
                         )}
@@ -234,7 +234,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                       <TableCell className="text-sm">
                         {job.teamNumber ? `T${job.teamNumber}` : "—"}
                         {job.assignments.length > 0 && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="truncate text-xs text-muted-foreground" title={job.assignments.map((a) => a.staff.name).join(", ")}>
                             {job.assignments.map((a) => a.staff.name).join(", ")}
                           </p>
                         )}
@@ -252,7 +252,7 @@ export function JobsExplorer({ jobs, canManage = true, canSeeCustomerContact = t
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-1">
                           {canSeeCustomerContact && (
                             <>
                               <CallButton mobile={job.customerMobile} />

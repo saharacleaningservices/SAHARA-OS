@@ -195,7 +195,7 @@ export function CustomersExplorer({
         <>
           {/* Desktop table */}
           <div className={`hidden overflow-x-auto rounded-xl border bg-card md:block ${navigating ? "opacity-60" : ""}`}>
-            <Table>
+            <Table fit>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-8 px-2">
@@ -206,14 +206,14 @@ export function CustomersExplorer({
                     />
                   </TableHead>
                   <TableHead className="w-10 px-1">Type</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Mobile</TableHead>
-                  <TableHead>Area / Sites</TableHead>
-                  <TableHead className="text-center">Leads</TableHead>
-                  <TableHead className="text-center">Jobs</TableHead>
-                  <TableHead className="text-right">Lifetime Value</TableHead>
-                  <TableHead className="text-right">Outstanding</TableHead>
-                  <TableHead>Last Activity</TableHead>
+                  <TableHead className="lg:w-[24%]">Customer</TableHead>
+                  <TableHead className="lg:w-[12%]">Mobile</TableHead>
+                  <TableHead className="lg:w-[20%]">Area / Sites</TableHead>
+                  <TableHead className="text-center lg:w-[6%]">Leads</TableHead>
+                  <TableHead className="text-center lg:w-[6%]">Jobs</TableHead>
+                  <TableHead className="text-right lg:w-[12%]">Lifetime Value</TableHead>
+                  <TableHead className="text-right lg:w-[12%]">Outstanding</TableHead>
+                  <TableHead className="lg:w-[8%]">Last Activity</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

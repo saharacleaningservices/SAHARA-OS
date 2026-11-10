@@ -252,10 +252,10 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                 scroll. Service+Source folded into one column (one fewer
                 column) so every important field fits on a 1366px screen. */}
             <div className="hidden overflow-x-auto md:block">
-              <Table>
+              <Table fit>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-8">
+                    <TableHead className="w-9 lg:w-9">
                       <Checkbox
                         checked={pageItems.length > 0 && pageItems.every((l) => selected.includes(l.id))}
                         onCheckedChange={(checked) =>
@@ -267,13 +267,13 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                         }
                       />
                     </TableHead>
-                    <TableHead>Lead</TableHead>
-                    <TableHead>Service / Source</TableHead>
-                    <TableHead>Stage</TableHead>
-                    <TableHead>Quote</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Team</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="lg:w-[28%]">Lead</TableHead>
+                    <TableHead className="lg:w-[20%]">Service / Source</TableHead>
+                    <TableHead className="lg:w-[11%]">Stage</TableHead>
+                    <TableHead className="lg:w-[9%]">Quote</TableHead>
+                    <TableHead className="lg:w-[16%]">Date</TableHead>
+                    <TableHead className="lg:w-[16%]">Team</TableHead>
+                    <TableHead className="text-right lg:w-[184px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -288,20 +288,20 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                         />
                       </TableCell>
                       <TableCell>
-                        <span className="flex items-center gap-1">
-                          <Link href={`/leads/${lead.id}`} className="font-medium text-foreground hover:underline">
+                        <span className="flex min-w-0 items-center gap-1">
+                          <Link href={`/leads/${lead.id}`} title={lead.name} className="truncate font-medium text-foreground hover:underline">
                             {lead.name}
                           </Link>
                           <CustomerHistoryButton mobile={lead.mobile} name={lead.name} />
                         </span>
                         <LeadResponseTimer stage={lead.stage} createdAt={lead.createdAt} className="mb-0.5" />
-                        <p className="text-xs text-muted-foreground">
+                        <p className="truncate text-xs text-muted-foreground" title={`${lead.leadNumber} · ${lead.area}`}>
                           {lead.leadNumber}{lead.customerNumber ? ` · ${lead.customerNumber}` : ""} · {lead.area}
                         </p>
                       </TableCell>
                       <TableCell className="text-sm">
                         {SERVICE_LABELS[lead.service]}
-                        <p className="text-xs text-muted-foreground">{LEAD_SOURCE_LABELS[lead.source]}</p>
+                        <p className="truncate text-xs text-muted-foreground">{LEAD_SOURCE_LABELS[lead.source]}</p>
                         <LeadOriginBadge lead={lead as never} className="mt-0.5" /> <SourceLineBadge line={(lead as { sourceLine?: string | null }).sourceLine} className="mt-0.5" />
                       </TableCell>
                       <TableCell>
@@ -311,7 +311,7 @@ export function LeadsExplorer({ leads }: { leads: Lead[] }) {
                       <TableCell><DateCell lead={lead} /></TableCell>
                       <TableCell><TeamCell lead={lead} /></TableCell>
                       <TableCell>
-                        <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-1">
                           <CallButton mobile={lead.mobile} />
                           <WhatsAppButton mobile={lead.mobile} context={{ name: lead.name, service: SERVICE_LABELS[lead.service], amount: lead.quoteAmount }} />
                           <Button variant="outline" size="icon" className="size-8" aria-label="Edit lead" asChild>
