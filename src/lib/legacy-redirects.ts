@@ -112,6 +112,16 @@ export const PAGE_MAP: Record<string, string> = {
   "/about": "/",
 };
 
+// One-off WordPress .html pages with no "<prefix>-services-*" shape.
+export const WP_HTML_PAGES: Record<string, string> = {
+  "/index.html": "/",
+  "/end-of-tenancy-cleaning-services-pune.html": "/services/home-deep-cleaning",
+  "/pest-control-services-pune.html": "/pest-control-pune",
+  "/commercial-cleaning-services-pune.html": "/commercial-cleaning-pune",
+  "/interior-painting-services-pune.html": "/interior-painting-pune",
+  "/post-construction-cleaning-services-pune.html": "/services/post-interior-cleaning",
+};
+
 const resolveArea = (a: string) => AREA_ALIASES[a] ?? a;
 
 export function buildLegacyRedirects(): LegacyRedirect[] {
@@ -131,6 +141,22 @@ export function buildLegacyRedirects(): LegacyRedirect[] {
   for (const [segment, service] of Object.entries(SEGMENT_TO_SERVICE)) {
     for (const area of areaSources) add(`/${segment}/${area}`, `/services/${service}/${resolveArea(area)}`);
   }
+
+  // Old WordPress "<prefix>-services-in-<area>.html" and "<prefix>-services-pune.html" pages (still in Google's index, were 404).
+  for (const [prefix, service] of Object.entries(LEGACY_PREFIX_TO_SERVICE)) {
+    add(`/${prefix}-services-pune.html`, `/services/${service}`);
+    for (const area of LEGACY_IN_AREAS) {
+      if (area === "pune") continue;
+      add(`/${prefix}-services-in-${area}.html`, `/services/${service}/${resolveArea(area)}`);
+    }
+  }
+  for (const [source, destination] of Object.entries(WP_HTML_PAGES)) add(source, destination);
+
+  // Old WordPress sitemap files -> the live Next.js sitemap.
+  for (const f of ["page-sitemap.xml", "post-sitemap.xml", "category-sitemap.xml", "sitemap_index.xml", "wp-sitemap.xml"]) add(`/${f}`, "/sitemap.xml");
+
+  // Old booking-subdomain deep links (booking.* is forwarded to the apex, path preserved).
+  out.push({ source: "/home-deep-cleaning-pune/:path+", destination: "/home-deep-cleaning-pune", statusCode: 301 });
   return out;
 }
 
