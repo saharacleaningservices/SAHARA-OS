@@ -130,7 +130,7 @@ export async function captureCheckoutLead(input: { mobile: string; otpToken?: st
         source: "WEBSITE" as never,
         notes: `Website booking flow, step 1 lead capture (${via}).`,
         ...attrFields,
-        ...(sourceTagForChannel(channel) ? { sourceTag: sourceTagForChannel(channel) } : {}), // SRC-GOOGLE-ADS / SRC-META-ADS (owner 2026-11-12)
+        ...(sourceTagForChannel(channel, first?.campaign) ? { sourceTag: sourceTagForChannel(channel, first?.campaign) } : {}), // SRC-GOOGLE-ADS / SRC-META-ADS (owner 2026-11-12)
         formSubmittedAt: new Date(),
       },
     });

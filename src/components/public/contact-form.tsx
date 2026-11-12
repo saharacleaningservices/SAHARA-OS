@@ -25,6 +25,7 @@ export function ContactForm({ defaultBranch = "" }: { defaultBranch?: "magarpatt
       utm_medium: t?.medium ?? "",
       utm_campaign: t?.campaign ?? "",
       utm_term: t?.term ?? "",
+      utm_content: t?.content ?? "",
       gclid: t?.gclid ?? "",
       fbclid: t?.fbclid ?? "",
       fbp: t?.fbp ?? "",
