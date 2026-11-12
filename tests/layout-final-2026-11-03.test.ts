@@ -11,11 +11,12 @@ const read = (f: string) => readFileSync(f, "utf8");
 /** Source without comments, so a note about a removed feature cannot fail a "must not contain" check. */
 const code = (f: string) => read(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-test("hero slider: 2.5 s autoplay, 300 ms slide, desktop cap min(540px, 56vh), image anchored at center 20% (owner 2026-11-12)", () => {
+test("hero slider: 2.5 s autoplay, 300 ms slide, boxed 1280px desktop container 500/540px tall, image anchored at center 20% (owner 2026-11-12)", () => {
   const s = read("src/components/public/home-hero-slider.tsx");
   assert.match(s, /const ROTATE_MS = 2500;/);
   assert.match(s, /const SLIDE_MS = 300;/);
-  assert.match(s, /lg:max-h-\[min\(540px,56vh\)\]/);
+  assert.match(s, /md:h-\[500px\] lg:h-\[540px\]/);
+  assert.match(s, /md:max-w-\[1280px\]/);
   assert.match(s, /object-cover object-\[center_20%\]/);
 });
 

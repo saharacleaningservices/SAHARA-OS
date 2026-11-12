@@ -103,8 +103,8 @@ export const PRICING_MASTER: PriceItem[] = [
   { contentId: "SCS-12", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Without Chimney)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 1999, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Kitchen emptied / utensils removed by client" },
   { contentId: "SCS-33", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Utensil removal & placing back)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 2499, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Our team removes and places utensils back" },
   { contentId: "SCS-11", group: "CUSTOMISED", name: "Mattress Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Mattress Cleaning", price: 699, unit: "per mattress", minQty: 2, rule: "Minimum 2 mattresses" },
-  // Owner 2026-11-02: window cleaning ₹300 per window; balcony cleaning split out as its own service (price confirmed before booking).
-  { contentId: "SCS-30", group: "CUSTOMISED", name: "Window Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Window Cleaning", price: 300, unit: "per window", minQty: 1 },
+  // Owner 2026-11-02: window cleaning ₹299 per window (owner 2026-11-12; was ₹300); balcony cleaning split out as its own service (price confirmed before booking).
+  { contentId: "SCS-30", group: "CUSTOMISED", name: "Window Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Window Cleaning", price: 299, unit: "per window", minQty: 1 },
   { contentId: "SCS-34", group: "CUSTOMISED", name: "Balcony Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Balcony Cleaning", price: 499, unit: "per balcony", minQty: 1, scope: "Floor scrubbing, railing and grill wipe-down" },
   // No approved NEW price yet — shown as "price confirmed before booking" (no legacy price used).
   { contentId: "SCS-31", group: "CUSTOMISED", name: "Curtain Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Curtain Cleaning", price: null, unit: "per curtain", minQty: 1, priceNote: ON_CONFIRMATION, scope: "Includes curtain dry cleaning" },

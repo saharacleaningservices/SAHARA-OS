@@ -37,7 +37,7 @@ function newEventId(): string {
 }
 
 /** Conversions API relay (the server adds IP / user agent / fbp / fbc). Fire-and-forget; skipped outside a browser page. */
-function sendServerEvent(eventName: "Lead" | "Schedule", eventId: string, d: { category?: string; variant?: string; mobile?: string; value?: number }) {
+function sendServerEvent(eventName: "Lead" | "Schedule" | "ViewContent" | "InitiateCheckout" | "Purchase" | "Contact", eventId: string, d: { category?: string; variant?: string; mobile?: string; value?: number }) {
   if (!PIXEL || typeof window === "undefined" || !window.location || typeof fetch !== "function") return;
   try {
     void fetch("/api/meta/capi", {
@@ -52,7 +52,7 @@ function sendServerEvent(eventName: "Lead" | "Schedule", eventId: string, d: { c
 }
 
 /** Fire once after a successful booking/lead form submission. */
-export function trackLead(details: { category?: string; variant?: string; mobile?: string; /** Booking total in INR when the customer picked a priced package. */ value?: number; /** CRM lead / job number — dedupes the Ads conversion. */ id?: string; /** booking = priced slot booking, inquiry = inspection / quote request. */ kind?: "booking" | "inquiry"; /** true when the CRM auto-confirmed the slot. */ confirmed?: boolean }) {
+export function trackLead(details: { category?: string; variant?: string; mobile?: string; /** Booking total in INR when the customer picked a priced package. */ value?: number; /** CRM lead / job number — dedupes the Ads conversion. */ id?: string; /** booking = priced slot booking, inquiry = inspection / quote request. */ kind?: "booking" | "inquiry" | "step1"; /** true when the CRM auto-confirmed the slot. */ confirmed?: boolean }) {
   // Owner-protected / internal numbers never reach any ad or analytics platform.
   if (isProtectedNumber(details.mobile)) return;
   // One shared id: the browser Pixel and the server (Conversions API) both send it, so Meta counts the lead once.
@@ -74,6 +74,44 @@ export function trackLead(details: { category?: string; variant?: string; mobile
   if (ADS && ADS_LEAD_LABEL) g("event", "conversion", { send_to: `${ADS}/${ADS_LEAD_LABEL}`, ...money, ...(details.id ? { transaction_id: details.id } : {}) });
   // LinkedIn: one conversion per lead (only when the Insight Tag and a conversion id are configured).
   if (LI_CONVERSION && typeof window !== "undefined") (window as unknown as { lintrk?: (a: string, b: unknown) => void }).lintrk?.("track", { conversion_id: Number(LI_CONVERSION) });
+}
+
+/**
+ * Standard ad-platform funnel events (owner 2026-11-12). All are no-ops until the matching NEXT_PUBLIC_* id is configured and
+ * skip owner-protected numbers; each pushes to the GTM dataLayer too, so a GTM container can map them without code changes.
+ *   ViewContent      service / locality page view          InitiateCheckout  "Book" clicked, step 1 opened
+ *   Purchase         booking completed with its ₹ value    Contact           WhatsApp / Call click (see MarketingTags)
+ */
+function pushDl(event: string, data: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  const w = window as unknown as { dataLayer?: unknown[] };
+  (w.dataLayer = w.dataLayer || []).push({ event, ...data, page_path: window.location.pathname });
+}
+export function trackViewContent(d: { category?: string; name?: string; value?: number }) {
+  const eventId = newEventId();
+  const money = d.value && d.value > 0 ? { value: d.value, currency: "INR" } : {};
+  pushDl("view_content", { service_category: d.category, content_name: d.name, ...money, event_id: eventId });
+  fbq()?.("track", "ViewContent", { content_name: d.name, content_category: d.category, ...money }, { eventID: eventId });
+  gtag()?.("event", "view_item", { items: [{ item_name: d.name, item_category: d.category, price: d.value }], ...money });
+  sendServerEvent("ViewContent", eventId, { category: d.category, variant: d.name, value: d.value });
+}
+export function trackInitiateCheckout(d: { category?: string; name?: string; value?: number }) {
+  const eventId = newEventId();
+  const money = d.value && d.value > 0 ? { value: d.value, currency: "INR" } : {};
+  pushDl("initiate_checkout", { service_category: d.category, content_name: d.name, ...money, event_id: eventId });
+  fbq()?.("track", "InitiateCheckout", { content_name: d.name, content_category: d.category, ...money }, { eventID: eventId });
+  gtag()?.("event", "begin_checkout", { items: [{ item_name: d.name, item_category: d.category, price: d.value }], ...money });
+  sendServerEvent("InitiateCheckout", eventId, { category: d.category, variant: d.name, value: d.value });
+}
+export function trackPurchase(d: { category?: string; mobile?: string; value?: number; id?: string }) {
+  if (isProtectedNumber(d.mobile)) return;
+  const eventId = newEventId();
+  const money = d.value && d.value > 0 ? { value: d.value, currency: "INR" } : {};
+  pushDl("booking_purchase", { service_category: d.category, transaction_id: d.id || undefined, ...money, event_id: eventId });
+  fbq()?.("track", "Purchase", { content_category: d.category, ...money }, { eventID: eventId });
+  fbq()?.("track", "Schedule", { content_category: d.category });
+  gtag()?.("event", "purchase", { transaction_id: d.id || undefined, ...money });
+  sendServerEvent("Purchase", eventId, { category: d.category, mobile: d.mobile, value: d.value });
 }
 
 /** Site-visit / inspection requests (commercial, painting, pest, housekeeping): Meta "Schedule" + GA4. */

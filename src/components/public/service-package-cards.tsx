@@ -1,5 +1,7 @@
 "use client";
 
+import { CollapsibleList } from "@/components/public/collapsible-list";
+import { AnchorPrice } from "@/components/public/anchor-price";
 import { useState } from "react";
 import { Check, Minus, Plus, X } from "lucide-react";
 import { openLead } from "@/components/public/bhk-price-cards";
@@ -47,7 +49,7 @@ export function ServicePackageCards({ service, cards, note, heading = "Choose yo
                 </div>
                 {c.badge && <span className="shrink-0 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-[#0a2540]">{c.badge}</span>}
               </div>
-              <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{total != null ? inr(total) : <span className="text-lg">{c.priceNote ?? "Price confirmed before booking"}</span>}</p>
+              <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{total != null ? inr(total) : <span className="text-lg">{c.priceNote ?? "Price confirmed before booking"}</span>} <AnchorPrice price={total} /></p>
               {c.qty && c.price != null && (
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <p className="text-xs font-semibold text-[#0a2540]/60">{min > 1 ? `Minimum ${min} ${c.unit?.replace(/^per /, "") ?? ""}`.trim() : "Select quantity"}</p>
@@ -59,11 +61,11 @@ export function ServicePackageCards({ service, cards, note, heading = "Choose yo
                 </div>
               )}
               <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-emerald-700">Included</p>
-              <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/85">
+              <CollapsibleList className="mt-1 space-y-1 text-sm text-[#0a2540]/85">
                 {c.included.map((i) => c.highlight.includes(i)
                   ? <li key={i} className="flex gap-1.5 rounded-lg bg-amber-100 px-2 py-1 font-extrabold text-[#0a2540] ring-1 ring-amber-300"><Check className="mt-0.5 size-4 shrink-0 text-emerald-700" />{i}</li>
                   : <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}
-              </ul>
+              </CollapsibleList>
               <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-red-700">Not included</p>
               <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/70">{c.excluded.map((i) => <li key={i} className="flex gap-1.5"><X className="mt-0.5 size-4 shrink-0 text-red-500" />{i}</li>)}</ul>
               <button

@@ -1,5 +1,6 @@
 "use server";
 
+import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -20,7 +21,7 @@ import { finalizeAdvance, startAdvance, type AdvanceResult, type AdvanceStart } 
 //   BOOKING_OTP_ENABLED=on   turn the OTP gate on (needs the SMS gateway: Settings → Integrations or SMS_API_KEY + SMS_ENDPOINT)
 //   OTP_SMS_DLT_TEMPLATE_ID  DLT content-template id registered for the OTP text
 //   OTP_SMS_TEXT             optional OTP text with {code}; must match the DLT-registered template
-//   BOOKING_ADVANCE_ENABLED  off = kill switch; RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / RAZORPAY_WEBHOOK_SECRET in server/razorpay.ts
+//   BOOKING_ADVANCE_ENABLED  must be "on" to charge the 20% advance (opt-in); RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / RAZORPAY_WEBHOOK_SECRET in server/razorpay.ts
 
 export type BookingFlowConfig = { otp: boolean; advance: boolean };
 export type SavedSite = { id: string; label: string; address: string; pinCode: string; area: string; mapLink: string };
@@ -81,10 +82,27 @@ async function findCustomer(mobile: string): Promise<VerifiedCustomer> {
  * is still followed up. If the same mobile already has an open lead for this service, that lead is reused. The final booking
  * for the same mobile + service updates this very lead (public-booking-core.ts), so no duplicate is created.
  */
-export async function captureCheckoutLead(input: { mobile: string; otpToken: string; category: string; service: string; packageName?: string; amount?: number; name?: string }): Promise<{ ok: boolean }> {
+export async function captureCheckoutLead(input: { mobile: string; otpToken?: string; attribution?: unknown; category: string; service: string; packageName?: string; amount?: number; name?: string }): Promise<{ ok: boolean }> {
   const mobile = last10(input.mobile);
-  if (!validMobile(mobile) || !verifyVerified(input.otpToken, mobile)) return { ok: false };
+  if (!validMobile(mobile)) return { ok: false };
+  // Lead-first flow (owner 2026-11-12): the number is saved the moment the visitor taps Continue on step 1. When the OTP gate is on
+  // it must be verified first; with the gate off the lead is saved as "not OTP-verified" so staff know to confirm by call.
+  const otpOn = (await getBookingFlowConfig()).otp;
+  const verified = !!input.otpToken && verifyVerified(input.otpToken, mobile);
+  if (otpOn && !verified) return { ok: false };
+  const via = verified ? "mobile verified by OTP" : "mobile not OTP-verified";
   try {
+    const attr = (input.attribution && typeof input.attribution === "object" ? input.attribution : {}) as Record<string, unknown>;
+    const first = sanitizeTouch(attr.first);
+    const channel = classifyTouch(first);
+    const touchAt = first?.at ? new Date(first.at) : null;
+    const attrFields = {
+      acquisitionChannel: channel, acquisitionCampaign: campaignOf(first),
+      utmSource: first?.source ?? null, utmMedium: first?.medium ?? null, utmCampaign: first?.campaign ?? null, utmTerm: first?.term ?? null, utmContent: first?.content ?? null,
+      gclid: first?.gclid ?? null, fbclid: first?.fbclid ?? null, landingPage: first?.landingPage ?? null, landingPageUrl: first?.landingPageUrl ?? null,
+      firstTouchSource: first ? channel : null, firstTouchMedium: first?.medium ?? null, firstTouchCampaign: campaignOf(first),
+      firstTouchAt: touchAt && !Number.isNaN(touchAt.getTime()) ? touchAt : null,
+    };
     const legacy = SERVICE_CATEGORY_TO_LEGACY[input.category] ?? "HOME_DEEP_CLEANING";
     const open = (await db.lead.findMany({
       where: { deletedAt: null, stage: { in: ["NEW", "INTERESTED", "SITE_VISIT", "QUOTATION", "NEGOTIATION"] as never }, service: legacy as never, OR: [{ mobile: { endsWith: mobile } }, { whatsapp: { endsWith: mobile } }] },
@@ -93,7 +111,7 @@ export async function captureCheckoutLead(input: { mobile: string; otpToken: str
     })).find((l) => !l.serviceDate);
     const what = `${input.service}${input.packageName ? ` · ${input.packageName}` : ""}${input.amount ? ` · ₹${Math.round(input.amount).toLocaleString("en-IN")}` : ""}`;
     if (open) {
-      await addTimelineEntry({ leadId: open.id, type: "SYSTEM", body: `🛒 Customer verified their mobile by OTP and is checking out: ${what}` }).catch(() => {});
+      await addTimelineEntry({ leadId: open.id, type: "SYSTEM", body: `🛒 Customer started booking (${via}) and is checking out: ${what}` }).catch(() => {});
       return { ok: true };
     }
     const known = await findCustomer(mobile);
@@ -109,11 +127,12 @@ export async function captureCheckoutLead(input: { mobile: string; otpToken: str
         serviceVariant: input.service.slice(0, 120),
         packageName: input.packageName?.slice(0, 120) || null,
         source: "WEBSITE" as never,
-        notes: "Abandoned-checkout capture: mobile verified by OTP on the website booking flow.",
+        notes: `Website booking flow, step 1 lead capture (${via}).`,
+        ...attrFields,
         formSubmittedAt: new Date(),
       },
     });
-    await addTimelineEntry({ leadId: lead.id, type: "SYSTEM", body: `🛒 Abandoned-checkout lead: mobile verified by OTP while booking ${what}. Call to help complete the booking if it is not confirmed.` }).catch(() => {});
+    await addTimelineEntry({ leadId: lead.id, type: "SYSTEM", body: `🛒 Website lead captured at step 1 (${via}) while booking ${what}. Call to help complete the booking if it is not confirmed.` }).catch(() => {});
     await db.followUp.create({ data: { leadId: lead.id, dueDate: new Date(Date.now() + 2 * 3600_000), type: "CALL", priority: "MEDIUM", notes: `Abandoned checkout — ${what}. Call if no booking appears.` } }).catch(() => {});
     return { ok: true };
   } catch (e) {

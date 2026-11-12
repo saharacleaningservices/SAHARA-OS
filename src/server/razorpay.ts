@@ -14,7 +14,8 @@ export function razorpayKeys(): { id: string; secret: string } | null {
 }
 
 /** Whether the website asks for the 20% online advance. */
-export const advanceEnabled = () => (process.env.BOOKING_ADVANCE_ENABLED ?? "on").toLowerCase() !== "off" && razorpayKeys() !== null;
+// Advance payment is strictly OPT-IN (owner 2026-11-12: no mandatory advance): it needs BOOKING_ADVANCE_ENABLED=on AND Razorpay keys.
+export const advanceEnabled = () => (process.env.BOOKING_ADVANCE_ENABLED ?? "").toLowerCase() === "on" && razorpayKeys() !== null;
 
 export type RzpOrder = { id: string; amount: number; amount_paid: number; status: string; notes?: Record<string, string> };
 export type RzpPayment = { id: string; order_id: string; amount: number; status: string; captured?: boolean };

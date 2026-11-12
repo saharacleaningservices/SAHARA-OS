@@ -61,14 +61,14 @@ export function HomeHeroSlider({ photos }: { photos: HeroPhoto[] }) {
   const go = (n: number) => { if (track.current) slideTo(track.current, n); };
 
   return (
-    <section aria-roledescription="carousel" aria-label="Sahara at work" className="relative w-full bg-[#0a2540]">
+    <section aria-roledescription="carousel" aria-label="Sahara at work" className="relative mx-auto w-full bg-[#0a2540] md:mt-3 md:max-w-[1280px] md:overflow-hidden md:rounded-3xl">
       <div
         ref={track}
         onPointerDown={() => setHold(true)}
         onPointerUp={() => setTimeout(() => setHold(false), 3000)}
         onMouseEnter={() => setHold(true)}
         onMouseLeave={() => setHold(false)}
-        className="flex aspect-[16/10] w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] sm:aspect-[16/8] lg:aspect-[21/9] lg:max-h-[min(540px,56vh)] [&::-webkit-scrollbar]:hidden"
+        className="flex aspect-[16/10] w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] md:aspect-auto md:h-[500px] lg:h-[540px] [&::-webkit-scrollbar]:hidden"
       >
         {photos.map((p, n) => (
           <div key={p.src} className="relative h-full w-full shrink-0 snap-center snap-always" aria-roledescription="slide" aria-label={`${n + 1} of ${photos.length}`}>

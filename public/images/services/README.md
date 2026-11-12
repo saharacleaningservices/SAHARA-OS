@@ -13,8 +13,8 @@ One folder per service category. Each service-page hero slider reads these files
 | window | Window Cleaning |
 | balcony | Balcony Cleaning |
 
-`before-1` and `after-1` are styled placeholders. To use real Sahara photos:
-1. Save your edited photos as `before-1.webp`, `after-1.webp` (add `before-2`, `after-2`... as needed).
-2. In `src/config/service-slides.ts` change that folder's extension from `svg` to `webp`
-   and add any extra pairs to its list.
-3. Keep photos around 1600x1200 and under 300 KB each.
+Until you add job photos, each slider shows real Sahara work photos (team, equipment, a finished room).
+To add real Before / After photos for a service, just drop them into its folder:
+`before-1.webp` + `after-1.webp` (then `before-2` / `after-2` ... up to 8 pairs; .jpg and .png also work).
+They appear automatically as labelled "Before" / "After" slides, ahead of the work photos. No code change needed.
+Keep photos around 1600x1200 and under 300 KB each.

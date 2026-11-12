@@ -1,5 +1,7 @@
 "use client";
 
+import { CollapsibleList } from "@/components/public/collapsible-list";
+import { AnchorPrice } from "@/components/public/anchor-price";
 import { useState } from "react";
 import { Check } from "lucide-react";
 import type { HomeRow } from "@/components/public/price-selector";
@@ -71,10 +73,10 @@ export function BhkPriceCards({ rows, inclusions, note, heading = "Pick your hom
                   {tier === "Platinum" && <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-[#0a2540]">MOST COMPLETE</span>}
                 </div>
                 <p className="mt-1 text-xs font-semibold text-[#0a2540]/60">{size} · home deep cleaning</p>
-                <p className="text-3xl font-extrabold text-[#0a2540]">{price != null ? inr(price) : "On request"}</p>
-                <ul className="mt-3 space-y-1.5 text-sm text-[#0a2540]/85">
+                <p className="text-3xl font-extrabold text-[#0a2540]">{price != null ? inr(price) : "On request"} <AnchorPrice price={price} /></p>
+                <CollapsibleList className="mt-3 space-y-1.5 text-sm text-[#0a2540]/85">
                   {inclusions[tier].map((i) => <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}
-                </ul>
+                </CollapsibleList>
                 <button type="button" onClick={() => openLead({ service: "Home Deep Cleaning", pkg: `${size} ${tier}`, price })} className="mt-4 min-h-12 rounded-xl bg-primary text-sm font-bold text-white sm:mt-auto">Book Now</button>
               </article>
             );

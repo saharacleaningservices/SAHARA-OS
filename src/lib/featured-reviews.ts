@@ -3,7 +3,7 @@
 // owner command centre. These helpers let the Settings form edit that JSON as simple rows without losing anything:
 // unknown extra keys on an entry are kept, and text that is not a JSON array is reported instead of being overwritten.
 
-export type FeaturedReview = { name: string; text: string; rating: number; extra?: Record<string, unknown> };
+export type FeaturedReview = { name: string; text: string; rating: number; /** Pune locality tag shown on the website, e.g. "Baner". */ locality?: string; extra?: Record<string, unknown> };
 
 export const MAX_FEATURED_REVIEWS = 10;
 export const SHOWN_ON_BOOKING_PAGE = 5;
@@ -28,10 +28,11 @@ export function parseFeaturedReviews(raw: string | null | undefined): ParsedRevi
   if (!Array.isArray(data) || data.some((r) => !r || typeof r !== "object" || Array.isArray(r))) return { ok: false, raw: s };
   return {
     ok: true,
-    reviews: (data as Record<string, unknown>[]).map(({ name, text, rating, ...extra }) => ({
+    reviews: (data as Record<string, unknown>[]).map(({ name, text, rating, locality, ...extra }) => ({
       name: typeof name === "string" ? name : "",
       text: typeof text === "string" ? text : "",
       rating: clampRating(rating),
+      ...(typeof locality === "string" && locality.trim() ? { locality: locality.trim().slice(0, 40) } : {}),
       ...(Object.keys(extra).length ? { extra } : {}),
     })),
   };
@@ -43,6 +44,6 @@ export function serializeFeaturedReviews(reviews: FeaturedReview[]): string {
     .map((r) => ({ ...r, name: r.name.trim(), text: r.text.trim() }))
     .filter((r) => r.name || r.text)
     .slice(0, MAX_FEATURED_REVIEWS)
-    .map(({ name, text, rating, extra }) => ({ ...(extra ?? {}), name, text, rating: clampRating(rating) }));
+    .map(({ name, text, rating, locality, extra }) => ({ ...(extra ?? {}), name, text, rating: clampRating(rating), ...(locality?.trim() ? { locality: locality.trim().slice(0, 40) } : {}) }));
   return kept.length ? JSON.stringify(kept) : "";
 }

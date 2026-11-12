@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ViewContentTracker } from "@/components/public/view-content-tracker";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompanySettings } from "@/server/settings";
@@ -86,11 +87,13 @@ export default async function SeoLocationPage({ params }: Props) {
         badge={ZONES[l.zone].label}
         cta="Get Free Quote"
       />
+      <ViewContentTracker category={c.slug} name={`${c.name} — ${l.name}`} />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-5">
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="text-xl font-bold">{c.name} for {l.name}</h2>
           <p className="mt-2 text-sm leading-relaxed text-[#0a2540]/80">{localIntro(c, l)}</p>
           <p className="mt-2 text-sm text-[#0a2540]/80">Typically booked by {c.audience}.</p>
+          <p className="mt-3 inline-block rounded-xl bg-emerald-50 px-3 py-2 text-sm font-extrabold text-emerald-800 ring-1 ring-emerald-200">60-Min Team Dispatch in {l.name} – {l.pins.join(" / ")}</p>
         </section>
 
         <CategoryLeadForm
