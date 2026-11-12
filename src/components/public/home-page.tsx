@@ -1,4 +1,4 @@
-import { AboutStats, ExpansionBanner } from "@/components/public/home-sections";
+import { AboutStats, ExpansionBanner, FeaturedResults } from "@/components/public/home-sections";
 import BeforeAfterSection from "@/components/BeforeAfterSection";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, businessJsonLd } from "@/components/public/landing-kit";
@@ -58,6 +58,7 @@ export async function HomePage() {
         <HomeServiceCards />
         <ComboSwiper />
         {/* Real before / after results carousel (owner 2026-11-03): directly below Our Services / Combo packages. */}
+        <FeaturedResults />
         <BeforeAfterSection />
         <HygienePromise />
         <CustomerReviews reviews={reviews} reviewUrl={reviewUrl} />
