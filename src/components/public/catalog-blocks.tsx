@@ -11,6 +11,8 @@ import { liveCombos, livePkgs, PREMIUM_SCOPE, PLATINUM_SCOPE, PLATINUM_HIGHLIGHT
 import { CLIENT_LOGOS } from "@/lib/client-logos";
 import { ClientCarousel } from "@/components/ui/client-carousel";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
+import { BeforeAfterSlider } from "@/components/public/before-after-slider";
+import { beforeAfterPairsFor, type SlideFolder } from "@/config/service-slides";
 import { LeadButton } from "@/components/public/lead-button";
 import { buildHomeRows, festivalPriceNote } from "@/components/public/landing-kit";
 import { PackageCalculator, PestCalculator, QtyCalculator, UnfurnishedCalculator, type QtyItem } from "@/components/public/rate-calculators";
@@ -216,9 +218,10 @@ export async function ComboPackages() {
  * Before/after showcase. Real job photos from the CRM gallery (Settings → Gallery, featured items) filtered by the service's
  * gallery category; until the owner uploads pairs for a category, the service's own work photos are shown instead.
  */
-export async function WorkGallery({ category, fallback, title = "Before & after — our work", onlyReal = false }: { category?: string; fallback: { src: string; alt: string }[]; title?: string; /** Render nothing until real gallery items exist. */ onlyReal?: boolean }) {
+export async function WorkGallery({ category, fallback, title = "Before & after — our work", onlyReal = false, folder }: { category?: string; /** Photo folder under public/images/services — its before-N/after-N pairs show as drag sliders after any Settings → Gallery pairs. */ folder?: SlideFolder; fallback: { src: string; alt: string }[]; title?: string; /** Render nothing until real gallery items exist. */ onlyReal?: boolean }) {
   const items = await getFeaturedGallery(12, category);
-  if (onlyReal && items.length === 0) return null;
+  const filePairs = folder ? beforeAfterPairsFor(folder) : [];
+  if (onlyReal && items.length === 0 && filePairs.length === 0) return null;
   return (
     <section aria-labelledby="work-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-2">
@@ -226,8 +229,15 @@ export async function WorkGallery({ category, fallback, title = "Before & after 
         <Link href="/gallery" className="text-sm font-bold text-primary">See all work →</Link>
       </div>
       <div className="mt-4">
-        {items.length > 0 ? (
-          <BeforeAfterGallery items={items} heading={false} />
+        {items.length > 0 || filePairs.length > 0 ? (
+          <div className="space-y-5">
+            {items.length > 0 && <BeforeAfterGallery items={items} heading={false} />}
+            {filePairs.length > 0 && (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {filePairs.map((p) => <BeforeAfterSlider key={p.before} before={p.before} after={p.after} alt={p.alt} caption="Sample before / after — Sahara deep cleaning" ratioClass="aspect-square" />)}
+              </div>
+            )}
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {fallback.map((f) => (

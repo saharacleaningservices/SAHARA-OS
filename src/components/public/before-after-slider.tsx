@@ -8,7 +8,7 @@ import { ChevronsLeftRight } from "lucide-react";
  * drag smooth even outside the photo), tap anywhere to jump, or use ← / → / Home / End on the focused handle. Both photos are
  * the same size and stacked; only a clip-path changes, so there is no reflow and no layout shift. Lazy-loaded images.
  */
-export function BeforeAfterSlider({ before, after, alt, caption, initial = 50 }: { before: string; after: string; alt: string; caption?: string | null; initial?: number }) {
+export function BeforeAfterSlider({ before, after, alt, caption, initial = 50, ratioClass = "aspect-[4/3]" }: { before: string; after: string; alt: string; caption?: string | null; initial?: number; /** Tailwind aspect class; near-square real photos use aspect-square so nothing is cropped. */ ratioClass?: string }) {
   const [pos, setPos] = useState(initial);
   const box = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
@@ -23,7 +23,7 @@ export function BeforeAfterSlider({ before, after, alt, caption, initial = 50 }:
     <figure className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#0a2540]/5">
       <div
         ref={box}
-        className="relative aspect-[4/3] w-full touch-pan-y select-none overflow-hidden"
+        className={`relative ${ratioClass} w-full touch-pan-y select-none overflow-hidden`}
         onPointerDown={(e) => { dragging.current = true; (e.target as Element).setPointerCapture?.(e.pointerId); fromEvent(e.clientX); }}
         onPointerMove={(e) => dragging.current && fromEvent(e.clientX)}
         onPointerUp={() => { dragging.current = false; }}

@@ -6,7 +6,7 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Faqs, Terms, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/category-landing";
 import { ServiceSplitHero } from "@/components/public/service-split-hero";
-import { slidesForCategory, slidesForService } from "@/config/service-slides";
+import { SERVICE_SLIDE_FOLDER, slidesForCategory, slidesForService } from "@/config/service-slides";
 import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
@@ -118,7 +118,7 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
         <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
         <ServicePricing service={s} />
         {s.category === "individual" && <ComboUpsell contentIds={s.pricing.contentIds} />}
-        <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[]} onlyReal />
+        <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[]} onlyReal folder={SERVICE_SLIDE_FOLDER[s.slug]} />
         <ZoneAccordion seoSlug={seo?.slug} service={s.name} />
         {siblings.length > 0 && (
           <section className="rounded-2xl bg-white p-5 text-sm shadow-sm">

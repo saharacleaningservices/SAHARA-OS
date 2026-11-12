@@ -42,7 +42,7 @@ export function ServiceSlider({ slides, className = "" }: { slides: SliderSlide[
     >
       {slides.map((s, n) => (
         // eslint-disable-next-line @next/next/no-img-element -- static registry / placeholder files; first slide is the LCP image
-        <img key={s.src} src={s.src} alt={s.alt} draggable={false} loading={n === 0 ? "eager" : "lazy"} fetchPriority={n === 0 ? "high" : "auto"} decoding="async" aria-hidden={n !== i} className={`absolute inset-0 size-full select-none object-cover object-[center_30%] transition-opacity duration-500 ${n === i ? "opacity-100" : "opacity-0"}`} />
+        <img key={s.src} src={s.src} alt={s.alt} draggable={false} loading={n === 0 ? "eager" : "lazy"} fetchPriority={n === 0 ? "high" : "auto"} decoding="async" aria-hidden={n !== i} className={`absolute inset-0 size-full select-none object-cover ${s.label === "Before" || s.label === "After" ? "object-center" : "object-[center_30%]"} transition-opacity duration-500 ${n === i ? "opacity-100" : "opacity-0"}`} />
       ))}
       {cur?.label && (
         <span className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wide shadow ${cur.label === "Before" ? "bg-[#0a2540] text-white" : cur.label === "After" ? "bg-emerald-500 text-white" : "bg-white/95 text-[#0a2540]"}`}>{cur.label}</span>
