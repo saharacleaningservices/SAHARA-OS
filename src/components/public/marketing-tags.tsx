@@ -3,21 +3,22 @@
 import Script from "next/script";
 import { useEffect } from "react";
 import { isProtectedNumber } from "@/lib/protected-numbers";
+import { GOOGLE_ADS_ID, contactKindOfHref, fireAdsConversion } from "@/lib/ads-conversions";
+import { getMetaIds } from "@/components/public/attribution-capture";
 
 // Sahara-owned marketing tags for the public pages. Everything is gated on
 // env vars, so nothing loads until the owner sets IDs from Sahara's OWN
 // accounts (no agency containers):
 //   NEXT_PUBLIC_GA4_ID                 e.g. G-74EZWDS33Z (Sahara GA4)
-//   NEXT_PUBLIC_GOOGLE_ADS_ID          e.g. AW-765890204 (Sahara Google Ads)
-//   NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL  conversion label for "Lead Form Submit"
+// Google Ads (AW-765890204) and its three conversion labels are fixed in lib/ads-conversions.ts (owner 2026-11-12):
+// Booking Lead on form submit, WhatsApp click and Call click. NEXT_PUBLIC_GOOGLE_ADS_ID / _LEAD_LABEL are no longer read.
 // Meta Pixel stays in app/book/page.tsx (NEXT_PUBLIC_META_PIXEL_ID).
 //
 // Only a submitted form counts as a lead. Call / WhatsApp taps are sent as
 // separate events so they are never double-counted as form leads.
 
 const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
-const ADS = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
-const ADS_LEAD_LABEL = process.env.NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL;
+const ADS = GOOGLE_ADS_ID;
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 // Google Tag Manager container from Sahara's own account (rebuild 2026-11-02). Optional — GA4 / Ads / Pixel above work without it;
 // set it only if those tags are NOT also configured inside the container, or conversions double-count.
@@ -36,6 +37,16 @@ function newEventId(): string {
   return c?.randomUUID ? c.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
+/** _fbp / _fbc from the first-party cookies (the server falls back to the request cookies when these are absent). */
+function metaIdsForServer(): { fbp?: string; fbc?: string } {
+  try {
+    const { fbp, fbc } = getMetaIds();
+    return { ...(fbp ? { fbp } : {}), ...(fbc ? { fbc } : {}) };
+  } catch {
+    return {};
+  }
+}
+
 /** Conversions API relay (the server adds IP / user agent / fbp / fbc). Fire-and-forget; skipped outside a browser page. */
 function sendServerEvent(eventName: "Lead" | "Schedule" | "ViewContent" | "InitiateCheckout" | "Purchase" | "Contact", eventId: string, d: { category?: string; variant?: string; mobile?: string; value?: number }) {
   if (!PIXEL || typeof window === "undefined" || !window.location || typeof fetch !== "function") return;
@@ -43,7 +54,7 @@ function sendServerEvent(eventName: "Lead" | "Schedule" | "ViewContent" | "Initi
     void fetch("/api/meta/capi", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ eventName, eventId, mobile: d.mobile, category: d.category, variant: d.variant, value: d.value }),
+      body: JSON.stringify({ eventName, eventId, mobile: d.mobile, category: d.category, variant: d.variant, value: d.value, ...metaIdsForServer() }),
       keepalive: true,
     }).catch(() => {});
   } catch {
@@ -71,7 +82,9 @@ export function trackLead(details: { category?: string; variant?: string; mobile
   const g = gtag();
   if (!g) return;
   g("event", "generate_lead", { service_category: details.category, service_variant: details.variant, lead_type: details.kind, ...money, ...(details.id ? { transaction_id: details.id } : {}) });
-  if (ADS && ADS_LEAD_LABEL) g("event", "conversion", { send_to: `${ADS}/${ADS_LEAD_LABEL}`, ...money, ...(details.id ? { transaction_id: details.id } : {}) });
+  // Google Ads "Booking Lead" (Primary): fires here, on the successful submit — never on page load. transaction_id is the CRM
+  // lead id (or this submission's event id when the form has none) so Google never counts the same lead twice.
+  fireAdsConversion("lead", { transactionId: details.id || eventId });
   // LinkedIn: one conversion per lead (only when the Insight Tag and a conversion id are configured).
   if (LI_CONVERSION && typeof window !== "undefined") (window as unknown as { lintrk?: (a: string, b: unknown) => void }).lintrk?.("track", { conversion_id: Number(LI_CONVERSION) });
 }
@@ -136,9 +149,11 @@ export function MarketingTags({ withPixel = false }: { withPixel?: boolean } = {
     function onClick(e: MouseEvent) {
       const a = (e.target as HTMLElement | null)?.closest?.("a") as HTMLAnchorElement | null;
       if (!a?.href) return;
-      const kind = a.href.startsWith("tel:") ? "call_click" : /wa\.me|whatsapp/.test(a.href) ? "whatsapp_click" : null;
-      if (!kind) return;
+      const contact = contactKindOfHref(a.href);
+      if (!contact) return;
+      const kind = contact === "call" ? "call_click" : "whatsapp_click";
       gtag()?.("event", kind, { link_url: a.href, page_path: window.location.pathname });
+      fireAdsConversion(contact); // Secondary Ads conversion, at the moment of the tap
       fbq()?.("track", "Contact", { method: kind === "call_click" ? "call" : "whatsapp" });
     }
     document.addEventListener("click", onClick, true);

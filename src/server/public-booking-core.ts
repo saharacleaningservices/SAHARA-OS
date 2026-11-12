@@ -20,6 +20,7 @@ import { notify } from "@/server/notify";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
+import { sourceTagForChannel } from "@/lib/source-tags";
 import { getPublicPricing } from "@/server/pricing";
 import { FESTIVAL_PACKAGE_IDS, INSPECTION_ONLY_IDS, activeCampaign, festivalForDate, needsInspection, todayIST, unitPriceFor } from "@/lib/pricing-master";
 import { scopeSnapshot } from "@/lib/service-scope";
@@ -337,12 +338,15 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
           // A repeat submission without a tracked visit keeps the existing latest touch.
           ...(latestTouch ? latestFields : {}),
           ...(existingOpen.acquisitionChannel ? {} : originalFields),
+          // Paid-channel CRM tag (owner 2026-11-12) — only fills an empty tag, never replaces one staff chose.
+          ...(!existingOpen.sourceTag && sourceTagForChannel(existingOpen.acquisitionChannel ?? channel) ? { sourceTag: sourceTagForChannel(existingOpen.acquisitionChannel ?? channel) } : {}),
         },
       })
     : await db.lead.create({
     data: {
       ...originalFields,
       ...latestFields,
+      ...(sourceTagForChannel(channel) ? { sourceTag: sourceTagForChannel(channel) } : {}),
       formSubmittedAt: new Date(),
       leadNumber,
       name: data.name,

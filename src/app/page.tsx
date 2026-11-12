@@ -6,6 +6,7 @@ import { PUBLIC_BOOKING_HOST, INTERNAL_CRM_HOST } from "@/lib/site-urls";
 import BookingPage from "@/app/booking/page";
 import { HomePage } from "@/components/public/home-page";
 import { SITE_ORIGIN, MAIN_HOST } from "@/lib/site-origin";
+import { ctrDescriptions } from "@/config/ctr-meta";
 
 // "/" is the public homepage on the website hosts (booking.* today, www once DNS moves off WordPress) and the CRM entry
 // point everywhere else. Rendered per request (host-dependent; the Docker build has no database).
@@ -13,7 +14,8 @@ export const dynamic = "force-dynamic";
 
 const PUBLIC_HOSTS = new Set([PUBLIC_BOOKING_HOST, `www.${MAIN_HOST}`, MAIN_HOST].filter(Boolean));
 const TITLE = "Sahara Cleaning Services Pune — Home & Office Deep Cleaning, Pest Control, Painting";
-const DESC = `${BRAND_TAGLINE} Home deep cleaning, office housekeeping, pest control and painting across Pune & PCMC since 2012. Book online or call.`;
+// CTR description (owner 2026-11-12): real starting prices + trust points. Title, canonical and H1 are unchanged.
+const DESC = `${BRAND_TAGLINE} ${ctrDescriptions().home}`;
 const OG_TITLE = `Sahara Cleaning Services Pune — ${BRAND_TAGLINE}`;
 
 async function isPublicHost() {

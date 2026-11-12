@@ -1,6 +1,7 @@
 "use server";
 
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
+import { sourceTagForChannel } from "@/lib/source-tags";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
@@ -129,6 +130,7 @@ export async function captureCheckoutLead(input: { mobile: string; otpToken?: st
         source: "WEBSITE" as never,
         notes: `Website booking flow, step 1 lead capture (${via}).`,
         ...attrFields,
+        ...(sourceTagForChannel(channel) ? { sourceTag: sourceTagForChannel(channel) } : {}), // SRC-GOOGLE-ADS / SRC-META-ADS (owner 2026-11-12)
         formSubmittedAt: new Date(),
       },
     });

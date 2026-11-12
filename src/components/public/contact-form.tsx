@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, Send } from "lucide-react";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
+import { trackLead } from "@/components/public/marketing-tags";
 
 const SERVICES = ["Home Deep Cleaning", "Office / Commercial Cleaning", "Housekeeping / Facility Management", "Pest Control", "Interior / Exterior Painting", "Post-Interior Cleaning", "Other"];
 
@@ -23,6 +24,11 @@ export function ContactForm({ defaultBranch = "" }: { defaultBranch?: "magarpatt
       utm_source: t?.source ?? "",
       utm_medium: t?.medium ?? "",
       utm_campaign: t?.campaign ?? "",
+      utm_term: t?.term ?? "",
+      gclid: t?.gclid ?? "",
+      fbclid: t?.fbclid ?? "",
+      fbp: t?.fbp ?? "",
+      fbc: t?.fbc ?? "",
       landing_page_url: t?.landingPageUrl ?? window.location.href.slice(0, 500),
     });
   }, []);
@@ -38,11 +44,12 @@ export function ContactForm({ defaultBranch = "" }: { defaultBranch?: "magarpatt
     setState("sending");
     try {
       const res = await fetch("/api/leads/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; leadId?: string };
       if (!res.ok || !j.ok) {
         setState("idle");
         return setError(j.error || "We couldn't send your message. Please call or WhatsApp us.");
       }
+      trackLead({ category: body.service, mobile: body.mobile, id: j.leadId, kind: "inquiry" }); // Ads "Booking Lead" + Pixel Lead at the moment of submit
       setState("done");
     } catch {
       setState("idle");

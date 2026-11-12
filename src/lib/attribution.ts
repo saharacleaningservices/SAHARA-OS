@@ -34,6 +34,9 @@ export type Touch = {
   content?: string | null;
   gclid?: string | null;
   fbclid?: string | null;
+  /** Meta browser id (_fbp cookie) and click id (_fbc cookie) — carried with the touch so Event Match Quality gets both. */
+  fbp?: string | null;
+  fbc?: string | null;
   referrer?: string | null;
   landingPage?: string | null;
   landingPageUrl?: string | null;
@@ -127,6 +130,11 @@ export function campaignOf(t?: Touch | null): string | null {
   return c ? c.slice(0, 120) : null;
 }
 
+/** Keeps a Meta cookie value only when it has Meta's exact format (untrusted client input). */
+function metaCookie(v: string | null, re: RegExp): string | null {
+  return v && re.test(v) ? v : null;
+}
+
 /** Clamp every string in a touch so untrusted client input stays bounded. */
 export function sanitizeTouch(t: unknown): Touch | null {
   if (!t || typeof t !== "object") return null;
@@ -140,6 +148,8 @@ export function sanitizeTouch(t: unknown): Touch | null {
     content: s("content"),
     gclid: s("gclid", 300),
     fbclid: s("fbclid", 300),
+    fbp: metaCookie(s("fbp", 120), /^fb\.\d\.\d{10,13}\.\d{4,20}$/),
+    fbc: metaCookie(s("fbc", 400), /^fb\.\d\.\d{10,13}\.[A-Za-z0-9_-]{6,380}$/),
     referrer: s("referrer", 500),
     landingPage: s("landingPage"),
     landingPageUrl: s("landingPageUrl", 1000),
