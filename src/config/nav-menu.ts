@@ -11,7 +11,7 @@ export const NAV_HIDDEN: ReadonlySet<string> = new Set(["move-in-move-out-cleani
 
 /** Extra menu links that are not catalog service pages (owner 2026-11-03: Housekeeping Services under Commercial). */
 const NAV_EXTRA: Partial<Record<CatalogCategoryId, NavLeaf[]>> = {
-  commercial: [{ label: "Request Site Visit & B2B Quote", href: "/b2b/corporate-facility", blurb: "Offices, IT parks, societies, factories, hospitals — free site visit and written quote", pricing: "inspection" }, { label: "Housekeeping Services", href: "/housekeeping-services", blurb: "Trained housekeeping staff on daily, weekly or AMC contract", pricing: "inspection" }],
+  commercial: [{ label: "Request Site Visit & B2B Quote", href: "/b2b/corporate-facility", blurb: "Offices, IT parks, societies, factories, hospitals — free site visit and written quote", pricing: "inspection" }, { label: "B2B Housekeeping (Offices, Societies)", href: "/b2b-housekeeping-pune", blurb: "Housekeeping contracts and post-construction handover cleaning, pay after service", pricing: "inspection" }, { label: "Housekeeping Services", href: "/housekeeping-services", blurb: "Trained housekeeping staff on daily, weekly or AMC contract", pricing: "inspection" }],
 };
 
 export const NAV_MEGA: NavMega[] = CATALOG_CATEGORIES.map((c) => ({
@@ -31,6 +31,7 @@ export const NAV_HREFS = Array.from(new Set(NAV_MEGA.flatMap((m) => [m.href, ...
 
 export const isKnownNavHref = (href: string) =>
   href.startsWith("/b2b/") ||
+  href === "/b2b-housekeeping-pune" ||
   (LEGACY_PATHS as readonly string[]).includes(href) ||
   SERVICE_CATEGORIES.some((c) => href === `/services/${c.slug}`) ||
   CATALOG_SERVICES.some((s) => href === servicePath(s.slug)) ||

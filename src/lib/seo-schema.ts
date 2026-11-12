@@ -4,6 +4,7 @@ import { COMPANY } from "@/lib/constants";
 import { CUSTOMER_BOOKING_URL, TRUST } from "@/lib/booking-target";
 import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { SITE_ORIGIN } from "@/lib/site-origin";
+import { aiZonesJsonLd } from "@/config/ai-search-facts";
 
 // Structured data (schema.org JSON-LD) for the public booking site. One builder, used by businessJsonLd()
 // in components/public/landing-kit.tsx, so name / address / phone stay identical everywhere (search engines
@@ -40,22 +41,23 @@ export const SCHEMA_CONTACT_POINTS = [
 
 /** Services Sahara offers, each with its public page. Names match the pricing master / service labels. */
 export const SCHEMA_SERVICES = [
-  { name: "Home Deep Cleaning", path: "/home-deep-cleaning-pune" },
-  { name: "Sofa Cleaning", path: "/home-deep-cleaning-pune" },
-  { name: "Kitchen Deep Cleaning", path: "/home-deep-cleaning-pune" },
-  { name: "Bathroom Deep Cleaning", path: "/home-deep-cleaning-pune" },
-  { name: "Mattress and Carpet Cleaning", path: "/home-deep-cleaning-pune" },
-  { name: "Office and Commercial Cleaning", path: "/commercial-cleaning-pune" },
-  { name: "Residential and Commercial Housekeeping", path: "/housekeeping-services" },
-  { name: "Facility Management and Housekeeping AMC (offices, residential societies, commercial complexes)", path: "/housekeeping-services" },
-  { name: "Termite Control", path: "/pest-control-pune" },
-  { name: "Cockroach Control", path: "/pest-control-pune" },
-  { name: "Bed Bug Treatment", path: "/pest-control-pune" },
-  { name: "Ant Control", path: "/pest-control-pune" },
-  { name: "Interior Painting", path: "/interior-painting-pune" },
-  { name: "Texture Painting", path: "/interior-painting-pune" },
-  { name: "Post Construction Cleaning", path: "/commercial-cleaning-pune" },
-  { name: "Glass and Facade Cleaning", path: "/commercial-cleaning-pune" },
+  { name: "Home Deep Cleaning", path: "/home-deep-cleaning-pune", segment: "B2C" },
+  { name: "Sofa Cleaning", path: "/home-deep-cleaning-pune", segment: "B2C" },
+  { name: "Kitchen Deep Cleaning", path: "/home-deep-cleaning-pune", segment: "B2C" },
+  { name: "Bathroom Deep Cleaning", path: "/home-deep-cleaning-pune", segment: "B2C" },
+  { name: "Mattress and Carpet Cleaning", path: "/home-deep-cleaning-pune", segment: "B2C" },
+  { name: "Office and Commercial Cleaning", path: "/commercial-cleaning-pune", segment: "B2B" },
+  { name: "Residential and Commercial Housekeeping", path: "/housekeeping-services", segment: "B2B" },
+  { name: "Facility Management and Housekeeping AMC (offices, residential societies, commercial complexes)", path: "/housekeeping-services", segment: "B2B" },
+  { name: "Termite Control", path: "/pest-control-pune", segment: "B2C" },
+  { name: "Cockroach Control", path: "/pest-control-pune", segment: "B2C" },
+  { name: "Bed Bug Treatment", path: "/pest-control-pune", segment: "B2C" },
+  { name: "Ant Control", path: "/pest-control-pune", segment: "B2C" },
+  { name: "Interior Painting", path: "/interior-painting-pune", segment: "B2C" },
+  { name: "Texture Painting", path: "/interior-painting-pune", segment: "B2C" },
+  { name: "Post Construction Cleaning", path: "/commercial-cleaning-pune", segment: "B2B" },
+  { name: "Glass and Facade Cleaning", path: "/commercial-cleaning-pune", segment: "B2B" },
+  { name: "Housekeeping contracts for offices, IT parks and housing societies (B2B)", path: "/b2b-housekeeping-pune", segment: "B2B" },
 ] as const;
 
 export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: string[]; extra?: Record<string, unknown> } = {}) {
@@ -93,6 +95,7 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
       { "@type": "City", name: "Pune" },
       { "@type": "City", name: "Pimpri-Chinchwad" },
       ...schemaAreaNames().map((name) => ({ "@type": "Place", name: `${name}, Pune` })),
+      ...aiZonesJsonLd(), // East / South / West / North (PCMC) with localities and PIN codes
     ],
     potentialAction: {
       "@type": "ReserveAction",
@@ -102,10 +105,14 @@ export function buildBusinessJsonLd({ sameAs = [], extra = {} }: { sameAs?: stri
     knowsAbout: SCHEMA_SERVICES.map((s) => s.name),
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "Cleaning, pest control and painting services in Pune",
-      itemListElement: SCHEMA_SERVICES.map((s) => ({
-        "@type": "Offer",
-        itemOffered: { "@type": "Service", name: s.name, serviceType: s.name, areaServed: "Pune", url: `${SCHEMA_SITE}${s.path}`, provider: { "@id": `${SCHEMA_SITE}/#business` } },
+      name: "Cleaning, housekeeping, pest control and painting services in Pune",
+      itemListElement: (["B2C", "B2B"] as const).map((seg) => ({
+        "@type": "OfferCatalog",
+        name: seg === "B2C" ? "Residential (B2C) services" : "Commercial, society and housekeeping (B2B) services",
+        itemListElement: SCHEMA_SERVICES.filter((s) => s.segment === seg).map((s) => ({
+          "@type": "Offer",
+          itemOffered: { "@type": "Service", name: s.name, serviceType: s.name, areaServed: "Pune", url: `${SCHEMA_SITE}${s.path}`, provider: { "@id": `${SCHEMA_SITE}/#business` } },
+        })),
       })),
     },
     sameAs,

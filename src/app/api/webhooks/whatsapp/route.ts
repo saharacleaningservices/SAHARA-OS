@@ -543,7 +543,7 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   if (mobile.length !== 10) return { leadId: null, created: false };
   const adLine = ad ? ` · ${describeCtwa(ad)}` : "";
   const refTag = sourceTagForRef(opts.refCode);
-  const refLine = refTag ? ` · Source: ${sourceLabelForTag(refTag).label}` : "";
+  const refLine = refTag ? ` · Source: ${sourceLabelForTag(refTag).label}${opts.refCode ? ` [Ref: ${opts.refCode.toUpperCase()}]` : ""}` : "";
   const note = `Inbound WhatsApp: "${body.slice(0, 300)}"${adLine}${refLine}`;
 
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
