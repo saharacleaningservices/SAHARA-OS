@@ -29,6 +29,8 @@ import { publicPaymentState, resolvePublicEstimate } from "@/lib/booking-payment
 import { linkCustomerAndSite } from "@/server/customer-db";
 import { copyLeadToSheet } from "@/server/lead-sheet";
 import { last10 as normalizeLast10 } from "@/lib/phone";
+import { verifyVerified } from "@/lib/booking-otp-token";
+import { CHECKOUT_PLACEHOLDER_NAME } from "@/lib/checkout-capture";
 
 /** Machine-readable reason added to every refusal (additive: the existing forms only read `error`). */
 export type PublicBookingErrorCode = "VALIDATION" | "HONEYPOT" | "THROTTLED" | "SLOT_FULL" | "PACKAGE_UNAVAILABLE" | "FESTIVAL_DATE_REQUIRED" | "MIN_ORDER";
@@ -82,6 +84,10 @@ const publicBookingSchema = z.object({
   selectedItems: z.array(z.object({ contentId: z.string().max(40), qty: z.number().int().min(1).max(100) })).max(30).optional(),
   // Explicit WhatsApp marketing opt-in ticked by the customer (never pre-ticked).
   marketingOptIn: z.boolean().optional(),
+  // Booking flow v2 (2026-11-12): mobile OTP proof (signed token from server/actions/booking-checkout.ts) and "hold the slot until
+  // the 20% online advance is paid" — a held request is never auto-confirmed here; booking-advance.ts confirms it after payment.
+  otpToken: z.string().max(200).optional().or(z.literal("")),
+  holdForAdvance: z.boolean().optional(),
   // Honeypot — real visitors never fill this hidden field.
   // Accept any value here so the explicit check below (generic error) catches bots — zod's own message would reveal the trap.
   website: z.string().max(200).optional().or(z.literal("")),
@@ -310,7 +316,8 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
     ? await db.lead.update({
         where: { id: existingOpen.id },
         data: {
-          // Fill gaps only — never overwrite what staff already recorded.
+          // Fill gaps only — never overwrite what staff already recorded. (The OTP-checkout placeholder name is not staff data.)
+          ...(existingOpen.name === CHECKOUT_PLACEHOLDER_NAME ? { name: data.name } : {}),
           email: existingOpen.email ?? (data.email || null),
           address: existingOpen.address ?? (data.address || null),
           pinCode: existingOpen.pinCode ?? (data.pinCode || null),
@@ -418,7 +425,7 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
     body: [
       existingOpen
         ? `Online form submitted for this existing enquiry (no duplicate lead created) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}${latestTouch?.landingPage ?? "/book"}`
-        : `Booked online (${source.toLowerCase()}) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}${firstTouch?.landingPage ?? "/book"} (unverified — no OTP yet)`,
+        : `Booked online (${source.toLowerCase()}) via ${PUBLIC_BOOKING_URL.replace(/^https?:\/\//, "")}${firstTouch?.landingPage ?? "/book"} ${verifyVerified(data.otpToken, data.mobile) ? "(mobile verified by OTP)" : "(unverified — no OTP yet)"}`,
       `Attribution: ${existingOpen?.acquisitionChannel ?? channel}${campaignOf(firstTouch) ? ` / ${campaignOf(firstTouch)}` : ""}${latestTouch && latestFields.latestTouchSource !== channel ? ` · latest touch: ${latestFields.latestTouchSource}` : ""}`,
       isRepeatCustomer ? `⭐ Existing customer — ${priorLeads} prior enquir${priorLeads === 1 ? "y" : "ies"}, ${priorJobs} job(s) on this number` : null,
       data.leadTag ? `Lead tag: ${data.leadTag}` : null,
@@ -470,14 +477,16 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
   // received" acknowledgement below is skipped. Anything else stays a request for the office, exactly as before.
   const auto = existingOpen?.stage === "JOB_SCHEDULED"
     ? ({ confirmed: false, reason: "already-scheduled" } as const)
-    : await autoConfirmWebBooking(lead.id, { serviceDate: data.serviceDate, timeSlot: data.timeSlot, serviceCategory: data.serviceCategory, inspectionRequired });
+    : data.holdForAdvance
+      ? ({ confirmed: false, reason: "awaiting-advance" } as const)
+      : await autoConfirmWebBooking(lead.id, { serviceDate: data.serviceDate, timeSlot: data.timeSlot, serviceCategory: data.serviceCategory, inspectionRequired });
 
   const svc = SERVICE_LABELS[legacyService] ?? legacyService;
   const ackedRecently = await db.whatsAppMessage.findFirst({
     where: { relatedType: "Lead", relatedId: lead.id, kind: "BOOKING_CONFIRMATION", createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
     select: { id: true },
   });
-  if (ackedRecently || auto.confirmed) {
+  if (ackedRecently || auto.confirmed || data.holdForAdvance) {
     // skip — already acknowledged, or confirmed (the booking confirmation was sent instead)
   } else if (process.env.WHATSAPP_USE_TEMPLATES === "on") {
     const t = templateByName("sahara_booking_request_received")!;
@@ -521,7 +530,7 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
   // Real-time alert: loud notification + popup + vibration; tap opens the lead.
   await notify({
     kind: "NEW_BOOKING",
-    title: `${auto.confirmed ? `Auto-confirmed ${auto.jobNumber} — assign crew` : "New booking"} — ${data.name}${isRepeatCustomer ? " (repeat customer)" : ""}`,
+    title: `${auto.confirmed ? `Auto-confirmed ${auto.jobNumber} — assign crew` : data.holdForAdvance ? "New booking — awaiting 20% advance" : "New booking"} — ${data.name}${isRepeatCustomer ? " (repeat customer)" : ""}`,
     body: [
       `${svc}${data.serviceVariant ? ` (${data.serviceVariant})` : ""}`,
       data.address || (data.pinCode ? `PIN ${data.pinCode}` : ""),
@@ -561,9 +570,10 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
 
   revalidatePath("/leads");
   revalidatePath("/dashboard");
+  // leadId / quoteAmount are additive (booking flow v2 needs them to start the advance payment); existing callers ignore them.
   return auto.confirmed
-    ? { success: true as const, leadNumber, status: "CONFIRMED" as const, jobNumber: auto.jobNumber, bookingUrl: auto.bookingUrl }
-    : { success: true as const, leadNumber, status: "PENDING" as const };
+    ? { success: true as const, leadNumber, leadId: lead.id, quoteAmount: lead.quoteAmount ?? null, status: "CONFIRMED" as const, jobNumber: auto.jobNumber, bookingUrl: auto.bookingUrl }
+    : { success: true as const, leadNumber, leadId: lead.id, quoteAmount: lead.quoteAmount ?? null, status: "PENDING" as const };
 }
 
 /**

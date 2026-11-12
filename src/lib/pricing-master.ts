@@ -98,7 +98,7 @@ export const PRICING_MASTER: PriceItem[] = [
   { contentId: "SCS-UF-3", group: "UNFURNISHED", name: "3BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 4599, bhk: "3 BHK", rule: "Empty flat — no furniture" },
 
   // Home Cleaning — Customised Cleaning (quantity based)
-  { contentId: "SCS-09", group: "CUSTOMISED", name: "Sofa Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Sofa Cleaning", price: 249, unit: "per seat", minQty: 5, rule: "Minimum 5 seats" },
+  { contentId: "SCS-09", group: "CUSTOMISED", name: "Sofa Shampooing", category: "INDIVIDUAL_CLEANING", variant: "Sofa Cleaning", price: 199, unit: "per seat", minQty: 1, rule: "₹199 per seat — any number of seats" },
   { contentId: "SCS-10", group: "CUSTOMISED", name: "Bathroom Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Bathroom Cleaning", price: 599, unit: "per bathroom", minQty: 2, rule: "Minimum 2 bathrooms" },
   { contentId: "SCS-12", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Without Chimney)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 1999, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Kitchen emptied / utensils removed by client" },
   { contentId: "SCS-33", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Utensil removal & placing back)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 2499, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Our team removes and places utensils back" },
@@ -108,9 +108,13 @@ export const PRICING_MASTER: PriceItem[] = [
   { contentId: "SCS-34", group: "CUSTOMISED", name: "Balcony Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Balcony Cleaning", price: 499, unit: "per balcony", minQty: 1, scope: "Floor scrubbing, railing and grill wipe-down" },
   // No approved NEW price yet — shown as "price confirmed before booking" (no legacy price used).
   { contentId: "SCS-31", group: "CUSTOMISED", name: "Curtain Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Curtain Cleaning", price: null, unit: "per curtain", minQty: 1, priceNote: ON_CONFIRMATION, scope: "Includes curtain dry cleaning" },
-  { contentId: "SCS-32", group: "CUSTOMISED", name: "Fridge Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: 499, unit: "per fridge", minQty: 1 },
-  // Checkout add-on chips (owner 2026-11-02): Fridge ₹499 · Chimney ₹699 · Pest Control Shot ₹899 · Balcony ₹499.
-  { contentId: "SCS-35", group: "CUSTOMISED", name: "Chimney Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Chimney Cleaning", price: 699, unit: "per chimney", minQty: 1, scope: "Filters, hood and body degreased" },
+  // Add-ons for Home & Kitchen Deep Cleaning (owner 2026-11-12). SCS-32 keeps its id (combo SCS-26 uses it) and is the single-door fridge.
+  { contentId: "SCS-32", group: "CUSTOMISED", name: "Single Door Fridge Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: 399, unit: "per fridge", minQty: 1 },
+  { contentId: "SCS-37", group: "CUSTOMISED", name: "Double Door Fridge Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: 699, unit: "per fridge", minQty: 1 },
+  { contentId: "SCS-38", group: "CUSTOMISED", name: "Microwave Interior Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Microwave Cleaning", price: 299, unit: "per microwave", minQty: 1 },
+  { contentId: "SCS-39", group: "CUSTOMISED", name: "Removing & Placing Back of Kitchen Items", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Items Removal", price: 599, unit: "per kitchen", minQty: 1, scope: "Our team removes kitchen items and places everything back neatly" },
+  // Checkout add-ons (owner 2026-11-12): Chimney Deep Cleaning ₹499 · Pest Control Shot ₹899 · Balcony ₹499 (fridge, microwave and kitchen-items items are above).
+  { contentId: "SCS-35", group: "CUSTOMISED", name: "Chimney Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Chimney Cleaning", price: 499, unit: "per chimney", minQty: 1, scope: "Filters, hood and body degreased" },
   { contentId: "SCS-36", group: "CUSTOMISED", name: "Pest Control Shot (add-on)", category: "PEST_CONTROL", variant: "General Pest Shot", price: 899, unit: "per home", minQty: 1, addOnOnly: true, rule: "Add-on only — general cockroach & ant spray with a cleaning booking" },
   { contentId: "SCS-13", group: "CUSTOMISED", name: "Carpet Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Carpet Cleaning", price: null, unit: "per carpet", minQty: 1, priceNote: ON_CONFIRMATION },
 

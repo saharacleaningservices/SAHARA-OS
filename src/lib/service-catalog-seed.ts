@@ -54,7 +54,7 @@ export const SERVICE_CATALOG_SEED: CatalogSeed[] = [
     group: "HOME",
     scopeOfWork: homeScope("Platinum"),
     termsConditions: terms(`${CUSTOMER_CLAUSE.replace(/\.$/, "")}. Sofa, carpet and mattress shampooing are separate services; dry vacuuming is included.`),
-    equipmentsUsed: [...HOME_EQUIPMENT, "Wall wet-cleaning kit", "Chimney degreasing kit"],
+    equipmentsUsed: [...HOME_EQUIPMENT, "Wall wet-cleaning kit"],
   },
   {
     slug: "unfurnished-flat",

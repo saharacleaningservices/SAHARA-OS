@@ -12,7 +12,7 @@ import { openLead } from "@/components/public/bhk-price-cards";
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const chip = (on: boolean) => `min-h-11 whitespace-nowrap rounded-xl px-3 text-sm font-bold transition ${on ? "bg-primary text-white shadow" : "bg-white text-[#0a2540] ring-1 ring-[#0a2540]/15 hover:ring-primary"}`;
 
-export type TierScope = { included: string[]; excluded: string[] };
+export type TierScope = { included: string[]; excluded: string[]; /** Included lines to show bold + highlighted (the tier's differentiator). */ highlight?: string[] };
 export type HomeRow = { bhk: string; premium: number | null; platinum: number | null; premiumId?: string; platinumId?: string };
 type PropType = "1 BHK" | "2 BHK" | "3 BHK" | "4 BHK+" | "Bungalow / Villa";
 const TYPES: PropType[] = ["1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Bungalow / Villa"];
@@ -77,7 +77,7 @@ export function PackageCalculator({ service, rows, scope, note, defaultOccasion 
               </div>
               <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{price != null ? inr(price) : <span className="text-lg">Price after free site inspection</span>}</p>
               <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-emerald-700">Included</p>
-              <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/85">{scope[tier].included.map((i) => <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}</ul>
+              <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/85">{scope[tier].included.map((i) => scope[tier].highlight?.includes(i) ? <li key={i} className="flex gap-1.5 rounded-lg bg-amber-100 px-2 py-1 font-extrabold text-[#0a2540] ring-1 ring-amber-300"><Check className="mt-0.5 size-4 shrink-0 text-emerald-700" />{i}</li> : <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}</ul>
               <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-red-700">Not included</p>
               <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/70">{scope[tier].excluded.map((i) => <li key={i} className="flex gap-1.5"><X className="mt-0.5 size-4 shrink-0 text-red-500" />{i}</li>)}</ul>
               <button type="button" onClick={() => { const id = tier === "Premium" ? row?.premiumId : row?.platinumId; openLead(price != null && id ? { service: label, pkg: `${type} ${tier}`, price, category: "HOME_DEEP_CLEANING", items: [{ contentId: id, qty: 1 }], propertyType: type, packageName: `${tier}${occasion === "Regular" ? "" : ` · ${occasion}`}` } : { service: label, pkg: `${type} ${tier}`, inspection: true }); }} className="mt-4 min-h-12 rounded-xl bg-primary text-sm font-bold text-white md:mt-auto">{price != null ? `Book ${tier} · ${inr(price)}` : "Book Free Inspection"}</button>

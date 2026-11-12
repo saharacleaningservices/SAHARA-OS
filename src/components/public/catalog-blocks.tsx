@@ -3,9 +3,11 @@ import Link from "next/link";
 import { ArrowRight, Building2, CalendarCheck, ClipboardCheck, FileText, Home, MapPin, MapPinned, Phone, Sparkles, Star, Truck } from "lucide-react";
 import { img } from "@/config/image-registry";
 import { CATALOG_CATEGORIES, INSPECTION_STEPS, catalogServiceBySlug, categoryPath, excludesFor, servicesIn, servicePath, type CatalogService } from "@/config/service-catalog";
+import { SERVICE_PACKAGES } from "@/config/service-packages";
+import { ServicePackageCards, type PackageCard } from "@/components/public/service-package-cards";
 import { getPublicPricing } from "@/server/pricing";
 import { getFeaturedGallery } from "@/server/actions/gallery";
-import { liveCombos, livePkgs, PREMIUM_SCOPE, PLATINUM_SCOPE, PREMIUM_EXCLUDED, PLATINUM_EXCLUDED } from "@/lib/marketing-content";
+import { liveCombos, livePkgs, PREMIUM_SCOPE, PLATINUM_SCOPE, PLATINUM_HIGHLIGHT, PREMIUM_EXCLUDED, PLATINUM_EXCLUDED } from "@/lib/marketing-content";
 import { CLIENT_LOGOS } from "@/lib/client-logos";
 import { ClientCarousel } from "@/components/ui/client-carousel";
 import { BeforeAfterGallery } from "@/components/public/before-after-gallery";
@@ -105,7 +107,7 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
       <PackageCalculator
         service={service.name}
         rows={rows.map((r) => ({ bhk: r.bhk, premium: r.premium, platinum: r.platinum, premiumId: pricing.items.find((i) => i.group === "PREMIUM" && i.bhk === r.bhk)?.contentId, platinumId: pricing.items.find((i) => i.group === "PLATINUM" && i.bhk === r.bhk)?.contentId }))}
-        scope={{ Premium: { included: PREMIUM_SCOPE, excluded: PREMIUM_EXCLUDED }, Platinum: { included: PLATINUM_SCOPE, excluded: PLATINUM_EXCLUDED } }}
+        scope={{ Premium: { included: PREMIUM_SCOPE, excluded: PREMIUM_EXCLUDED }, Platinum: { included: PLATINUM_SCOPE, excluded: PLATINUM_EXCLUDED, highlight: [PLATINUM_HIGHLIGHT] } }}
         note={festivalPriceNote(campaign)}
         defaultOccasion={service.slug === "move-in-move-out-cleaning" ? "Unfurnished" : "Regular"}
         unfurnished={pricing.items.filter((i) => i.group === "UNFURNISHED" && i.price != null && i.bhk).map((i) => ({ bhk: i.bhk!, price: i.price!, id: i.contentId }))}
@@ -121,7 +123,7 @@ export async function ServicePricing({ service }: { service: CatalogService }) {
   if (service.pricing.mode === "from") {
     const items = (service.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id)).filter((i): i is NonNullable<typeof i> => !!i);
     if (items.length === 0) return <InspectionFlow service={service.name} title="Price confirmed before booking" />;
-    return <QtyCalculator service={service.name} items={items.map(toQty)} note="Minimum quantities apply as shown." />;
+    return <ServicePackageCards service={service.name} cards={items.map((i) => packageCard(service, i))} note="Minimum quantities apply as shown. Add-ons are offered at checkout." />;
   }
   if (service.pricing.mode === "pest") return <PestCalculator rows={PEST_BHK_RATES.map((r, n) => ({ ...r, image: PEST_IMAGES[n % PEST_IMAGES.length] }))} sizes={PEST_BHK_SIZES} note="Flat rates for apartments." />;
   return <InspectionFlow service={service.name} b2b={service.category === "commercial"} />;
@@ -132,34 +134,30 @@ const PEST_IMAGES = [img("pest").src, img("pest-backpack").src, img("pest-rodent
 
 const toQty = (i: PriceItem): QtyItem => ({ id: i.contentId, name: i.name, price: i.price, unit: i.unit, minQty: i.minQty, rule: [i.rule, i.scope].filter(Boolean).join(" · ") || undefined, priceNote: i.priceNote });
 
+/** One visual package card: the owner's per-service spec when there is one, else the catalog service's own scope. Price is always live. */
+function packageCard(service: CatalogService, i: PriceItem): PackageCard {
+  const spec = SERVICE_PACKAGES[service.slug]?.find((p) => p.contentId === i.contentId);
+  return {
+    id: i.contentId,
+    title: spec?.title ?? i.name,
+    badge: spec?.badge,
+    price: i.price,
+    unit: i.unit,
+    minQty: Math.max(1, i.minQty ?? 1),
+    priceNote: i.priceNote,
+    qty: spec?.qty ?? false,
+    included: spec?.included ?? service.includes,
+    excluded: spec?.excluded ?? excludesFor(service),
+    highlight: spec?.highlight ?? [],
+  };
+}
+
 /** Every individual-service rate in one calculator — for the Individual Services category page. */
 export async function IndividualRates() {
   const pricing = await getPublicPricing();
   const items = servicesIn("individual").flatMap((s) => (s.pricing.contentIds ?? []).map((id) => pricing.items.find((i) => i.contentId === id))).filter((i): i is NonNullable<typeof i> => !!i);
   const unique = items.filter((i, n) => items.findIndex((x) => x.contentId === i.contentId) === n);
   return <QtyCalculator service="Individual Services" items={unique.map(toQty)} note="Minimum quantities apply as shown." heading="Individual service rates" />;
-}
-
-/** Full scope of work: what's included · not included (owner 2026-11-02: no GST blocks on inner pages). */
-export function ScopeOfWork({ service }: { service: CatalogService }) {
-  const home = service.pricing.mode === "bhk";
-  return (
-    <section aria-labelledby="sow-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
-      <h2 id="sow-title" className="text-xl font-extrabold text-[#0a2540] sm:text-2xl">Scope of work</h2>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl bg-emerald-50 p-4">
-          <p className="text-sm font-extrabold text-emerald-800">What&apos;s included</p>
-          <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/85">{(home ? PREMIUM_SCOPE : service.includes).map((i) => <li key={i} className="flex gap-1.5"><span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-emerald-600" />{i}</li>)}</ul>
-          {home && <p className="mt-2 text-xs font-semibold text-emerald-800">Platinum adds wall wet cleaning.</p>}
-        </div>
-        <div className="rounded-2xl bg-red-50 p-4">
-          <p className="text-sm font-extrabold text-red-800">Not included</p>
-          <ul className="mt-2 space-y-1.5 text-sm text-[#0a2540]/80">{(home ? PREMIUM_EXCLUDED : excludesFor(service)).map((i) => <li key={i} className="flex gap-1.5"><span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-red-500" />{i}</li>)}</ul>
-        </div>
-      </div>
-      <Link href="/scope-of-work" className="mt-3 inline-block text-sm font-bold text-primary">Full scope of work →</Link>
-    </section>
-  );
 }
 
 /** Category landing page body: every service in the category as a card (rate badge → its own landing page). */

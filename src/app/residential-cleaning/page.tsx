@@ -36,7 +36,7 @@ export default async function ResidentialCleaningPage() {
     { title: "Home Deep Cleaning", text: "Full-home deep cleaning by a trained in-house team — Premium and Platinum packages for 1, 2 and 3 BHK.", href: "#quote", cta: "Choose package" },
     { title: "Kitchen Deep Cleaning", text: "Cabinets, platform, tiles, sink and appliance exteriors cleaned thoroughly.", note: priceLine(find(small, "Kitchen Deep Cleaning (Without")), href: "/booking?service=home#book", cta: "Book kitchen cleaning" },
     { title: "Bathroom Deep Cleaning", text: "Tiles, fittings, glass and floors scrubbed and descaled.", note: priceLine(find(small, "Bathroom Deep Cleaning")), href: "/booking?service=home#book", cta: "Book bathroom cleaning" },
-    { title: "Sofa Shampooing", text: "Machine shampooing and extraction for fabric sofas.", note: priceLine(find(small, "Sofa Cleaning")), href: "/booking?service=home#book", cta: "Book sofa cleaning" },
+    { title: "Sofa Shampooing", text: "Machine shampooing and extraction for fabric sofas.", note: priceLine(find(small, "Sofa Shampooing")), href: "/booking?service=home#book", cta: "Book sofa cleaning" },
     { title: "Carpet Shampooing", text: "Carpet shampooing and extraction, priced by carpet size.", note: priceLine(find(small, "Carpet Cleaning")), href: "/booking?service=home#book", cta: "Book carpet cleaning" },
   ];
   return (

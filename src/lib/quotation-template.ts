@@ -4,14 +4,14 @@
 
 import type { HomeTier } from "@/lib/service-scope";
 
-// Package scope updated by the owner on 22 Oct 2026: Premium adds refrigerator / microwave and chimney EXTERIOR cleaning and
-// dry vacuuming of sofa, mattresses, curtains and carpets; Platinum adds wall wet cleaning and full chimney cleaning.
+// Package scope updated by the owner on 22 Oct 2026 and again on 12 Nov 2026: chimney cleaning is no longer part of either
+// package (it is the "Chimney Deep Cleaning" add-on); Platinum adds wall wet cleaning.
 export const PREMIUM_SCOPE = [
   "Ceiling & wall dry dusting (cobweb / spider-web removal with brush)",
   "Fan, light and door dusting",
   "Window glass cleaning and sliding-channel vacuuming",
   "Refrigerator & microwave exterior cleaning",
-  "Kitchen chimney exterior cleaning",
+  "Kitchen exterior & exhaust fan cleaning",
   "Dry vacuuming of sofa, mattresses, curtains and carpets",
   "Bathroom and kitchen deep cleaning",
   "Floor machine scrubbing",
@@ -19,13 +19,13 @@ export const PREMIUM_SCOPE = [
 
 export const PLATINUM_EXTRA_SCOPE = [
   "Wall wet cleaning / wipe-down (for washable paints)",
-  "Kitchen chimney cleaning (full)",
 ] as const;
 
 /** Complimentary offer highlight printed under a Premium / Platinum package. Set to "" to switch it off. */
 export const FREE_FRIDGE_NOTE = "(Single Fridge Internal Deep Cleaning Included FREE for this booking)";
 
 export const QUOTATION_EXCLUSIONS = [
+  "Chimney Deep Cleaning is NOT included (available as an add-on).",
   "Protective plastic wrap removal (post-interior work) is EXCLUDED.",
   "Excessive glue, paint-stain scraping and cement removal are EXCLUDED.",
   "Upholstery (sofa / carpet / mattress) foam & shampoo wet cleaning is EXCLUDED (dry vacuuming is included).",
@@ -60,7 +60,7 @@ export function modernizePaymentTerms(text: string): string {
 /** Stored on new quotations as the default terms. */
 export const STANDARD_TERMS_TEXT = STANDARD_TERMS_LINES.map((l, i) => `${i + 1}. ${l}`).join("\n");
 
-/** Scope bullets for a full-house package: Premium list, Platinum = Premium + wall wet cleaning + full chimney cleaning. */
+/** Scope bullets for a full-house package: Premium list, Platinum = Premium + wall wet cleaning. */
 export function packageScopeLines(tier: HomeTier): string[] {
   return tier === "Platinum" ? [...PREMIUM_SCOPE, ...PLATINUM_EXTRA_SCOPE] : [...PREMIUM_SCOPE];
 }
