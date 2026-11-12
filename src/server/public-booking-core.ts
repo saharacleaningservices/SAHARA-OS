@@ -339,14 +339,14 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
           ...(latestTouch ? latestFields : {}),
           ...(existingOpen.acquisitionChannel ? {} : originalFields),
           // Paid-channel CRM tag (owner 2026-11-12) — only fills an empty tag, never replaces one staff chose.
-          ...(!existingOpen.sourceTag && sourceTagForChannel(existingOpen.acquisitionChannel ?? channel, firstTouch?.campaign) ? { sourceTag: sourceTagForChannel(existingOpen.acquisitionChannel ?? channel, firstTouch?.campaign) } : {}),
+          ...(!existingOpen.sourceTag && sourceTagForChannel(existingOpen.acquisitionChannel ?? channel, firstTouch?.campaign, firstTouch?.medium) ? { sourceTag: sourceTagForChannel(existingOpen.acquisitionChannel ?? channel, firstTouch?.campaign, firstTouch?.medium) } : {}),
         },
       })
     : await db.lead.create({
     data: {
       ...originalFields,
       ...latestFields,
-      ...(sourceTagForChannel(channel, firstTouch?.campaign) ? { sourceTag: sourceTagForChannel(channel, firstTouch?.campaign) } : {}),
+      ...(sourceTagForChannel(channel, firstTouch?.campaign, firstTouch?.medium) ? { sourceTag: sourceTagForChannel(channel, firstTouch?.campaign, firstTouch?.medium) } : {}),
       formSubmittedAt: new Date(),
       leadNumber,
       name: data.name,
@@ -545,6 +545,8 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
       .join(" · "),
     href: `/leads/${lead.id}`,
     whatsappToAdmin: true,
+    sourceTag: lead.sourceTag,
+    sourceLandingPage: lead.landingPage,
     meta: { leadId: lead.id, leadNumber, source, ...(data.leadTag ? { leadTag: data.leadTag } : {}) },
   });
 

@@ -1,3 +1,4 @@
+import { parseRefCode, stripRefCode, sourceTagForRef, sourceLabelForTag } from "@/lib/source-label";
 import { sourceLineForNumber, type SourceLine } from "@/lib/source-line";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { parseCtwaReferral, ctwaLeadFields, describeCtwa, type CtwaReferral } from "@/lib/whatsapp-referral";
@@ -325,7 +326,11 @@ async function handleInboundMessages(value: MetaChangeValue): Promise<boolean> {
 async function processInboundMessage(m: MetaInboundMessage & { from: string }, reviewUrl: string, profileName: string | null = null, line: SourceLine = "Main-API", toNumber = "") {
   {
     if (m.type === "text") {
-      const body = (m.text?.body || "").trim();
+      const rawBody = (m.text?.body || "").trim();
+      // "[Ref: GMB-MAGARPATTA]" etc. is appended by the website's WhatsApp buttons (lib/source-label.ts): read it for attribution, then
+      // drop it so keyword matching, the AI assistant and the lead notes only see what the customer actually wrote.
+      const refCode = parseRefCode(rawBody);
+      const body = stripRefCode(rawBody);
       if (OPT_OUT_KEYWORDS.test(body)) {
         await setWhatsAppOptOut(m.from, "CUSTOMER_REPLY", `Replied "${body}"`);
         await sendWhatsApp({
@@ -351,7 +356,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
       } else if (body && isBotTrigger(body) && !AI_ENABLED) {
         // In-house booking chatbot (owner 2026-10-26): greetings / "price" / "book" get the service menu.
         // The enquiry is still logged (lead / timeline) — without the plain acknowledgement, the menu is the reply.
-        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { silent: true, line, toNumber });
+        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { silent: true, line, toNumber, refCode });
         await sendBotMenu(m.from, m.id);
       } else if (body) {
         // Any other free-text inbound message is a genuine new inquiry
@@ -360,7 +365,7 @@ async function processInboundMessage(m: MetaInboundMessage & { from: string }, r
         // missed-call/route.ts) — same dedup logic, same auto-lead shape —
         // so a customer already mid-conversation about an open enquiry or
         // job doesn't get a duplicate Lead created for every message.
-        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { line, toNumber });
+        await handleWhatsAppInquiry(m.from, body, profileName, parseCtwaReferral(m.referral), { line, toNumber, refCode });
         await aiRespond(m.from, body);
       }
       return;
@@ -495,6 +500,15 @@ function cleanProfileName(name: string | null | undefined): string | null {
   return n && /[\p{L}]/u.test(n) ? n : null;
 }
 
+/** Acquisition channel a source tag belongs to (keeps the Marketing dashboard consistent with the tag). */
+function channelForTag(tag: string): string | null {
+  if (tag.startsWith("SRC-GOOGLE")) return "Google Ads";
+  if (tag.startsWith("SRC-META")) return "Meta Ads";
+  if (tag.startsWith("SRC-GMB")) return "Google Business Profile";
+  if (tag === "SRC-ORGANIC-SEO") return "Google Organic/SEO";
+  return null;
+}
+
 const istDay = () => new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
 const isUniqueViolation = (e: unknown, field: string) => {
   const err = e as { code?: string; meta?: { target?: unknown } };
@@ -524,17 +538,21 @@ async function sendBotMenu(toNumber: string, messageId?: string, opening?: strin
   return sendWhatsAppInteractiveList({ kind: "OTHER", toNumber, bodyText: menu.bodyText, buttonLabel: menu.buttonLabel, rows: menu.rows, relatedType: "WhatsAppChatbot", relatedId: messageId });
 }
 
-async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean; line?: SourceLine; toNumber?: string } = {}): Promise<{ leadId: string | null; created: boolean }> {
+async function handleWhatsAppInquiry(from: string, body: string, profileName: string | null = null, ad: CtwaReferral | null = null, opts: { silent?: boolean; line?: SourceLine; toNumber?: string; refCode?: string | null } = {}): Promise<{ leadId: string | null; created: boolean }> {
   const mobile = last10(from);
   if (mobile.length !== 10) return { leadId: null, created: false };
   const adLine = ad ? ` · ${describeCtwa(ad)}` : "";
-  const note = `Inbound WhatsApp: "${body.slice(0, 300)}"${adLine}`;
+  const refTag = sourceTagForRef(opts.refCode);
+  const refLine = refTag ? ` · Source: ${sourceLabelForTag(refTag).label}` : "";
+  const note = `Inbound WhatsApp: "${body.slice(0, 300)}"${adLine}${refLine}`;
 
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const recent = (await findLeadsForMobile(mobile)).find((l) => !["COMPLETED", "CANCELLED"].includes(l.stage) || l.createdAt >= dayAgo);
   if (recent) {
     // Dedupe stays last-10; an older untagged lead picks up the line the customer used (never overwritten once set).
     if (opts.line) await db.lead.updateMany({ where: { id: recent.id, receivedOnNumber: null, sourceLine: "Main" }, data: { sourceLine: opts.line, receivedOnNumber: opts.toNumber || null } }).catch(() => {});
+    // A tagged conversation start fills an empty source tag on the customer's open lead — never replaces one staff chose.
+    if (refTag) await db.lead.updateMany({ where: { id: recent.id, sourceTag: null }, data: { sourceTag: refTag } }).catch(() => {});
     await addTimelineEntry({ leadId: recent.id, type: "NOTE", body: note }).catch(() => {});
     return { leadId: recent.id, created: false };
   }
@@ -558,6 +576,9 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   const lineFields = { sourceLine: opts.line ?? "Main-API", receivedOnNumber: opts.toNumber && opts.toNumber.length === 10 ? opts.toNumber : null };
   const existingCustomer = await db.customer.findUnique({ where: { mobile } }).catch(() => null);
   const displayName = existingCustomer?.name || cleanProfileName(profileName);
+  // Source tag (owner 2026-11-12): an issued "[Ref: …]" code wins, then a click-to-WhatsApp ad, then a known customer (repeat), else direct.
+  const leadSourceTag = refTag ?? (ad ? "SRC-META-ADS" : existingCustomer ? "SRC-RETURN-CLIENT" : "SRC-DIRECT-WA");
+  const refChannel = refTag ? channelForTag(refTag) : null;
   let lead: { id: string; leadNumber: string } | null = null;
   for (let attempt = 0; attempt < 3 && !lead; attempt++) {
     try {
@@ -577,12 +598,13 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
           ...(ad
             ? ctwaLeadFields(ad)
             : {
-                acquisitionChannel: "WhatsApp Direct",
-                firstTouchSource: "WhatsApp Direct",
+                acquisitionChannel: refChannel ?? "WhatsApp Direct",
+                firstTouchSource: refChannel ?? "WhatsApp Direct",
                 firstTouchAt: new Date(),
-                latestTouchSource: "WhatsApp Direct",
+                latestTouchSource: refChannel ?? "WhatsApp Direct",
                 latestTouchAt: new Date(),
               }),
+          sourceTag: leadSourceTag,
           stage: "NEW",
           notes: `Auto-created from an inbound WhatsApp message: "${body.slice(0, 300)}"${adLine}${ad?.ctwaClid ? ` · ctwa_clid ${ad.ctwaClid}` : ""}`,
         },
@@ -608,8 +630,9 @@ async function handleWhatsAppInquiry(from: string, body: string, profileName: st
   await notify({
     kind: "NEW_INQUIRY",
     title: ad ? `📣 Ad lead on WhatsApp — ${displayName || mobile}` : `💬 WhatsApp inquiry — ${displayName || mobile}`,
-    body: `Auto-lead ${leadNumber} · "${body.slice(0, 100)}"${ad ? ` · from a Meta ad${ad.headline ? `: ${ad.headline}` : ""}` : ""}`,
+    body: `Auto-lead ${leadNumber} · "${body.slice(0, 100)}"${ad ? ` · from a Meta ad${ad.headline ? `: ${ad.headline}` : ""}` : ""} · ${sourceLabelForTag(leadSourceTag).label}`,
     href: `/leads/${lead.id}`,
+    sourceTag: leadSourceTag,
   }).catch(() => {});
 
   // When the grounded AI assistant is on, it answers instead (no double reply); a chatbot trigger sends its own menu.

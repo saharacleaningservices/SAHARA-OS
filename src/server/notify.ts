@@ -17,6 +17,7 @@ import { db } from "@/lib/db";
 import { pushToUsers } from "@/lib/webpush";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { canSeeCustomerContact } from "@/lib/permissions";
+import { sourceLabelForTag, withSourceHeader } from "@/lib/source-label";
 
 /** Customer numbers are withheld from roles without contact access (owner rule 2026-10-08). */
 const maskPhones = (t: string | null | undefined) => (t ? t.replace(/(\+?91[\s-]?)?\b\d{10}\b/g, "(number hidden)") : t);
@@ -94,6 +95,12 @@ export const SECURITY_KINDS: ReadonlySet<NotifKind> = CRITICAL_KINDS;
 /** Whether a notification also goes to the owner's WhatsApp. Security kinds never do. */
 export const whatsappCopyFor = (kind: NotifKind, whatsappToAdmin?: boolean) => !SECURITY_KINDS.has(kind) && Boolean(whatsappToAdmin);
 
+/** New enquiry / booking alerts open with the bracketed source header and end with a Source line (owner 2026-11-12); other alerts are unchanged. */
+export function adminWhatsAppBody(input: Pick<NotifyInput, "kind" | "title" | "body" | "sourceTag" | "sourceLandingPage">): string {
+  const text = `${input.title}${input.body ? `\n${input.body}` : ""}`;
+  return input.kind === "NEW_INQUIRY" || input.kind === "NEW_BOOKING" ? withSourceHeader(text, sourceLabelForTag(input.sourceTag, input.sourceLandingPage)) : text;
+}
+
 export type NotifyInput = {
   kind: NotifKind;
   title: string;
@@ -103,6 +110,10 @@ export type NotifyInput = {
   extraUserIds?: string[];
   /** also queue a WhatsApp copy to the admin's registered number */
   whatsappToAdmin?: boolean;
+  /** Lead.sourceTag of the enquiry / booking — drives the "[GMB-MAGARPATTA]" header and "🏷️ Source:" line on the admin WhatsApp copy */
+  sourceTag?: string | null;
+  /** Lead.landingPage — names the SEO page in the Source line */
+  sourceLandingPage?: string | null;
   meta?: Record<string, unknown>;
   /** loud alert + stays on screen, without the critical-kind WhatsApp copy */
   critical?: boolean;
@@ -166,7 +177,7 @@ export async function notify(input: NotifyInput): Promise<void> {
             kind: "OTHER",
             toNumber: admin.phone,
             toName: admin.name,
-            body: `${input.title}${input.body ? `\n${input.body}` : ""}`,
+            body: adminWhatsAppBody(input),
           }).catch(() => {});
         }
       }

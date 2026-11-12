@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { CAPI_EVENTS, normalizePhone, sendCapiEvent } from "@/lib/meta-capi";
+import { alreadyRelayed } from "@/lib/meta-event-id";
 
 // Called by the browser right after a public form is submitted (see trackLead in marketing-tags.tsx).
 // Adds IP / user-agent / _fbp / _fbc server-side and relays to Meta. Public by design, so it is
@@ -30,6 +31,9 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return NextResponse.json({ ok: false }, { status: 400 });
   // A real lead always has a valid Indian mobile; without one this public endpoint refuses to relay anything.
   if (!normalizePhone(parsed.data.mobile)) return NextResponse.json({ ok: false }, { status: 400 });
+
+  // The same (event, id) already went to Meta moments ago (retry / double submit): answer ok without sending it twice.
+  if (alreadyRelayed(parsed.data.eventName, parsed.data.eventId)) return NextResponse.json({ ok: true, duplicate: true });
 
   const referer = request.headers.get("referer");
   const { fbp: bodyFbp, fbc: bodyFbc, ...event } = parsed.data;

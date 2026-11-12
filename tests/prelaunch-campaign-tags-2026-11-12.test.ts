@@ -14,7 +14,9 @@ test("campaign number is read only for the matching platform letter", () => {
   assert.equal(campaignNumber("meta_g2", "m"), null);
   assert.equal(campaignNumber("brand_g10", "g"), null);
   assert.equal(campaignNumber("sig2", "g"), null);
-  assert.equal(campaignNumber("summer-m6", "m"), null);
+  assert.equal(campaignNumber("summer-m6", "m"), 6, "M6 / G6 / M7 / G7 are the painting and pest-control campaigns");
+  assert.equal(campaignNumber("pest-g7", "g"), 7);
+  assert.equal(campaignNumber("summer-m8", "m"), null);
   assert.equal(campaignNumber(null, "g"), null);
 });
 
@@ -42,15 +44,15 @@ test("picker offers every campaign tag and does not call them old values", () =>
   assert.ok(!choices.some((o) => o.label.includes("old value")));
 });
 
-test("ten launch campaigns plus three manual tags", () => {
-  assert.equal(CAMPAIGN_SOURCE_TAGS.length, 13);
+test("fourteen launch campaigns (G1-G7, M1-M7) plus three manual tags", () => {
+  assert.equal(CAMPAIGN_SOURCE_TAGS.length, 17);
   assert.ok((CAMPAIGN_SOURCE_TAGS as readonly string[]).includes("SRC-WA-4K-BLAST"));
 });
 
 test("every lead-creation path passes the campaign into the tag", () => {
-  assert.match(read("src/server/public-booking-core.ts"), /sourceTagForChannel\(channel, firstTouch\?\.campaign\)/);
-  assert.match(read("src/server/actions/booking-checkout.ts"), /sourceTagForChannel\(channel, first\?\.campaign\)/);
-  assert.match(read("src/server/enquiry-intake.ts"), /sourceTagForChannel\(channel, utm\.campaign\)/);
+  assert.match(read("src/server/public-booking-core.ts"), /sourceTagForChannel\(channel, firstTouch\?\.campaign, firstTouch\?\.medium\)/);
+  assert.match(read("src/server/actions/booking-checkout.ts"), /sourceTagForChannel\(channel, first\?\.campaign, first\?\.medium\)/);
+  assert.match(read("src/server/enquiry-intake.ts"), /sourceTagForChannel\(channel, utm\.campaign, utm\.medium\)/);
 });
 
 test("utm_content survives the contact form into the lead", () => {

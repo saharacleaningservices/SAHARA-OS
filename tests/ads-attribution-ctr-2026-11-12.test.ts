@@ -139,10 +139,12 @@ test("capi route accepts validated fbp/fbc from the body and still falls back to
 
 // ── Part A: CRM source tags ──────────────────────────────────────────────────
 
-test("paid channels map to the CRM source tags; everything else stays untagged", () => {
+test("paid channels map to the CRM source tags; GMB / SEO tag only with a branch / organic visit (owner 2026-11-12); the rest stay untagged", () => {
   assert.equal(sourceTagForChannel("Google Ads"), "SRC-GOOGLE-ADS");
   assert.equal(sourceTagForChannel("Meta Ads"), "SRC-META-ADS");
-  for (const c of ["Google Organic/SEO", "Google Business Profile", "Facebook Organic", "Website Direct", "Unattributed", "Website Form", null, undefined]) assert.equal(sourceTagForChannel(c), null);
+  assert.equal(sourceTagForChannel("Google Organic/SEO"), "SRC-ORGANIC-SEO");
+  assert.equal(sourceTagForChannel("Google Business Profile"), null, "no branch named - never guessed");
+  for (const c of ["Facebook Organic", "Website Direct", "Unattributed", "Website Form", null, undefined]) assert.equal(sourceTagForChannel(c), null);
   assert.ok((SOURCE_TAGS as readonly string[]).includes("SRC-GOOGLE-ADS") && (SOURCE_TAGS as readonly string[]).includes("SRC-META-ADS"));
 });
 
@@ -168,11 +170,12 @@ test("meta descriptions use real catalog prices and the requested trust points",
   assert.match(d["home-deep-cleaning"], /manual floor scrubbing/i);
   assert.ok(!/scrubbing machine/i.test(JSON.stringify(d)), "crew scrubs manually - no machine claim");
   assert.match(d["sofa-carpet-mattress-cleaning"], /₹199 per seat/);
-  assert.match(d.home, /₹3,199/);
+  assert.ok(!/₹|\d{1,3},\d{3}/.test(d.home), "homepage snippet is price-free (owner 2026-11-12)");
+  assert.match(d.home, /Pune's 4\.9★ Rated Home Deep Cleaning, Sofa Cleaning, Pest Control & Painting \| Pay After Service/);
   const homepage = `${BRAND_TAGLINE} ${d.home}`; // the page prefixes the official tagline
   assert.match(read("src/app/page.tsx"), /const DESC = `\$\{BRAND_TAGLINE\} \$\{ctrDescriptions\(\)\.home\}`;/);
   for (const text of [d["home-deep-cleaning"], d["sofa-carpet-mattress-cleaning"], homepage]) {
-    assert.match(text, /in-house trained staff/i);
+    if (text !== homepage) assert.match(text, /in-house trained staff/i);
     assert.match(text, /pay after service/i);
     assert.ok(text.length >= 110 && text.length <= 165, `snippet length ${text.length}: ${text}`);
   }
