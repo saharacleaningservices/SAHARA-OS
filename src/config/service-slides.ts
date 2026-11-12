@@ -53,7 +53,7 @@ export const SERVICE_SLIDE_FOLDER: Record<string, SlideFolder> = {
   "move-in-move-out-cleaning": "home",
   "kitchen-deep-cleaning": "kitchen",
   "bathroom-deep-cleaning": "bathroom",
-  "sofa-upholstery-shampooing": "sofa",
+  "sofa-upholstery-cleaning": "sofa",
   "carpet-cleaning": "carpet",
   "window-cleaning": "window",
   "balcony-cleaning": "balcony",

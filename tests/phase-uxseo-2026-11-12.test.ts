@@ -57,9 +57,9 @@ test("tracking: standard funnel events exist, advance payment is opt-in, lead is
   assert.match(read("src/server/actions/booking-checkout.ts"), /mobile not OTP-verified/);
 });
 
-test("UI: mobile cards collapse to 5 inclusions; sliders auto-slide every 3.5 s; boxed 1280px hero", () => {
+test("UI: mobile cards collapse to 5 inclusions; sliders auto-slide every 2.2 s; boxed 1280px hero", () => {
   assert.match(read("src/components/public/collapsible-list.tsx"), /limit = 5/);
-  assert.match(read("src/components/public/service-slider.tsx"), /const ROTATE_MS = 3500/);
+  assert.match(read("src/components/public/service-slider.tsx"), /const ROTATE_MS = 2200/);
   assert.match(read("src/components/public/home-hero-slider.tsx"), /md:max-w-\[1280px\]/);
   assert.match(read("src/config/service-slides.ts"), /slidesForCategory/);
 });

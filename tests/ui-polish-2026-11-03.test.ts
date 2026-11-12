@@ -21,7 +21,7 @@ test("hero slider: 2.5 s per slide, 300 ms slide animation, shorter on phones", 
 });
 
 test("service heroes: compact on mobile; Sofa, Painting and Pest Control carry short hero copy", () => {
-  for (const slug of ["sofa-upholstery-shampooing", "interior-painting", "pest-control"]) {
+  for (const slug of ["sofa-upholstery-cleaning", "interior-painting", "pest-control"]) {
     const s = CATALOG_SERVICES.find((x) => x.slug === slug)!;
     assert.ok(s.heroIntro && s.heroIntro.length <= 70, `${slug} hero intro too long`);
     assert.ok(s.heroPoints && s.heroPoints.length <= 3 && s.heroPoints.every((p) => p.length <= 30), `${slug} hero points too long`);

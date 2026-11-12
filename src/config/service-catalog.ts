@@ -107,14 +107,14 @@ export const CATALOG_SERVICES: CatalogService[] = [
     gallery: "Kitchen & Bathroom", seoCategory: "kitchen-bathroom-cleaning", faqs: [{ q: "Is chimney cleaning included?", a: "No. Chimney cleaning is not part of this service." }, BRING],
   },
   {
-    slug: "bathroom-deep-cleaning", category: "individual", name: "Bathroom Scrubbing", blurb: "Descaling of tiles, grout, WC and fittings",
+    slug: "bathroom-deep-cleaning", category: "individual", name: "Bathroom Deep Cleaning", blurb: "Descaling of tiles, grout, WC and fittings",
     intro: "Machine scrubbing and descaling of bathroom tiles, grout, WC, basin, mirrors and fittings.",
     includes: ["Hard-water stain and scale removal", "Wall and floor tile grout scrubbing", "WC, basin and shower area", "Taps, fittings and mirrors", "Exhaust fan and door"],
     pricing: { mode: "from", contentIds: ["SCS-10"] }, image: img("bathroom").src, imageAlt: img("bathroom").alt,
     gallery: "Kitchen & Bathroom", seoCategory: "kitchen-bathroom-cleaning", faqs: [BRING],
   },
   {
-    slug: "sofa-upholstery-shampooing", category: "individual", name: "Sofa & Upholstery Shampooing", blurb: "Extraction shampooing of fabric sofas and chairs",
+    slug: "sofa-upholstery-cleaning", category: "individual", name: "Sofa & Upholstery Cleaning", blurb: "Extraction shampooing of fabric sofas and chairs",
     intro: "Shampooing and wet extraction of fabric sofas, dining chairs and upholstery to lift stains, dust and odour.",
     heroIntro: "Shampoo and extraction for fabric sofas and chairs.", heroPoints: ["Stain pre-treatment", "Machine wet extraction", "Fast-dry finish"],
     includes: ["Dry vacuuming", "Shampoo pre-treatment of stains", "Machine wet extraction", "Fast-dry finish", "Mattress cleaning available as an add-on"],

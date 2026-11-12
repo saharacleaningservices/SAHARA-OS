@@ -43,7 +43,7 @@ test("5 verticals only; waterproofing / wallpaper never appear in the SEO engine
   const dump = JSON.stringify(SERVICE_CATEGORIES.map((c) => ({ ...c, faq: c.faq("X") }))) + JSON.stringify(LOCALITIES);
   assert.ok(!/waterproof|wallpaper/i.test(dump));
   const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const p = path.join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
-  const files = [...walk("src/app"), ...walk("src/config"), ...walk("src/components/public"), "src/lib/whatsapp-chatbot.ts", "src/lib/seo-schema.ts", "src/lib/seo-graph.ts", "src/lib/pune-areas.ts", "public/llms.txt"];
+  const files = [...walk("src/app"), ...walk("src/config"), ...walk("src/components/public"), "src/lib/whatsapp-chatbot.ts", "src/lib/seo-schema.ts", "src/lib/seo-graph.ts", "src/lib/pune-areas.ts"];
   for (const f of files) assert.ok(!/waterproof|wallpaper/i.test(readFileSync(f, "utf8")), `${f} mentions an excluded service`);
 });
 

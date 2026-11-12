@@ -7,7 +7,7 @@ One folder per service category. Each service-page hero slider reads these files
 |---|---|
 | home | Full House Deep Cleaning, Unfurnished, Move-in / Move-out |
 | kitchen | Kitchen Deep Cleaning |
-| bathroom | Bathroom Scrubbing |
+| bathroom | Bathroom Deep Cleaning |
 | sofa | Sofa & Upholstery Shampooing |
 | carpet | Carpet Cleaning |
 | window | Window Cleaning |

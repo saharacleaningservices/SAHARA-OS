@@ -242,7 +242,7 @@ export async function WorkGallery({ category, fallback, title = "Before & after 
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {fallback.map((f) => (
               <figure key={f.src} className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-                <Image src={f.src} alt={f.alt} fill sizes="(min-width:1024px) 25vw, 50vw" loading="lazy" className="object-cover" />
+                <Image src={f.src} alt={f.alt} fill sizes="(min-width:1024px) 33vw, 50vw" loading="lazy" className="object-cover" />
               </figure>
             ))}
           </div>
@@ -274,10 +274,15 @@ export function PartnersMarquee() {
  * Horizontal combo swiper (owner 2026-11-02): all combo packages in one right-to-left, touch-swipeable row (CSS scroll-snap, no JS),
  * so combos never add vertical page length.
  */
+export const RECOMMENDED_COMBO = "Kitchen + 2 Bathroom + Fridge";
+
 export async function ComboSwiper() {
   const pricing = await getPublicPricing();
   const combos = pricing.items.filter((i) => i.group === "COMBO" && !i.addOnOnly && i.price != null).map((i) => ({ id: i.contentId, name: i.name, price: i.price!, note: i.rule ?? "" }));
   if (combos.length === 0) return null;
+  // Recommended combo (owner 2026-11-12): Kitchen + 2 Bathroom + Fridge always comes first, with a RECOMMENDED badge.
+  const isRecommended = (name: string) => name === RECOMMENDED_COMBO;
+  combos.sort((a, b) => Number(isRecommended(b.name)) - Number(isRecommended(a.name)));
   return (
     <section aria-labelledby="combo-title">
       <div className="flex items-end justify-between gap-2">
@@ -286,8 +291,8 @@ export async function ComboSwiper() {
       </div>
       <ul className="-mx-4 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {combos.map((c) => (
-          <li key={c.name} className="flex w-[78%] shrink-0 snap-start flex-col rounded-3xl bg-white p-4 shadow-sm ring-1 ring-[#0a2540]/5 sm:w-[44%] lg:w-[31%]">
-            <p className="text-[11px] font-extrabold uppercase tracking-wide text-primary">Combo</p>
+          <li key={c.name} className={`flex w-[78%] shrink-0 snap-start flex-col rounded-3xl bg-white p-4 shadow-sm sm:w-[44%] lg:w-[31%] ${isRecommended(c.name) ? "ring-2 ring-amber-400" : "ring-1 ring-[#0a2540]/5"}`}>
+            {isRecommended(c.name) ? <p className="inline-flex w-fit items-center rounded-full bg-amber-400 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-[#0a2540]">★ Recommended</p> : <p className="text-[11px] font-extrabold uppercase tracking-wide text-primary">Combo</p>}
             <p className="mt-0.5 font-extrabold leading-snug text-[#0a2540]">{c.name}</p>
             <p className="mt-1 text-2xl font-extrabold text-[#0a2540]">{inr(c.price)}</p>
             {c.note && <p className="mt-1 text-xs text-[#0a2540]/65">{c.note}</p>}
@@ -412,11 +417,13 @@ export function HomeServiceCards() {
     { href: categoryPath("individual"), title: "Individual Services", sub: "Kitchen, bathroom, sofa, carpet, windows", img: img("express").src, alt: img("express").alt },
     { href: servicePath("interior-painting"), title: "Interior Painting", sub: "Free site inspection & written quote", img: img("painting").src, alt: img("painting").alt },
     { href: servicePath("pest-control"), title: "Pest Control", sub: "Cockroach, bed bug, rodent, termite, mosquito", img: img("pest").src, alt: img("pest").alt },
+    { href: categoryPath("commercial"), title: "Commercial Cleaning", sub: "Offices, Shops, Showrooms & Warehouses", img: img("office").src, alt: img("office").alt },
+    { href: servicePath("facility-management"), title: "Facility Management Services", sub: "Society, Office, Hospital, Restaurant & Hotel Housekeeping", img: img("housekeeping").src, alt: img("housekeeping").alt },
   ];
   return (
     <section id="services" aria-labelledby="svc-title" className="scroll-mt-20">
       <h2 id="svc-title" className="text-2xl font-extrabold text-[#0a2540] sm:text-3xl">Our services</h2>
-      <ul className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <ul className="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         {cards.map((c) => (
           <li key={c.href}>
             <Link href={c.href} className="group flex h-full flex-col overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-[#0a2540]/5 transition hover:-translate-y-0.5 hover:shadow-lg">

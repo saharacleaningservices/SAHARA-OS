@@ -32,3 +32,8 @@ test("hero slides lead with Before/After and keep Our equipment", () => {
 test("no placeholder SVGs remain under public/images/services", () => {
   for (const f of FOLDERS) assert.ok(!existsSync(join(process.cwd(), "public/images/services", f, "before-1.svg")));
 });
+
+test("homepage shows the new photo pairs before the older real-jobs carousel", () => {
+  const src = readFileSync(join(process.cwd(), "src/components/public/home-page.tsx"), "utf8");
+  assert.ok(src.indexOf("<FeaturedResults />") > 0 && src.indexOf("<FeaturedResults />") < src.indexOf("<BeforeAfterSection />"));
+});

@@ -30,14 +30,14 @@ test("trust card: slim strip below the hero, no negative-margin overlap (owner 2
   assert.doesNotMatch(h, /#1 Trusted Home Service Partner/);
 });
 
-test("header has no Call Now / WhatsApp Us; one floating contact button with a call + WhatsApp pop-up", () => {
+test("header has no Call Now / WhatsApp Us; one floating Direct Call button (phone handset, no WhatsApp bubble)", () => {
   const header = code("src/components/public/mega-menu.tsx");
   assert.doesNotMatch(header, /Call Now|WhatsApp Us/);
   const fab = read("src/components/public/floating-contact.tsx");
-  assert.match(fab, /fixed bottom-20 right-4/);
-  assert.match(fab, /aria-expanded=\{open\}/);
+  assert.match(fab, /fixed bottom-20 right-5 z-50/);
+  assert.match(fab, /PhoneCall/);
   assert.match(fab, /tel:\+91/);
-  assert.match(fab, /wa\.me\/91/);
+  assert.doesNotMatch(fab, /wa\.me|MessageCircle/, "no floating WhatsApp");
   assert.doesNotMatch(fab, /from "next\/image"|framer|motion|swiper/, "stays dependency-free");
   assert.match(read("src/components/public/landing-kit.tsx"), /<FloatingContact /);
   assert.match(read("src/components/public/category-landing.tsx"), /export function StickyWhatsApp\(_props[^)]*\) \{\s*return null;/, "old sticky WhatsApp retired so only one floating button exists");

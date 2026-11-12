@@ -1,4 +1,5 @@
 // AI-search / local SEO facts: business JSON-LD and /llms.txt. Run: npm run test:geo
+import { buildLlmsTxt } from "../src/app/llms.txt/route";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -47,10 +48,10 @@ test("page-specific extras still merge in (package offers on the home-cleaning p
 });
 
 test("/llms.txt: plain facts, booking links, no prices, no superlatives", () => {
-  const t = readFileSync(path.join(process.cwd(), "public/llms.txt"), "utf8");
+  const t = buildLlmsTxt("https://saharacleaningservices.com");
   assert.match(t, /^# Sahara Cleaning Services/m);
-  assert.match(t, /Serving Pune since 2012/);
-  assert.match(t, /https:\/\/booking\.saharacleaningservices\.com\/booking/);
+  assert.match(t, /Established: 2012/);
+  assert.match(t, /https:\/\/saharacleaningservices\.com\/booking/);
   for (const n of CONTACT.call) assert.ok(t.replace(/\s/g, "").includes(n), `phone ${n} listed`);
   assert.ok(!/₹|Rs\.?\s?\d/.test(t), "no prices");
   assert.ok(!/\b(best|top|number one|#1|cheapest)\b/i.test(t), "no superlative claims");
