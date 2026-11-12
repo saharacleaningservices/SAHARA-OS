@@ -27,17 +27,23 @@ const FOLDERS: Record<SlideFolder, { subject: string; showcase: Showcase[] }> = 
 
 const EXTS = ["webp", "jpg", "jpeg", "png"];
 /** Real before/after pairs the owner has dropped into the folder (server-only; checked per render, cheap). */
-function realPairs(folder: SlideFolder): Slide[] {
+export function beforeAfterPairsFor(folder: SlideFolder): { before: string; after: string; alt: string }[] {
   const dir = join(process.cwd(), "public", "images", "services", folder);
   const find = (kind: "before" | "after", n: number) => EXTS.map((e) => `${kind}-${n}.${e}`).find((f) => existsSync(join(dir, f)));
-  const out: Slide[] = [];
+  const out: { before: string; after: string; alt: string }[] = [];
   for (let n = 1; n <= 8; n++) {
     const b = find("before", n), a = find("after", n);
     if (!b || !a) break;
-    out.push({ src: `/images/services/${folder}/${b}`, alt: `Before cleaning — ${FOLDERS[folder].subject}`, label: "Before" });
-    out.push({ src: `/images/services/${folder}/${a}`, alt: `After Sahara deep cleaning — ${FOLDERS[folder].subject}`, label: "After" });
+    out.push({ before: `/images/services/${folder}/${b}`, after: `/images/services/${folder}/${a}`, alt: `${FOLDERS[folder].subject} cleaning` });
   }
   return out;
+}
+
+function realPairs(folder: SlideFolder): Slide[] {
+  return beforeAfterPairsFor(folder).flatMap((p) => [
+    { src: p.before, alt: `Before cleaning — ${FOLDERS[folder].subject}`, label: "Before" as const },
+    { src: p.after, alt: `After Sahara deep cleaning — ${FOLDERS[folder].subject}`, label: "After" as const },
+  ]);
 }
 
 /** Catalog service slug → photo folder. Services not listed here fall back to their own single hero photo. */
