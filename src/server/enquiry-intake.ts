@@ -1,5 +1,6 @@
 import { classifyTouch } from "@/lib/attribution";
 import { sourceTagForChannel } from "@/lib/source-tags";
+import { sourceLabelForTag, withSourceHeader } from "@/lib/source-label";
 import { sendEnquiryAck } from "@/server/enquiry-ack-email";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
@@ -67,6 +68,14 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
   };
   const landingPageUrl = str(raw.landing_page_url ?? raw.landingPageUrl, 500) || null;
   const channel = utm.source || utm.gclid || utm.fbclid ? classifyTouch({ source: utm.source, medium: utm.medium, campaign: utm.campaign, gclid: utm.gclid, fbclid: utm.fbclid, at: "x" }) : "Website Form";
+  const leadSourceTag = sourceTagForChannel(channel, utm.campaign, utm.medium);
+  const landingPath = (() => {
+    try {
+      return landingPageUrl ? new URL(landingPageUrl).pathname : null;
+    } catch {
+      return null;
+    }
+  })();
   const branchPick = str(raw.branch, 20).toLowerCase();
   const sourceLine = branchPick === "mohammadwadi" || utm.medium?.toLowerCase().includes("mohammadwadi") ? "Shoyab-GMB" : branchPick === "magarpatta" || utm.medium?.toLowerCase().includes("magarpatta") ? "Main-API" : "Main";
 
@@ -107,7 +116,7 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
         service: service as never,
         source: "WEBSITE" as never,
         acquisitionChannel: channel,
-        ...(sourceTagForChannel(channel, utm.campaign) ? { sourceTag: sourceTagForChannel(channel, utm.campaign) } : {}), // SRC-GOOGLE-ADS / SRC-META-ADS
+        ...(leadSourceTag ? { sourceTag: leadSourceTag } : {}), // SRC-GOOGLE-G# / SRC-META-M# / SRC-GMB-* / SRC-ORGANIC-SEO
         utmSource: utm.source,
         utmMedium: utm.medium,
         utmCampaign: utm.campaign,
@@ -146,7 +155,7 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
   const title = `📩 New enquiry — ${lead.name}`;
   const body = `${leadNumber} · ${serviceText || service.replace(/_/g, " ").toLowerCase()}${location ? ` · ${location}` : ""}`;
   // In-app + push for Admin / Accounts / Operations (Operations sees masked numbers); WhatsApp copy to Admin.
-  await notify({ kind: "NEW_INQUIRY", title, body, href: `/leads/${lead.id}`, whatsappToAdmin: true }).catch(() => {});
+  await notify({ kind: "NEW_INQUIRY", title, body, href: `/leads/${lead.id}`, whatsappToAdmin: true, sourceTag: leadSourceTag, sourceLandingPage: landingPath }).catch(() => {});
 
   // WhatsApp copy to the Accounts user (Shoyab). Never to Operations (Francis).
   const accounts = await db.user.findFirst({ where: { role: "ACCOUNTS", isActive: true }, orderBy: { createdAt: "asc" } }).catch(() => null);
@@ -155,7 +164,7 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
       kind: "OTHER",
       toNumber: accounts.phone,
       toName: accounts.name,
-      body: `${title}\n${body}\n📞 ${mobile}${message ? `\n“${message.slice(0, 160)}”` : ""}`,
+      body: withSourceHeader(`${title}\n${body}\n📞 ${mobile}${message ? `\n“${message.slice(0, 160)}”` : ""}`, sourceLabelForTag(leadSourceTag, landingPath)),
       relatedType: "Lead",
       relatedId: lead.id,
     }).catch(() => {});

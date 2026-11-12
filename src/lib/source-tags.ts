@@ -17,13 +17,13 @@ export const SOURCE_TAGS = [
 export type SourceTag = (typeof SOURCE_TAGS)[number];
 
 /**
- * Campaign-level tags for the paid launch (owner 2026-11-12): Google Ads campaigns G1–G5, Meta Ads campaigns M1–M5, plus the
+ * Campaign-level tags for the paid launch (owner 2026-11-12): Google Ads campaigns G1–G7 (G6 painting, G7 pest control), Meta Ads campaigns M1–M7 (M6 painting, M7 pest control), plus the
  * manual-only WhatsApp blast / website / direct-WhatsApp tags. Plain text like every tag here — no migration. G#/M# are filled
  * automatically from utm_campaign (see sourceTagForChannel); the rest are picked by staff, never guessed.
  */
 export const CAMPAIGN_SOURCE_TAGS = [
-  "SRC-GOOGLE-G1", "SRC-GOOGLE-G2", "SRC-GOOGLE-G3", "SRC-GOOGLE-G4", "SRC-GOOGLE-G5",
-  "SRC-META-M1", "SRC-META-M2", "SRC-META-M3", "SRC-META-M4", "SRC-META-M5",
+  "SRC-GOOGLE-G1", "SRC-GOOGLE-G2", "SRC-GOOGLE-G3", "SRC-GOOGLE-G4", "SRC-GOOGLE-G5", "SRC-GOOGLE-G6", "SRC-GOOGLE-G7",
+  "SRC-META-M1", "SRC-META-M2", "SRC-META-M3", "SRC-META-M4", "SRC-META-M5", "SRC-META-M6", "SRC-META-M7",
   "SRC-WA-4K-BLAST", "SRC-WEBSITE", "SRC-DIRECT-WA",
 ] as const;
 export type CampaignSourceTag = (typeof CAMPAIGN_SOURCE_TAGS)[number];
@@ -63,20 +63,32 @@ export const activeSourceTag = (v?: string | null): string | null => {
 };
 
 /**
- * Campaign number (1–5) a utm_campaign names for one ad platform: "g1_home_deep_clean", "pune-meta-m3", "G2" → 1/3/2.
+ * Campaign number (1–7) a utm_campaign names for one ad platform: "g1_home_deep_clean", "pune-meta-m3", "G2" → 1/3/2.
  * Google Ads only reads G#, Meta Ads only reads M# — a "g2" inside a Meta campaign name is not a Google campaign.
  */
 export function campaignNumber(campaign: string | null | undefined, letter: "g" | "m"): number | null {
-  const m = new RegExp(`(?:^|[^a-z0-9])${letter}\\s*([1-5])(?![a-z0-9])`, "i").exec(campaign ?? "");
+  const m = new RegExp(`(?:^|[^a-z0-9])${letter}\\s*([1-7])(?![a-z0-9])`, "i").exec(campaign ?? "");
   return m ? Number(m[1]) : null;
 }
 
+/** Which Google Business Profile branch a utm_campaign names ("magarpatta", "mohammadwadi", "mohdwadi"…); null when it names neither. */
+export function gmbBranchOf(campaign: string | null | undefined, medium?: string | null): "MAGARPATTA" | "MOHAMMADWADI" | null {
+  // The live GMB listing links name the branch in utm_medium ("magarpatta_branch"); newer links put it in utm_campaign.
+  const c = `${(campaign ?? "").toLowerCase()} ${(medium ?? "").toLowerCase()}`;
+  if (c.includes("magarpatta")) return "MAGARPATTA";
+  if (/moh(a|u)?m*(a)?d?w?adi|mohd/.test(c)) return "MOHAMMADWADI";
+  return null;
+}
+
 /**
- * Paid-channel source tag for a lead the website classified (owner 2026-11-12): Google Ads → SRC-GOOGLE-ADS, Meta Ads → SRC-META-ADS.
- * When utm_campaign names a launch campaign (G1–G5 / M1–M5) the tag is that campaign's, e.g. SRC-GOOGLE-G2; otherwise the generic
- * paid-channel tag. Every other channel returns null so staff keep choosing GMB / SEO / reference tags by hand — nothing is guessed.
+ * Source tag for a lead the website classified (owner 2026-11-12):
+ *  - Google Ads → SRC-GOOGLE-G# when utm_campaign names G1–G7, else SRC-GOOGLE-ADS
+ *  - Meta Ads   → SRC-META-M# when utm_campaign names M1–M7, else SRC-META-ADS
+ *  - Google Business Profile → SRC-GMB-MAGARPATTA / SRC-GMB-MOHAMMADWADI from utm_campaign or utm_medium (a GMB link that names neither stays untagged)
+ *  - Google Organic/SEO → SRC-ORGANIC-SEO
+ * Every other channel returns null so staff keep choosing reference / return-client tags by hand — nothing is guessed.
  */
-export function sourceTagForChannel(channel: string | null | undefined, campaign?: string | null): SourceTag | CampaignSourceTag | null {
+export function sourceTagForChannel(channel: string | null | undefined, campaign?: string | null, medium?: string | null): SourceTag | CampaignSourceTag | null {
   if (channel === "Google Ads") {
     const n = campaignNumber(campaign, "g");
     return n ? (`SRC-GOOGLE-G${n}` as CampaignSourceTag) : "SRC-GOOGLE-ADS";
@@ -85,5 +97,10 @@ export function sourceTagForChannel(channel: string | null | undefined, campaign
     const n = campaignNumber(campaign, "m");
     return n ? (`SRC-META-M${n}` as CampaignSourceTag) : "SRC-META-ADS";
   }
+  if (channel === "Google Business Profile") {
+    const b = gmbBranchOf(campaign, medium);
+    return b ? (`SRC-GMB-${b}` as SourceTag) : null;
+  }
+  if (channel === "Google Organic/SEO") return "SRC-ORGANIC-SEO";
   return null;
 }

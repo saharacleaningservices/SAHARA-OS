@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { getAttributionPayload } from "@/components/public/attribution-capture";
+import { useWhatsAppRefTagger } from "@/components/public/whatsapp-ref-tagger";
 import { contactKindOfHref, fireAdsConversion } from "@/lib/ads-conversions";
 
 type Gtag = (...args: unknown[]) => void;
@@ -12,6 +14,7 @@ type Gtag = (...args: unknown[]) => void;
  * Attributes read from the page: <body data-seo-*> is avoided; the page passes its context as props instead.
  */
 export function SeoCtaTracker({ service, area, branch, vertical }: { service: string; area: string; branch: string; vertical: string }) {
+  useWhatsAppRefTagger(getAttributionPayload); // WhatsApp buttons carry "[Ref: …]" for the lead source (lib/source-label.ts)
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;

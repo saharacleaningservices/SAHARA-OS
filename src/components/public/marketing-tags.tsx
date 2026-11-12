@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { isProtectedNumber } from "@/lib/protected-numbers";
 import { GOOGLE_ADS_ID, contactKindOfHref, fireAdsConversion } from "@/lib/ads-conversions";
 import { getMetaIds } from "@/components/public/attribution-capture";
+import { leadEventId, newEventId, type EventIdStore } from "@/lib/meta-event-id";
 
 // Sahara-owned marketing tags for the public pages. Everything is gated on
 // env vars, so nothing loads until the owner sets IDs from Sahara's OWN
@@ -32,9 +33,12 @@ const gtag = (): Gtag | null =>
 const fbq = (): Gtag | null =>
   typeof window !== "undefined" && typeof (window as { fbq?: Gtag }).fbq === "function" ? (window as unknown as { fbq: Gtag }).fbq : null;
 
-function newEventId(): string {
-  const c = typeof crypto !== "undefined" ? crypto : undefined;
-  return c?.randomUUID ? c.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+function sessionStore(): EventIdStore | null {
+  try {
+    return typeof window !== "undefined" ? window.sessionStorage : null;
+  } catch {
+    return null;
+  }
 }
 
 /** _fbp / _fbc from the first-party cookies (the server falls back to the request cookies when these are absent). */
@@ -66,8 +70,9 @@ function sendServerEvent(eventName: "Lead" | "Schedule" | "ViewContent" | "Initi
 export function trackLead(details: { category?: string; variant?: string; mobile?: string; /** Booking total in INR when the customer picked a priced package. */ value?: number; /** CRM lead / job number — dedupes the Ads conversion. */ id?: string; /** booking = priced slot booking, inquiry = inspection / quote request. */ kind?: "booking" | "inquiry" | "step1"; /** true when the CRM auto-confirmed the slot. */ confirmed?: boolean }) {
   // Owner-protected / internal numbers never reach any ad or analytics platform.
   if (isProtectedNumber(details.mobile)) return;
-  // One shared id: the browser Pixel and the server (Conversions API) both send it, so Meta counts the lead once.
-  const eventId = newEventId();
+  // One shared id: the browser Pixel (eventID) and the server (Conversions API event_id) both send it, so Meta counts the lead once.
+  // The id is remembered per mobile for the booking session, so step-1 capture, the final submit and retries all reuse it.
+  const eventId = leadEventId(details.mobile, sessionStore());
   const money = details.value && details.value > 0 ? { value: details.value, currency: "INR" } : {};
   // GTM-style event for every lead form (owner 2026-10-25): GA4 / Meta tags configured on `lead_form_submit` see all of them.
   if (typeof window !== "undefined") {

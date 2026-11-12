@@ -152,7 +152,10 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      const owner = await db.user.findFirst({ where: { role: "ADMIN", isActive: true }, orderBy: { createdAt: "asc" } });
+      // Staff sign-in traffic stays out of the owner's WhatsApp (owner 2026-11-12: it was mixing with customer leads on the same line).
+      // The approval request still reaches the owner in the bell + push (with the OTP) and on /admin/device-approvals, and every login
+      // is in the Audit Log. Set DEVICE_APPROVAL_WHATSAPP=on in Coolify to bring the WhatsApp copy back.
+      const owner = process.env.DEVICE_APPROVAL_WHATSAPP === "on" ? await db.user.findFirst({ where: { role: "ADMIN", isActive: true }, orderBy: { createdAt: "asc" } }) : null;
       if (owner?.phone) {
         await sendWhatsApp({
           kind: "DEVICE_APPROVAL",
