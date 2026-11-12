@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { useEffect } from "react";
 import { isProtectedNumber } from "@/lib/protected-numbers";
-import { GOOGLE_ADS_ID, contactKindOfHref, fireAdsConversion } from "@/lib/ads-conversions";
+import { GOOGLE_ADS_ID, contactKindOfHref, fireAdsConversion, fireMetaContact } from "@/lib/ads-conversions";
 import { getMetaIds } from "@/components/public/attribution-capture";
 import { leadEventId, newEventId, type EventIdStore } from "@/lib/meta-event-id";
 
@@ -159,7 +159,9 @@ export function MarketingTags({ withPixel = false }: { withPixel?: boolean } = {
       const kind = contact === "call" ? "call_click" : "whatsapp_click";
       gtag()?.("event", kind, { link_url: a.href, page_path: window.location.pathname });
       fireAdsConversion(contact); // Secondary Ads conversion, at the moment of the tap
-      fbq()?.("track", "Contact", { method: kind === "call_click" ? "call" : "whatsapp" });
+      // SEO pages mount SeoCtaTracker, which sends the richer Contact (service + vertical) for this same tap.
+      if ((window as unknown as { __saharaSeoCtaTracker?: number }).__saharaSeoCtaTracker) return;
+      fireMetaContact(contact, { method: kind === "call_click" ? "call" : "whatsapp" });
     }
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);

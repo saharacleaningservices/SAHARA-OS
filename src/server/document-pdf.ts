@@ -9,7 +9,6 @@ import { sacFor } from "@/lib/sac";
 import { billChrome } from "@/server/bill-pdf";
 import { billTable, documentScope, documentTotal, rupeesInWords } from "@/lib/document-scope";
 import { MSMED_NOTE, quotationWhatsAppLink, resolveQuotationTerms } from "@/lib/quotation-template";
-import { paymentSplit } from "@/lib/booking-payment";
 import { COMPANY, SERVICE_CATEGORY_LABELS, SERVICE_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
@@ -55,7 +54,7 @@ export async function renderQuotationPdf(quotationId: string): Promise<PdfFile |
           { label: "Service", value: (lead.serviceCategory && SERVICE_CATEGORY_LABELS[lead.serviceCategory]) || SERVICE_LABELS[lead.service as keyof typeof SERVICE_LABELS] || lead.service },
         ],
       },
-      paymentSplit: paymentSplit(quoteTotal),
+      paymentSplit: null, // 100% Pay After Service (owner 2026-11-12): no "Advance 20%" block on quotations
       rows: table.rows,
       subtotalRow: table.subtotal,
       totals: { subtotal: quotation.subTotal, discount: quotation.discount, gstPercent: quotation.gstPercent, gstAmount: quotation.gstAmount, total: quoteTotal },

@@ -1,4 +1,4 @@
-// 20% online advance for website bookings (owner 2026-11-12). Order of events:
+// DORMANT since owner 2026-11-12 ("100% Pay After Service", ADVANCE_PERCENT = 0): startAdvance() now refuses. Kept for reference. Former order of events:
 //   1. the booking flow saves the booking as a HELD request (publicBookLead holdForAdvance → no auto-confirm yet);
 //   2. startAdvance() creates a Razorpay order for 20% of the SERVER-priced quote (the browser never sets the amount);
 //   3. after payment, finalizeAdvance() (checkout success) or the webhook calls applyVerifiedAdvance(), which records a

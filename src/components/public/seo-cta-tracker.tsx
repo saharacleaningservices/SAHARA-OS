@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { useWhatsAppRefTagger } from "@/components/public/whatsapp-ref-tagger";
-import { contactKindOfHref, fireAdsConversion } from "@/lib/ads-conversions";
+import { contactKindOfHref, fireAdsConversion, fireMetaContact } from "@/lib/ads-conversions";
 
 type Gtag = (...args: unknown[]) => void;
 
@@ -16,6 +16,8 @@ type Gtag = (...args: unknown[]) => void;
 export function SeoCtaTracker({ service, area, branch, vertical }: { service: string; area: string; branch: string; vertical: string }) {
   useWhatsAppRefTagger(getAttributionPayload); // WhatsApp buttons carry "[Ref: …]" for the lead source (lib/source-label.ts)
   useEffect(() => {
+    const w0 = window as unknown as { __saharaSeoCtaTracker?: number };
+    w0.__saharaSeoCtaTracker = (w0.__saharaSeoCtaTracker ?? 0) + 1; // tells MarketingTags this page sends the richer Contact
     const onClick = (e: MouseEvent) => {
       const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
       if (!a) return;
@@ -27,11 +29,14 @@ export function SeoCtaTracker({ service, area, branch, vertical }: { service: st
       const detail = { event: kind, service_category: vertical, service_page: service, area, branch, page_path: window.location.pathname };
       (w.dataLayer = w.dataLayer || []).push(detail);
       if (typeof w.gtag === "function") w.gtag("event", kind, { service_category: vertical, service_page: service, area, branch });
-      if (typeof w.fbq === "function") w.fbq("track", "Contact", { content_name: service, content_category: vertical });
+      fireMetaContact(contact, { content_name: service, content_category: vertical, method: contact === "call" ? "call" : "whatsapp" }); // one Contact per tap — shared guard with MarketingTags
       fireAdsConversion(contact); // Secondary Ads conversion; the shared guard stops MarketingTags counting the same tap again
     };
     document.addEventListener("click", onClick, { passive: true });
-    return () => document.removeEventListener("click", onClick);
+    return () => {
+      document.removeEventListener("click", onClick);
+      w0.__saharaSeoCtaTracker = Math.max(0, (w0.__saharaSeoCtaTracker ?? 1) - 1);
+    };
   }, [service, area, branch, vertical]);
   return null;
 }

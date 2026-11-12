@@ -1321,10 +1321,9 @@ export function BookingWizard({
         {inspection && (
           <p className="mt-3 rounded-xl bg-primary/5 p-3 text-sm font-medium text-[#0a2540]/85">No payment is taken now. The final price is confirmed in a written quotation after our site inspection.</p>
         )}
-        <div className={`mt-3 grid grid-cols-2 gap-2 ${inspection ? "hidden" : ""}`}>
+        <div className={`mt-3 grid grid-cols-1 gap-2 ${inspection ? "hidden" : ""}`}>
           {([
-            ["PAY_ADVANCE", "Pay Advance"],
-            ["PAY_AFTER_SERVICE", "Pay After Service"],
+            ["PAY_AFTER_SERVICE", "Pay After Service"], // 100% Pay After Service (owner 2026-11-12): no advance option
           ] as const).map(([v, t]) => (
             <button key={v} type="button" onClick={() => setPay(v)} className={`flex min-h-12 items-center justify-center gap-1.5 rounded-xl border px-2 text-sm font-semibold ${pay === v ? "border-primary bg-primary text-white" : "border-[#0a2540]/15 bg-white"}`}>
               <Wallet className="size-4" /> {t}

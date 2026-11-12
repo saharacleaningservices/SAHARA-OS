@@ -670,7 +670,7 @@ test("Category landing pages: public, tracked, no hard-coded prices, attribution
   assert.match(form, /trackSchedule\(/);
   const tags = readFileSync(path.join(root, "src/components/public/marketing-tags.tsx"), "utf8");
   assert.match(tags, /"track", "Schedule"/);
-  assert.match(tags, /"track", "Contact"/);
+  assert.match(tags, /fireMetaContact\(/); // one Meta Contact per tap via the shared guard (lib/ads-conversions.ts)
   assert.match(tags, /"track", "Lead"/);
 });
 
@@ -814,11 +814,11 @@ test("Google Ads landing pages (/landing/*): 4 isolated single-service routes wi
   assert.match(read("src/server/actions/gallery.ts"), /category: \{ contains: category \}/);
 });
 
-test("Advance payment: 20% rule (owner 2026-10-18), Total | Advance | Remaining, pay-after-service means no advance", async () => {
+test("Payment: 100% Pay After Service (owner 2026-11-12, supersedes the 20% advance), Total | Advance | Remaining", async () => {
   const { ADVANCE_PERCENT, advanceBreakdown, paymentDetailsFrom } = await import("../src/lib/booking-payment");
-  assert.equal(ADVANCE_PERCENT, 20);
-  assert.deepEqual(advanceBreakdown(4999, "PAY_ADVANCE"), { total: 4999, advance: 1000, remaining: 3999 });
-  assert.deepEqual(advanceBreakdown(6999, "PAY_ADVANCE"), { total: 6999, advance: 1400, remaining: 5599 });
+  assert.equal(ADVANCE_PERCENT, 0, "100% Pay After Service: no advance");
+  assert.deepEqual(advanceBreakdown(4999, "PAY_ADVANCE"), { total: 4999, advance: 0, remaining: 4999 });
+  assert.deepEqual(advanceBreakdown(6999, "PAY_ADVANCE"), { total: 6999, advance: 0, remaining: 6999 });
   assert.deepEqual(advanceBreakdown(5499, "PAY_AFTER_SERVICE"), { total: 5499, advance: 0, remaining: 5499 });
   assert.deepEqual(advanceBreakdown(5499, ""), { total: 5499, advance: 0, remaining: 5499 });
   assert.deepEqual(advanceBreakdown(-5, "PAY_ADVANCE"), { total: 0, advance: 0, remaining: 0 });
