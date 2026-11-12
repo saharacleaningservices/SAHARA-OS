@@ -16,6 +16,19 @@ export const SOURCE_TAGS = [
 ] as const;
 export type SourceTag = (typeof SOURCE_TAGS)[number];
 
+/**
+ * Campaign-level tags for the paid launch (owner 2026-11-12): Google Ads campaigns G1–G5, Meta Ads campaigns M1–M5, plus the
+ * manual-only WhatsApp blast / website / direct-WhatsApp tags. Plain text like every tag here — no migration. G#/M# are filled
+ * automatically from utm_campaign (see sourceTagForChannel); the rest are picked by staff, never guessed.
+ */
+export const CAMPAIGN_SOURCE_TAGS = [
+  "SRC-GOOGLE-G1", "SRC-GOOGLE-G2", "SRC-GOOGLE-G3", "SRC-GOOGLE-G4", "SRC-GOOGLE-G5",
+  "SRC-META-M1", "SRC-META-M2", "SRC-META-M3", "SRC-META-M4", "SRC-META-M5",
+  "SRC-WA-4K-BLAST", "SRC-WEBSITE", "SRC-DIRECT-WA",
+] as const;
+export type CampaignSourceTag = (typeof CAMPAIGN_SOURCE_TAGS)[number];
+export const isCampaignSourceTag = (v: unknown): v is CampaignSourceTag => typeof v === "string" && (CAMPAIGN_SOURCE_TAGS as readonly string[]).includes(v);
+
 export const RETIRED_SOURCE_TAGS = ["SRC-GMB-MAMURDI"] as const;
 
 export const SOURCE_TAG_LABEL: Record<SourceTag, string> = {
@@ -38,7 +51,8 @@ export const isSourceTag = (v: unknown): v is SourceTag => typeof v === "string"
 export function sourceTagChoices(current?: string | null): { value: string; label: string }[] {
   const opts: { value: string; label: string }[] = SOURCE_TAGS.map((t) => ({ value: t, label: `${SOURCE_TAG_LABEL[t]} (${t})` }));
   const cur = (current ?? "").trim();
-  if (cur && !isSourceTag(cur) && !(RETIRED_SOURCE_TAGS as readonly string[]).includes(cur)) opts.push({ value: cur, label: `${cur} (old value)` });
+  for (const t of CAMPAIGN_SOURCE_TAGS) opts.push({ value: t, label: `Campaign · ${t.replace("SRC-", "")}` });
+  if (cur && !isSourceTag(cur) && !isCampaignSourceTag(cur) && !(RETIRED_SOURCE_TAGS as readonly string[]).includes(cur)) opts.push({ value: cur, label: `${cur} (old value)` });
   return opts;
 }
 
@@ -49,11 +63,27 @@ export const activeSourceTag = (v?: string | null): string | null => {
 };
 
 /**
- * Paid-channel source tag for a lead the website classified (owner 2026-11-12): Google Ads → SRC-GOOGLE-ADS, Meta Ads → SRC-META-ADS.
- * Every other channel returns null so staff keep choosing GMB / SEO / reference tags by hand — nothing is guessed.
+ * Campaign number (1–5) a utm_campaign names for one ad platform: "g1_home_deep_clean", "pune-meta-m3", "G2" → 1/3/2.
+ * Google Ads only reads G#, Meta Ads only reads M# — a "g2" inside a Meta campaign name is not a Google campaign.
  */
-export function sourceTagForChannel(channel: string | null | undefined): SourceTag | null {
-  if (channel === "Google Ads") return "SRC-GOOGLE-ADS";
-  if (channel === "Meta Ads") return "SRC-META-ADS";
+export function campaignNumber(campaign: string | null | undefined, letter: "g" | "m"): number | null {
+  const m = new RegExp(`(?:^|[^a-z0-9])${letter}\\s*([1-5])(?![a-z0-9])`, "i").exec(campaign ?? "");
+  return m ? Number(m[1]) : null;
+}
+
+/**
+ * Paid-channel source tag for a lead the website classified (owner 2026-11-12): Google Ads → SRC-GOOGLE-ADS, Meta Ads → SRC-META-ADS.
+ * When utm_campaign names a launch campaign (G1–G5 / M1–M5) the tag is that campaign's, e.g. SRC-GOOGLE-G2; otherwise the generic
+ * paid-channel tag. Every other channel returns null so staff keep choosing GMB / SEO / reference tags by hand — nothing is guessed.
+ */
+export function sourceTagForChannel(channel: string | null | undefined, campaign?: string | null): SourceTag | CampaignSourceTag | null {
+  if (channel === "Google Ads") {
+    const n = campaignNumber(campaign, "g");
+    return n ? (`SRC-GOOGLE-G${n}` as CampaignSourceTag) : "SRC-GOOGLE-ADS";
+  }
+  if (channel === "Meta Ads") {
+    const n = campaignNumber(campaign, "m");
+    return n ? (`SRC-META-M${n}` as CampaignSourceTag) : "SRC-META-ADS";
+  }
   return null;
 }

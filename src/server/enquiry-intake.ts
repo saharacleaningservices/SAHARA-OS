@@ -61,6 +61,7 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
     medium: str(raw.utm_medium ?? raw.utmMedium, 80) || null,
     campaign: str(raw.utm_campaign ?? raw.utmCampaign, 120) || null,
     term: str(raw.utm_term ?? raw.utmTerm, 120) || null,
+    content: str(raw.utm_content ?? raw.utmContent, 120) || null,
     gclid: str(raw.gclid, 300) || null,
     fbclid: str(raw.fbclid, 300) || null,
   };
@@ -106,11 +107,12 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
         service: service as never,
         source: "WEBSITE" as never,
         acquisitionChannel: channel,
-        ...(sourceTagForChannel(channel) ? { sourceTag: sourceTagForChannel(channel) } : {}), // SRC-GOOGLE-ADS / SRC-META-ADS
+        ...(sourceTagForChannel(channel, utm.campaign) ? { sourceTag: sourceTagForChannel(channel, utm.campaign) } : {}), // SRC-GOOGLE-ADS / SRC-META-ADS
         utmSource: utm.source,
         utmMedium: utm.medium,
         utmCampaign: utm.campaign,
         utmTerm: utm.term,
+        utmContent: utm.content,
         gclid: utm.gclid,
         fbclid: utm.fbclid,
         landingPageUrl,

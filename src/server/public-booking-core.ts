@@ -339,14 +339,14 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
           ...(latestTouch ? latestFields : {}),
           ...(existingOpen.acquisitionChannel ? {} : originalFields),
           // Paid-channel CRM tag (owner 2026-11-12) — only fills an empty tag, never replaces one staff chose.
-          ...(!existingOpen.sourceTag && sourceTagForChannel(existingOpen.acquisitionChannel ?? channel) ? { sourceTag: sourceTagForChannel(existingOpen.acquisitionChannel ?? channel) } : {}),
+          ...(!existingOpen.sourceTag && sourceTagForChannel(existingOpen.acquisitionChannel ?? channel, firstTouch?.campaign) ? { sourceTag: sourceTagForChannel(existingOpen.acquisitionChannel ?? channel, firstTouch?.campaign) } : {}),
         },
       })
     : await db.lead.create({
     data: {
       ...originalFields,
       ...latestFields,
-      ...(sourceTagForChannel(channel) ? { sourceTag: sourceTagForChannel(channel) } : {}),
+      ...(sourceTagForChannel(channel, firstTouch?.campaign) ? { sourceTag: sourceTagForChannel(channel, firstTouch?.campaign) } : {}),
       formSubmittedAt: new Date(),
       leadNumber,
       name: data.name,
