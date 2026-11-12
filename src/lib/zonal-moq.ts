@@ -1,7 +1,7 @@
 // Dynamic zonal minimum order value (owner Phase 2 directive, 2026-11-02 — revised). Pure, unit-tested in tests/phase2-2026-11-02.test.ts.
 //
 //   ZONE A — no minimum: Magarpatta, Hadapsar, Kharadi, Undri, NIBM, Wanowrie, Mohammadwadi, Phursungi, Handewadi, Viman Nagar,
-//            Camp, Kalyani Nagar, Koregaon Park, Kondhwa, Dhankawadi, Balaji Nagar — small single services (₹300 window,
+//            Camp, Kalyani Nagar, Koregaon Park, Kondhwa, Dhankawadi, Balaji Nagar — small single services (₹299 window,
 //            ₹599 bathroom) book freely.
 //   ZONE B — ₹3,999 minimum ONLY for West Pune (Hinjewadi, Baner, Balewadi, Wakad, Pashan, Sus, Sutarwadi, Aundh, Bavdhan),
 //            Central/South-West (Kothrud, Warje, Sinhagad Road, Narhe) and PCMC (Pimpri, Chinchwad, Nigdi, Bhosari, Pimple

@@ -23,6 +23,7 @@ const STATIC_IMAGE_CACHE = "public, max-age=86400, stale-while-revalidate=604800
 const IMAGE_CDN = /^(imagekit|cloudinary)$/.test(process.env.NEXT_PUBLIC_IMAGE_CDN ?? "") && !!process.env.NEXT_PUBLIC_IMAGE_CDN_BASE;
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false, // do not advertise the framework (security audit 2026-11-12)
   env: { NEXT_PUBLIC_BUILD_ID: BUILD_ID },
   images: IMAGE_CDN
     ? { loader: "custom", loaderFile: "./src/lib/image-loader.ts" }

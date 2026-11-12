@@ -5,7 +5,7 @@
 import { createHash } from "node:crypto";
 import { isProtectedNumber } from "@/lib/protected-numbers";
 
-export const CAPI_EVENTS = ["Lead", "Schedule"] as const;
+export const CAPI_EVENTS = ["Lead", "Schedule", "ViewContent", "InitiateCheckout", "Purchase", "Contact"] as const;
 export type CapiEventName = (typeof CAPI_EVENTS)[number];
 
 const GRAPH_VERSION = "v21.0";

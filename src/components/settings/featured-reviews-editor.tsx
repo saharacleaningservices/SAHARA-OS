@@ -80,6 +80,10 @@ export function FeaturedReviewsEditor({ value, onChange }: { value: string; onCh
             </div>
           </div>
           <div className="space-y-1">
+              <Label htmlFor={`review-locality-${i}`}>Pune locality (optional, shown on the website)</Label>
+              <Input id={`review-locality-${i}`} value={r.locality ?? ""} maxLength={40} placeholder="Baner" onChange={(e) => update(rows.map((x, j) => (j === i ? { ...x, locality: e.target.value } : x)))} />
+            </div>
+            <div className="space-y-1">
             <Label htmlFor={`review-text-${i}`}>Review text</Label>
             <Textarea id={`review-text-${i}`} rows={2} maxLength={400} value={r.text} placeholder="Excellent deep cleaning, team was on time." onChange={(e) => update(rows.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} />
           </div>

@@ -80,7 +80,7 @@ export function InspectionFlow({ service, title = "Price after a free site inspe
           );
         })}
       </ol>
-      <LeadButton intent={{ service, inspection: true, b2b }} className="mt-5 min-h-12 rounded-xl bg-amber-400 px-6 text-sm font-extrabold text-[#0a2540] hover:bg-amber-300">{b2b ? "Request Free Site Audit" : "Request Site Inspection / Quote"}</LeadButton>
+      <LeadButton intent={{ service, inspection: true, b2b }} className="mt-5 min-h-12 rounded-xl bg-amber-400 px-6 text-sm font-extrabold text-[#0a2540] hover:bg-amber-300">{b2b ? "Request Site Visit & B2B Quote" : "Request Site Inspection / Quote"}</LeadButton>
     </section>
   );
 }

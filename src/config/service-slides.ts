@@ -1,26 +1,44 @@
-// Service-page hero slider content (owner directive 2026-11-12). One folder of photos per service category under
-// /public/images/services/<folder>/ — see the README there. `before-N` / `after-N` are styled placeholders until real,
-// edited Sahara photos are dropped in; the "machine" slide is a real Sahara work photo from the central image registry.
-//
-// To swap in real photos: save them as before-1.webp / after-1.webp (…) in the folder, then change that folder's
-// extension below from "svg" to "webp" (and add more pairs to `pairs`).
+// Service-page hero slider content. Honest-photos rule (owner 2026-11-12): only genuine Sahara photos are shown.
+// Per service category there is a folder /public/images/services/<folder>/. Drop real, edited job photos there as
+//   before-1.webp, after-1.webp, before-2.webp, after-2.webp, … (.jpg / .jpeg / .png also work)
+// and they appear automatically as labelled "Before" / "After" slides — no code change. Until then the slider shows real
+// Sahara work photos from the central image registry (team at work, equipment, a finished room), never illustrations.
 
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { img, type RegistryKey } from "@/config/image-registry";
 
-export type SliderLabel = "Before" | "After" | "Our equipment";
+export type SliderLabel = "Before" | "After" | "Our equipment" | "Our team" | "Finished result";
 export type Slide = { src: string; alt: string; label: SliderLabel };
 
 export type SlideFolder = "home" | "kitchen" | "bathroom" | "sofa" | "carpet" | "window" | "balcony";
 
-const FOLDERS: Record<SlideFolder, { ext: string; pairs: number; subject: string; machine: RegistryKey; machineAlt: string }> = {
-  home: { ext: "svg", pairs: 1, subject: "living room and floor", machine: "hero-home", machineAlt: "Sahara technician running a floor scrubbing machine" },
-  kitchen: { ext: "svg", pairs: 1, subject: "kitchen platform and tiles", machine: "kitchen", machineAlt: "Sahara cleaner degreasing a kitchen chimney with professional equipment" },
-  bathroom: { ext: "svg", pairs: 1, subject: "bathroom tiles and fittings", machine: "bathroom", machineAlt: "Sahara cleaner scrubbing a bathroom with a machine and descaling chemicals" },
-  sofa: { ext: "svg", pairs: 1, subject: "fabric sofa", machine: "sofa", machineAlt: "Sahara team shampooing and extracting a sofa with an injection-extraction machine" },
-  carpet: { ext: "svg", pairs: 1, subject: "carpet", machine: "carpet", machineAlt: "Sahara team vacuuming a carpet with commercial equipment" },
-  window: { ext: "svg", pairs: 1, subject: "window glass and sliding channel", machine: "window", machineAlt: "Sahara cleaner squeegeeing window glass" },
-  balcony: { ext: "svg", pairs: 1, subject: "balcony floor and railing", machine: "team", machineAlt: "Sahara cleaning team at work in a Pune home" },
+/** Real registry photos per folder: [key, label, alt]. */
+type Showcase = [RegistryKey, SliderLabel];
+const FOLDERS: Record<SlideFolder, { subject: string; showcase: Showcase[] }> = {
+  home: { subject: "living room and floor", showcase: [["hero-home", "Our equipment"], ["full-home", "Our team"], ["clean-room", "Finished result"]] },
+  kitchen: { subject: "kitchen platform and tiles", showcase: [["kitchen", "Our equipment"], ["kitchen-wipe", "Our team"], ["clean-room", "Finished result"]] },
+  bathroom: { subject: "bathroom tiles and fittings", showcase: [["bathroom", "Our equipment"], ["express", "Our team"], ["clean-room", "Finished result"]] },
+  sofa: { subject: "fabric sofa", showcase: [["sofa", "Our equipment"], ["mattress", "Our team"], ["clean-room", "Finished result"]] },
+  carpet: { subject: "carpet", showcase: [["carpet", "Our equipment"], ["commercial", "Our team"], ["clean-room", "Finished result"]] },
+  window: { subject: "window glass and sliding channel", showcase: [["window", "Our equipment"], ["team", "Our team"], ["clean-room", "Finished result"]] },
+  balcony: { subject: "balcony floor and railing", showcase: [["team", "Our team"], ["window", "Our equipment"], ["clean-room", "Finished result"]] },
 };
+
+const EXTS = ["webp", "jpg", "jpeg", "png"];
+/** Real before/after pairs the owner has dropped into the folder (server-only; checked per render, cheap). */
+function realPairs(folder: SlideFolder): Slide[] {
+  const dir = join(process.cwd(), "public", "images", "services", folder);
+  const find = (kind: "before" | "after", n: number) => EXTS.map((e) => `${kind}-${n}.${e}`).find((f) => existsSync(join(dir, f)));
+  const out: Slide[] = [];
+  for (let n = 1; n <= 8; n++) {
+    const b = find("before", n), a = find("after", n);
+    if (!b || !a) break;
+    out.push({ src: `/images/services/${folder}/${b}`, alt: `Before cleaning — ${FOLDERS[folder].subject}`, label: "Before" });
+    out.push({ src: `/images/services/${folder}/${a}`, alt: `After Sahara deep cleaning — ${FOLDERS[folder].subject}`, label: "After" });
+  }
+  return out;
+}
 
 /** Catalog service slug → photo folder. Services not listed here fall back to their own single hero photo. */
 export const SERVICE_SLIDE_FOLDER: Record<string, SlideFolder> = {
@@ -35,16 +53,22 @@ export const SERVICE_SLIDE_FOLDER: Record<string, SlideFolder> = {
   "balcony-cleaning": "balcony",
 };
 
-/** Before → After → equipment, per photo pair. */
+/** Real before/after pairs first (when uploaded), then real Sahara work photos. */
 export function slidesForFolder(folder: SlideFolder): Slide[] {
   const f = FOLDERS[folder];
-  const out: Slide[] = [];
-  for (let n = 1; n <= f.pairs; n++) {
-    out.push({ src: `/images/services/${folder}/before-${n}.${f.ext}`, alt: `Before cleaning — ${f.subject}`, label: "Before" });
-    out.push({ src: `/images/services/${folder}/after-${n}.${f.ext}`, alt: `After Sahara deep cleaning — ${f.subject}`, label: "After" });
-  }
-  out.push({ src: img(f.machine).src, alt: f.machineAlt, label: "Our equipment" });
-  return out;
+  return [...realPairs(folder), ...f.showcase.map(([key, label]) => ({ src: img(key).src, alt: img(key).alt, label }))];
+}
+
+/** Category-page showcases (e.g. /services/individual-services): several real photos instead of one static image. */
+const CATEGORY_SHOWCASE: Record<string, Showcase[]> = {
+  individual: [["kitchen", "Our equipment"], ["bathroom", "Our team"], ["sofa", "Our equipment"], ["window", "Our team"], ["clean-room", "Finished result"]],
+  residential: [["hero-home", "Our equipment"], ["full-home", "Our team"], ["clean-room", "Finished result"], ["team", "Our team"]],
+  commercial: [["commercial", "Our team"], ["office", "Our team"], ["housekeeping", "Our equipment"], ["restaurant", "Our team"]],
+  relocation: [["post-construction", "Our team"], ["full-home", "Our team"], ["clean-room", "Finished result"]],
+};
+export function slidesForCategory(id: string, fallback: { src: string; alt: string }): Slide[] | { src: string; alt: string }[] {
+  const show = CATEGORY_SHOWCASE[id];
+  return show ? show.map(([key, label]) => ({ src: img(key).src, alt: img(key).alt, label })) : [fallback];
 }
 
 /** Slides for a service page; a single labelled-free photo when the service has no folder. */

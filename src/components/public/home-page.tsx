@@ -4,6 +4,8 @@ import { getCompanySettings } from "@/server/settings";
 import { LandingShell, businessJsonLd } from "@/components/public/landing-kit";
 import { HomeHeroSlider, type HeroPhoto } from "@/components/public/home-hero-slider";
 import { img } from "@/config/image-registry";
+import { HygienePromise, CustomerReviews } from "@/components/public/trust-blocks";
+import { parseFeaturedReviews } from "@/lib/featured-reviews";
 import { BranchDetails, ClientMarquee, ComboSwiper, GoogleRatingBadge, HomeServiceCards, ZoneGrid } from "@/components/public/catalog-blocks";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
@@ -31,6 +33,8 @@ const PHOTOS: HeroPhoto[] = [
 export async function HomePage() {
   const settings = await getCompanySettings().catch(() => null);
   const reviewUrl = settings?.googleReviewUrl?.trim() || GOOGLE_REVIEW_URL;
+  const parsedReviews = parseFeaturedReviews(settings?.featuredReviews);
+  const reviews = parsedReviews.ok ? parsedReviews.reviews : [];
 
   return (
     <LandingShell logoUrl={settings?.logoUrl} waText={WA} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph()]}>
@@ -55,6 +59,8 @@ export async function HomePage() {
         <ComboSwiper />
         {/* Real before / after results carousel (owner 2026-11-03): directly below Our Services / Combo packages. */}
         <BeforeAfterSection />
+        <HygienePromise />
+        <CustomerReviews reviews={reviews} reviewUrl={reviewUrl} />
         <ZoneGrid />
         <BranchDetails />
       </main>

@@ -63,13 +63,13 @@ test("homepage exact order: hero → headline + Google badge → About → expan
   assert.doesNotMatch(grid, /pins/, "zone grid shows no PIN codes");
 });
 
-test("inner pages: no GST blocks; window ₹300 per window; balcony split out", async () => {
+test("inner pages: no GST blocks; window ₹299 per window; balcony split out", async () => {
   const blocks = readFileSync("src/components/public/catalog-blocks.tsx", "utf8");
   const calc = readFileSync("src/components/public/rate-calculators.tsx", "utf8");
   for (const src of [blocks, calc, readFileSync("src/config/service-catalog.ts", "utf8")]) assert.doesNotMatch(src, /GST &amp; terms|18% GST|PUBLIC_GST_NOTE/);
   const { PRICING_MASTER } = await import("../src/lib/pricing-master");
   const win = PRICING_MASTER.find((p) => p.contentId === "SCS-30")!;
-  assert.equal(win.price, 300); assert.equal(win.unit, "per window");
+  assert.equal(win.price, 299); assert.equal(win.unit, "per window");
   assert.ok(PRICING_MASTER.some((p) => p.name === "Balcony Cleaning"));
   assert.ok(catalogServiceBySlug("window-cleaning") && catalogServiceBySlug("balcony-cleaning"));
   assert.match(calc, /Choose a treatment/, "pest: visual treatment cards before rates");

@@ -133,6 +133,15 @@ export const LOCALITIES: Locality[] = [
   { slug: "kothrud", name: "Kothrud", zone: "south-central", pins: ["411038"], premises: "apartments, bungalows, clinics and offices", landmarks: ["Karve Road", "Paud Road", "Kothrud Depot"], near: ["bavdhan", "aundh", "shivajinagar"] },
   { slug: "shivajinagar", name: "Shivajinagar", zone: "south-central", pins: ["411005"], premises: "offices, institutions, retail and apartments", landmarks: ["FC Road", "JM Road", "Pune University side"], near: ["kothrud", "camp", "aundh"] },
   { slug: "camp", name: "Camp (Pune Cantonment)", zone: "south-central", pins: ["411001", "411040"], premises: "heritage buildings, offices, restaurants and retail", landmarks: ["MG Road", "East Street", "Pune Cantonment"], near: ["wanowrie", "koregaon-park", "shivajinagar"] },
+  // ── Added 2026-11-12 (owner pin-code list) ─────────────────────────────
+  { slug: "sinhagad-road", name: "Sinhagad Road", zone: "south-central", pins: ["411051"], premises: "apartment societies, row houses and clinics", landmarks: ["Sinhagad Road", "Vitthalwadi", "Dhayari Phata"], near: ["dhankawadi", "kothrud", "katraj"] },
+  { slug: "deccan", name: "Deccan", zone: "south-central", pins: ["411004"], premises: "apartments, offices, clinics and retail premises", landmarks: ["Deccan Gymkhana", "FC Road", "JM Road"], near: ["shivajinagar", "kothrud", "camp"] },
+  { slug: "karve-nagar", name: "Karve Nagar", zone: "south-central", pins: ["411052"], premises: "apartment societies, bungalows and clinics", landmarks: ["Karve Nagar", "Karve Road", "Mhatoba Nagar"], near: ["kothrud", "warje", "bavdhan"] },
+  { slug: "warje", name: "Warje", zone: "south-central", pins: ["411058"], premises: "high-rise societies, row houses and small offices", landmarks: ["Warje Jakat Naka", "Warje Malwadi", "Mumbai–Bengaluru Highway"], near: ["karve-nagar", "kothrud", "bavdhan"] },
+  { slug: "swargate", name: "Swargate", zone: "south-central", pins: ["411042"], premises: "offices, clinics, shops and older apartment buildings", landmarks: ["Swargate Chowk", "Swargate Bus Stand", "Mukund Nagar"], near: ["bibwewadi", "camp", "shivajinagar"] },
+  { slug: "ravet", name: "Ravet", zone: "west-pcmc", pins: ["412101"], premises: "new housing societies, row houses and commercial units", landmarks: ["Ravet BRT Road", "Mukai Chowk", "Kiwale"], near: ["punawale", "chinchwad", "pimple-saudagar"] },
+  { slug: "punawale", name: "Punawale", zone: "west-pcmc", pins: ["411033"], premises: "high-rise societies and row houses", landmarks: ["Punawale Road", "Kalewadi Phata", "Datta Mandir Road"], near: ["wakad", "ravet", "pimple-saudagar"] },
+  { slug: "lohegaon", name: "Lohegaon", zone: "north", pins: ["411047"], premises: "apartment societies, warehouses and airport-side commercial units", landmarks: ["Pune Airport", "Lohegaon Road", "Dhanori–Lohegaon Road"], near: ["dhanori", "viman-nagar", "wagholi"] },
 ];
 
 export const localityBySlug = (slug: string) => LOCALITIES.find((l) => l.slug === slug);

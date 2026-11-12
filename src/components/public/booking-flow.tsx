@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, CalendarCheck, CheckCircle2, Clock, MapPin, MessageCircle, Minus, Phone, Plus, ShieldCheck, X } from "lucide-react";
 import type { LeadIntent } from "@/components/public/bhk-price-cards";
-import { trackFunnel, trackLead } from "@/components/public/marketing-tags";
+import { trackFunnel, trackInitiateCheckout, trackLead, trackPurchase } from "@/components/public/marketing-tags";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
 import { publicBookLead } from "@/server/actions/public-booking";
@@ -11,6 +11,7 @@ import { getQuickAddOns } from "@/server/actions/public-addons";
 import { captureCheckoutLead, confirmAdvancePayment, getBookingFlowConfig, sendBookingOtp, startAdvanceCheckout, verifyBookingOtp, type BookingFlowConfig, type SavedSite, type VerifiedCustomer } from "@/server/actions/booking-checkout";
 import { LOCALITIES } from "@/config/pune-seo-matrix";
 import { MOQ_VALUE, ZONE_B_MOV_MESSAGE, detectAreaFromAddress, localitySlug, moqFor, normalizePincode, upgradeBundle, type AddOn } from "@/lib/zonal-moq";
+import { AnchorPrice } from "@/components/public/anchor-price";
 import { addOnSlotsFor, type AddOnSlot } from "@/lib/booking-addons";
 import { slotDisplay, slotsForCategory } from "@/lib/booking-slots";
 import { paymentSplit } from "@/lib/booking-payment";
@@ -31,7 +32,7 @@ type DayInfo = { date: string; available: boolean; status: "AVAILABLE" | "FILLIN
 type SlotInfo = { slot: string; available: boolean };
 type Done = { kind: "confirmed" | "received"; id: string; slotText: string; total: number; advance: number };
 
-const STEPS = ["Package", "Mobile", "Details", "Date & time", "Confirm"] as const;
+const STEPS = ["Your details", "Package", "Address", "Date & time", "Confirm"] as const;
 const WEST_PCMC = LOCALITIES.filter((l) => l.zone === "west-pcmc").map((l) => l.slug);
 const FALLBACK_SLOTS = ["8:00 – 10:00 AM", "10:00 AM – 12:00 PM", "12:00 – 2:00 PM", "2:00 – 4:00 PM", "4:00 – 6:00 PM"].map((slot) => ({ slot, available: true }));
 const inr = (n: number) => (Number.isInteger(n) ? `₹${n.toLocaleString("en-IN")}` : `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
@@ -103,6 +104,7 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
 
   useEffect(() => {
     let alive = true;
+    trackInitiateCheckout({ category, name: label, value: intent.price ?? undefined });
     getBookingFlowConfig().then((c) => alive && setCfg(c)).catch(() => alive && setCfg({ otp: false, advance: false }));
     getQuickAddOns().then((a) => alive && setPool(a)).catch(() => {});
     getDateAvailability(30).then((d) => { if (!alive) return; setDays(d); setDate((cur) => cur || d.find((x) => x.available)?.date || ""); }).catch(() => alive && setDays([]));
@@ -172,6 +174,7 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
   // ── step 2: mobile / OTP ──
   async function sendOtp() {
     setError("");
+    if (name.trim().length < 2) return setError("Please enter your name.");
     if (!/^[6-9]\d{9}$/.test(mobile10)) return setError("Please enter a valid 10-digit mobile number.");
     setBusy(true);
     const r = await sendBookingOtp(mobile10).catch(() => ({ ok: false as const, error: "No connection. Please try again." }));
@@ -189,22 +192,30 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
     setCustomer(r.customer);
     if (r.customer) { setName(r.customer.name); setSiteId(r.customer.sites[0]?.id ?? "new"); }
     // Abandoned-checkout capture: the verified number is in the CRM from this moment.
-    void captureCheckoutLead({ mobile: mobile10, otpToken: r.token, category, service: intent.service, packageName: intent.packageName ?? intent.pkg, amount: subtotal, name: r.customer?.name });
+    void captureCheckoutLead({ mobile: mobile10, otpToken: r.token, attribution: getAttributionPayload(), category, service: intent.service, packageName: intent.packageName ?? intent.pkg, amount: subtotal, name: r.customer?.name || name.trim() });
     trackFunnel("verify_mobile", { service: category });
+    fireLead();
     setBusy(false);
-    setStep(3);
+    setStep(2);
   }
+  // Lead-first (owner 2026-11-12): with the OTP gate off, Continue saves the lead straight away.
   function continueFromMobile() {
     setError("");
+    if (name.trim().length < 2) return setError("Please enter your name.");
     if (!/^[6-9]\d{9}$/.test(mobile10)) return setError("Please enter a valid 10-digit mobile number.");
-    setStep(3);
+    void captureCheckoutLead({ mobile: mobile10, attribution: getAttributionPayload(), category, service: intent.service, packageName: intent.packageName ?? intent.pkg, amount: subtotal, name: name.trim() });
+    fireLead();
+    setStep(2);
+  }
+  /** Ad-platform "Lead" event: name + mobile submitted on step 1. */
+  function fireLead() {
+    trackLead({ category, variant: intent.pkg, mobile: mobile10, value: subtotal || undefined, id: "", kind: "step1" });
   }
 
   // ── navigation guards ──
   function next() {
     setError("");
     if (step === 3) {
-      if (name.trim().length < 2) return setError("Please enter your name.");
       if (usingNew && address.trim().length < 8) return setError("Please enter your full address — flat, building, area and landmark.");
       if (gap > 0) return setError(`${ZONE_B_MOV_MESSAGE} Add ${inr(gap)} more.`);
     }
@@ -280,7 +291,8 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
   function finish(d: Done, confirmed: boolean) {
     setBusy(false);
     setDone(d);
-    trackLead({ category, variant: intent.pkg, mobile: mobile10, value: subtotal || undefined, id: d.id, kind: "booking", confirmed });
+    trackPurchase({ category, mobile: mobile10, value: d.total || subtotal || undefined, id: d.id });
+    void confirmed;
     trackFunnel("booking_confirmation", { service: category, value: subtotal || undefined });
   }
 
@@ -346,8 +358,42 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
             </div>
           ) : (
             <div className="space-y-4">
-              {/* ── STEP 1 ── */}
+              {/* ── STEP 1 (lead-first: name + mobile) ── */}
               {step === 1 && (
+                <>
+                  <section className="rounded-3xl bg-white p-4 shadow-sm">
+                    <label className="mb-3 block text-sm font-bold">Your name
+                      <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="Full name" disabled={!!token} className={`${input} mt-1`} />
+                    </label>
+                    <label className="block text-sm font-bold">Mobile number
+                      <div className="mt-1 flex gap-2">
+                        <span className="flex min-h-12 items-center rounded-2xl border-2 border-[#0a2540]/10 bg-[#eef4fb] px-3 font-bold">+91</span>
+                        <input value={mobile} onChange={(e) => { setMobile(e.target.value.replace(/\D/g, "").slice(0, 10)); if (otpSent) { setOtpSent(false); setOtp(""); } }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} placeholder="10-digit mobile" disabled={!!token} className={input} />
+                      </div>
+                    </label>
+                    {cfg?.otp && otpSent && (
+                      <label className="mt-3 block text-sm font-bold">Enter the 6-digit OTP sent to +91 {mobile10}
+                        <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="• • • • • •" className={`${input} mt-1 text-center text-xl tracking-[0.4em]`} />
+                        {devCode && <span className="mt-1 block text-xs font-normal text-amber-700">Dev only — OTP: {devCode}</span>}
+                      </label>
+                    )}
+                    <p className="mt-3 flex items-center gap-1.5 text-xs text-[#0a2540]/60"><ShieldCheck className="size-4 text-emerald-600" />Your number is used only for this booking and service updates.</p>
+                  </section>
+                  {cfg == null ? <div className="h-14 animate-pulse rounded-2xl bg-white" /> : cfg.otp ? (
+                    otpSent
+                      ? <>
+                          <button type="button" disabled={busy || otp.length !== 6} onClick={verifyOtp} className={btn}>{busy ? "Verifying…" : "Verify & Continue"}</button>
+                          <button type="button" disabled={busy} onClick={sendOtp} className="w-full text-center text-sm font-bold text-primary">Resend OTP</button>
+                        </>
+                      : <button type="button" disabled={busy} onClick={sendOtp} className={btn}>{busy ? "Sending…" : "Send OTP"}</button>
+                  ) : (
+                    <button type="button" onClick={continueFromMobile} className={btn}>Continue</button>
+                  )}
+                </>
+              )}
+
+              {/* ── STEP 2 (package) ── */}
+              {step === 2 && (
                 <>
                   <section className="rounded-3xl bg-white p-4 shadow-sm">
                     <p className="text-xs font-extrabold uppercase tracking-wide text-primary">Your package</p>
@@ -384,7 +430,7 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
                   <section className="rounded-3xl bg-white p-4 shadow-sm" aria-live="polite">
                     <p className="text-sm font-bold">Bill details</p>
                     <dl className="mt-2 space-y-1.5 text-sm">
-                      <div className="flex justify-between gap-3"><dt>{intent.packageName ?? intent.pkg ?? intent.service}</dt><dd className="font-semibold">{priced ? inr(intent.price!) : "—"}</dd></div>
+                      <div className="flex justify-between gap-3"><dt>{intent.packageName ?? intent.pkg ?? intent.service}</dt><dd className="font-semibold">{priced ? inr(intent.price!) : "—"} <AnchorPrice price={intent.price} className="ml-1" /></dd></div>
                       {extras.map((x) => <div key={x.contentId} className="flex justify-between gap-3"><dt>+ {x.name.replace(" (add-on)", "")}{x.minQty > 1 ? ` (${x.minQty} × ${inr(x.price)})` : ""}</dt><dd className="font-semibold">{inr(x.price * x.minQty)}</dd></div>)}
                       <div className="flex justify-between gap-3 border-t border-[#0a2540]/10 pt-2 text-base"><dt className="font-extrabold">Total</dt><dd className="font-extrabold">{inr(subtotal)}</dd></div>
                       {advanceOn && (
@@ -396,45 +442,13 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
                       {!advanceOn && priced && <p className="pt-1 text-xs text-[#0a2540]/60">Pay after service is completed.</p>}
                     </dl>
                   </section>
-                  <button type="button" onClick={() => setStep(2)} className={btn}>Continue · {inr(subtotal)}</button>
-                </>
-              )}
-
-              {/* ── STEP 2 ── */}
-              {step === 2 && (
-                <>
-                  <section className="rounded-3xl bg-white p-4 shadow-sm">
-                    <label className="block text-sm font-bold">Mobile number
-                      <div className="mt-1 flex gap-2">
-                        <span className="flex min-h-12 items-center rounded-2xl border-2 border-[#0a2540]/10 bg-[#eef4fb] px-3 font-bold">+91</span>
-                        <input value={mobile} onChange={(e) => { setMobile(e.target.value.replace(/\D/g, "").slice(0, 10)); if (otpSent) { setOtpSent(false); setOtp(""); } }} type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} placeholder="10-digit mobile" disabled={!!token} className={input} />
-                      </div>
-                    </label>
-                    {cfg?.otp && otpSent && (
-                      <label className="mt-3 block text-sm font-bold">Enter the 6-digit OTP sent to +91 {mobile10}
-                        <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="• • • • • •" className={`${input} mt-1 text-center text-xl tracking-[0.4em]`} />
-                        {devCode && <span className="mt-1 block text-xs font-normal text-amber-700">Dev only — OTP: {devCode}</span>}
-                      </label>
-                    )}
-                    <p className="mt-3 flex items-center gap-1.5 text-xs text-[#0a2540]/60"><ShieldCheck className="size-4 text-emerald-600" />Your number is used only for this booking and service updates.</p>
-                  </section>
-                  {cfg == null ? <div className="h-14 animate-pulse rounded-2xl bg-white" /> : cfg.otp ? (
-                    otpSent
-                      ? <>
-                          <button type="button" disabled={busy || otp.length !== 6} onClick={verifyOtp} className={btn}>{busy ? "Verifying…" : "Verify & Continue"}</button>
-                          <button type="button" disabled={busy} onClick={sendOtp} className="w-full text-center text-sm font-bold text-primary">Resend OTP</button>
-                        </>
-                      : <button type="button" disabled={busy} onClick={sendOtp} className={btn}>{busy ? "Sending…" : "Send OTP"}</button>
-                  ) : (
-                    <button type="button" onClick={continueFromMobile} className={btn}>Continue</button>
-                  )}
+                  <button type="button" onClick={() => setStep(3)} className={btn}>Continue · {inr(subtotal)}</button>
                 </>
               )}
 
               {/* ── STEP 3 ── */}
               {step === 3 && (
                 <>
-                  <label className="block text-sm font-bold">Your name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" className={`${input} mt-1`} /></label>
                   <fieldset className="min-w-0 space-y-2 rounded-3xl bg-white p-3 shadow-sm">
                     <legend className="sr-only">Service address</legend>
                     <p className="flex items-center gap-1.5 text-sm font-bold"><MapPin className="size-4 text-primary" />{savedSites.length > 0 ? "Saved addresses" : "Full address"}</p>

@@ -1,5 +1,7 @@
 "use client";
 
+import { CollapsibleList } from "@/components/public/collapsible-list";
+import { AnchorPrice } from "@/components/public/anchor-price";
 import { useState } from "react";
 import { Check, Minus, Plus, X } from "lucide-react";
 import { openLead } from "@/components/public/bhk-price-cards";
@@ -50,7 +52,7 @@ export function PackageCalculator({ service, rows, scope, note, defaultOccasion 
           <article className="flex flex-col rounded-2xl border border-[#0a2540]/10 bg-[#eef4fb] p-4">
             <p className="text-sm font-extrabold uppercase tracking-wide text-primary">Unfurnished</p>
             <p className="text-xs font-semibold text-[#0a2540]/60">{type} · empty flat, no furniture</p>
-            <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{uf ? inr(uf.price) : <span className="text-lg">Price after free site inspection</span>}</p>
+            <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{uf ? inr(uf.price) : <span className="text-lg">Price after free site inspection</span>} <AnchorPrice price={uf?.price} /></p>
             {unfurnishedScope && (
               <>
                 <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-emerald-700">Included</p>
@@ -75,9 +77,9 @@ export function PackageCalculator({ service, rows, scope, note, defaultOccasion 
                 </div>
                 {tier === "Platinum" && <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-[#0a2540]">MOST COMPLETE</span>}
               </div>
-              <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{price != null ? inr(price) : <span className="text-lg">Price after free site inspection</span>}</p>
+              <p className="mt-1 text-3xl font-extrabold text-[#0a2540]">{price != null ? inr(price) : <span className="text-lg">Price after free site inspection</span>} <AnchorPrice price={price} /></p>
               <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-emerald-700">Included</p>
-              <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/85">{scope[tier].included.map((i) => scope[tier].highlight?.includes(i) ? <li key={i} className="flex gap-1.5 rounded-lg bg-amber-100 px-2 py-1 font-extrabold text-[#0a2540] ring-1 ring-amber-300"><Check className="mt-0.5 size-4 shrink-0 text-emerald-700" />{i}</li> : <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}</ul>
+              <CollapsibleList className="mt-1 space-y-1 text-sm text-[#0a2540]/85">{scope[tier].included.map((i) => scope[tier].highlight?.includes(i) ? <li key={i} className="flex gap-1.5 rounded-lg bg-amber-100 px-2 py-1 font-extrabold text-[#0a2540] ring-1 ring-amber-300"><Check className="mt-0.5 size-4 shrink-0 text-emerald-700" />{i}</li> : <li key={i} className="flex gap-1.5"><Check className="mt-0.5 size-4 shrink-0 text-emerald-600" />{i}</li>)}</CollapsibleList>
               <p className="mt-3 text-xs font-extrabold uppercase tracking-wide text-red-700">Not included</p>
               <ul className="mt-1 space-y-1 text-sm text-[#0a2540]/70">{scope[tier].excluded.map((i) => <li key={i} className="flex gap-1.5"><X className="mt-0.5 size-4 shrink-0 text-red-500" />{i}</li>)}</ul>
               <button type="button" onClick={() => { const id = tier === "Premium" ? row?.premiumId : row?.platinumId; openLead(price != null && id ? { service: label, pkg: `${type} ${tier}`, price, category: "HOME_DEEP_CLEANING", items: [{ contentId: id, qty: 1 }], propertyType: type, packageName: `${tier}${occasion === "Regular" ? "" : ` · ${occasion}`}` } : { service: label, pkg: `${type} ${tier}`, inspection: true }); }} className="mt-4 min-h-12 rounded-xl bg-primary text-sm font-bold text-white md:mt-auto">{price != null ? `Book ${tier} · ${inr(price)}` : "Book Free Inspection"}</button>
@@ -121,7 +123,7 @@ export function QtyCalculator({ service, items, note, heading = "Calculate your 
                 )}
               </div>
               <div className="mt-3 flex items-center justify-between gap-3">
-                <p className="text-2xl font-extrabold text-[#0a2540]">{total != null ? inr(total) : ""}</p>
+                <p className="text-2xl font-extrabold text-[#0a2540]">{total != null ? inr(total) : ""} <AnchorPrice price={total} /></p>
                 <button type="button" onClick={() => openLead(total != null ? { service: i.name.startsWith(service) ? i.name : `${service} — ${i.name}`, pkg: i.unit ? `${q} × ${i.unit.replace(/^per /, "")}` : undefined, price: total, category: "INDIVIDUAL_CLEANING", items: [{ contentId: i.id, qty: q }], packageName: i.name } : { service: i.name.startsWith(service) ? i.name : `${service} — ${i.name}` })} className="min-h-11 rounded-xl bg-primary px-5 text-sm font-bold text-white">Book Now</button>
               </div>
             </li>
@@ -199,7 +201,7 @@ export function UnfurnishedCalculator({ rows }: { rows: UnfurnishedRow[] }) {
         {rows.map((r) => (
           <div key={r.id} className="flex flex-col rounded-2xl bg-[#f5f8fd] p-4 ring-1 ring-[#0a2540]/10">
             <p className="text-sm font-bold text-[#0a2540]/70">{r.bhk} Unfurnished</p>
-            <p className="mt-1 text-2xl font-extrabold text-[#0a2540]">{inr(r.price)}</p>
+            <p className="mt-1 text-2xl font-extrabold text-[#0a2540]">{inr(r.price)} <AnchorPrice price={r.price} /></p>
             <button type="button" onClick={() => openLead({ service: "Unfurnished Home Cleaning", pkg: `${r.bhk} Unfurnished`, price: r.price, category: "HOME_DEEP_CLEANING", items: [{ contentId: r.id, qty: 1 }], propertyType: r.bhk, packageName: "Unfurnished Deep Cleaning" })} className="mt-3 min-h-12 rounded-xl bg-primary text-sm font-bold text-white">
               Book {r.bhk} · {inr(r.price)}
             </button>

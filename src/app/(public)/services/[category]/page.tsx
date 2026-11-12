@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
+import { ViewContentTracker } from "@/components/public/view-content-tracker";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Faqs, Terms, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/category-landing";
 import { ServiceSplitHero } from "@/components/public/service-split-hero";
-import { slidesForService } from "@/config/service-slides";
+import { slidesForCategory, slidesForService } from "@/config/service-slides";
 import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { catalogCategory, catalogCategoryBySlug, catalogServiceBySlug, categoryPath, servicePath, servicesIn, type CatalogCategory, type CatalogService } from "@/config/service-catalog";
 import { CategoryServiceCards, ComboSwiper, InspectionFlow, ServicePricing, WorkGallery, ZoneAccordion, ComboUpsell, PartnersMarquee } from "@/components/public/catalog-blocks";
 import { TRUST } from "@/lib/booking-target";
+import { commonServiceFaqs } from "@/lib/service-faqs";
+import { HygienePromise } from "@/components/public/trust-blocks";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
 // Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
@@ -96,6 +99,7 @@ function catalogServiceJsonLd(s: CatalogService) {
  */
 async function CatalogServicePage({ s }: { s: CatalogService }) {
   const settings = await getCompanySettings();
+  const allFaqs = [...s.faqs, ...commonServiceFaqs(s.name, { fullHome: s.category === "residential" }).filter((f) => !s.faqs.some((x) => x.q === f.q))];
   const cat = catalogCategory(s.category);
   const WA = `Hi Sahara, I need ${s.name} in Pune.`;
   const inspection = s.pricing.mode === "inspection";
@@ -105,9 +109,10 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
     <LandingShell
       logoUrl={settings.logoUrl}
       waText={WA}
-      jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), catalogServiceJsonLd(s), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: cat.label, path: categoryPath(s.category) }, { name: s.name, path: servicePath(s.slug) }]), faqJsonLd(s.faqs)]}
+      jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), catalogServiceJsonLd(s), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: cat.label, path: categoryPath(s.category) }, { name: s.name, path: servicePath(s.slug) }]), faqJsonLd(allFaqs)]}
       mobileBar={<CategoryBar waText={WA} cta={inspection ? "Get Quote" : "Book Now"} href="#book" />}
     >
+      <ViewContentTracker category={s.category} name={s.name} />
       <ServiceSplitHero title={`${s.name} in Pune`} subtitle={s.heroIntro ?? s.blurb} slides={slidesForService(s.slug, { src: s.image, alt: s.imageAlt })} waText={WA} badge={cat.label} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
@@ -121,7 +126,8 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
             <p className="mt-2 flex flex-wrap gap-2">{siblings.map((x) => <Link key={x.slug} href={servicePath(x.slug)} className="rounded-full border px-3 py-1 font-medium hover:border-primary hover:text-primary">{x.name}</Link>)}</p>
           </section>
         )}
-        <Faqs faqs={s.faqs} compact />
+        <HygienePromise />
+        <Faqs faqs={allFaqs} compact />
       </main>
       <StickyWhatsApp waText={WA} />
     </LandingShell>
@@ -144,7 +150,8 @@ async function CatalogCategoryPage({ c }: { c: CatalogCategory }) {
       jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: c.label, path: categoryPath(c.id) }]), faqJsonLd(faqs)]}
       mobileBar={<CategoryBar waText={WA} cta={inspection ? "Get Quote" : "Book Now"} href="#book" />}
     >
-      <ServiceSplitHero title={`${c.label} in Pune`} subtitle={c.blurb} slides={[{ src: c.image, alt: c.label }]} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
+      <ViewContentTracker category={c.id} name={c.label} />
+      <ServiceSplitHero title={`${c.label} in Pune`} subtitle={c.blurb} slides={slidesForCategory(c.id, { src: c.image, alt: c.label })} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <CategoryServiceCards id={c.id} anchor={c.id === "individual"} />
         {c.id === "commercial" && <PartnersMarquee />}

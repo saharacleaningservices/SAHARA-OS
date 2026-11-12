@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export type SliderSlide = { src: string; alt: string; label?: string };
 
-const ROTATE_MS = 4000;
+const ROTATE_MS = 3500; // owner 2026-11-12: smooth 3.5 s auto-slide on every category hero slider
 
 /**
  * Category-specific image slider for the right column of the service-page split hero (owner 2026-11-12).
