@@ -255,12 +255,11 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
   {
     slug: "facility-management", vertical: "commercial", name: "Facility Management & Security Manpower", short: "Facility Management (AMC)", keyword: "facility management services",
     intro: "Housekeeping, security guards and support manpower under one annual maintenance contract (AMC) for offices, societies and commercial complexes.",
-    includes: ["Housekeeping and office-boy manpower", "Security guard manpower", "Common-area, washroom and terrace upkeep", "Periodic deep cleaning and pest-control bundling", "Monthly invoicing with GST"],
+    includes: ["Housekeeping and office-boy manpower", "Security guard manpower", "Common-area, washroom and terrace upkeep", "Periodic deep cleaning and pest-control bundling", "Monthly invoicing"],
     audience: "corporate offices, housing societies, malls and commercial complexes",
     typeLabel: "Facility type", typeOptions: ["Office / IT park", "Society / residential complex", "Mall / commercial complex", "Industrial / warehouse", "Other"],
     faq: (l) => [
       { q: `Do you offer facility management AMC in ${l}?`, a: `Yes, for offices, societies and commercial complexes. The scope and manpower are agreed at a site visit. ${SITE_VISIT}` },
-      { q: "Is GST invoicing available?", a: "Yes. Sahara is GST registered and issues GST invoices for corporate and society contracts." },
     ],
   },
   {

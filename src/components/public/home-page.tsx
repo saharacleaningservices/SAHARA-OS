@@ -48,8 +48,8 @@ export async function HomePage() {
 
         <section aria-labelledby="about-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">
           <p className="text-xs font-bold uppercase tracking-widest text-primary">About us</p>
-          <h2 id="about-title" className="mt-1 text-xl font-extrabold text-[#0a2540] sm:text-2xl">Sahara Cleaning Services — Pune &amp; PCMC, since {TRUST.since}</h2>
-          <p className="mt-2 text-[15px] leading-relaxed text-[#0a2540]/80">Our own trained crew looks after homes, offices and societies across Pune &amp; PCMC. With 25+ years of combined industry experience and 8,000+ satisfied clients, we offer fixed rates for standard jobs and a free site inspection for the rest.</p>
+          <h2 id="about-title" className="mt-1 text-xl font-extrabold text-[#0a2540] sm:text-2xl">Sahara Cleaning Services</h2>
+          <p className="mt-2 text-[15px] leading-relaxed text-[#0a2540]/80">Residential: flats, bungalows, row houses, penthouses and post-interior cleaning. Commercial &amp; Facility Management: offices, IT parks, shops, showrooms, warehouses, hospitals, schools &amp; colleges, restaurants and hotels. Every job across Pune &amp; PCMC is done by our own trained in-house crew — with 25+ years of combined industry experience and 8,000+ satisfied clients, we offer fixed rates for standard jobs and a free site inspection for the rest.</p>
           <AboutStats />
         </section>
 
@@ -61,7 +61,7 @@ export async function HomePage() {
         <FeaturedResults />
         <BeforeAfterSection />
         <HygienePromise />
-        <CustomerReviews reviews={reviews} reviewUrl={reviewUrl} />
+        <div id="reviews" className="scroll-mt-20"><CustomerReviews reviews={reviews} reviewUrl={reviewUrl} /></div>
         <ZoneGrid />
         <BranchDetails />
       </main>

@@ -1,3 +1,4 @@
+import { HERO_TRUST_POINTS } from "@/config/hero-trust";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCompanySettings } from "@/server/settings";
@@ -10,12 +11,14 @@ import { HomeAbout } from "@/components/public/home-about";
 import { ClientCarousel } from "@/components/ui/client-carousel";
 import { CLIENT_LOGOS } from "@/lib/client-logos";
 import { CategoryGrid } from "@/components/public/catalog-blocks";
+import { ServiceCoverage } from "@/components/public/service-coverage";
+import { coverageJsonLd } from "@/config/geo-coverage";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
 // Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
 export const dynamic = "force-dynamic";
 const TITLE = "Cleaning, Pest Control, Painting & Facility Management in Pune | Sahara";
-const DESC = "Home deep cleaning, office housekeeping, post-interior cleaning, pest control and painting across East, West, North and South Pune and PCMC. Trained in-house staff since 2012.";
+const DESC = "Home deep cleaning, office housekeeping, post-interior cleaning, pest control and painting across East, West, North and South Pune and PCMC. Trained in-house staff.";
 export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: `${BASE_URL}/services` }, robots: { index: true, follow: true }, openGraph: { type: "website", url: `${BASE_URL}/services`, title: TITLE, description: DESC, siteName: "Sahara Cleaning Services", locale: "en_IN" } };
 
 const WA = "Hi Sahara, I need a quote for a service in Pune.";
@@ -27,10 +30,11 @@ const FAQS = [
 export default async function ServicesHub() {
   const settings = await getCompanySettings();
   return (
-    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/booking" }, { name: "Services", path: "/services" }]), faqJsonLd(FAQS)]} bookHref="/booking" mobileBar={<CategoryBar waText={WA} cta="Get Quote" href="/booking" />}>
-      <CategoryHero image="/marketing/hero-home.webp" alt="Sahara cleaning crew in Pune" title="Sahara Services Across Pune & PCMC" subtitle="Pick a service, then your area — every page names the branch that serves you." points={["Trained in-house staff", "Written quote before work", "Magarpatta & Mohammadwadi branches", "Since 2012 · GST invoice"]} waText={WA} cta="Book Now" ctaHref="/booking" />
+    <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/booking" }, { name: "Services", path: "/services" }]), faqJsonLd(FAQS), coverageJsonLd(BASE_URL)]} bookHref="/booking" mobileBar={<CategoryBar waText={WA} cta="Get Quote" href="/booking" />}>
+      <CategoryHero image="/marketing/hero-home.webp" alt="Sahara cleaning crew in Pune" title="Sahara Services Across Pune & PCMC" subtitle="Pick a service, then your area." points={[...HERO_TRUST_POINTS]} waText={WA} cta="Book Now" ctaHref="/booking" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-5">
         <CategoryGrid />
+        <ServiceCoverage />
         <HomeAbout reviewUrl={settings.googleReviewUrl?.trim() || undefined} />
         <ClientCarousel logos={CLIENT_LOGOS} />
         <h2 className="pt-2 text-xl font-extrabold">Area pages by service</h2>

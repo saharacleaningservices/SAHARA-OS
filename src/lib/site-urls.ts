@@ -15,7 +15,13 @@
 export const LEGACY_APP_URL = "https://app.saharacleaningservices.com";
 
 /** Customer-facing booking form — Section 2 of the URL migration. */
-export const PUBLIC_BOOKING_URL = (process.env.BOOKING_URL || LEGACY_APP_URL).replace(/\/$/, "");
+export const MAIN_SITE_URL = "https://saharacleaningservices.com";
+
+/**
+ * Customer-facing website. Defaults to the apex domain (never app.*), so the sitemap, robots.txt and canonicals can never point
+ * at the legacy app host when BOOKING_URL is unset. Set BOOKING_URL in Coolify only to override.
+ */
+export const PUBLIC_BOOKING_URL = (process.env.BOOKING_URL || MAIN_SITE_URL).replace(/\/$/, "");
 
 /** Internal CRM/management app — Section 3 of the URL migration. */
 export const INTERNAL_CRM_URL = (process.env.CRM_URL || LEGACY_APP_URL).replace(/\/$/, "");

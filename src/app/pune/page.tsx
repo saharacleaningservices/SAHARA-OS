@@ -1,3 +1,4 @@
+import { HERO_TRUST_POINTS } from "@/config/hero-trust";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCompanySettings } from "@/server/settings";
@@ -38,7 +39,7 @@ export default async function PuneHubPage() {
         alt="Sahara cleaning crew in Royal Blue uniform with a floor scrubbing machine in a Pune home"
         title="Cleaning, Housekeeping & Pest Control Across Pune"
         subtitle="One trusted partner for home cleaning, office cleaning, pest control, painting and facility management in Pune and PCMC."
-        points={["Trained in-house staff", "Written quotes and proposals", "East Pune to PCMC", "Serving Pune since 2012"]}
+        points={[...HERO_TRUST_POINTS]}
         waText={WA}
         badge="Pune & PCMC"
         cta="Book Now"

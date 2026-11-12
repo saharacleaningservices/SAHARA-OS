@@ -1,3 +1,4 @@
+import { HERO_TRUST_POINTS } from "@/config/hero-trust";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -57,7 +58,7 @@ export default async function AreaPage({ params }: Props) {
         alt={`Sahara cleaning crew in Royal Blue uniform serving ${area.name}, Pune`}
         title={`Cleaning, Housekeeping & Pest Control in ${area.name}, Pune`}
         subtitle={`Home deep cleaning, office cleaning, pest control, painting and housekeeping AMC for ${area.premises} in ${area.name}.`}
-        points={["Trained in-house staff in uniform", "Written quote or proposal before work", `Serving ${cluster.label}`, "Pune & PCMC since 2012"]}
+        points={[...HERO_TRUST_POINTS]}
         waText={WA}
         badge={cluster.label}
         cta="Get Proposal"

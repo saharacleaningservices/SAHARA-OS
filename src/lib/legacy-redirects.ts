@@ -135,3 +135,12 @@ export function buildLegacyRedirects(): LegacyRedirect[] {
 }
 
 export const LEGACY_REDIRECTS: LegacyRedirect[] = buildLegacyRedirects();
+
+// Service renames (owner 2026-11-12): "Bathroom Scrubbing" -> "Bathroom Deep Cleaning", "Sofa & Upholstery Shampooing" -> "... Cleaning".
+// Old and category-prefixed URLs 301 to the canonical /services/<slug> page. Listed before the generic category-prefix rule.
+export const SERVICE_RENAME_REDIRECTS: LegacyRedirect[] = [
+  // Requested B2B alias: the commercial hub is the category page.
+  { source: "/services/commercial-cleaning", destination: "/services/commercial-services", statusCode: 301 },
+  ...["/services/individual-services/bathroom-scrubbing", "/services/bathroom-scrubbing", "/services/individual-services/bathroom-deep-cleaning"].map((source) => ({ source, destination: "/services/bathroom-deep-cleaning", statusCode: 301 as const })),
+  ...["/services/individual-services/sofa-upholstery-shampooing", "/services/sofa-upholstery-shampooing", "/services/individual-services/sofa-upholstery-cleaning"].map((source) => ({ source, destination: "/services/sofa-upholstery-cleaning", statusCode: 301 as const })),
+];

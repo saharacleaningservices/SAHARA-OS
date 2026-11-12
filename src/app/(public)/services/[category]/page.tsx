@@ -1,3 +1,6 @@
+import { HERO_TRUST_POINTS } from "@/config/hero-trust";
+import { AREA_SERVED_JSONLD } from "@/config/geo-coverage";
+import { ServiceCoverage } from "@/components/public/service-coverage";
 import type { Metadata } from "next";
 import { ViewContentTracker } from "@/components/public/view-content-tracker";
 import Link from "next/link";
@@ -41,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!c) return {};
   const url = `${BASE_URL}/services/${c.slug}`;
   const title = `${c.short} in Pune — All Areas | Sahara`;
-  const description = `${c.name} across East, West, North and South Pune and PCMC. Choose your area. Trained in-house staff, written quote, since 2012.`;
+  const description = `${c.name} across East, West, North and South Pune and PCMC. Choose your area. Trained in-house staff and a written quote.`;
   return { title, description, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "website", url, title, description, siteName: "Sahara Cleaning Services", locale: "en_IN" } };
 }
 
@@ -58,7 +61,7 @@ export default async function CategoryHub({ params }: Props) {
   const faqs = [{ q: `Where do you offer ${c.keyword} in Pune?`, a: `Across ${LOCALITIES.length} localities in East, West, North and South & Central Pune and PCMC. Pick your area below.` }];
   return (
     <LandingShell logoUrl={settings.logoUrl} waText={WA} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/booking" }, { name: "Services", path: "/services" }, { name: c.name, path: `/services/${c.slug}` }]), faqJsonLd(faqs)]} bookHref="/booking" mobileBar={<CategoryBar waText={WA} cta="Get Quote" href="/booking" />}>
-      <CategoryHero image="/marketing/hero-home.webp" alt={`${c.name} in Pune`} title={`${c.name} in Pune`} subtitle={c.intro} points={c.includes.slice(0, 4)} waText={WA} badge={VERTICALS[c.vertical].label} cta="Book Now" ctaHref="/booking" />
+      <CategoryHero image="/marketing/hero-home.webp" alt={`${c.name} in Pune`} title={`${c.name} in Pune`} subtitle={c.intro} points={[...HERO_TRUST_POINTS]} waText={WA} badge={VERTICALS[c.vertical].label} cta="Book Now" ctaHref="/booking" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-5">
         <ZoneAccordion seoSlug={c.slug} service={c.short} />
         <section className="rounded-2xl bg-white p-5 text-sm shadow-sm">
@@ -87,7 +90,7 @@ function catalogServiceJsonLd(s: CatalogService) {
     image: `${BASE_URL}${s.image}`,
     category: catalogCategory(s.category).label,
     provider: { "@type": "LocalBusiness", name: "Sahara Cleaning Services", url: BASE_URL, telephone: "+917083347130" },
-    areaServed: [{ "@type": "City", name: "Pune" }, { "@type": "City", name: "Pimpri-Chinchwad" }],
+    areaServed: AREA_SERVED_JSONLD,
     hasOfferCatalog: { "@type": "OfferCatalog", name: s.name, itemListElement: s.includes.map((i) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: i } })) },
   };
 }
@@ -118,7 +121,10 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
         <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
         <ServicePricing service={s} />
         {s.category === "individual" && <ComboUpsell contentIds={s.pricing.contentIds} />}
-        <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[]} onlyReal folder={SERVICE_SLIDE_FOLDER[s.slug]} />
+        {/* Individual / residential pages already open with the BEFORE -> AFTER hero slider, so no second drag-slider block below the combos (owner 2026-11-12). */}
+        {s.category !== "individual" && s.category !== "residential" && (
+          <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[]} onlyReal folder={SERVICE_SLIDE_FOLDER[s.slug]} />
+        )}
         <ZoneAccordion seoSlug={seo?.slug} service={s.name} />
         {siblings.length > 0 && (
           <section className="rounded-2xl bg-white p-5 text-sm shadow-sm">
@@ -154,6 +160,8 @@ async function CatalogCategoryPage({ c }: { c: CatalogCategory }) {
       <ServiceSplitHero title={`${c.label} in Pune`} subtitle={c.blurb} slides={slidesForCategory(c.id, { src: c.image, alt: c.label })} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <CategoryServiceCards id={c.id} anchor={c.id === "individual"} />
+        {c.id === "residential" && <ServiceCoverage show="b2c" />}
+        {c.id === "commercial" && <ServiceCoverage show="b2b" />}
         {c.id === "commercial" && <PartnersMarquee />}
         {c.id === "individual" && <ComboUpsell />}
         {c.id === "individual" && <ComboSwiper />}

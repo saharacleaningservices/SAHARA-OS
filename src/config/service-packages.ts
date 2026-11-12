@@ -46,13 +46,13 @@ export const SERVICE_PACKAGES: Record<string, PackageSpec[]> = {
   "bathroom-deep-cleaning": [
     {
       contentId: "SCS-10",
-      title: "Bathroom Scrubbing",
+      title: "Bathroom Deep Cleaning",
       qty: true,
       included: ["Hard-water stain & scale removal", "Wall & floor tile grout scrubbing", "WC, basin & shower area", "Taps, fittings & mirrors", "Exhaust fan & door"],
       excluded: ["Plumbing or tile repairs", "Moving heavy fixtures", "Old permanent stains (no guarantee of full removal)"],
     },
   ],
-  "sofa-upholstery-shampooing": [
+  "sofa-upholstery-cleaning": [
     {
       contentId: "SCS-09",
       title: "Sofa Shampooing",

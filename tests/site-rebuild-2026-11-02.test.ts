@@ -11,7 +11,7 @@ test("catalog: 4 categories with the owner's service list, unique slugs", () => 
   const slugs = CATALOG_SERVICES.map((s) => s.slug);
   assert.equal(new Set(slugs).size, slugs.length, "duplicate catalog slug");
   for (const s of slugs) assert.match(s, /^[a-z0-9-]+$/);
-  for (const name of ["Full House Deep Cleaning", "Unfurnished Home Cleaning", "Move-in / Move-out Cleaning", "Post-Interior Cleaning", "Pest Control", "Interior Painting", "Kitchen Deep Cleaning", "Bathroom Scrubbing", "Sofa & Upholstery Shampooing", "Carpet Cleaning", "Window Cleaning", "Balcony Cleaning", "Office Cleaning", "Showroom Cleaning", "Warehouse Cleaning", "Facade & Glass Cleaning", "Commercial Kitchen / Restaurant Cleaning", "Post-Construction Cleaning", "Commercial AMC & Facility Management", "Packers & Movers", "Rent Agreement & Police Verification", "Property Snagging / Home Inspection"]) {
+  for (const name of ["Full House Deep Cleaning", "Unfurnished Home Cleaning", "Move-in / Move-out Cleaning", "Post-Interior Cleaning", "Pest Control", "Interior Painting", "Kitchen Deep Cleaning", "Bathroom Deep Cleaning", "Sofa & Upholstery Cleaning", "Carpet Cleaning", "Window Cleaning", "Balcony Cleaning", "Office Cleaning", "Showroom Cleaning", "Warehouse Cleaning", "Facade & Glass Cleaning", "Commercial Kitchen / Restaurant Cleaning", "Post-Construction Cleaning", "Commercial AMC & Facility Management", "Packers & Movers", "Rent Agreement & Police Verification", "Property Snagging / Home Inspection"]) {
     assert.ok(CATALOG_SERVICES.some((s) => s.name === name), `missing ${name}`);
   }
 });

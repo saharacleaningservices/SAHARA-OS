@@ -39,6 +39,7 @@ export function ExpansionBanner() {
     <section aria-label="Our expansion journey" className="rounded-3xl bg-[#0a2540] px-5 py-6 text-center shadow-sm sm:py-8">
       <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-amber-300 sm:text-sm">Our Expansion Journey</p>
       <p className="sahara-fade-pulse mt-2 text-xl font-black uppercase leading-snug tracking-wide text-white sm:text-3xl">Coming soon to Mumbai &amp; Bangalore</p>
+      <p className="mt-3 text-sm font-semibold text-white/85 sm:text-base">Currently serving in Pune and PCMC. Coming soon Mumbai and Bangalore.</p>
     </section>
   );
 }
