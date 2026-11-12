@@ -11,18 +11,19 @@ const read = (f: string) => readFileSync(f, "utf8");
 /** Source without comments, so a note about a removed feature cannot fail a "must not contain" check. */
 const code = (f: string) => read(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-test("hero slider: 2.5 s autoplay, 300 ms slide, desktop cap min(500px, 50vh) with object-cover object-center", () => {
+test("hero slider: 2.5 s autoplay, 300 ms slide, desktop cap min(540px, 56vh), image anchored at center 20% (owner 2026-11-12)", () => {
   const s = read("src/components/public/home-hero-slider.tsx");
   assert.match(s, /const ROTATE_MS = 2500;/);
   assert.match(s, /const SLIDE_MS = 300;/);
-  assert.match(s, /lg:max-h-\[min\(500px,50vh\)\]/);
-  assert.match(s, /object-cover object-center/);
+  assert.match(s, /lg:max-h-\[min\(540px,56vh\)\]/);
+  assert.match(s, /object-cover object-\[center_20%\]/);
 });
 
-test("trust card: vertical padding cut ~35% (20px → 13px) and tighter rating spacing", () => {
+test("trust card: slim strip below the hero, no negative-margin overlap (owner 2026-11-12)", () => {
   const h = read("src/components/public/home-page.tsx");
-  assert.match(h, /px-4 py-\[13px\] text-center shadow-md/);
-  assert.match(h, /<div className="mt-2"><GoogleRatingBadge/);
+  assert.match(h, /<section aria-labelledby="slogan" className="mt-3 flex [^"]*px-4 py-2 [^"]*shadow-sm/);
+  assert.doesNotMatch(h, /<section aria-labelledby="slogan"[^>]*-mt-/);
+  assert.match(h, /<GoogleRatingBadge[^>]*compact/);
   assert.match(h, /<h1 id="slogan"[^>]*>\{BRAND_TAGLINE\}<\/h1>/);
   assert.equal(BRAND_TAGLINE, "Your Trust. Our Expertise. Your Satisfaction.");
   assert.doesNotMatch(h, /#1 Trusted Home Service Partner/);

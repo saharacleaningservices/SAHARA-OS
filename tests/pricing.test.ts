@@ -494,8 +494,8 @@ test("no ₹3,999 minimum in CRM: office-entered small amounts validate, and quo
   }
   assert.ok(!jobSchema.partial().safeParse({ jobValue: -1 }).success, "negative job value still refused");
   // Small package: exact total, no top-up to a minimum.
-  const t = packageTotals({ lines: [{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Cleaning", unit: "per seat", qty: 5, unitPrice: 249 }], discount: 0 } as never);
-  assert.equal(t.final, 1245);
+  const t = packageTotals({ lines: [{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Shampooing", unit: "per seat", qty: 5, unitPrice: 199 }], discount: 0 } as never);
+  assert.equal(t.final, 995);
   // Small job payments: advance / balance / status exact.
   assert.deepEqual(jobPaymentSummary(1599, [{ paidAmount: 500 }]), { paid: 500, balance: 1099, status: "Partly Paid" });
   assert.deepEqual(jobPaymentSummary(499, [{ paidAmount: 499 }]), { paid: 499, balance: 0, status: "Paid" });
@@ -555,10 +555,10 @@ test("customer quotation: compact home / small / combo rows, advance + balance, 
   assert.ok(text({ ...job, packageName: "Unfurnished", serviceVariant: "2 BHK", jobValue: 4999 }).includes("Full Home Cleaning — Unfurnished"));
 
   // Small services: actual saved names, quantities and units; exact totals.
-  const items = JSON.stringify([{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Cleaning", unit: "per seat", qty: 5, unitPrice: 249 }, { id: "b", group: "CUSTOMISED", contentId: "SCS-10", name: "Bathroom Deep Cleaning", unit: "per bathroom", qty: 2, unitPrice: 599 }]);
-  const small = text({ ...job, serviceLabel: "Housekeeping", serviceItems: items, jobValue: 2443, paid: 0 });
-  assert.ok(small.includes("Sofa Cleaning") && small.includes("× 5 seats") && small.includes("× 2 bathrooms"));
-  assert.ok(/Final Payable ₹2,443/.test(small) && /Balance Due ₹2,443/.test(small) && !small.includes("Scope of Work"));
+  const items = JSON.stringify([{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Shampooing", unit: "per seat", qty: 5, unitPrice: 199 }, { id: "b", group: "CUSTOMISED", contentId: "SCS-10", name: "Bathroom Deep Cleaning", unit: "per bathroom", qty: 2, unitPrice: 599 }]);
+  const small = text({ ...job, serviceLabel: "Housekeeping", serviceItems: items, jobValue: 2193, paid: 0 });
+  assert.ok(small.includes("Sofa Shampooing") && small.includes("× 5 seats") && small.includes("× 2 bathrooms"));
+  assert.ok(/Final Payable ₹2,193/.test(small) && /Balance Due ₹2,193/.test(small) && !small.includes("Scope of Work"));
 
   // Combo: package name + its price-master components.
   const combo = text({ ...job, serviceLabel: "Housekeeping", included: ["Kitchen + 2 Bathroom + Fridge"], jobValue: 3499, paid: 3499 });
@@ -573,8 +573,8 @@ test("office quotation/invoice PDF scope is concise for full-home packages; item
   assert.equal(home.notes.length, 1);
   assert.ok(home.notes[0].startsWith("Full Home Cleaning — Platinum:") && home.notes[0].includes("wall wet cleaning"));
   assert.ok(!/Living room & bedrooms:|Bathrooms:/.test(home.notes.join(" ")));
-  const items = JSON.stringify([{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Cleaning", unit: "per seat", qty: 5, unitPrice: 249 }]);
-  assert.ok(documentScope({ service: "HOUSEKEEPING", serviceItems: items }).notes.some((n) => n.includes("Sofa Cleaning × 5") && n.includes("Minimum 5 seats")));
+  const items = JSON.stringify([{ id: "a", group: "CUSTOMISED", contentId: "SCS-09", name: "Sofa Shampooing", unit: "per seat", qty: 5, unitPrice: 199 }]);
+  assert.ok(documentScope({ service: "HOUSEKEEPING", serviceItems: items }).notes.some((n) => n.includes("Sofa Shampooing × 5") && n.includes("any number of seats")));
   // A staff-typed scope is kept as written.
   assert.deepEqual(documentScope({ service: "HOME_DEEP_CLEANING", packageName: "2 BHK Premium", scopeOfWork: "Only 2 bedrooms + kitchen, customer request" }).notes, ["Only 2 bedrooms + kitchen, customer request"]);
 });

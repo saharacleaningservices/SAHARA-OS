@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, CalendarCheck, CheckCircle2, Clock, MapPin, MessageCircle, Phone, ShieldCheck, X } from "lucide-react";
+import { ArrowLeft, CalendarCheck, CheckCircle2, Clock, MapPin, MessageCircle, Minus, Phone, Plus, ShieldCheck, X } from "lucide-react";
 import type { LeadIntent } from "@/components/public/bhk-price-cards";
 import { trackFunnel, trackLead } from "@/components/public/marketing-tags";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
@@ -11,7 +11,7 @@ import { getQuickAddOns } from "@/server/actions/public-addons";
 import { captureCheckoutLead, confirmAdvancePayment, getBookingFlowConfig, sendBookingOtp, startAdvanceCheckout, verifyBookingOtp, type BookingFlowConfig, type SavedSite, type VerifiedCustomer } from "@/server/actions/booking-checkout";
 import { LOCALITIES } from "@/config/pune-seo-matrix";
 import { MOQ_VALUE, ZONE_B_MOV_MESSAGE, detectAreaFromAddress, localitySlug, moqFor, normalizePincode, upgradeBundle, type AddOn } from "@/lib/zonal-moq";
-import { addOnSlotsFor } from "@/lib/booking-addons";
+import { addOnSlotsFor, type AddOnSlot } from "@/lib/booking-addons";
 import { slotDisplay, slotsForCategory } from "@/lib/booking-slots";
 import { paymentSplit } from "@/lib/booking-payment";
 import { TRUST } from "@/lib/booking-target";
@@ -136,8 +136,11 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
   // ── add-on chips for this category ──
   const basket = [...(intent.items ?? []).map((i) => i.contentId), ...extras.map((x) => x.contentId)];
   const chips = addOnSlotsFor(intent)
-    .map((s) => ({ slot: s, add: pool.find((p) => p.contentId === s.contentId) }))
-    .filter((c): c is { slot: { contentId: string; label: string }; add: AddOn } => !!c.add && !basket.includes(c.slot.contentId) || extras.some((x) => x.contentId === c.slot.contentId));
+    // "Removing & Placing Back" is already part of the utensil-removal kitchen package.
+    .filter((slot) => !(slot.contentId === "SCS-39" && basket.includes("SCS-33")))
+    .map((slot) => ({ slot, add: pool.find((p) => p.contentId === slot.contentId) }))
+    .filter((c): c is { slot: AddOnSlot; add: AddOn } => !!c.add && (!basket.includes(c.slot.contentId) || extras.some((x) => x.contentId === c.slot.contentId)));
+  const setQty = (id: string, q: number, min: number) => setExtras((cur) => cur.map((x) => (x.contentId === id ? { ...x, minQty: Math.min(50, Math.max(min, q)) } : x)));
   const toggle = (a: AddOn, lbl: string) => {
     if (!extras.some((x) => x.contentId === a.contentId)) trackFunnel("select_addon", { service: category, item: lbl, value: a.price * a.minQty });
     setExtras((cur) => (cur.some((x) => x.contentId === a.contentId) ? cur.filter((x) => x.contentId !== a.contentId) : [...cur, a]));
@@ -356,11 +359,23 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
                       <p className="text-sm font-bold">Add Extra Services <span className="font-normal text-[#0a2540]/55">(Optional)</span></p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {chips.map(({ slot: s, add }) => {
-                          const on = extras.some((x) => x.contentId === add.contentId);
+                          const cur = extras.find((x) => x.contentId === add.contentId);
+                          const on = !!cur;
+                          const q = cur?.minQty ?? add.minQty;
                           return (
-                            <button key={add.contentId} type="button" aria-pressed={on} onClick={() => toggle(add, s.label)} className={`min-h-10 rounded-full border-2 px-3 text-xs font-extrabold transition ${on ? "border-primary bg-primary text-white" : "border-[#0a2540]/10 bg-white text-[#0a2540] hover:border-primary/50"}`}>
-                              {on ? "✓ " : "+ "}{s.label} {inr(add.price * add.minQty)}
-                            </button>
+                            <div key={add.contentId} className="flex flex-wrap items-center gap-2">
+                              <button type="button" aria-pressed={on} onClick={() => toggle(add, s.label)} className={`min-h-10 rounded-full border-2 px-3 text-xs font-extrabold transition ${on ? "border-primary bg-primary text-white" : "border-[#0a2540]/10 bg-white text-[#0a2540] hover:border-primary/50"}`}>
+                                {on ? "✓ " : "+ "}{s.label} {s.perUnit ? `${inr(add.price)} per ${add.name.toLowerCase().includes("mattress") ? "mattress" : "seat"}` : inr(add.price * add.minQty)}
+                              </button>
+                              {on && s.perUnit && (
+                                <div className="flex items-center gap-1 rounded-xl bg-[#eef4fb] p-1 ring-1 ring-[#0a2540]/10" role="group" aria-label={`Quantity for ${s.label}`}>
+                                  <button type="button" aria-label="Decrease" disabled={q <= add.minQty} onClick={() => setQty(add.contentId, q - 1, add.minQty)} className="flex size-9 items-center justify-center rounded-lg bg-white disabled:opacity-30"><Minus className="size-4" /></button>
+                                  <span className="w-8 text-center text-sm font-extrabold tabular-nums" aria-live="polite">{q}</span>
+                                  <button type="button" aria-label="Increase" disabled={q >= 50} onClick={() => setQty(add.contentId, q + 1, add.minQty)} className="flex size-9 items-center justify-center rounded-lg bg-white disabled:opacity-30"><Plus className="size-4" /></button>
+                                  <span className="px-1.5 text-xs font-extrabold text-[#0a2540]/70">= {inr(add.price * q)}</span>
+                                </div>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
@@ -370,7 +385,7 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
                     <p className="text-sm font-bold">Bill details</p>
                     <dl className="mt-2 space-y-1.5 text-sm">
                       <div className="flex justify-between gap-3"><dt>{intent.packageName ?? intent.pkg ?? intent.service}</dt><dd className="font-semibold">{priced ? inr(intent.price!) : "—"}</dd></div>
-                      {extras.map((x) => <div key={x.contentId} className="flex justify-between gap-3"><dt>+ {x.name.replace(" (add-on)", "")}{x.minQty > 1 ? ` ×${x.minQty}` : ""}</dt><dd className="font-semibold">{inr(x.price * x.minQty)}</dd></div>)}
+                      {extras.map((x) => <div key={x.contentId} className="flex justify-between gap-3"><dt>+ {x.name.replace(" (add-on)", "")}{x.minQty > 1 ? ` (${x.minQty} × ${inr(x.price)})` : ""}</dt><dd className="font-semibold">{inr(x.price * x.minQty)}</dd></div>)}
                       <div className="flex justify-between gap-3 border-t border-[#0a2540]/10 pt-2 text-base"><dt className="font-extrabold">Total</dt><dd className="font-extrabold">{inr(subtotal)}</dd></div>
                       {advanceOn && (
                         <>

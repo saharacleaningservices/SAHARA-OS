@@ -4,6 +4,9 @@ import { createHmac } from "node:crypto";
 import { FULL_HOUSE_SLOTS, slotDisplay, slotsForCategory } from "../src/lib/booking-slots";
 import { currentOtp, otpMatches, signVerified, verifyVerified, OTP_WINDOW_MS, VERIFIED_TTL_MS } from "../src/lib/booking-otp-token";
 import { addOnSlotsFor } from "../src/lib/booking-addons";
+import { PRICING_MASTER } from "../src/lib/pricing-master";
+import { PLATINUM_EXCLUDED, PLATINUM_SCOPE, PREMIUM_EXCLUDED, PREMIUM_SCOPE } from "../src/lib/marketing-content";
+import { homeScopeByArea } from "../src/lib/service-scope";
 import { detectAreaFromAddress } from "../src/lib/zonal-moq";
 import { verifyCheckoutSignature } from "../src/server/razorpay";
 
@@ -38,11 +41,25 @@ test("OTP: matches current and previous window, rejects others; verified token b
   assert.ok(!verifyVerified("", "9876543210", now, KEY));
 });
 
-test("add-ons: full home has fridge/chimney/pest shot and no balcony; pest control has none", () => {
-  const ids = addOnSlotsFor({ category: "HOME_DEEP_CLEANING", service: "Full House Deep Cleaning" }).map((s) => s.contentId);
-  assert.deepEqual(ids, ["SCS-32", "SCS-35", "SCS-36"]);
-  assert.ok(!ids.includes("SCS-34"));
+test("add-ons: home & kitchen lists, per-seat sofa, pest control none", () => {
+  const home = addOnSlotsFor({ category: "HOME_DEEP_CLEANING", service: "Full House Deep Cleaning" });
+  assert.deepEqual(home.map((s) => s.contentId), ["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35", "SCS-09", "SCS-36"]);
+  assert.ok(!home.some((s) => s.contentId === "SCS-34"), "no balcony in full home");
+  assert.equal(home.find((s) => s.contentId === "SCS-09")?.perUnit, true);
+  assert.deepEqual(addOnSlotsFor({ category: "INDIVIDUAL_CLEANING", service: "Kitchen Deep Cleaning" }).map((s) => s.contentId), ["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35"]);
   assert.equal(addOnSlotsFor({ category: "PEST_CONTROL", service: "Pest Control" }).length, 0);
+});
+
+test("pricing master: owner add-on prices, per-seat sofa, chimney not in the base packages", () => {
+  const p = (id: string) => PRICING_MASTER.find((i) => i.contentId === id)!;
+  assert.deepEqual(["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35"].map((id) => p(id).price), [599, 399, 699, 299, 499]);
+  assert.equal(p("SCS-09").price, 199);
+  assert.equal(p("SCS-09").unit, "per seat");
+  assert.equal(p("SCS-09").minQty, 1);
+  assert.ok(!PREMIUM_SCOPE.join(" ").toLowerCase().includes("chimney") && !PLATINUM_SCOPE.join(" ").toLowerCase().includes("chimney"));
+  assert.ok(PREMIUM_EXCLUDED.includes("Chimney Deep Cleaning (available as add-on)"));
+  assert.ok(PLATINUM_EXCLUDED.includes("Chimney Deep Cleaning (available as add-on)"));
+  assert.ok(!homeScopeByArea("Platinum").flatMap((a) => a.items).some((i) => /chimney/i.test(i.item)));
 });
 
 test("detectAreaFromAddress finds the PIN and the earliest known locality", () => {

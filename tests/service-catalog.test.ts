@@ -56,13 +56,14 @@ test("the catalog covers every service in the owner's list, each with scope, equ
   }
 });
 
-test("Premium and Platinum differ exactly where the approved scope says they do (walls, chimney)", () => {
+test("Premium and Platinum differ exactly where the approved scope says they do (walls only; chimney is an add-on)", () => {
   const premium = SERVICE_CATALOG_SEED.find((s) => s.slug === "full-home-premium")!.scopeOfWork.join("\n");
   const platinum = SERVICE_CATALOG_SEED.find((s) => s.slug === "full-home-platinum")!.scopeOfWork.join("\n");
   assert.match(premium, /walls: dry dusting/);
   assert.match(platinum, /walls: wet cleaning/);
-  assert.match(premium, /chimney: exterior cleaning/);
-  assert.match(platinum, /chimney: full cleaning/);
+  // Owner 2026-11-12: chimney cleaning is an add-on, not part of either package.
+  assert.doesNotMatch(premium, /chimney/i);
+  assert.doesNotMatch(platinum, /chimney/i);
 });
 
 test("a booking maps to its catalog entry by package, then by service", () => {
