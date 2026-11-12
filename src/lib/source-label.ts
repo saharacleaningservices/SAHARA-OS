@@ -37,7 +37,11 @@ export function refCodeForTouch(touch: Touch | null | undefined, pagePath?: stri
     const b = gmbBranchOf(touch.campaign, touch.medium);
     return b === "MAGARPATTA" ? "GMB-MAGARPATTA" : b === "MOHAMMADWADI" ? "GMB-MOHDWADI" : null;
   }
-  if (channel === "Google Organic/SEO") return `SEO-${slugFromPath(touch.landingPage ?? pagePath)}`;
+  if (channel === "Google Organic/SEO") {
+    // B2B desk pages (/b2b/…, /b2b-housekeeping-pune) share one code so the team can see business enquiries at a glance (owner 2026-11-12).
+    if (/^\/b2b(\/|-|$)/i.test((pagePath ?? "").split(/[?#]/)[0] ?? "")) return "SEO-B2B";
+    return `SEO-${slugFromPath(touch.landingPage ?? pagePath)}`;
+  }
   return null;
 }
 

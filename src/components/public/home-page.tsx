@@ -11,6 +11,7 @@ import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { GOOGLE_REVIEW_URL } from "@/lib/whatsapp-cloud-templates";
 import { BRAND_TAGLINE } from "@/lib/brand-tagline";
 import { TRUST } from "@/lib/booking-target";
+import { DirectVsMarketplace } from "@/components/public/direct-vs-marketplace";
 
 const WA = "Hi Sahara, I'd like a quote for a service in Pune.";
 
@@ -62,6 +63,7 @@ export async function HomePage() {
         <BeforeAfterSection />
         <HygienePromise />
         <div id="reviews" className="scroll-mt-20"><CustomerReviews reviews={reviews} reviewUrl={reviewUrl} /></div>
+        <DirectVsMarketplace />
         <ZoneGrid />
         <BranchDetails />
       </main>

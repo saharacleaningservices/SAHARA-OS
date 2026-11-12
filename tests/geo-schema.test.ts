@@ -18,8 +18,12 @@ test("business JSON-LD: NAP from the single CONTACT source, geo, map, services, 
   assert.equal(j.slogan, "Your Trust. Our Expertise. Your Satisfaction.");
   assert.deepEqual({ latitude: j.geo.latitude, longitude: j.geo.longitude }, BUSINESS_GEO);
   assert.match(j.hasMap, /google\.com\/maps/);
-  assert.equal(j.hasOfferCatalog.itemListElement.length, SCHEMA_SERVICES.length);
-  for (const o of j.hasOfferCatalog.itemListElement) assert.match(o.itemOffered.url, /^https:\/\/saharacleaningservices\.com\//);
+  // B2C and B2B sub-catalogs (owner 2026-11-12): together they hold every service exactly once.
+  const subs = j.hasOfferCatalog.itemListElement as { itemListElement: { itemOffered: { url: string } }[] }[];
+  assert.equal(subs.length, 2);
+  const offers = subs.flatMap((c) => c.itemListElement);
+  assert.equal(offers.length, SCHEMA_SERVICES.length);
+  for (const o of offers) assert.match(o.itemOffered.url, /^https:\/\/saharacleaningservices\.com\//);
   assert.deepEqual(j.sameAs, ["https://example.test/profile"]);
 });
 

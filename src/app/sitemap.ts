@@ -12,7 +12,7 @@ const PACKAGE_PATHS = ["1-bhk", "2-bhk", "3-bhk"].flatMap((b) => ["premium", "pl
 const CORE = ["/", "/offers", "/home-deep-cleaning-pune", ...PACKAGE_PATHS, "/commercial-cleaning-pune", "/pest-control-pune", "/interior-painting-pune", "/housekeeping-services", "/gallery", "/pune", ...PUNE_AREAS.map((a) => `/pune/${a.slug}`)];
 
 // Pune SEO engine (2026-11-01): hub, one page per service, one page per service × locality, and the two B2B desks.
-export const SEO_HUB_PATHS = ["/services", "/contact", ...SERVICE_CATEGORIES.map((c) => `/services/${c.slug}`), "/b2b/architects", "/b2b/corporate-facility"];
+export const SEO_HUB_PATHS = ["/services", "/contact", ...SERVICE_CATEGORIES.map((c) => `/services/${c.slug}`), "/b2b/architects", "/b2b/corporate-facility", "/b2b-housekeeping-pune"];
 export const PROGRAMMATIC_PATHS = PROGRAMMATIC_PAGES.map((p) => `/services/${p.category}/${p.location}`);
 
 // Service catalog pages (rebuild 2026-11-02). Slugs shared with a SEO hub above are de-duplicated.
