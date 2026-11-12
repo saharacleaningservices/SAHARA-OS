@@ -38,6 +38,7 @@ const SAHARA_WEB_AREAS = ["balewadi","aundh","pashan","bavdhan","karve-nagar","w
 const bySource = new Map(LEGACY_REDIRECTS.map((r) => [r.source, r]));
 const validDest = (d: string) => {
   if (NATIVE.has(d)) return true;
+  if (d === "/sitemap.xml" || d === "/home-deep-cleaning-pune") return true; // live Next.js sitemap route + the Pune deep-cleaning landing page (200 on production 2026-11-12)
   const m = d.match(/^\/services\/([^/]+)(?:\/([^/]+))?$/);
   if (!m) return false;
   const [, svc, area] = m;
@@ -81,4 +82,13 @@ test("spot checks", () => {
   assert.equal(bySource.get("/deep-cleaning/fursungi")?.destination, "/services/home-deep-cleaning/phursungi");
   assert.equal(bySource.get("/painting-services/nigdi")?.destination, "/services/interior-painting/pimpri");
   assert.equal(bySource.get("/about")?.destination, "/");
+});
+
+test("2026-11-12 GSC 404s: old WordPress .html pages, WP sitemap files and booking deep links 301 to live pages", () => {
+  assert.equal(bySource.get("/index.html")?.destination, "/");
+  assert.equal(bySource.get("/bathroom-cleaning-services-pune.html")?.destination, "/services/kitchen-bathroom-cleaning");
+  assert.equal(bySource.get("/end-of-tenancy-cleaning-services-pune.html")?.destination, "/services/home-deep-cleaning");
+  assert.equal(bySource.get("/sofa-cleaning-services-in-kharadi.html")?.destination, "/services/sofa-carpet-mattress-cleaning/kharadi");
+  for (const f of ["/page-sitemap.xml", "/sitemap_index.xml", "/wp-sitemap.xml"]) assert.equal(bySource.get(f)?.destination, "/sitemap.xml", f);
+  assert.equal(bySource.get("/home-deep-cleaning-pune/:path+")?.destination, "/home-deep-cleaning-pune");
 });
