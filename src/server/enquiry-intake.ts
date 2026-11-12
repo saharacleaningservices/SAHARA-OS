@@ -1,4 +1,5 @@
 import { classifyTouch } from "@/lib/attribution";
+import { sourceTagForChannel } from "@/lib/source-tags";
 import { sendEnquiryAck } from "@/server/enquiry-ack-email";
 import { db } from "@/lib/db";
 import { generateLeadNumber } from "@/lib/id-generators";
@@ -59,9 +60,12 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
     source: str(raw.utm_source ?? raw.utmSource, 80) || null,
     medium: str(raw.utm_medium ?? raw.utmMedium, 80) || null,
     campaign: str(raw.utm_campaign ?? raw.utmCampaign, 120) || null,
+    term: str(raw.utm_term ?? raw.utmTerm, 120) || null,
+    gclid: str(raw.gclid, 300) || null,
+    fbclid: str(raw.fbclid, 300) || null,
   };
   const landingPageUrl = str(raw.landing_page_url ?? raw.landingPageUrl, 500) || null;
-  const channel = utm.source ? classifyTouch({ source: utm.source, medium: utm.medium, campaign: utm.campaign, at: "x" }) : "Website Form";
+  const channel = utm.source || utm.gclid || utm.fbclid ? classifyTouch({ source: utm.source, medium: utm.medium, campaign: utm.campaign, gclid: utm.gclid, fbclid: utm.fbclid, at: "x" }) : "Website Form";
   const branchPick = str(raw.branch, 20).toLowerCase();
   const sourceLine = branchPick === "mohammadwadi" || utm.medium?.toLowerCase().includes("mohammadwadi") ? "Shoyab-GMB" : branchPick === "magarpatta" || utm.medium?.toLowerCase().includes("magarpatta") ? "Main-API" : "Main";
 
@@ -102,9 +106,13 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
         service: service as never,
         source: "WEBSITE" as never,
         acquisitionChannel: channel,
+        ...(sourceTagForChannel(channel) ? { sourceTag: sourceTagForChannel(channel) } : {}), // SRC-GOOGLE-ADS / SRC-META-ADS
         utmSource: utm.source,
         utmMedium: utm.medium,
         utmCampaign: utm.campaign,
+        utmTerm: utm.term,
+        gclid: utm.gclid,
+        fbclid: utm.fbclid,
         landingPageUrl,
         sourceLine,
         firstTouchSource: utm.source ?? "Website Form",

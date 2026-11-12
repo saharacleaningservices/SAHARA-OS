@@ -18,6 +18,8 @@ import { CategoryServiceCards, ComboSwiper, InspectionFlow, ServicePricing, Work
 import { TRUST } from "@/lib/booking-target";
 import { commonServiceFaqs } from "@/lib/service-faqs";
 import { HygienePromise } from "@/components/public/trust-blocks";
+import { ScopeChecklist } from "@/components/public/scope-checklist";
+import { ctrDescriptionFor } from "@/config/ctr-meta";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
 // Company Settings may be prerendered at build time (Coolify build failed on /b2b/architects, 2026-11-01).
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (svc) {
     const url = `${BASE_URL}${servicePath(svc.slug)}`;
     const title = `${svc.name} in Pune | ${svc.pricing.mode === "inspection" ? "Free Site Inspection" : "Fixed Rates"} | Sahara`;
-    const description = `${svc.intro} Pune & PCMC · in-house trained staff · ${TRUST.rating}★ Google.`.slice(0, 300);
+    const description = ctrDescriptionFor(svc.slug) ?? `${svc.intro} Pune & PCMC · in-house trained staff · ${TRUST.rating}★ Google.`.slice(0, 300);
     return { title, description, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "website", url, title, description, siteName: "Sahara Cleaning Services", locale: "en_IN", images: [`${BASE_URL}${svc.image}`] } };
   }
   const cp = catalogCategoryBySlug(slug);
@@ -44,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!c) return {};
   const url = `${BASE_URL}/services/${c.slug}`;
   const title = `${c.short} in Pune — All Areas | Sahara`;
-  const description = `${c.name} across East, West, North and South Pune and PCMC. Choose your area. Trained in-house staff and a written quote.`;
+  const description = ctrDescriptionFor(c.slug) ?? `${c.name} across East, West, North and South Pune and PCMC. Choose your area. Trained in-house staff and a written quote.`;
   return { title, description, alternates: { canonical: url }, robots: { index: true, follow: true }, openGraph: { type: "website", url, title, description, siteName: "Sahara Cleaning Services", locale: "en_IN" } };
 }
 
@@ -120,6 +122,7 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
         <ServicePricing service={s} />
+        {s.slug === "home-deep-cleaning" && <ScopeChecklist />}
         {s.category === "individual" && <ComboUpsell contentIds={s.pricing.contentIds} />}
         {/* Individual / residential pages already open with the BEFORE -> AFTER hero slider, so no second drag-slider block below the combos (owner 2026-11-12). */}
         {s.category !== "individual" && s.category !== "residential" && (

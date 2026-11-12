@@ -15,6 +15,9 @@ const bodySchema = z.object({
   category: z.string().max(80).optional(),
   variant: z.string().max(120).optional(),
   value: z.number().positive().max(10_000_000).optional(),
+  // Meta browser / click ids passed by the form (attribution store) — same formats Meta's own cookies use.
+  fbp: z.string().regex(/^fb\.\d\.\d{10,13}\.\d{4,20}$/).optional(),
+  fbc: z.string().regex(/^fb\.\d\.\d{10,13}\.[A-Za-z0-9_-]{6,380}$/).optional(),
 });
 
 const SOURCE_URL = `${SITE_ORIGIN}/`;
@@ -29,13 +32,14 @@ export async function POST(request: NextRequest) {
   if (!normalizePhone(parsed.data.mobile)) return NextResponse.json({ ok: false }, { status: 400 });
 
   const referer = request.headers.get("referer");
+  const { fbp: bodyFbp, fbc: bodyFbc, ...event } = parsed.data;
   const result = await sendCapiEvent({
-    ...parsed.data,
+    ...event,
     sourceUrl: referer && referer.startsWith("https://") ? referer.slice(0, 500) : SOURCE_URL,
     ip,
     userAgent: request.headers.get("user-agent") ?? undefined,
-    fbp: request.cookies.get("_fbp")?.value,
-    fbc: request.cookies.get("_fbc")?.value,
+    fbp: bodyFbp ?? request.cookies.get("_fbp")?.value,
+    fbc: bodyFbc ?? request.cookies.get("_fbc")?.value,
   });
   return NextResponse.json({ ok: result.sent });
 }

@@ -47,3 +47,13 @@ export const activeSourceTag = (v?: string | null): string | null => {
   const t = (v ?? "").trim();
   return !t || (RETIRED_SOURCE_TAGS as readonly string[]).includes(t) ? null : t;
 };
+
+/**
+ * Paid-channel source tag for a lead the website classified (owner 2026-11-12): Google Ads → SRC-GOOGLE-ADS, Meta Ads → SRC-META-ADS.
+ * Every other channel returns null so staff keep choosing GMB / SEO / reference tags by hand — nothing is guessed.
+ */
+export function sourceTagForChannel(channel: string | null | undefined): SourceTag | null {
+  if (channel === "Google Ads") return "SRC-GOOGLE-ADS";
+  if (channel === "Meta Ads") return "SRC-META-ADS";
+  return null;
+}
