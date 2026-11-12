@@ -38,6 +38,9 @@ const bookingTemplateV4 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v4";
 const bookingTemplateV5 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v5";
 // WHATSAPP_BOOKING_TEMPLATE=v6 → sahara_booking_confirmed_v6: View Quotation (A4 PDF) + Pay Advance on short links, nothing else.
 const bookingTemplateV6 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v6";
+// WHATSAPP_BOOKING_TEMPLATE=v7 → sahara_booking_confirmed_v7 (owner 2026-11-12, 100% Pay After Service): View Booking + Leave a Review
+// buttons and a Pay After Service quick reply, no advance. Set it in Coolify only AFTER Meta shows the template as Approved.
+const bookingTemplateV7 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v7";
 
 /** Body parameters for sahara_booking_confirmed_v4 (exported for tests). */
 export function bookingConfirmationV4Params(job: { customerName: string; jobNumber: string; scheduledDate: Date; scheduledTime: string; area: string }, service: string, reviewUrl: string | null | undefined) {
@@ -158,6 +161,24 @@ async function sendBookingConfirmationOnce(jobId: string) {
     if (!r.sent && "error" in r && shouldFallBackToText(r.error)) return sendText();
     return r;
   };
+
+  if (templatesEnabled() && bookingTemplateV7()) {
+    const t = templateByName("sahara_booking_confirmed_v7")!;
+    const params = bookingConfirmationV4Params(job, service, null).slice(0, 6);
+    return viaTemplate({
+      kind: "BOOKING_CONFIRMATION",
+      toNumber: job.customerMobile,
+      toName: job.customerName,
+      templateName: t.name,
+      languageCode: t.language,
+      bodyParams: params,
+      // /booking/{{1}} takes the plain booking token; the review button is a static URL and Pay After Service is a Quick Reply.
+      buttonUrlParams: [{ index: 0, value: token }],
+      preview: renderTemplatePreview(t, params),
+      relatedType: "Job",
+      relatedId: job.id,
+    });
+  }
 
   if (templatesEnabled() && bookingTemplateV6()) {
     const t = templateByName("sahara_booking_confirmed_v6")!;

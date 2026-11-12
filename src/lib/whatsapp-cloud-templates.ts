@@ -364,6 +364,25 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
       { type: "URL", text: "Pay Advance", url: `${PUBLIC_BOOKING_URL}/p/{{1}}`, example: `${PUBLIC_BOOKING_URL}/p/AbCdEfGh12` },
     ],
   },
+  // ── Owner 2026-11-12: "100% Pay After Service" — no advance and no Pay Advance button. View Booking + Leave a Review are the two
+  // URL buttons (Meta allows two); Pay After Service is a Quick Reply (same-type buttons must be grouped, so it sits last).
+  // Used only after Meta approves it and WHATSAPP_BOOKING_TEMPLATE=v7 is set; until then the existing template keeps sending.
+  {
+    key: "2f",
+    name: "sahara_booking_confirmed_v7",
+    category: "UTILITY",
+    language: "en",
+    purpose: "Booking confirmed — 100% Pay After Service (no advance); View Booking, Leave a Review, Pay After Service",
+    body:
+      "Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\n\nPayment: 100% Pay After Service. Nothing to pay in advance. You pay once the service is completed.\n\nOur team will reach on time. Please keep water and electricity available.",
+    footer: "Sahara Cleaning Services, Pune",
+    examples: ["Priya", "JOB-2026-0150", "Home Deep Cleaning", "12 Oct 2026", "10:00 – 1:00", "Magarpatta, Hadapsar"],
+    buttons: [
+      { type: "URL", text: "View Booking", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}AbCdEfGh1234567890` },
+      { type: "URL", text: "Leave a Review", url: GOOGLE_REVIEW_URL },
+      { type: "QUICK_REPLY", text: "Pay After Service" },
+    ],
+  },
   {
     key: "6b",
     name: "sahara_payment_received_v1",
