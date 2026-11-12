@@ -60,8 +60,28 @@ export function fireAdsConversion(kind: AdsConversionKind, opts: { transactionId
   return true;
 }
 
+const lastMetaContactAt: Partial<Record<AdsConversionKind, number>> = {};
+
+/**
+ * Meta Pixel "Contact" for a call / WhatsApp tap. Two page listeners (MarketingTags in the shell, SeoCtaTracker on the
+ * SEO pages) both see the same tap, so every Contact goes through here: the first one in wins and a second within
+ * CLICK_DEDUPE_MS is dropped. Returns true when an event was sent. No-op when the Pixel is not loaded.
+ */
+export function fireMetaContact(kind: Exclude<AdsConversionKind, "lead">, params: Record<string, string>, opts: { now?: number } = {}): boolean {
+  if (typeof window === "undefined") return false;
+  const fb = (window as unknown as { fbq?: Gtag }).fbq;
+  if (typeof fb !== "function") return false;
+  const now = opts.now ?? Date.now();
+  const prev = lastMetaContactAt[kind];
+  if (prev !== undefined && now - prev < CLICK_DEDUPE_MS) return false;
+  lastMetaContactAt[kind] = now;
+  fb("track", "Contact", params);
+  return true;
+}
+
 /** Test hook: clears the in-memory de-duplication state. */
 export function __resetAdsConversionState() {
   for (const k of Object.keys(lastClickAt)) delete lastClickAt[k as AdsConversionKind];
+  for (const k of Object.keys(lastMetaContactAt)) delete lastMetaContactAt[k as AdsConversionKind];
   firedTransactions.clear();
 }

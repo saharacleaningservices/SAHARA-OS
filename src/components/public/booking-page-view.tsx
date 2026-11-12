@@ -148,7 +148,7 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
 
           {showPay && (pay === "advance" || focus === "pay" || pmt.status !== "PAY_AFTER_SERVICE") && (
             <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-3">
-              <p className="font-semibold">Pay Advance</p>
+              <p className="font-semibold">Pay Now</p>
               {hasPaymentDetails ? (
                 <>
                   {settings?.upiId && <p>UPI: <span className="font-medium">{settings.upiId}</span></p>}
@@ -184,9 +184,9 @@ export async function BookingPageView({ token, pay, focus }: { token: string; pa
     const nothingDue = pmt.due <= 0 || job.status === "CANCELLED";
     return (
       <main className="theme-navy flex min-h-[100dvh] items-center justify-center bg-[#f4f7fb] px-4 py-4">
-        <section className="w-full max-w-sm space-y-3 rounded-3xl bg-white p-5 text-[#0a2540] shadow-lg" aria-label="Pay advance">
+        <section className="w-full max-w-sm space-y-3 rounded-3xl bg-white p-5 text-[#0a2540] shadow-lg" aria-label="Pay now">
           <header className="space-y-1 text-center">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-primary">Pay Advance</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-primary">Pay Now</p>
             <p className="text-xs font-semibold text-[#0a2540]/60">Payable amount</p>
             <p className="text-4xl font-black tabular-nums" aria-label="Payable amount">{formatINR(payNowAmount)}</p>
           </header>

@@ -4,11 +4,12 @@
 // verification until staff record it in the CRM (authenticated actions only).
 
 /**
- * Advance rule (owner decision 2026-10-18): 20% advance confirms the booking, the 80% balance is payable
- * after work completion. One number, used by the booking summary, confirmation, quotation and invoice PDFs.
+ * Payment rule (owner decision 2026-11-12, supersedes the 2026-10-18 20% advance): 100% Pay After Service — no advance
+ * is asked to confirm a booking. One number, used by the booking summary, confirmation, quotation and invoice PDFs;
+ * 0 makes every advance/balance split come out as "advance 0, balance = total", and startAdvance() refuses (< ₹1).
  * Display only — the server re-prices, and a payment is never marked paid until staff record it.
  */
-export const ADVANCE_PERCENT = 20;
+export const ADVANCE_PERCENT = 0;
 
 /** Advance / balance split printed on quotations and invoices. Advance is rounded; balance is the exact remainder. */
 export function paymentSplit(total: number) {
