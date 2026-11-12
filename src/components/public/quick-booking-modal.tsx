@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CalendarCheck, CheckCircle2, Clock, MapPin, MessageCircle, Phone, X } from "lucide-react";
 import { OPEN_EVENT, type LeadIntent } from "@/components/public/bhk-price-cards";
+import { BookingFlow } from "@/components/public/booking-flow";
 import { trackFunnel, trackLead, trackSchedule } from "@/components/public/marketing-tags";
 import { getAttributionPayload } from "@/components/public/attribution-capture";
 import { getDateAvailability, getSlotAvailability } from "@/server/actions/slot-availability";
@@ -79,8 +80,10 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   }, []);
 
   // On open: body lock, focus, Escape, keyboard-safe height, and the 14-day CRM availability strip.
+  const closeFlow = useCallback(() => setIntent(null), []);
   useEffect(() => {
-    if (!intent) return;
+    // Fixed-price bookings run in <BookingFlow> (own effects); this path serves inquiries / inspections / B2B only.
+    if (!intent || (intent.category && !intent.inspection)) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const t = setTimeout(() => first.current?.focus(), 60);
@@ -104,7 +107,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
 
   // Live windows for the chosen date.
   useEffect(() => {
-    if (!intent || !date) return;
+    if (!intent || !date || (intent.category && !intent.inspection)) return;
     let alive = true;
     setSlots(null);
     getSlotAvailability(date)
@@ -115,6 +118,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
 
   if (!intent) return null;
   const booking = !!intent.category && !intent.inspection;
+  if (booking) return <BookingFlow key={`${intent.service}|${intent.pkg ?? ""}|${intent.price ?? 0}`} intent={intent} waNumber={waNumber} onClose={closeFlow} />;
   const label = intent.pkg ? `${intent.service} · ${intent.pkg}` : intent.service;
   const dayStatus = days?.find((d) => d.date === date)?.status ?? "AVAILABLE";
   const slotBadge = (s: SlotInfo) => (!s.available ? BADGE.FULL : dayStatus === "FILLING" ? BADGE.FILLING : BADGE.AVAILABLE);

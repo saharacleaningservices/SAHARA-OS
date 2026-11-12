@@ -36,9 +36,10 @@ export async function HomePage() {
     <LandingShell logoUrl={settings?.logoUrl} waText={WA} jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph()]}>
       <HomeHeroSlider photos={PHOTOS} />
       <main className="mx-auto max-w-6xl space-y-8 px-4 pb-8 sm:space-y-10">
-        <section aria-labelledby="slogan" className="relative z-10 -mt-6 rounded-3xl bg-white px-4 py-[13px] text-center shadow-md sm:px-8">
-          <h1 id="slogan" className="text-2xl font-extrabold leading-tight text-[#0a2540] sm:text-3xl">{BRAND_TAGLINE}</h1>
-          <div className="mt-2"><GoogleRatingBadge reviewUrl={reviewUrl} rating={settings?.googleRating || TRUST.rating} compact /></div>
+        {/* Slim trust strip (owner 2026-11-12): sits cleanly BELOW the hero — no negative-margin overlap on technician photos. */}
+        <section aria-labelledby="slogan" className="mt-3 flex flex-col items-center justify-between gap-1.5 rounded-2xl bg-white px-4 py-2 text-center shadow-sm sm:flex-row sm:gap-4 sm:py-2.5 sm:text-left">
+          <h1 id="slogan" className="text-base font-extrabold leading-tight text-[#0a2540] sm:text-lg">{BRAND_TAGLINE}</h1>
+          <GoogleRatingBadge reviewUrl={reviewUrl} rating={settings?.googleRating || TRUST.rating} compact />
         </section>
 
         <section aria-labelledby="about-title" className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">

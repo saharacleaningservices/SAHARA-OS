@@ -96,7 +96,8 @@ test("pest control: flat 1–4 BHK rates for all five treatments; 1 BHK = owner-
 test("landing pages: calculator, scope (included / excluded / GST), zone table for every service; category pages exist", () => {
   const page = readFileSync("src/app/(public)/services/[category]/page.tsx", "utf8");
   const svc = page.slice(page.indexOf("async function CatalogServicePage"), page.indexOf("async function CatalogCategoryPage"));
-  for (const f of ["<ServicePricing", "<ScopeOfWork", "<ZoneAccordion", 'href="#book"']) assert.ok(svc.includes(f), f);
+  for (const f of ["<ServicePricing", "<ServiceSplitHero", "<ZoneAccordion", 'href="#book"']) assert.ok(svc.includes(f), f);
+  assert.ok(!svc.includes("<ScopeOfWork"), "generic scope-of-work box removed (owner 2026-11-12)");
   assert.match(page, /catalogCategoryBySlug\(slug\)/);
   const calc = readFileSync("src/components/public/rate-calculators.tsx", "utf8");
   for (const f of ["export function PackageCalculator", "export function QtyCalculator", "export function PestCalculator", "Bungalow / Villa", "Unfurnished", "Post-Interior Cleaning", "Not included"]) assert.ok(calc.includes(f), f);

@@ -48,21 +48,23 @@ export const PLATINUM: Pkg[] = toPkg("PLATINUM");
 // difference (Premium: wall dry dusting · Platinum: wall wet cleaning; both
 // include ceiling dry dusting).
 export const HOME_BASE_SCOPE = [
-  "Window glass cleaning & sliding channel vacuuming",
-  "Furniture exterior dusting, sofa dry vacuuming",
+  "Window glass cleaning, sliding channel vacuuming & mesh vacuuming",
+  "Furniture exterior dusting; sofa & mattress dry vacuuming",
   "Bathrooms: WC, basin, fittings, taps, wall & floor tiles",
-  "Kitchen: platform, tiles, trolley exterior, exhaust fan",
-  "Balcony cleaning",
+  "Kitchen: platform, tiles, trolleys & cabinets exterior cleaning, exhaust fan & chimney exterior cleaning",
+  "Balcony: dry balcony & living room balcony cleaning",
   "Lights, fans & doors dusting",
   "Floor manual scrubbing & mopping",
   "Cobweb & spider web removal",
 ];
 export const PREMIUM_SCOPE = [...HOME_BASE_SCOPE, "Wall dry dusting & ceiling dry dusting"];
 export const PLATINUM_SCOPE = [...HOME_BASE_SCOPE, "Wall wet cleaning & ceiling dry dusting"];
+/** The one line that sets Platinum apart — rendered bold / highlighted on the package card (owner 2026-11-12). */
+export const PLATINUM_HIGHLIGHT = PLATINUM_SCOPE[PLATINUM_SCOPE.length - 1]!;
 export const PREMIUM_EXCLUDED = [
   "Wall wet cleaning (included in Platinum)",
-  "Sofa / carpet / mattress shampooing (available separately)",
-  "Inaccessible areas and moving heavy furniture",
+  "Sofa, mattress & carpet shampooing (available separately)",
+  "Inaccessible areas & moving heavy furniture",
 ];
 export const PLATINUM_EXCLUDED = PREMIUM_EXCLUDED.slice(1);
 // Equipment the team brings — shown inside each package / service scope.

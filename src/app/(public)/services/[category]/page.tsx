@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Faqs, Terms, BASE_URL, businessJsonLd, faqJsonLd } from "@/components/public/landing-kit";
 import { CategoryHero, CategoryBar, StickyWhatsApp } from "@/components/public/category-landing";
+import { ServiceSplitHero } from "@/components/public/service-split-hero";
+import { slidesForService } from "@/config/service-slides";
 import { LOCALITIES, SERVICE_CATEGORIES, VERTICALS, categoryBySlug } from "@/config/pune-seo-matrix";
 import { branchGraph, magarpattaBranchExtra } from "@/lib/seo-graph";
 import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { catalogCategory, catalogCategoryBySlug, catalogServiceBySlug, categoryPath, servicePath, servicesIn, type CatalogCategory, type CatalogService } from "@/config/service-catalog";
-import { CategoryServiceCards, ComboSwiper, InspectionFlow, ScopeOfWork, ServicePricing, WorkGallery, ZoneAccordion, ComboUpsell, PartnersMarquee } from "@/components/public/catalog-blocks";
+import { CategoryServiceCards, ComboSwiper, InspectionFlow, ServicePricing, WorkGallery, ZoneAccordion, ComboUpsell, PartnersMarquee } from "@/components/public/catalog-blocks";
 import { TRUST } from "@/lib/booking-target";
 
 // Rendered per request like every other public page: the Docker build has no database, so nothing that reads
@@ -88,8 +90,9 @@ function catalogServiceJsonLd(s: CatalogService) {
 }
 
 /**
- * Service landing page (owner R&D directive 2026-11-02): clean hero → interactive rate calculator → full scope of work
- * (included / excluded) → 4-zone area table → FAQ, with an instant-booking bar on mobile. Layout model: BOXED.
+ * Service landing page (owner directives 2026-11-02, 2026-11-12): split hero with before/after slider → visual package cards
+ * (included / not included inside each card) → combo upsell → 4-zone area table → FAQ, with an instant-booking bar on mobile.
+ * Layout model: BOXED on desktop, fluid on mobile.
  */
 async function CatalogServicePage({ s }: { s: CatalogService }) {
   const settings = await getCompanySettings();
@@ -105,12 +108,11 @@ async function CatalogServicePage({ s }: { s: CatalogService }) {
       jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), catalogServiceJsonLd(s), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: cat.label, path: categoryPath(s.category) }, { name: s.name, path: servicePath(s.slug) }]), faqJsonLd(s.faqs)]}
       mobileBar={<CategoryBar waText={WA} cta={inspection ? "Get Quote" : "Book Now"} href="#book" />}
     >
-      <CategoryHero image={s.image} alt={s.imageAlt} title={`${s.name} in Pune`} subtitle={s.heroIntro ?? s.intro} points={s.heroPoints ?? s.includes.slice(0, 3)} waText={WA} badge={cat.label} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
+      <ServiceSplitHero title={`${s.name} in Pune`} subtitle={s.heroIntro ?? s.blurb} slides={slidesForService(s.slug, { src: s.image, alt: s.imageAlt })} waText={WA} badge={cat.label} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <nav aria-label="Breadcrumb" className="text-xs text-[#0a2540]/60"><Link href="/" className="hover:text-primary">Home</Link> › <Link href={categoryPath(s.category)} className="hover:text-primary">{cat.short}</Link> › <span className="font-semibold text-[#0a2540]">{s.name}</span></nav>
         <ServicePricing service={s} />
         {s.category === "individual" && <ComboUpsell contentIds={s.pricing.contentIds} />}
-        <ScopeOfWork service={s} />
         <WorkGallery category={s.gallery === "Other" ? undefined : s.gallery} title={`Before & after — ${s.name}`} fallback={[]} onlyReal />
         <ZoneAccordion seoSlug={seo?.slug} service={s.name} />
         {siblings.length > 0 && (
@@ -142,7 +144,7 @@ async function CatalogCategoryPage({ c }: { c: CatalogCategory }) {
       jsonLd={[businessJsonLd(magarpattaBranchExtra()), ...branchGraph(), breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: c.label, path: categoryPath(c.id) }]), faqJsonLd(faqs)]}
       mobileBar={<CategoryBar waText={WA} cta={inspection ? "Get Quote" : "Book Now"} href="#book" />}
     >
-      <CategoryHero image={c.image} alt={c.label} title={`${c.label} in Pune`} subtitle={c.blurb} points={servicesIn(c.id).slice(0, 4).map((x) => x.name)} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
+      <ServiceSplitHero title={`${c.label} in Pune`} subtitle={c.blurb} slides={[{ src: c.image, alt: c.label }]} waText={WA} badge={c.short} cta={inspection ? "Request Inspection" : "See Rates & Book"} ctaHref="#book" />
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
         <CategoryServiceCards id={c.id} anchor={c.id === "individual"} />
         {c.id === "commercial" && <PartnersMarquee />}

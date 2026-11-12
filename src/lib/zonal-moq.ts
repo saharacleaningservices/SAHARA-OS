@@ -117,3 +117,20 @@ export function upgradeBundle(gap: number, pool: AddOn[], already: string[] = []
   }
   return left <= 0 ? out : [];
 }
+
+/**
+ * Free-text address → the PIN code and Pune locality the zonal minimum order needs (owner 2026-11-12: the booking flow has one
+ * "Full Address" box, no area dropdown). The PIN code is the most precise signal; otherwise the first known locality name that
+ * appears in the text. `localities` is the pune-seo-matrix list (passed in so this file stays dependency-free).
+ */
+export function detectAreaFromAddress(address: string, localities: readonly { slug: string; name: string }[] = []): { pincode: string; locality: string; localityName: string } {
+  const text = ` ${address.toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+  const pin = /\b(41[12]\d{3})\b/.exec(address)?.[1] ?? "";
+  const known = [...localities, ...EXTRA_AREAS.map((a) => ({ slug: a.slug, name: a.name }))];
+  let best: { slug: string; name: string; at: number } | null = null;
+  for (const l of known) {
+    const at = text.indexOf(` ${l.name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()} `);
+    if (at >= 0 && (!best || at < best.at)) best = { slug: l.slug, name: l.name, at };
+  }
+  return { pincode: pin, locality: best?.slug ?? "", localityName: best?.name ?? "" };
+}
