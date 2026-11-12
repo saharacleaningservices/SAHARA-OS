@@ -11,8 +11,8 @@ export type ScopeRow = { area: string; furnished: string; unfurnished: string };
 export const SCOPE_ROWS: ScopeRow[] = [
   {
     area: "Floors (rooms, hall, kitchen)",
-    furnished: "Heavy scrubbing machine + mopping",
-    unfurnished: "Heavy scrubbing machine + mopping; paint, cement and dust marks removed",
+    furnished: "Thorough manual deep scrubbing with eco-safe chemicals and specialized pads, then mopping",
+    unfurnished: "Thorough manual deep scrubbing with eco-safe chemicals and specialized pads, then mopping; paint, cement and dust marks removed",
   },
   {
     area: "Kitchen",

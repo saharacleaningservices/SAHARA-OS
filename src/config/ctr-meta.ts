@@ -20,7 +20,7 @@ export function ctrDescriptions() {
   return {
     // Homepage: the page prefixes the official brand tagline (owner rule 2026-11-03), so this is the part that follows it.
     home: `Home deep cleaning from ${inr(HOME_FROM_UNFURNISHED())}, sofa ${inr(SOFA_PER_SEAT())}/seat. In-house trained staff. Pay after service in Pune & PCMC.`,
-    "home-deep-cleaning": `Full house deep cleaning in Pune: unfurnished from ${inr(HOME_FROM_UNFURNISHED())}, furnished 1 BHK ${inr(HOME_FROM_FURNISHED())}. Heavy scrubbing machine, in-house trained staff. Pay after service.`,
+    "home-deep-cleaning": `Full house deep cleaning in Pune: unfurnished from ${inr(HOME_FROM_UNFURNISHED())}, furnished 1 BHK ${inr(HOME_FROM_FURNISHED())}. Thorough manual floor scrubbing, in-house trained staff. Pay after service.`,
     "sofa-carpet-mattress-cleaning": `Sofa shampooing ${inr(SOFA_PER_SEAT())} per seat, mattress ${inr(MATTRESS_EACH())}, carpet cleaning in Pune. Machine wet extraction by in-house trained staff. Pay after service.`,
   } as const;
 }

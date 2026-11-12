@@ -165,7 +165,8 @@ test("meta descriptions use real catalog prices and the requested trust points",
   const d = ctrDescriptions();
   assert.match(d["home-deep-cleaning"], /₹3,199/);
   assert.match(d["home-deep-cleaning"], /₹4,499/);
-  assert.match(d["home-deep-cleaning"], /scrubbing machine/i);
+  assert.match(d["home-deep-cleaning"], /manual floor scrubbing/i);
+  assert.ok(!/scrubbing machine/i.test(JSON.stringify(d)), "crew scrubs manually - no machine claim");
   assert.match(d["sofa-carpet-mattress-cleaning"], /₹199 per seat/);
   assert.match(d.home, /₹3,199/);
   const homepage = `${BRAND_TAGLINE} ${d.home}`; // the page prefixes the official tagline
@@ -195,7 +196,8 @@ test("only descriptions changed on the ranking pages: title, canonical and H1 li
 
 test("scope block covers every requested item and never promises what the Scope of Work excludes", () => {
   const all = JSON.stringify(SCOPE_ROWS).toLowerCase();
-  for (const k of ["scrubbing machine", "kitchen", "wardrobe", "balcony", "terrace", "tracks", "grills", "descaling", "furnished", "unfurnished"]) assert.ok(all.includes(k) || k.endsWith("furnished"), k);
+  assert.ok(!/machine/i.test(all), "floors are scrubbed manually");
+  for (const k of ["manual deep scrubbing", "specialized pads", "kitchen", "wardrobe", "balcony", "terrace", "tracks", "grills", "descaling", "furnished", "unfurnished"]) assert.ok(all.includes(k) || k.endsWith("furnished"), k);
   const furnishedWardrobe = SCOPE_ROWS.find((r) => r.area.startsWith("Wardrobes"))!;
   assert.match(furnishedWardrobe.furnished, /not touched/i, "furnished interiors are not promised");
   assert.match(furnishedWardrobe.unfurnished, /interiors cleaned/i);
