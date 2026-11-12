@@ -124,6 +124,8 @@ export const WHATSAPP_TRANSACTIONAL_TEMPLATES: readonly string[] = [
   // v5 / payment_received_v1 / job_completed_v1 — utility-only (owner 2026-10-22); in use only once Meta approves them.
   "sahara_booking_confirmed_v5",
   "sahara_booking_confirmed_v6",
+  // v7 (100% Pay After Service, no advance button) — only when WHATSAPP_BOOKING_TEMPLATE=v7 (after Meta approves it).
+  "sahara_booking_confirmed_v7",
   "sahara_payment_received_v1",
   "sahara_job_completed_v1",
   "sahara_job_completed_v2",
