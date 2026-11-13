@@ -285,3 +285,22 @@ test("start OTP goes out as the Meta template only when switched on; otherwise p
   assert.equal(templates[0].bodyParams[1], await otpOf(job.id));
   delete process.env.WHATSAPP_START_OTP_TEMPLATE;
 });
+
+test("office supervisors ping from any open page (no job) into the log as SUPERVISOR; technicians without a live job do not", async () => {
+  const tracking = await import("../src/server/actions/tracking");
+  const fr = await db.user.create({ data: { name: "Francis O", email: "francis-o@x.test", passwordHash: "x", role: "OPERATIONS" } as never });
+  session = { sub: fr.id, role: "OPERATIONS", name: "Francis O", email: fr.email };
+  assert.equal((await tracking.recordLocationPing(null, GOOD)).success, true);
+  const row = await db.locationPing.findFirstOrThrow({ where: { staffName: "Francis O" } });
+  assert.equal(row.subjectType, "SUPERVISOR");
+  assert.equal(row.jobId, null);
+  assert.equal(row.kind, "PING");
+  // the call returns no coordinates to the caller
+  assert.ok(!JSON.stringify(await tracking.recordLocationPing(null, GOOD)).includes("18.55"));
+
+  const tech = await db.user.create({ data: { name: "Tech O", email: "tech-o@x.test", passwordHash: "x", role: "STAFF" } as never });
+  await db.staff.create({ data: { employeeCode: "FA-TO", name: "Tech O", mobile: "9000000321", designation: "Cleaner", dailyWage: 700, salaryType: "DAILY", userId: tech.id } as never });
+  session = { sub: tech.id, role: "STAFF", name: "Tech O", email: tech.email };
+  assert.equal((await tracking.recordLocationPing(null, GOOD) as { skipped?: string }).skipped, "no-active-job");
+  assert.equal(await db.locationPing.count({ where: { staffName: "Tech O" } }), 0);
+});
