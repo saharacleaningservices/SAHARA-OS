@@ -61,7 +61,7 @@ export default async function FieldOpsPage() {
       {rows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No jobs in the field right now.</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid grid-cols-1 gap-3 xl:grid-cols-2 2xl:grid-cols-3">
           {rows.map((r) => (
             <li key={r.id} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex flex-wrap items-center gap-2">

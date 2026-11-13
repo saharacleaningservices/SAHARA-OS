@@ -22,7 +22,7 @@ export default async function TrackingPage() {
         <div className="text-sm">Tracking is <b>{settings.gpsTrackingEnabled ? "ON" : "OFF"}</b>. Check-ins at “Reached Location” are always logged; this switch controls the periodic pings.</div>
         <TrackingSwitch enabled={settings.gpsTrackingEnabled} />
       </div>
-      <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+      <div className="w-full overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left text-xs"><tr><th className="p-2">Time (IST)</th><th className="p-2">Person</th><th className="p-2">Role</th><th className="p-2">Type</th><th className="p-2">Accuracy</th><th className="p-2">Pin</th></tr></thead>
           <tbody>

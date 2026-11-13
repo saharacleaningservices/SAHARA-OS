@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
  * tables (Parties, Vendor Operations) show every column on large screens without horizontal scroll.
  * Every other page keeps the BOXED 1280px column (max-w-7xl) for readable forms and dashboards.
  */
-export const FLUID_PATHS = ["/customers", "/vendors"] as const;
+export const FLUID_PATHS = ["/customers", "/vendors", "/field-ops"] as const;
 
 export const isFluidPath = (pathname: string | null | undefined) =>
   FLUID_PATHS.some((p) => pathname === p || (pathname ?? "").startsWith(`${p}/`));

@@ -13,26 +13,41 @@ import { getOwnStaffId } from "@/server/jobs";
 const MIN_PING_GAP_MS = 2 * 60_000;
 const PING_ROLES = ["STAFF", "SUPERVISOR", "OPERATIONS", "ACCOUNTS"];
 
-/** Active-shift location ping from the person's own phone (field technicians and supervisors alike). Only while they hold a live job. */
-export async function recordLocationPing(jobId: string, rawFix: unknown) {
+const OFFICE_PING_ROLES = ["OPERATIONS", "ACCOUNTS", "SUPERVISOR"];
+
+/**
+ * Active-shift location ping from the person's own phone or browser. Field technicians ping while holding a live job (jobId required).
+ * Francis / Shoaib (office supervisor roles) ping from ANY open CRM page (jobId null), logged as SUPERVISOR subjects, so the Super Admin
+ * always sees their location. Nothing here ever returns coordinates to the caller.
+ */
+export async function recordLocationPing(jobId: string | null, rawFix: unknown) {
   const session = await getSession();
   if (!session || !PING_ROLES.includes(session.role)) return { error: "Not authorized", success: false as const };
+  const office = OFFICE_PING_ROLES.includes(session.role);
+  if (!jobId && !office) return { success: true as const, skipped: "no-active-job" as const };
   const settings = await getCompanySettings();
   if (!settings.gpsTrackingEnabled) return { success: true as const, skipped: "off" as const };
-  const staffId = await getOwnStaffId(session.sub);
+  const ownStaffId = await getOwnStaffId(session.sub);
+  // An office login without a Staff profile is still logged, keyed by its user id, so nobody drops out of the log.
+  const staffId = ownStaffId ?? (office ? `user:${session.sub}` : null);
   if (!staffId) return { success: true as const, skipped: "no-profile" as const };
-  const live = await db.job.findFirst({
-    where: { id: jobId, deletedAt: null, status: { in: ["ON_THE_WAY", "STARTED"] }, assignments: { some: { staffId } } },
-    select: { id: true },
-  });
-  if (!live) return { success: true as const, skipped: "no-active-job" as const };
+  if (jobId && ownStaffId) {
+    const live = await db.job.findFirst({
+      where: { id: jobId, deletedAt: null, status: { in: ["ON_THE_WAY", "STARTED"] }, assignments: { some: { staffId: ownStaffId } } },
+      select: { id: true },
+    });
+    if (!live && !office) return { success: true as const, skipped: "no-active-job" as const };
+  } else if (jobId && !office) {
+    return { success: true as const, skipped: "no-profile" as const };
+  }
   const v = validateFix(rawFix);
   if (!v.ok) return { error: v.error, success: false as const };
   const last = await db.locationPing.findFirst({ where: { staffId }, orderBy: { createdAt: "desc" }, select: { createdAt: true } });
   if (last && Date.now() - last.createdAt.getTime() < MIN_PING_GAP_MS) return { success: true as const, skipped: "too-soon" as const };
-  const st = await db.staff.findUnique({ where: { id: staffId }, select: { name: true, designation: true, user: { select: { role: true } } } });
+  const st = ownStaffId ? await db.staff.findUnique({ where: { id: ownStaffId }, select: { name: true, designation: true, user: { select: { role: true } } } }) : null;
+  const subjectType = office ? "SUPERVISOR" : gpsSubjectOf({ designation: st?.designation, userRole: st?.user?.role });
   await db.locationPing.create({
-    data: { staffId, staffName: st?.name ?? session.name, jobId, kind: "PING", lat: v.fix.lat, lng: v.fix.lng, accuracyM: v.fix.acc, subjectType: gpsSubjectOf({ designation: st?.designation, userRole: st?.user?.role }) },
+    data: { staffId, staffName: st?.name ?? session.name, jobId: office && !jobId ? null : jobId, kind: "PING", lat: v.fix.lat, lng: v.fix.lng, accuracyM: v.fix.acc, subjectType },
   });
   return { success: true as const };
 }
