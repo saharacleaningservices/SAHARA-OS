@@ -2124,3 +2124,37 @@ db.close();
   console.log("Field Ops migration complete.");
   fDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Field Ops v2 (2026-11-13, additive + idempotent): cash accountability, GPS tracking switch, immutable GPS log.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const gDb = new Database(dbPath, { timeout: 30000 });
+  const jobCols = gDb.prepare(`PRAGMA table_info("Job")`).all().map((c) => c.name);
+  for (const [name, ddl] of [["cashCollectedByStaffId", "TEXT"], ["cashCollectedByName", "TEXT"], ["cashCollectedAt", "DATETIME"], ["cashSettledAt", "DATETIME"], ["cashSettledByName", "TEXT"]]) {
+    if (!jobCols.includes(name)) gDb.exec(`ALTER TABLE "Job" ADD COLUMN "${name}" ${ddl}`);
+  }
+  const csCols = gDb.prepare(`PRAGMA table_info("CompanySettings")`).all().map((c) => c.name);
+  if (csCols.length && !csCols.includes("gpsTrackingEnabled")) gDb.exec(`ALTER TABLE "CompanySettings" ADD COLUMN "gpsTrackingEnabled" BOOLEAN NOT NULL DEFAULT true`);
+  gDb.exec(`
+    CREATE TABLE IF NOT EXISTS "LocationPing" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "staffId" TEXT NOT NULL,
+      "staffName" TEXT NOT NULL,
+      "jobId" TEXT,
+      "kind" TEXT NOT NULL,
+      "lat" REAL NOT NULL,
+      "lng" REAL NOT NULL,
+      "accuracyM" INTEGER,
+      "subjectType" TEXT NOT NULL,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS "LocationPing_staffId_createdAt_idx" ON "LocationPing"("staffId", "createdAt");
+    CREATE INDEX IF NOT EXISTS "LocationPing_jobId_idx" ON "LocationPing"("jobId");
+    CREATE INDEX IF NOT EXISTS "LocationPing_createdAt_idx" ON "LocationPing"("createdAt");
+    CREATE TRIGGER IF NOT EXISTS "LocationPing_no_update" BEFORE UPDATE ON "LocationPing" BEGIN SELECT RAISE(ABORT, 'LocationPing is append-only'); END;
+    CREATE TRIGGER IF NOT EXISTS "LocationPing_no_delete" BEFORE DELETE ON "LocationPing" BEGIN SELECT RAISE(ABORT, 'LocationPing is append-only'); END;
+  `);
+  console.log("Field Ops v2 (cash accountability + immutable GPS log) migration complete.");
+  gDb.close();
+}

@@ -6,7 +6,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { assessCheckIn, checkCompletion, coordsFromMapLink, distanceMetres, fieldStage, generateStartOtp, otpMatches, startOtpMessage, validateFix } from "../src/lib/field-ops";
+import { assessCheckIn, billSummary, canManageTracking, canOfficeClose, canViewGps, cashWithStaffLabel, gpsSubjectOf, startOtpTemplatePayload, checkCompletion, coordsFromMapLink, distanceMetres, fieldStage, generateStartOtp, otpMatches, startOtpMessage, validateFix } from "../src/lib/field-ops";
 
 const GOOD = { lat: 18.5535, lng: 73.9460, acc: 20 };
 
@@ -55,12 +55,12 @@ test("Start OTP: always 4 digits, never a leading zero; only the exact code matc
   assert.match(startOtpMessage("Asha", "4821"), /\*4821\*/);
 });
 
-test("Completion gate: OTP, ≥1 after photo, exact amount and mode are all mandatory; Pending Approval needs a reason", () => {
-  const ok = { amount: 3999, mode: "UPI", afterPhotos: 2, otpVerified: true, needsOtp: true };
+test("Completion gate (payment confirmation only, no photos): OTP, exact amount and mode are all mandatory; Pending Approval needs a reason", () => {
+  const ok = { amount: 3999, mode: "UPI", otpVerified: true, needsOtp: true };
   assert.deepEqual(checkCompletion(ok), { ok: true, amount: 3999, mode: "UPI", note: null });
   assert.equal(checkCompletion({ ...ok, otpVerified: false }).ok, false, "OTP not verified");
   assert.equal(checkCompletion({ ...ok, needsOtp: false, otpVerified: false }).ok, true, "legacy job without an OTP");
-  assert.equal(checkCompletion({ ...ok, afterPhotos: 0 }).ok, false, "no photo");
+  assert.equal(checkCompletion({ ...ok, afterPhotos: 0 } as never).ok, true, "photos are not part of the gate any more");
   assert.equal(checkCompletion({ ...ok, mode: "" }).ok, false, "no mode");
   assert.equal(checkCompletion({ ...ok, mode: "CHEQUE" }).ok, false, "unknown mode");
   assert.equal(checkCompletion({ ...ok, amount: "" }).ok, false, "blank amount");
@@ -81,6 +81,44 @@ test("Live stage: Assigned → Reached → In Progress → Completed", () => {
   assert.equal(fieldStage({ status: "COMPLETED", reachedAt: t, startOtpVerifiedAt: t }), "COMPLETED");
 });
 
+test("Bill split: total, advance (payments already received) and balance", () => {
+  assert.deepEqual(billSummary(5000, [{ paidAmount: 1500 }, { paidAmount: 500 }]), { total: 5000, advance: 2000, balance: 3000 });
+  assert.deepEqual(billSummary(5000, []), { total: 5000, advance: 0, balance: 5000 });
+  assert.deepEqual(billSummary(5000, [{ paidAmount: 9000 }]), { total: 5000, advance: 5000, balance: 0 }, "never a negative balance");
+});
+
+test("GPS visibility: Super Admin sees all; supervisors see field staff only, never themselves or each other; other roles see none", () => {
+  const field = { staffId: "t1", type: "FIELD" as const };
+  const francis = { staffId: "f", type: "SUPERVISOR" as const };
+  const shoaib = { staffId: "s", type: "SUPERVISOR" as const };
+  assert.equal(canViewGps({ role: "ADMIN" }, field), true);
+  assert.equal(canViewGps({ role: "ADMIN" }, francis), true);
+  assert.equal(canViewGps({ role: "ADMIN" }, shoaib), true);
+  assert.equal(canViewGps({ role: "OPERATIONS", staffId: "f" }, field), true, "Francis sees technicians");
+  assert.equal(canViewGps({ role: "OPERATIONS", staffId: "f" }, francis), false, "…not himself");
+  assert.equal(canViewGps({ role: "OPERATIONS", staffId: "f" }, shoaib), false, "…not Shoaib");
+  assert.equal(canViewGps({ role: "ACCOUNTS", staffId: "s" }, francis), false);
+  assert.equal(canViewGps({ role: "ACCOUNTS", staffId: "s" }, shoaib), false);
+  assert.equal(canViewGps({ role: "STAFF", staffId: "t1" }, field), false);
+  assert.equal(gpsSubjectOf({ userRole: "OPERATIONS" }), "SUPERVISOR");
+  assert.equal(gpsSubjectOf({ userRole: "ACCOUNTS" }), "SUPERVISOR");
+  assert.equal(gpsSubjectOf({ userRole: "STAFF", designation: "Cleaner" }), "FIELD");
+});
+
+test("Permissions: only Super Admin manages tracking; Admin, Francis and Shoaib may close jobs; staff may not", () => {
+  assert.equal(canManageTracking("ADMIN"), true);
+  for (const r of ["OPERATIONS", "ACCOUNTS", "SUPERVISOR", "STAFF", null, undefined]) assert.equal(canManageTracking(r as never), false, String(r));
+  for (const r of ["ADMIN", "OPERATIONS", "ACCOUNTS"]) assert.equal(canOfficeClose(r), true, r);
+  for (const r of ["SUPERVISOR", "STAFF", null]) assert.equal(canOfficeClose(r as never), false, String(r));
+});
+
+test("Cash alert label and the sahara_start_otp_v1 template payload", () => {
+  assert.equal(cashWithStaffLabel("Ravi", 4000), "[CASH WITH STAFF: Ravi — ₹4,000]");
+  const t = startOtpTemplatePayload("Asha", "4821");
+  assert.equal(t.templateName, "sahara_start_otp_v1");
+  assert.deepEqual(t.bodyParams, ["Asha", "4821"]);
+});
+
 // ── database-backed: Live Field Ops read model + staff privacy of the new screen's data ──
 const dir = mkdtempSync(path.join(tmpdir(), "sahara-fo-"));
 const dbFile = path.join(dir, "test.db");
@@ -99,9 +137,8 @@ test("Live Field Ops lists today's jobs with stage, GPS flag and OTP backup; the
   const b = await db.job.create({ data: { ...base, jobNumber: "FO-JOB-2", status: "STARTED", reachedAt: new Date(), startOtp: "7391", startOtpVerifiedAt: new Date(), startedAt: new Date() } as never });
   await db.job.create({ data: { ...base, jobNumber: "FO-JOB-3", status: "CANCELLED" } as never });
   await db.jobAssignment.create({ data: { jobId: a.id, staffId: staff.id, isLead: true } as never });
-  await db.photo.create({ data: { jobId: b.id, type: "AFTER", url: "/uploads/photos/x.webp" } as never });
 
-  const rows = await ops.getFieldOps();
+  const rows = await ops.getFieldOps({ role: "ADMIN" });
   assert.deepEqual(rows.map((r) => r.jobNumber).sort(), ["FO-JOB-1", "FO-JOB-2"], "cancelled jobs are not listed");
   const r1 = rows.find((r) => r.jobNumber === "FO-JOB-1")!;
   const r2 = rows.find((r) => r.jobNumber === "FO-JOB-2")!;
@@ -111,16 +148,45 @@ test("Live Field Ops lists today's jobs with stage, GPS flag and OTP backup; the
   assert.deepEqual(r1.team, [{ name: "Ravi", isLead: true }]);
   assert.equal(r2.stage, "IN_PROGRESS");
   assert.equal(r2.startOtp, null, "code hidden once verified");
-  assert.equal(r2.afterPhotos.length, 1);
   assert.ok(r1.mapHref?.includes("18.58000,73.94600"));
 
   // Staff-side data: no mobile number, never the OTP; billed amount only while the job is being worked on.
   await db.jobAssignment.create({ data: { jobId: b.id, staffId: staff.id, isLead: true } as never });
   const f1 = await portal.getMyJobField(staff.id, a.id);
   const f2 = await portal.getMyJobField(staff.id, b.id);
-  assert.deepEqual(f1, { reached: true, otpVerified: false, afterPhotos: 0, billedAmount: 5555 });
-  assert.deepEqual(f2, { reached: true, otpVerified: true, afterPhotos: 1, billedAmount: 5555 });
+  assert.deepEqual(f1, { reached: true, otpVerified: false, bill: { total: 5555, advance: 0, balance: 5555 } });
+  assert.deepEqual(f2, { reached: true, otpVerified: true, bill: { total: 5555, advance: 0, balance: 5555 } });
   const blob = JSON.stringify({ f1, f2, detail: await portal.getMyJob(staff.id, a.id) });
   for (const secret of ["9876501999", "4821", "7391"]) assert.ok(!blob.includes(secret), `${secret} must not reach the Staff App`);
   assert.equal(await portal.getMyJobField("someone-else", a.id), null, "another staff member cannot read this job's field state");
+});
+
+test("LocationPing log is immutable (DB triggers refuse UPDATE and DELETE) and /field-ops hides GPS from supervisors", async () => {
+  db = (await import("../src/lib/db")).db;
+  const ops = await import("../src/server/field-ops");
+  const mk = async (code: string, role: string | null, designation: string) => {
+    const user = role ? await db.user.create({ data: { name: code, email: `${code}@x.test`, passwordHash: "x", role } as never }) : null;
+    return db.staff.create({ data: { employeeCode: code, name: code, mobile: "9000000" + code.length, designation, dailyWage: 700, salaryType: "DAILY", userId: user?.id } as never });
+  };
+  const tech = await mk("TECH", "STAFF", "Cleaner");
+  const francis = await mk("FRANCIS", "OPERATIONS", "Operations Manager");
+  const base = { customerName: "X", customerMobile: "9876500000", address: "A", area: "Kharadi", service: "HOME_DEEP_CLEANING", scheduledDate: new Date(), scheduledTime: "10:00 AM", jobValue: 1000, status: "ON_THE_WAY", reachedAt: new Date(), reachedLat: 18.5, reachedLng: 73.9, reachedDistanceM: 10, mapLink: "https://maps.google.com/?q=18.5,73.9" };
+  const jt = await db.job.create({ data: { ...base, jobNumber: "GPS-T" } as never });
+  const jf = await db.job.create({ data: { ...base, jobNumber: "GPS-F" } as never });
+  await db.jobAssignment.create({ data: { jobId: jt.id, staffId: tech.id, isLead: true } as never });
+  await db.jobAssignment.create({ data: { jobId: jf.id, staffId: francis.id, isLead: true } as never });
+
+  const asAdmin = await ops.getFieldOps({ role: "ADMIN" });
+  const asFrancis = await ops.getFieldOps({ role: "OPERATIONS", staffId: francis.id });
+  assert.ok(asAdmin.find((r) => r.jobNumber === "GPS-F")!.mapHref, "Super Admin sees a supervisor's pin");
+  assert.ok(asFrancis.find((r) => r.jobNumber === "GPS-T")!.mapHref, "Francis sees a technician's check-in pin");
+  assert.equal(asFrancis.find((r) => r.jobNumber === "GPS-F")!.mapHref, null, "Francis cannot see his own pin");
+  assert.equal(asFrancis.find((r) => r.jobNumber === "GPS-F")!.gpsVisible, false);
+
+  const ping = await db.locationPing.create({ data: { staffId: tech.id, staffName: "TECH", kind: "PING", lat: 18.5, lng: 73.9, subjectType: "FIELD" } });
+  await assert.rejects(() => db.locationPing.update({ where: { id: ping.id }, data: { lat: 1 } }));
+  await assert.rejects(() => db.locationPing.delete({ where: { id: ping.id } }));
+  await assert.rejects(() => db.locationPing.deleteMany({}));
+  assert.equal((await db.locationPing.findUniqueOrThrow({ where: { id: ping.id } })).lat, 18.5);
+  assert.equal(await db.locationPing.count(), 1);
 });

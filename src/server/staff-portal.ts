@@ -10,6 +10,7 @@
 // queries per request (staffId + date), no N+1 loops, no polling.
 
 import { db } from "@/lib/db";
+import { billSummary } from "@/lib/field-ops";
 import { dedupeByIstDay, isoOf, istDayKey, istDayRange, istDaysInMonth, istMonthOf, istMonthRange, istWeekday, istYearRange } from "@/lib/ist-days";
 import { packageSummary, parsePackage } from "@/lib/package-calc";
 import type { SessionPayload } from "@/lib/session";
@@ -669,14 +670,15 @@ export async function getMyJob(staffId: string, jobId: string) {
 export async function getMyJobField(staffId: string, jobId: string) {
   const job = await db.job.findFirst({
     where: { id: jobId, ...myJobsWhere(staffId, new Date(2000, 0, 1), new Date(2100, 0, 1)) },
-    select: { status: true, reachedAt: true, startOtpVerifiedAt: true, jobValue: true, _count: { select: { photos: { where: { type: "AFTER" } } } } },
+    select: { status: true, reachedAt: true, startOtpVerifiedAt: true, jobValue: true, payments: { where: { deletedAt: null }, select: { paidAmount: true } } },
   });
   if (!job) return null;
   const working = job.status === "STARTED" || Boolean(job.reachedAt);
+  const live = working && job.status !== "COMPLETED";
+  // Money is exposed only on the close screen of the staff member's own live job (see tests/staff-app-privacy.test.ts: getMyJob stays money-free).
   return {
     reached: Boolean(job.reachedAt),
     otpVerified: Boolean(job.startOtpVerifiedAt),
-    afterPhotos: job._count.photos,
-    billedAmount: working && job.status !== "COMPLETED" ? job.jobValue : null,
+    bill: live ? billSummary(job.jobValue, job.payments) : null,
   };
 }

@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, MapPinCheck, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { staffReachedLocation, staffUpdateJobStatus, staffVerifyStartOtp, staffCompleteJob } from "@/server/actions/jobs";
-import { PhotoUploader } from "@/components/jobs/photo-uploader";
 import { cn } from "@/lib/utils";
 
 type Labels = Record<
-  | "onTheWay" | "reached" | "reachedHint" | "locating" | "otpTitle" | "otpHint" | "verify" | "afterPhotos" | "photosNeed" | "billed"
+  | "onTheWay" | "reached" | "reachedHint" | "locating" | "otpTitle" | "otpHint" | "verify" | "collectClose" | "total" | "advance" | "balance" | "payQr" | "reviewQr"
   | "collected" | "mode" | "modeUpi" | "modeCash" | "modeBank" | "modePending" | "reason" | "complete" | "done",
   string
 >;
@@ -34,21 +33,22 @@ function readGps(): Promise<{ lat: number; lng: number; acc: number } | string> 
 }
 
 /**
- * Field flow for today's own job: (On the way) → Reached Location (GPS) → customer 4-digit start code → after-photos + exact payment → Complete.
+ * Field flow for today's own job: (On the way) → Reached Location (GPS) → customer 4-digit start code → Collect Payment & Close Job (payment confirmation only, no photos).
  * Every gate is enforced again on the server (src/server/actions/jobs.ts); this component only guides the order.
  */
 export function StaffFieldFlow({
-  jobId, status, reached, otpVerified, afterPhotos, billedAmount, directionsHref, labels,
+  jobId, status, reached, otpVerified, bill, payQr, reviewQr, directionsHref, labels,
 }: {
-  jobId: string; status: string; reached: boolean; otpVerified: boolean; afterPhotos: number; billedAmount: number | null; directionsHref?: string; labels: Labels;
+  jobId: string; status: string; reached: boolean; otpVerified: boolean; bill: { total: number; advance: number; balance: number } | null; payQr: string | null; reviewQr: string | null; directionsHref?: string; labels: Labels;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [busy, setBusy] = useState(false);
   const [otp, setOtp] = useState("");
-  const [amount, setAmount] = useState(billedAmount != null ? String(billedAmount) : "");
+  const [amount, setAmount] = useState(bill ? String(bill.balance) : "");
   const [mode, setMode] = useState<(typeof MODES)[number][0] | "">("");
   const [note, setNote] = useState("");
+  const [closing, setClosing] = useState(false);
 
   if (status === "COMPLETED") {
     return <div className="flex items-center gap-2 rounded-2xl bg-success/15 p-4 text-sm font-semibold text-success"><CheckCircle2 className="size-5" /> {labels.done}</div>;
@@ -69,7 +69,7 @@ export function StaffFieldFlow({
   }
 
   const card = "space-y-3 rounded-2xl border border-border bg-card p-4";
-  const big = "min-h-12 w-full rounded-xl text-base font-bold disabled:opacity-60";
+  const big = "min-h-14 w-full rounded-2xl text-lg font-bold disabled:opacity-60";
 
   // 1) Not at the site yet
   if (!reached) {
@@ -126,26 +126,44 @@ export function StaffFieldFlow({
     );
   }
 
-  // 3) Work in progress → completion gate
+  // 3) Work in progress → one big action card, then the payment screen
+  if (!closing) {
+    return (
+      <section className={card}>
+        <button type="button" onClick={() => setClosing(true)} className={cn(big, "min-h-20 bg-success text-xl text-white")}>{labels.collectClose}</button>
+      </section>
+    );
+  }
+  const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
   const needReason = mode === "PENDING_APPROVAL";
-  const ready = afterPhotos >= 1 && mode !== "" && amount !== "" && (!needReason || note.trim().length >= 5);
+  const ready = mode !== "" && amount !== "" && (!needReason || note.trim().length >= 5);
   return (
     <section className={card}>
-      <h2 className="text-sm font-bold">{labels.afterPhotos} <span className={cn("ml-1 rounded-full px-2 py-0.5 text-xs", afterPhotos >= 1 ? "bg-success/15 text-success" : "bg-amber-100 text-amber-800")}>{afterPhotos >= 1 ? `${afterPhotos} ✓` : labels.photosNeed}</span></h2>
-      <PhotoUploader jobId={jobId} type="AFTER" />
+      {bill && (
+        <div className="grid grid-cols-1 gap-2">
+          <div className="flex items-baseline justify-between rounded-2xl bg-muted px-4 py-3"><span className="text-base font-semibold">{labels.total}</span><span className="text-3xl font-extrabold">{money(bill.total)}</span></div>
+          <div className="flex items-baseline justify-between rounded-2xl bg-muted px-4 py-3"><span className="text-base font-semibold">{labels.advance}</span><span className="text-3xl font-extrabold">{money(bill.advance)}</span></div>
+          <div className="flex items-baseline justify-between rounded-2xl bg-primary px-4 py-3 text-primary-foreground"><span className="text-base font-bold">{labels.balance}</span><span className="text-4xl font-extrabold">{money(bill.balance)}</span></div>
+        </div>
+      )}
 
-      {billedAmount != null && <div className="rounded-xl bg-muted px-3 py-2 text-sm">{labels.billed}: <b>₹{billedAmount.toLocaleString("en-IN")}</b></div>}
+      {(payQr || reviewQr) && (
+        <div className="grid grid-cols-2 gap-3">
+          {payQr && (<figure className="text-center"><img src={payQr} alt={labels.payQr} className="mx-auto w-full rounded-xl border border-border bg-white p-1" /><figcaption className="mt-1 text-xs font-semibold">{labels.payQr}</figcaption></figure>)}
+          {reviewQr && (<figure className="text-center"><img src={reviewQr} alt={labels.reviewQr} className="mx-auto w-full rounded-xl border border-border bg-white p-1" /><figcaption className="mt-1 text-xs font-semibold">{labels.reviewQr}</figcaption></figure>)}
+        </div>
+      )}
 
       <label className="block text-sm font-semibold">
         {labels.collected}
-        <input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))} className="mt-1 h-12 w-full rounded-xl border border-border bg-background px-3 text-lg font-bold" />
+        <input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))} className="mt-1 h-14 w-full rounded-xl border border-border bg-background px-3 text-2xl font-extrabold" />
       </label>
 
       <div>
         <div className="mb-1 text-sm font-semibold">{labels.mode}</div>
         <div className="grid grid-cols-2 gap-2">
           {MODES.map(([value, key]) => (
-            <button key={value} type="button" onClick={() => setMode(value)} className={cn("min-h-11 rounded-xl border px-2 text-sm font-semibold", mode === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background")}>
+            <button key={value} type="button" onClick={() => setMode(value)} className={cn("min-h-14 rounded-2xl border px-2 text-base font-bold", mode === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background")}>
               {labels[key]}
             </button>
           ))}

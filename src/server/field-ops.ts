@@ -1,7 +1,7 @@
 // Live Field Ops — office read model (2026-11-13). One query: every job that is live today or still in the field.
 import { db } from "@/lib/db";
 import { istDayRange } from "@/lib/ist-days";
-import { fieldStage, type FieldStage } from "@/lib/field-ops";
+import { canViewGps, fieldStage, gpsSubjectOf, type FieldStage } from "@/lib/field-ops";
 
 export type FieldOpsRow = {
   id: string;
@@ -27,11 +27,18 @@ export type FieldOpsRow = {
   collectedAmount: number | null;
   collectedMode: string | null;
   pendingReason: string | null;
-  afterPhotos: { id: string; url: string }[];
+  /** Cash a staff member collected on site and the office has not yet received. */
+  cashWithStaff: { name: string; amount: number; at: Date } | null;
+  cashSettledAt: Date | null;
+  cashSettledByName: string | null;
+  /** True when this viewer may see the GPS fields of the job (never for supervisors' own / each other's, see canViewGps). */
+  gpsVisible: boolean;
+  /** Office may close / verify this job. */
+  needsClosure: boolean;
 };
 
 /** Today's jobs plus anything still On the way / In progress from earlier days, newest activity first. */
-export async function getFieldOps(now = new Date()): Promise<FieldOpsRow[]> {
+export async function getFieldOps(viewer: { role: string; staffId?: string | null }, now = new Date()): Promise<FieldOpsRow[]> {
   const { from, to } = istDayRange(now);
   const jobs = await db.job.findMany({
     where: {
@@ -46,12 +53,14 @@ export async function getFieldOps(now = new Date()): Promise<FieldOpsRow[]> {
       id: true, jobNumber: true, customerName: true, area: true, service: true, scheduledTime: true, status: true, jobValue: true,
       reachedAt: true, reachedLat: true, reachedLng: true, reachedAccuracyM: true, reachedDistanceM: true, gpsFlag: true,
       startOtp: true, startOtpAttempts: true, startOtpVerifiedAt: true, startedAt: true, completedAt: true,
-      collectedAmount: true, collectedMode: true, pendingReason: true,
-      assignments: { select: { isLead: true, staff: { select: { name: true } } } },
-      photos: { where: { type: "AFTER" }, select: { id: true, url: true }, orderBy: { uploadedAt: "asc" } },
+      collectedAmount: true, collectedMode: true, pendingReason: true, cashCollectedByName: true, cashCollectedAt: true, cashSettledAt: true, cashSettledByName: true,
+      assignments: { select: { isLead: true, staff: { select: { id: true, name: true, designation: true, user: { select: { role: true } } } } } },
     },
   });
-  return jobs.map((j) => ({
+  return jobs.map((j) => {
+    // The check-in belongs to whoever is on the job: if any assignee is one the viewer may not see, hide the GPS of the whole job.
+    const gpsVisible = j.assignments.every((a) => canViewGps(viewer, { staffId: a.staff.id, type: gpsSubjectOf({ designation: a.staff.designation, userRole: a.staff.user?.role }) }));
+    return {
     id: j.id,
     jobNumber: j.jobNumber,
     customerName: j.customerName,
@@ -62,10 +71,10 @@ export async function getFieldOps(now = new Date()): Promise<FieldOpsRow[]> {
     stage: fieldStage({ status: j.status, reachedAt: j.reachedAt, startOtpVerifiedAt: j.startOtpVerifiedAt }),
     team: j.assignments.map((a) => ({ name: a.staff.name, isLead: a.isLead })),
     reachedAt: j.reachedAt,
-    gpsFlag: j.gpsFlag,
-    reachedDistanceM: j.reachedDistanceM,
-    reachedAccuracyM: j.reachedAccuracyM,
-    mapHref: j.reachedLat != null && j.reachedLng != null ? `https://maps.google.com/?q=${j.reachedLat.toFixed(5)},${j.reachedLng.toFixed(5)}` : null,
+    gpsFlag: gpsVisible ? j.gpsFlag : null,
+    reachedDistanceM: gpsVisible ? j.reachedDistanceM : null,
+    reachedAccuracyM: gpsVisible ? j.reachedAccuracyM : null,
+    mapHref: gpsVisible && j.reachedLat != null && j.reachedLng != null ? `https://maps.google.com/?q=${j.reachedLat.toFixed(5)},${j.reachedLng.toFixed(5)}` : null,
     // The code is shown to the office as the customer-side backup; it is cleared from view once work has started.
     startOtp: j.startOtpVerifiedAt || j.status === "COMPLETED" ? null : j.startOtp,
     startOtpAttempts: j.startOtpAttempts,
@@ -76,6 +85,11 @@ export async function getFieldOps(now = new Date()): Promise<FieldOpsRow[]> {
     collectedAmount: j.collectedAmount,
     collectedMode: j.collectedMode,
     pendingReason: j.pendingReason,
-    afterPhotos: j.photos,
-  }));
+    cashWithStaff: j.collectedMode === "CASH" && j.cashCollectedAt && !j.cashSettledAt ? { name: j.cashCollectedByName ?? "staff", amount: j.collectedAmount ?? 0, at: j.cashCollectedAt } : null,
+    cashSettledAt: j.cashSettledAt,
+    cashSettledByName: j.cashSettledByName,
+    gpsVisible,
+    needsClosure: j.status !== "COMPLETED" ? j.status === "STARTED" || j.status === "ON_THE_WAY" : j.collectedMode === "PENDING_APPROVAL",
+    };
+  });
 }

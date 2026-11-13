@@ -8,8 +8,6 @@ export const MAX_GPS_ACCURACY_M = 150;
 export const OUT_OF_ZONE_M = 1500;
 /** Wrong start-OTP entries allowed before the office has to hand over the code. */
 export const MAX_OTP_ATTEMPTS = 5;
-/** Minimum live after-service photos before a job can be completed. */
-export const MIN_AFTER_PHOTOS = 1;
 
 export type RawFix = { lat?: unknown; lng?: unknown; acc?: unknown };
 export type CleanFix = { lat: number; lng: number; acc: number };
@@ -86,18 +84,17 @@ export const COLLECT_MODE_LABELS: Record<CollectMode, string> = {
 /** Payment.mode values used elsewhere in the CRM (UPI | QR | BANK | CASH). */
 export const paymentModeFor = (m: Exclude<CollectMode, "PENDING_APPROVAL">): string => m;
 
-export type CompletionInput = { amount: unknown; mode: unknown; note?: unknown; afterPhotos: number; otpVerified: boolean; needsOtp: boolean };
+export type CompletionInput = { amount: unknown; mode: unknown; note?: unknown; otpVerified: boolean; needsOtp: boolean };
 export type CompletionResult =
   | { ok: true; amount: number; mode: CollectMode; note: string | null }
   | { ok: false; error: string };
 
 /**
- * The completion gate. A job can be completed only with: the start OTP verified (when one was issued), at least MIN_AFTER_PHOTOS live
- * after-service photos, an exact amount (₹0 only when the payment is Pending Approval) and a payment mode. Pending Approval needs a reason.
+ * The completion gate (2026-11-13: payment only — no photo upload). A job can be completed only with: the start OTP verified (when one was
+ * issued), an exact amount (₹0 only when the payment is Pending Approval) and a payment mode. Pending Approval needs a reason.
  */
 export function checkCompletion(i: CompletionInput): CompletionResult {
   if (i.needsOtp && !i.otpVerified) return { ok: false, error: "Start OTP was not verified for this job." };
-  if (i.afterPhotos < MIN_AFTER_PHOTOS) return { ok: false, error: `Add at least ${MIN_AFTER_PHOTOS} after-service photo before completing.` };
   const mode = i.mode as CollectMode;
   if (!COLLECT_MODES.includes(mode)) return { ok: false, error: "Choose how the payment was collected." };
   const note = typeof i.note === "string" ? i.note.trim().slice(0, 300) : "";
@@ -131,4 +128,58 @@ export const FIELD_STAGE_LABELS: Record<FieldStage, string> = {
 /** Customer WhatsApp text for the start OTP (plain message; reliable delivery needs an approved template — see the report). */
 export function startOtpMessage(customerName: string, otp: string): string {
   return `Hi ${customerName}, our Sahara Cleaning Services team has reached your location.\n\nYour service start code is *${otp}*. Please share it with the team member only when you are ready for the work to begin.\n\nDo not share this code with anyone else. Help: 7083347130 / 8956567130.`;
+}
+
+/** Bill split shown on the close screen: Total Bill, Advance Paid (sum of payments already received) and the Balance Payable. */
+export function billSummary(total: number, payments: { paidAmount: number }[]): { total: number; advance: number; balance: number } {
+  const t = Math.max(0, Number.isFinite(total) ? total : 0);
+  const paid = payments.reduce((n, p) => n + (Number.isFinite(p.paidAmount) ? Math.max(0, p.paidAmount) : 0), 0);
+  const advance = Math.min(Math.round(paid * 100) / 100, t);
+  return { total: t, advance, balance: Math.round((t - advance) * 100) / 100 };
+}
+
+// ── Who may see whose GPS (owner brief 2026-11-13) ──────────────────────────────────────────────────────────────────────────────────
+export type GpsSubject = "FIELD" | "SUPERVISOR";
+const SUPERVISOR_ROLES = ["OPERATIONS", "ACCOUNTS", "SUPERVISOR"];
+
+/** Francis / Shoaib type people are SUPERVISOR subjects: by their login role, or — when they have no login — by designation. */
+export function gpsSubjectOf(s: { designation?: string | null; userRole?: string | null }): GpsSubject {
+  if (s.userRole && SUPERVISOR_ROLES.includes(s.userRole)) return "SUPERVISOR";
+  if (s.designation && /supervisor|operations manager|sales coordinator|field coordinator/i.test(s.designation)) return "SUPERVISOR";
+  return "FIELD";
+}
+
+/**
+ * Super Admin sees every location. Francis / Shoaib (Operations / Accounts / Supervisor logins) see technicians' check-in locations only —
+ * never a supervisor's (their own included). Field staff see none.
+ */
+export function canViewGps(viewer: { role: string; staffId?: string | null }, subject: { staffId?: string | null; type: GpsSubject }): boolean {
+  if (viewer.role === "ADMIN") return true;
+  if (!SUPERVISOR_ROLES.includes(viewer.role)) return false;
+  if (subject.type === "SUPERVISOR") return false;
+  if (viewer.staffId && subject.staffId && viewer.staffId === subject.staffId) return false;
+  return true;
+}
+
+/** Only the Super Admin manages tracking (switch on/off, settings). */
+export const canManageTracking = (role: string | null | undefined): boolean => role === "ADMIN";
+
+/** Roles that may verify a payment and close a job from /field-ops: Altaf (ADMIN), Francis (OPERATIONS), Shoaib (ACCOUNTS). */
+export const canOfficeClose = (role: string | null | undefined): boolean => role === "ADMIN" || role === "OPERATIONS" || role === "ACCOUNTS";
+
+/** The bold office alert for cash that is still in a staff member's pocket. */
+export const cashWithStaffLabel = (name: string, amount: number): string => `[CASH WITH STAFF: ${name} — ₹${amount.toLocaleString("en-IN")}]`;
+
+/**
+ * Payload for the Meta Utility template `sahara_start_otp_v1` (body: {{1}} customer name, {{2}} code). Used only when the owner sets
+ * WHATSAPP_START_OTP_TEMPLATE=v1 after Meta approves it; until then the plain-text message (startOtpMessage) is sent.
+ */
+export function startOtpTemplatePayload(customerName: string, otp: string) {
+  const bodyParams = [customerName, otp];
+  return {
+    templateName: "sahara_start_otp_v1",
+    languageCode: "en",
+    bodyParams,
+    preview: `Hi ${customerName}, your Sahara Cleaning Services start code is ${otp}. Share it with our team member only when you are ready for the work to begin.`,
+  };
 }
