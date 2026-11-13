@@ -164,7 +164,7 @@ export async function ingestEnquiry(raw: Record<string, unknown>, opts: { intake
       kind: "OTHER",
       toNumber: accounts.phone,
       toName: accounts.name,
-      body: withSourceHeader(`${title}\n${body}\n📞 ${mobile}${message ? `\n“${message.slice(0, 160)}”` : ""}`, sourceLabelForTag(leadSourceTag, landingPath)),
+      body: withSourceHeader(`${title}\n${body}\n📞 ${mobile}${message ? `\n“${message.slice(0, 160)}”` : ""}`, sourceLabelForTag(leadSourceTag, landingPath), landingPath),
       relatedType: "Lead",
       relatedId: lead.id,
     }).catch(() => {});

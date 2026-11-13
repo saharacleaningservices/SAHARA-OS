@@ -98,7 +98,7 @@ export const whatsappCopyFor = (kind: NotifKind, whatsappToAdmin?: boolean) => !
 /** New enquiry / booking alerts open with the bracketed source header and end with a Source line (owner 2026-11-12); other alerts are unchanged. */
 export function adminWhatsAppBody(input: Pick<NotifyInput, "kind" | "title" | "body" | "sourceTag" | "sourceLandingPage">): string {
   const text = `${input.title}${input.body ? `\n${input.body}` : ""}`;
-  return input.kind === "NEW_INQUIRY" || input.kind === "NEW_BOOKING" ? withSourceHeader(text, sourceLabelForTag(input.sourceTag, input.sourceLandingPage)) : text;
+  return input.kind === "NEW_INQUIRY" || input.kind === "NEW_BOOKING" ? withSourceHeader(text, sourceLabelForTag(input.sourceTag, input.sourceLandingPage), input.sourceLandingPage) : text;
 }
 
 export type NotifyInput = {

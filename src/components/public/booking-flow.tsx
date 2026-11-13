@@ -207,9 +207,10 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
     fireLead();
     setStep(2);
   }
-  /** Ad-platform "Lead" event: name + mobile submitted on step 1. */
+  /** Step 1 (name + mobile) is a funnel step only. The ad-platform "Lead" (Meta Pixel + Conversions API, GA4 generate_lead, Ads
+   *  Booking Lead) now fires once, at the completed slot booking in finish() (owner 2026-11-13: optimise for completed bookings). */
   function fireLead() {
-    trackLead({ category, variant: intent.pkg, mobile: mobile10, value: subtotal || undefined, id: "", kind: "step1" });
+    trackFunnel("lead_captured", { service: category });
   }
 
   // ── navigation guards ──
@@ -291,8 +292,10 @@ export function BookingFlow({ intent, waNumber, onClose }: { intent: LeadIntent;
   function finish(d: Done, confirmed: boolean) {
     setBusy(false);
     setDone(d);
+    // Completed slot booking → ONE Lead: browser Pixel `Lead` + server CAPI `Lead` (shared event id), GA4 generate_lead and the Ads
+    // Booking Lead conversion (transaction_id = job / lead number). Owner-protected numbers are skipped inside trackLead().
+    trackLead({ category, variant: intent.pkg, mobile: mobile10, value: d.total || subtotal || undefined, id: d.id, kind: "booking", confirmed });
     trackPurchase({ category, mobile: mobile10, value: d.total || subtotal || undefined, id: d.id });
-    void confirmed;
     trackFunnel("booking_confirmation", { service: category, value: subtotal || undefined });
   }
 
