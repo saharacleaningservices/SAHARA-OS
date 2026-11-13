@@ -2108,3 +2108,19 @@ db.close();
   console.log("Source tags + Vendor Operations migration complete.");
   vDb.close();
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Field Ops on Job (2026-11-13, additive + idempotent): GPS check-in, start OTP, collected payment.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const fDb = new Database(dbPath, { timeout: 30000 });
+  const have = fDb.prepare(`PRAGMA table_info("Job")`).all().map((c) => c.name);
+  const cols = [
+    ["reachedAt", "DATETIME"], ["reachedLat", "REAL"], ["reachedLng", "REAL"], ["reachedAccuracyM", "INTEGER"], ["reachedDistanceM", "INTEGER"],
+    ["gpsFlag", "TEXT"], ["startOtp", "TEXT"], ["startOtpSentAt", "DATETIME"], ["startOtpVerifiedAt", "DATETIME"],
+    ["startOtpAttempts", "INTEGER NOT NULL DEFAULT 0"], ["collectedAmount", "REAL"], ["collectedMode", "TEXT"], ["pendingReason", "TEXT"],
+  ];
+  for (const [name, ddl] of cols) if (!have.includes(name)) fDb.exec(`ALTER TABLE "Job" ADD COLUMN "${name}" ${ddl}`);
+  console.log("Field Ops migration complete.");
+  fDb.close();
+}

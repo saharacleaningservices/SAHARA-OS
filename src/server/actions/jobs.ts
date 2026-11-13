@@ -22,6 +22,8 @@ import { cleanFix, locationNote, type GeoFix } from "@/lib/geo";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 import { headers } from "next/headers";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { assessCheckIn, checkCompletion, generateStartOtp, MAX_OTP_ATTEMPTS, otpMatches, startOtpMessage, validateFix, COLLECT_MODE_LABELS } from "@/lib/field-ops";
+import { sendWhatsApp } from "@/lib/whatsapp";
 
 /**
  * Francis (SUPERVISOR) final policy, 2026-09-21: "Edit ... only for TODAY
@@ -527,6 +529,10 @@ export async function staffUpdateJobStatus(jobId: string, status: "ON_THE_WAY" |
   if (scopeError) return scopeError;
   const current = await db.job.findUnique({ where: { id: jobId }, select: { status: true } });
   if (!current || order.indexOf(status) <= order.indexOf(current.status)) return { error: "This step is already done", success: false as const };
+  // Field Ops gates (2026-11-13): work starts only through the customer's start OTP, and a job closes only through the completion form
+  // (after-photos + exact payment). Staff can no longer skip them by calling this action directly.
+  if (status === "STARTED") return { error: "Tap “Reached Location”, then enter the customer's 4-digit start code.", success: false as const };
+  if (status === "COMPLETED") return { error: "Use “Complete Job” and enter the after-photos and payment.", success: false as const };
   return updateJobStatusInternal(jobId, status, session.sub);
 }
 
@@ -715,4 +721,157 @@ export async function sendTeamDispatch(jobId: string) {
     .catch(() => {});
   revalidatePath(`/jobs/${jobId}`);
   return { success: true as const, error: undefined as string | undefined, sent: result.sent, queued: result.queued };
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// Field Ops (2026-11-13): Reached Location (GPS) → customer start OTP → completion gate (after-photos + exact payment).
+// Staff only, own job only; every step is audit-logged on the job's activity log.
+// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const REACHABLE = ["PENDING", "ASSIGNED", "REACTIVATED", "ON_THE_WAY"];
+
+/**
+ * "Reached Location": captures the phone's live GPS fix, rejects weak / fake readings, compares it with the pinned site and flags the
+ * office when it is more than 1.5 km away (or the job has no pin). Then issues the customer's 4-digit start OTP and sends it on WhatsApp.
+ */
+export async function staffReachedLocation(jobId: string, rawFix: unknown) {
+  const session = await getSession();
+  if (!session || session.role !== "STAFF") return { error: "Not authorized", success: false as const };
+  const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
+  if (scopeError) return scopeError;
+  const job = await db.job.findUnique({ where: { id: jobId }, select: { id: true, jobNumber: true, status: true, mapLink: true, reachedAt: true, startOtp: true, customerName: true, customerMobile: true, deletedAt: true } });
+  if (!job || job.deletedAt) return { error: "Job not found", success: false as const };
+  if (job.reachedAt) return { success: true as const, unchanged: true as const };
+  if (!REACHABLE.includes(job.status)) return { error: "This job is not waiting for check-in.", success: false as const };
+
+  const v = validateFix(rawFix);
+  if (!v.ok) {
+    await db.activityLog.create({ data: { jobId, actorId: session.sub, action: `Reached Location refused — ${v.error}` } }).catch(() => {});
+    return { error: v.error, success: false as const };
+  }
+  const { fix } = v;
+  const { distanceM, flag } = assessCheckIn(fix, job.mapLink);
+  const now = new Date();
+  const otp = job.startOtp ?? generateStartOtp();
+
+  await db.job.update({
+    where: { id: jobId },
+    data: {
+      reachedAt: now,
+      reachedLat: fix.lat,
+      reachedLng: fix.lng,
+      reachedAccuracyM: fix.acc,
+      reachedDistanceM: distanceM,
+      gpsFlag: flag,
+      startOtp: otp,
+      startOtpSentAt: now,
+      startOtpAttempts: 0,
+      ...(job.status !== "ON_THE_WAY" && { status: "ON_THE_WAY" as const, onTheWayAt: now }),
+    },
+  });
+  const where = `${locationNote(fix)}${distanceM != null ? ` · ${distanceM} m from the pinned site` : " · job has no map pin"}${flag === "OUT_OF_ZONE" ? " · [OUT-OF-ZONE GPS]" : ""}`;
+  await db.activityLog.create({ data: { jobId, actorId: session.sub, action: `Reached Location (GPS verified, IST ${now.toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" })})${where}` } }).catch(() => {});
+
+  if (flag) {
+    await notify({
+      kind: "OPS_ESCALATION",
+      title: flag === "OUT_OF_ZONE" ? `[OUT-OF-ZONE GPS] ${job.jobNumber}` : `[GPS UNVERIFIED — no map pin] ${job.jobNumber}`,
+      body: flag === "OUT_OF_ZONE" ? `${session.name} checked in ${distanceM} m from the site (limit 1500 m).` : `${session.name} checked in, but the job has no map pin to compare against.`,
+      href: "/field-ops",
+    }).catch(() => {});
+  }
+
+  // Customer start code on WhatsApp (also visible to the office on the job card as a backup).
+  void sendWhatsApp({ kind: "OTHER", toNumber: job.customerMobile, toName: job.customerName, body: startOtpMessage(job.customerName, otp), relatedType: "Job", relatedId: job.id }).catch((e) => console.error("[field-ops] start OTP WhatsApp failed:", e));
+
+  revalidatePath("/field-ops");
+  revalidatePath(`/jobs/${jobId}`);
+  revalidatePath(`/my/jobs/${jobId}`);
+  return { success: true as const, flag, distanceM };
+}
+
+/** Staff enters the customer's 4-digit code → work moves to In Progress (STARTED). 5 wrong tries lock the code until the office resets it. */
+export async function staffVerifyStartOtp(jobId: string, entered: string) {
+  const session = await getSession();
+  if (!session || session.role !== "STAFF") return { error: "Not authorized", success: false as const };
+  const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
+  if (scopeError) return scopeError;
+  const job = await db.job.findUnique({ where: { id: jobId }, select: { status: true, reachedAt: true, startOtp: true, startOtpAttempts: true, startOtpVerifiedAt: true, reachedLat: true, reachedLng: true, reachedAccuracyM: true } });
+  if (!job) return { error: "Job not found", success: false as const };
+  if (job.startOtpVerifiedAt || job.status === "STARTED") return { success: true as const, unchanged: true as const };
+  if (!job.reachedAt || !job.startOtp) return { error: "Tap “Reached Location” first.", success: false as const };
+  if (job.startOtpAttempts >= MAX_OTP_ATTEMPTS) return { error: "Too many wrong codes. Call the office for the start code.", success: false as const };
+  if (!otpMatches(entered, job.startOtp)) {
+    await db.job.update({ where: { id: jobId }, data: { startOtpAttempts: { increment: 1 } } });
+    const left = MAX_OTP_ATTEMPTS - job.startOtpAttempts - 1;
+    await db.activityLog.create({ data: { jobId, actorId: session.sub, action: `Wrong start OTP entered (${job.startOtpAttempts + 1}/${MAX_OTP_ATTEMPTS})` } }).catch(() => {});
+    return { error: left > 0 ? `Wrong code. ${left} ${left === 1 ? "try" : "tries"} left.` : "Too many wrong codes. Call the office for the start code.", success: false as const };
+  }
+  await db.job.update({ where: { id: jobId }, data: { startOtpVerifiedAt: new Date() } });
+  await db.activityLog.create({ data: { jobId, actorId: session.sub, action: "Customer start OTP verified" } }).catch(() => {});
+  const fix: GeoFix | "none" = job.reachedLat != null && job.reachedLng != null ? { lat: job.reachedLat, lng: job.reachedLng, ...(job.reachedAccuracyM != null && { acc: job.reachedAccuracyM }) } : "none";
+  const r = await updateJobStatusInternal(jobId, "STARTED", session.sub, fix);
+  revalidatePath("/field-ops");
+  revalidatePath(`/my/jobs/${jobId}`);
+  return r;
+}
+
+/**
+ * Completion gate: needs the verified start OTP (when one was issued), ≥ 1 after-service photo, the exact ₹ collected and the payment mode.
+ * "Pending Approval" needs a reason and raises an immediate Admin alert. Settled payments flow into the normal Payment rows, so the existing
+ * final-invoice and Google-review automation (REVIEW_REQUEST, once, only when nothing is left to collect) runs exactly as for office completions.
+ */
+export async function staffCompleteJob(jobId: string, input: { amount: unknown; mode: unknown; note?: unknown }) {
+  const session = await getSession();
+  if (!session || session.role !== "STAFF") return { error: "Not authorized", success: false as const };
+  const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
+  if (scopeError) return scopeError;
+  const job = await db.job.findUnique({
+    where: { id: jobId },
+    select: { id: true, jobNumber: true, status: true, jobValue: true, customerName: true, customerMobile: true, leadId: true, startOtp: true, startOtpVerifiedAt: true, deletedAt: true, _count: { select: { photos: { where: { type: "AFTER" } } } } },
+  });
+  if (!job || job.deletedAt) return { error: "Job not found", success: false as const };
+  if (job.status === "COMPLETED") return { success: true as const, unchanged: true as const };
+  if (job.status !== "STARTED") return { error: "Start the job with the customer's code before completing it.", success: false as const };
+
+  const gate = checkCompletion({ amount: input.amount, mode: input.mode, note: input.note, afterPhotos: job._count.photos, otpVerified: Boolean(job.startOtpVerifiedAt), needsOtp: Boolean(job.startOtp) });
+  if (!gate.ok) return { error: gate.error, success: false as const };
+
+  // Record what was collected against the job's Payment row (create one when the booking never had one), exactly like an office collection.
+  const rows = await db.payment.findMany({ where: { jobId, deletedAt: null }, orderBy: { createdAt: "asc" } });
+  const open = rows.find((p) => p.status !== "PAID" && p.paidAmount < p.amount - 0.01);
+  if (gate.mode !== "PENDING_APPROVAL") {
+    if (open) {
+      const paid = open.paidAmount + gate.amount;
+      const fullyPaid = paid >= open.amount - 0.01;
+      await db.payment.update({ where: { id: open.id }, data: { paidAmount: paid, status: fullyPaid ? "PAID" : open.status, paidDate: fullyPaid ? new Date() : open.paidDate ?? new Date(), mode: gate.mode, recordedById: session.sub, notes: [open.notes, `Collected on site by ${session.name}`].filter(Boolean).join(" · ") } });
+    } else if (rows.length === 0) {
+      const invoiceNumber = await generateInvoiceNumber();
+      const fullyPaid = gate.amount >= job.jobValue - 0.01;
+      await db.payment.create({ data: { invoiceNumber, jobId, leadId: job.leadId, clientName: job.customerName, clientMobile: job.customerMobile, amount: Math.max(job.jobValue, gate.amount), paidAmount: gate.amount, dueDate: new Date(), paidDate: new Date(), status: fullyPaid ? "PAID" : "PENDING", mode: gate.mode, recordedById: session.sub, notes: `Collected on site by ${session.name}` } });
+    }
+    // else: everything was already settled before the visit — nothing to record against
+  } else if (rows.length === 0) {
+    // Pending Approval on a job that never had a payment row: create the open balance so the review request stays blocked until the office settles it.
+    await db.payment.create({ data: { invoiceNumber: await generateInvoiceNumber(), jobId, leadId: job.leadId, clientName: job.customerName, clientMobile: job.customerMobile, amount: job.jobValue, paidAmount: 0, dueDate: new Date(), status: "PENDING", recordedById: session.sub, notes: `Pending approval — reported on site by ${session.name}: ${gate.note}` } });
+  }
+
+  await db.job.update({ where: { id: jobId }, data: { collectedAmount: gate.amount, collectedMode: gate.mode, pendingReason: gate.mode === "PENDING_APPROVAL" ? gate.note : null } });
+  await db.activityLog.create({ data: { jobId, actorId: session.sub, action: `Completion gate passed — ₹${gate.amount.toLocaleString("en-IN")} · ${COLLECT_MODE_LABELS[gate.mode]}${gate.note ? ` · ${gate.note}` : ""} · ${job._count.photos} after photo(s)` } }).catch(() => {});
+
+  const r = await updateJobStatusInternal(jobId, "COMPLETED", session.sub);
+  if ("error" in r && r.error) return { error: r.error, success: false as const };
+
+  if (gate.mode === "PENDING_APPROVAL") {
+    await notify({ kind: "OPS_ESCALATION", title: `Payment PENDING APPROVAL — ${job.jobNumber}`, body: `${session.name}: ${gate.note}`, href: "/field-ops", critical: true, whatsappToAdmin: true }).catch(() => {});
+  } else {
+    await notify({ kind: "PAYMENT_RECEIVED", title: `Collected on site — ₹${gate.amount.toLocaleString("en-IN")}`, body: `${job.customerName} · ${COLLECT_MODE_LABELS[gate.mode]} · ${job.jobNumber} · by ${session.name}`, href: "/field-ops", whatsappToAdmin: true }).catch(() => {});
+    // The thank-you + Google review link is queued by the completion path above (once per job, after REVIEW_DELAY_MINUTES) and is sent only when
+    // sendReviewIfDue() finds nothing left to collect — so a partial or pending payment holds it back automatically.
+  }
+  revalidatePath("/payments");
+  revalidatePath("/field-ops");
+  revalidatePath(`/my/jobs/${jobId}`);
+  return { success: true as const, pendingApproval: gate.mode === "PENDING_APPROVAL" };
 }

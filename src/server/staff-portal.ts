@@ -659,3 +659,24 @@ export async function getMyJob(staffId: string, jobId: string) {
     isToday: job.scheduledDate >= today,
   };
 }
+
+
+/**
+ * Field Ops state for MY job (Staff App job page): check-in / OTP progress, live after-photo count and — only while the job is being
+ * worked on — the billed amount staff must collect (owner brief 2026-11-13; supersedes the 2026-10-18 "no amounts" rule for this one screen).
+ * Never returns the customer mobile or the start OTP itself.
+ */
+export async function getMyJobField(staffId: string, jobId: string) {
+  const job = await db.job.findFirst({
+    where: { id: jobId, ...myJobsWhere(staffId, new Date(2000, 0, 1), new Date(2100, 0, 1)) },
+    select: { status: true, reachedAt: true, startOtpVerifiedAt: true, jobValue: true, _count: { select: { photos: { where: { type: "AFTER" } } } } },
+  });
+  if (!job) return null;
+  const working = job.status === "STARTED" || Boolean(job.reachedAt);
+  return {
+    reached: Boolean(job.reachedAt),
+    otpVerified: Boolean(job.startOtpVerifiedAt),
+    afterPhotos: job._count.photos,
+    billedAmount: working && job.status !== "COMPLETED" ? job.jobValue : null,
+  };
+}

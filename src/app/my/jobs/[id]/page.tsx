@@ -2,13 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarDays, Clock, MapPin, Navigation, Phone, QrCode, Users, Check } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
-import { getMyJob } from "@/server/staff-portal";
+import { getMyJob, getMyJobField } from "@/server/staff-portal";
 import { getStaffLang } from "@/server/staff-lang";
 import { getCompanySettings } from "@/server/settings";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { tierFromPackage } from "@/lib/service-scope";
-import { StaffJobStatusButtons } from "@/components/staff-app/job-status-buttons";
+import { StaffFieldFlow } from "@/components/staff-app/field-flow";
 import { StaffJobConsentToggle } from "@/components/staff-app/job-consent-toggle";
 import { cn, initials } from "@/lib/utils";
 
@@ -39,8 +39,8 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
   const { staff, preview } = await requireMyStaff();
   if (!staff) return null;
   const { id } = await params;
-  const [job, lang, settings] = await Promise.all([getMyJob(staff.id, id), getStaffLang(), getCompanySettings()]);
-  if (!job) notFound();
+  const [job, field, lang, settings] = await Promise.all([getMyJob(staff.id, id), getMyJobField(staff.id, id), getStaffLang(), getCompanySettings()]);
+  if (!job || !field) notFound();
   const t = staffT(lang);
   const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
   const tier = job.service === "HOME_DEEP_CLEANING" ? tierFromPackage(job.packageName, job.serviceVariant) : null;
@@ -123,8 +123,23 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
         {!tier && !job.comboServices.length && !job.packageServices.length && !job.scopeOfWork && <p className="text-sm text-muted-foreground">{pkg ?? "—"}</p>}
       </section>
 
-      {/* Status (today, own job) */}
-      {job.isToday && !preview && <StaffJobStatusButtons jobId={job.id} status={job.status} labels={{ onTheWay: t("btnOnTheWay"), start: t("btnStart"), complete: t("btnComplete") }} directionsHref={directionsHref(job.address, job.mapLink)} />}
+      {/* Field flow (today, own job): Reached Location (GPS) → customer start code → after-photos + exact payment → Complete */}
+      {job.isToday && !preview && (
+        <StaffFieldFlow
+          jobId={job.id}
+          status={job.status}
+          reached={field.reached}
+          otpVerified={field.otpVerified}
+          afterPhotos={field.afterPhotos}
+          billedAmount={field.billedAmount}
+          directionsHref={directionsHref(job.address, job.mapLink)}
+          labels={{
+            onTheWay: t("btnOnTheWay"), reached: t("fReached"), reachedHint: t("fReachedHint"), locating: t("fLocating"), otpTitle: t("fOtpTitle"), otpHint: t("fOtpHint"),
+            verify: t("fVerify"), afterPhotos: t("fAfterPhotos"), photosNeed: t("fPhotosNeed"), billed: t("fBilled"), collected: t("fCollected"), mode: t("fMode"),
+            modeUpi: t("fModeUpi"), modeCash: t("fModeCash"), modeBank: t("fModeBank"), modePending: t("fModePending"), reason: t("fReason"), complete: t("fComplete"), done: t("fDone"),
+          }}
+        />
+      )}
 
       {job.marketingConsent !== null && (
         <StaffJobConsentToggle

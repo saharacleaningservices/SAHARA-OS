@@ -749,6 +749,21 @@ model Job {
   festivalName String?
   scopeOfWork  String?
 
+  // Field Ops (2026-11-13): live GPS check-in, customer start OTP and the completion gate. All additive + nullable.
+  reachedAt          DateTime?
+  reachedLat         Float?
+  reachedLng         Float?
+  reachedAccuracyM   Int?
+  reachedDistanceM   Int? // metres from the pinned site (mapLink coordinates); null when the job has no pin
+  gpsFlag            String? // OUT_OF_ZONE | NO_PIN — shown as a badge on the office Live Field Ops view
+  startOtp           String? // 4-digit code the customer reads out before work starts
+  startOtpSentAt     DateTime?
+  startOtpVerifiedAt DateTime?
+  startOtpAttempts   Int      @default(0)
+  collectedAmount    Float? // what staff report collecting on site (₹)
+  collectedMode      String? // UPI | CASH | BANK | PENDING_APPROVAL
+  pendingReason      String? // required note when collectedMode = PENDING_APPROVAL
+
   mapLink   String?
   siteId    String? // CustomerSite this job is for (additive, 2026-10-08)
   vehicleId String?
