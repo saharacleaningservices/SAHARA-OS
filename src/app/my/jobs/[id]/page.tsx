@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import QRCode from "qrcode";
 import { CalendarDays, Clock, MapPin, Navigation, Phone, QrCode, Users, Check } from "lucide-react";
 import { requireMyStaff } from "@/server/staff-portal-session";
-import { getMyJob } from "@/server/staff-portal";
+import { getMyJob, getMyJobField } from "@/server/staff-portal";
 import { getStaffLang } from "@/server/staff-lang";
 import { getCompanySettings } from "@/server/settings";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { tierFromPackage } from "@/lib/service-scope";
-import { StaffJobStatusButtons } from "@/components/staff-app/job-status-buttons";
+import { LocationPinger } from "@/components/staff-app/location-pinger";
+import { StaffFieldFlow } from "@/components/staff-app/field-flow";
 import { StaffJobConsentToggle } from "@/components/staff-app/job-consent-toggle";
 import { cn, initials } from "@/lib/utils";
 
@@ -39,9 +41,15 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
   const { staff, preview } = await requireMyStaff();
   if (!staff) return null;
   const { id } = await params;
-  const [job, lang, settings] = await Promise.all([getMyJob(staff.id, id), getStaffLang(), getCompanySettings()]);
-  if (!job) notFound();
+  const [job, field, lang, settings] = await Promise.all([getMyJob(staff.id, id), getMyJobField(staff.id, id), getStaffLang(), getCompanySettings()]);
+  if (!job || !field) notFound();
   const t = staffT(lang);
+  // Close-screen QRs (Super Admin configures both in Settings): the uploaded payment QR image wins, otherwise a no-amount UPI QR; Google review link QR.
+  const qr = (text: string) => QRCode.toDataURL(text, { margin: 1, width: 420, errorCorrectionLevel: "M", color: { dark: "#0A2540", light: "#FFFFFF" } });
+  const closing = job.status === "STARTED" && field.bill != null;
+  const upiLink = settings.upiId ? `upi://pay?pa=${encodeURIComponent(settings.upiId)}&pn=${encodeURIComponent(settings.bankAccountName || settings.name)}&cu=INR` : null;
+  const payQr = closing ? settings.upiQrUrl || (upiLink ? await qr(upiLink) : null) : null;
+  const reviewQr = closing && settings.googleReviewUrl ? await qr(settings.googleReviewUrl) : null;
   const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
   const tier = job.service === "HOME_DEEP_CLEANING" ? tierFromPackage(job.packageName, job.serviceVariant) : null;
   const pkg = job.packageName || job.serviceVariant;
@@ -123,8 +131,26 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
         {!tier && !job.comboServices.length && !job.packageServices.length && !job.scopeOfWork && <p className="text-sm text-muted-foreground">{pkg ?? "—"}</p>}
       </section>
 
-      {/* Status (today, own job) */}
-      {job.isToday && !preview && <StaffJobStatusButtons jobId={job.id} status={job.status} labels={{ onTheWay: t("btnOnTheWay"), start: t("btnStart"), complete: t("btnComplete") }} directionsHref={directionsHref(job.address, job.mapLink)} />}
+      {/* Field flow (today, own job): Reached Location (GPS) → customer start code → after-photos + exact payment → Complete */}
+      {job.isToday && !preview && (
+        <StaffFieldFlow
+          jobId={job.id}
+          status={job.status}
+          reached={field.reached}
+          otpVerified={field.otpVerified}
+          bill={field.bill}
+          payQr={payQr}
+          reviewQr={reviewQr}
+          directionsHref={directionsHref(job.address, job.mapLink)}
+          labels={{
+            onTheWay: t("btnOnTheWay"), reached: t("fReached"), reachedHint: t("fReachedHint"), locating: t("fLocating"), otpTitle: t("fOtpTitle"), otpHint: t("fOtpHint"),
+            verify: t("fVerify"), collectClose: t("fCollectClose"), total: t("fTotal"), advance: t("fAdvance"), balance: t("fBalance"), payQr: t("fPayQr"), reviewQr: t("fReviewQr"), collected: t("fCollected"), mode: t("fMode"),
+            modeUpi: t("fModeUpi"), modeCash: t("fModeCash"), modeBank: t("fModeBank"), modePending: t("fModePending"), reason: t("fReason"), complete: t("fComplete"), done: t("fDone"),
+          }}
+        />
+      )}
+
+      {job.isToday && !preview && (job.status === "ON_THE_WAY" || job.status === "STARTED") && <LocationPinger jobId={job.id} />}
 
       {job.marketingConsent !== null && (
         <StaffJobConsentToggle

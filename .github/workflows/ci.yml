@@ -31,3 +31,5 @@ jobs:
         run: npx tsc --noEmit
       - name: Unit tests (pure logic, no database)
         run: npm run test:ci
+      - name: Field Ops staff actions (GPS, start OTP, completion gate)
+        run: npm run test:fieldops
