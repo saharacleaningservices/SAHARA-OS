@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
+import { getJobOtpState } from "@/server/job-otp";
 import { PhotoUploader } from "@/components/jobs/photo-uploader";
 import { VideoUploader } from "@/components/jobs/video-uploader";
 import { SignatureCapture } from "@/components/jobs/signature-capture";
@@ -29,6 +30,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   if (!canAccessJob(session, job, ownStaffId)) {
     redirect("/jobs");
   }
+  const otpState = await getJobOtpState(job.id);
   const canManage = session.role === "ADMIN" || session.role === "OPERATIONS";
   const vehicles = canManage ? await getVehiclesForAssignment() : [];
 
@@ -108,7 +110,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                   </div>
                 )}
               </div>
-              <StatusActions jobId={job.id} status={job.status} />
+              <StatusActions jobId={job.id} status={job.status} otp={otpState} />
             </CardContent>
           </Card>
 

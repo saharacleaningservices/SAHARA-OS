@@ -11,7 +11,7 @@ Sahara Cleaning Services (Pune)
   * 7083347130
   * 8956567130
 
-Google Rating: 4.9★ (1800+ Reviews)
+Google Rating (locked): 4.9★ company-wide (2,050+ Reviews) · Magarpatta 4.9★ (1,800+) · Mohammadwadi 4.8★ (235+)
 
 ## Tech Stack
 

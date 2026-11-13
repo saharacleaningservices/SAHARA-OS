@@ -25,9 +25,9 @@ import { addTimelineEntry } from "@/server/timeline";
 import { softDeleteMany } from "@/server/audit";
 import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendWhatsApp } from "@/lib/whatsapp";
+import { crmMinimumJobValue, customerTypeFor } from "@/lib/zones";
 import { bookingConfirmationMessage } from "@/lib/whatsapp-templates";
 
-const MIN_JOB_VALUE = COMPANY.minimumJobValue;
 
 function combineDateTime(date: string, time?: string) {
   return time ? new Date(`${date}T${time}`) : new Date(date);
@@ -227,8 +227,19 @@ export async function confirmBooking(leadId: string, values: unknown) {
   }
 
   const scheduledDate = new Date(data.serviceDate);
+  // Zone-aware floor: East & South Pune has none; West Pune/PCMC ₹4,000; Far NW
+  // residential ₹7,500; unmapped areas keep the legacy ₹3,999. With no quote
+  // yet, ₹3,999 is only a placeholder default (not a floor) for Zone 1.
+  const floor = crmMinimumJobValue(
+    lead.area,
+    customerTypeFor(lead.serviceCategory),
+    COMPANY.minimumJobValue,
+    lead.pincode
+  );
   const jobValue =
-    lead.quoteAmount && lead.quoteAmount >= MIN_JOB_VALUE ? lead.quoteAmount : MIN_JOB_VALUE;
+    lead.quoteAmount && lead.quoteAmount >= floor && lead.quoteAmount > 0
+      ? lead.quoteAmount
+      : Math.max(floor, COMPANY.minimumJobValue);
 
   const jobNumber = await generateJobNumber();
   const job = await db.job.create({

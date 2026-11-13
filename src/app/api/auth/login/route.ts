@@ -6,7 +6,8 @@ import { createSessionToken, setSessionCookie } from "@/lib/session";
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 import { getDeviceToken, setDeviceCookie, generateDeviceToken, generateOtp, labelFromUserAgent } from "@/lib/device";
 import { sendWhatsApp } from "@/lib/whatsapp";
-import { deviceApprovalRequestMessage } from "@/lib/whatsapp-templates";
+import { deviceApprovalRequestMessage, loginOtpMessage } from "@/lib/whatsapp-templates";
+import { generateOtpCode, hashOtp, staffLoginOtpEnabled, LOGIN_OTP_TTL_MINUTES } from "@/lib/otp";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -61,6 +62,46 @@ export async function POST(request: NextRequest) {
   const valid = await verifyPassword(password, user.passwordHash);
   if (!valid) {
     return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
+  }
+
+  // Field-staff logins (role STAFF) get a WhatsApp one-time code as a second
+  // factor when STAFF_LOGIN_OTP=on. The session is only issued by
+  // /api/auth/verify-otp once the code checks out.
+  if (user.role === "STAFF" && staffLoginOtpEnabled()) {
+    if (!user.phone) {
+      return NextResponse.json(
+        { error: "No mobile number is on file for this login. Ask the owner to add it before you can sign in." },
+        { status: 403 }
+      );
+    }
+    const resendLimit = rateLimit(`login-otp:send:${user.id}`, 3, 600);
+    if (!resendLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many codes requested. Try again in a few minutes." },
+        { status: 429, headers: { "Retry-After": String(resendLimit.retryAfterSeconds) } }
+      );
+    }
+    const code = generateOtpCode();
+    const challenge = await db.loginOtp.create({
+      data: {
+        userId: user.id,
+        codeHash: "pending",
+        expiresAt: new Date(Date.now() + LOGIN_OTP_TTL_MINUTES * 60 * 1000),
+        ipAddress: ip,
+      },
+    });
+    await db.loginOtp.update({ where: { id: challenge.id }, data: { codeHash: hashOtp(code, `login:${challenge.id}`) } });
+    // Never throws; if WhatsApp isn't configured the message stays QUEUED in the
+    // WhatsApp log (Admin → WhatsApp Log) so the owner can read the code out.
+    await sendWhatsApp({
+      kind: "LOGIN_OTP",
+      toNumber: user.phone,
+      toName: user.name,
+      body: loginOtpMessage({ name: user.name, code }),
+      relatedType: "LoginOtp",
+      relatedId: challenge.id,
+    }).catch(() => {});
+    return NextResponse.json({ otpRequired: true, challengeId: challenge.id });
   }
 
   // Password is correct from here on — decide whether this device needs

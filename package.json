@@ -15,7 +15,8 @@
     "db:reset": "rm -f dev.db && npm run db:setup && npm run db:seed",
     "reset-production-data": "node scripts/reset-production-data.mjs",
     "start:render": "node scripts/render-start.mjs",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "tsx --test tests/zones.test.ts tests/otp.test.ts tests/migration.test.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

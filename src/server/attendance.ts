@@ -35,14 +35,14 @@ export async function checkIn(staffId: string, gpsLat?: number | null, gpsLng?: 
   return db.attendance.create({ data: { staffId, date: start, ...data } });
 }
 
-export async function checkOut(staffId: string) {
+export async function checkOut(staffId: string, lat?: number | null, lng?: number | null) {
   const existing = await getTodayAttendance(staffId);
   if (!existing) return null;
   const staff = await db.staff.findUnique({ where: { id: staffId } });
   const wageForDay = staff?.salaryType === "DAILY" ? staff?.dailyWage ?? null : null;
   return db.attendance.update({
     where: { id: existing.id },
-    data: { checkOutTime: new Date(), wageForDay },
+    data: { checkOutTime: new Date(), wageForDay, checkOutLat: lat ?? null, checkOutLng: lng ?? null },
   });
 }
 

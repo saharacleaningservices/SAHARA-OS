@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, CheckCircle2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,10 @@ import { ServiceCategoryPicker } from "@/components/shared/service-category-pick
 import { ShareLocationButton } from "@/components/shared/share-location-button";
 import { UpsellOfferCard, type UpsellOffer } from "@/components/shared/upsell-offer-card";
 import { publicBookLead } from "@/server/actions/public-booking";
+import { resolveZone, customerTypeFor, minimumOrderValue } from "@/lib/zones";
+
+const ATTRIBUTION_KEYS = ["utm_source", "utm_medium", "utm_campaign", "gclid", "fbclid"] as const;
+const ATTRIBUTION_STORAGE = "sahara_attribution";
 
 export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
   const [name, setName] = useState("");
@@ -24,6 +28,33 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<string | null>(null);
+  const [pincode, setPincode] = useState("");
+  const [attribution, setAttribution] = useState<Record<string, string>>({});
+
+  // Capture ad attribution from the landing URL; keep it for the session so it
+  // survives in-site navigation before the visitor submits.
+  useEffect(() => {
+    const found: Record<string, string> = {};
+    try {
+      const params = new URLSearchParams(window.location.search);
+      for (const k of ATTRIBUTION_KEYS) {
+        const v = params.get(k);
+        if (v) found[k] = v.slice(0, 300);
+      }
+      if (Object.keys(found).length) sessionStorage.setItem(ATTRIBUTION_STORAGE, JSON.stringify(found));
+      const stored = JSON.parse(sessionStorage.getItem(ATTRIBUTION_STORAGE) ?? "{}");
+      setAttribution({ ...stored, ...found });
+    } catch {
+      setAttribution(found);
+    }
+  }, []);
+
+  const zoneHint = useMemo(() => {
+    const match = resolveZone({ area, address, pincode });
+    if (!match) return null;
+    const mov = minimumOrderValue(match.zone.id, customerTypeFor(category));
+    return { name: match.zone.name, mov, footnote: match.zone.footnote };
+  }, [area, address, pincode, category]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,6 +75,12 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
       upsellLabel: upsell.offer?.label || "",
       upsellValue: upsell.offer?.comboPrice ?? 0,
       upsellAccepted: upsell.accepted,
+      pincode,
+      utmSource: attribution.utm_source || "",
+      utmMedium: attribution.utm_medium || "",
+      utmCampaign: attribution.utm_campaign || "",
+      gclid: attribution.gclid || "",
+      fbclid: attribution.fbclid || "",
     });
     setSubmitting(false);
     if ("error" in res) {
@@ -79,6 +116,16 @@ export function PublicBookingForm({ referralCode }: { referralCode?: string }) {
       <div className="space-y-1.5">
         <Label htmlFor="pb-area">Area</Label>
         <Input id="pb-area" value={area} onChange={(e) => setArea(e.target.value)} placeholder="e.g. Magarpatta City" required />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="pb-pincode">Pincode (optional)</Label>
+        <Input id="pb-pincode" inputMode="numeric" maxLength={6} value={pincode} onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))} placeholder="411028" />
+        {zoneHint && (
+          <p className="text-xs text-muted-foreground">
+            Service zone: <span className="font-medium text-foreground">{zoneHint.name}</span>
+            {zoneHint.mov > 0 && zoneHint.footnote ? ` — ${zoneHint.footnote}` : ""}
+          </p>
+        )}
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="pb-address">Full Address (optional)</Label>

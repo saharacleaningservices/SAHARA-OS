@@ -171,6 +171,8 @@ enum WhatsAppKind {
   AMC_RENEWAL
   ATTENDANCE_SUMMARY
   DEVICE_APPROVAL
+  JOB_OTP
+  LOGIN_OTP
   OTHER
 }
 
@@ -271,6 +273,7 @@ model Staff {
   advances          Advance[]
   fines             FineRecord[]
   rewards           RewardRecord[]
+  locationPings     StaffLocationPing[]
 
   @@index([availability])
   @@index([designation])
@@ -287,6 +290,8 @@ model Attendance {
   wageForDay   Float?
   gpsLat       Float? // future GPS attendance
   gpsLng       Float? // future GPS attendance
+  checkOutLat  Float?
+  checkOutLng  Float?
   method       String            @default("MANUAL") // MANUAL | QR | GPS (future-ready)
   notes        String?
   createdAt    DateTime          @default(now())
@@ -319,6 +324,15 @@ model Lead {
   serviceVariant   String?
   mapLink          String?
   referralCode     String?
+
+  // Geo-routing + ad attribution (additive; all optional)
+  zone             String?
+  pincode          String?
+  utmSource        String?
+  utmMedium        String?
+  utmCampaign      String?
+  gclid            String?
+  fbclid           String?
 
   isDemo           Boolean     @default(false)
   deletedAt        DateTime?
@@ -431,6 +445,10 @@ model Job {
   onTheWayAt       DateTime?
   startedAt        DateTime?
   completedAt      DateTime?
+  startLat         Float?
+  startLng         Float?
+  completeLat      Float?
+  completeLng      Float?
 
   jobValue         Float
   notes            String?
@@ -850,4 +868,49 @@ model JobVideo {
   uploadedAt DateTime @default(now())
 
   @@index([jobId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Staff GPS tracking + OTP (additive)
+// ─────────────────────────────────────────────────────────────────────────
+
+model StaffLocationPing {
+  id         String   @id @default(cuid())
+  staffId    String
+  staff      Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  jobId      String?
+  lat        Float
+  lng        Float
+  accuracy   Float?
+  recordedAt DateTime @default(now())
+
+  @@index([staffId, recordedAt])
+}
+
+// One-time codes. `codeHash` is an HMAC of the code — the plain code is only
+// ever sent over WhatsApp (and sits in the WhatsApp log as the fallback).
+model JobOtp {
+  id         String    @id @default(cuid())
+  jobId      String
+  purpose    String // START | COMPLETE
+  codeHash   String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([jobId, purpose])
+}
+
+model LoginOtp {
+  id         String    @id @default(cuid())
+  userId     String
+  codeHash   String
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  ipAddress  String?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
 }

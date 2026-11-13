@@ -4,6 +4,7 @@
 // apply manually.
 import { SERVICE_LABELS, COMPANY } from "@/lib/constants";
 import { formatINR } from "@/lib/utils";
+import { crmMinimumJobValue } from "@/lib/zones";
 import { SERVICE_BASE_PRICE } from "./pricing";
 
 export type QuotationLineItem = { name: string; description: string; amount: number };
@@ -24,10 +25,12 @@ export function draftQuotation(lead: {
   quoteAmount?: number | null;
 }): QuotationDraft {
   const label = SERVICE_LABELS[lead.service] ?? lead.service;
-  const base = Math.max(
-    lead.quoteAmount ?? SERVICE_BASE_PRICE[lead.service] ?? COMPANY.minimumJobValue,
+  const floor = crmMinimumJobValue(
+    lead.area,
+    lead.service === "COMMERCIAL_CLEANING" ? "COMMERCIAL" : "RESIDENTIAL",
     COMPANY.minimumJobValue
   );
+  const base = Math.max(lead.quoteAmount ?? SERVICE_BASE_PRICE[lead.service] ?? COMPANY.minimumJobValue, floor);
 
   const lineItems: QuotationLineItem[] = [
     { name: label, description: `${label} — ${lead.area}`, amount: base },

@@ -114,3 +114,15 @@ export function dailyAttendanceSummaryMessage(input: { date: Date; present: numb
     `Total Staff: ${input.total}`,
   ].join("\n");
 }
+
+export function jobOtpMessage(input: { customerName: string; jobNumber: string; purpose: "START" | "COMPLETE"; code: string }) {
+  const action = input.purpose === "START" ? "start" : "completion";
+  return [
+    `Hi ${input.customerName}, your ${COMPANY.name} job ${input.jobNumber} ${action} code is *${input.code}*.`,
+    `Share it with our team only when they are ${input.purpose === "START" ? "ready to begin the service" : "done and you are satisfied with the work"}. Valid for 30 minutes.`,
+  ].join("\n");
+}
+
+export function loginOtpMessage(input: { name: string; code: string }) {
+  return `${COMPANY.name}: ${input.code} is your Sahara OS login code, ${input.name}. Valid for 10 minutes. Never share it with anyone.`;
+}

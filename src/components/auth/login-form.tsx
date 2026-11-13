@@ -25,6 +25,8 @@ export function LoginForm({ next }: { next?: string }) {
   const [loading, setLoading] = useState(false);
   const [pendingApproval, setPendingApproval] = useState(false);
   const [denied, setDenied] = useState(false);
+  const [challengeId, setChallengeId] = useState<string | null>(null);
+  const [otp, setOtp] = useState("");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const {
@@ -86,6 +88,10 @@ export function LoginForm({ next }: { next?: string }) {
         setError(data.error ?? "Something went wrong. Please try again.");
         return;
       }
+      if (data.otpRequired) {
+        setChallengeId(data.challengeId);
+        return;
+      }
       if (data.pending) {
         setPendingApproval(true);
         startPolling();
@@ -96,6 +102,64 @@ export function LoginForm({ next }: { next?: string }) {
       setError("Could not reach the server. Please try again.");
       setLoading(false);
     }
+  }
+
+  async function onVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!challengeId) return;
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ challengeId, code: otp }),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (!res.ok) {
+        setError(data.error ?? "Could not verify the code.");
+        return;
+      }
+      goToDestination();
+    } catch {
+      setError("Could not reach the server. Please try again.");
+      setLoading(false);
+    }
+  }
+
+  if (challengeId) {
+    return (
+      <form onSubmit={onVerifyOtp} className="w-full max-w-sm space-y-4 rounded-lg border border-border bg-card p-6">
+        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <ShieldCheck className="size-6" />
+        </div>
+        <div className="text-center">
+          <h3 className="text-sm font-semibold text-foreground">Enter your login code</h3>
+          <p className="mt-1 text-sm text-muted-foreground">We sent a 6-digit code to your WhatsApp. It is valid for 10 minutes.</p>
+        </div>
+        <Input
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          value={otp}
+          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+          placeholder="••••••"
+          className="text-center text-lg tracking-[0.5em]"
+          autoFocus
+        />
+        {error && (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
+        )}
+        <Button type="submit" className="w-full" disabled={loading || otp.length !== 6}>
+          {loading && <Loader2 className="animate-spin" />}
+          Verify &amp; sign in
+        </Button>
+        <button type="button" className="w-full text-xs text-muted-foreground underline" onClick={() => { setChallengeId(null); setOtp(""); setError(null); }}>
+          Back to sign in
+        </button>
+      </form>
+    );
   }
 
   if (pendingApproval) {

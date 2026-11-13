@@ -79,7 +79,10 @@ export const ModelName = {
   FineRecord: 'FineRecord',
   RewardRecord: 'RewardRecord',
   Invoice: 'Invoice',
-  JobVideo: 'JobVideo'
+  JobVideo: 'JobVideo',
+  StaffLocationPing: 'StaffLocationPing',
+  JobOtp: 'JobOtp',
+  LoginOtp: 'LoginOtp'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -165,6 +168,8 @@ export const AttendanceScalarFieldEnum = {
   wageForDay: 'wageForDay',
   gpsLat: 'gpsLat',
   gpsLng: 'gpsLng',
+  checkOutLat: 'checkOutLat',
+  checkOutLng: 'checkOutLng',
   method: 'method',
   notes: 'notes',
   createdAt: 'createdAt'
@@ -191,6 +196,13 @@ export const LeadScalarFieldEnum = {
   serviceVariant: 'serviceVariant',
   mapLink: 'mapLink',
   referralCode: 'referralCode',
+  zone: 'zone',
+  pincode: 'pincode',
+  utmSource: 'utmSource',
+  utmMedium: 'utmMedium',
+  utmCampaign: 'utmCampaign',
+  gclid: 'gclid',
+  fbclid: 'fbclid',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
   deletedByName: 'deletedByName',
@@ -268,6 +280,10 @@ export const JobScalarFieldEnum = {
   onTheWayAt: 'onTheWayAt',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
+  startLat: 'startLat',
+  startLng: 'startLng',
+  completeLat: 'completeLat',
+  completeLng: 'completeLng',
   jobValue: 'jobValue',
   notes: 'notes',
   customerSignatureUrl: 'customerSignatureUrl',
@@ -618,6 +634,47 @@ export const JobVideoScalarFieldEnum = {
 } as const
 
 export type JobVideoScalarFieldEnum = (typeof JobVideoScalarFieldEnum)[keyof typeof JobVideoScalarFieldEnum]
+
+
+export const StaffLocationPingScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  jobId: 'jobId',
+  lat: 'lat',
+  lng: 'lng',
+  accuracy: 'accuracy',
+  recordedAt: 'recordedAt'
+} as const
+
+export type StaffLocationPingScalarFieldEnum = (typeof StaffLocationPingScalarFieldEnum)[keyof typeof StaffLocationPingScalarFieldEnum]
+
+
+export const JobOtpScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  purpose: 'purpose',
+  codeHash: 'codeHash',
+  attempts: 'attempts',
+  expiresAt: 'expiresAt',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type JobOtpScalarFieldEnum = (typeof JobOtpScalarFieldEnum)[keyof typeof JobOtpScalarFieldEnum]
+
+
+export const LoginOtpScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  codeHash: 'codeHash',
+  attempts: 'attempts',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+} as const
+
+export type LoginOtpScalarFieldEnum = (typeof LoginOtpScalarFieldEnum)[keyof typeof LoginOtpScalarFieldEnum]
 
 
 export const SortOrder = {

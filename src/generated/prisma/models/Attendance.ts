@@ -30,12 +30,16 @@ export type AttendanceAvgAggregateOutputType = {
   wageForDay: number | null
   gpsLat: number | null
   gpsLng: number | null
+  checkOutLat: number | null
+  checkOutLng: number | null
 }
 
 export type AttendanceSumAggregateOutputType = {
   wageForDay: number | null
   gpsLat: number | null
   gpsLng: number | null
+  checkOutLat: number | null
+  checkOutLng: number | null
 }
 
 export type AttendanceMinAggregateOutputType = {
@@ -48,6 +52,8 @@ export type AttendanceMinAggregateOutputType = {
   wageForDay: number | null
   gpsLat: number | null
   gpsLng: number | null
+  checkOutLat: number | null
+  checkOutLng: number | null
   method: string | null
   notes: string | null
   createdAt: Date | null
@@ -63,6 +69,8 @@ export type AttendanceMaxAggregateOutputType = {
   wageForDay: number | null
   gpsLat: number | null
   gpsLng: number | null
+  checkOutLat: number | null
+  checkOutLng: number | null
   method: string | null
   notes: string | null
   createdAt: Date | null
@@ -78,6 +86,8 @@ export type AttendanceCountAggregateOutputType = {
   wageForDay: number
   gpsLat: number
   gpsLng: number
+  checkOutLat: number
+  checkOutLng: number
   method: number
   notes: number
   createdAt: number
@@ -89,12 +99,16 @@ export type AttendanceAvgAggregateInputType = {
   wageForDay?: true
   gpsLat?: true
   gpsLng?: true
+  checkOutLat?: true
+  checkOutLng?: true
 }
 
 export type AttendanceSumAggregateInputType = {
   wageForDay?: true
   gpsLat?: true
   gpsLng?: true
+  checkOutLat?: true
+  checkOutLng?: true
 }
 
 export type AttendanceMinAggregateInputType = {
@@ -107,6 +121,8 @@ export type AttendanceMinAggregateInputType = {
   wageForDay?: true
   gpsLat?: true
   gpsLng?: true
+  checkOutLat?: true
+  checkOutLng?: true
   method?: true
   notes?: true
   createdAt?: true
@@ -122,6 +138,8 @@ export type AttendanceMaxAggregateInputType = {
   wageForDay?: true
   gpsLat?: true
   gpsLng?: true
+  checkOutLat?: true
+  checkOutLng?: true
   method?: true
   notes?: true
   createdAt?: true
@@ -137,6 +155,8 @@ export type AttendanceCountAggregateInputType = {
   wageForDay?: true
   gpsLat?: true
   gpsLng?: true
+  checkOutLat?: true
+  checkOutLng?: true
   method?: true
   notes?: true
   createdAt?: true
@@ -239,6 +259,8 @@ export type AttendanceGroupByOutputType = {
   wageForDay: number | null
   gpsLat: number | null
   gpsLng: number | null
+  checkOutLat: number | null
+  checkOutLng: number | null
   method: string
   notes: string | null
   createdAt: Date
@@ -277,6 +299,8 @@ export type AttendanceWhereInput = {
   wageForDay?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   gpsLat?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   gpsLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
+  checkOutLat?: Prisma.FloatNullableFilter<"Attendance"> | number | null
+  checkOutLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   method?: Prisma.StringFilter<"Attendance"> | string
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
@@ -293,6 +317,8 @@ export type AttendanceOrderByWithRelationInput = {
   wageForDay?: Prisma.SortOrderInput | Prisma.SortOrder
   gpsLat?: Prisma.SortOrderInput | Prisma.SortOrder
   gpsLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkOutLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkOutLng?: Prisma.SortOrderInput | Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -313,6 +339,8 @@ export type AttendanceWhereUniqueInput = Prisma.AtLeast<{
   wageForDay?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   gpsLat?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   gpsLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
+  checkOutLat?: Prisma.FloatNullableFilter<"Attendance"> | number | null
+  checkOutLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   method?: Prisma.StringFilter<"Attendance"> | string
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
@@ -329,6 +357,8 @@ export type AttendanceOrderByWithAggregationInput = {
   wageForDay?: Prisma.SortOrderInput | Prisma.SortOrder
   gpsLat?: Prisma.SortOrderInput | Prisma.SortOrder
   gpsLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkOutLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  checkOutLng?: Prisma.SortOrderInput | Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -352,6 +382,8 @@ export type AttendanceScalarWhereWithAggregatesInput = {
   wageForDay?: Prisma.FloatNullableWithAggregatesFilter<"Attendance"> | number | null
   gpsLat?: Prisma.FloatNullableWithAggregatesFilter<"Attendance"> | number | null
   gpsLng?: Prisma.FloatNullableWithAggregatesFilter<"Attendance"> | number | null
+  checkOutLat?: Prisma.FloatNullableWithAggregatesFilter<"Attendance"> | number | null
+  checkOutLng?: Prisma.FloatNullableWithAggregatesFilter<"Attendance"> | number | null
   method?: Prisma.StringWithAggregatesFilter<"Attendance"> | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Attendance"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Attendance"> | Date | string
@@ -366,6 +398,8 @@ export type AttendanceCreateInput = {
   wageForDay?: number | null
   gpsLat?: number | null
   gpsLng?: number | null
+  checkOutLat?: number | null
+  checkOutLng?: number | null
   method?: string
   notes?: string | null
   createdAt?: Date | string
@@ -382,6 +416,8 @@ export type AttendanceUncheckedCreateInput = {
   wageForDay?: number | null
   gpsLat?: number | null
   gpsLng?: number | null
+  checkOutLat?: number | null
+  checkOutLng?: number | null
   method?: string
   notes?: string | null
   createdAt?: Date | string
@@ -396,6 +432,8 @@ export type AttendanceUpdateInput = {
   wageForDay?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -412,6 +450,8 @@ export type AttendanceUncheckedUpdateInput = {
   wageForDay?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -427,6 +467,8 @@ export type AttendanceCreateManyInput = {
   wageForDay?: number | null
   gpsLat?: number | null
   gpsLng?: number | null
+  checkOutLat?: number | null
+  checkOutLng?: number | null
   method?: string
   notes?: string | null
   createdAt?: Date | string
@@ -441,6 +483,8 @@ export type AttendanceUpdateManyMutationInput = {
   wageForDay?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -456,6 +500,8 @@ export type AttendanceUncheckedUpdateManyInput = {
   wageForDay?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -486,6 +532,8 @@ export type AttendanceCountOrderByAggregateInput = {
   wageForDay?: Prisma.SortOrder
   gpsLat?: Prisma.SortOrder
   gpsLng?: Prisma.SortOrder
+  checkOutLat?: Prisma.SortOrder
+  checkOutLng?: Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -495,6 +543,8 @@ export type AttendanceAvgOrderByAggregateInput = {
   wageForDay?: Prisma.SortOrder
   gpsLat?: Prisma.SortOrder
   gpsLng?: Prisma.SortOrder
+  checkOutLat?: Prisma.SortOrder
+  checkOutLng?: Prisma.SortOrder
 }
 
 export type AttendanceMaxOrderByAggregateInput = {
@@ -507,6 +557,8 @@ export type AttendanceMaxOrderByAggregateInput = {
   wageForDay?: Prisma.SortOrder
   gpsLat?: Prisma.SortOrder
   gpsLng?: Prisma.SortOrder
+  checkOutLat?: Prisma.SortOrder
+  checkOutLng?: Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -522,6 +574,8 @@ export type AttendanceMinOrderByAggregateInput = {
   wageForDay?: Prisma.SortOrder
   gpsLat?: Prisma.SortOrder
   gpsLng?: Prisma.SortOrder
+  checkOutLat?: Prisma.SortOrder
+  checkOutLng?: Prisma.SortOrder
   method?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -531,6 +585,8 @@ export type AttendanceSumOrderByAggregateInput = {
   wageForDay?: Prisma.SortOrder
   gpsLat?: Prisma.SortOrder
   gpsLng?: Prisma.SortOrder
+  checkOutLat?: Prisma.SortOrder
+  checkOutLng?: Prisma.SortOrder
 }
 
 export type AttendanceCreateNestedManyWithoutStaffInput = {
@@ -588,6 +644,8 @@ export type AttendanceCreateWithoutStaffInput = {
   wageForDay?: number | null
   gpsLat?: number | null
   gpsLng?: number | null
+  checkOutLat?: number | null
+  checkOutLng?: number | null
   method?: string
   notes?: string | null
   createdAt?: Date | string
@@ -602,6 +660,8 @@ export type AttendanceUncheckedCreateWithoutStaffInput = {
   wageForDay?: number | null
   gpsLat?: number | null
   gpsLng?: number | null
+  checkOutLat?: number | null
+  checkOutLng?: number | null
   method?: string
   notes?: string | null
   createdAt?: Date | string
@@ -645,6 +705,8 @@ export type AttendanceScalarWhereInput = {
   wageForDay?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   gpsLat?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   gpsLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
+  checkOutLat?: Prisma.FloatNullableFilter<"Attendance"> | number | null
+  checkOutLng?: Prisma.FloatNullableFilter<"Attendance"> | number | null
   method?: Prisma.StringFilter<"Attendance"> | string
   notes?: Prisma.StringNullableFilter<"Attendance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Attendance"> | Date | string
@@ -659,6 +721,8 @@ export type AttendanceCreateManyStaffInput = {
   wageForDay?: number | null
   gpsLat?: number | null
   gpsLng?: number | null
+  checkOutLat?: number | null
+  checkOutLng?: number | null
   method?: string
   notes?: string | null
   createdAt?: Date | string
@@ -673,6 +737,8 @@ export type AttendanceUpdateWithoutStaffInput = {
   wageForDay?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -687,6 +753,8 @@ export type AttendanceUncheckedUpdateWithoutStaffInput = {
   wageForDay?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -701,6 +769,8 @@ export type AttendanceUncheckedUpdateManyWithoutStaffInput = {
   wageForDay?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   gpsLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  checkOutLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   method?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -718,6 +788,8 @@ export type AttendanceSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   wageForDay?: boolean
   gpsLat?: boolean
   gpsLng?: boolean
+  checkOutLat?: boolean
+  checkOutLng?: boolean
   method?: boolean
   notes?: boolean
   createdAt?: boolean
@@ -734,6 +806,8 @@ export type AttendanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   wageForDay?: boolean
   gpsLat?: boolean
   gpsLng?: boolean
+  checkOutLat?: boolean
+  checkOutLng?: boolean
   method?: boolean
   notes?: boolean
   createdAt?: boolean
@@ -750,6 +824,8 @@ export type AttendanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   wageForDay?: boolean
   gpsLat?: boolean
   gpsLng?: boolean
+  checkOutLat?: boolean
+  checkOutLng?: boolean
   method?: boolean
   notes?: boolean
   createdAt?: boolean
@@ -766,12 +842,14 @@ export type AttendanceSelectScalar = {
   wageForDay?: boolean
   gpsLat?: boolean
   gpsLng?: boolean
+  checkOutLat?: boolean
+  checkOutLng?: boolean
   method?: boolean
   notes?: boolean
   createdAt?: boolean
 }
 
-export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "status" | "checkInTime" | "checkOutTime" | "wageForDay" | "gpsLat" | "gpsLng" | "method" | "notes" | "createdAt", ExtArgs["result"]["attendance"]>
+export type AttendanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "date" | "status" | "checkInTime" | "checkOutTime" | "wageForDay" | "gpsLat" | "gpsLng" | "checkOutLat" | "checkOutLng" | "method" | "notes" | "createdAt", ExtArgs["result"]["attendance"]>
 export type AttendanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
 }
@@ -797,6 +875,8 @@ export type $AttendancePayload<ExtArgs extends runtime.Types.Extensions.Internal
     wageForDay: number | null
     gpsLat: number | null
     gpsLng: number | null
+    checkOutLat: number | null
+    checkOutLng: number | null
     method: string
     notes: string | null
     createdAt: Date
@@ -1233,6 +1313,8 @@ export interface AttendanceFieldRefs {
   readonly wageForDay: Prisma.FieldRef<"Attendance", 'Float'>
   readonly gpsLat: Prisma.FieldRef<"Attendance", 'Float'>
   readonly gpsLng: Prisma.FieldRef<"Attendance", 'Float'>
+  readonly checkOutLat: Prisma.FieldRef<"Attendance", 'Float'>
+  readonly checkOutLng: Prisma.FieldRef<"Attendance", 'Float'>
   readonly method: Prisma.FieldRef<"Attendance", 'String'>
   readonly notes: Prisma.FieldRef<"Attendance", 'String'>
   readonly createdAt: Prisma.FieldRef<"Attendance", 'DateTime'>

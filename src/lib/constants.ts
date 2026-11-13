@@ -277,7 +277,7 @@ export const QUOTATION_TERMS = `1. Prices are inclusive of standard materials & 
 3. 50% advance payment confirms the booking; balance is due on job completion.
 4. Rescheduling requires at least 24 hours' notice.
 5. This quotation is valid for 7 days from the date of issue.
-6. Minimum job value is ₹${3999}.`;
+6. Minimum order value: none in East & South Pune; ₹4,000 in West Pune & PCMC; ₹7,500 (residential) in Chakan, Moshi, Ravet, Talegaon & Alandi.`;
 
 // ─────────────────────────────────────────────────────────────────────────
 // Phase 3 — Revenue, WhatsApp & Workforce Automation

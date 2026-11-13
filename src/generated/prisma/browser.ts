@@ -172,3 +172,18 @@ export type Invoice = Prisma.InvoiceModel
  * 
  */
 export type JobVideo = Prisma.JobVideoModel
+/**
+ * Model StaffLocationPing
+ * 
+ */
+export type StaffLocationPing = Prisma.StaffLocationPingModel
+/**
+ * Model JobOtp
+ * 
+ */
+export type JobOtp = Prisma.JobOtpModel
+/**
+ * Model LoginOtp
+ * 
+ */
+export type LoginOtp = Prisma.LoginOtpModel
