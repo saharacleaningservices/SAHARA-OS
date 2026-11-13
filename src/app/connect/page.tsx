@@ -42,7 +42,7 @@ export default async function ConnectPage() {
         ))}
       </ul>
       <div className="grid grid-cols-2 gap-2">
-        <a href={`tel:+91${CONTACT.call[1]}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-3 text-sm font-bold text-primary-foreground"><Phone className="size-4" /> Call us</a>
+        <a href={`tel:+91${CONTACT.call[0]}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-3 text-sm font-bold text-primary-foreground"><Phone className="size-4" /> Call us</a>
         <a href={toWhatsAppLink(CONTACT.whatsapp, "Hi Sahara Cleaning Services")} className="flex min-h-12 items-center justify-center rounded-xl border-2 border-primary px-3 text-sm font-bold text-primary">WhatsApp</a>
       </div>
       <p className="text-center text-xs text-[#0a2540]/60">Helpline 7083347130 / 8956567130 · Serving Pune since 2012</p>

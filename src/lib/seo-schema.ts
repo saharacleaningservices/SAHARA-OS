@@ -35,7 +35,7 @@ export function schemaAreaNames(): string[] {
 /** Phones in E.164: primary customer line, GMB / Magarpatta line, WhatsApp Cloud API booking assistant. */
 export const SCHEMA_CONTACT_POINTS = [
   { "@type": "ContactPoint", telephone: `+91${CONTACT.call[0]}`, contactType: "customer service", name: "Primary bookings line", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] },
-  { "@type": "ContactPoint", telephone: `+91${CONTACT.call[1]}`, contactType: "customer service", name: "Magarpatta City branch (Google Business Profile)", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] },
+  { "@type": "ContactPoint", telephone: `+91${CONTACT.call[1]}`, contactType: "customer service", name: "Mohammadwadi branch (Google Business Profile)", areaServed: "IN-MH", availableLanguage: ["English", "Hindi", "Marathi"] },
   { "@type": "ContactPoint", telephone: `+91${TRUST.whatsappApi}`, contactType: "reservations", name: "WhatsApp booking assistant (messages only)", url: `https://wa.me/91${TRUST.whatsappApi}`, areaServed: "IN-MH", availableLanguage: ["English", "Hindi"] },
 ] as const;
 
