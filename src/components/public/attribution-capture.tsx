@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import type { AttributionPayload, Touch } from "@/lib/attribution";
 import { useWhatsAppRefTagger } from "@/components/public/whatsapp-ref-tagger";
+import { useCallClickTracker } from "@/components/public/call-click-tracker";
 import { ATTRIBUTION_TTL_SECONDS, cookieDomainFor, cookieValueFor, fbcFromFbclid, hasSignal, isTouchFresh, readCookie, touchFromCookieValue } from "@/lib/attribution-storage";
 
 // First-touch / latest-touch capture for the public pages (owner 2026-11-12: 90-day click-to-lead window).
@@ -76,6 +77,7 @@ function currentTouch(): Touch {
 /** Records the visit. Render once on every public marketing page. */
 export function AttributionCapture() {
   useWhatsAppRefTagger(getAttributionPayload); // WhatsApp buttons carry "[Ref: …]" for the lead source (lib/source-label.ts)
+  useCallClickTracker(getAttributionPayload); // tel: taps log a [CALL-CLICK] lead (owner 2026-11-13)
   useEffect(() => {
     const now = currentTouch();
     if (!read(FIRST)) write(FIRST, now);

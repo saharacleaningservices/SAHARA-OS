@@ -39,7 +39,7 @@ test("business JSON-LD carries no prices; rating is the public GBP figure (owner
 test("business JSON-LD: GSTIN, three contact points (primary, GMB, WhatsApp API), owner micro-locations, booking action", () => {
   const j = buildBusinessJsonLd() as Record<string, unknown> & { contactPoint: { telephone: string }[]; areaServed: { name: string }[]; potentialAction: { target: { urlTemplate: string } } };
   assert.equal(j.taxID, "27DMTPS3584R2ZJ");
-  assert.deepEqual(j.contactPoint.map((c) => c.telephone), ["+917083347130", "+918956567130", "+919175220270"]);
+  assert.deepEqual(j.contactPoint.map((c) => c.telephone), ["+918956567130", "+917083347130", "+919175220270"]);
   const names = j.areaServed.map((a) => a.name);
   for (const a of ["Magarpatta City", "Kharadi", "Wakad", "Baner", "Hadapsar", "Viman Nagar", "Hinjewadi", "Kothrud", "Aundh", "Undri", "Kondhwa", "Koregaon Park", "Shivajinagar"]) assert.ok(names.includes(`${a}, Pune`), a);
   assert.equal(new Set(names).size, names.length, "no duplicate areas");

@@ -7,7 +7,7 @@ import { pricesIn, inGroup, unitPriceFor, type FestivalWindow, type PriceItem } 
 // booking page, CRM price list, quotations and catalogue feed also read.
 
 export const CONTACT = {
-  call: ["7083347130", "8956567130"] as const,
+  call: ["8956567130", "7083347130"] as const,
   // Customer-facing WhatsApp lines (owner decision 2026-10-29): BOTH are valid customer lines.
   //   7083347130 = WhatsApp Business line used by this booking site (CONTACT.whatsapp below).
   //   9175220270 = CRM-connected WhatsApp line used by the saharacleaningservices.com buttons; also the API sender.
