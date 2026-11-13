@@ -16,6 +16,7 @@ import { breadcrumbJsonLd } from "@/lib/seo-schema";
 import { catalogCategory, catalogCategoryBySlug, catalogServiceBySlug, categoryPath, servicePath, servicesIn, type CatalogCategory, type CatalogService } from "@/config/service-catalog";
 import { CategoryServiceCards, ComboSwiper, InspectionFlow, ServicePricing, WorkGallery, ZoneAccordion, ComboUpsell, PartnersMarquee } from "@/components/public/catalog-blocks";
 import { TRUST } from "@/lib/booking-target";
+import { CONTACT } from "@/lib/marketing-content";
 import { commonServiceFaqs } from "@/lib/service-faqs";
 import { HygienePromise } from "@/components/public/trust-blocks";
 import { ScopeChecklist } from "@/components/public/scope-checklist";
@@ -91,7 +92,7 @@ function catalogServiceJsonLd(s: CatalogService) {
     url,
     image: `${BASE_URL}${s.image}`,
     category: catalogCategory(s.category).label,
-    provider: { "@type": "LocalBusiness", name: "Sahara Cleaning Services", url: BASE_URL, telephone: "+917083347130" },
+    provider: { "@type": "LocalBusiness", name: "Sahara Cleaning Services", url: BASE_URL, telephone: `+91${CONTACT.call[0]}` },
     areaServed: AREA_SERVED_JSONLD,
     hasOfferCatalog: { "@type": "OfferCatalog", name: s.name, itemListElement: s.includes.map((i) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: i } })) },
   };

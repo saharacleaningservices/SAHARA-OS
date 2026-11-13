@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { getCompanySettings } from "@/server/settings";
 import { LandingShell, Hero, FunnelCards, CompactPriceSelector, CallWhatsAppBar, BASE_URL, CAROUSEL, ALL_SERVICES_SLIDES, businessJsonLd, faqJsonLd, breadcrumbBookingJsonLd, Faqs } from "@/components/public/landing-kit";
 import { nearMeFaqs } from "@/lib/seo-schema";
+import { CONTACT } from "@/lib/marketing-content";
 import { BookingLinkPing } from "@/components/public/booking-link-ping";
 import { BookingWizard, type QuotePrefill } from "@/components/public/booking-wizard";
 import { getPublicPricing } from "@/server/pricing";
@@ -170,7 +171,7 @@ function FloatingCallButton() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FCALL_CSS }} />
-      <a id="sh-fcall" href="tel:+917083347130" aria-label="Call Sahara Cleaning Services on +91 70833 47130">
+      <a id="sh-fcall" href={`tel:+91${CONTACT.call[0]}`} aria-label={`Call Sahara Cleaning Services on +91 ${CONTACT.call[0].slice(0, 5)} ${CONTACT.call[0].slice(5)}`}>
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z" />
         </svg>

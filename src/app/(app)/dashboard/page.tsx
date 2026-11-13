@@ -22,6 +22,8 @@ import {
 import { getDashboardData } from "@/server/dashboard";
 import { getNewLeadsForDashboard } from "@/server/leads";
 import { NewLeadsCard } from "@/components/dashboard/new-leads-card";
+import { PendingFollowUpCard } from "@/components/dashboard/pending-followup-card";
+import { getPendingFollowUps } from "@/server/call-click";
 import { getLeadChannelBreakdown, getLeadSourceStats } from "@/server/owner";
 import { getLeadMonthCalendar, type CalendarDetailLevel } from "@/server/owner-command-center";
 import { LeadMonthCalendar } from "@/components/dashboard/owner/lead-calendar";
@@ -136,6 +138,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     channelStats,
     calendar,
     newLeads,
+    pendingFollowUps,
   ] = await Promise.all([
     getDashboardData(session.role, session.sub),
     getLeadSourceStats(3),
@@ -143,6 +146,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, calendarDetailLevel),
     // Francis (OPERATIONS) has his own Operations Command Center above; New Leads lives there.
     Promise.resolve(null as Awaited<ReturnType<typeof getNewLeadsForDashboard>> | null),
+    // Admin / office roles only: NEW leads nobody has called within 15 minutes.
+    canAccess(session.role, "leads") && session.role !== "SUPERVISOR" && session.role !== "OPERATIONS" ? getPendingFollowUps().catch(() => null) : Promise.resolve(null),
   ]);
 
   const firstName = session.name.split(" ")[0];
@@ -176,6 +181,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       />
 
       {newLeads && <NewLeadsCard rows={newLeads.rows} newCount={newLeads.newCount} />}
+
+      {pendingFollowUps && <PendingFollowUpCard rows={pendingFollowUps.rows} total={pendingFollowUps.total} />}
 
       {/* Sahara CRM Dashboard Redesign — Phase 1: the four numbers the
           office checks first, above everything else. */}
