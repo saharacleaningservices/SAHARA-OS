@@ -70,8 +70,8 @@ test("WhatsApp links get the tag once, on their own line; other links are left a
 });
 
 test("CRM labels and the admin WhatsApp header", () => {
-  assert.deepEqual(sourceLabelForTag("SRC-GMB-MAGARPATTA"), { label: "GMB - Magarpatta", header: "[GMB-MAGARPATTA]" });
-  assert.deepEqual(sourceLabelForTag("SRC-GMB-MOHAMMADWADI"), { label: "GMB - Mohammadwadi", header: "[GMB-MOHDWADI]" });
+  assert.deepEqual(sourceLabelForTag("SRC-GMB-MAGARPATTA"), { label: "GMB - Magarpatta", header: "[GBP-MAGARPATTA]" });
+  assert.deepEqual(sourceLabelForTag("SRC-GMB-MOHAMMADWADI"), { label: "GMB - Mohammadwadi", header: "[GBP-MOHAMMADWADI]" });
   assert.deepEqual(sourceLabelForTag("SRC-GOOGLE-G1"), { label: "Google Ads (G1)", header: "[GOOGLE-ADS-G1]" });
   assert.deepEqual(sourceLabelForTag("SRC-META-M1"), { label: "Meta Ads (M1)", header: "[META-ADS-M1]" });
   assert.deepEqual(sourceLabelForTag("SRC-ORGANIC-SEO", "/services/sofa-carpet-mattress-cleaning"), { label: "SEO Landing Page (Sofa Carpet Mattress Cleaning)", header: "[SEO-WEB]" });

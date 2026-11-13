@@ -79,8 +79,9 @@ export function sourceTagForRef(code: string | null | undefined): string | null 
 export function sourceLabelForTag(tag: string | null | undefined, landingPage?: string | null): SourceLabel {
   const t = (tag ?? "").trim();
   if (!t) return DIRECT_LABEL;
-  if (t === "SRC-GMB-MAGARPATTA") return { label: "GMB - Magarpatta", header: "[GMB-MAGARPATTA]" };
-  if (t === "SRC-GMB-MOHAMMADWADI") return { label: "GMB - Mohammadwadi", header: "[GMB-MOHDWADI]" };
+  // Owner 2026-11-13: the alert header reads GBP (Google Business Profile). The customer-facing "[Ref: GMB-…]" codes are unchanged.
+  if (t === "SRC-GMB-MAGARPATTA") return { label: "GMB - Magarpatta", header: "[GBP-MAGARPATTA]" };
+  if (t === "SRC-GMB-MOHAMMADWADI") return { label: "GMB - Mohammadwadi", header: "[GBP-MOHAMMADWADI]" };
   const g = /^SRC-GOOGLE-G([1-7])$/.exec(t);
   if (g) return { label: `Google Ads (G${g[1]})`, header: `[GOOGLE-ADS-G${g[1]}]` };
   if (t === "SRC-GOOGLE-ADS") return { label: "Google Ads", header: "[GOOGLE-ADS]" };
@@ -97,8 +98,10 @@ export function sourceLabelForTag(tag: string | null | undefined, landingPage?: 
 }
 
 /** Admin WhatsApp alert text: header on line 1, the alert, then the dedicated Source line. */
-export function withSourceHeader(text: string, src: SourceLabel): string {
-  return `${src.header}\n${text}\n🏷️ Source: ${src.label}`;
+export function withSourceHeader(text: string, src: SourceLabel, landingPage?: string | null): string {
+  // Owner 2026-11-13: the exact service / landing page rides on the alert so the team sees which page (campaign / keyword) produced the lead.
+  const page = (landingPage ?? "").split(/[?#]/)[0]!.trim().slice(0, 120);
+  return `${src.header}\n${text}\n🏷️ Source: ${src.label}${page && page !== "/" ? `\n📄 Page: ${page}` : ""}`;
 }
 
 /** The tag to store for a WhatsApp conversation start: an issued "[Ref: …]" code wins; otherwise null (caller decides Direct). */
