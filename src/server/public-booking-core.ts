@@ -260,7 +260,7 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
       .map((s) => ({ s, item: pricing.items.find((p) => p.contentId === s.contentId) }))
       .filter((x): x is { s: { contentId: string; qty: number }; item: NonNullable<typeof x.item> } => !!x.item);
     if (picked.length !== data.selectedItems.length) return { error: "A selected package is no longer available — please refresh the page.", code: "PACKAGE_UNAVAILABLE" as PublicBookingErrorCode };
-    // Add-on-only items (e.g. the ₹899 pest shot) are never booked on their own.
+    // Add-on-only items (e.g. the ₹1,199 kitchen pest control) are never booked on their own.
     if (picked.every(({ item }) => item.addOnOnly)) return { error: "Add-ons are booked together with a cleaning service — please add a main service.", code: "VALIDATION" as PublicBookingErrorCode };
     // Festival campaign running: Premium/Platinum home packages are bookable only for festival service dates.
     // Pricing follows the service DATE, so a query parameter or edited form cannot select regular prices.

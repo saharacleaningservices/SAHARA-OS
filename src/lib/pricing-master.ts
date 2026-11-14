@@ -102,21 +102,21 @@ export const PRICING_MASTER: PriceItem[] = [
   { contentId: "SCS-10", group: "CUSTOMISED", name: "Bathroom Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Bathroom Cleaning", price: 599, unit: "per bathroom", minQty: 2, rule: "Minimum 2 bathrooms" },
   { contentId: "SCS-12", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Without Chimney)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 1999, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Kitchen emptied / utensils removed by client" },
   { contentId: "SCS-33", group: "CUSTOMISED", name: "Kitchen Deep Cleaning (Utensil removal & placing back)", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Deep Cleaning", price: 2499, unit: "per kitchen", minQty: 1, rule: "Chimney cleaning not included", scope: "Our team removes and places utensils back" },
-  { contentId: "SCS-11", group: "CUSTOMISED", name: "Mattress Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Mattress Cleaning", price: 699, unit: "per mattress", minQty: 2, rule: "Minimum 2 mattresses" },
+  { contentId: "SCS-11", group: "CUSTOMISED", name: "Mattress Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Mattress Cleaning", price: 799, unit: "per mattress", minQty: 1 }, // website price (2026-11-14); the website sells 1+ mattresses
   // Owner 2026-11-02: window cleaning ₹299 per window (owner 2026-11-12; was ₹300); balcony cleaning split out as its own service (price confirmed before booking).
   { contentId: "SCS-30", group: "CUSTOMISED", name: "Window Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Window Cleaning", price: 299, unit: "per window", minQty: 1 },
   { contentId: "SCS-34", group: "CUSTOMISED", name: "Balcony Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Balcony Cleaning", price: 499, unit: "per balcony", minQty: 1, scope: "Floor scrubbing, railing and grill wipe-down" },
   // No approved NEW price yet — shown as "price confirmed before booking" (no legacy price used).
   { contentId: "SCS-31", group: "CUSTOMISED", name: "Curtain Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Curtain Cleaning", price: null, unit: "per curtain", minQty: 1, priceNote: ON_CONFIRMATION, scope: "Includes curtain dry cleaning" },
   // Add-ons for Home & Kitchen Deep Cleaning (owner 2026-11-12). SCS-32 keeps its id (combo SCS-26 uses it) and is the single-door fridge.
-  { contentId: "SCS-32", group: "CUSTOMISED", name: "Single Door Fridge Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: 399, unit: "per fridge", minQty: 1 },
+  { contentId: "SCS-32", group: "CUSTOMISED", name: "Single Door Fridge Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: 499, unit: "per fridge", minQty: 1 }, // website price (2026-11-14)
   { contentId: "SCS-37", group: "CUSTOMISED", name: "Double Door Fridge Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Refrigerator Cleaning", price: 699, unit: "per fridge", minQty: 1 },
   { contentId: "SCS-38", group: "CUSTOMISED", name: "Microwave Interior Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Microwave Cleaning", price: 299, unit: "per microwave", minQty: 1 },
   { contentId: "SCS-39", group: "CUSTOMISED", name: "Removing & Placing Back of Kitchen Items", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Items Removal", price: 599, unit: "per kitchen", minQty: 1, scope: "Our team removes kitchen items and places everything back neatly" },
   // Checkout add-ons (owner 2026-11-12): Chimney Deep Cleaning ₹499 · Pest Control Shot ₹899 · Balcony ₹499 (fridge, microwave and kitchen-items items are above).
   { contentId: "SCS-35", group: "CUSTOMISED", name: "Chimney Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Chimney Cleaning", price: 599, unit: "per chimney", minQty: 1, scope: "Filters, hood and body degreased" },
-  { contentId: "SCS-36", group: "CUSTOMISED", name: "Pest Control Shot (add-on)", category: "PEST_CONTROL", variant: "General Pest Shot", price: 899, unit: "per home", minQty: 1, addOnOnly: true, rule: "Add-on only — general cockroach & ant spray with a cleaning booking" },
-  { contentId: "SCS-13", group: "CUSTOMISED", name: "Carpet Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Carpet Cleaning", price: null, unit: "per carpet", minQty: 1, priceNote: ON_CONFIRMATION },
+  { contentId: "SCS-36", group: "CUSTOMISED", name: "Kitchen Pest Control (add-on)", category: "PEST_CONTROL", variant: "General Pest Shot", price: 1199, unit: "per kitchen", minQty: 1, addOnOnly: true, rule: "Add-on only — kitchen pest control with a cleaning booking" }, // website price (2026-11-14)
+  { contentId: "SCS-13", group: "CUSTOMISED", name: "Carpet Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Carpet Cleaning", price: 599, unit: "per carpet", minQty: 1 }, // website price "from ₹599"
 
   // Combo packages (approved catalogue prices)
   { contentId: "SCS-26", group: "COMBO", name: "Kitchen + 2 Bathroom + Fridge", category: "COMBO_PACKAGE", variant: "Kitchen + 2 Bathroom + Fridge", price: 3499, rule: "Empty kitchen · 2 bathrooms · fridge · approx. 3 hrs, 2 workers" },
@@ -137,9 +137,15 @@ export const PRICING_MASTER: PriceItem[] = [
   { contentId: "SCS-25", group: "PAINTING", name: "Texture Painting", category: "PAINTING", variant: "Texture Painting", price: 45, unit: "per sq ft" },
   { contentId: "SCS-PUTTY", group: "PAINTING", name: "Putty (optional)", category: "PAINTING", variant: "Putty", price: 12, unit: "per sq ft", addOnOnly: true },
 
-  // Pest Control — inspection based (no approved NEW prices)
+  // Pest Control — BHK-wise packages exactly as sold on the website (2026-11-14, Pune market benchmark): General (cockroach, ant & silverfish, gel + spray)
+  // 1/2/3 BHK ₹899 / ₹1,099 / ₹1,299; Bed Bugs (2-visit complete eradication) ₹1,199 / ₹1,499 / ₹1,799; Rodent from ₹1,499. Termite stays inspection-based (below).
+  ...([["PC", "General Pest Control", "Cockroach, ant & silverfish: gel + spray", [899, 1099, 1299]], ["BB", "Bed Bugs Treatment", "2-visit complete eradication", [1199, 1499, 1799]]] as const).flatMap(([k, name, scope, prices]) =>
+    prices.map((price, i): PriceItem => ({ contentId: `SCS-${k}-${i + 1}`, group: "PEST", name: `${name} · ${i + 1} BHK`, category: "PEST_CONTROL", variant: name, price, bhk: `${i + 1} BHK`, unit: "per home", minQty: 1, scope }))),
+  { contentId: "SCS-PC-ROD", group: "PEST", name: "Rodent Control", category: "PEST_CONTROL", variant: "Rodent Control", price: 1499, unit: "per home", minQty: 1, scope: "Inspection, baiting and entry-point advice" },
+
+  // Pest Control — inspection based (no approved fixed price)
   { contentId: "SCS-16", group: "PEST", name: "Cockroach Control", category: "PEST_CONTROL", variant: "Cockroach Control", price: null, priceNote: AFTER_INSPECTION },
-  { contentId: "SCS-17", group: "PEST", name: "Termite Control", category: "PEST_CONTROL", variant: "Termite Control", price: null, priceNote: AFTER_INSPECTION },
+  { contentId: "SCS-17", group: "PEST", name: "Termite Control", category: "PEST_CONTROL", variant: "Termite Control", price: null, priceNote: "Inspection-based quote, from ₹2,999 (1 BHK)", scope: "Drill-fill-seal with warranty" },
   { contentId: "SCS-18", group: "PEST", name: "Bed Bug Control", category: "PEST_CONTROL", variant: "Bed Bug Control", price: null, priceNote: AFTER_INSPECTION },
   { contentId: "SCS-19", group: "PEST", name: "Ant Control", category: "PEST_CONTROL", variant: "Ant Control", price: null, priceNote: AFTER_INSPECTION },
 

@@ -258,8 +258,8 @@ export function propertyTypesFor(category: string): readonly string[] {
 // Add-on services with indicative pricing shown on the booking form
 // (matches the approved booking-page mockup).
 export const ADDON_SERVICE_PRICES: { name: string; price: string }[] = [
-  { name: "Sofa Shampooing", price: "₹499 / seat" },
-  { name: "Mattress Cleaning", price: "₹399 / mattress" },
+  { name: "Sofa Shampooing", price: "₹199 / seat" },
+  { name: "Mattress Cleaning", price: "₹799 / mattress" },
   { name: "Refrigerator Cleaning", price: "₹499" },
   { name: "Pest Control", price: "₹899 onwards" },
 ];

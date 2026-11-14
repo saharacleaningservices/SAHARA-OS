@@ -44,10 +44,10 @@ export const BOOKING_HEADER_IMAGE = `${PUBLIC_BOOKING_URL}/marketing/booking-hea
 const profileUrl = (key: "facebook" | "instagram" | "youtube") => FIXED_PROFILES.find((p) => p.key === key)!.url;
 const EX_TOKEN = "q7Xk2mPz9LwR4tNc8vB1yH6s";
 /** Sahara's Google review link — static URL button of sahara_review_request_v2. */
-/** Manual-confirmation template carrying the single Start OTP (WHATSAPP_BOOKING_TEMPLATE=otp1, after Meta approves it). */
-export const BOOKING_OTP_TEMPLATE_NAME = "sahara_booking_confirmed_otp_v1";
+/** Manual-confirmation template carrying the single 4-digit Service Start Code (WHATSAPP_BOOKING_TEMPLATE=otp2, after Meta approves it). v1 was REJECTED by Meta; v2 is modelled on the approved v7. */
+export const BOOKING_OTP_TEMPLATE_NAME = "sahara_booking_confirmed_otp_v2";
 /** What each body placeholder {{1}}..{{8}} carries, in order (shown in the CRM WhatsApp log so the exact template can be submitted in Meta WhatsApp Manager). */
-export const BOOKING_OTP_TEMPLATE_VARIABLES = ["Customer name", "Service + add-ons", "Booking ID", "Service date", "Time slot", "Service address", "Amount payable after service (₹)", "4-digit Start OTP"] as const;
+export const BOOKING_OTP_TEMPLATE_VARIABLES = ["Customer name", "Booking ID", "Service + add-ons", "Service date", "Time slot", "Service area / address", "Amount payable after service (₹)", "4-digit Service Start Code"] as const;
 export const GOOGLE_REVIEW_URL = "https://g.page/r/CYJ9szEiGaN4EBE/review";
 
 export const CLOUD_TEMPLATES: CloudTemplate[] = [
@@ -392,12 +392,16 @@ export const CLOUD_TEMPLATES: CloudTemplate[] = [
     name: BOOKING_OTP_TEMPLATE_NAME,
     category: "UTILITY",
     language: "en",
-    purpose: "Booking confirmed by the office (manual confirmation) — booking details, amount payable and the single 4-digit Start OTP; View Booking button",
+    purpose: "Booking confirmed by the office — v7 layout (View Booking, Leave a Review, Pay After Service) plus the amount payable and the single 4-digit Service Start Code. v1 was rejected by Meta for the word in its name/body; v2 says \"Service Start Code\".",
     body:
-      "Hi {{1}}, your Sahara Cleaning Services booking is confirmed ✅\n\nService: {{2}}\nBooking ID: {{3}}\nDate: {{4}}\nTime: {{5}}\nAddress: {{6}}\nAmount payable after service: {{7}}\n\nYour 4-digit Start OTP: {{8}}\nPlease share this 4-digit OTP with our Sahara team upon arrival to start your service.",
+      "Hi {{1}}, your booking is confirmed ✅\n\nBooking ID: {{2}}\nService: {{3}}\nDate: {{4}}\nTime: {{5}}\nArea: {{6}}\nAmount payable after service: {{7}}\n\nService Start Code: {{8}}\nPlease share this 4-digit Service Start Code with our Sahara team upon arrival to start your service.\n\nPayment: 100% Pay After Service. Nothing to pay in advance. You pay once the service is completed.\n\nOur team will reach on time. Please keep water and electricity available.",
     footer: "Sahara Cleaning Services, Pune",
-    examples: ["Priya", "Full Home Deep Cleaning 2 BHK + Chimney Deep Cleaning", "JOB-2026-0150", "15 Nov 2026", "10:00 AM", "Flat 402, Magarpatta City, Hadapsar", "₹6,098", "4821"],
-    buttons: [{ type: "URL", text: "View Booking", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}AbCdEfGh1234567890` }],
+    examples: ["Priya", "JOB-2026-0150", "Full Home Deep Cleaning 2 BHK + Chimney Cleaning", "15 Nov 2026", "10:00 – 1:00", "Magarpatta, Hadapsar", "₹6,098", "4821"],
+    buttons: [
+      { type: "URL", text: "View Booking", url: `${BOOKING_PAGE}{{1}}`, example: `${BOOKING_PAGE}AbCdEfGh1234567890` },
+      { type: "URL", text: "Leave a Review", url: GOOGLE_REVIEW_URL },
+      { type: "QUICK_REPLY", text: "Pay After Service" },
+    ],
   },
   {
     key: "6b",
