@@ -51,8 +51,9 @@ export const ZONES: Record<ZoneId, ZoneConfig> = {
     localities: [
       "Shivajinagar", "Kothrud", "Karve Nagar", "Warje", "Bavdhan", "Pashan", "Aundh", "Baner", "Balewadi",
       "Wakad", "Hinjewadi", "Punawale", "Pimple Saudagar", "Pimpri", "Chinchwad",
+      "Nigdi", "Deccan",
     ],
-    pincodes: ["411005", "411038", "411052", "411058", "411021", "411008", "411007", "411045", "411057", "411033", "411027", "411017", "411018", "411019"],
+    pincodes: ["411005", "411038", "411052", "411058", "411021", "411008", "411007", "411045", "411057", "411033", "411027", "411017", "411018", "411019", "411044", "411004"],
     footnote: "*Min. order value ₹4,000 applies for West Pune & PCMC",
     residentialBlockMessage:
       "Minimum order value for West Pune & PCMC is ₹4,000. Please add more services or upgrade your package to proceed.",
