@@ -1,10 +1,13 @@
 import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
 
-export const OTP_LENGTH = 6;
+import { JOB_OTP_LENGTH } from "./otp-config";
+export { JOB_OTP_LENGTH };
+
+export const OTP_LENGTH = 6; // staff login OTP
 export const OTP_MAX_ATTEMPTS = 5;
 
-export function generateOtpCode(): string {
-  return String(randomInt(0, 10 ** OTP_LENGTH)).padStart(OTP_LENGTH, "0");
+export function generateOtpCode(length: number = OTP_LENGTH): string {
+  return String(randomInt(0, 10 ** length)).padStart(length, "0");
 }
 
 function pepper() {

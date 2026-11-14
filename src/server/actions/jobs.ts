@@ -17,6 +17,8 @@ import { syncInvoiceToMyBillBook } from "@/lib/mybillbook";
 import { SERVICE_LABELS, COMPANY } from "@/lib/constants";
 import { validCoords } from "@/lib/geo";
 import { checkJobOtpGate } from "@/server/job-otp";
+import { canAccessJob, getOwnStaffId } from "@/server/jobs";
+import { coordsFromMapLink, distanceMeters } from "@/lib/maps";
 import { crmMinimumJobValue, customerTypeFor } from "@/lib/zones";
 
 const LEGACY_SERVICE_COMMERCIAL = new Set(["COMMERCIAL_CLEANING"]);
@@ -135,12 +137,47 @@ export async function bulkDeleteJobs(ids: string[]) {
   return { success: true as const, count };
 }
 
+
+/** Signed-in user who may act on this job (admins/ops, or the crew assigned to it). */
+async function authorizedJobActor(jobId: string) {
+  const session = await getSession();
+  if (!session) return { error: "Not authorized" as const };
+  const job = await db.job.findUnique({ where: { id: jobId }, include: { assignments: { select: { staffId: true } } } });
+  if (!job || job.deletedAt) return { error: "Job not found" as const };
+  const ownStaffId = await getOwnStaffId(session.sub);
+  if (!canAccessJob(session, job, ownStaffId)) return { error: "Not authorized" as const };
+  return { session, job };
+}
+
+const fmtCoords = (c: { lat: number; lng: number }) => `${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}`;
+
+/** On-site GPS check-in: logs arrival coordinates + timestamp to the job timeline (and distance from the booked pin when known). */
+export async function checkInArrival(jobId: string, gps?: { lat: number; lng: number } | null) {
+  const auth = await authorizedJobActor(jobId);
+  if ("error" in auth) return { error: auth.error, success: false as const };
+  const coords = gps ? validCoords(gps.lat, gps.lng) : null;
+  if (!coords) return { error: "Could not read your location. Turn on GPS and try again.", success: false as const };
+  const target = coordsFromMapLink(auth.job.mapLink);
+  const dist = target ? distanceMeters(coords, target) : null;
+  await db.activityLog.create({
+    data: {
+      jobId,
+      actorId: auth.session.sub,
+      action: `Arrived on site — GPS check-in at ${fmtCoords(coords)} (https://maps.google.com/?q=${coords.lat},${coords.lng})${dist != null ? ` · ${dist} m from booked location${dist > 500 ? " (far from pin)" : ""}` : ""}`,
+    },
+  });
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true as const, distance: dist };
+}
+
 const STATUS_FLOW = ["ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;
 type JobStatus = (typeof STATUS_FLOW)[number];
 
 export async function updateJobStatus(jobId: string, status: JobStatus, gps?: { lat: number; lng: number } | null) {
   if (!STATUS_FLOW.includes(status)) return { error: "Invalid status", success: false as const };
-  const session = await getSession();
+  const auth = await authorizedJobActor(jobId);
+  if ("error" in auth) return { error: auth.error, success: false as const };
+  const session = auth.session;
   const now = new Date();
 
   let otpOverridden = false;
@@ -165,7 +202,7 @@ export async function updateJobStatus(jobId: string, status: JobStatus, gps?: { 
     data: {
       jobId,
       actorId: session?.sub,
-      action: `Status changed to ${status.replaceAll("_", " ")}${coords ? " (GPS captured)" : ""}${otpOverridden ? " — customer OTP override by manager" : ""}`,
+      action: `Status changed to ${status.replaceAll("_", " ")}${coords ? ` (GPS ${fmtCoords(coords)})` : ""}${otpOverridden ? " — customer OTP override by manager" : ""}`,
     },
   });
 
@@ -208,10 +245,12 @@ export async function saveJobSignature(jobId: string, dataUrl: string) {
 }
 
 export async function completeJobWithCertificate(jobId: string, gps?: { lat: number; lng: number } | null) {
+  const auth = await authorizedJobActor(jobId);
+  if ("error" in auth) return { error: auth.error, success: false as const };
   const job = await db.job.findUnique({ where: { id: jobId }, include: { supervisor: true, certificate: true } });
   if (!job) return { error: "Job not found", success: false as const };
 
-  const session = await getSession();
+  const session = auth.session;
   const now = new Date();
 
   const gate = await checkJobOtpGate(jobId, "COMPLETED", session?.role);

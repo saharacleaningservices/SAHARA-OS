@@ -5,7 +5,7 @@ import { getSession } from "@/lib/session";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { jobOtpMessage } from "@/lib/whatsapp-templates";
 import { rateLimit } from "@/lib/rate-limit";
-import { generateOtpCode, hashOtp, otpMatches, JOB_OTP_TTL_MINUTES, OTP_MAX_ATTEMPTS } from "@/lib/otp";
+import { generateOtpCode, hashOtp, otpMatches, JOB_OTP_LENGTH, JOB_OTP_TTL_MINUTES, OTP_MAX_ATTEMPTS } from "@/lib/otp";
 import { canAccessJob, getOwnStaffId } from "@/server/jobs";
 import { revalidatePath } from "next/cache";
 
@@ -24,7 +24,7 @@ async function authorizedJob(jobId: string) {
   return { session, job };
 }
 
-/** Sends a fresh 6-digit code to the customer's WhatsApp (logged as the fallback if Meta isn't configured). */
+/** Sends a fresh 4-digit code to the customer's WhatsApp (logged as the fallback if Meta isn't configured). */
 export async function requestJobOtp(jobId: string, purpose: Purpose) {
   if (purpose !== "START" && purpose !== "COMPLETE") return { error: "Invalid request" };
   const auth = await authorizedJob(jobId);
@@ -35,7 +35,7 @@ export async function requestJobOtp(jobId: string, purpose: Purpose) {
     return { error: "Too many codes requested. Wait a few minutes and try again." };
   }
 
-  const code = generateOtpCode();
+  const code = generateOtpCode(JOB_OTP_LENGTH);
   const row = await db.jobOtp.create({
     data: { jobId, purpose, codeHash: "pending", expiresAt: new Date(Date.now() + JOB_OTP_TTL_MINUTES * 60_000) },
   });
@@ -59,7 +59,7 @@ export async function requestJobOtp(jobId: string, purpose: Purpose) {
 
 export async function verifyJobOtp(jobId: string, purpose: Purpose, code: string) {
   if (purpose !== "START" && purpose !== "COMPLETE") return { error: "Invalid request" };
-  if (!/^\d{6}$/.test(code.trim())) return { error: "Enter the 6-digit code." };
+  if (!new RegExp(`^\\d{${JOB_OTP_LENGTH}}$`).test(code.trim())) return { error: `Enter the ${JOB_OTP_LENGTH}-digit code.` };
   const auth = await authorizedJob(jobId);
   if ("error" in auth) return { error: auth.error };
 

@@ -3,12 +3,13 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Truck, PlayCircle, CheckCircle2, ClipboardCheck, KeyRound } from "lucide-react";
+import { Loader2, Truck, PlayCircle, CheckCircle2, ClipboardCheck, KeyRound, MapPinCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { updateJobStatus, completeJobWithCertificate } from "@/server/actions/jobs";
+import { updateJobStatus, completeJobWithCertificate, checkInArrival } from "@/server/actions/jobs";
 import { requestJobOtp, verifyJobOtp } from "@/server/actions/job-otp";
 import { getPosition } from "@/lib/client-geo";
+import { JOB_OTP_LENGTH } from "@/lib/otp-config";
 import { LocationPinger } from "@/components/staff/location-pinger";
 import { JOB_STATUS_LABELS } from "@/lib/constants";
 
@@ -72,13 +73,13 @@ function OtpPanel({ jobId, purpose, verified, enforced }: { jobId: string; purpo
           <>
             <Input
               inputMode="numeric"
-              maxLength={6}
+              maxLength={JOB_OTP_LENGTH}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              placeholder="6-digit code"
+              placeholder={`${JOB_OTP_LENGTH}-digit code`}
               className="h-8 w-32"
             />
-            <Button size="sm" onClick={verify} disabled={pending || code.length !== 6}>
+            <Button size="sm" onClick={verify} disabled={pending || code.length !== JOB_OTP_LENGTH}>
               Verify
             </Button>
           </>
@@ -114,6 +115,16 @@ export function StatusActions({ jobId, status, otp }: { jobId: string; status: s
     });
   }
 
+  function checkIn() {
+    startTransition(async () => {
+      const fix = await getPosition();
+      const res = await checkInArrival(jobId, fix ? { lat: fix.lat, lng: fix.lng } : null);
+      if (res.error) return void toast.error(res.error);
+      toast.success(res.distance != null ? `Checked in (${res.distance} m from booked location)` : "Arrival checked in");
+      router.refresh();
+    });
+  }
+
   function completeWithCertificate() {
     startTransition(async () => {
       const fix = await getPosition();
@@ -142,6 +153,12 @@ export function StatusActions({ jobId, status, otp }: { jobId: string; status: s
     <div className="flex flex-wrap gap-2">
       <LocationPinger active={status === "ON_THE_WAY" || status === "STARTED"} jobId={jobId} />
       {otp && otpPurpose && <OtpPanel jobId={jobId} purpose={otpPurpose} verified={Boolean(otpVerified)} enforced={otp.enforced} />}
+      {status === "ON_THE_WAY" && (
+        <Button size="sm" variant="outline" onClick={checkIn} disabled={pending}>
+          {pending ? <Loader2 className="animate-spin" /> : <MapPinCheck className="size-3.5" />}
+          Check in on arrival (GPS)
+        </Button>
+      )}
       {step && (
         <Button size="sm" onClick={advance} disabled={pending || blocked}>
           {pending ? <Loader2 className="animate-spin" /> : <Icon className="size-3.5" />}

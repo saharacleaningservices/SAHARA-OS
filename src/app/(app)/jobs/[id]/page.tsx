@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { JobStatusBadge, PaymentStatusBadge } from "@/components/shared/status-badge";
 import { CallButton, WhatsAppButton } from "@/components/shared/quick-actions";
 import { StatusActions } from "@/components/jobs/status-actions";
+import { NavigateButton } from "@/components/jobs/navigate-button";
 import { getJobOtpState } from "@/server/job-otp";
 import { PhotoUploader } from "@/components/jobs/photo-uploader";
 import { VideoUploader } from "@/components/jobs/video-uploader";
@@ -102,6 +103,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-muted-foreground">Address</p>
                   <p className="font-medium text-foreground">{job.address}</p>
+                  <NavigateButton address={job.address} mapLink={job.mapLink} className="mt-2" />
                 </div>
                 {job.notes && (
                   <div className="col-span-2 sm:col-span-3">
