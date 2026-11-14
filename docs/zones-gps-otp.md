@@ -4,7 +4,7 @@
 | Zone | Areas | Residential MOV | Commercial MOV |
 |---|---|---|---|
 | 1 East & South Pune | Magarpatta, Hadapsar, Kharadi, Viman Nagar, Koregaon Park, Kalyani Nagar, Wagholi, Mohammadwadi, Undri, NIBM, Kondhwa, Wanowrie, Katraj, Dhankawadi, Bibwewadi, Swargate, Sahakar Nagar, Satara Road | none | none |
-| 2 West Pune & Inner PCMC | Shivajinagar, Kothrud, Karve Nagar, Warje, Bavdhan, Pashan, Aundh, Baner, Balewadi, Wakad, Punawale, Pimple Saudagar, Pimpri, Chinchwad | ₹4,000 | ₹4,000 |
+| 2 West Pune & Inner PCMC | Shivajinagar, Kothrud, Karve Nagar, Warje, Bavdhan, Pashan, Aundh, Baner, Balewadi, Wakad, Hinjewadi, Punawale, Pimple Saudagar, Pimpri, Chinchwad, Nigdi, Deccan | ₹4,000 | ₹4,000 |
 | 3 Far NW / Industrial | Chakan, Moshi, Ravet, Talegaon, Alandi | ₹7,500 | none |
 
 Locality name wins over pincode. Unmapped areas keep the legacy ₹3,999 CRM floor.
