@@ -185,13 +185,14 @@ export function gpsSubjectOf(s: { designation?: string | null; userRole?: string
 /**
  * Who gets a staff-location map (owner 2026-11-14):
  *  - Super Admin (role ADMIN — Altaf): every staff member, office people included → "ALL".
- *  - Shoaib → "ACTIVE_FIELD": only field technicians / staff who are on an active job (On the way / In progress) or checked in for
- *    today's shift — never the Super Admin, never office roles (ADMIN / OPERATIONS / ACCOUNTS / SUPERVISOR) or office designations.
- *    Shoaib is identified by his login role ACCOUNTS: scripts/db-setup.mjs re-applies accounts@saharacleaningservices.com
- *    (Shoyab / Shoaib Kazi) → ACCOUNTS on every boot, and no other production login holds ACCOUNTS.
- *  - Everyone else (Francis / OPERATIONS, SUPERVISOR logins, STAFF): no map → null.
+ *  - Shoaib and Francis → "ACTIVE_FIELD" (owner 2026-11-14): only field technicians / staff who are on an active job (On the way /
+ *    In progress) or checked in for today's shift — never the Super Admin, never office roles (ADMIN / OPERATIONS / ACCOUNTS /
+ *    SUPERVISOR) or office designations, never themselves. Francis = OPERATIONS. Shoaib = SUPERVISOR per the owner, while
+ *    scripts/db-setup.mjs currently gives his login the ACCOUNTS role — so SUPERVISOR and ACCOUNTS both get this view.
+ *    Their own phones ping from any open CRM page (app layout) as office subjects, so the Super Admin sees them as well.
+ *  - Everyone else (STAFF): no map → null.
  */
-export const GPS_FIELD_MAP_ROLES: readonly string[] = ["ACCOUNTS"];
+export const GPS_FIELD_MAP_ROLES: readonly string[] = ["SUPERVISOR", "OPERATIONS", "ACCOUNTS"];
 export type GpsMapScope = "ALL" | "ACTIVE_FIELD";
 export function gpsMapScope(role: string | null | undefined): GpsMapScope | null {
   if (role === "ADMIN") return "ALL";

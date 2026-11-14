@@ -359,7 +359,7 @@ test("continuous pings (2026-11-14): on the way → after Reached → in progres
   }
 });
 
-test("live staff map (2026-11-14): Super Admin sees everyone; Shoaib (ACCOUNTS) only active field technicians; Francis / staff see nothing", async () => {
+test("live staff map (owner 2026-11-14): Super Admin sees everyone incl. Shoaib & Francis; Shoaib and Francis see only active field technicians; staff see nothing", async () => {
   const ops = await import("../src/server/field-ops");
   const mkPerson = async (tag: string, role: string, designation: string) => {
     const u = await db.user.create({ data: { name: tag, email: `${tag}@map.test`, passwordHash: "x", role } as never });
@@ -388,5 +388,6 @@ test("live staff map (2026-11-14): Super Admin sees everyone; Shoaib (ACCOUNTS) 
   const asShoaib = await ops.getLiveLocations({ role: "ACCOUNTS", staffId: shoaib.id });
   assert.deepEqual(names(asShoaib), ["MapTechJob", "MapTechShift"], "only active field technicians — no Super Admin, no office, no off-shift");
   assert.ok(asShoaib.every((r) => r.type === "FIELD" && r.active));
-  for (const role of ["OPERATIONS", "SUPERVISOR", "STAFF"]) assert.deepEqual(await ops.getLiveLocations({ role, staffId: francis.id }), [], `${role} gets no map`);
+  for (const role of ["OPERATIONS", "SUPERVISOR"]) assert.deepEqual(names(await ops.getLiveLocations({ role, staffId: francis.id })), ["MapTechJob", "MapTechShift"], `${role} (Francis / Shoaib) sees only active field technicians`);
+  assert.deepEqual(await ops.getLiveLocations({ role: "STAFF", staffId: francis.id }), [], "staff get no map");
 });

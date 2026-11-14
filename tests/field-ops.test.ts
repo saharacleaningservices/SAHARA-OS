@@ -87,7 +87,7 @@ test("Bill split: total, advance (payments already received) and balance", () =>
   assert.deepEqual(billSummary(5000, [{ paidAmount: 9000 }]), { total: 5000, advance: 5000, balance: 0 }, "never a negative balance");
 });
 
-test("GPS map visibility (owner 2026-11-14): Super Admin sees everyone; Shoaib (ACCOUNTS) only active field staff; everyone else none", () => {
+test("GPS map visibility (owner 2026-11-14): Super Admin sees everyone; Shoaib and Francis only active field staff; staff none", () => {
   const field = { staffId: "t1", type: "FIELD" as const };
   const fieldOff = { staffId: "t2", type: "FIELD" as const, active: false };
   const francis = { staffId: "f", type: "SUPERVISOR" as const };
@@ -100,12 +100,17 @@ test("GPS map visibility (owner 2026-11-14): Super Admin sees everyone; Shoaib (
   assert.equal(canViewGps({ role: "ACCOUNTS", staffId: "s" }, francis), false, "…never Francis / office");
   assert.equal(canViewGps({ role: "ACCOUNTS", staffId: "s" }, shoaib), false, "…never himself");
   assert.equal(canViewGps({ role: "ACCOUNTS", staffId: "s" }, altaf), false, "…never the Super Admin");
-  for (const role of ["OPERATIONS", "SUPERVISOR", "STAFF", "NOPE"]) {
+  for (const role of ["OPERATIONS", "SUPERVISOR"]) {
+    assert.equal(canViewGps({ role, staffId: "x" }, field), true, `${role} sees an active technician`);
+    for (const subj of [fieldOff, francis, shoaib, altaf]) assert.equal(canViewGps({ role, staffId: "x" }, subj), false, `${role} never sees office / off-shift people`);
+  }
+  for (const role of ["STAFF", "NOPE"]) {
     for (const subj of [field, francis, altaf]) assert.equal(canViewGps({ role, staffId: "x" }, subj), false, `${role} gets no map`);
   }
   assert.equal(gpsMapScope("ADMIN"), "ALL");
   assert.equal(gpsMapScope("ACCOUNTS"), "ACTIVE_FIELD");
-  for (const r of ["OPERATIONS", "SUPERVISOR", "STAFF", null, undefined]) assert.equal(gpsMapScope(r as never), null, String(r));
+  for (const r of ["OPERATIONS", "SUPERVISOR"]) assert.equal(gpsMapScope(r), "ACTIVE_FIELD", r);
+  for (const r of ["STAFF", null, undefined]) assert.equal(gpsMapScope(r as never), null, String(r));
   for (const r of ["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR"]) assert.equal(gpsSubjectOf({ userRole: r }), "SUPERVISOR", r);
   for (const d of ["Supervisor", "Operations Manager", "Field Coordinator", "Accountant", "Accounts", "Office Staff", "Owner", "Super Admin"]) assert.equal(gpsSubjectOf({ userRole: "STAFF", designation: d }), "SUPERVISOR", d);
   for (const d of ["Cleaner", "Cleaning Executive", "Painter", "Pest Control Technician", "Helper"]) assert.equal(gpsSubjectOf({ userRole: "STAFF", designation: d }), "FIELD", d);
@@ -132,7 +137,8 @@ test("latestVisibleLocations: newest ping per person, re-checks the CURRENT role
   const admin = latestVisibleLocations({ role: "ADMIN" }, rows, current, active);
   assert.deepEqual(admin.map((r) => r.staffId).sort(), ["f", "off", "promoted", "t1", "t2", "user:u1"]);
   assert.equal(admin.find((r) => r.staffId === "user:u1")!.type, "SUPERVISOR");
-  assert.deepEqual(latestVisibleLocations({ role: "OPERATIONS", staffId: "f" }, rows, current, active), []);
+  assert.deepEqual(latestVisibleLocations({ role: "OPERATIONS", staffId: "f" }, rows, current, active).map((r) => r.staffId).sort(), ["t1", "t2"], "Francis: active technicians only");
+  assert.deepEqual(latestVisibleLocations({ role: "STAFF", staffId: "t1" }, rows, current, active), []);
 });
 
 test("continuous pings: target resolution covers live job (on the way → reached → in progress) and checked-in shift", () => {
@@ -240,8 +246,8 @@ test("LocationPing log is immutable (DB triggers refuse UPDATE and DELETE) and /
   assert.ok(asAdmin.find((r) => r.jobNumber === "GPS-F")!.mapHref, "Super Admin sees a supervisor's pin");
   assert.ok(asShoaib.find((r) => r.jobNumber === "GPS-T")!.mapHref, "Shoaib sees a technician's check-in pin");
   assert.equal(asShoaib.find((r) => r.jobNumber === "GPS-F")!.mapHref, null, "Shoaib never sees an office person's pin");
-  assert.equal(asFrancis.find((r) => r.jobNumber === "GPS-T")!.mapHref, null, "Francis (OPERATIONS) gets no map (owner 2026-11-14)");
-  assert.equal(asFrancis.find((r) => r.jobNumber === "GPS-F")!.gpsVisible, false);
+  assert.ok(asFrancis.find((r) => r.jobNumber === "GPS-T")!.mapHref, "Francis (OPERATIONS) sees a technician's pin (owner 2026-11-14)");
+  assert.equal(asFrancis.find((r) => r.jobNumber === "GPS-F")!.gpsVisible, false, "…but never an office person's");
 
   const ping = await db.locationPing.create({ data: { staffId: tech.id, staffName: "TECH", kind: "PING", lat: 18.5, lng: 73.9, subjectType: "FIELD" } });
   await assert.rejects(() => db.locationPing.update({ where: { id: ping.id }, data: { lat: 1 } }));
