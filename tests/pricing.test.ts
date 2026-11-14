@@ -44,18 +44,16 @@ const FESTIVAL_FINAL: Record<string, number> = {
   "SCS-07": 8499, // 3 BHK Platinum
 };
 
-test("regular Premium selling prices", () => {
-  assert.equal(item("SCS-01").price, 4499);
-  assert.equal(item("SCS-02").price, 5499);
-  assert.equal(item("SCS-03").price, 6999);
-  assert.equal(HOME_FROM_PRICE, 4499);
+test("regular Premium (= Furnished Apartment) offer prices, owner 2026-11-14", () => {
+  assert.equal(item("SCS-01").price, 3999);
+  assert.equal(item("SCS-02").price, 4999);
+  assert.equal(item("SCS-03").price, 6499);
+  assert.equal(HOME_FROM_PRICE, 3999);
 });
 
-test("retired selling prices are gone and no fake MRP is shown on Premium 1-3 BHK", () => {
-  for (const id of ["SCS-01", "SCS-02", "SCS-03"]) {
-    assert.ok(![4000, 4999, 6499].includes(item(id).price!), `${id} still has a retired price`);
-    assert.equal(item(id).mrp, undefined);
-  }
+test("Premium 1-3 BHK show the genuine previous price (₹4,499 / ₹5,499 / ₹6,999) as the struck-through MRP", () => {
+  assert.deepEqual(["SCS-01", "SCS-02", "SCS-03"].map((id) => item(id).mrp), [4499, 5499, 6999]);
+  for (const id of ["SCS-01", "SCS-02", "SCS-03"]) assert.ok(item(id).price! < item(id).mrp!, id);
 });
 
 test("regular Platinum 1-3 BHK unchanged", () => {
@@ -94,7 +92,7 @@ test("festival window pricing applies only inside the dates; otherwise regular",
   assert.equal(festivalForDate([w], "2026-11-11"), null);
   assert.equal(festivalForDate([w], "2026-10-26"), w);
   for (const [id, price] of Object.entries(FESTIVAL_FINAL)) assert.equal(unitPriceFor(item(id), w), price, id);
-  assert.equal(unitPriceFor(item("SCS-01"), null), 4499); // outside festival → regular
+  assert.equal(unitPriceFor(item("SCS-01"), null), 3999); // outside festival → regular
 });
 
 const WINDOWS: FestivalWindow[] = [
@@ -121,10 +119,10 @@ test("landing grids: festival prices only during the campaign (no MRP / regular)
   assert.ok(fest.every((p) => p.mrp === null), "no regular MRP/savings during the campaign");
   assert.deepEqual(livePkgs(items, "PLATINUM", WINDOWS[0]).map((p) => p.price), [6499, 6999, 8499, null]);
   // campaign over → regular grids restored
-  assert.deepEqual(livePkgs(items, "PREMIUM").map((p) => p.price), [4499, 5499, 6999, null]);
+  assert.deepEqual(livePkgs(items, "PREMIUM").map((p) => p.price), [3999, 4999, 6499, null]);
   assert.deepEqual(livePkgs(items, "PLATINUM").map((p) => p.price), [5499, 6499, 7999, null]);
   assert.equal(homeFromPrice(items, WINDOWS[0]), 4999);
-  assert.equal(homeFromPrice(items, null), 4499);
+  assert.equal(homeFromPrice(items, null), 3999);
 });
 
 test("exactly the six 1-3 BHK Premium/Platinum packages carry festival prices", () => {

@@ -7,7 +7,7 @@ import { canViewJobAmount } from "@/lib/permissions";
 import { OfficeActions } from "@/components/field-ops/office-actions";
 import { getOwnStaffId } from "@/server/jobs";
 import { getFieldOps } from "@/server/field-ops";
-import { canManageTracking, canOfficeClose, cashWithStaffLabel, COLLECT_MODE_LABELS, FIELD_STAGE_LABELS, type CollectMode, type FieldStage } from "@/lib/field-ops";
+import { canManageTracking, canOfficeClose, gpsMapScope, cashWithStaffLabel, COLLECT_MODE_LABELS, FIELD_STAGE_LABELS, type CollectMode, type FieldStage } from "@/lib/field-ops";
 import { SERVICE_LABELS } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function FieldOpsPage() {
       <AutoRefresh />
       <PageHeader title="Live Field Ops" description={`${rows.length} jobs today or still in the field · refreshes every 30 s`} />
 
-      {canManageTracking(user.role) && <a href="/field-ops/tracking" className="inline-block rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-primary">Live GPS log &amp; tracking settings →</a>}
+      {gpsMapScope(user.role) && <a href="/field-ops/tracking" className="inline-block rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-primary">{canManageTracking(user.role) ? "Live staff map, GPS log & tracking settings →" : "Live field staff map →"}</a>}
 
       {cashRows.length > 0 && (
         <div className="space-y-1">

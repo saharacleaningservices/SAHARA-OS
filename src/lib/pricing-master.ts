@@ -81,9 +81,11 @@ export const PRICING_MASTER: PriceItem[] = [
   // Home Cleaning — Premium (owner-approved selling prices 2026-10-09: 1BHK ₹4,499 · 2BHK ₹5,499 · 3BHK ₹6,999;
   // 4BHK existing approved). The old ₹4,000/₹4,999/₹6,499 selling prices are retired; no MRP is shown
   // because there is no genuine earlier price above the new selling price.
-  home("Premium", 1, undefined, 4499, "SCS-01"),
-  home("Premium", 2, undefined, 5499, "SCS-02"),
-  home("Premium", 3, undefined, 6999, "SCS-03"),
+  // Furnished apartment — full home (owner 2026-11-14, offer pricing): 1BHK ₹3,999 (MRP ₹4,499) · 2BHK ₹4,999 (₹5,499) · 3BHK ₹6,499 (₹6,999).
+  // These Premium lines ARE the website's "Furnished Apartment" package; chimney cleaning is included.
+  home("Premium", 1, 4499, 3999, "SCS-01"),
+  home("Premium", 2, 5499, 4999, "SCS-02"),
+  home("Premium", 3, 6999, 6499, "SCS-03"),
   home("Premium", 4, undefined, null, "SCS-04"), // 4 BHK+: price on inspection (owner 2026-10-09) — no fixed price
   // Home Cleaning — Platinum (existing approved master values)
   home("Platinum", 1, 5999, 5499, "SCS-05"),
@@ -91,11 +93,11 @@ export const PRICING_MASTER: PriceItem[] = [
   home("Platinum", 3, 8499, 7999, "SCS-07"),
   home("Platinum", 4, undefined, null, "SCS-08"), // 4 BHK+: price on inspection (owner 2026-10-09) — no fixed price
 
-  // Unfurnished Flat Deep Cleaning (owner benchmark rates 2026-11-02): 1 BHK ₹3,199 · 2 BHK ₹3,899 · 3 BHK ₹4,599.
+  // Unfurnished apartment — full home (owner 2026-11-14, offer pricing): 1 BHK ₹3,800 (MRP ₹4,199) · 2 BHK ₹4,199 (₹4,699) · 3 BHK ₹4,699 (₹5,299).
   // No 4 BHK unfurnished rate — 4 BHK and larger stay on free site inspection.
-  { contentId: "SCS-UF-1", group: "UNFURNISHED", name: "1BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 3199, bhk: "1 BHK", rule: "Empty flat — no furniture" },
-  { contentId: "SCS-UF-2", group: "UNFURNISHED", name: "2BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 3899, bhk: "2 BHK", rule: "Empty flat — no furniture" },
-  { contentId: "SCS-UF-3", group: "UNFURNISHED", name: "3BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 4599, bhk: "3 BHK", rule: "Empty flat — no furniture" },
+  { contentId: "SCS-UF-1", group: "UNFURNISHED", name: "1BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 3800, mrp: 4199, bhk: "1 BHK", rule: "Empty flat — no furniture" },
+  { contentId: "SCS-UF-2", group: "UNFURNISHED", name: "2BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 4199, mrp: 4699, bhk: "2 BHK", rule: "Empty flat — no furniture" },
+  { contentId: "SCS-UF-3", group: "UNFURNISHED", name: "3BHK Unfurnished Deep Cleaning", category: "HOME_DEEP_CLEANING", variant: "Unfurnished Deep Cleaning", price: 4699, mrp: 5299, bhk: "3 BHK", rule: "Empty flat — no furniture" },
 
   // Home Cleaning — Customised Cleaning (quantity based)
   { contentId: "SCS-09", group: "CUSTOMISED", name: "Sofa Shampooing", category: "INDIVIDUAL_CLEANING", variant: "Sofa Cleaning", price: 199, unit: "per seat", minQty: 1, rule: "₹199 per seat — any number of seats" },

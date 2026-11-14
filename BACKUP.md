@@ -1,5 +1,19 @@
 # Automated off-site backups
 
+> **Destination change (owner, 2026-11-14):** backups go to the Google Drive
+> folder **`Sahara OS Backups` owned by `shaikhaltaf161@gmail.com`**. The
+> folder name and owner are configurable (`GDRIVE_BACKUP_FOLDER_NAME`,
+> `GDRIVE_BACKUP_OWNER_EMAIL`) and the upload script refuses / warns about a
+> folder that does not match. Setup steps: **§2 below**. Until those steps are
+> done, the existing `GDRIVE_FOLDER_ID` secret (the older folder under
+> `contact@saharacleaningservices.com`) keeps receiving backups, with a
+> warning in the run log — no night is lost.
+>
+> The nightly **scheduled** run uses the workflow on the default branch
+> (`main`); these workflow/script changes take effect for the schedule only
+> once they are merged to `main` (a manual "Run workflow" on this branch
+> uses this branch's copy).
+
 **Status as of 2026-09-22**: fully working end-to-end. `BACKUP_TOKEN` is
 set, and **Google Drive is the primary off-site destination** and is
 confirmed uploading for real (run #44: uploaded a real archive, verified
@@ -70,40 +84,95 @@ in production, treat it as compromised and regenerate it from Settings →
 Integrations → Backup → "Regenerate token" (this immediately invalidates the
 old one), then update the `BACKUP_TOKEN` GitHub secret below to match.
 
-### 2. Google Drive (primary destination) — **done, configured 2026-09-22**
+### 2. Google Drive (primary destination) — `Sahara OS Backups`, owned by `shaikhaltaf161@gmail.com`
 
-Uses OAuth as the owner's own Google account — **not** a service account
-(service accounts have zero Drive storage quota and cannot create files
-even in a folder shared to them as Editor; confirmed by a failed run this
-session before switching to OAuth). Steps taken (for reference / re-setup):
+**How the destination is chosen** (`.github/scripts/gdrive_backup.py`):
 
-1. <https://console.cloud.google.com> → project **"Sahara OS backup"**
-   (`sahara-os-backup`) → **APIs & Services → Library** → enabled **Google
-   Drive API**.
-2. **Google Auth Platform → Audience** → User type **External**, publishing
-   status **Testing** → added `contact@saharacleaningservices.com` as a
-   **Test user** (avoids Google's app-verification review, which isn't
-   needed for a single-account internal tool).
-3. **Clients → Create client → Web application**. Redirect URI:
-   `https://developers.google.com/oauthplayground`. Downloaded the Client ID
-   and secret (only shown once at creation time).
-4. Minted a refresh token: <https://developers.google.com/oauthplayground> →
-   gear icon → tick *Use your own OAuth credentials* → paste the client
-   ID/secret → scope `https://www.googleapis.com/auth/drive` → **Authorize
-   APIs** → signed in as `contact@saharacleaningservices.com` → clicked
-   **Allow** (shows an "unverified app" warning since the app isn't
-   submitted for Google review — expected and safe for internal use; click
-   Advanced → Go to (unsafe) to proceed) → **Exchange authorization code for
-   tokens** → copied the **Refresh token**.
-5. Folder **Sahara OS Backups** already existed in the owner's own My
-   Drive: `https://drive.google.com/drive/folders/1Gw4_xzzxQHUVixWXhdBdi-jEeSzlVxPZ`.
-   Because the OAuth token authenticates as the folder's own owner, no
-   separate sharing step is needed (unlike the abandoned service-account
-   approach).
+| Setting | Where | Default | Meaning |
+|---|---|---|---|
+| `GDRIVE_BACKUP_FOLDER_NAME` | repo **Variable** (or secret) | `Sahara OS Backups` | exact folder name |
+| `GDRIVE_BACKUP_OWNER_EMAIL` | repo **Variable** (or secret) | `shaikhaltaf161@gmail.com` | the Google account that must own the folder (`-` = no owner check, e.g. a Shared Drive) |
+| `GDRIVE_FOLDER_ID` | repo **secret**, optional | — | pins one folder id; it is still checked against the name + owner. If unset, the folder is found by name + owner |
+| `GDRIVE_STRICT_FOLDER` | repo Variable, optional | `0` | `1` = fail the run when the pinned folder is not the owner's folder; `0` = warn and still upload |
+| `GDRIVE_CREDENTIALS` | repo **secret** | — | who uploads (below) |
 
-**Verified working (run #44, 2026-09-22)**: uploaded a real
-`sahara-os-*.tar.gz`, confirmed present in the Drive folder, owned by "me"
-(the account's own 30GB quota, not a service account's zero quota).
+Never commit any of the credential values; they live only in GitHub → repo →
+Settings → Secrets and variables → Actions.
+
+**Important — who can upload into a `@gmail.com` folder.** Google service
+accounts have **no My Drive storage quota**. A personal `@gmail.com` account
+cannot have a Shared Drive, so a service account that the folder is merely
+shared with can *see* the folder but every upload fails with
+`storageQuotaExceeded` (this is exactly what run #43 hit in 2026-09). For a
+folder owned by `shaikhaltaf161@gmail.com` the working option is therefore
+**A** below. Option **B** is only for a Shared Drive (Google Workspace).
+
+#### A. Recommended — OAuth as `shaikhaltaf161@gmail.com` (files use that account's quota)
+
+1. Sign in to Google Drive as **shaikhaltaf161@gmail.com** → **New → New
+   folder** → name it exactly **`Sahara OS Backups`** (in *My Drive*). If a
+   folder with that name already exists there, use it; keep only one.
+2. Open the folder; the id is the last part of the URL
+   (`https://drive.google.com/drive/folders/<FOLDER_ID>`). Optional: share it
+   (Viewer or Editor) with `contact@saharacleaningservices.com` if the office
+   should see the backups too — ownership stays with shaikhaltaf161@gmail.com.
+3. <https://console.cloud.google.com> → project **"Sahara OS backup"**
+   (`sahara-os-backup`, or any project) → **APIs & Services → Library** →
+   **Google Drive API** enabled.
+4. **Google Auth Platform → Audience** → User type **External**, publishing
+   status **Testing** → **Add users** → `shaikhaltaf161@gmail.com`.
+   (Testing-mode refresh tokens expire after 7 days for some scopes; if runs
+   start failing with `invalid_grant`, set the publishing status to
+   **In production** — no review is needed for a single internal user who
+   accepts the "unverified app" screen — and mint a new token.)
+5. **Clients → Create client → Web application**, redirect URI
+   `https://developers.google.com/oauthplayground`. Copy the Client ID and
+   Client secret (an existing client from the 2026-09 setup can be reused).
+6. <https://developers.google.com/oauthplayground> → gear icon → tick *Use
+   your own OAuth credentials* → paste the client ID/secret → scope
+   `https://www.googleapis.com/auth/drive` → **Authorize APIs** → sign in as
+   **shaikhaltaf161@gmail.com** (not contact@) → Advanced → continue →
+   **Allow** → **Exchange authorization code for tokens** → copy the
+   **Refresh token**.
+7. GitHub → repo → **Settings → Secrets and variables → Actions**:
+   - **Secrets**: update `GDRIVE_CREDENTIALS` to
+     `{"client_id":"…","client_secret":"…","refresh_token":"…"}` (one line,
+     the refresh token from step 6). Then either **delete** `GDRIVE_FOLDER_ID`
+     (the script finds the folder by name + owner) or **set** it to the id
+     from step 2.
+   - **Variables** (optional — the defaults already match):
+     `GDRIVE_BACKUP_FOLDER_NAME` = `Sahara OS Backups`,
+     `GDRIVE_BACKUP_OWNER_EMAIL` = `shaikhaltaf161@gmail.com`, and once the
+     first run is green, `GDRIVE_STRICT_FOLDER` = `1` so a wrong folder fails
+     loudly instead of warning.
+8. **Actions → Sahara OS Enterprise Backup → Run workflow** (on `main`). The
+   upload step must log
+   `Destination: Drive folder 'Sahara OS Backups' owned by shaikhaltaf161@gmail.com (id=…)`
+   and `Uploaded sahara-os-….tar.gz`. Check the file is in the folder in
+   shaikhaltaf161@gmail.com's Drive. A `::warning::GDRIVE_FOLDER_ID … is owned
+   by contact@…` line means step 7's `GDRIVE_FOLDER_ID` still points at the
+   old folder.
+
+#### B. Service account (only if the folder lives in a Shared Drive)
+
+1. In Google Cloud create a service account (e.g.
+   `sahara-os-backup-uploader@<project>.iam.gserviceaccount.com`) → **Keys →
+   Add key → JSON**.
+2. Put `Sahara OS Backups` in a **Shared Drive** where
+   shaikhaltaf161@gmail.com is a Manager, and add the service-account email
+   as **Content manager**. (Sharing a My Drive folder with it as Editor is
+   *not* enough — no quota.)
+3. Secrets: `GDRIVE_CREDENTIALS` = the whole JSON key on one line;
+   `GDRIVE_FOLDER_ID` = the folder id. Variable `GDRIVE_BACKUP_OWNER_EMAIL` =
+   `-` (Shared-Drive folders have no individual owner; the name is still
+   checked).
+
+#### History (2026-09-22 → 2026-11-14)
+
+Backups were uploaded via OAuth as `contact@saharacleaningservices.com` into
+its own "Sahara OS Backups" folder (pinned by `GDRIVE_FOLDER_ID`). Verified
+working (run #44, 2026-09-22). Archives already in that folder are not moved
+by this change; copy them to the new folder by hand if you want one place.
 
 ### 3. S3-compatible storage (optional, secondary — not configured)
 
@@ -128,13 +197,15 @@ Repo → **Settings → Secrets and variables → Actions**:
 |---|---|---|
 | `BACKUP_URL` | `https://<production-domain>/api/backup` | ✅ set |
 | `BACKUP_TOKEN` | the token from step 1 | ✅ set |
-| `GDRIVE_FOLDER_ID` | `1Gw4_xzzxQHUVixWXhdBdi-jEeSzlVxPZ` | ✅ set |
-| `GDRIVE_CREDENTIALS` | `{"client_id":"...","client_secret":"...","refresh_token":"..."}` on one line, from step 2 | ✅ set (OAuth, verified working) |
+| `GDRIVE_FOLDER_ID` | optional — id of `Sahara OS Backups` in shaikhaltaf161@gmail.com's Drive, or delete it to look the folder up by name + owner | ⚠ currently the old contact@ folder — update per §2 A step 7 |
+| `GDRIVE_CREDENTIALS` | `{"client_id":"...","client_secret":"...","refresh_token":"..."}` on one line, minted as shaikhaltaf161@gmail.com (§2 A step 6) | ⚠ currently minted as contact@ — re-mint per §2 A |
+| Variables `GDRIVE_BACKUP_FOLDER_NAME` / `GDRIVE_BACKUP_OWNER_EMAIL` / `GDRIVE_STRICT_FOLDER` | see §2 | optional (defaults: `Sahara OS Backups` / `shaikhaltaf161@gmail.com` / `0`) |
 | `S3_BUCKET`, `S3_ENDPOINT_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_REGION` | from step 3 | not set (optional) |
 | `BACKUP_ENCRYPTION_KEY` | (optional) from step 3 | not set (weekly-encrypted step skips until this exists) |
 
-Already confirmed working (run #44) — no further action needed unless
-credentials are rotated.
+The contact@ setup was confirmed working (run #44). Moving to
+shaikhaltaf161@gmail.com's folder needs §2 A steps 1–8 (done by the owner —
+the refresh token must be minted while signed in as that account).
 
 ## Retention
 

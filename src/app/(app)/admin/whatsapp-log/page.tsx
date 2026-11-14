@@ -89,14 +89,14 @@ export default async function MessageLogPage() {
       {me.role === "ADMIN" && (() => {
         const t = templateByName(BOOKING_OTP_TEMPLATE_NAME);
         if (!t) return null;
-        const live = process.env.WHATSAPP_USE_TEMPLATES === "on" && ["otp2", "otp1"].includes(process.env.WHATSAPP_BOOKING_TEMPLATE ?? "");
+        const live = process.env.WHATSAPP_USE_TEMPLATES === "on" && ["start_code1", "otp2", "otp1"].includes(process.env.WHATSAPP_BOOKING_TEMPLATE ?? "");
         return (
           <div className="space-y-2 rounded-lg border border-border bg-card p-4 text-sm">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base font-semibold">Booking confirmation + Service Start Code (Meta template v2)</h2>
+              <h2 className="text-base font-semibold">Booking confirmation + Service Start Code (Meta template)</h2>
               <Badge variant={live ? "success" : "muted"}>{live ? "In use" : "Not switched on: customers get the plain-text version with the same code"}</Badge>
             </div>
-            <p>Sent when the office taps <b>Confirm Booking</b>. Submit exactly this in Meta WhatsApp Manager (or use the submit card below), then set <code>WHATSAPP_USE_TEMPLATES=on</code> and <code>WHATSAPP_BOOKING_TEMPLATE=otp2</code> in Coolify once Meta shows it as Approved.</p>
+            <p>Sent when the office taps <b>Confirm Booking</b>. Submit exactly this in Meta WhatsApp Manager (or use the submit card below), then set <code>WHATSAPP_USE_TEMPLATES=on</code> and <code>WHATSAPP_BOOKING_TEMPLATE=start_code1</code> in Coolify once Meta shows it as Approved.</p>
             <dl className="grid grid-cols-[9rem_1fr] gap-x-3 gap-y-1">
               <dt className="text-muted-foreground">Template name</dt><dd><code className="font-mono">{t.name}</code></dd>
               <dt className="text-muted-foreground">Language code</dt><dd><code className="font-mono">{t.language}</code> (English)</dd>

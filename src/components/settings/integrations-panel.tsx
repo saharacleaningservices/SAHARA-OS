@@ -392,10 +392,11 @@ function DriveBackupCard({ status }: { status: IntegrationStatusForUi["backup"] 
               <code>BACKUP_TOKEN</code> = the token below (reveal &amp; copy)
             </li>
             <li>
-              <code>GDRIVE_FOLDER_ID</code> = the Drive folder ID below
+              Destination: Drive folder <code>Sahara OS Backups</code> owned by <code>shaikhaltaf161@gmail.com</code> (Variables{" "}
+              <code>GDRIVE_BACKUP_FOLDER_NAME</code> / <code>GDRIVE_BACKUP_OWNER_EMAIL</code>; <code>GDRIVE_FOLDER_ID</code> optional — the folder is found by name + owner)
             </li>
             <li>
-              <code>GDRIVE_CREDENTIALS</code> = your Google OAuth refresh-token JSON (see <code>BACKUP.md</code>)
+              <code>GDRIVE_CREDENTIALS</code> = Google OAuth refresh-token JSON minted while signed in as shaikhaltaf161@gmail.com (see <code>BACKUP.md</code> §2)
             </li>
           </ol>
         </div>

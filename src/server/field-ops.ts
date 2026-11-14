@@ -1,7 +1,7 @@
 // Live Field Ops — office read model (2026-11-13). One query: every job that is live today or still in the field.
 import { db } from "@/lib/db";
 import { istDayRange } from "@/lib/ist-days";
-import { canViewGps, fieldStage, gpsSubjectOf, type FieldStage } from "@/lib/field-ops";
+import { canViewGps, fieldStage, gpsMapScope, gpsSubjectOf, latestVisibleLocations, LIVE_JOB_STATUSES, locationPingWhere, type FieldStage, type GpsSubject, type LiveLocation } from "@/lib/field-ops";
 
 export type FieldOpsRow = {
   id: string;
@@ -92,4 +92,54 @@ export async function getFieldOps(viewer: { role: string; staffId?: string | nul
     needsClosure: j.status !== "COMPLETED" ? j.status === "STARTED" || j.status === "ON_THE_WAY" : j.collectedMode === "PENDING_APPROVAL",
     };
   });
+}
+
+// ── Live staff map (2026-11-14) ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const staffSubject = { designation: true, user: { select: { role: true } } } as const;
+
+/**
+ * Field technicians active right now: an active (not deleted / not deactivated) staff record whose CURRENT role / designation is
+ * FIELD, and who is on a live job (On the way / Reached / In progress) or checked in for today's shift (IST) without checking out.
+ */
+export async function getActiveFieldStaffIds(now = new Date()): Promise<Set<string>> {
+  const { from } = istDayRange(now);
+  const staffWhere = { isActive: true, deletedAt: null };
+  const [onJob, onShift] = await Promise.all([
+    db.jobAssignment.findMany({
+      where: { job: { deletedAt: null, isDemo: false, status: { in: [...LIVE_JOB_STATUSES] } }, staff: staffWhere },
+      select: { staffId: true, staff: { select: staffSubject } },
+    }),
+    db.attendance.findMany({
+      where: { checkInTime: { gte: from }, checkOutTime: null, staff: staffWhere },
+      select: { staffId: true, staff: { select: staffSubject } },
+    }),
+  ]);
+  const ids = new Set<string>();
+  for (const r of [...onJob, ...onShift]) {
+    if (gpsSubjectOf({ designation: r.staff.designation, userRole: r.staff.user?.role }) === "FIELD") ids.add(r.staffId);
+  }
+  return ids;
+}
+
+/**
+ * Today's latest location per person for the viewer's map. Enforced here, in the query: the Super Admin reads every row; Shoaib
+ * (ACCOUNTS) reads only FIELD rows of currently active field staff (see gpsMapScope / locationPingWhere); anyone else gets nothing.
+ */
+export async function getLiveLocations(viewer: { role: string; staffId?: string | null }, now = new Date()): Promise<LiveLocation[]> {
+  const scope = gpsMapScope(viewer.role);
+  if (!scope) return [];
+  const active = await getActiveFieldStaffIds(now);
+  const where = locationPingWhere(scope, [...active], istDayRange(now).from);
+  if (!where) return [];
+  const rows = await db.locationPing.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: 3000,
+    select: { staffId: true, staffName: true, jobId: true, kind: true, lat: true, lng: true, accuracyM: true, subjectType: true, createdAt: true },
+  });
+  const ids = [...new Set(rows.map((r) => r.staffId).filter((id) => !id.startsWith("user:")))];
+  const staff = ids.length ? await db.staff.findMany({ where: { id: { in: ids } }, select: { id: true, ...staffSubject } }) : [];
+  const current = new Map<string, GpsSubject>(staff.map((s) => [s.id, gpsSubjectOf({ designation: s.designation, userRole: s.user?.role })]));
+  return latestVisibleLocations(viewer, rows, current, active);
 }

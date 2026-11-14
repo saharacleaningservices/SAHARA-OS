@@ -165,8 +165,8 @@ test("all three lead-writing paths set the tag without overwriting a staff-chose
 
 test("meta descriptions use real catalog prices and the requested trust points", () => {
   const d = ctrDescriptions();
-  assert.match(d["home-deep-cleaning"], /₹3,199/);
-  assert.match(d["home-deep-cleaning"], /₹4,499/);
+  assert.match(d["home-deep-cleaning"], /₹3,800/);
+  assert.match(d["home-deep-cleaning"], /₹3,999/);
   assert.match(d["home-deep-cleaning"], /manual floor scrubbing/i);
   assert.ok(!/scrubbing machine/i.test(JSON.stringify(d)), "crew scrubs manually - no machine claim");
   assert.match(d["sofa-carpet-mattress-cleaning"], /₹199 per seat/);

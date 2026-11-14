@@ -48,7 +48,7 @@ test("migration: the six festival package prices are set in running and upcoming
   for (const f of ["f_running", "f_upcoming"]) for (const [c, v] of Object.entries(want)) assert.equal(p(f, c), v, `${f} ${c}`);
   for (const [c, v] of Object.entries(old)) assert.equal(p("f_ended", c), v, `an ended window keeps ${c}`);
   // Regular prices live in the code master; the migration does not touch them.
-  assert.deepEqual(["SCS-01", "SCS-02", "SCS-03", "SCS-05", "SCS-06", "SCS-07"].map((id) => PRICING_MASTER.find((x) => x.contentId === id)!.price), [4499, 5499, 6999, 5499, 6499, 7999]);
+  assert.deepEqual(["SCS-01", "SCS-02", "SCS-03", "SCS-05", "SCS-06", "SCS-07"].map((id) => PRICING_MASTER.find((x) => x.contentId === id)!.price), [3999, 4999, 6499, 5499, 6499, 7999]);
 
   // One time only: a Super Admin change afterwards is never reset by a restart.
   const d = new Database(dbFile);

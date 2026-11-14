@@ -15,9 +15,10 @@ const wall = (tier: HomeTier) =>
     ? { item: "Walls", method: "Wet cleaning" }
     : { item: "Walls", method: "Dry dusting" };
 const ceiling = { item: "Ceiling", method: "Dry dusting" };
-// Chimney (owner 2026-11-12): chimney cleaning is NOT part of either full-home package — it is the "Chimney Deep Cleaning"
-// add-on. The base kitchen scope keeps the exhaust fan and the kitchen exterior only.
+// Chimney (owner 2026-11-14): chimney cleaning (filters & exterior) IS part of the furnished full-home packages. Unfurnished flats and
+// individual services keep it as the "Chimney Deep Cleaning" add-on (SCS-35).
 export const CHIMNEY_ADDON_NOTE = "Chimney Deep Cleaning (available as add-on)";
+export const CHIMNEY_INCLUDED_NOTE = "Chimney cleaning (filters & exterior) included";
 
 export function homeScopeByArea(tier: HomeTier): ScopeArea[] {
   return [
@@ -41,6 +42,7 @@ export function homeScopeByArea(tier: HomeTier): ScopeArea[] {
         { item: "Platform & wall tiles", method: "Cleaning" },
         { item: "Trolleys / cabinets", method: "Exterior cleaning" },
         { item: "Exhaust fan", method: "Cleaning" },
+        { item: "Chimney", method: "Filters & exterior degreasing" },
         { item: "Refrigerator & microwave", method: "Exterior cleaning" },
         { item: "Window glass", method: "Cleaning · sliding channels vacuumed" },
         { item: "Floor", method: "Manual scrubbing & mopping" },
@@ -80,7 +82,7 @@ export const HOME_DURATION = "Estimated 7–8 hours";
 export function homePleaseNote(tier: HomeTier): string[] {
   return [
     ...(tier === "Premium" ? ["Wall wet cleaning is included in Platinum."] : []),
-    `${CHIMNEY_ADDON_NOTE}.`,
+    `${CHIMNEY_INCLUDED_NOTE}.`,
     "Sofa, carpet and mattress shampooing are separate services (see Customized); dry vacuuming is included.",
     "Inaccessible areas are excluded and heavy furniture is not moved unless agreed.",
     "Old, permanent or stubborn stains cannot be guaranteed for complete removal.",
@@ -305,5 +307,5 @@ export function conciseHomeScope(tier: HomeTier | null): string {
 
 /** Short "not included" line for a full-house package (from homePleaseNote). */
 export function conciseHomeExclusions(tier: HomeTier | null): string {
-  return `Not included: sofa / carpet / mattress shampooing${tier === "Premium" ? ", wall wet cleaning (Platinum only)" : ""}, ${CHIMNEY_ADDON_NOTE}.`;
+  return `Not included: sofa / carpet / mattress shampooing${tier === "Premium" ? ", wall wet cleaning (Platinum only)" : ""}.`;
 }

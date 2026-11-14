@@ -52,7 +52,7 @@ automated daily/off-site pipeline is wired up).
 2. Deploy the application from GitHub as normal — this recreates the code
    and an empty database.
 3. Immediately follow "Restoring the database" below with the most recent
-   off-site backup (Google Drive — see `BACKUP.md`) to bring real data back
+   off-site backup (Google Drive folder `Sahara OS Backups` owned by `shaikhaltaf161@gmail.com` — see `BACKUP.md` §2) to bring real data back
    onto the new server.
 4. Re-point DNS if the server's IP changed.
 

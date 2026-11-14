@@ -43,23 +43,22 @@ test("OTP: matches current and previous window, rejects others; verified token b
 
 test("add-ons: home & kitchen lists, per-seat sofa, pest control none", () => {
   const home = addOnSlotsFor({ category: "HOME_DEEP_CLEANING", service: "Full House Deep Cleaning" });
-  assert.deepEqual(home.map((s) => s.contentId), ["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35", "SCS-09", "SCS-36"]);
+  assert.deepEqual(home.map((s) => s.contentId), ["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-09", "SCS-36"], "chimney is included in the furnished full home (owner 2026-11-14), so not offered as an add-on");
   assert.ok(!home.some((s) => s.contentId === "SCS-34"), "no balcony in full home");
   assert.equal(home.find((s) => s.contentId === "SCS-09")?.perUnit, true);
   assert.deepEqual(addOnSlotsFor({ category: "INDIVIDUAL_CLEANING", service: "Kitchen Deep Cleaning" }).map((s) => s.contentId), ["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35"]);
   assert.equal(addOnSlotsFor({ category: "PEST_CONTROL", service: "Pest Control" }).length, 0);
 });
 
-test("pricing master: owner add-on prices, per-seat sofa, chimney not in the base packages", () => {
+test("pricing master: owner add-on prices, per-seat sofa, chimney included in the furnished full-home scope", () => {
   const p = (id: string) => PRICING_MASTER.find((i) => i.contentId === id)!;
   assert.deepEqual(["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35"].map((id) => p(id).price), [599, 499, 699, 299, 599]); // chimney ₹599 = Pune market rate (2026-11-14)
   assert.equal(p("SCS-09").price, 199);
   assert.equal(p("SCS-09").unit, "per seat");
   assert.equal(p("SCS-09").minQty, 1);
-  assert.ok(!PREMIUM_SCOPE.join(" ").toLowerCase().includes("chimney") && !PLATINUM_SCOPE.join(" ").toLowerCase().includes("chimney"));
-  assert.ok(PREMIUM_EXCLUDED.includes("Chimney Deep Cleaning (available as add-on)"));
-  assert.ok(PLATINUM_EXCLUDED.includes("Chimney Deep Cleaning (available as add-on)"));
-  assert.ok(!homeScopeByArea("Platinum").flatMap((a) => a.items).some((i) => /chimney/i.test(i.item)));
+  assert.ok(PREMIUM_SCOPE.join(" ").toLowerCase().includes("chimney") && PLATINUM_SCOPE.join(" ").toLowerCase().includes("chimney"));
+  assert.ok(!PREMIUM_EXCLUDED.some((x) => /chimney/i.test(x)) && !PLATINUM_EXCLUDED.some((x) => /chimney/i.test(x)));
+  assert.ok(homeScopeByArea("Premium").flatMap((a) => a.items).some((i) => /chimney/i.test(i.item)));
 });
 
 test("detectAreaFromAddress finds the PIN and the earliest known locality", () => {

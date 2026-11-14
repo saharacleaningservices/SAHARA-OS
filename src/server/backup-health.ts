@@ -45,7 +45,7 @@ export async function maybeBackupStaleAlert(now: Date = new Date()): Promise<"ok
       kind: "BACKUP_STALE",
       title: "Backup overdue — no verified backup in 26+ hours",
       body: when
-        ? `Last backup delivered to Google Drive: ${when} IST (${Math.floor(h.ageHours ?? 0)} h ago). Check GitHub → Actions → "Sahara OS Enterprise Backup".`
+        ? `Last backup delivered to Google Drive (${process.env.GDRIVE_BACKUP_FOLDER_NAME || "Sahara OS Backups"}): ${when} IST (${Math.floor(h.ageHours ?? 0)} h ago). Check GitHub → Actions → "Sahara OS Enterprise Backup".`
         : "No verified backup has been recorded yet. Check GitHub → Actions → \"Sahara OS Enterprise Backup\".",
       href: "/settings",
       critical: true,
