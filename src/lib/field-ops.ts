@@ -166,27 +166,113 @@ export function billSummary(total: number, payments: { paidAmount: number }[]): 
   return { total: t, advance, balance: Math.round((t - advance) * 100) / 100 };
 }
 
-// ── Who may see whose GPS (owner brief 2026-11-13) ──────────────────────────────────────────────────────────────────────────────────
+// ── Who may see whose GPS (owner brief 2026-11-13, tightened 2026-11-14) ───────────────────────────────────────────────────────────
+// SUPERVISOR here means "office / management subject": Super Admin, Operations, Accounts, Supervisor logins and office designations.
+// The value is frozen on every LocationPing row, so it keeps its historical name.
 export type GpsSubject = "FIELD" | "SUPERVISOR";
-const SUPERVISOR_ROLES = ["OPERATIONS", "ACCOUNTS", "SUPERVISOR"];
+/** Login roles whose own location is never shown to anyone but the Super Admin (ADMIN included: Altaf is never on Shoaib's map). */
+const OFFICE_SUBJECT_ROLES = ["ADMIN", "OPERATIONS", "ACCOUNTS", "SUPERVISOR"];
+/** Office designations for staff records without an office login (Francis / Shoaib type profiles, owner, accounts, office staff). */
+const OFFICE_DESIGNATION = /supervisor|manager|coordinator|owner|director|admin|accountant|\baccounts?\b|office/i;
 
-/** Francis / Shoaib type people are SUPERVISOR subjects: by their login role, or — when they have no login — by designation. */
+/** Office / management people are SUPERVISOR subjects: by their login role, or — when they have no office login — by designation. */
 export function gpsSubjectOf(s: { designation?: string | null; userRole?: string | null }): GpsSubject {
-  if (s.userRole && SUPERVISOR_ROLES.includes(s.userRole)) return "SUPERVISOR";
-  if (s.designation && /supervisor|operations manager|sales coordinator|field coordinator/i.test(s.designation)) return "SUPERVISOR";
+  if (s.userRole && OFFICE_SUBJECT_ROLES.includes(s.userRole)) return "SUPERVISOR";
+  if (s.designation && OFFICE_DESIGNATION.test(s.designation)) return "SUPERVISOR";
   return "FIELD";
 }
 
 /**
- * Super Admin sees every location. Francis / Shoaib (Operations / Accounts / Supervisor logins) see technicians' check-in locations only —
- * never a supervisor's (their own included). Field staff see none.
+ * Who gets a staff-location map (owner 2026-11-14):
+ *  - Super Admin (role ADMIN — Altaf): every staff member, office people included → "ALL".
+ *  - Shoaib → "ACTIVE_FIELD": only field technicians / staff who are on an active job (On the way / In progress) or checked in for
+ *    today's shift — never the Super Admin, never office roles (ADMIN / OPERATIONS / ACCOUNTS / SUPERVISOR) or office designations.
+ *    Shoaib is identified by his login role ACCOUNTS: scripts/db-setup.mjs re-applies accounts@saharacleaningservices.com
+ *    (Shoyab / Shoaib Kazi) → ACCOUNTS on every boot, and no other production login holds ACCOUNTS.
+ *  - Everyone else (Francis / OPERATIONS, SUPERVISOR logins, STAFF): no map → null.
  */
-export function canViewGps(viewer: { role: string; staffId?: string | null }, subject: { staffId?: string | null; type: GpsSubject }): boolean {
-  if (viewer.role === "ADMIN") return true;
-  if (!SUPERVISOR_ROLES.includes(viewer.role)) return false;
-  if (subject.type === "SUPERVISOR") return false;
+export const GPS_FIELD_MAP_ROLES: readonly string[] = ["ACCOUNTS"];
+export type GpsMapScope = "ALL" | "ACTIVE_FIELD";
+export function gpsMapScope(role: string | null | undefined): GpsMapScope | null {
+  if (role === "ADMIN") return "ALL";
+  if (role && GPS_FIELD_MAP_ROLES.includes(role)) return "ACTIVE_FIELD";
+  return null;
+}
+
+/**
+ * The single per-person rule behind every location read (live map, /field-ops check-in pins). `active` = the subject is on an active
+ * job or checked in for the shift; omit it when the row itself is already scoped to a live job.
+ */
+export function canViewGps(viewer: { role: string; staffId?: string | null }, subject: { staffId?: string | null; type: GpsSubject; active?: boolean }): boolean {
+  const scope = gpsMapScope(viewer.role);
+  if (scope === "ALL") return true;
+  if (scope !== "ACTIVE_FIELD") return false;
+  if (subject.type !== "FIELD") return false;
+  if (subject.active === false) return false;
   if (viewer.staffId && subject.staffId && viewer.staffId === subject.staffId) return false;
   return true;
+}
+
+/**
+ * Prisma `where` for the LocationPing rows a viewer may read since `since` — enforced in the query, not only in the UI. Null = no access.
+ * ACTIVE_FIELD is limited to rows frozen as FIELD and to the ids of staff who are active right now (office logins without a Staff
+ * profile are logged as "user:<id>" and can never be in that list).
+ */
+export function locationPingWhere(scope: GpsMapScope | null, activeFieldStaffIds: readonly string[], since: Date) {
+  if (scope === "ALL") return { createdAt: { gte: since } };
+  if (scope === "ACTIVE_FIELD") return { createdAt: { gte: since }, subjectType: "FIELD", staffId: { in: activeFieldStaffIds.filter((id) => !id.startsWith("user:")) } };
+  return null;
+}
+
+export type LivePingRow = { staffId: string; staffName: string; jobId: string | null; kind: string; lat: number; lng: number; accuracyM: number | null; subjectType: string; createdAt: Date };
+export type LiveLocation = LivePingRow & { type: GpsSubject; active: boolean; pings: number };
+
+/**
+ * Newest ping per person, filtered through canViewGps. `current` re-derives each person's subject type from their CURRENT staff record
+ * (role / designation) — a ping frozen as FIELD is still hidden from Shoaib if that person has since become office staff.
+ */
+export function latestVisibleLocations(
+  viewer: { role: string; staffId?: string | null },
+  rows: readonly LivePingRow[],
+  current: ReadonlyMap<string, GpsSubject>,
+  activeFieldStaffIds: ReadonlySet<string>,
+): LiveLocation[] {
+  const byPerson = new Map<string, LiveLocation>();
+  for (const r of [...rows].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())) {
+    const seen = byPerson.get(r.staffId);
+    if (seen) { seen.pings += 1; continue; }
+    const type: GpsSubject = r.subjectType === "SUPERVISOR" || current.get(r.staffId) === "SUPERVISOR" || r.staffId.startsWith("user:") ? "SUPERVISOR" : "FIELD";
+    const active = activeFieldStaffIds.has(r.staffId);
+    if (!canViewGps(viewer, { staffId: r.staffId, type, active })) continue;
+    byPerson.set(r.staffId, { ...r, type, active, pings: 1 });
+  }
+  return [...byPerson.values()];
+}
+
+// ── Continuous active-shift pings (2026-11-14) ─────────────────────────────────────────────────────────────────────────────────────
+/** Client ping cadence; the server refuses anything closer than MIN_PING_GAP_MS for the same person. */
+export const PING_EVERY_MS = 3 * 60_000;
+export const MIN_PING_GAP_MS = 2 * 60_000;
+/** Job statuses during which a technician's phone keeps pinging (On the way → Reached → In progress, until Completed). */
+export const LIVE_JOB_STATUSES = ["ON_THE_WAY", "STARTED"] as const;
+
+/** Checked in for today's shift (IST) and not yet checked out. */
+export function isOnShift(a: { checkInTime: Date | null; checkOutTime: Date | null } | null | undefined, dayStart: Date): boolean {
+  return !!a?.checkInTime && a.checkInTime.getTime() >= dayStart.getTime() && !a.checkOutTime;
+}
+
+/**
+ * Should this ping be stored, and against which job? Office supervisors always (jobId null unless given). A technician pings while
+ * holding a live job (the requested one if it is theirs and live, else their own live job) or while checked in for the shift (no job).
+ */
+export function resolvePingTarget(i: { office: boolean; requestedJobId: string | null; requestedJobLive: boolean; ownLiveJobId: string | null; onShift: boolean }):
+  | { ok: true; jobId: string | null }
+  | { ok: false; reason: "no-active-job" } {
+  if (i.office) return { ok: true, jobId: i.requestedJobId && i.requestedJobLive ? i.requestedJobId : null };
+  if (i.requestedJobId && i.requestedJobLive) return { ok: true, jobId: i.requestedJobId };
+  if (i.ownLiveJobId) return { ok: true, jobId: i.ownLiveJobId };
+  if (i.onShift) return { ok: true, jobId: null };
+  return { ok: false, reason: "no-active-job" };
 }
 
 /** Only the Super Admin manages tracking (switch on/off, settings). */

@@ -9,7 +9,6 @@ import { getCompanySettings } from "@/server/settings";
 import { COMPANY, SERVICE_LABELS } from "@/lib/constants";
 import { staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { tierFromPackage } from "@/lib/service-scope";
-import { LocationPinger } from "@/components/staff-app/location-pinger";
 import { StaffFieldFlow } from "@/components/staff-app/field-flow";
 import { upiPayUri } from "@/lib/upi";
 import { StaffJobConsentToggle } from "@/components/staff-app/job-consent-toggle";
@@ -154,7 +153,6 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
         />
       )}
 
-      {job.isToday && !preview && (job.status === "ON_THE_WAY" || job.status === "STARTED") && <LocationPinger jobId={job.id} />}
 
       {job.marketingConsent !== null && (
         <StaffJobConsentToggle
