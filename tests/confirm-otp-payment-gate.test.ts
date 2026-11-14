@@ -43,16 +43,21 @@ test("payment record labels", () => {
   assert.match(cash, /Cash Collected by Asha, 14 Nov/);
 });
 
-test("Meta template: name, language, 8 placeholders, OTP instruction, allowlisted and submittable", () => {
+test("Meta template v2: name, language, 8 placeholders, Service Start Code wording, v7 buttons, allowlisted and submittable", () => {
   const t = templateByName(BOOKING_OTP_TEMPLATE_NAME)!;
-  assert.equal(t.name, "sahara_booking_confirmed_otp_v1");
+  assert.equal(t.name, "sahara_booking_confirmed_otp_v2");
   assert.equal(t.language, "en");
   assert.equal(t.category, "UTILITY");
   assert.equal(placeholderCount(t), 8);
   assert.equal(BOOKING_OTP_TEMPLATE_VARIABLES.length, 8);
   assert.equal(t.examples.length, 8);
-  assert.ok(t.body.includes("Please share this 4-digit OTP with our Sahara team upon arrival to start your service."));
-  assert.ok(t.body.includes("{{8}}") && !/\{\{8\}\}\s*$/.test(t.body), "a variable may not be the last thing in the body");
+  assert.ok(t.body.includes("Service Start Code: {{8}}"));
+  assert.ok(t.body.includes("Please share this 4-digit Service Start Code with our Sahara team upon arrival to start your service."));
+  assert.ok(!/otp/i.test(t.body + (t.footer ?? "") + t.examples.join(" ")), "Meta rejected v1 for the word OTP: the v2 text must not contain it");
+  const v7 = templateByName("sahara_booking_confirmed_v7")!;
+  assert.deepEqual(t.buttons, v7.buttons, "same three buttons as the approved v7");
+  assert.equal(t.footer, v7.footer);
+  assert.ok(!/\{\{\d+\}\}\s*$/.test(t.body), "a variable may not be the last thing in the body");
   assert.ok((t.footer ?? "").length <= 60);
   assert.ok(WHATSAPP_TRANSACTIONAL_TEMPLATES.includes(t.name));
   assert.ok(SUBMITTABLE_TEMPLATES.includes(t.name));
@@ -63,6 +68,7 @@ test("template parameters: one line each, OTP last, payable formatted", () => {
   const p = bookingConfirmationOtpParams({ customerName: "Priya\nS", jobNumber: "JOB-1", scheduledDate: new Date("2026-11-15T04:30:00Z"), scheduledTime: "10:00 AM", address: "Flat 4,\n  Kothrud", area: "Kothrud" }, "Full Home Deep Cleaning\n+ Chimney Deep Cleaning", 6098, "4821");
   assert.equal(p.length, 8);
   assert.ok(p.every((v) => !/[\n\t]/.test(v) && !/ {2,}/.test(v)));
+  assert.equal(p[1], "JOB-1", "same {{1}}-{{6}} order as v7: name, booking ID, service, date, time, area");
   assert.equal(p[6], "₹6,098");
   assert.equal(p[7], "4821");
 });
@@ -70,7 +76,7 @@ test("template parameters: one line each, OTP last, payable formatted", () => {
 test("plain-text confirmation carries the OTP and the instruction", () => {
   const m = premiumBookingConfirmationMessage({ customerName: "Priya", jobNumber: "JOB-1", service: "Home Deep Cleaning", date: new Date(), timeSlot: "10:00 AM", area: "Kothrud", startOtp: "4821" });
   assert.ok(m.includes("4821"));
-  assert.ok(m.includes("Please share this 4-digit OTP with our Sahara team upon arrival to start your service."));
+  assert.ok(m.includes("Please share this 4-digit Service Start Code with our Sahara team upon arrival to start your service."));
 });
 
 test("Deccan Gymkhana 411004 and Nigdi 411044 are Zone B (West Pune & PCMC)", () => {

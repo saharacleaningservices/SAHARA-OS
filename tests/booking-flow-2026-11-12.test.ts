@@ -52,7 +52,7 @@ test("add-ons: home & kitchen lists, per-seat sofa, pest control none", () => {
 
 test("pricing master: owner add-on prices, per-seat sofa, chimney not in the base packages", () => {
   const p = (id: string) => PRICING_MASTER.find((i) => i.contentId === id)!;
-  assert.deepEqual(["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35"].map((id) => p(id).price), [599, 399, 699, 299, 599]); // chimney ₹599 = Pune market rate (2026-11-14)
+  assert.deepEqual(["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35"].map((id) => p(id).price), [599, 499, 699, 299, 599]); // chimney ₹599 = Pune market rate (2026-11-14)
   assert.equal(p("SCS-09").price, 199);
   assert.equal(p("SCS-09").unit, "per seat");
   assert.equal(p("SCS-09").minQty, 1);

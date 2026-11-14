@@ -42,19 +42,20 @@ const bookingTemplateV6 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v6";
 // WHATSAPP_BOOKING_TEMPLATE=v7 → sahara_booking_confirmed_v7 (owner 2026-11-12, 100% Pay After Service): View Booking + Leave a Review
 // buttons and a Pay After Service quick reply, no advance. Set it in Coolify only AFTER Meta shows the template as Approved.
 const bookingTemplateV7 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "v7";
-// WHATSAPP_BOOKING_TEMPLATE=otp1 → sahara_booking_confirmed_otp_v1 (manual confirmation, 2026-11-14): booking details + amount payable + the single
-// 4-digit Start OTP. Set it in Coolify only AFTER Meta shows the template as Approved (the plain-text fallback carries the same OTP).
-const bookingTemplateOtp1 = () => process.env.WHATSAPP_BOOKING_TEMPLATE === "otp1";
+// WHATSAPP_BOOKING_TEMPLATE=otp2 → sahara_booking_confirmed_otp_v2 (manual confirmation): v7 layout + amount payable + the single 4-digit Service
+// Start Code. (v1 was rejected by Meta; "otp1" is kept as an alias so an old env value still selects the live template.) Set it in Coolify only AFTER
+// Meta shows the template as Approved (the plain-text fallback carries the same code).
+const bookingTemplateOtp1 = () => ["otp2", "otp1"].includes(process.env.WHATSAPP_BOOKING_TEMPLATE ?? "");
 
 /** Meta body parameters have no line breaks and no long space runs. */
 const oneLine = (v: string, max = 180) => v.replace(/[\r\n\t]+/g, ", ").replace(/ {2,}/g, " ").trim().slice(0, max);
 
-/** Body parameters {{1}}..{{8}} of sahara_booking_confirmed_otp_v1 (exported for tests and the CRM template reference card). */
+/** Body parameters {{1}}..{{8}} of sahara_booking_confirmed_otp_v2, same order as v7 for {{1}}-{{6}} (exported for tests and the CRM template reference card). */
 export function bookingConfirmationOtpParams(job: { customerName: string; jobNumber: string; scheduledDate: Date; scheduledTime: string; address: string; area: string }, serviceSummary: string, payable: number, otp: string) {
   return [
     oneLine(job.customerName, 60),
-    oneLine(serviceSummary, 200),
     job.jobNumber,
+    oneLine(serviceSummary, 200),
     formatDate(job.scheduledDate),
     job.scheduledTime,
     oneLine(job.address?.trim() || job.area, 160),
@@ -136,7 +137,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
 
   let job = await db.job.findUnique({ where: { id: jobId }, include: { payments: { where: { deletedAt: null } } } });
   if (!job || job.deletedAt || job.isDemo || job.status === "CANCELLED") return { skipped: "not-confirmable" as const };
-  // Every confirmation carries the single Start OTP. Jobs entered by hand (no OTP yet) get theirs here.
+  // Every confirmation carries the single Service Start Code. Jobs entered by hand (no OTP yet) get theirs here.
   if (!job.startOtp) {
     await db.job.update({ where: { id: job.id }, data: { startOtp: generateStartOtp(), startOtpSentAt: new Date() } });
     job = (await db.job.findUnique({ where: { id: jobId }, include: { payments: { where: { deletedAt: null } } } }))!;
@@ -191,7 +192,7 @@ async function sendBookingConfirmationOnce(jobId: string) {
   };
 
   if (templatesEnabled() && bookingTemplateOtp1() && startOtp) {
-    const t = templateByName(BOOKING_OTP_TEMPLATE_NAME)!;
+    const t = templateByName(BOOKING_OTP_TEMPLATE_NAME)!; // sahara_booking_confirmed_otp_v2
     const paid = job.payments.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
     const params = bookingConfirmationOtpParams(job, compactServiceLines(job).join(", ") || service, Math.max(0, job.jobValue - paid), startOtp);
     return viaTemplate({

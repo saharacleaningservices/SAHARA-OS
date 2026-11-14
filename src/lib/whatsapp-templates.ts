@@ -105,7 +105,7 @@ export function premiumBookingConfirmationMessage(input: {
   /** Booking total and recorded payments (shown only when a total exists). */
   total?: number | null;
   paid?: number | null;
-  /** The single 4-digit Start OTP issued at confirmation. */
+  /** The single 4-digit Service Start Code issued at confirmation. */
   startOtp?: string | null;
 }) {
   const trackingUrl = input.links?.booking || input.bookingUrl || `${PUBLIC_BOOKING_URL}/j/${input.jobNumber}`;
@@ -135,8 +135,8 @@ export function premiumBookingConfirmationMessage(input: {
     due > 0 ? `💳 Pay advance: ${payUrl}` : `💳 Payment: fully settled — thank you!`,
     `🔁 Reschedule / postpone / cancel: reply *MORE* or use “Need a change?” on your booking page.`,
     input.startOtp ? `` : null,
-    input.startOtp ? `🔐 Your 4-digit Start OTP: *${input.startOtp}*` : null,
-    input.startOtp ? `Please share this 4-digit OTP with our Sahara team upon arrival to start your service.` : null,
+    input.startOtp ? `🔐 Service Start Code: *${input.startOtp}*` : null,
+    input.startOtp ? `Please share this 4-digit Service Start Code with our Sahara team upon arrival to start your service.` : null,
     input.googleReviewUrl ? `⭐ ${input.googleReviewUrl}` : null,
   ]
     .filter((l) => l !== null)

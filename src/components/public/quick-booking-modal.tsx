@@ -133,7 +133,7 @@ export function LeadModal({ waNumber }: { waNumber: string }) {
   const subtotal = (intent.price ?? 0) + extrasTotal;
   const gap = moq > 0 ? Math.max(0, moq - subtotal) : 0;
   const inBasket = [...(intent.items ?? []).map((i) => i.contentId), ...extras.map((x) => x.contentId)];
-  // 1-click checkout chips: Fridge ₹499 · Chimney ₹699 · Pest Control Shot ₹899 · Balcony ₹499 (live prices from the pool).
+  // 1-click checkout chips: Fridge ₹499 · Chimney ₹599 · Kitchen Pest Control ₹1,199 · Balcony ₹499 (live prices from the pool).
   const chips = CHECKOUT_CHIP_IDS.map((id) => pool.find((a) => a.contentId === id)).filter((a): a is AddOn => !!a && !(intent.category === "PEST_CONTROL" && a.contentId === "SCS-36") && !(intent.items ?? []).some((i) => i.contentId === a.contentId));
   const upgrade = gap > 0 ? (upgradeBundle(gap, chips, inBasket).length ? upgradeBundle(gap, chips, inBasket) : upgradeBundle(gap, pool, inBasket)) : [];
   const toggleExtra = (a: AddOn) => {

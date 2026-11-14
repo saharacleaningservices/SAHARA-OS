@@ -26,9 +26,9 @@ test("unfurnished flat matrix: 1/2/3 BHK at 3,199 / 3,899 / 4,599, no 4 BHK", ()
   assert.equal(CATALOG_SERVICES.find((s) => s.slug === "unfurnished-home-cleaning")?.pricing.mode, "unfurnished");
 });
 
-test("checkout chips: Single Fridge 399, Chimney Deep Cleaning 599 (Pune market rate, 2026-11-14), Pest Control Shot 899, Balcony 499", () => {
+test("checkout chips = website prices (2026-11-14): Single Fridge 499, Chimney 599, Kitchen Pest Control 1,199, Balcony 499", () => {
   assert.deepEqual([...CHECKOUT_CHIP_IDS], ["SCS-32", "SCS-35", "SCS-36", "SCS-34"]);
-  assert.deepEqual(CHECKOUT_CHIP_IDS.map((id) => byId(id)?.price), [399, 599, 899, 499]);
+  assert.deepEqual(CHECKOUT_CHIP_IDS.map((id) => byId(id)?.price), [499, 599, 1199, 499]);
   assert.equal(byId("SCS-36")?.addOnOnly, true, "pest shot is add-on only");
 });
 
@@ -62,9 +62,9 @@ test("1-click upgrade bundle closes the gap with the fewest add-ons", () => {
 test("combo up-sell only shows genuine savings", () => {
   const deals = comboSavings(PRICING_MASTER);
   for (const d of deals) assert.ok(d.saving > 0 && d.separate > d.combo.price!);
-  // Kitchen ₹1,999 + 2 bathrooms ₹1,198 + single-door fridge ₹399 = ₹3,596 > ₹3,499 combo.
+  // Kitchen ₹1,999 + 2 bathrooms ₹1,198 + single-door fridge ₹499 = ₹3,696 > ₹3,499 combo.
   const k = deals.find((d) => d.combo.contentId === "SCS-26");
-  assert.ok(k && k.saving === 3596 - 3499);
+  assert.ok(k && k.saving === 3696 - 3499);
   // Kitchen + 3 bathrooms separately (₹3,796) is cheaper than the ₹3,999 combo → never advertised as a saving.
   assert.ok(!deals.some((d) => d.combo.contentId === "SCS-27"));
 });
