@@ -4,6 +4,7 @@ import { SERVICE_LABELS } from "@/lib/constants";
 import { getBusinessTarget } from "@/server/actions/business-target";
 import { getRevenueDashboard } from "@/server/revenue";
 import { slotStartMinutes } from "@/lib/utils";
+import { buildWeeklyCommandCenter, istWeekRange } from "@/lib/weekly-command-center";
 
 const SERVICE_ORDER = [
   "HOME_DEEP_CLEANING",
@@ -557,4 +558,22 @@ export async function getOperationsHome() {
     getLeadMonthCalendar(now.getFullYear(), now.getMonth() + 1, "operations", null),
   ]);
   return { yesterday, today, tomorrow, totalLeadsCount, todaysLeadsCount, calendar };
+}
+
+// ── Weekly Command Center (owner 2026-11-14) ──────────────────────────────────────────────────────────────────────────────────────
+// Fetches This Week + Last Week rows (IST, Mon–Sun) once; every figure is computed by the pure buildWeeklyCommandCenter.
+export async function getWeeklyCommandCenter(now: Date = new Date()) {
+  const from = istWeekRange(now, 1).from;
+  const to = istWeekRange(now, 0).to;
+  const range = { gte: from, lt: to };
+  const [leads, jobsCreated, completed, payments] = await Promise.all([
+    db.lead.findMany({ where: { deletedAt: null, isDemo: false, createdAt: range }, select: { createdAt: true, source: true } }),
+    db.job.findMany({ where: { deletedAt: null, isDemo: false, createdAt: range }, select: { createdAt: true } }),
+    db.job.findMany({
+      where: { deletedAt: null, isDemo: false, status: "COMPLETED", completedAt: range },
+      select: { completedAt: true, jobValue: true, startOtp: true, startOtpVerifiedAt: true, serviceItems: true, lead: { select: { serviceItems: true, addOnServices: true } } },
+    }),
+    db.payment.findMany({ where: { deletedAt: null, isDemo: false, paidDate: range }, select: { paidDate: true, paidAmount: true, mode: true } }),
+  ]);
+  return buildWeeklyCommandCenter({ leads, jobsCreated, completed, payments }, now);
 }

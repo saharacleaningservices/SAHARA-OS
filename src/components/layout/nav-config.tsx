@@ -30,6 +30,7 @@ import {
     Send,
     Settings,
     Handshake,
+    Gauge,
     type LucideIcon,
 } from "lucide-react";
 
@@ -114,6 +115,8 @@ export type OffMenuPage = { label: string; href: string; section: string; icon: 
  * the dashboard module shortcuts. Access is still decided per section by canAccess (unchanged role rules).
  */
 export const SETTINGS_PAGES: OffMenuPage[] = [
+  // Weekly Command Center (owner 2026-11-14): "command-center" is in no role's list → Super Admin only ("*"); the page also requireRole(["ADMIN"]).
+  { label: "Weekly Command Center", href: "/admin/command-center", section: "command-center", icon: Gauge, tab: "controls", hint: "This week vs last: leads, bookings, revenue, UPI / cash, cross-sell" },
   { label: "Settings", href: "/settings", section: "settings", icon: Settings, tab: "controls", hint: "Company, integrations, WhatsApp, payments" },
   { label: "User Management", href: "/admin/users", section: "users", icon: Users2, tab: "controls", hint: "Logins, roles, access" },
   { label: "Pricing & Packages", href: "/settings/pricing", section: "pricing", icon: IndianRupee, tab: "controls", hint: "Service prices and packages" },
