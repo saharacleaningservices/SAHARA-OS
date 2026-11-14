@@ -42,7 +42,8 @@ export const jobSchema = z.object({
   scheduledTime: z.string().min(1),
   supervisorId: z.string().optional().or(z.literal("")),
   staffIds: z.array(z.string()).optional(),
-  jobValue: z.coerce.number().min(3999, "Minimum job value is ₹3,999"),
+  // Minimum is zone-aware and enforced server-side (see src/lib/zones.ts).
+  jobValue: z.coerce.number().min(0, "Job value cannot be negative"),
   notes: z.string().optional().or(z.literal("")),
   leadId: z.string().optional().or(z.literal("")),
 });

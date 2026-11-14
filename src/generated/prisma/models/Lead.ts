@@ -52,6 +52,13 @@ export type LeadMinAggregateOutputType = {
   serviceVariant: string | null
   mapLink: string | null
   referralCode: string | null
+  zone: string | null
+  pincode: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  gclid: string | null
+  fbclid: string | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -80,6 +87,13 @@ export type LeadMaxAggregateOutputType = {
   serviceVariant: string | null
   mapLink: string | null
   referralCode: string | null
+  zone: string | null
+  pincode: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  gclid: string | null
+  fbclid: string | null
   isDemo: boolean | null
   deletedAt: Date | null
   deletedByName: string | null
@@ -108,6 +122,13 @@ export type LeadCountAggregateOutputType = {
   serviceVariant: number
   mapLink: number
   referralCode: number
+  zone: number
+  pincode: number
+  utmSource: number
+  utmMedium: number
+  utmCampaign: number
+  gclid: number
+  fbclid: number
   isDemo: number
   deletedAt: number
   deletedByName: number
@@ -146,6 +167,13 @@ export type LeadMinAggregateInputType = {
   serviceVariant?: true
   mapLink?: true
   referralCode?: true
+  zone?: true
+  pincode?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  gclid?: true
+  fbclid?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -174,6 +202,13 @@ export type LeadMaxAggregateInputType = {
   serviceVariant?: true
   mapLink?: true
   referralCode?: true
+  zone?: true
+  pincode?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  gclid?: true
+  fbclid?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -202,6 +237,13 @@ export type LeadCountAggregateInputType = {
   serviceVariant?: true
   mapLink?: true
   referralCode?: true
+  zone?: true
+  pincode?: true
+  utmSource?: true
+  utmMedium?: true
+  utmCampaign?: true
+  gclid?: true
+  fbclid?: true
   isDemo?: true
   deletedAt?: true
   deletedByName?: true
@@ -317,6 +359,13 @@ export type LeadGroupByOutputType = {
   serviceVariant: string | null
   mapLink: string | null
   referralCode: string | null
+  zone: string | null
+  pincode: string | null
+  utmSource: string | null
+  utmMedium: string | null
+  utmCampaign: string | null
+  gclid: string | null
+  fbclid: string | null
   isDemo: boolean
   deletedAt: Date | null
   deletedByName: string | null
@@ -368,6 +417,13 @@ export type LeadWhereInput = {
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  zone?: Prisma.StringNullableFilter<"Lead"> | string | null
+  pincode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -406,6 +462,13 @@ export type LeadOrderByWithRelationInput = {
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  zone?: Prisma.SortOrderInput | Prisma.SortOrder
+  pincode?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  gclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  fbclid?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -447,6 +510,13 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  zone?: Prisma.StringNullableFilter<"Lead"> | string | null
+  pincode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -485,6 +555,13 @@ export type LeadOrderByWithAggregationInput = {
   serviceVariant?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   referralCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  zone?: Prisma.SortOrderInput | Prisma.SortOrder
+  pincode?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmMedium?: Prisma.SortOrderInput | Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrderInput | Prisma.SortOrder
+  gclid?: Prisma.SortOrderInput | Prisma.SortOrder
+  fbclid?: Prisma.SortOrderInput | Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedByName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -521,6 +598,13 @@ export type LeadScalarWhereWithAggregatesInput = {
   serviceVariant?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  zone?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  pincode?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolWithAggregatesFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
@@ -549,6 +633,13 @@ export type LeadCreateInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -584,6 +675,13 @@ export type LeadUncheckedCreateInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -619,6 +717,13 @@ export type LeadUpdateInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -654,6 +759,13 @@ export type LeadUncheckedUpdateInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -689,6 +801,13 @@ export type LeadCreateManyInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -717,6 +836,13 @@ export type LeadUpdateManyMutationInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -742,6 +868,13 @@ export type LeadUncheckedUpdateManyInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -780,6 +913,13 @@ export type LeadCountOrderByAggregateInput = {
   serviceVariant?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  zone?: Prisma.SortOrder
+  pincode?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -812,6 +952,13 @@ export type LeadMaxOrderByAggregateInput = {
   serviceVariant?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  zone?: Prisma.SortOrder
+  pincode?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -840,6 +987,13 @@ export type LeadMinOrderByAggregateInput = {
   serviceVariant?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   referralCode?: Prisma.SortOrder
+  zone?: Prisma.SortOrder
+  pincode?: Prisma.SortOrder
+  utmSource?: Prisma.SortOrder
+  utmMedium?: Prisma.SortOrder
+  utmCampaign?: Prisma.SortOrder
+  gclid?: Prisma.SortOrder
+  fbclid?: Prisma.SortOrder
   isDemo?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   deletedByName?: Prisma.SortOrder
@@ -1130,6 +1284,13 @@ export type LeadCreateWithoutCreatedByInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1164,6 +1325,13 @@ export type LeadUncheckedCreateWithoutCreatedByInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1207,6 +1375,13 @@ export type LeadCreateWithoutAssignedToInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1241,6 +1416,13 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1303,6 +1485,13 @@ export type LeadScalarWhereInput = {
   serviceVariant?: Prisma.StringNullableFilter<"Lead"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Lead"> | string | null
   referralCode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  zone?: Prisma.StringNullableFilter<"Lead"> | string | null
+  pincode?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmSource?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmMedium?: Prisma.StringNullableFilter<"Lead"> | string | null
+  utmCampaign?: Prisma.StringNullableFilter<"Lead"> | string | null
+  gclid?: Prisma.StringNullableFilter<"Lead"> | string | null
+  fbclid?: Prisma.StringNullableFilter<"Lead"> | string | null
   isDemo?: Prisma.BoolFilter<"Lead"> | boolean
   deletedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   deletedByName?: Prisma.StringNullableFilter<"Lead"> | string | null
@@ -1347,6 +1536,13 @@ export type LeadCreateWithoutAssignedStaffInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1381,6 +1577,13 @@ export type LeadUncheckedCreateWithoutAssignedStaffInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1440,6 +1643,13 @@ export type LeadCreateWithoutQuotationsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1474,6 +1684,13 @@ export type LeadUncheckedCreateWithoutQuotationsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1524,6 +1741,13 @@ export type LeadUpdateWithoutQuotationsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1558,6 +1782,13 @@ export type LeadUncheckedUpdateWithoutQuotationsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1592,6 +1823,13 @@ export type LeadCreateWithoutFollowUpsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1626,6 +1864,13 @@ export type LeadUncheckedCreateWithoutFollowUpsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1676,6 +1921,13 @@ export type LeadUpdateWithoutFollowUpsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1710,6 +1962,13 @@ export type LeadUncheckedUpdateWithoutFollowUpsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1744,6 +2003,13 @@ export type LeadCreateWithoutTimelineInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1778,6 +2044,13 @@ export type LeadUncheckedCreateWithoutTimelineInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1828,6 +2101,13 @@ export type LeadUpdateWithoutTimelineInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1862,6 +2142,13 @@ export type LeadUncheckedUpdateWithoutTimelineInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1896,6 +2183,13 @@ export type LeadCreateWithoutJobsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1930,6 +2224,13 @@ export type LeadUncheckedCreateWithoutJobsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -1980,6 +2281,13 @@ export type LeadUpdateWithoutJobsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2014,6 +2322,13 @@ export type LeadUncheckedUpdateWithoutJobsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2048,6 +2363,13 @@ export type LeadCreateWithoutPaymentsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2082,6 +2404,13 @@ export type LeadUncheckedCreateWithoutPaymentsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2132,6 +2461,13 @@ export type LeadUpdateWithoutPaymentsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2166,6 +2502,13 @@ export type LeadUncheckedUpdateWithoutPaymentsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2200,6 +2543,13 @@ export type LeadCreateWithoutActivityLogsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2234,6 +2584,13 @@ export type LeadUncheckedCreateWithoutActivityLogsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2284,6 +2641,13 @@ export type LeadUpdateWithoutActivityLogsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2318,6 +2682,13 @@ export type LeadUncheckedUpdateWithoutActivityLogsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2352,6 +2723,13 @@ export type LeadCreateWithoutAmcContractsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2386,6 +2764,13 @@ export type LeadUncheckedCreateWithoutAmcContractsInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2436,6 +2821,13 @@ export type LeadUpdateWithoutAmcContractsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2470,6 +2862,13 @@ export type LeadUncheckedUpdateWithoutAmcContractsInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2504,6 +2903,13 @@ export type LeadCreateManyCreatedByInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2531,6 +2937,13 @@ export type LeadCreateManyAssignedToInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2558,6 +2971,13 @@ export type LeadUpdateWithoutCreatedByInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2592,6 +3012,13 @@ export type LeadUncheckedUpdateWithoutCreatedByInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2626,6 +3053,13 @@ export type LeadUncheckedUpdateManyWithoutCreatedByInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2653,6 +3087,13 @@ export type LeadUpdateWithoutAssignedToInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2687,6 +3128,13 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2721,6 +3169,13 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2748,6 +3203,13 @@ export type LeadCreateManyAssignedStaffInput = {
   serviceVariant?: string | null
   mapLink?: string | null
   referralCode?: string | null
+  zone?: string | null
+  pincode?: string | null
+  utmSource?: string | null
+  utmMedium?: string | null
+  utmCampaign?: string | null
+  gclid?: string | null
+  fbclid?: string | null
   isDemo?: boolean
   deletedAt?: Date | string | null
   deletedByName?: string | null
@@ -2775,6 +3237,13 @@ export type LeadUpdateWithoutAssignedStaffInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2809,6 +3278,13 @@ export type LeadUncheckedUpdateWithoutAssignedStaffInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2843,6 +3319,13 @@ export type LeadUncheckedUpdateManyWithoutAssignedStaffInput = {
   serviceVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmMedium?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  utmCampaign?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fbclid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2955,6 +3438,13 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   serviceVariant?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  zone?: boolean
+  pincode?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  gclid?: boolean
+  fbclid?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -2994,6 +3484,13 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   serviceVariant?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  zone?: boolean
+  pincode?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  gclid?: boolean
+  fbclid?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -3025,6 +3522,13 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   serviceVariant?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  zone?: boolean
+  pincode?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  gclid?: boolean
+  fbclid?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -3056,6 +3560,13 @@ export type LeadSelectScalar = {
   serviceVariant?: boolean
   mapLink?: boolean
   referralCode?: boolean
+  zone?: boolean
+  pincode?: boolean
+  utmSource?: boolean
+  utmMedium?: boolean
+  utmCampaign?: boolean
+  gclid?: boolean
+  fbclid?: boolean
   isDemo?: boolean
   deletedAt?: boolean
   deletedByName?: boolean
@@ -3066,7 +3577,7 @@ export type LeadSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadNumber" | "name" | "mobile" | "whatsapp" | "address" | "area" | "service" | "source" | "quoteAmount" | "stage" | "followUpDate" | "notes" | "serviceCategory" | "serviceVariant" | "mapLink" | "referralCode" | "zone" | "pincode" | "utmSource" | "utmMedium" | "utmCampaign" | "gclid" | "fbclid" | "isDemo" | "deletedAt" | "deletedByName" | "assignedStaffId" | "assignedToId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedStaff?: boolean | Prisma.Lead$assignedStaffArgs<ExtArgs>
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -3123,6 +3634,13 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     serviceVariant: string | null
     mapLink: string | null
     referralCode: string | null
+    zone: string | null
+    pincode: string | null
+    utmSource: string | null
+    utmMedium: string | null
+    utmCampaign: string | null
+    gclid: string | null
+    fbclid: string | null
     isDemo: boolean
     deletedAt: Date | null
     deletedByName: string | null
@@ -3581,6 +4099,13 @@ export interface LeadFieldRefs {
   readonly serviceVariant: Prisma.FieldRef<"Lead", 'String'>
   readonly mapLink: Prisma.FieldRef<"Lead", 'String'>
   readonly referralCode: Prisma.FieldRef<"Lead", 'String'>
+  readonly zone: Prisma.FieldRef<"Lead", 'String'>
+  readonly pincode: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmSource: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmMedium: Prisma.FieldRef<"Lead", 'String'>
+  readonly utmCampaign: Prisma.FieldRef<"Lead", 'String'>
+  readonly gclid: Prisma.FieldRef<"Lead", 'String'>
+  readonly fbclid: Prisma.FieldRef<"Lead", 'String'>
   readonly isDemo: Prisma.FieldRef<"Lead", 'Boolean'>
   readonly deletedAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly deletedByName: Prisma.FieldRef<"Lead", 'String'>

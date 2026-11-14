@@ -508,4 +508,59 @@ db.exec(`CREATE INDEX IF NOT EXISTS "Device_status_idx" ON "Device"("status");`)
 
 console.log("Production hardening migration complete.");
 
+// ─────────────────────────────────────────────────────────────────────────
+// Zone routing + attribution, GPS tracking, OTP (idempotent, additive only).
+// ─────────────────────────────────────────────────────────────────────────
+for (const col of ["zone", "pincode", "utmSource", "utmMedium", "utmCampaign", "gclid", "fbclid"]) {
+  addColumnIfMissing("Lead", col, `"${col}" TEXT`);
+}
+addColumnIfMissing("Attendance", "checkOutLat", `"checkOutLat" REAL`);
+addColumnIfMissing("Attendance", "checkOutLng", `"checkOutLng" REAL`);
+for (const col of ["startLat", "startLng", "completeLat", "completeLng"]) {
+  addColumnIfMissing("Job", col, `"${col}" REAL`);
+}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "StaffLocationPing" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "staffId" TEXT NOT NULL,
+    "jobId" TEXT,
+    "lat" REAL NOT NULL,
+    "lng" REAL NOT NULL,
+    "accuracy" REAL,
+    "recordedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "StaffLocationPing_staffId_fkey" FOREIGN KEY ("staffId") REFERENCES "Staff" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "StaffLocationPing_staffId_recordedAt_idx" ON "StaffLocationPing"("staffId", "recordedAt");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "JobOtp" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "jobId" TEXT NOT NULL,
+    "purpose" TEXT NOT NULL,
+    "codeHash" TEXT NOT NULL,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "expiresAt" DATETIME NOT NULL,
+    "verifiedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "JobOtp_jobId_purpose_idx" ON "JobOtp"("jobId", "purpose");`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS "LoginOtp" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "codeHash" TEXT NOT NULL,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "expiresAt" DATETIME NOT NULL,
+    "consumedAt" DATETIME,
+    "ipAddress" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+db.exec(`CREATE INDEX IF NOT EXISTS "LoginOtp_userId_idx" ON "LoginOtp"("userId");`);
+console.log("Zone / GPS / OTP migration complete.");
+
 db.close();

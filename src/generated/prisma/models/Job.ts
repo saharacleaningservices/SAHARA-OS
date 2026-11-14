@@ -27,10 +27,18 @@ export type AggregateJob = {
 }
 
 export type JobAvgAggregateOutputType = {
+  startLat: number | null
+  startLng: number | null
+  completeLat: number | null
+  completeLng: number | null
   jobValue: number | null
 }
 
 export type JobSumAggregateOutputType = {
+  startLat: number | null
+  startLng: number | null
+  completeLat: number | null
+  completeLng: number | null
   jobValue: number | null
 }
 
@@ -50,6 +58,10 @@ export type JobMinAggregateOutputType = {
   onTheWayAt: Date | null
   startedAt: Date | null
   completedAt: Date | null
+  startLat: number | null
+  startLng: number | null
+  completeLat: number | null
+  completeLng: number | null
   jobValue: number | null
   notes: string | null
   customerSignatureUrl: string | null
@@ -79,6 +91,10 @@ export type JobMaxAggregateOutputType = {
   onTheWayAt: Date | null
   startedAt: Date | null
   completedAt: Date | null
+  startLat: number | null
+  startLng: number | null
+  completeLat: number | null
+  completeLng: number | null
   jobValue: number | null
   notes: string | null
   customerSignatureUrl: string | null
@@ -108,6 +124,10 @@ export type JobCountAggregateOutputType = {
   onTheWayAt: number
   startedAt: number
   completedAt: number
+  startLat: number
+  startLng: number
+  completeLat: number
+  completeLng: number
   jobValue: number
   notes: number
   customerSignatureUrl: number
@@ -124,10 +144,18 @@ export type JobCountAggregateOutputType = {
 
 
 export type JobAvgAggregateInputType = {
+  startLat?: true
+  startLng?: true
+  completeLat?: true
+  completeLng?: true
   jobValue?: true
 }
 
 export type JobSumAggregateInputType = {
+  startLat?: true
+  startLng?: true
+  completeLat?: true
+  completeLng?: true
   jobValue?: true
 }
 
@@ -147,6 +175,10 @@ export type JobMinAggregateInputType = {
   onTheWayAt?: true
   startedAt?: true
   completedAt?: true
+  startLat?: true
+  startLng?: true
+  completeLat?: true
+  completeLng?: true
   jobValue?: true
   notes?: true
   customerSignatureUrl?: true
@@ -176,6 +208,10 @@ export type JobMaxAggregateInputType = {
   onTheWayAt?: true
   startedAt?: true
   completedAt?: true
+  startLat?: true
+  startLng?: true
+  completeLat?: true
+  completeLng?: true
   jobValue?: true
   notes?: true
   customerSignatureUrl?: true
@@ -205,6 +241,10 @@ export type JobCountAggregateInputType = {
   onTheWayAt?: true
   startedAt?: true
   completedAt?: true
+  startLat?: true
+  startLng?: true
+  completeLat?: true
+  completeLng?: true
   jobValue?: true
   notes?: true
   customerSignatureUrl?: true
@@ -321,6 +361,10 @@ export type JobGroupByOutputType = {
   onTheWayAt: Date | null
   startedAt: Date | null
   completedAt: Date | null
+  startLat: number | null
+  startLng: number | null
+  completeLat: number | null
+  completeLng: number | null
   jobValue: number
   notes: string | null
   customerSignatureUrl: string | null
@@ -373,6 +417,10 @@ export type JobWhereInput = {
   onTheWayAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  startLng?: Prisma.FloatNullableFilter<"Job"> | number | null
+  completeLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  completeLng?: Prisma.FloatNullableFilter<"Job"> | number | null
   jobValue?: Prisma.FloatFilter<"Job"> | number
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -414,6 +462,10 @@ export type JobOrderByWithRelationInput = {
   onTheWayAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  startLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  startLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  completeLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  completeLng?: Prisma.SortOrderInput | Prisma.SortOrder
   jobValue?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -458,6 +510,10 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   onTheWayAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  startLng?: Prisma.FloatNullableFilter<"Job"> | number | null
+  completeLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  completeLng?: Prisma.FloatNullableFilter<"Job"> | number | null
   jobValue?: Prisma.FloatFilter<"Job"> | number
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -499,6 +555,10 @@ export type JobOrderByWithAggregationInput = {
   onTheWayAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  startLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  startLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  completeLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  completeLng?: Prisma.SortOrderInput | Prisma.SortOrder
   jobValue?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -536,6 +596,10 @@ export type JobScalarWhereWithAggregatesInput = {
   onTheWayAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  startLat?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  startLng?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  completeLat?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  completeLng?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
   jobValue?: Prisma.FloatWithAggregatesFilter<"Job"> | number
   notes?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
@@ -563,6 +627,10 @@ export type JobCreateInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -603,6 +671,10 @@ export type JobUncheckedCreateInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -639,6 +711,10 @@ export type JobUpdateInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -679,6 +755,10 @@ export type JobUncheckedUpdateInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -717,6 +797,10 @@ export type JobCreateManyInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -744,6 +828,10 @@ export type JobUpdateManyMutationInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -772,6 +860,10 @@ export type JobUncheckedUpdateManyInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -811,6 +903,10 @@ export type JobCountOrderByAggregateInput = {
   onTheWayAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  startLat?: Prisma.SortOrder
+  startLng?: Prisma.SortOrder
+  completeLat?: Prisma.SortOrder
+  completeLng?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
@@ -825,6 +921,10 @@ export type JobCountOrderByAggregateInput = {
 }
 
 export type JobAvgOrderByAggregateInput = {
+  startLat?: Prisma.SortOrder
+  startLng?: Prisma.SortOrder
+  completeLat?: Prisma.SortOrder
+  completeLng?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
 }
 
@@ -844,6 +944,10 @@ export type JobMaxOrderByAggregateInput = {
   onTheWayAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  startLat?: Prisma.SortOrder
+  startLng?: Prisma.SortOrder
+  completeLat?: Prisma.SortOrder
+  completeLng?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
@@ -873,6 +977,10 @@ export type JobMinOrderByAggregateInput = {
   onTheWayAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
+  startLat?: Prisma.SortOrder
+  startLng?: Prisma.SortOrder
+  completeLat?: Prisma.SortOrder
+  completeLng?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   customerSignatureUrl?: Prisma.SortOrder
@@ -887,6 +995,10 @@ export type JobMinOrderByAggregateInput = {
 }
 
 export type JobSumOrderByAggregateInput = {
+  startLat?: Prisma.SortOrder
+  startLng?: Prisma.SortOrder
+  completeLat?: Prisma.SortOrder
+  completeLng?: Prisma.SortOrder
   jobValue?: Prisma.SortOrder
 }
 
@@ -1178,6 +1290,10 @@ export type JobCreateWithoutSupervisorInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1216,6 +1332,10 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1282,6 +1402,10 @@ export type JobScalarWhereInput = {
   onTheWayAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  startLng?: Prisma.FloatNullableFilter<"Job"> | number | null
+  completeLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  completeLng?: Prisma.FloatNullableFilter<"Job"> | number | null
   jobValue?: Prisma.FloatFilter<"Job"> | number
   notes?: Prisma.StringNullableFilter<"Job"> | string | null
   customerSignatureUrl?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -1309,6 +1433,10 @@ export type JobCreateWithoutLeadInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1347,6 +1475,10 @@ export type JobUncheckedCreateWithoutLeadInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1408,6 +1540,10 @@ export type JobCreateWithoutAssignmentsInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1447,6 +1583,10 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1498,6 +1638,10 @@ export type JobUpdateWithoutAssignmentsInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1537,6 +1681,10 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1572,6 +1720,10 @@ export type JobCreateWithoutPhotosInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1611,6 +1763,10 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1662,6 +1818,10 @@ export type JobUpdateWithoutPhotosInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1701,6 +1861,10 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1736,6 +1900,10 @@ export type JobCreateWithoutCertificateInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1775,6 +1943,10 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1826,6 +1998,10 @@ export type JobUpdateWithoutCertificateInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1865,6 +2041,10 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1900,6 +2080,10 @@ export type JobCreateWithoutPaymentsInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1939,6 +2123,10 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -1990,6 +2178,10 @@ export type JobUpdateWithoutPaymentsInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2029,6 +2221,10 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2064,6 +2260,10 @@ export type JobCreateWithoutExpensesInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2103,6 +2303,10 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2154,6 +2358,10 @@ export type JobUpdateWithoutExpensesInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2193,6 +2401,10 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2228,6 +2440,10 @@ export type JobCreateWithoutActivityLogsInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2267,6 +2483,10 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2318,6 +2538,10 @@ export type JobUpdateWithoutActivityLogsInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2357,6 +2581,10 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2392,6 +2620,10 @@ export type JobCreateWithoutVehicleInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2431,6 +2663,10 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2491,6 +2727,10 @@ export type JobCreateWithoutMaterialIssuesInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2530,6 +2770,10 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2581,6 +2825,10 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2620,6 +2868,10 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2655,6 +2907,10 @@ export type JobCreateWithoutInvoiceInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2694,6 +2950,10 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2745,6 +3005,10 @@ export type JobUpdateWithoutInvoiceInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2784,6 +3048,10 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2819,6 +3087,10 @@ export type JobCreateWithoutVideosInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2858,6 +3130,10 @@ export type JobUncheckedCreateWithoutVideosInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -2909,6 +3185,10 @@ export type JobUpdateWithoutVideosInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2948,6 +3228,10 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2984,6 +3268,10 @@ export type JobCreateManySupervisorInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -3011,6 +3299,10 @@ export type JobUpdateWithoutSupervisorInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3049,6 +3341,10 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3086,6 +3382,10 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3114,6 +3414,10 @@ export type JobCreateManyLeadInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -3141,6 +3445,10 @@ export type JobUpdateWithoutLeadInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3179,6 +3487,10 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3216,6 +3528,10 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3245,6 +3561,10 @@ export type JobCreateManyVehicleInput = {
   onTheWayAt?: Date | string | null
   startedAt?: Date | string | null
   completedAt?: Date | string | null
+  startLat?: number | null
+  startLng?: number | null
+  completeLat?: number | null
+  completeLng?: number | null
   jobValue: number
   notes?: string | null
   customerSignatureUrl?: string | null
@@ -3271,6 +3591,10 @@ export type JobUpdateWithoutVehicleInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3310,6 +3634,10 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3347,6 +3675,10 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   onTheWayAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  startLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  completeLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   jobValue?: Prisma.FloatFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerSignatureUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3460,6 +3792,10 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   onTheWayAt?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  startLat?: boolean
+  startLng?: boolean
+  completeLat?: boolean
+  completeLng?: boolean
   jobValue?: boolean
   notes?: boolean
   customerSignatureUrl?: boolean
@@ -3502,6 +3838,10 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   onTheWayAt?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  startLat?: boolean
+  startLng?: boolean
+  completeLat?: boolean
+  completeLng?: boolean
   jobValue?: boolean
   notes?: boolean
   customerSignatureUrl?: boolean
@@ -3534,6 +3874,10 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   onTheWayAt?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  startLat?: boolean
+  startLng?: boolean
+  completeLat?: boolean
+  completeLng?: boolean
   jobValue?: boolean
   notes?: boolean
   customerSignatureUrl?: boolean
@@ -3566,6 +3910,10 @@ export type JobSelectScalar = {
   onTheWayAt?: boolean
   startedAt?: boolean
   completedAt?: boolean
+  startLat?: boolean
+  startLng?: boolean
+  completeLat?: boolean
+  completeLng?: boolean
   jobValue?: boolean
   notes?: boolean
   customerSignatureUrl?: boolean
@@ -3579,7 +3927,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "address" | "area" | "service" | "scheduledDate" | "scheduledTime" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "address" | "area" | "service" | "scheduledDate" | "scheduledTime" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "startLat" | "startLng" | "completeLat" | "completeLng" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "mapLink" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -3638,6 +3986,10 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     onTheWayAt: Date | null
     startedAt: Date | null
     completedAt: Date | null
+    startLat: number | null
+    startLng: number | null
+    completeLat: number | null
+    completeLng: number | null
     jobValue: number
     notes: string | null
     customerSignatureUrl: string | null
@@ -4099,6 +4451,10 @@ export interface JobFieldRefs {
   readonly onTheWayAt: Prisma.FieldRef<"Job", 'DateTime'>
   readonly startedAt: Prisma.FieldRef<"Job", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly startLat: Prisma.FieldRef<"Job", 'Float'>
+  readonly startLng: Prisma.FieldRef<"Job", 'Float'>
+  readonly completeLat: Prisma.FieldRef<"Job", 'Float'>
+  readonly completeLng: Prisma.FieldRef<"Job", 'Float'>
   readonly jobValue: Prisma.FieldRef<"Job", 'Float'>
   readonly notes: Prisma.FieldRef<"Job", 'String'>
   readonly customerSignatureUrl: Prisma.FieldRef<"Job", 'String'>

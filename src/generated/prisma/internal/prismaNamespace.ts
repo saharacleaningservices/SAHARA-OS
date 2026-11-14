@@ -420,7 +420,10 @@ export const ModelName = {
   FineRecord: 'FineRecord',
   RewardRecord: 'RewardRecord',
   Invoice: 'Invoice',
-  JobVideo: 'JobVideo'
+  JobVideo: 'JobVideo',
+  StaffLocationPing: 'StaffLocationPing',
+  JobOtp: 'JobOtp',
+  LoginOtp: 'LoginOtp'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -436,7 +439,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo"
+    modelProps: "user" | "device" | "staff" | "attendance" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppMessage" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "invoice" | "jobVideo" | "staffLocationPing" | "jobOtp" | "loginOtp"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2734,6 +2737,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StaffLocationPing: {
+      payload: Prisma.$StaffLocationPingPayload<ExtArgs>
+      fields: Prisma.StaffLocationPingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StaffLocationPingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StaffLocationPingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>
+        }
+        findFirst: {
+          args: Prisma.StaffLocationPingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StaffLocationPingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>
+        }
+        findMany: {
+          args: Prisma.StaffLocationPingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>[]
+        }
+        create: {
+          args: Prisma.StaffLocationPingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>
+        }
+        createMany: {
+          args: Prisma.StaffLocationPingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StaffLocationPingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>[]
+        }
+        delete: {
+          args: Prisma.StaffLocationPingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>
+        }
+        update: {
+          args: Prisma.StaffLocationPingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>
+        }
+        deleteMany: {
+          args: Prisma.StaffLocationPingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StaffLocationPingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StaffLocationPingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>[]
+        }
+        upsert: {
+          args: Prisma.StaffLocationPingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffLocationPingPayload>
+        }
+        aggregate: {
+          args: Prisma.StaffLocationPingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStaffLocationPing>
+        }
+        groupBy: {
+          args: Prisma.StaffLocationPingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffLocationPingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StaffLocationPingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffLocationPingCountAggregateOutputType> | number
+        }
+      }
+    }
+    JobOtp: {
+      payload: Prisma.$JobOtpPayload<ExtArgs>
+      fields: Prisma.JobOtpFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JobOtpFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JobOtpFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>
+        }
+        findFirst: {
+          args: Prisma.JobOtpFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JobOtpFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>
+        }
+        findMany: {
+          args: Prisma.JobOtpFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>[]
+        }
+        create: {
+          args: Prisma.JobOtpCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>
+        }
+        createMany: {
+          args: Prisma.JobOtpCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JobOtpCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>[]
+        }
+        delete: {
+          args: Prisma.JobOtpDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>
+        }
+        update: {
+          args: Prisma.JobOtpUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>
+        }
+        deleteMany: {
+          args: Prisma.JobOtpDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JobOtpUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JobOtpUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>[]
+        }
+        upsert: {
+          args: Prisma.JobOtpUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobOtpPayload>
+        }
+        aggregate: {
+          args: Prisma.JobOtpAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJobOtp>
+        }
+        groupBy: {
+          args: Prisma.JobOtpGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobOtpGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JobOtpCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobOtpCountAggregateOutputType> | number
+        }
+      }
+    }
+    LoginOtp: {
+      payload: Prisma.$LoginOtpPayload<ExtArgs>
+      fields: Prisma.LoginOtpFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LoginOtpFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LoginOtpFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>
+        }
+        findFirst: {
+          args: Prisma.LoginOtpFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LoginOtpFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>
+        }
+        findMany: {
+          args: Prisma.LoginOtpFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>[]
+        }
+        create: {
+          args: Prisma.LoginOtpCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>
+        }
+        createMany: {
+          args: Prisma.LoginOtpCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LoginOtpCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>[]
+        }
+        delete: {
+          args: Prisma.LoginOtpDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>
+        }
+        update: {
+          args: Prisma.LoginOtpUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>
+        }
+        deleteMany: {
+          args: Prisma.LoginOtpDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LoginOtpUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LoginOtpUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>[]
+        }
+        upsert: {
+          args: Prisma.LoginOtpUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginOtpPayload>
+        }
+        aggregate: {
+          args: Prisma.LoginOtpAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLoginOtp>
+        }
+        groupBy: {
+          args: Prisma.LoginOtpGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LoginOtpGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LoginOtpCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LoginOtpCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2840,6 +3065,8 @@ export const AttendanceScalarFieldEnum = {
   wageForDay: 'wageForDay',
   gpsLat: 'gpsLat',
   gpsLng: 'gpsLng',
+  checkOutLat: 'checkOutLat',
+  checkOutLng: 'checkOutLng',
   method: 'method',
   notes: 'notes',
   createdAt: 'createdAt'
@@ -2866,6 +3093,13 @@ export const LeadScalarFieldEnum = {
   serviceVariant: 'serviceVariant',
   mapLink: 'mapLink',
   referralCode: 'referralCode',
+  zone: 'zone',
+  pincode: 'pincode',
+  utmSource: 'utmSource',
+  utmMedium: 'utmMedium',
+  utmCampaign: 'utmCampaign',
+  gclid: 'gclid',
+  fbclid: 'fbclid',
   isDemo: 'isDemo',
   deletedAt: 'deletedAt',
   deletedByName: 'deletedByName',
@@ -2943,6 +3177,10 @@ export const JobScalarFieldEnum = {
   onTheWayAt: 'onTheWayAt',
   startedAt: 'startedAt',
   completedAt: 'completedAt',
+  startLat: 'startLat',
+  startLng: 'startLng',
+  completeLat: 'completeLat',
+  completeLng: 'completeLng',
   jobValue: 'jobValue',
   notes: 'notes',
   customerSignatureUrl: 'customerSignatureUrl',
@@ -3295,6 +3533,47 @@ export const JobVideoScalarFieldEnum = {
 export type JobVideoScalarFieldEnum = (typeof JobVideoScalarFieldEnum)[keyof typeof JobVideoScalarFieldEnum]
 
 
+export const StaffLocationPingScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  jobId: 'jobId',
+  lat: 'lat',
+  lng: 'lng',
+  accuracy: 'accuracy',
+  recordedAt: 'recordedAt'
+} as const
+
+export type StaffLocationPingScalarFieldEnum = (typeof StaffLocationPingScalarFieldEnum)[keyof typeof StaffLocationPingScalarFieldEnum]
+
+
+export const JobOtpScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  purpose: 'purpose',
+  codeHash: 'codeHash',
+  attempts: 'attempts',
+  expiresAt: 'expiresAt',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type JobOtpScalarFieldEnum = (typeof JobOtpScalarFieldEnum)[keyof typeof JobOtpScalarFieldEnum]
+
+
+export const LoginOtpScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  codeHash: 'codeHash',
+  attempts: 'attempts',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+} as const
+
+export type LoginOtpScalarFieldEnum = (typeof LoginOtpScalarFieldEnum)[keyof typeof LoginOtpScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3623,6 +3902,9 @@ export type GlobalOmitConfig = {
   rewardRecord?: Prisma.RewardRecordOmit
   invoice?: Prisma.InvoiceOmit
   jobVideo?: Prisma.JobVideoOmit
+  staffLocationPing?: Prisma.StaffLocationPingOmit
+  jobOtp?: Prisma.JobOtpOmit
+  loginOtp?: Prisma.LoginOtpOmit
 }
 
 /* Types for Logging */

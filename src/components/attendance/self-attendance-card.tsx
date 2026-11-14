@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { selfCheckIn, selfCheckOut } from "@/server/actions/attendance";
 import { formatDateTime } from "@/lib/utils";
+import { getPosition } from "@/lib/client-geo";
+import { LocationPinger } from "@/components/staff/location-pinger";
 
 export function SelfAttendanceCard({
   checkInTime,
@@ -56,15 +58,20 @@ export function SelfAttendanceCard({
   }
 
   function doCheckOut() {
-    startTransition(async () => {
-      await selfCheckOut();
-      toast.success("Checked out");
-      router.refresh();
+    setBusy(true);
+    void getPosition().then((fix) => {
+      setBusy(false);
+      startTransition(async () => {
+        await selfCheckOut(fix?.lat ?? null, fix?.lng ?? null);
+        toast.success(fix ? "Checked out" : "Checked out (location unavailable)");
+        router.refresh();
+      });
     });
   }
 
   return (
     <Card>
+      <LocationPinger active={Boolean(checkInTime) && !checkOutTime} />
       <CardHeader>
         <CardTitle>Today&apos;s Attendance</CardTitle>
       </CardHeader>
@@ -82,16 +89,16 @@ export function SelfAttendanceCard({
         {method === "GPS" && (
           <p className="flex items-center gap-1 text-xs text-success"><MapPin className="size-3" /> Location captured</p>
         )}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={doCheckIn} disabled={busy || pending || Boolean(checkInTime)}>
             {busy || pending ? <Loader2 className="animate-spin" /> : <LogIn className="size-4" />} Check In
           </Button>
           <Button
             variant="outline"
             onClick={doCheckOut}
-            disabled={pending || !checkInTime || Boolean(checkOutTime)}
+            disabled={busy || pending || !checkInTime || Boolean(checkOutTime)}
           >
-            {pending ? <Loader2 className="animate-spin" /> : <LogOut className="size-4" />} Check Out
+            {busy || pending ? <Loader2 className="animate-spin" /> : <LogOut className="size-4" />} Check Out
           </Button>
         </div>
       </CardContent>

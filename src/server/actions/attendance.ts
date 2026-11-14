@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { checkIn, checkOut } from "@/server/attendance";
+import { validCoords } from "@/lib/geo";
 
 async function ownStaffId(userId: string) {
   const staff = await db.staff.findUnique({ where: { userId }, select: { id: true } });
@@ -15,17 +16,19 @@ export async function selfCheckIn(gpsLat?: number | null, gpsLng?: number | null
   if (!session) return { error: "Not authorized" };
   const staffId = await ownStaffId(session.sub);
   if (!staffId) return { error: "No staff profile linked to this login" };
-  await checkIn(staffId, gpsLat, gpsLng);
+  const c = validCoords(gpsLat, gpsLng);
+  await checkIn(staffId, c?.lat, c?.lng);
   revalidatePath("/attendance");
   return { success: true as const };
 }
 
-export async function selfCheckOut() {
+export async function selfCheckOut(gpsLat?: number | null, gpsLng?: number | null) {
   const session = await getSession();
   if (!session) return { error: "Not authorized" };
   const staffId = await ownStaffId(session.sub);
   if (!staffId) return { error: "No staff profile linked to this login" };
-  await checkOut(staffId);
+  const c = validCoords(gpsLat, gpsLng);
+  await checkOut(staffId, c?.lat, c?.lng);
   revalidatePath("/attendance");
   return { success: true as const };
 }

@@ -14,7 +14,19 @@ import { dispatchTeamForJob } from "@/server/dispatch";
 import { sendWhatsApp } from "@/lib/whatsapp";
 import { reviewRequestMessage } from "@/lib/whatsapp-templates";
 import { syncInvoiceToMyBillBook } from "@/lib/mybillbook";
-import { SERVICE_LABELS } from "@/lib/constants";
+import { SERVICE_LABELS, COMPANY } from "@/lib/constants";
+import { validCoords } from "@/lib/geo";
+import { checkJobOtpGate } from "@/server/job-otp";
+import { crmMinimumJobValue, customerTypeFor } from "@/lib/zones";
+
+const LEGACY_SERVICE_COMMERCIAL = new Set(["COMMERCIAL_CLEANING"]);
+
+/** Zone-aware floor for a job's value; returns an error string when below it. */
+function jobValueError(area: string, service: string, jobValue: number): string | null {
+  const type = customerTypeFor(LEGACY_SERVICE_COMMERCIAL.has(service) ? "COMMERCIAL_CLEANING" : null);
+  const min = crmMinimumJobValue(area, type, COMPANY.minimumJobValue);
+  return jobValue < min ? `Minimum order value for this area is ₹${min.toLocaleString("en-IN")}.` : null;
+}
 
 export async function createJob(values: unknown) {
   const parsed = jobSchema.safeParse(values);
@@ -23,6 +35,9 @@ export async function createJob(values: unknown) {
   }
   const data = parsed.data;
   const session = await getSession();
+
+  const valueError = jobValueError(data.area, data.service, data.jobValue);
+  if (valueError) return { error: valueError, success: false as const };
 
   const jobNumber = await generateJobNumber();
   const job = await db.job.create({
@@ -73,6 +88,11 @@ export async function updateJob(id: string, values: unknown) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid data", success: false as const };
   }
   const d = parsed.data;
+  if (d.jobValue !== undefined) {
+    const existing = await db.job.findUnique({ where: { id }, select: { area: true, service: true } });
+    const valueError = jobValueError(d.area || existing?.area || "", d.service || existing?.service || "", d.jobValue);
+    if (valueError) return { error: valueError, success: false as const };
+  }
   await db.job.update({
     where: { id },
     data: {
@@ -118,23 +138,35 @@ export async function bulkDeleteJobs(ids: string[]) {
 const STATUS_FLOW = ["ASSIGNED", "ON_THE_WAY", "STARTED", "COMPLETED"] as const;
 type JobStatus = (typeof STATUS_FLOW)[number];
 
-export async function updateJobStatus(jobId: string, status: JobStatus) {
+export async function updateJobStatus(jobId: string, status: JobStatus, gps?: { lat: number; lng: number } | null) {
   if (!STATUS_FLOW.includes(status)) return { error: "Invalid status", success: false as const };
   const session = await getSession();
   const now = new Date();
+
+  let otpOverridden = false;
+  if (status === "STARTED" || status === "COMPLETED") {
+    const gate = await checkJobOtpGate(jobId, status, session?.role);
+    if (!gate.ok) return { error: gate.error, success: false as const };
+    otpOverridden = gate.overridden;
+  }
+  const coords = gps ? validCoords(gps.lat, gps.lng) : null;
 
   await db.job.update({
     where: { id: jobId },
     data: {
       status,
       ...(status === "ON_THE_WAY" && { onTheWayAt: now }),
-      ...(status === "STARTED" && { startedAt: now }),
-      ...(status === "COMPLETED" && { completedAt: now }),
+      ...(status === "STARTED" && { startedAt: now, startLat: coords?.lat ?? null, startLng: coords?.lng ?? null }),
+      ...(status === "COMPLETED" && { completedAt: now, completeLat: coords?.lat ?? null, completeLng: coords?.lng ?? null }),
     },
   });
 
   await db.activityLog.create({
-    data: { jobId, actorId: session?.sub, action: `Status changed to ${status.replaceAll("_", " ")}` },
+    data: {
+      jobId,
+      actorId: session?.sub,
+      action: `Status changed to ${status.replaceAll("_", " ")}${coords ? " (GPS captured)" : ""}${otpOverridden ? " — customer OTP override by manager" : ""}`,
+    },
   });
 
   revalidatePath("/jobs");
@@ -175,16 +207,24 @@ export async function saveJobSignature(jobId: string, dataUrl: string) {
   return { success: true as const, url };
 }
 
-export async function completeJobWithCertificate(jobId: string) {
+export async function completeJobWithCertificate(jobId: string, gps?: { lat: number; lng: number } | null) {
   const job = await db.job.findUnique({ where: { id: jobId }, include: { supervisor: true, certificate: true } });
   if (!job) return { error: "Job not found", success: false as const };
 
   const session = await getSession();
   const now = new Date();
 
+  const gate = await checkJobOtpGate(jobId, "COMPLETED", session?.role);
+  if (!gate.ok) return { error: gate.error, success: false as const };
+  const coords = gps ? validCoords(gps.lat, gps.lng) : null;
+
   await db.job.update({
     where: { id: jobId },
-    data: { status: "COMPLETED", completedAt: job.completedAt ?? now },
+    data: {
+      status: "COMPLETED",
+      completedAt: job.completedAt ?? now,
+      ...(coords && { completeLat: coords.lat, completeLng: coords.lng }),
+    },
   });
 
   if (job.leadId) {
