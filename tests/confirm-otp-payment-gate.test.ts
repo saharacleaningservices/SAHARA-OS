@@ -45,7 +45,8 @@ test("payment record labels", () => {
 
 test("Meta template v2: name, language, 8 placeholders, Service Start Code wording, v7 buttons, allowlisted and submittable", () => {
   const t = templateByName(BOOKING_OTP_TEMPLATE_NAME)!;
-  assert.equal(t.name, "sahara_booking_confirmed_otp_v2");
+  assert.equal(t.name, "sahara_booking_confirmed_start_code_v1");
+  assert.ok(!/otp/i.test(t.name), "no \"otp\" in the template name (Meta rejected otp_v1)");
   assert.equal(t.language, "en");
   assert.equal(t.category, "UTILITY");
   assert.equal(placeholderCount(t), 8);
@@ -53,7 +54,7 @@ test("Meta template v2: name, language, 8 placeholders, Service Start Code wordi
   assert.equal(t.examples.length, 8);
   assert.ok(t.body.includes("Service Start Code: {{8}}"));
   assert.ok(t.body.includes("Please share this 4-digit Service Start Code with our Sahara team upon arrival to start your service."));
-  assert.ok(!/otp/i.test(t.body + (t.footer ?? "") + t.examples.join(" ")), "Meta rejected v1 for the word OTP: the v2 text must not contain it");
+  assert.ok(!/otp/i.test(t.body + (t.footer ?? "") + t.examples.join(" ") + t.purpose), "no OTP wording anywhere in the template");
   const v7 = templateByName("sahara_booking_confirmed_v7")!;
   assert.deepEqual(t.buttons, v7.buttons, "same three buttons as the approved v7");
   assert.equal(t.footer, v7.footer);

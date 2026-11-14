@@ -15,10 +15,11 @@ import { localIntro, pageFaqs, seoDescription, seoTitle } from "../src/lib/seo-c
 const byId = (id: string) => PRICING_MASTER.find((p) => p.contentId === id);
 const read = (f: string) => readFileSync(f, "utf8");
 
-test("unfurnished flat matrix: 1/2/3 BHK at 3,199 / 3,899 / 4,599, no 4 BHK", () => {
-  assert.equal(byId("SCS-UF-1")?.price, 3199);
-  assert.equal(byId("SCS-UF-2")?.price, 3899);
-  assert.equal(byId("SCS-UF-3")?.price, 4599);
+test("unfurnished flat matrix: 1/2/3 BHK at 3,800 / 4,199 / 4,699 (MRP 4,199 / 4,699 / 5,299), no 4 BHK", () => {
+  assert.equal(byId("SCS-UF-1")?.price, 3800);
+  assert.equal(byId("SCS-UF-2")?.price, 4199);
+  assert.equal(byId("SCS-UF-3")?.price, 4699);
+  assert.deepEqual(["SCS-UF-1", "SCS-UF-2", "SCS-UF-3"].map((id) => byId(id)?.mrp), [4199, 4699, 5299]);
   const uf = PRICING_MASTER.filter((p) => p.group === "UNFURNISHED");
   assert.equal(uf.length, 3);
   assert.ok(uf.every((p) => p.category === "HOME_DEEP_CLEANING" && p.bhk));

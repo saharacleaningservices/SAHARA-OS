@@ -25,7 +25,7 @@ export const PLATINUM_EXTRA_SCOPE = [
 export const FREE_FRIDGE_NOTE = "(Single Fridge Internal Deep Cleaning Included FREE for this booking)";
 
 export const QUOTATION_EXCLUSIONS = [
-  "Chimney Deep Cleaning is NOT included (available as an add-on).",
+  "Chimney: included in furnished full-home packages; add-on for unfurnished flats.",
   "Protective plastic wrap removal (post-interior work) is EXCLUDED.",
   "Excessive glue, paint-stain scraping and cement removal are EXCLUDED.",
   "Upholstery (sofa / carpet / mattress) foam & shampoo wet cleaning is EXCLUDED (dry vacuuming is included).",

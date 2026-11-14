@@ -51,7 +51,7 @@ export const HOME_BASE_SCOPE = [
   "Window glass cleaning, sliding channel vacuuming & mesh vacuuming",
   "Furniture exterior dusting; sofa & mattress dry vacuuming",
   "Bathrooms: WC, basin, fittings, taps, wall & floor tiles",
-  "Kitchen: platform, tiles, trolleys & cabinets exterior cleaning, exhaust fan & kitchen exterior cleaning",
+  "Kitchen: platform, tiles, cabinets & trolleys exterior, exhaust fan, chimney filters & exterior",
   "Balcony: dry balcony & living room balcony cleaning",
   "Lights, fans & doors dusting",
   "Floor manual scrubbing & mopping",
@@ -63,7 +63,6 @@ export const PLATINUM_SCOPE = [...HOME_BASE_SCOPE, "Wall wet cleaning & ceiling 
 export const PLATINUM_HIGHLIGHT = PLATINUM_SCOPE[PLATINUM_SCOPE.length - 1]!;
 export const PREMIUM_EXCLUDED = [
   "Wall wet cleaning (included in Platinum)",
-  "Chimney Deep Cleaning (available as add-on)",
   "Sofa, mattress & carpet shampooing (available separately)",
   "Inaccessible areas & moving heavy furniture",
 ];

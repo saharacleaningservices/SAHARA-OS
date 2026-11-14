@@ -17,6 +17,7 @@ import { renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-temp
 import { slotLockKey, withSlotLock } from "@/lib/slot-lock";
 import { getSlotAvailability } from "@/server/actions/slot-availability";
 import { notify } from "@/server/notify";
+import { onlineBookingDiscount } from "@/lib/online-discount";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 import { campaignOf, classifyTouch, sanitizeTouch } from "@/lib/attribution";
@@ -83,6 +84,9 @@ const publicBookingSchema = z.object({
   // date is inside a festival window) — the browser's total is never trusted.
   priceType: z.enum(["REGULAR", "FESTIVAL"]).optional(),
   selectedItems: z.array(z.object({ contentId: z.string().max(40), qty: z.number().int().min(1).max(100) })).max(30).optional(),
+  // Website checkout (owner 2026-11-14): flat 5% online-booking discount on the priced lines (lib/online-discount.ts). The server re-prices and
+  // computes the discount itself; only this flag comes from the browser.
+  onlineBookingDiscount: z.boolean().optional(),
   // Explicit WhatsApp marketing opt-in ticked by the customer (never pre-ticked).
   marketingOptIn: z.boolean().optional(),
   // Booking flow v2 (2026-11-12): mobile OTP proof (signed token from server/actions/booking-checkout.ts) and "hold the slot until
@@ -250,6 +254,11 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
   const agreedRate = /^agreed rate$/i.test((data.packageName ?? "").trim());
   const inspectionRequired = agreedRate || (data.serviceCategory === "HOME_DEEP_CLEANING" && needsInspection(data.propertyType));
   let estimated: number | null = null;
+  // Priced lines + online discount travel with the enquiry (Lead.serviceItems / discountAmount → Job on Confirm Booking), so the job value,
+  // the confirmation amount and the Staff App payment screen show the same lines and net total.
+  let serviceItemsJson: string | null = null;
+  let onlineDiscount: number | null = null;
+  const pricedLines: { id: string; group: string; contentId: string; name: string; unit: string | null; qty: number; unitPrice: number }[] = [];
   let priceType: "REGULAR" | "FESTIVAL" | null = null;
   let festivalName: string | null = null;
   let scopeOfWork: string | null = null;
@@ -279,7 +288,9 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
         continue;
       }
       if (festival && festival.prices[item.contentId] != null) usedFestival = true;
-      total += unit * Math.max(s.qty, item.minQty ?? 1);
+      const lineQty = Math.max(s.qty, item.minQty ?? 1);
+      total += unit * lineQty;
+      pricedLines.push({ id: `w${pricedLines.length + 1}`, group: item.group, contentId: item.contentId, name: item.name, unit: item.unit ?? null, qty: lineQty, unitPrice: unit });
     }
     if (total > 0) estimated = total;
     if (!allPriced && total === 0) estimated = null;
@@ -296,6 +307,13 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
     // an older page cannot book a small basket there. Pest control is excluded (lib/zonal-moq.ts).
     const minOrder = minimumOrderFor({ serviceCategory: data.serviceCategory, pincode: data.pinCode, locality: data.area }, WEST_PCMC_SLUGS);
     if (minOrder > 0 && estimated != null && estimated < minOrder) return { error: ZONE_B_MOV_MESSAGE, code: "MIN_ORDER" as PublicBookingErrorCode };
+    // The minimum order is checked on the full price (above); the online discount is applied after it.
+    if (data.onlineBookingDiscount && estimated != null && estimated > 0 && pricedLines.length) {
+      const d = onlineBookingDiscount(estimated);
+      onlineDiscount = d.discount;
+      estimated = d.net;
+      serviceItemsJson = JSON.stringify(pricedLines);
+    }
     scopeOfWork = scopeSnapshot({
       packageName: data.packageName,
       serviceVariant: data.serviceVariant,
@@ -329,6 +347,8 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
           mapLink: existingOpen.mapLink ?? (data.mapLink || null),
           paymentPreference: data.paymentPreference ?? existingOpen.paymentPreference,
           quoteAmount: keepPkg ? existingOpen.quoteAmount : estimated,
+          serviceItems: keepPkg ? existingOpen.serviceItems : serviceItemsJson,
+          discountAmount: keepPkg ? existingOpen.discountAmount : onlineDiscount,
           packageName: keepPkg ? existingOpen.packageName : data.packageName || null,
           priceType: keepPkg ? existingOpen.priceType : priceType,
           festivalName: keepPkg ? existingOpen.festivalName : festivalName,
@@ -365,6 +385,8 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
       packageName: data.packageName || null,
       comboServices: combos.length ? JSON.stringify(combos) : null,
       quoteAmount: estimated,
+      serviceItems: serviceItemsJson,
+      discountAmount: onlineDiscount,
       priceType,
       festivalName,
       scopeOfWork,
@@ -442,6 +464,7 @@ async function publicBookLeadUnlocked(values: unknown, ctx: { ip: string | null 
       combos.length ? `Combos: ${combos.join(", ")}` : null,
       addOns.length ? `Add-ons: ${addOns.join(", ")}` : null,
       estimated && !(existingOpen && keepPkg) ? `Estimated: ₹${estimated}` : null,
+      onlineDiscount && !(existingOpen && keepPkg) ? `Online booking discount 5%: −₹${onlineDiscount} (full price ₹${(estimated ?? 0) + onlineDiscount}) — Pay After Service` : null,
       unverifiedClientEstimate ? `Customer-side indicative estimate (UNVERIFIED, not a quote): ₹${unverifiedClientEstimate}` : null,
       declaredAdvance > 0 ? `Customer claims advance ₹${declaredAdvance} (${data.paymentMode ?? "—"}) — UNVERIFIED, pending staff verification` : `Advance: pending`,
       data.pinCode ? `PIN: ${data.pinCode}` : null,

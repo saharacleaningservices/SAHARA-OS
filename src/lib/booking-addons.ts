@@ -26,7 +26,8 @@ const SOFA_SLOT: AddOnSlot = { contentId: SOFA, label: "Sofa Shampooing", perUni
 export function addOnSlotsFor(intent: { category?: string; service?: string }): AddOnSlot[] {
   const svc = (intent.service ?? "").toLowerCase();
   if (intent.category === "PEST_CONTROL") return [];
-  if (intent.category === "HOME_DEEP_CLEANING") return [...KITCHEN_SET, SOFA_SLOT, { contentId: PEST_SHOT, label: "Pest Control Shot" }];
+  // Furnished full-home packages already include chimney cleaning (owner 2026-11-14), so it is not offered again there.
+  if (intent.category === "HOME_DEEP_CLEANING") return [...KITCHEN_SET.filter((s) => s.contentId !== CHIMNEY), SOFA_SLOT, { contentId: PEST_SHOT, label: "Kitchen Pest Control" }];
   if (/kitchen/.test(svc)) return KITCHEN_SET;
   if (/bathroom/.test(svc)) return [{ contentId: WINDOW, label: "Window Cleaning" }, { contentId: BALCONY, label: "Balcony Cleaning" }];
   if (/sofa|upholstery|mattress|carpet/.test(svc)) return [SOFA_SLOT, { contentId: MATTRESS, label: "Mattress Cleaning", perUnit: true }];

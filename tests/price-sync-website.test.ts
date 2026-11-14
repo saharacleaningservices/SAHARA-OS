@@ -7,7 +7,9 @@ const p = (id: string) => PRICING_MASTER.find((i) => i.contentId === id)!;
 
 test("regular services and add-ons match the website prices", () => {
   const web: Record<string, number> = {
-    "SCS-01": 4499, "SCS-02": 5499, "SCS-03": 6999, // home deep cleaning, Premium
+    "SCS-01": 3999, "SCS-02": 4999, "SCS-03": 6499, // furnished apartment (Premium lines)
+    "SCS-UF-1": 3800, "SCS-UF-2": 4199, "SCS-UF-3": 4699, // unfurnished apartment
+    "SCS-33": 2499, // kitchen with utensil removal & placing back
     "SCS-05": 5499, "SCS-06": 6499, "SCS-07": 7999, // Platinum
     "SCS-12": 1999, // kitchen
     "SCS-10": 599, // bathroom (each, min 2)
@@ -32,4 +34,10 @@ test("website quantity rules agree with the CRM: no CRM minimum above what the w
   assert.equal(p("SCS-36").addOnOnly, true);
   assert.equal(p("SCS-17").price, null, "termite stays inspection-based (from ₹2,999)");
   assert.match(p("SCS-17").priceNote ?? "", /2,999/);
+});
+
+test("offer pricing: furnished and unfurnished full-home lines carry the struck-through MRP", () => {
+  const mrp: Record<string, number> = { "SCS-01": 4499, "SCS-02": 5499, "SCS-03": 6999, "SCS-UF-1": 4199, "SCS-UF-2": 4699, "SCS-UF-3": 5299 };
+  for (const [id, m] of Object.entries(mrp)) assert.equal(p(id).mrp, m, id);
+  assert.equal(p("SCS-04").price, null, "4 BHK+ stays on inspection");
 });
