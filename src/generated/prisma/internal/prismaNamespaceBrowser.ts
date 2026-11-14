@@ -120,9 +120,7 @@ export const ModelName = {
   Voucher: 'Voucher',
   CallRecording: 'CallRecording',
   Vendor: 'Vendor',
-  VendorPayout: 'VendorPayout',
-  MybillbookReviewItem: 'MybillbookReviewItem',
-  LocationPing: 'LocationPing'
+  VendorPayout: 'VendorPayout'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -285,8 +283,6 @@ export const CustomerScalarFieldEnum = {
   contactType: 'contactType',
   customerNumber: 'customerNumber',
   isRepeat: 'isRepeat',
-  segment: 'segment',
-  gstin: 'gstin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -515,24 +511,6 @@ export const JobScalarFieldEnum = {
   priceType: 'priceType',
   festivalName: 'festivalName',
   scopeOfWork: 'scopeOfWork',
-  reachedAt: 'reachedAt',
-  reachedLat: 'reachedLat',
-  reachedLng: 'reachedLng',
-  reachedAccuracyM: 'reachedAccuracyM',
-  reachedDistanceM: 'reachedDistanceM',
-  gpsFlag: 'gpsFlag',
-  startOtp: 'startOtp',
-  startOtpSentAt: 'startOtpSentAt',
-  startOtpVerifiedAt: 'startOtpVerifiedAt',
-  startOtpAttempts: 'startOtpAttempts',
-  collectedAmount: 'collectedAmount',
-  collectedMode: 'collectedMode',
-  pendingReason: 'pendingReason',
-  cashCollectedByStaffId: 'cashCollectedByStaffId',
-  cashCollectedByName: 'cashCollectedByName',
-  cashCollectedAt: 'cashCollectedAt',
-  cashSettledAt: 'cashSettledAt',
-  cashSettledByName: 'cashSettledByName',
   mapLink: 'mapLink',
   siteId: 'siteId',
   vehicleId: 'vehicleId',
@@ -655,7 +633,6 @@ export const CompanySettingsScalarFieldEnum = {
   website: 'website',
   logoUrl: 'logoUrl',
   googleReviewUrl: 'googleReviewUrl',
-  gpsTrackingEnabled: 'gpsTrackingEnabled',
   googleRating: 'googleRating',
   googleReviewCount: 'googleReviewCount',
   linkedinUrl: 'linkedinUrl',
@@ -1188,7 +1165,6 @@ export const MybillbookInvoiceScalarFieldEnum = {
   partyAddress: 'partyAddress',
   dueDate: 'dueDate',
   dataset: 'dataset',
-  docType: 'docType',
   gstin: 'gstin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1553,42 +1529,6 @@ export const VendorPayoutScalarFieldEnum = {
 } as const
 
 export type VendorPayoutScalarFieldEnum = (typeof VendorPayoutScalarFieldEnum)[keyof typeof VendorPayoutScalarFieldEnum]
-
-
-export const MybillbookReviewItemScalarFieldEnum = {
-  id: 'id',
-  kind: 'kind',
-  mobile: 'mobile',
-  dataset: 'dataset',
-  crmCustomerId: 'crmCustomerId',
-  crmName: 'crmName',
-  mbbNames: 'mbbNames',
-  txnCount: 'txnCount',
-  detailJson: 'detailJson',
-  status: 'status',
-  resolvedNote: 'resolvedNote',
-  importBatchId: 'importBatchId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MybillbookReviewItemScalarFieldEnum = (typeof MybillbookReviewItemScalarFieldEnum)[keyof typeof MybillbookReviewItemScalarFieldEnum]
-
-
-export const LocationPingScalarFieldEnum = {
-  id: 'id',
-  staffId: 'staffId',
-  staffName: 'staffName',
-  jobId: 'jobId',
-  kind: 'kind',
-  lat: 'lat',
-  lng: 'lng',
-  accuracyM: 'accuracyM',
-  subjectType: 'subjectType',
-  createdAt: 'createdAt'
-} as const
-
-export type LocationPingScalarFieldEnum = (typeof LocationPingScalarFieldEnum)[keyof typeof LocationPingScalarFieldEnum]
 
 
 export const SortOrder = {

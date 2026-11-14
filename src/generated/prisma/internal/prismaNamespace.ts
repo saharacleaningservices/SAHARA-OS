@@ -461,9 +461,7 @@ export const ModelName = {
   Voucher: 'Voucher',
   CallRecording: 'CallRecording',
   Vendor: 'Vendor',
-  VendorPayout: 'VendorPayout',
-  MybillbookReviewItem: 'MybillbookReviewItem',
-  LocationPing: 'LocationPing'
+  VendorPayout: 'VendorPayout'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -479,7 +477,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob" | "reminderLog" | "voucher" | "callRecording" | "vendor" | "vendorPayout" | "mybillbookReviewItem" | "locationPing"
+    modelProps: "user" | "device" | "staff" | "attendance" | "attendanceAudit" | "galleryItem" | "customer" | "customerSite" | "bookingLink" | "monthClose" | "lead" | "quotation" | "followUp" | "timelineEntry" | "job" | "jobAssignment" | "photo" | "certificate" | "payment" | "expense" | "activityLog" | "companySettings" | "companyDocument" | "auditLog" | "vehicle" | "materialIssue" | "review" | "backupEvent" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppConsent" | "amcContract" | "amcVisit" | "upsellRule" | "upsellEvent" | "advance" | "fineRecord" | "rewardRecord" | "teamIncentive" | "announcement" | "invoice" | "jobVideo" | "integrationSettings" | "smsMessage" | "emailMessage" | "securityOtp" | "notification" | "pushSubscription" | "businessTarget" | "marketingSpend" | "bookingSlotControl" | "priceSetting" | "mybillbookInvoice" | "serviceCatalog" | "festivalOffer" | "festivalPrice" | "staffLedgerEntry" | "overtimeRecord" | "staffLoanEntry" | "announcementRead" | "khataImportBatch" | "khataImportLog" | "opsReminder" | "opsReminderEvent" | "opsReminderSettings" | "webAuthnCredential" | "outboxJob" | "reminderLog" | "voucher" | "callRecording" | "vendor" | "vendorPayout"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5811,154 +5809,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    MybillbookReviewItem: {
-      payload: Prisma.$MybillbookReviewItemPayload<ExtArgs>
-      fields: Prisma.MybillbookReviewItemFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.MybillbookReviewItemFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.MybillbookReviewItemFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>
-        }
-        findFirst: {
-          args: Prisma.MybillbookReviewItemFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.MybillbookReviewItemFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>
-        }
-        findMany: {
-          args: Prisma.MybillbookReviewItemFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>[]
-        }
-        create: {
-          args: Prisma.MybillbookReviewItemCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>
-        }
-        createMany: {
-          args: Prisma.MybillbookReviewItemCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.MybillbookReviewItemCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>[]
-        }
-        delete: {
-          args: Prisma.MybillbookReviewItemDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>
-        }
-        update: {
-          args: Prisma.MybillbookReviewItemUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>
-        }
-        deleteMany: {
-          args: Prisma.MybillbookReviewItemDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.MybillbookReviewItemUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.MybillbookReviewItemUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>[]
-        }
-        upsert: {
-          args: Prisma.MybillbookReviewItemUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$MybillbookReviewItemPayload>
-        }
-        aggregate: {
-          args: Prisma.MybillbookReviewItemAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateMybillbookReviewItem>
-        }
-        groupBy: {
-          args: Prisma.MybillbookReviewItemGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MybillbookReviewItemGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.MybillbookReviewItemCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.MybillbookReviewItemCountAggregateOutputType> | number
-        }
-      }
-    }
-    LocationPing: {
-      payload: Prisma.$LocationPingPayload<ExtArgs>
-      fields: Prisma.LocationPingFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.LocationPingFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.LocationPingFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>
-        }
-        findFirst: {
-          args: Prisma.LocationPingFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.LocationPingFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>
-        }
-        findMany: {
-          args: Prisma.LocationPingFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>[]
-        }
-        create: {
-          args: Prisma.LocationPingCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>
-        }
-        createMany: {
-          args: Prisma.LocationPingCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.LocationPingCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>[]
-        }
-        delete: {
-          args: Prisma.LocationPingDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>
-        }
-        update: {
-          args: Prisma.LocationPingUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>
-        }
-        deleteMany: {
-          args: Prisma.LocationPingDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.LocationPingUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.LocationPingUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>[]
-        }
-        upsert: {
-          args: Prisma.LocationPingUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LocationPingPayload>
-        }
-        aggregate: {
-          args: Prisma.LocationPingAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateLocationPing>
-        }
-        groupBy: {
-          args: Prisma.LocationPingGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LocationPingGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.LocationPingCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LocationPingCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -6142,8 +5992,6 @@ export const CustomerScalarFieldEnum = {
   contactType: 'contactType',
   customerNumber: 'customerNumber',
   isRepeat: 'isRepeat',
-  segment: 'segment',
-  gstin: 'gstin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -6372,24 +6220,6 @@ export const JobScalarFieldEnum = {
   priceType: 'priceType',
   festivalName: 'festivalName',
   scopeOfWork: 'scopeOfWork',
-  reachedAt: 'reachedAt',
-  reachedLat: 'reachedLat',
-  reachedLng: 'reachedLng',
-  reachedAccuracyM: 'reachedAccuracyM',
-  reachedDistanceM: 'reachedDistanceM',
-  gpsFlag: 'gpsFlag',
-  startOtp: 'startOtp',
-  startOtpSentAt: 'startOtpSentAt',
-  startOtpVerifiedAt: 'startOtpVerifiedAt',
-  startOtpAttempts: 'startOtpAttempts',
-  collectedAmount: 'collectedAmount',
-  collectedMode: 'collectedMode',
-  pendingReason: 'pendingReason',
-  cashCollectedByStaffId: 'cashCollectedByStaffId',
-  cashCollectedByName: 'cashCollectedByName',
-  cashCollectedAt: 'cashCollectedAt',
-  cashSettledAt: 'cashSettledAt',
-  cashSettledByName: 'cashSettledByName',
   mapLink: 'mapLink',
   siteId: 'siteId',
   vehicleId: 'vehicleId',
@@ -6512,7 +6342,6 @@ export const CompanySettingsScalarFieldEnum = {
   website: 'website',
   logoUrl: 'logoUrl',
   googleReviewUrl: 'googleReviewUrl',
-  gpsTrackingEnabled: 'gpsTrackingEnabled',
   googleRating: 'googleRating',
   googleReviewCount: 'googleReviewCount',
   linkedinUrl: 'linkedinUrl',
@@ -7045,7 +6874,6 @@ export const MybillbookInvoiceScalarFieldEnum = {
   partyAddress: 'partyAddress',
   dueDate: 'dueDate',
   dataset: 'dataset',
-  docType: 'docType',
   gstin: 'gstin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -7410,42 +7238,6 @@ export const VendorPayoutScalarFieldEnum = {
 } as const
 
 export type VendorPayoutScalarFieldEnum = (typeof VendorPayoutScalarFieldEnum)[keyof typeof VendorPayoutScalarFieldEnum]
-
-
-export const MybillbookReviewItemScalarFieldEnum = {
-  id: 'id',
-  kind: 'kind',
-  mobile: 'mobile',
-  dataset: 'dataset',
-  crmCustomerId: 'crmCustomerId',
-  crmName: 'crmName',
-  mbbNames: 'mbbNames',
-  txnCount: 'txnCount',
-  detailJson: 'detailJson',
-  status: 'status',
-  resolvedNote: 'resolvedNote',
-  importBatchId: 'importBatchId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MybillbookReviewItemScalarFieldEnum = (typeof MybillbookReviewItemScalarFieldEnum)[keyof typeof MybillbookReviewItemScalarFieldEnum]
-
-
-export const LocationPingScalarFieldEnum = {
-  id: 'id',
-  staffId: 'staffId',
-  staffName: 'staffName',
-  jobId: 'jobId',
-  kind: 'kind',
-  lat: 'lat',
-  lng: 'lng',
-  accuracyM: 'accuracyM',
-  subjectType: 'subjectType',
-  createdAt: 'createdAt'
-} as const
-
-export type LocationPingScalarFieldEnum = (typeof LocationPingScalarFieldEnum)[keyof typeof LocationPingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -7831,8 +7623,6 @@ export type GlobalOmitConfig = {
   callRecording?: Prisma.CallRecordingOmit
   vendor?: Prisma.VendorOmit
   vendorPayout?: Prisma.VendorPayoutOmit
-  mybillbookReviewItem?: Prisma.MybillbookReviewItemOmit
-  locationPing?: Prisma.LocationPingOmit
 }
 
 /* Types for Logging */

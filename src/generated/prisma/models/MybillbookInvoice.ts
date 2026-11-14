@@ -63,7 +63,6 @@ export type MybillbookInvoiceMinAggregateOutputType = {
   partyAddress: string | null
   dueDate: Date | null
   dataset: string | null
-  docType: string | null
   gstin: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -96,7 +95,6 @@ export type MybillbookInvoiceMaxAggregateOutputType = {
   partyAddress: string | null
   dueDate: Date | null
   dataset: string | null
-  docType: string | null
   gstin: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -129,7 +127,6 @@ export type MybillbookInvoiceCountAggregateOutputType = {
   partyAddress: number
   dueDate: number
   dataset: number
-  docType: number
   gstin: number
   createdAt: number
   updatedAt: number
@@ -174,7 +171,6 @@ export type MybillbookInvoiceMinAggregateInputType = {
   partyAddress?: true
   dueDate?: true
   dataset?: true
-  docType?: true
   gstin?: true
   createdAt?: true
   updatedAt?: true
@@ -207,7 +203,6 @@ export type MybillbookInvoiceMaxAggregateInputType = {
   partyAddress?: true
   dueDate?: true
   dataset?: true
-  docType?: true
   gstin?: true
   createdAt?: true
   updatedAt?: true
@@ -240,7 +235,6 @@ export type MybillbookInvoiceCountAggregateInputType = {
   partyAddress?: true
   dueDate?: true
   dataset?: true
-  docType?: true
   gstin?: true
   createdAt?: true
   updatedAt?: true
@@ -360,7 +354,6 @@ export type MybillbookInvoiceGroupByOutputType = {
   partyAddress: string | null
   dueDate: Date | null
   dataset: string
-  docType: string
   gstin: string | null
   createdAt: Date
   updatedAt: Date
@@ -416,7 +409,6 @@ export type MybillbookInvoiceWhereInput = {
   partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   dueDate?: Prisma.DateTimeNullableFilter<"MybillbookInvoice"> | Date | string | null
   dataset?: Prisma.StringFilter<"MybillbookInvoice"> | string
-  docType?: Prisma.StringFilter<"MybillbookInvoice"> | string
   gstin?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
@@ -450,7 +442,6 @@ export type MybillbookInvoiceOrderByWithRelationInput = {
   partyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   dataset?: Prisma.SortOrder
-  docType?: Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -487,7 +478,6 @@ export type MybillbookInvoiceWhereUniqueInput = Prisma.AtLeast<{
   partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   dueDate?: Prisma.DateTimeNullableFilter<"MybillbookInvoice"> | Date | string | null
   dataset?: Prisma.StringFilter<"MybillbookInvoice"> | string
-  docType?: Prisma.StringFilter<"MybillbookInvoice"> | string
   gstin?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
@@ -521,7 +511,6 @@ export type MybillbookInvoiceOrderByWithAggregationInput = {
   partyAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   dataset?: Prisma.SortOrder
-  docType?: Prisma.SortOrder
   gstin?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -562,7 +551,6 @@ export type MybillbookInvoiceScalarWhereWithAggregatesInput = {
   partyAddress?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   dueDate?: Prisma.DateTimeNullableWithAggregatesFilter<"MybillbookInvoice"> | Date | string | null
   dataset?: Prisma.StringWithAggregatesFilter<"MybillbookInvoice"> | string
-  docType?: Prisma.StringWithAggregatesFilter<"MybillbookInvoice"> | string
   gstin?: Prisma.StringNullableWithAggregatesFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MybillbookInvoice"> | Date | string
@@ -594,7 +582,6 @@ export type MybillbookInvoiceCreateInput = {
   partyAddress?: string | null
   dueDate?: Date | string | null
   dataset?: string
-  docType?: string
   gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -628,7 +615,6 @@ export type MybillbookInvoiceUncheckedCreateInput = {
   partyAddress?: string | null
   dueDate?: Date | string | null
   dataset?: string
-  docType?: string
   gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -660,7 +646,6 @@ export type MybillbookInvoiceUpdateInput = {
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dataset?: Prisma.StringFieldUpdateOperationsInput | string
-  docType?: Prisma.StringFieldUpdateOperationsInput | string
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -694,7 +679,6 @@ export type MybillbookInvoiceUncheckedUpdateInput = {
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dataset?: Prisma.StringFieldUpdateOperationsInput | string
-  docType?: Prisma.StringFieldUpdateOperationsInput | string
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -727,7 +711,6 @@ export type MybillbookInvoiceCreateManyInput = {
   partyAddress?: string | null
   dueDate?: Date | string | null
   dataset?: string
-  docType?: string
   gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -759,7 +742,6 @@ export type MybillbookInvoiceUpdateManyMutationInput = {
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dataset?: Prisma.StringFieldUpdateOperationsInput | string
-  docType?: Prisma.StringFieldUpdateOperationsInput | string
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -792,7 +774,6 @@ export type MybillbookInvoiceUncheckedUpdateManyInput = {
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dataset?: Prisma.StringFieldUpdateOperationsInput | string
-  docType?: Prisma.StringFieldUpdateOperationsInput | string
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -835,7 +816,6 @@ export type MybillbookInvoiceCountOrderByAggregateInput = {
   partyAddress?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   dataset?: Prisma.SortOrder
-  docType?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -873,7 +853,6 @@ export type MybillbookInvoiceMaxOrderByAggregateInput = {
   partyAddress?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   dataset?: Prisma.SortOrder
-  docType?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -906,7 +885,6 @@ export type MybillbookInvoiceMinOrderByAggregateInput = {
   partyAddress?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   dataset?: Prisma.SortOrder
-  docType?: Prisma.SortOrder
   gstin?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -985,7 +963,6 @@ export type MybillbookInvoiceCreateWithoutCustomerInput = {
   partyAddress?: string | null
   dueDate?: Date | string | null
   dataset?: string
-  docType?: string
   gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1017,7 +994,6 @@ export type MybillbookInvoiceUncheckedCreateWithoutCustomerInput = {
   partyAddress?: string | null
   dueDate?: Date | string | null
   dataset?: string
-  docType?: string
   gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1078,7 +1054,6 @@ export type MybillbookInvoiceScalarWhereInput = {
   partyAddress?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   dueDate?: Prisma.DateTimeNullableFilter<"MybillbookInvoice"> | Date | string | null
   dataset?: Prisma.StringFilter<"MybillbookInvoice"> | string
-  docType?: Prisma.StringFilter<"MybillbookInvoice"> | string
   gstin?: Prisma.StringNullableFilter<"MybillbookInvoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MybillbookInvoice"> | Date | string
@@ -1110,7 +1085,6 @@ export type MybillbookInvoiceCreateManyCustomerInput = {
   partyAddress?: string | null
   dueDate?: Date | string | null
   dataset?: string
-  docType?: string
   gstin?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1142,7 +1116,6 @@ export type MybillbookInvoiceUpdateWithoutCustomerInput = {
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dataset?: Prisma.StringFieldUpdateOperationsInput | string
-  docType?: Prisma.StringFieldUpdateOperationsInput | string
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1174,7 +1147,6 @@ export type MybillbookInvoiceUncheckedUpdateWithoutCustomerInput = {
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dataset?: Prisma.StringFieldUpdateOperationsInput | string
-  docType?: Prisma.StringFieldUpdateOperationsInput | string
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1206,7 +1178,6 @@ export type MybillbookInvoiceUncheckedUpdateManyWithoutCustomerInput = {
   partyAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dataset?: Prisma.StringFieldUpdateOperationsInput | string
-  docType?: Prisma.StringFieldUpdateOperationsInput | string
   gstin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1241,7 +1212,6 @@ export type MybillbookInvoiceSelect<ExtArgs extends runtime.Types.Extensions.Int
   partyAddress?: boolean
   dueDate?: boolean
   dataset?: boolean
-  docType?: boolean
   gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1275,7 +1245,6 @@ export type MybillbookInvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.T
   partyAddress?: boolean
   dueDate?: boolean
   dataset?: boolean
-  docType?: boolean
   gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1309,7 +1278,6 @@ export type MybillbookInvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   partyAddress?: boolean
   dueDate?: boolean
   dataset?: boolean
-  docType?: boolean
   gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1343,13 +1311,12 @@ export type MybillbookInvoiceSelectScalar = {
   partyAddress?: boolean
   dueDate?: boolean
   dataset?: boolean
-  docType?: boolean
   gstin?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MybillbookInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "invoiceKey" | "invoiceDate" | "contactName" | "amount" | "remaining" | "status" | "invoiceLink" | "paymentType" | "createdByName" | "customerId" | "matchStatus" | "matchMethod" | "candidateIds" | "jobId" | "serviceName" | "importBatchId" | "detailStatus" | "detailJson" | "detailFetchedAt" | "detailError" | "partyMobile" | "partyAddress" | "dueDate" | "dataset" | "docType" | "gstin" | "createdAt" | "updatedAt", ExtArgs["result"]["mybillbookInvoice"]>
+export type MybillbookInvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "invoiceKey" | "invoiceDate" | "contactName" | "amount" | "remaining" | "status" | "invoiceLink" | "paymentType" | "createdByName" | "customerId" | "matchStatus" | "matchMethod" | "candidateIds" | "jobId" | "serviceName" | "importBatchId" | "detailStatus" | "detailJson" | "detailFetchedAt" | "detailError" | "partyMobile" | "partyAddress" | "dueDate" | "dataset" | "gstin" | "createdAt" | "updatedAt", ExtArgs["result"]["mybillbookInvoice"]>
 export type MybillbookInvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.MybillbookInvoice$customerArgs<ExtArgs>
 }
@@ -1392,7 +1359,6 @@ export type $MybillbookInvoicePayload<ExtArgs extends runtime.Types.Extensions.I
     partyAddress: string | null
     dueDate: Date | null
     dataset: string
-    docType: string
     gstin: string | null
     createdAt: Date
     updatedAt: Date
@@ -1846,7 +1812,6 @@ export interface MybillbookInvoiceFieldRefs {
   readonly partyAddress: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly dueDate: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
   readonly dataset: Prisma.FieldRef<"MybillbookInvoice", 'String'>
-  readonly docType: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly gstin: Prisma.FieldRef<"MybillbookInvoice", 'String'>
   readonly createdAt: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"MybillbookInvoice", 'DateTime'>
