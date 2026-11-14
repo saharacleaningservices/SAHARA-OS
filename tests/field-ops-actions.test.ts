@@ -151,32 +151,40 @@ test("5 wrong start codes lock the OTP; the right one is then refused until the 
   assert.equal((await db.job.findUniqueOrThrow({ where: { id: job.id } })).status, "ON_THE_WAY");
 });
 
-test("Pending Approval: needs a reason, raises a critical admin alert, leaves the payment unpaid and sends NO review request", async () => {
+test("payment gate: staff cannot close with Pending Approval; only an Admin can use Corporate / Credit Override (needs a reason, critical alert, payment stays unpaid, no review)", async () => {
+  const admin = await db.user.create({ data: { name: "Admin E", email: "admin-e@x.test", passwordHash: "x", role: "ADMIN" } as never });
   const { job } = await setup("E");
+  const staffSession = session;
   await db.payment.create({ data: { invoiceNumber: "FA-INV-E", jobId: job.id, clientName: "Asha", amount: 4000, paidAmount: 0, dueDate: new Date(), status: "PENDING" } as never });
   await actions.staffReachedLocation(job.id, GOOD);
   await actions.staffVerifyStartOtp(job.id, await otpOf(job.id));
-  assert.match(String((await actions.staffCompleteJob(job.id, { amount: 0, mode: "PENDING_APPROVAL" }) as { error?: string }).error), /reason/i);
+  // Staff: only UPI (with the proof tick) or Cash. Pending Approval / Credit Override / UPI without the tick are refused and the job stays open.
+  for (const input of [{ amount: 0, mode: "PENDING_APPROVAL", note: "Customer will pay owner directly on Monday" }, { amount: 0, mode: "CREDIT_OVERRIDE", note: "Corporate account" }, { amount: 4000, mode: "UPI" }, {}]) {
+    assert.equal((await actions.staffCompleteJob(job.id, input as never)).success, false, JSON.stringify(input));
+  }
+  assert.equal((await db.job.findUniqueOrThrow({ where: { id: job.id } })).status, "STARTED");
+
+  // Admin: credit override needs a reason, then closes the job with the payment left open.
+  session = { sub: admin.id, role: "ADMIN", name: "Altaf", email: admin.email };
+  assert.match(String((await actions.officeCloseJob(job.id, { amount: 0, mode: "CREDIT_OVERRIDE" }) as { error?: string }).error), /reason/i);
   alerts.length = 0;
   reviews.length = 0;
-  const r = await actions.staffCompleteJob(job.id, { amount: 0, mode: "PENDING_APPROVAL", note: "Customer will pay owner directly on Monday" });
+  const r = await actions.officeCloseJob(job.id, { amount: 0, mode: "CREDIT_OVERRIDE", note: "Corporate account, invoiced monthly" });
   assert.equal(r.success, true);
   const j = await db.job.findUniqueOrThrow({ where: { id: job.id } });
   assert.equal(j.status, "COMPLETED");
-  assert.equal(j.collectedMode, "PENDING_APPROVAL");
-  assert.match(j.pendingReason!, /Monday/);
+  assert.equal(j.collectedMode, "CREDIT_OVERRIDE");
   assert.equal((await db.payment.findFirstOrThrow({ where: { jobId: job.id } })).status, "PENDING");
-  assert.ok(alerts.some((a) => a.kind === "OPS_ESCALATION" && a.critical && /PENDING APPROVAL/.test(a.title)));
+  assert.ok(alerts.some((a) => a.kind === "OPS_ESCALATION" && a.critical && /Credit override/.test(a.title)));
   assert.equal(hasOutstandingBalance(await db.payment.findMany({ where: { jobId: job.id } })), true, "balance still open → the review request is held back");
 
-  // …also for a job that never had a payment row: an open balance is created so the review cannot slip out
-  const { job: bare } = await setup("E2");
-  await actions.staffReachedLocation(bare.id, GOOD);
-  await actions.staffVerifyStartOtp(bare.id, await otpOf(bare.id));
-  await actions.staffCompleteJob(bare.id, { amount: 0, mode: "PENDING_APPROVAL", note: "Will pay after inspection" });
-  const rows = await db.payment.findMany({ where: { jobId: bare.id } });
-  assert.equal(rows.length, 1);
-  assert.equal(hasOutstandingBalance(rows), true);
+  // Operations / Accounts cannot use the override.
+  session = staffSession;
+  const { job: other } = await setup("E2");
+  await actions.staffReachedLocation(other.id, GOOD);
+  await actions.staffVerifyStartOtp(other.id, await otpOf(other.id));
+  session = { sub: admin.id, role: "OPERATIONS", name: "Francis", email: "f-e@x.test" };
+  assert.equal((await actions.officeCloseJob(other.id, { amount: 0, mode: "CREDIT_OVERRIDE", note: "Corporate account" })).success, false);
 });
 
 test("a partial collection leaves the balance open and does not trigger the review", async () => {
@@ -185,7 +193,7 @@ test("a partial collection leaves the balance open and does not trigger the revi
   await actions.staffReachedLocation(job.id, GOOD);
   await actions.staffVerifyStartOtp(job.id, await otpOf(job.id));
   reviews.length = 0;
-  await actions.staffCompleteJob(job.id, { amount: 1500, mode: "UPI" });
+  await actions.staffCompleteJob(job.id, { amount: 1500, mode: "UPI", upiConfirmed: true });
   const pay = await db.payment.findFirstOrThrow({ where: { jobId: job.id } });
   assert.equal(pay.paidAmount, 1500);
   assert.notEqual(pay.status, "PAID");
