@@ -57,6 +57,8 @@ test.after(async () => {
   try { rmSync(dir, { recursive: true, force: true }); } catch { /* temp dir; the OS cleans it up */ }
 });
 
+// Auto-confirm is opt-in since 2026-11-14 (manual confirmation is the default); these tests exercise the opt-in path.
+process.env.PUBLIC_AUTO_CONFIRM = "on";
 const SLOT = "10:00 AM – 12:00 PM";
 
 test("pest control on an open window (from 6 Nov) is confirmed into a job with the booking confirmation queued", async () => {

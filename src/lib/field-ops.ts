@@ -72,19 +72,39 @@ export function otpMatches(entered: unknown, stored: string | null | undefined):
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export const COLLECT_MODES = ["UPI", "CASH", "BANK", "PENDING_APPROVAL"] as const;
+export const COLLECT_MODES = ["UPI", "CASH", "BANK", "PENDING_APPROVAL", "CREDIT_OVERRIDE"] as const;
 export type CollectMode = (typeof COLLECT_MODES)[number];
 export const COLLECT_MODE_LABELS: Record<CollectMode, string> = {
   UPI: "UPI / QR",
   CASH: "Cash",
   BANK: "Company Bank Transfer",
   PENDING_APPROVAL: "Pending Approval",
+  CREDIT_OVERRIDE: "Corporate / Credit Override",
 };
+
+/** Payment-gate rule (owner 2026-11-14): technicians close a job with UPI/QR Paid or Cash Paid only; the office may also record a bank transfer; only an Admin may use Corporate / Credit Override. */
+export type CompletionActor = "STAFF" | "OFFICE" | "ADMIN";
+export const STAFF_COLLECT_MODES: readonly CollectMode[] = ["UPI", "CASH"];
+export const OFFICE_COLLECT_MODES: readonly CollectMode[] = ["UPI", "CASH", "BANK"];
+
+/** What the Payment row / activity log records for each way of closing a job. `at` stamps cash with the collection time (IST). */
+export function paymentRecordLabel(mode: CollectMode, staffName: string, at: Date = new Date()): string {
+  const ist = at.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
+  switch (mode) {
+    case "UPI": return "Paid (UPI - Screenshot Shared)";
+    case "CASH": return `Paid (Cash - Collected by ${staffName}) · Cash Collected by ${staffName}, ${ist} IST`;
+    case "BANK": return "Paid (Company Bank Transfer)";
+    case "CREDIT_OVERRIDE": return `Credit (Corporate / Credit Override by ${staffName})`;
+    default: return "Pending Approval";
+  }
+}
+
+export const UPI_PROOF_CONFIRMATION = "Customer paid via UPI QR & payment screenshot shared in Sahara Cleaning Services WhatsApp Group";
 
 /** Payment.mode values used elsewhere in the CRM (UPI | QR | BANK | CASH). */
 export const paymentModeFor = (m: Exclude<CollectMode, "PENDING_APPROVAL">): string => m;
 
-export type CompletionInput = { amount: unknown; mode: unknown; note?: unknown; otpVerified: boolean; needsOtp: boolean };
+export type CompletionInput = { amount: unknown; mode: unknown; note?: unknown; otpVerified: boolean; needsOtp: boolean; /** Who is closing. Omitted = legacy permissive rules. */ actor?: CompletionActor; /** Technician ticked the UPI proof confirmation. */ upiConfirmed?: boolean };
 export type CompletionResult =
   | { ok: true; amount: number; mode: CollectMode; note: string | null }
   | { ok: false; error: string };
@@ -98,6 +118,14 @@ export function checkCompletion(i: CompletionInput): CompletionResult {
   const mode = i.mode as CollectMode;
   if (!COLLECT_MODES.includes(mode)) return { ok: false, error: "Choose how the payment was collected." };
   const note = typeof i.note === "string" ? i.note.trim().slice(0, 300) : "";
+  if (i.actor === "STAFF" && !STAFF_COLLECT_MODES.includes(mode)) return { ok: false, error: "Choose UPI / QR Paid or Cash Paid before closing the job." };
+  if (i.actor === "OFFICE" && !OFFICE_COLLECT_MODES.includes(mode)) return { ok: false, error: "Choose UPI, Cash or Bank transfer before closing the job." };
+  if (mode === "CREDIT_OVERRIDE") {
+    if (i.actor !== "ADMIN") return { ok: false, error: "Only an Admin can close a job with Corporate / Credit Override." };
+    if (note.length < 5) return { ok: false, error: "Corporate / Credit Override needs a reason (at least 5 characters)." };
+    return { ok: true, amount: 0, mode, note };
+  }
+  if (mode === "UPI" && i.actor === "STAFF" && i.upiConfirmed !== true) return { ok: false, error: "Tick the confirmation: customer paid via UPI QR and the payment screenshot was shared in the Sahara Cleaning Services WhatsApp Group." };
   const amount = typeof i.amount === "number" ? i.amount : Number(i.amount);
   if (!Number.isFinite(amount) || amount < 0 || amount > 10_000_000) return { ok: false, error: "Enter the exact amount collected in ₹." };
   if (mode === "PENDING_APPROVAL") {

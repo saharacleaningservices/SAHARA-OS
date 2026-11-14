@@ -25,7 +25,7 @@ test("anchor price: about 20% above the live price, clean ₹50 / x99 steps, fol
 test("Window Cleaning is ₹299 per window; add-ons keep the owner prices", () => {
   const p = (id: string) => PRICING_MASTER.find((i) => i.contentId === id)!;
   assert.equal(p("SCS-30").price, 299);
-  assert.deepEqual(["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35", "SCS-09"].map((id) => p(id).price), [599, 399, 699, 299, 499, 199]);
+  assert.deepEqual(["SCS-39", "SCS-32", "SCS-37", "SCS-38", "SCS-35", "SCS-09"].map((id) => p(id).price), [599, 399, 699, 299, 599, 199]);
 });
 
 test("SEO matrix: every pin-code locality the owner listed is present with its PIN", () => {

@@ -21,7 +21,7 @@ type Status = "PENDING" | "ASSIGNED" | "ON_THE_WAY" | "STARTED" | "COMPLETED" | 
  * "Postpone" is replaced by Reschedule; Work Complete is the single completion path
  * (certificate + invoice + review), so a job can't be completed twice.
  */
-export function StatusActions({ jobId, status, scheduledDate, scheduledTime, invoiceUrl, canResendInvoice }: { jobId: string; status: string; scheduledDate?: string; scheduledTime?: string; invoiceUrl?: string; canResendInvoice?: boolean }) {
+export function StatusActions({ jobId, status, scheduledDate, scheduledTime, invoiceUrl, canResendInvoice, balance = 0, canCollect = false, isAdmin = false }: { jobId: string; status: string; scheduledDate?: string; scheduledTime?: string; invoiceUrl?: string; canResendInvoice?: boolean; balance?: number; canCollect?: boolean; isAdmin?: boolean }) {
   const [pending, start] = useTransition();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -31,6 +31,12 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime, inv
   // Owner 2026-10-23: completing a job converts the quotation into the Final Invoice (done on the server) and then asks the
   // office what to do with it — open it, save the A4 PDF, or resend the link.
   const [invoicePrompt, setInvoicePrompt] = useState(false);
+  // Payment gate (owner 2026-11-14): "Complete Job" opens the payment screen; a job cannot close without a payment record.
+  const [payOpen, setPayOpen] = useState(false);
+  const [payMode, setPayMode] = useState<"UPI" | "CASH" | "BANK" | "CREDIT_OVERRIDE" | "">("");
+  const [payAmount, setPayAmount] = useState(String(Math.round(balance)));
+  const [payNote, setPayNote] = useState("");
+  const [upiOk, setUpiOk] = useState(false);
   const s = status as Status;
 
   function run(fn: () => Promise<{ error?: string } | { success: true }>, ok: string, after?: () => void) {
@@ -86,8 +92,8 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime, inv
         </Button>
       )}
       {s === "STARTED" && (
-        <Button size="sm" variant="success" onClick={() => run(async () => completeJobWithCertificate(jobId, await getBrowserLocation()), "Job completed — certificate & invoice generated", () => setInvoicePrompt(true))} disabled={pending}>
-          {pending ? <Loader2 className="animate-spin" /> : <CheckCircle2 className="size-3.5" />} Work Complete
+        <Button size="sm" variant="success" onClick={() => setPayOpen(true)} disabled={pending}>
+          {pending ? <Loader2 className="animate-spin" /> : <CheckCircle2 className="size-3.5" />} Complete Job
         </Button>
       )}
       {canReschedule && (
@@ -99,6 +105,45 @@ export function StatusActions({ jobId, status, scheduledDate, scheduledTime, inv
         <XCircle className="size-3.5" /> Cancel Job
       </Button>
 
+      <Dialog open={payOpen} onOpenChange={setPayOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Complete Job: collect payment</DialogTitle></DialogHeader>
+          {!canCollect ? (
+            <p className="text-sm text-muted-foreground">Only Admin, Operations or Accounts can record the payment that closes a job. Ask the assigned technician to use Complete Job in the Staff App.</p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm">Total payable: <b className="text-lg">₹{Math.round(balance).toLocaleString("en-IN")}</b></p>
+              <div className="flex flex-wrap gap-2">
+                {([["UPI", "UPI / QR Paid"], ["CASH", "Cash Paid"], ["BANK", "Bank transfer"], ...(isAdmin ? [["CREDIT_OVERRIDE", "Corporate / Credit Override"]] : [])] as const).map(([v, l]) => (
+                  <Button key={v} type="button" size="sm" variant={payMode === v ? "default" : "outline"} onClick={() => setPayMode(v as typeof payMode)}>{l}</Button>
+                ))}
+              </div>
+              {payMode && payMode !== "CREDIT_OVERRIDE" && (
+                <div className="space-y-1"><Label>Amount received (₹)</Label><Input inputMode="decimal" value={payAmount} onChange={(e) => setPayAmount(e.target.value.replace(/[^\d.]/g, ""))} /></div>
+              )}
+              {payMode === "UPI" && (
+                <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1" checked={upiOk} onChange={(e) => setUpiOk(e.target.checked)} /><span>Customer paid via UPI QR &amp; payment screenshot shared in Sahara Cleaning Services WhatsApp Group</span></label>
+              )}
+              {payMode === "CASH" && <p className="text-sm text-muted-foreground">Recorded as cash collected by you, with the time, and marked received at the office.</p>}
+              {payMode === "CREDIT_OVERRIDE" && (
+                <div className="space-y-1"><Label>Reason (required)</Label><Input value={payNote} onChange={(e) => setPayNote(e.target.value)} maxLength={300} placeholder="e.g. Corporate account, invoiced monthly" /></div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPayOpen(false)}>Cancel</Button>
+            {canCollect && (
+              <Button
+                variant="success"
+                disabled={pending || !payMode || (payMode === "UPI" && !upiOk) || (payMode === "CREDIT_OVERRIDE" ? payNote.trim().length < 5 : !(Number(payAmount) > 0))}
+                onClick={() => run(async () => completeJobWithCertificate(jobId, await getBrowserLocation(), { amount: payMode === "CREDIT_OVERRIDE" ? 0 : Number(payAmount), mode: payMode, note: payNote }), "Job completed — payment recorded, certificate & invoice generated", () => { setPayOpen(false); setInvoicePrompt(true); })}
+              >
+                Record payment &amp; complete
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={invoicePrompt} onOpenChange={setInvoicePrompt}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>

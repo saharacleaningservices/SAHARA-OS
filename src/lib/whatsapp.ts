@@ -126,6 +126,8 @@ export const WHATSAPP_TRANSACTIONAL_TEMPLATES: readonly string[] = [
   "sahara_booking_confirmed_v6",
   // v7 (100% Pay After Service, no advance button) — only when WHATSAPP_BOOKING_TEMPLATE=v7 (after Meta approves it).
   "sahara_booking_confirmed_v7",
+  // Manual confirmation + single Start OTP — only when WHATSAPP_BOOKING_TEMPLATE=otp1 (after Meta approves it).
+  "sahara_booking_confirmed_otp_v1",
   "sahara_payment_received_v1",
   "sahara_job_completed_v1",
   "sahara_job_completed_v2",

@@ -11,6 +11,7 @@ import { staffLocale, staffT, type StaffKey } from "@/lib/staff-i18n";
 import { tierFromPackage } from "@/lib/service-scope";
 import { LocationPinger } from "@/components/staff-app/location-pinger";
 import { StaffFieldFlow } from "@/components/staff-app/field-flow";
+import { upiPayUri } from "@/lib/upi";
 import { StaffJobConsentToggle } from "@/components/staff-app/job-consent-toggle";
 import { cn, initials } from "@/lib/utils";
 
@@ -47,7 +48,8 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
   // Close-screen QRs (Super Admin configures both in Settings): the uploaded payment QR image wins, otherwise a no-amount UPI QR; Google review link QR.
   const qr = (text: string) => QRCode.toDataURL(text, { margin: 1, width: 420, errorCorrectionLevel: "M", color: { dark: "#0A2540", light: "#FFFFFF" } });
   const closing = job.status === "STARTED" && field.bill != null;
-  const upiLink = settings.upiId ? `upi://pay?pa=${encodeURIComponent(settings.upiId)}&pn=${encodeURIComponent(settings.bankAccountName || settings.name)}&cu=INR` : null;
+  // The QR carries the exact amount payable (base service + add-ons, minus anything already paid), so the customer only has to confirm.
+  const upiLink = settings.upiId ? upiPayUri({ upiId: settings.upiId, payeeName: settings.bankAccountName || settings.name, amount: field.bill?.balance }) : null;
   const payQr = closing ? settings.upiQrUrl || (upiLink ? await qr(upiLink) : null) : null;
   const reviewQr = closing && settings.googleReviewUrl ? await qr(settings.googleReviewUrl) : null;
   const officePhone = [settings.phone, ...COMPANY.phones].filter(Boolean)[0];
@@ -140,11 +142,13 @@ export default async function StaffJobPage({ params }: { params: Promise<{ id: s
           otpVerified={field.otpVerified}
           bill={field.bill}
           payQr={payQr}
+          staffName={staff.name}
+          lines={[...job.packageServices, ...job.comboServices]}
           reviewQr={reviewQr}
           directionsHref={directionsHref(job.address, job.mapLink)}
           labels={{
             onTheWay: t("btnOnTheWay"), reached: t("fReached"), reachedHint: t("fReachedHint"), locating: t("fLocating"), otpTitle: t("fOtpTitle"), otpHint: t("fOtpHint"),
-            verify: t("fVerify"), collectClose: t("fCollectClose"), total: t("fTotal"), advance: t("fAdvance"), balance: t("fBalance"), payQr: t("fPayQr"), reviewQr: t("fReviewQr"), collected: t("fCollected"), mode: t("fMode"),
+            verify: t("fVerify"), collectClose: t("fCollectClose"), includes: t("fIncludes"), upiConfirm: t("fUpiConfirm"), shareProof: t("fShareProof"), cashTag: t("fCashTag"), total: t("fTotal"), advance: t("fAdvance"), balance: t("fBalance"), payQr: t("fPayQr"), reviewQr: t("fReviewQr"), collected: t("fCollected"), mode: t("fMode"),
             modeUpi: t("fModeUpi"), modeCash: t("fModeCash"), modeBank: t("fModeBank"), modePending: t("fModePending"), reason: t("fReason"), complete: t("fComplete"), done: t("fDone"),
           }}
         />

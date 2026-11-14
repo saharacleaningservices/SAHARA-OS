@@ -275,6 +275,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               scheduledTime={job.scheduledTime}
               invoiceUrl={invoicePdfHref ?? undefined}
               canResendInvoice={canEditBilling(session.role) && !job.isDemo}
+              balance={balance}
+              canCollect={session.role === "ADMIN" || session.role === "OPERATIONS" || session.role === "ACCOUNTS"}
+              isAdmin={session.role === "ADMIN"}
             />
           </div>
 

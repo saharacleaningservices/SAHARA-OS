@@ -61,6 +61,10 @@ test("customer touchpoint: only a STARTED job can be confirmed; it completes onc
   assert.equal((await db.job.findUniqueOrThrow({ where: { id: job.id } })).status, "ASSIGNED");
 
   await db.job.update({ where: { id: job.id }, data: { status: "STARTED", startedAt: new Date() } });
+  // Payment gate (2026-11-14): even the customer's confirmation cannot close a job that has no payment record.
+  assert.equal((await act.customerConfirmWorkCompleted(tok)).success, false, "no payment record yet");
+  assert.equal((await db.job.findUniqueOrThrow({ where: { id: job.id } })).status, "STARTED");
+  await db.job.update({ where: { id: job.id }, data: { collectedMode: "UPI", collectedAmount: 100 } });
   assert.equal((await act.customerConfirmWorkCompleted(tok)).success, true);
   const done = await db.job.findUniqueOrThrow({ where: { id: job.id } });
   assert.equal(done.status, "COMPLETED");
