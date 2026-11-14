@@ -15,7 +15,9 @@ test("free-text areas, longest alias wins, pincode fallback", () => {
   assert.equal(resolveZone({ area: "Pimple Saudagar" })?.zone.id, "ZONE_2");
   assert.equal(resolveZone({ area: "Pimpri Chinchwad" })?.zone.id, "ZONE_2");
   assert.equal(resolveZone({ area: "Talegaon Dabhade" })?.zone.id, "ZONE_3");
+  assert.equal(resolveZone({ area: "Hinjewadi Phase 2" })?.zone.id, "ZONE_2"); // by name
   assert.equal(resolveZone({ area: "Hinjewadi Phase 2", pincode: "411057" })?.zone.id, "ZONE_2");
+  assert.equal(resolveZone({ area: "", pincode: "411057" })?.zone.id, "ZONE_2"); // by pincode only
   assert.equal(resolveZone({ area: "somewhere", pincode: "411060" })?.zone.id, "ZONE_1");
   assert.equal(resolveZone({ area: "Mars" }), null);
   // "baner" must not match inside another word
