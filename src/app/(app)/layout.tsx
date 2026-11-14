@@ -23,7 +23,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       <AppShell name={session.name} role={session.role} logoUrl={settings.logoUrl}>
       {/* Francis / Shoaib: active-shift GPS pings from any open CRM page into the Super Admin-only log. No UI, nothing shown back to them. */}
-      {["OPERATIONS", "ACCOUNTS", "SUPERVISOR"].includes(session.role) && <LocationPinger jobId={null} />}
+      {["OPERATIONS", "ACCOUNTS", "SUPERVISOR"].includes(session.role) && <LocationPinger />}
       {children}
       </AppShell>
     </>

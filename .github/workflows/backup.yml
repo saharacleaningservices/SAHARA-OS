@@ -27,6 +27,10 @@ jobs:
       HAS_S3: ${{ secrets.S3_BUCKET != '' }}
       HAS_GDRIVE: ${{ secrets.GDRIVE_CREDENTIALS != '' }}
       HAS_ENCRYPTION: ${{ secrets.BACKUP_ENCRYPTION_KEY != '' }}
+      # Destination (owner 2026-11-14): the Drive folder "Sahara OS Backups" owned by shaikhaltaf161@gmail.com.
+      # Override with repo Variables (Settings → Secrets and variables → Actions → Variables; a secret of the same name also works).
+      GDRIVE_BACKUP_FOLDER_NAME: ${{ vars.GDRIVE_BACKUP_FOLDER_NAME || secrets.GDRIVE_BACKUP_FOLDER_NAME || 'Sahara OS Backups' }}
+      GDRIVE_BACKUP_OWNER_EMAIL: ${{ vars.GDRIVE_BACKUP_OWNER_EMAIL || secrets.GDRIVE_BACKUP_OWNER_EMAIL || 'shaikhaltaf161@gmail.com' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,8 +69,12 @@ jobs:
       # supersedes the 2026-09-21 "S3 primary" decision, since no S3-
       # compatible bucket was ever actually provisioned.
       #
-      # Uploads via OAuth as the owner's own account (contact@
-      # saharacleaningservices.com), not a service account: Google service
+      # Destination since 2026-11-14: folder GDRIVE_BACKUP_FOLDER_NAME
+      # ("Sahara OS Backups") owned by GDRIVE_BACKUP_OWNER_EMAIL
+      # (shaikhaltaf161@gmail.com), looked up by name + owner, or the pinned
+      # GDRIVE_FOLDER_ID checked against them (see BACKUP.md §2).
+      # History: uploads went via OAuth as contact@saharacleaningservices.com,
+      # not a service account: Google service
       # accounts have zero Drive storage quota of their own, so they cannot
       # create files in a regular "My Drive" folder even when shared as
       # Editor (confirmed this session — run #43 failed with "Service
@@ -87,6 +95,9 @@ jobs:
         env:
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          GDRIVE_BACKUP_FOLDER_NAME: ${{ env.GDRIVE_BACKUP_FOLDER_NAME }}
+          GDRIVE_BACKUP_OWNER_EMAIL: ${{ env.GDRIVE_BACKUP_OWNER_EMAIL }}
+          GDRIVE_STRICT_FOLDER: ${{ vars.GDRIVE_STRICT_FOLDER }}
           KEEP_DAILY: "30"
           KEEP_MONTHLY: "12"
         run: python .github/scripts/gdrive_backup.py "$ARCHIVE"
@@ -103,6 +114,9 @@ jobs:
           BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
           GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+          GDRIVE_BACKUP_FOLDER_NAME: ${{ env.GDRIVE_BACKUP_FOLDER_NAME }}
+          GDRIVE_BACKUP_OWNER_EMAIL: ${{ env.GDRIVE_BACKUP_OWNER_EMAIL }}
+          GDRIVE_STRICT_FOLDER: ${{ vars.GDRIVE_STRICT_FOLDER }}
           KEEP_DAILY: "12"
           KEEP_MONTHLY: "0"
         run: |

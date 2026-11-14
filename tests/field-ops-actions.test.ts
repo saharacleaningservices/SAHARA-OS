@@ -312,3 +312,81 @@ test("office supervisors ping from any open page (no job) into the log as SUPERV
   assert.equal((await tracking.recordLocationPing(null, GOOD) as { skipped?: string }).skipped, "no-active-job");
   assert.equal(await db.locationPing.count({ where: { staffName: "Tech O" } }), 0);
 });
+
+test("continuous pings (2026-11-14): on the way → after Reached → in progress keep pinging from any page; completed stops; a checked-in shift pings without a job", async () => {
+  const tracking = await import("../src/server/actions/tracking");
+  let shift = 0;
+  const realNow = Date.now;
+  let clock: { mock: { restore: () => void } } | null = null;
+  const realClock = () => { clock?.mock.restore(); clock = null; };
+  const tick = () => { shift += 3 * 60_000; realClock(); clock = mock.method(Date, "now", () => realNow() + shift); };
+  try {
+    const { staff, job } = await setup("P");
+    const count = () => db.locationPing.count({ where: { staffId: staff.id, kind: "PING" } });
+    assert.equal((await tracking.getLocationPingStatus()).active, false, "assigned, not yet on the way → no GPS wake-up");
+    await db.job.update({ where: { id: job.id }, data: { status: "ON_THE_WAY", onTheWayAt: new Date() } });
+    assert.equal((await tracking.getLocationPingStatus()).active, true);
+    tick(); assert.equal((await tracking.recordLocationPing(null, GOOD)).success, true);
+    assert.equal(await count(), 1);
+    const first = await db.locationPing.findFirstOrThrow({ where: { staffId: staff.id, kind: "PING" } });
+    assert.equal(first.jobId, job.id, "the server attaches the live job even when the page sent none");
+    // Reached Location (still ON_THE_WAY) → pings continue
+    assert.equal((await actions.staffReachedLocation(job.id, GOOD)).success, true);
+    tick(); await tracking.recordLocationPing(null, GOOD);
+    assert.equal(await count(), 2, "pinging continues after Reached Location");
+    // In progress
+    await actions.staffVerifyStartOtp(job.id, await otpOf(job.id));
+    tick(); await tracking.recordLocationPing(job.id, GOOD);
+    assert.equal(await count(), 3, "pinging continues while In progress");
+    // too soon (real clock, right after the last ping) → rate-limited, not stored
+    realClock();
+    assert.equal((await tracking.recordLocationPing(job.id, GOOD) as { skipped?: string }).skipped, "too-soon");
+    // Completed → stops (not checked in for a shift)
+    await actions.staffCompleteJob(job.id, { amount: 4000, mode: "CASH" });
+    tick();
+    assert.equal((await tracking.recordLocationPing(job.id, GOOD) as { skipped?: string }).skipped, "no-active-job");
+    assert.equal((await tracking.getLocationPingStatus()).active, false);
+    // Checked in for the shift (no live job) → pings with no job; checked out → stops
+    await db.attendance.create({ data: { staffId: staff.id, date: new Date(), checkInTime: new Date(), status: "PRESENT" } as never });
+    assert.equal((await tracking.getLocationPingStatus()).active, true);
+    tick(); assert.equal((await tracking.recordLocationPing(null, GOOD)).success, true);
+    assert.equal(await count(), 4);
+    await db.attendance.updateMany({ where: { staffId: staff.id }, data: { checkOutTime: new Date() } });
+    tick();
+    assert.equal((await tracking.recordLocationPing(null, GOOD) as { skipped?: string }).skipped, "no-active-job");
+  } finally {
+    realClock();
+  }
+});
+
+test("live staff map (2026-11-14): Super Admin sees everyone; Shoaib (ACCOUNTS) only active field technicians; Francis / staff see nothing", async () => {
+  const ops = await import("../src/server/field-ops");
+  const mkPerson = async (tag: string, role: string, designation: string) => {
+    const u = await db.user.create({ data: { name: tag, email: `${tag}@map.test`, passwordHash: "x", role } as never });
+    const s = await db.staff.create({ data: { employeeCode: `MAP-${tag}`, name: tag, mobile: "9000000777", designation, dailyWage: 700, salaryType: "DAILY", userId: u.id } as never });
+    return s;
+  };
+  const onJob = await mkPerson("MapTechJob", "STAFF", "Cleaner");
+  const onShift = await mkPerson("MapTechShift", "STAFF", "Cleaner");
+  const offShift = await mkPerson("MapTechOff", "STAFF", "Cleaner");
+  const altaf = await mkPerson("MapAltaf", "ADMIN", "Owner");
+  const francis = await mkPerson("MapFrancis", "OPERATIONS", "Operations Manager");
+  const shoaib = await mkPerson("MapShoaib", "ACCOUNTS", "Accounts & Enquiry");
+  const officeOnJob = await mkPerson("MapSupervisorOnJob", "STAFF", "Supervisor");
+  const job = await db.job.create({ data: { jobNumber: "MAP-JOB", customerName: "X", customerMobile: "9876500001", address: "A", area: "Kharadi", service: "HOME_DEEP_CLEANING", scheduledDate: new Date(), scheduledTime: "10:00 AM", jobValue: 1000, status: "STARTED" } as never });
+  for (const s of [onJob, officeOnJob, altaf]) await db.jobAssignment.create({ data: { jobId: job.id, staffId: s.id } as never });
+  await db.attendance.create({ data: { staffId: onShift.id, date: new Date(), checkInTime: new Date(), status: "PRESENT" } as never });
+  // pings (a frozen FIELD row for the Super Admin's staff profile too, to prove the CURRENT role is re-checked)
+  const pin = (s: { id: string; name: string }, subjectType: string) => db.locationPing.create({ data: { staffId: s.id, staffName: s.name, kind: "PING", lat: 18.55, lng: 73.94, accuracyM: 20, subjectType } });
+  await pin(onJob, "FIELD"); await pin(onShift, "FIELD"); await pin(offShift, "FIELD"); await pin(altaf, "FIELD");
+  await pin(francis, "SUPERVISOR"); await pin(shoaib, "SUPERVISOR"); await pin(officeOnJob, "SUPERVISOR");
+  await db.locationPing.create({ data: { staffId: "user:office-only", staffName: "Office login", kind: "PING", lat: 18.55, lng: 73.94, subjectType: "SUPERVISOR" } });
+  const names = (rows: { staffName: string }[]) => rows.map((r) => r.staffName).filter((n) => n.startsWith("Map") || n === "Office login").sort();
+
+  const asAdmin = await ops.getLiveLocations({ role: "ADMIN" });
+  assert.deepEqual(names(asAdmin), ["MapAltaf", "MapFrancis", "MapShoaib", "MapSupervisorOnJob", "MapTechJob", "MapTechOff", "MapTechShift", "Office login"]);
+  const asShoaib = await ops.getLiveLocations({ role: "ACCOUNTS", staffId: shoaib.id });
+  assert.deepEqual(names(asShoaib), ["MapTechJob", "MapTechShift"], "only active field technicians — no Super Admin, no office, no off-shift");
+  assert.ok(asShoaib.every((r) => r.type === "FIELD" && r.active));
+  for (const role of ["OPERATIONS", "SUPERVISOR", "STAFF"]) assert.deepEqual(await ops.getLiveLocations({ role, staffId: francis.id }), [], `${role} gets no map`);
+});

@@ -10,6 +10,7 @@ import { StaffBottomNav } from "@/components/staff-app/bottom-nav";
 import { StaffPushListener } from "@/components/staff-app/push-control";
 import { StaffLogoutButton } from "@/components/staff-app/logout-button";
 import { HashHighlight } from "@/components/staff-app/hash-highlight";
+import { LocationPinger } from "@/components/staff-app/location-pinger";
 import { LanguageSwitcher } from "@/components/staff-app/language-switcher";
 import { Toaster } from "@/components/ui/sonner";
 import { exitStaffPreview } from "@/server/actions/staff-preview";
@@ -77,6 +78,8 @@ export default async function StaffAppLayout({ children }: { children: ReactNode
       </main>
 
       {staff && <StaffBottomNav unread={unread} labels={{ home: t("navHome"), jobs: t("navJobs"), money: t("navMoney"), alerts: t("navAlerts"), profile: t("navProfile") }} />}
+      {/* Continuous shift GPS (2026-11-14): one pinger for the whole Staff App, on every page, for the whole live job / checked-in shift. */}
+      {!preview && staff && <LocationPinger />}
       {!preview && <StaffPushListener />}
       {!preview && <AppLock />}
       <HashHighlight />
